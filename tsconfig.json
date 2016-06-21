@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "module": "system",
+    "target": "es5",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "rootDir": "."
+  },
+  "exclude": [
+    "node_modules",
+    "typings",
+    "dist"
+  ]
+}
