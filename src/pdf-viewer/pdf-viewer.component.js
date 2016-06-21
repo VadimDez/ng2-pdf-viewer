@@ -1,11 +1,6 @@
 System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var __extends = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -26,31 +21,47 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 pdfjs_dist_1 = pdfjs_dist_1_1;
             }],
         execute: function() {
-            PdfViewerComponent = (function (_super) {
-                __extends(PdfViewerComponent, _super);
+            PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
-                    this.initialPage = 1;
+                    this._initialPage = 1;
                 }
-                PdfViewerComponent.prototype.ngOnInit = function () {
-                    this.fn();
-                };
+                Object.defineProperty(PdfViewerComponent.prototype, "src", {
+                    set: function (_src) {
+                        this._src = _src;
+                        if (!this._pdf) {
+                            this.fn();
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(PdfViewerComponent.prototype, "initialPage", {
+                    set: function (_initialPage) {
+                        this._initialPage = _initialPage;
+                        if (this._pdf && this.isValidPageNumber(_initialPage)) {
+                            this.renderPage(_initialPage);
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 PdfViewerComponent.prototype.fn = function () {
                     var _this = this;
-                    pdfjs_dist_1.default.getDocument(this.src).then(function (pdf) {
-                        _this.pdf = pdf;
-                        if (!_this.isValidPageNumber(_this.initialPage)) {
-                            _this.initialPage = 1;
+                    pdfjs_dist_1.default.getDocument(this._src).then(function (pdf) {
+                        _this._pdf = pdf;
+                        if (!_this.isValidPageNumber(_this._initialPage)) {
+                            _this._initialPage = 1;
                         }
-                        _this.renderPage(_this.initialPage);
+                        _this.renderPage(_this._initialPage);
                     });
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
-                    return this.pdf.numPages >= page && page >= 1;
+                    return this._pdf.numPages >= page && page >= 1;
                 };
                 PdfViewerComponent.prototype.renderPage = function (initialPage) {
                     var _this = this;
-                    this.pdf.getPage(initialPage).then(function (page) {
+                    this._pdf.getPage(initialPage).then(function (page) {
                         var scale = 1;
                         var viewport = page.getViewport(scale);
                         var canvas = _this.element.nativeElement.querySelector('canvas');
@@ -65,12 +76,14 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 };
                 __decorate([
                     core_1.Input(), 
-                    __metadata('design:type', String)
-                ], PdfViewerComponent.prototype, "src", void 0);
+                    __metadata('design:type', Object), 
+                    __metadata('design:paramtypes', [Object])
+                ], PdfViewerComponent.prototype, "src", null);
                 __decorate([
                     core_1.Input(), 
-                    __metadata('design:type', Number)
-                ], PdfViewerComponent.prototype, "initialPage", void 0);
+                    __metadata('design:type', Object), 
+                    __metadata('design:paramtypes', [Object])
+                ], PdfViewerComponent.prototype, "initialPage", null);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
@@ -79,7 +92,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     __metadata('design:paramtypes', [core_1.ElementRef])
                 ], PdfViewerComponent);
                 return PdfViewerComponent;
-            }(core_1.OnInit));
+            }());
             exports_1("PdfViewerComponent", PdfViewerComponent);
         }
     }

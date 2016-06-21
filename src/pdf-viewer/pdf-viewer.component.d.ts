@@ -1,14 +1,15 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { OnInit, ElementRef } from '@angular/core';
-export declare class PdfViewerComponent extends OnInit {
+import { ElementRef } from '@angular/core';
+export declare class PdfViewerComponent {
     private element;
-    src: string;
-    initialPage: number;
-    private pdf;
+    private _src;
+    private _pdf;
+    private _initialPage;
     constructor(element: ElementRef);
-    ngOnInit(): void;
+    src: any;
+    initialPage: any;
     private fn();
     private isValidPageNumber(page);
     private renderPage(initialPage);
