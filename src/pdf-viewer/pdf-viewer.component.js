@@ -29,9 +29,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
                     set: function (_src) {
                         this._src = _src;
-                        if (!this._pdf) {
-                            this.fn();
-                        }
+                        this.fn();
                     },
                     enumerable: true,
                     configurable: true

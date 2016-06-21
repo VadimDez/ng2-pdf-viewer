@@ -23,9 +23,7 @@ export class PdfViewerComponent {
   set src(_src) {
     this._src = _src;
 
-    if (!this._pdf) {
-      this.fn();
-    }
+    this.fn();
   }
 
   @Input()

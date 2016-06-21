@@ -24,6 +24,7 @@ System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function
             AppComponent = (function () {
                 function AppComponent() {
                     this.pdfSrc = '/pdf-test.pdf';
+                    this.page = 1;
                 }
                 AppComponent = __decorate([
                     core_1.Component({
