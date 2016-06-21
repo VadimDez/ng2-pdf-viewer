@@ -4,13 +4,15 @@
   var map = {
     'app': '/',
     'rxjs': 'node_modules/rxjs',
-    '@angular': 'node_modules/@angular'
+    '@angular': 'node_modules/@angular',
+    'pdfjs-dist': 'node_modules/pdfjs-dist/build'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
   var packages = {
     'app': { main: 'main.js', defaultExtension: 'js' },
-    'rxjs': { defaultExtension: 'js' }
+    'rxjs': { defaultExtension: 'js' },
+    'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' }
   };
 
   var packageNames = [
