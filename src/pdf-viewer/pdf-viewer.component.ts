@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ElementRef } from '@angular/core';
 import PDFJS from 'pdfjs-dist';
 
 @Component({
@@ -15,6 +15,10 @@ export class PdfViewerComponent extends OnInit{
 
   private pdf: any;
 
+  constructor(private element: ElementRef) {
+
+  }
+
   ngOnInit() {
     this.fn();
   }
@@ -26,7 +30,7 @@ export class PdfViewerComponent extends OnInit{
       if (!this.isValidPageNumber(this.initialPage)) {
         this.initialPage = 1;
       }
-      
+
       this.renderPage(this.initialPage);
     });
   }
@@ -39,7 +43,7 @@ export class PdfViewerComponent extends OnInit{
     this.pdf.getPage(initialPage).then((page: any) => {
       var scale = 1;
       var viewport = page.getViewport(scale);
-      var canvas = document.getElementById('pdf');
+      var canvas = this.element.nativeElement.querySelector('canvas');
       var context = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;

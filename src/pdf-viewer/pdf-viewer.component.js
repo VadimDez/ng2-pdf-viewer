@@ -28,8 +28,8 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
         execute: function() {
             PdfViewerComponent = (function (_super) {
                 __extends(PdfViewerComponent, _super);
-                function PdfViewerComponent() {
-                    _super.apply(this, arguments);
+                function PdfViewerComponent(element) {
+                    this.element = element;
                     this.initialPage = 1;
                 }
                 PdfViewerComponent.prototype.ngOnInit = function () {
@@ -49,10 +49,11 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     return this.pdf.numPages >= page && page >= this.pdf.numPages;
                 };
                 PdfViewerComponent.prototype.renderPage = function (initialPage) {
+                    var _this = this;
                     this.pdf.getPage(initialPage).then(function (page) {
                         var scale = 1;
                         var viewport = page.getViewport(scale);
-                        var canvas = document.getElementById('pdf');
+                        var canvas = _this.element.nativeElement.querySelector('canvas');
                         var context = canvas.getContext('2d');
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;
@@ -75,7 +76,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         selector: 'pdf-viewer',
                         templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
                     }), 
-                    __metadata('design:paramtypes', [])
+                    __metadata('design:paramtypes', [core_1.ElementRef])
                 ], PdfViewerComponent);
                 return PdfViewerComponent;
             }(core_1.OnInit));
