@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import PDFJS from 'pdfjs-dist';
 
 @Component({
@@ -9,11 +9,11 @@ import PDFJS from 'pdfjs-dist';
   templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
 })
 
-export class PdfViewerComponent {
+export class PdfViewerComponent extends OnInit{
+  @Input() src: string;
 
-  constructor() {
-    console.log('pdf initialized');
-    PDFJS.getDocument('./pdf-test.pdf').then((pdf: any) => {
+  ngOnInit() {
+    PDFJS.getDocument(this.src).then((pdf: any) => {
 
       pdf.getPage(1).then((page: any) => {
         var scale = 1;

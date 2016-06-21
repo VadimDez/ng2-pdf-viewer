@@ -23,6 +23,7 @@ System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
+                    this.pdfSrc = '/pdf-test.pdf';
                 }
                 AppComponent = __decorate([
                     core_1.Component({

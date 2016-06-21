@@ -11,5 +11,5 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 })
 
 export class AppComponent {
-
+  pdfSrc: string = '/pdf-test.pdf';
 }
