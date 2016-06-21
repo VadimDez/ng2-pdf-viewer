@@ -30,20 +30,29 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 __extends(PdfViewerComponent, _super);
                 function PdfViewerComponent() {
                     _super.apply(this, arguments);
+                    this.initialPage = 1;
                 }
                 PdfViewerComponent.prototype.ngOnInit = function () {
+                    this.fn();
+                };
+                PdfViewerComponent.prototype.fn = function () {
+                    var _this = this;
                     pdfjs_dist_1.default.getDocument(this.src).then(function (pdf) {
-                        pdf.getPage(1).then(function (page) {
-                            var scale = 1;
-                            var viewport = page.getViewport(scale);
-                            var canvas = document.getElementById('pdf');
-                            var context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-                            page.render({
-                                canvasContext: context,
-                                viewport: viewport
-                            });
+                        _this.pdf = pdf;
+                        _this.renderPage(_this.initialPage);
+                    });
+                };
+                PdfViewerComponent.prototype.renderPage = function (initialPage) {
+                    this.pdf.getPage(initialPage).then(function (page) {
+                        var scale = 1;
+                        var viewport = page.getViewport(scale);
+                        var canvas = document.getElementById('pdf');
+                        var context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        page.render({
+                            canvasContext: context,
+                            viewport: viewport
                         });
                     });
                 };
@@ -51,6 +60,10 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     core_1.Input(), 
                     __metadata('design:type', String)
                 ], PdfViewerComponent.prototype, "src", void 0);
+                __decorate([
+                    core_1.Input(), 
+                    __metadata('design:type', Number)
+                ], PdfViewerComponent.prototype, "initialPage", void 0);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
