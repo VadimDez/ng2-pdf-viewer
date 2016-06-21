@@ -1,4 +1,4 @@
-System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) {
+System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,38 +10,25 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, pdfjs_dist_1;
+    var core_1, pdf_viewer_component_1;
     var AppComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (pdfjs_dist_1_1) {
-                pdfjs_dist_1 = pdfjs_dist_1_1;
+            function (pdf_viewer_component_1_1) {
+                pdf_viewer_component_1 = pdf_viewer_component_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
-                    pdfjs_dist_1.default.getDocument('./pdf-test.pdf').then(function (pdf) {
-                        pdf.getPage(1).then(function (page) {
-                            var scale = 1;
-                            var viewport = page.getViewport(scale);
-                            var canvas = document.getElementById('pdf');
-                            var context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-                            page.render({
-                                canvasContext: context,
-                                viewport: viewport
-                            });
-                        });
-                    });
                 }
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
-                        templateUrl: 'app.component.html'
+                        templateUrl: '/src/app.component.html',
+                        directives: [pdf_viewer_component_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])
                 ], AppComponent);

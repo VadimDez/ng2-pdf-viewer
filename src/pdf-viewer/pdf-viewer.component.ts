@@ -5,13 +5,14 @@ import { Component } from '@angular/core';
 import PDFJS from 'pdfjs-dist';
 
 @Component({
-  selector: 'pdf-viewer-app',
-  templateUrl: 'app.component.html'
+  selector: 'pdf-viewer',
+  templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
 })
 
-export class AppComponent {
+export class PdfViewerComponent {
 
   constructor() {
+    console.log('pdf initialized');
     PDFJS.getDocument('./pdf-test.pdf').then((pdf: any) => {
 
       pdf.getPage(1).then((page: any) => {
