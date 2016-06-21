@@ -46,7 +46,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     });
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
-                    return this.pdf.numPages >= page && page >= this.pdf.numPages;
+                    return this.pdf.numPages >= page && page >= 1;
                 };
                 PdfViewerComponent.prototype.renderPage = function (initialPage) {
                     var _this = this;

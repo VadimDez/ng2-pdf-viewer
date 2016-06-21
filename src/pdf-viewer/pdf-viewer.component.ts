@@ -36,7 +36,7 @@ export class PdfViewerComponent extends OnInit{
   }
 
   private isValidPageNumber(page: number) {
-    return this.pdf.numPages >= page && page >= this.pdf.numPages;
+    return this.pdf.numPages >= page && page >= 1;
   }
 
   private renderPage(initialPage: number) {
