@@ -39,8 +39,14 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     var _this = this;
                     pdfjs_dist_1.default.getDocument(this.src).then(function (pdf) {
                         _this.pdf = pdf;
+                        if (!_this.isValidPageNumber(_this.initialPage)) {
+                            _this.initialPage = 1;
+                        }
                         _this.renderPage(_this.initialPage);
                     });
+                };
+                PdfViewerComponent.prototype.isValidPageNumber = function (page) {
+                    return this.pdf.numPages >= page && page >= this.pdf.numPages;
                 };
                 PdfViewerComponent.prototype.renderPage = function (initialPage) {
                     this.pdf.getPage(initialPage).then(function (page) {

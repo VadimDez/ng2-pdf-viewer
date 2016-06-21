@@ -23,8 +23,16 @@ export class PdfViewerComponent extends OnInit{
     PDFJS.getDocument(this.src).then((pdf: any) => {
       this.pdf = pdf;
 
+      if (!this.isValidPageNumber(this.initialPage)) {
+        this.initialPage = 1;
+      }
+      
       this.renderPage(this.initialPage);
     });
+  }
+
+  private isValidPageNumber(page: number) {
+    return this.pdf.numPages >= page && page >= this.pdf.numPages;
   }
 
   private renderPage(initialPage: number) {

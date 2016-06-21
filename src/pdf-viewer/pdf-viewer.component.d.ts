@@ -8,5 +8,6 @@ export declare class PdfViewerComponent extends OnInit {
     private pdf;
     ngOnInit(): void;
     private fn();
+    private isValidPageNumber(page);
     private renderPage(initialPage);
 }
