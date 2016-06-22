@@ -8,7 +8,11 @@
     "declaration": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "rootDir": "."
+    "rootDir": ".",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "stripInternal": true,
+    "noEmitOnError": false
   },
   "exclude": [
     "node_modules",
