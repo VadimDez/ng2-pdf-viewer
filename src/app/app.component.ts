@@ -2,11 +2,11 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component } from '@angular/core';
-import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
+import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
 
 @Component({
   selector: 'pdf-viewer-app',
-  templateUrl: '/src/app.component.html',
+  templateUrl: '/src/app/app.component.html',
   directives: [PdfViewerComponent]
 })
 

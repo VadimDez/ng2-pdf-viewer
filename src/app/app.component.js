@@ -1,4 +1,4 @@
-System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function(exports_1, context_1) {
+System.register(['@angular/core', './../pdf-viewer/pdf-viewer.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -29,7 +29,7 @@ System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
-                        templateUrl: '/src/app.component.html',
+                        templateUrl: '/src/app/app.component.html',
                         directives: [pdf_viewer_component_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])
@@ -40,4 +40,4 @@ System.register(['@angular/core', './pdf-viewer/pdf-viewer.component'], function
         }
     }
 });
-//# sourceMappingURL=app.js.map
+//# sourceMappingURL=app.component.js.map
