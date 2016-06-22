@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../modules/@angular/compiler/index.ts"],"names":[],"mappings":"AAAA,cAAc,YAAY,CAAC","sourcesContent":["export * from './compiler';\n\ninterface DecoratorInvocation {\n  type: Function;\n  args?: any[];\n}\n"]}

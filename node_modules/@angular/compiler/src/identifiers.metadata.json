@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"identifierToken":{"__symbolic":"function","parameters":["identifier"],"value":{"__symbolic":"new","expression":{"__symbolic":"reference","module":"./compile_metadata","name":"CompileTokenMetadata"},"arguments":[{"identifier":{"__symbolic":"reference","name":"identifier"}}]}}}}

@@ -1,0 +1,1 @@
+{"version":3,"file":"testing_e2e.js","sourceRoot":"","sources":["../../../modules/@angular/platform-browser/testing_e2e.ts"],"names":[],"mappings":";;;;AAAA,iBAAc,oBAAoB,CAAC,EAAA","sourcesContent":["export * from './testing/e2e_util';\n\ninterface DecoratorInvocation {\n  type: Function;\n  args?: any[];\n}\n"]}
