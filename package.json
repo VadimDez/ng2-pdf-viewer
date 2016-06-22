@@ -55,6 +55,7 @@
     "gulp-typescript": "^2.13.6",
     "gulp-uglify": "^1.5.3",
     "lite-server": "^2.2.0",
+    "systemjs-builder": "^0.15.23",
     "ts-node": "^0.5.5",
     "tslint": "^3.6.0",
     "typescript": "^1.8.10",
