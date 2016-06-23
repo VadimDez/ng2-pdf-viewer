@@ -24,6 +24,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
             PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
+                    this.originalSize = false;
                     this._initialPage = 1;
                 }
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
@@ -63,7 +64,9 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         var viewport = page.getViewport(1);
                         var canvas = _this.element.nativeElement.querySelector('canvas');
                         var context = canvas.getContext('2d');
-                        viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
+                        if (!_this.originalSize) {
+                            viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
+                        }
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;
                         page.render({
@@ -72,6 +75,10 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         });
                     });
                 };
+                __decorate([
+                    core_1.Input('original-size'), 
+                    __metadata('design:type', Boolean)
+                ], PdfViewerComponent.prototype, "originalSize", void 0);
                 __decorate([
                     core_1.Input(), 
                     __metadata('design:type', Object), 

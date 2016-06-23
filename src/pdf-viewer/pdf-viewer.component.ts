@@ -11,6 +11,7 @@ import PDFJS from 'pdfjs-dist';
 
 export class PdfViewerComponent {
 
+  @Input('original-size') originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
   private _initialPage: number = 1;
@@ -56,7 +57,10 @@ export class PdfViewerComponent {
       var viewport = page.getViewport(1);
       var canvas = this.element.nativeElement.querySelector('canvas');
       var context = canvas.getContext('2d');
-      viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
+
+      if (!this.originalSize) {
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
+      }
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;

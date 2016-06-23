@@ -6,4 +6,4 @@
     <label>Page:</label>
     <input type="number" placeholder="Page" [(ngModel)]="page">
 </div>
-<pdf-viewer [src]="pdfSrc" [initialPage]="page" style="width: 300px;"></pdf-viewer>
+<pdf-viewer [src]="pdfSrc" [initialPage]="page" [original-size]="true" style="display: block;"></pdf-viewer>
