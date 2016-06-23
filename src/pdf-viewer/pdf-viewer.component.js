@@ -92,7 +92,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
-                        templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
+                        template: '<canvas></canvas>'
                     }), 
                     __metadata('design:paramtypes', [core_1.ElementRef])
                 ], PdfViewerComponent);

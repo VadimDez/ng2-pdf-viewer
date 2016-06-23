@@ -6,7 +6,7 @@ import PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
-  templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
+  template: '<canvas></canvas>'
 })
 
 export class PdfViewerComponent {
