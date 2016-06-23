@@ -60,10 +60,10 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 PdfViewerComponent.prototype.renderPage = function (initialPage) {
                     var _this = this;
                     this._pdf.getPage(initialPage).then(function (page) {
-                        var scale = 1;
-                        var viewport = page.getViewport(scale);
+                        var viewport = page.getViewport(1);
                         var canvas = _this.element.nativeElement.querySelector('canvas');
                         var context = canvas.getContext('2d');
+                        viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;
                         page.render({
