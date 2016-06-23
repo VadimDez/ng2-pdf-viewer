@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"getTypeOf":{"__symbolic":"function","parameters":["instance"],"value":{"__symbolic":"select","expression":{"__symbolic":"reference","name":"instance"},"member":"constructor"}}}}

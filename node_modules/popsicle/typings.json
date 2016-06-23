@@ -1,0 +1,18 @@
+{
+  "devDependencies": {
+    "blue-tape": "registry:npm/blue-tape#0.1.0+20160322235613",
+    "methods": "registry:npm/methods#1.0.0+20160211003958"
+  },
+  "globalDependencies": {
+    "node": "registry:dt/node#4.0.0+20160330064709"
+  },
+  "dependencies": {
+    "arrify": "registry:npm/arrify#1.0.0+20160211003958",
+    "concat-stream": "registry:npm/concat-stream#1.0.0+20160211003958",
+    "form-data": "registry:npm/form-data#1.0.0+20160211003958",
+    "make-error-cause": "npm:make-error-cause",
+    "throwback": "npm:throwback",
+    "tough-cookie": "registry:npm/tough-cookie#2.2.0+20160211003958",
+    "xtend": "registry:npm/xtend#4.0.0+20160211003958"
+  }
+}

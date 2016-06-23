@@ -1,0 +1,24 @@
+v2.0.0  --  2015.09.03
+* Fix templates resolution. Since this update, internal string is parsed as
+  valid JavaScrip code, there for any '}' characters used as code continuation (or string insert)
+  won't break resolution of template. Issue #3
+* Resolve non returning expressions to undefined (instead of '')
+* Improve `resolve` logic
+* Support 'partial' option
+
+v1.0.0  --  2015.06.23
+* Fix bug related to '$${' resolution
+* Improve error reporting
+* Fix spelling of LICENSE
+* Configure lint scripts
+* Drop support for v0.8 node ('^' in package.json dependencies)
+
+v0.1.0  --  2014.04.28
+* Assure strictly npm dependencies
+* Update dependencies to latest versions
+* Introduce resolution to array ('resolve-to-array', 'passthru-array' and 'to-array' modules)
+* Reuse same functions among compilation tasks
+* Do not stringify substitution on resolution
+
+v0.0.0  --  2013.10.10
+Initial (dev version)

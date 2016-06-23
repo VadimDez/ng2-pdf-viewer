@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"PLATFORM_DIRECTIVES":{"__symbolic":"new","expression":{"__symbolic":"reference","module":"./di","name":"OpaqueToken"},"arguments":["Platform Directives"]},"PLATFORM_PIPES":{"__symbolic":"new","expression":{"__symbolic":"reference","module":"./di","name":"OpaqueToken"},"arguments":["Platform Pipes"]}}}

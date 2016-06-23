@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"TEST_BROWSER_PLATFORM_PROVIDERS":{"__symbolic":"reference","name":"TEST_BROWSER_STATIC_PLATFORM_PROVIDERS"},"TEST_BROWSER_APPLICATION_PROVIDERS":[{"__symbolic":"reference","module":"../src/browser","name":"BROWSER_APP_PROVIDERS"},{"__symbolic":"reference","name":"ADDITIONAL_TEST_BROWSER_STATIC_PROVIDERS"}]}}

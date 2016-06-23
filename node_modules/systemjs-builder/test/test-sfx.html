@@ -1,0 +1,33 @@
+<!doctype html>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <body>
+    <div id="mocha">
+  <script>
+    window.$ = { jquery: 1 };
+  </script>
+  <script src="output/sfx.js"></script>
+  <script>
+    mocha.setup('tdd');
+
+    DEBUG = false;
+
+    function assert(assertion, msg) {
+      if (!assertion)
+        throw new Error(msg || 'Assertion failed');
+    }
+
+    suite('SFX', function () {
+      test('should have globals defined', function (done) {
+        assert(window.amd1);
+        assert(window.amd1.utfChar == '\u221e');
+        done();
+      });
+    });
+
+    if (window.mochaPhantomJS)
+      mochaPhantomJS.run();
+    else
+      mocha.run();
+  </script>
