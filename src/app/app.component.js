@@ -1,4 +1,4 @@
-System.register(['@angular/core', 'pdf-viewer'], function(exports_1, context_1) {
+System.register(['@angular/core', './../pdf-viewer/pdf-viewer.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,17 +10,18 @@ System.register(['@angular/core', 'pdf-viewer'], function(exports_1, context_1) 
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, pdf_viewer_1;
+    var core_1, pdf_viewer_component_1;
     var AppComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (pdf_viewer_1_1) {
-                pdf_viewer_1 = pdf_viewer_1_1;
+            function (pdf_viewer_component_1_1) {
+                pdf_viewer_component_1 = pdf_viewer_component_1_1;
             }],
         execute: function() {
+            // import { PdfViewerComponent } from 'pdf-viewer';
             AppComponent = (function () {
                 function AppComponent() {
                     this.pdfSrc = '/pdf-test.pdf';
@@ -30,7 +31,7 @@ System.register(['@angular/core', 'pdf-viewer'], function(exports_1, context_1) 
                     core_1.Component({
                         selector: 'pdf-viewer-app',
                         templateUrl: '/src/app/app.component.html',
-                        directives: [pdf_viewer_1.PdfViewerComponent]
+                        directives: [pdf_viewer_component_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])
                 ], AppComponent);
