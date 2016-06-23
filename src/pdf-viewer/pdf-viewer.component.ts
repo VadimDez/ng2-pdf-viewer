@@ -16,9 +16,7 @@ export class PdfViewerComponent {
   private _pdf: any;
   private _initialPage: number = 1;
 
-  constructor(private element: ElementRef) {
-
-  }
+  constructor(private element: ElementRef) {}
 
   @Input()
   set src(_src) {

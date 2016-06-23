@@ -12,7 +12,8 @@
     "prepublish": "tsc",
     "all": "concurrently \"tsc -w \" \"tsc -p runtime -w \" \"npm run lite\" ",
     "watch": "tsc -w ",
-    "lite": "lite-server"
+    "lite": "lite-server",
+    "minify": "uglifyjs ./dist/pdf-viewer.component.js --compress --mangle --output ./dist/pdf-viewer.component.min.js --source-map ./dist/pdf-viewer.component.min.js.map"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "peerDependencies": {
-    "@angular/core": "2.0.0-rc.2"
+    "@angular/core": "2.0.0-rc.2",
+    "pdfjs-dist": "^1.5.296"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.2",
@@ -49,11 +51,13 @@
     "codelyzer": "0.0.19",
     "concurrently": "^2.1.0",
     "ember-cli-inject-live-reload": "^1.4.0",
+    "gulp": "^3.9.1",
     "lite-server": "^2.2.0",
     "ts-node": "^0.5.5",
     "tslint": "^3.6.0",
     "typescript": "^1.8.10",
-    "typings": "^0.8.1"
+    "typings": "^0.8.1",
+    "uglifyjs": "^2.4.10"
   },
   "files": [
     "dist"
