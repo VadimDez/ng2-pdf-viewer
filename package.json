@@ -2,14 +2,13 @@
   "name": "ng2-pdf-viewer",
   "version": "0.0.1",
   "description": "Angular2 directive for rendering PDF",
-  "main": "dist/index.js",
+  "main": "dist/pdf-viewer.component.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "typings": "typings install",
-    "prepublish": "tsc",
     "all": "concurrently \"tsc -w \" \"tsc -p runtime -w \" \"npm run lite\" ",
     "watch": "tsc -w ",
     "lite": "lite-server",
