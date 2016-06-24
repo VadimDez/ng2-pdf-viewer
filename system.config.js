@@ -5,14 +5,16 @@
     'app': '/',
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
-    'pdfjs-dist': 'node_modules/pdfjs-dist/build'
+    'pdfjs-dist': 'node_modules/pdfjs-dist/build',
+    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
   var packages = {
     'app': { main: 'main.js', defaultExtension: 'js' },
     'rxjs': { defaultExtension: 'js' },
-    'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' }
+    'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' },
+    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.min.js' }
   };
 
   var packageNames = [

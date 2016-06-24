@@ -2,7 +2,8 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component } from '@angular/core';
-import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
+// import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
+import { PdfViewerComponent } from 'ng2-pdf-viewer';
 
 @Component({
   selector: 'pdf-viewer-app',
