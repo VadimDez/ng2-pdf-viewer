@@ -46,6 +46,7 @@ The version can also be in any format supported by the [semver](https://www.npmj
 
 - [package-json-cli](https://github.com/sindresorhus/package-json-cli) - CLI for this module
 - [latest-version](https://github.com/sindresorhus/latest-version) - Get the latest version of an npm package
+- [pkg-versions](https://github.com/sindresorhus/pkg-versions) - Get the version numbers of a package from the npm registry
 - [npm-keyword](https://github.com/sindresorhus/npm-keyword) - Get a list of npm packages with a certain keyword
 - [npm-user](https://github.com/sindresorhus/npm-user) - Get user info of an npm user
 - [npm-email](https://github.com/sindresorhus/npm-email) - Get the email of an npm user

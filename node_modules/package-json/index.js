@@ -9,7 +9,12 @@ module.exports = function (name, version) {
 	var scope = name.split('/')[0];
 	var pkgUrl = url.resolve(registryUrl(scope), encodeURIComponent(name).replace(/^%40/, '@'));
 	var npmrc = rc('npm');
-	var token = npmrc[scope + ':_authToken'] || npmrc['//registry.npmjs.org/:_authToken'];
+
+	var token;
+	if (!npmrc.registry || url.parse(npmrc.registry).hostname === 'registry.npmjs.org') {
+		token = npmrc[scope + ':_authToken'] || npmrc['//registry.npmjs.org/:_authToken'];
+	}
+
 	var headers = {};
 
 	if (token) {

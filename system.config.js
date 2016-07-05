@@ -14,7 +14,7 @@
     'app': { main: 'main.js', defaultExtension: 'js' },
     'rxjs': { defaultExtension: 'js' },
     'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' },
-    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.min.js' }
+    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.js' }
   };
 
   var packageNames = [
