@@ -33,7 +33,7 @@ gulp.task('app-bundle', function () {
     .pipe(typescript(tsProject));
 
   return tsResult.js.pipe(concat('app.min.js'))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(gulp.dest('./dist'));
 });
 
@@ -53,7 +53,7 @@ gulp.task('vendor-bundle', function() {
     'node_modules/pdfjs-dist/build/pdf.combined.js'
   ])
     .pipe(concat('vendors.min.js'))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(gulp.dest('./dist'));
 });
 
@@ -96,10 +96,12 @@ gulp.task('default', done => {
     packages
   });
   
-  builder.buildStatic(path.join(__dirname, 'main.js'), path.join(__dirname, 'dist', 'app.js'),
+  builder.buildStatic(
+    path.join(__dirname, 'main.ts'),
+    path.join(__dirname, 'dist', 'app.js'),
     {
       format: 'cjs',
-      minify: true,
+      minify: false,
       mangle: false,
       sourceMaps: false
     })
