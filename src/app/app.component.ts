@@ -12,6 +12,6 @@ import { PdfViewerComponent } from 'ng2-pdf-viewer';
 })
 
 export class AppComponent {
-  pdfSrc: string = './pdf-test.pdf';
+  pdfSrc: string = 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf';
   page: number = 1;
 }

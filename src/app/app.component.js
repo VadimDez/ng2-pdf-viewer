@@ -23,7 +23,7 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
-                    this.pdfSrc = './pdf-test.pdf';
+                    this.pdfSrc = 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf';
                     this.page = 1;
                 }
                 AppComponent = __decorate([
@@ -40,4 +40,4 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
         }
     }
 });
-//# sourceMappingURL=app.component.js.map
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmNvbXBvbmVudC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImFwcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7WUFhQTtnQkFBQTtvQkFDRSxXQUFNLEdBQVcsd0RBQXdELENBQUM7b0JBQzFFLFNBQUksR0FBVyxDQUFDLENBQUM7Z0JBQ25CLENBQUM7Z0JBVEQ7b0JBQUMsZ0JBQVMsQ0FBQzt3QkFDVCxRQUFRLEVBQUUsZ0JBQWdCO3dCQUMxQixXQUFXLEVBQUUsOEJBQThCO3dCQUMzQyxVQUFVLEVBQUUsQ0FBQyxtQ0FBa0IsQ0FBQztxQkFDakMsQ0FBQzs7Z0NBQUE7Z0JBS0YsbUJBQUM7WUFBRCxDQUFDLEFBSEQsSUFHQztZQUhELHVDQUdDLENBQUEiLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIENyZWF0ZWQgYnkgdmFkaW1kZXogb24gMjEvMDYvMTYuXG4gKi9cbmltcG9ydCB7IENvbXBvbmVudCB9IGZyb20gJ0Bhbmd1bGFyL2NvcmUnO1xuLy8gaW1wb3J0IHsgUGRmVmlld2VyQ29tcG9uZW50IH0gZnJvbSAnLi8uLi9wZGYtdmlld2VyL3BkZi12aWV3ZXIuY29tcG9uZW50JztcbmltcG9ydCB7IFBkZlZpZXdlckNvbXBvbmVudCB9IGZyb20gJ25nMi1wZGYtdmlld2VyJztcblxuQENvbXBvbmVudCh7XG4gIHNlbGVjdG9yOiAncGRmLXZpZXdlci1hcHAnLFxuICB0ZW1wbGF0ZVVybDogJy4vc3JjL2FwcC9hcHAuY29tcG9uZW50Lmh0bWwnLFxuICBkaXJlY3RpdmVzOiBbUGRmVmlld2VyQ29tcG9uZW50XVxufSlcblxuZXhwb3J0IGNsYXNzIEFwcENvbXBvbmVudCB7XG4gIHBkZlNyYzogc3RyaW5nID0gJ2h0dHBzOi8vdmFkaW1kZXouZ2l0aHViLmlvL25nMi1wZGYtdmlld2VyL3BkZi10ZXN0LnBkZic7XG4gIHBhZ2U6IG51bWJlciA9IDE7XG59Il19
