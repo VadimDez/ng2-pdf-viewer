@@ -39,12 +39,12 @@ gulp.task('app-bundle', function () {
 
 gulp.task('vendor-bundle', function() {
   gulp.src([
-    'node_modules/es6-shim/es6-shim.min.js',
-    'node_modules/rxjs/bundles/Rx.min.js',
+    'node_modules/systemjs/dist/system-polyfills.src.js',
     'node_modules/zone.js/dist/zone.js',
     'node_modules/reflect-metadata/Reflect.js',
-    'node_modules/systemjs/dist/system.js',
-    'node_modules/systemjs/dist/system-polyfills.js',
+    'node_modules/es6-shim/es6-shim.min.js',
+    'node_modules/rxjs/bundles/Rx.min.js',
+    'node_modules/systemjs/dist/system.src.js',
     'node_modules/@angular/common/bundles/common.umd.min.js',
     'node_modules/@angular/compiler/bundles/compiler.umd.min.js',
     'node_modules/@angular/core/bundles/core.umd.min.js',
