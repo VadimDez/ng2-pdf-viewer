@@ -1,0 +1,32 @@
+<html>
+
+<head>
+    <!-- build:vendor -->
+    <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="system.config.js"></script>
+    <!-- endbuild -->
+    <title>ng2-pdf-viewer</title>
+
+    <!--<script src="dist/vendors.min.js"></script>-->
+    <!--<script src="dist/app.min.js"></script>-->
+</head>
+
+<body>
+    <pdf-viewer-app>L o a d i n g . . .</pdf-viewer-app>
+
+    <!-- build:app -->
+    <script>
+        System.import('app').then(null, function (err) {
+            console.log(err);
+        });
+    </script>
+    <!-- endbuild -->
+
+    <!-- build:boot -->
+    <!-- endbuild -->
+</body>
+
+</html>
