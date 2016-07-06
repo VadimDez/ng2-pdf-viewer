@@ -23,7 +23,7 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
-                    this.pdfSrc = '/pdf-test.pdf';
+                    this.pdfSrc = './pdf-test.pdf';
                     this.page = 1;
                 }
                 AppComponent = __decorate([
