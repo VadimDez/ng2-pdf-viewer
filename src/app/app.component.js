@@ -29,7 +29,7 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
-                        templateUrl: '/src/app/app.component.html',
+                        templateUrl: 'src/app/app.component.html',
                         directives: [ng2_pdf_viewer_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])
@@ -40,4 +40,4 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
         }
     }
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmNvbXBvbmVudC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImFwcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7WUFhQTtnQkFBQTtvQkFDRSxXQUFNLEdBQVcsZUFBZSxDQUFDO29CQUNqQyxTQUFJLEdBQVcsQ0FBQyxDQUFDO2dCQUNuQixDQUFDO2dCQVREO29CQUFDLGdCQUFTLENBQUM7d0JBQ1QsUUFBUSxFQUFFLGdCQUFnQjt3QkFDMUIsV0FBVyxFQUFFLDZCQUE2Qjt3QkFDMUMsVUFBVSxFQUFFLENBQUMsbUNBQWtCLENBQUM7cUJBQ2pDLENBQUM7O2dDQUFBO2dCQUtGLG1CQUFDO1lBQUQsQ0FBQyxBQUhELElBR0M7WUFIRCx1Q0FHQyxDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBDcmVhdGVkIGJ5IHZhZGltZGV6IG9uIDIxLzA2LzE2LlxuICovXG5pbXBvcnQgeyBDb21wb25lbnQgfSBmcm9tICdAYW5ndWxhci9jb3JlJztcbi8vIGltcG9ydCB7IFBkZlZpZXdlckNvbXBvbmVudCB9IGZyb20gJy4vLi4vcGRmLXZpZXdlci9wZGYtdmlld2VyLmNvbXBvbmVudCc7XG5pbXBvcnQgeyBQZGZWaWV3ZXJDb21wb25lbnQgfSBmcm9tICduZzItcGRmLXZpZXdlcic7XG5cbkBDb21wb25lbnQoe1xuICBzZWxlY3RvcjogJ3BkZi12aWV3ZXItYXBwJyxcbiAgdGVtcGxhdGVVcmw6ICcvc3JjL2FwcC9hcHAuY29tcG9uZW50Lmh0bWwnLFxuICBkaXJlY3RpdmVzOiBbUGRmVmlld2VyQ29tcG9uZW50XVxufSlcblxuZXhwb3J0IGNsYXNzIEFwcENvbXBvbmVudCB7XG4gIHBkZlNyYzogc3RyaW5nID0gJy9wZGYtdGVzdC5wZGYnO1xuICBwYWdlOiBudW1iZXIgPSAxO1xufSJdfQ==
+//# sourceMappingURL=app.component.js.map

@@ -7,7 +7,7 @@ import { PdfViewerComponent } from 'ng2-pdf-viewer';
 
 @Component({
   selector: 'pdf-viewer-app',
-  templateUrl: '/src/app/app.component.html',
+  templateUrl: 'src/app/app.component.html',
   directives: [PdfViewerComponent]
 })
 
