@@ -29,7 +29,7 @@ System.register(['@angular/core', 'ng2-pdf-viewer'], function(exports_1, context
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
-                        templateUrl: 'src/app/app.component.html',
+                        templateUrl: './src/app/app.component.html',
                         directives: [ng2_pdf_viewer_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])
