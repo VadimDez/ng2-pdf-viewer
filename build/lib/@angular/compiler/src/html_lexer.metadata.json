@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"tokenizeHtml":{"__symbolic":"function","parameters":["sourceContent","sourceUrl","tokenizeExpansionForms"],"value":{"__symbolic":"error","message":"Reference to non-exported class","line":106,"character":1,"context":{"className":"_HtmlTokenizer"}}}}}

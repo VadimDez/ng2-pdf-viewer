@@ -1,0 +1,9 @@
+<div>
+    <label>PDF src</label>
+    <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
+</div>
+<div>
+    <label>Page:</label>
+    <input type="number" placeholder="Page" [(ngModel)]="page">
+</div>
+<pdf-viewer [src]="pdfSrc" [initialPage]="page" [original-size]="true" style="display: block;"></pdf-viewer>

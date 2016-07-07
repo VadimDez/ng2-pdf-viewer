@@ -1,0 +1,81 @@
+{
+  "_args": [
+    [
+      "pdfjs-dist@^1.5.296",
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
+  "_from": "pdfjs-dist@>=1.5.296 <2.0.0",
+  "_id": "pdfjs-dist@1.5.299",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/pdfjs-dist",
+  "_nodeVersion": "4.4.3",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/pdfjs-dist-1.5.299.tgz_1466620162244_0.20705506927333772"
+  },
+  "_npmUser": {
+    "email": "ydelendik@mozilla.com",
+    "name": "pdfjsbot"
+  },
+  "_npmVersion": "2.15.1",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "pdfjs-dist",
+    "raw": "pdfjs-dist@^1.5.296",
+    "rawSpec": "^1.5.296",
+    "scope": null,
+    "spec": ">=1.5.296 <2.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.299.tgz",
+  "_shasum": "f144baed32ce6614e596ffbd45b78da3ecb8b92b",
+  "_shrinkwrap": null,
+  "_spec": "pdfjs-dist@^1.5.296",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "browser": {
+    "node-ensure": false
+  },
+  "bugs": {
+    "url": "https://github.com/mozilla/pdf.js/issues"
+  },
+  "dependencies": {
+    "node-ensure": "^0.0.0"
+  },
+  "description": "Generic build of Mozilla's PDF.js library.",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "f144baed32ce6614e596ffbd45b78da3ecb8b92b",
+    "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.299.tgz"
+  },
+  "format": "amd",
+  "gitHead": "fc2f54941d4ad61924b0d5635fbcacda8cda37c7",
+  "homepage": "http://mozilla.github.io/pdf.js/",
+  "keywords": [
+    "Mozilla",
+    "pdf",
+    "pdf.js"
+  ],
+  "license": "Apache-2.0",
+  "main": "build/pdf.js",
+  "maintainers": [
+    {
+      "email": "pdfjsbot@gmail.com",
+      "name": "pdfjsbot"
+    }
+  ],
+  "name": "pdfjs-dist",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/pdfjs-dist.git"
+  },
+  "scripts": {},
+  "version": "1.5.299"
+}

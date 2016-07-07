@@ -1,0 +1,77 @@
+{
+  "_args": [
+    [
+      "@angular/compiler@2.0.0-rc.2",
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
+  "_from": "@angular/compiler@2.0.0-rc.2",
+  "_id": "@angular/compiler@2.0.0-rc.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/@angular/compiler",
+  "_nodeVersion": "5.4.1",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/compiler-2.0.0-rc.2.tgz_1466013716988_0.3187530254945159"
+  },
+  "_npmUser": {
+    "email": "angular-core+npm@google.com",
+    "name": "angular"
+  },
+  "_npmVersion": "3.9.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "@angular/compiler",
+    "raw": "@angular/compiler@2.0.0-rc.2",
+    "rawSpec": "2.0.0-rc.2",
+    "scope": "@angular",
+    "spec": "2.0.0-rc.2",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.2.tgz",
+  "_shasum": "19986c20e58eb558cc36d41c486a442b8b2dc8d7",
+  "_shrinkwrap": null,
+  "_spec": "@angular/compiler@2.0.0-rc.2",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "author": {
+    "name": "angular"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
+  "dependencies": {},
+  "description": "",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "19986c20e58eb558cc36d41c486a442b8b2dc8d7",
+    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.2.tgz"
+  },
+  "homepage": "https://github.com/angular/angular#readme",
+  "jsnext:main": "esm/index.js",
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "angular-core+npm@google.com",
+      "name": "angular"
+    }
+  ],
+  "name": "@angular/compiler",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "@angular/core": "2.0.0-rc.2"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
+  "scripts": {},
+  "typings": "index.d.ts",
+  "version": "2.0.0-rc.2"
+}

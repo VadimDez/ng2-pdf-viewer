@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"BROWSER_APP_COMPILER_PROVIDERS":{"__symbolic":"error","message":"Function call not supported","line":15,"character":15},"CACHED_TEMPLATE_PROVIDER":[{"provide":{"__symbolic":"reference","module":"@angular/compiler","name":"XHR"},"useClass":{"__symbolic":"reference","module":"./src/xhr/xhr_cache","name":"CachedXHR"}}]}}

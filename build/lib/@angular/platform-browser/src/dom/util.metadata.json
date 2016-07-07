@@ -1,0 +1,1 @@
+{"__symbolic":"module","version":1,"metadata":{"camelCaseToDashCase":{"__symbolic":"function","parameters":["input"],"value":{"__symbolic":"error","message":"Function call not supported","line":8,"character":31}},"dashCaseToCamelCase":{"__symbolic":"function","parameters":["input"],"value":{"__symbolic":"error","message":"Function call not supported","line":13,"character":30}}}}
