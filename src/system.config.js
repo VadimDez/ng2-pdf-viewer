@@ -3,9 +3,9 @@
   // map tells the System loader where to look for things
   var map = {
     'app': '/',
-    'rxjs': 'node_modules/rxjs',
-    '@angular': 'node_modules/@angular',
-    'pdfjs-dist': 'node_modules/pdfjs-dist/build',
+    'rxjs': 'lib/rxjs',
+    '@angular': 'lib/@angular',
+    'pdfjs-dist': 'lib/pdfjs-dist/build',
     //'pdf-viewer': './dist/'
   };
 

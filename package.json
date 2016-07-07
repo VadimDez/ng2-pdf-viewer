@@ -12,7 +12,11 @@
     "all": "concurrently \"tsc -w \" \"tsc -p runtime -w \" \"npm run lite\" ",
     "watch": "tsc -w ",
     "lite": "lite-server",
-    "minify": "uglifyjs ./dist/pdf-viewer.component.js --compress --mangle --output ./dist/pdf-viewer.component.min.js --source-map ./dist/pdf-viewer.component.min.js.map"
+    "minify": "uglifyjs ./dist/pdf-viewer.component.js --compress --mangle --output ./dist/pdf-viewer.component.min.js --source-map ./dist/pdf-viewer.component.min.js.map",
+    "clean": "gulp clean",
+    "compile": "gulp compile",
+    "build": "gulp build",
+    "start": "concurrent --kill-others \"gulp watch\" \"lite-server\""
   },
   "repository": {
     "type": "git",
@@ -49,8 +53,12 @@
   "devDependencies": {
     "codelyzer": "0.0.19",
     "concurrently": "^2.1.0",
+    "del": "^2.2.1",
     "ember-cli-inject-live-reload": "^1.4.0",
     "gulp": "^3.9.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-tslint": "^4.3.3",
+    "gulp-typescript": "^2.12.0",
     "lite-server": "^2.2.0",
     "ts-node": "^0.5.5",
     "tslint": "^3.6.0",
