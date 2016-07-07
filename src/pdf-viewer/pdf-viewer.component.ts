@@ -6,18 +6,17 @@ import PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
-  templateUrl: '/src/pdf-viewer/pdf-viewer.component.html'
+  template: '<canvas></canvas>'
 })
 
 export class PdfViewerComponent {
 
+  @Input('original-size') originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
   private _initialPage: number = 1;
 
-  constructor(private element: ElementRef) {
-
-  }
+  constructor(private element: ElementRef) {}
 
   @Input()
   set src(_src) {
@@ -53,10 +52,14 @@ export class PdfViewerComponent {
 
   private renderPage(initialPage: number) {
     this._pdf.getPage(initialPage).then((page: any) => {
-      var scale = 1;
-      var viewport = page.getViewport(scale);
+      var viewport = page.getViewport(1);
       var canvas = this.element.nativeElement.querySelector('canvas');
       var context = canvas.getContext('2d');
+
+      if (!this.originalSize) {
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
+      }
+
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 

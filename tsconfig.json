@@ -1,22 +1,18 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
-    "module": "system",
+    "outDir": "build/app",
     "target": "es5",
+    "module": "system",
+    "moduleResolution": "node",
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "declaration": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "rootDir": ".",
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "stripInternal": true,
-    "noEmitOnError": false
+    "removeComments": false,
+    "noImplicitAny": false
   },
   "exclude": [
+    "gulpfile.ts",
     "node_modules",
-    "typings",
     "dist"
   ]
 }

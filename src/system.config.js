@@ -2,11 +2,11 @@
 
   // map tells the System loader where to look for things
   var map = {
-    'app': './',
-    'rxjs': 'node_modules/rxjs',
-    '@angular': 'node_modules/@angular',
-    'pdfjs-dist': 'node_modules/pdfjs-dist/build',
-    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer'
+    'app': '/',
+    'rxjs': 'lib/rxjs',
+    '@angular': 'lib/@angular',
+    'pdfjs-dist': 'lib/pdfjs-dist/build',
+    //'pdf-viewer': './dist/'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
@@ -14,7 +14,7 @@
     'app': { main: 'main.js', defaultExtension: 'js' },
     'rxjs': { defaultExtension: 'js' },
     'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' },
-    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.js' }
+    // 'pdf-viewer': { main: 'pdf-viewer.component.js', defaultExtension: 'js' }
   };
 
   var packageNames = [
