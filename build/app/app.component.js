@@ -30,7 +30,7 @@ System.register(['@angular/core', './../pdf-viewer/pdf-viewer.component'], funct
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
-                        templateUrl: '/app/app.component.html',
+                        templateUrl: './app/app.component.html',
                         directives: [pdf_viewer_component_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])

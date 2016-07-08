@@ -7,7 +7,7 @@ import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
 
 @Component({
   selector: 'pdf-viewer-app',
-  templateUrl: '/app/app.component.html',
+  templateUrl: './app/app.component.html',
   directives: [PdfViewerComponent]
 })
 
