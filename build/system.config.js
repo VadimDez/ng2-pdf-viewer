@@ -2,7 +2,7 @@
 
   // map tells the System loader where to look for things
   var map = {
-    'app': '/',
+    'app': './',
     'rxjs': 'lib/rxjs',
     '@angular': 'lib/@angular',
     'pdfjs-dist': 'lib/pdfjs-dist/build',
