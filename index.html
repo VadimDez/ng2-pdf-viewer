@@ -1,0 +1,22 @@
+<html>
+
+<head>
+    <script src="build/lib/es6-shim/es6-shim.min.js"></script>
+    <script src="build/lib/zone.js/dist/zone.js"></script>
+    <script src="build/lib/reflect-metadata/Reflect.js"></script>
+    <script src="build/lib/systemjs/dist/system.src.js"></script>
+    <script src="build/system.config.js"></script>
+</head>
+
+<body>
+    <pdf-viewer-app>L o a d i n g . . .</pdf-viewer-app>
+
+    <script>
+        System.import('app').then(null, function (err) {
+            console.log(err)
+        });
+    </script>
+
+</body>
+
+</html>
