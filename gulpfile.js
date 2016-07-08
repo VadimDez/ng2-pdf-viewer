@@ -6,6 +6,7 @@ const tsc = require("gulp-typescript");
 const sourcemaps = require('gulp-sourcemaps');
 const tsProject = tsc.createProject("tsconfig.json");
 const tslint = require('gulp-tslint');
+const Builder  = require("systemjs-builder");
 
 /**
  * Remove build directory.
@@ -84,4 +85,20 @@ gulp.task('watch', function () {
  */
 gulp.task("build", ['compile', 'resources', 'libs', 'files'], () => {
     console.log("Building the project ...");
+});
+
+gulp.task("builder", function() {
+
+  var builder = new Builder();
+
+  builder.loadConfig('./system.config.js')
+    .then(function() {
+      builder.buildStatic('./build/main.js', './build/app.min.js')
+        .then(function () {
+          console.log('Build complete');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
 });
