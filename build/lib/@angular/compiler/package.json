@@ -30,7 +30,8 @@
     "type": "version"
   },
   "_requiredBy": [
-    "/"
+    "/",
+    "/ng2-pdf-viewer"
   ],
   "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.2.tgz",
   "_shasum": "19986c20e58eb558cc36d41c486a442b8b2dc8d7",

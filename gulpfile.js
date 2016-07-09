@@ -48,17 +48,18 @@ gulp.task("resources", () => {
  * Copy all required libraries into build directory.
  */
 gulp.task("libs", () => {
-    return gulp.src([
-            'es6-shim/es6-shim.min.js',
-            'systemjs/dist/system-polyfills.js',
-            'systemjs/dist/system.src.js',
-            'reflect-metadata/Reflect.js',
-            'rxjs/**',
-            'zone.js/dist/**',
-            '@angular/**',
-            'pdfjs-dist/**'
-        ], {cwd: "node_modules/**"}) /* Glob required here. */
-        .pipe(gulp.dest("build/lib"));
+  return gulp.src([
+    'es6-shim/es6-shim.min.js',
+    'systemjs/dist/system-polyfills.js',
+    'systemjs/dist/system.src.js',
+    'reflect-metadata/Reflect.js',
+    'rxjs/**',
+    'zone.js/dist/**',
+    '@angular/**',
+    'pdfjs-dist/**',
+    'material-design-lite/**'
+  ], {cwd: "node_modules/**"}) /* Glob required here. */
+  .pipe(gulp.dest("build/lib"));
 });
 
 gulp.task("files", () => {
