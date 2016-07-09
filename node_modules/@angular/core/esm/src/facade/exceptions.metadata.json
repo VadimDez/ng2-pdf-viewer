@@ -1,1 +1,0 @@
-{"__symbolic":"module","version":1,"metadata":{"makeTypeError":{"__symbolic":"function","parameters":["message"],"value":{"__symbolic":"new","expression":{"__symbolic":"reference","name":"TypeError"},"arguments":[{"__symbolic":"reference","name":"message"}]}}}}

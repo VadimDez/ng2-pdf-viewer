@@ -1,8 +1,0 @@
-bower_components
-node_modules
-test/output
-.DS_Store
-test/output.js
-test/output.js.map
-dist
-.idea/
