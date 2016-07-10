@@ -57,6 +57,7 @@
     "del": "^2.2.1",
     "ember-cli-inject-live-reload": "^1.4.0",
     "gulp": "^3.9.1",
+    "gulp-inline-ng2-template": "^2.0.4",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tslint": "^4.3.3",
     "gulp-typescript": "^2.12.0",

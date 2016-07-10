@@ -7,6 +7,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const tsProject = tsc.createProject("tsconfig.json");
 const tslint = require('gulp-tslint');
 const Builder  = require("systemjs-builder");
+const inlineNg2Template = require('gulp-inline-ng2-template');
 
 /**
  * Remove build directory.
@@ -29,6 +30,19 @@ gulp.task('tslint', () => {
  */
 gulp.task("compile", ["tslint"], () => {
     let tsResult = gulp.src("src/**/*.ts")
+        .pipe(sourcemaps.init())
+        .pipe(tsc(tsProject));
+    return tsResult.js
+        .pipe(sourcemaps.write("."))
+        .pipe(gulp.dest("build"));
+});
+
+/**
+ * Compile TypeScript sources and create sourcemaps in build directory.
+ */
+gulp.task("compile-and-inline-html", ["tslint"], () => {
+    let tsResult = gulp.src("src/**/*.ts")
+        .pipe(inlineNg2Template({ base: '/src' }))
         .pipe(sourcemaps.init())
         .pipe(tsc(tsProject));
     return tsResult.js
