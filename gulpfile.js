@@ -42,7 +42,7 @@ gulp.task("compile", ["tslint"], () => {
  */
 gulp.task("compile-and-inline-html", ["tslint"], () => {
     let tsResult = gulp.src("src/**/*.ts")
-        .pipe(inlineNg2Template({ base: '/src' }))
+        .pipe(inlineNg2Template({ base: './src' }))
         .pipe(sourcemaps.init())
         .pipe(tsc(tsProject));
     return tsResult.js
