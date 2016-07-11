@@ -21,8 +21,10 @@ gulp.task('clean', (cb) => {
  */
 gulp.task('tslint', () => {
     return gulp.src("src/**/*.ts")
-        .pipe(tslint())
-        .pipe(tslint.report('prose'));
+        .pipe(tslint({
+          formatter: 'prose'
+        }))
+        .pipe(tslint.report());
 });
 
 /**
@@ -117,3 +119,5 @@ gulp.task("builder", function() {
         });
     });
 });
+
+gulp.task('gh-pages', ['compile-and-inline-html', 'builder']);
