@@ -1,14 +1,15 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
 // import { PdfViewerComponent } from 'pdf-viewer';
+import { MDL } from './mdl';
 
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app/app.component.html',
-  directives: [PdfViewerComponent]
+  directives: [MDL, PdfViewerComponent]
 })
 
 export class AppComponent {
