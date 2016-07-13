@@ -6,18 +6,27 @@
     </header>
     <main class="mdl-layout__content">
         <div class="page-content">
-            <div>
-                <label>PDF src</label>
-                <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
-            </div>
 
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="pdf-page" [(ngModel)]="page">
-                <label class="mdl-textfield__label" for="pdf-page">Page</label>
-                <span class="mdl-textfield__error">Input is not a number!</span>
+                <input class="mdl-textfield__input" type="text" id="pdf-src" [(ngModel)]="pdfSrc">
+                <label class="mdl-textfield__label" for="pdf-src">PDF path</label>
             </div>
 
-            <pdf-viewer [src]="pdfSrc" [initialPage]="page" [original-size]="true" style="display: block;"></pdf-viewer>
+            <div>
+                <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
+                    -
+                </button>
+                <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="pdf-page" [(ngModel)]="page">
+                    <label class="mdl-textfield__label" for="pdf-page">Page</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
+                </div>
+                <button (click)="incrementPage(1)" class="mdl-button mdl-js-button">
+                    +
+                </button>
+            </div>
+
+            <pdf-viewer [src]="pdfSrc" [initialPage]="page" [original-size]="false" style="display: block;"></pdf-viewer>
 
         </div>
     </main>

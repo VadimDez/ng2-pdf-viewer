@@ -27,9 +27,10 @@ export class PdfViewerComponent {
 
   @Input()
   set initialPage(_initialPage) {
-    this._initialPage = _initialPage;
+    _initialPage = parseInt(_initialPage, 10);
 
     if (this._pdf && this.isValidPageNumber(_initialPage)) {
+      this._initialPage = _initialPage;
       this.renderPage(_initialPage);
     }
   }

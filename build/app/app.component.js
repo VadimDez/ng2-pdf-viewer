@@ -29,10 +29,14 @@ System.register(['@angular/core', './../pdf-viewer/pdf-viewer.component', './mdl
                     this.pdfSrc = './pdf-test.pdf';
                     this.page = 1;
                 }
+                AppComponent.prototype.incrementPage = function (amount) {
+                    this.page += amount;
+                };
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer-app',
                         templateUrl: './app/app.component.html',
+                        styleUrls: ['./app/app.component.css'],
                         directives: [mdl_1.MDL, pdf_viewer_component_1.PdfViewerComponent]
                     }), 
                     __metadata('design:paramtypes', [])

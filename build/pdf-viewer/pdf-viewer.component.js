@@ -37,8 +37,9 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 });
                 Object.defineProperty(PdfViewerComponent.prototype, "initialPage", {
                     set: function (_initialPage) {
-                        this._initialPage = _initialPage;
+                        _initialPage = parseInt(_initialPage, 10);
                         if (this._pdf && this.isValidPageNumber(_initialPage)) {
+                            this._initialPage = _initialPage;
                             this.renderPage(_initialPage);
                         }
                     },
