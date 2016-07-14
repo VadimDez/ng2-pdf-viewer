@@ -1,5 +1,5 @@
 {
-  "name": "ng2-pdf-viewer-example",
+  "name": "ng2-pdf-viewer",
   "version": "0.0.2",
   "description": "Angular2 component for rendering PDF",
   "main": "dist/pdf-viewer.component.js",
