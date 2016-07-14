@@ -69,6 +69,13 @@ Pass pdf location
 [src]="https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf"
 ```
 
+#### [initialPage]
+Page number
+
+```
+[initialPage]="1"
+```
+
 #### [original-size]
 
 if set to *true* - size will be as same as original document
