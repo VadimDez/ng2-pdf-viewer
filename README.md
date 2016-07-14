@@ -59,6 +59,33 @@ export class AppComponent {
 }
 ```
 
+### Options
+
+#### [src]
+
+Pass pdf location
+ 
+```
+[src]="https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf"
+```
+
+#### [page]
+Page number
+
+```
+[page]="1"
+```
+
+#### [original-size]
+
+if set to *true* - size will be as same as original document
+
+if set to *false* - size will be as same as container block
+
+```
+[original-size]="true"
+```
+
 ### License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)

@@ -14,7 +14,7 @@ export class PdfViewerComponent {
   @Input('original-size') originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
-  private _initialPage: number = 1;
+  private _page: number = 1;
 
   constructor(private element: ElementRef) {}
 
@@ -26,12 +26,12 @@ export class PdfViewerComponent {
   }
 
   @Input()
-  set initialPage(_initialPage) {
-    _initialPage = parseInt(_initialPage, 10);
+  set page(_page) {
+    _page = parseInt(_page, 10);
 
-    if (this._pdf && this.isValidPageNumber(_initialPage)) {
-      this._initialPage = _initialPage;
-      this.renderPage(_initialPage);
+    if (this._pdf && this.isValidPageNumber(_page)) {
+      this._page = _page;
+      this.renderPage(_page);
     }
   }
 
@@ -39,11 +39,11 @@ export class PdfViewerComponent {
     PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
 
-      if (!this.isValidPageNumber(this._initialPage)) {
-        this._initialPage = 1;
+      if (!this.isValidPageNumber(this._page)) {
+        this._page = 1;
       }
 
-      this.renderPage(this._initialPage);
+      this.renderPage(this._page);
     });
   }
 

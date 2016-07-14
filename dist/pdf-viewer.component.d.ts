@@ -7,10 +7,10 @@ export declare class PdfViewerComponent {
     originalSize: boolean;
     private _src;
     private _pdf;
-    private _initialPage;
+    private _page;
     constructor(element: ElementRef);
-    src: any;
-    initialPage: any;
+    src: string;
+    page: number;
     private fn();
     private isValidPageNumber(page);
     private renderPage(initialPage);

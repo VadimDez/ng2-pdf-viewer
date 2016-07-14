@@ -25,7 +25,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 function PdfViewerComponent(element) {
                     this.element = element;
                     this.originalSize = false;
-                    this._initialPage = 1;
+                    this._page = 1;
                 }
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
                     set: function (_src) {
@@ -35,12 +35,12 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     enumerable: true,
                     configurable: true
                 });
-                Object.defineProperty(PdfViewerComponent.prototype, "initialPage", {
-                    set: function (_initialPage) {
-                        _initialPage = parseInt(_initialPage, 10);
-                        if (this._pdf && this.isValidPageNumber(_initialPage)) {
-                            this._initialPage = _initialPage;
-                            this.renderPage(_initialPage);
+                Object.defineProperty(PdfViewerComponent.prototype, "page", {
+                    set: function (_page) {
+                        _page = parseInt(_page, 10);
+                        if (this._pdf && this.isValidPageNumber(_page)) {
+                            this._page = _page;
+                            this.renderPage(_page);
                         }
                     },
                     enumerable: true,
@@ -50,10 +50,10 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     var _this = this;
                     pdfjs_dist_1.default.getDocument(this._src).then(function (pdf) {
                         _this._pdf = pdf;
-                        if (!_this.isValidPageNumber(_this._initialPage)) {
-                            _this._initialPage = 1;
+                        if (!_this.isValidPageNumber(_this._page)) {
+                            _this._page = 1;
                         }
-                        _this.renderPage(_this._initialPage);
+                        _this.renderPage(_this._page);
                     });
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
@@ -89,7 +89,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     core_1.Input(), 
                     __metadata('design:type', Object), 
                     __metadata('design:paramtypes', [Object])
-                ], PdfViewerComponent.prototype, "initialPage", null);
+                ], PdfViewerComponent.prototype, "page", null);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
