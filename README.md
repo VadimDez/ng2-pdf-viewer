@@ -79,6 +79,7 @@ Page number
 #### [original-size]
 
 if set to *true* - size will be as same as original document
+
 if set to *false* - size will be as same as container block
 
 ```
