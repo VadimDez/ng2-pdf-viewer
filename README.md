@@ -69,11 +69,11 @@ Pass pdf location
 [src]="https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf"
 ```
 
-#### [initialPage]
+#### [page]
 Page number
 
 ```
-[initialPage]="1"
+[page]="1"
 ```
 
 #### [original-size]
