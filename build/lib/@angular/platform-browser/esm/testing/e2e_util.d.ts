@@ -1,4 +1,4 @@
-export declare var browser: protractor.IBrowser;
-export declare var $: cssSelectorHelper;
-export declare function clickAll(buttonSelectors: any): void;
+/**
+ * @experimental This API will be moved to Protractor.
+ */
 export declare function verifyNoBrowserErrors(): void;

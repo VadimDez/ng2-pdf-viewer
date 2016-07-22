@@ -1,7 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { __core_private__ as r, __core_private_types__ as t } from '@angular/core';
 export declare var isDefaultChangeDetectionStrategy: typeof t.isDefaultChangeDetectionStrategy;
-export declare type ChangeDetectorState = t.ChangeDetectorState;
-export declare var ChangeDetectorState: typeof t.ChangeDetectorState;
+export declare type ChangeDetectorStatus = t.ChangeDetectorStatus;
+export declare var ChangeDetectorStatus: typeof t.ChangeDetectorStatus;
 export declare var CHANGE_DETECTION_STRATEGY_VALUES: typeof t.CHANGE_DETECTION_STRATEGY_VALUES;
 export declare var constructDependencies: typeof t.constructDependencies;
 export declare type LifecycleHooks = t.LifecycleHooks;
@@ -12,6 +19,7 @@ export declare var ReflectorReader: typeof t.ReflectorReader;
 export declare var ReflectorComponentResolver: typeof t.ReflectorComponentResolver;
 export declare type AppElement = t.AppElement;
 export declare var AppElement: typeof t.AppElement;
+export declare var CodegenComponentFactoryResolver: typeof t.CodegenComponentFactoryResolver;
 export declare var AppView: typeof t.AppView;
 export declare type DebugAppView<T> = t.DebugAppView<T>;
 export declare var DebugAppView: typeof t.DebugAppView;

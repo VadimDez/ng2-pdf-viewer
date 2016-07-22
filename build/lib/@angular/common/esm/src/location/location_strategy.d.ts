@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { OpaqueToken } from '@angular/core';
 import { UrlChangeListener } from './platform_location';
 /**
@@ -19,7 +26,7 @@ import { UrlChangeListener } from './platform_location';
  * @stable
  */
 export declare abstract class LocationStrategy {
-    abstract path(): string;
+    abstract path(includeHash?: boolean): string;
     abstract prepareExternalUrl(internal: string): string;
     abstract pushState(state: any, title: string, url: string, queryParams: string): void;
     abstract replaceState(state: any, title: string, url: string, queryParams: string): void;

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../core_private');
@@ -30,7 +37,7 @@ var impStaticNodeDebugInfo = core_private_1.StaticNodeDebugInfo;
 var impRenderer = core_1.Renderer;
 var impSimpleChange = core_1.SimpleChange;
 var impUninitialized = core_private_1.uninitialized;
-var impChangeDetectorState = core_private_1.ChangeDetectorState;
+var impChangeDetectorStatus = core_private_1.ChangeDetectorStatus;
 var impFlattenNestedViewRenderNodes = core_private_1.flattenNestedViewRenderNodes;
 var impDevModeEqual = core_private_1.devModeEqual;
 var impInterpolate = core_private_1.interpolate;
@@ -82,6 +89,16 @@ var Identifiers = (function () {
         moduleUrl: util_1.assetUrl('core', 'linker/template_ref'),
         runtime: impTemplateRef_
     });
+    Identifiers.CodegenComponentFactoryResolver = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'CodegenComponentFactoryResolver',
+        moduleUrl: util_1.assetUrl('core', 'linker/component_factory_resolver'),
+        runtime: core_private_1.CodegenComponentFactoryResolver
+    });
+    Identifiers.ComponentFactoryResolver = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'ComponentFactoryResolver',
+        moduleUrl: util_1.assetUrl('core', 'linker/component_factory_resolver'),
+        runtime: core_1.ComponentFactoryResolver
+    });
     Identifiers.ValueUnwrapper = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ValueUnwrapper', moduleUrl: CD_MODULE_URL, runtime: impValueUnwrapper });
     Identifiers.Injector = new compile_metadata_1.CompileIdentifierMetadata({ name: 'Injector', moduleUrl: util_1.assetUrl('core', 'di/injector'), runtime: impInjector });
     Identifiers.ViewEncapsulation = new compile_metadata_1.CompileIdentifierMetadata({
@@ -108,7 +125,7 @@ var Identifiers = (function () {
     Identifiers.Renderer = new compile_metadata_1.CompileIdentifierMetadata({ name: 'Renderer', moduleUrl: util_1.assetUrl('core', 'render/api'), runtime: impRenderer });
     Identifiers.SimpleChange = new compile_metadata_1.CompileIdentifierMetadata({ name: 'SimpleChange', moduleUrl: CD_MODULE_URL, runtime: impSimpleChange });
     Identifiers.uninitialized = new compile_metadata_1.CompileIdentifierMetadata({ name: 'uninitialized', moduleUrl: CD_MODULE_URL, runtime: impUninitialized });
-    Identifiers.ChangeDetectorState = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ChangeDetectorState', moduleUrl: CD_MODULE_URL, runtime: impChangeDetectorState });
+    Identifiers.ChangeDetectorStatus = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ChangeDetectorStatus', moduleUrl: CD_MODULE_URL, runtime: impChangeDetectorStatus });
     Identifiers.checkBinding = new compile_metadata_1.CompileIdentifierMetadata({ name: 'checkBinding', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: impCheckBinding });
     Identifiers.flattenNestedViewRenderNodes = new compile_metadata_1.CompileIdentifierMetadata({
         name: 'flattenNestedViewRenderNodes',

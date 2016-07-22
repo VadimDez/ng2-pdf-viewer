@@ -1,13 +1,16 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { StringMapWrapper } from './facade/collection';
 import { IS_DART, StringWrapper, isArray, isBlank, isPrimitive, isStrictStringMap } from './facade/lang';
 export var MODULE_SUFFIX = IS_DART ? '.dart' : '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
-var DASH_CASE_REGEXP = /-([a-z])/g;
 export function camelCaseToDashCase(input) {
     return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, (m) => { return '-' + m[1].toLowerCase(); });
-}
-export function dashCaseToCamelCase(input) {
-    return StringWrapper.replaceAllMapped(input, DASH_CASE_REGEXP, (m) => { return m[1].toUpperCase(); });
 }
 export function splitAtColon(input, defaultValues) {
     var parts = StringWrapper.split(input.trim(), /\s*:\s*/g);

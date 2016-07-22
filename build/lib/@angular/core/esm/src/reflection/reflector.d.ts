@@ -57,7 +57,7 @@ export declare class Reflector extends ReflectorReader {
         [key: string]: any[];
     };
     interfaces(type: any): any[];
-    hasLifecycleHook(type: any, lcInterface: any, lcProperty: string): boolean;
+    hasLifecycleHook(type: any, lcInterface: Type, lcProperty: string): boolean;
     getter(name: string): GetterFn;
     setter(name: string): SetterFn;
     method(name: string): MethodFn;

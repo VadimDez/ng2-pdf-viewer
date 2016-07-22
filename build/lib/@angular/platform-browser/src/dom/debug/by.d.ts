@@ -1,8 +1,17 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { DebugElement } from '@angular/core';
 import { Predicate } from '../../facade/collection';
 import { Type } from '../../facade/lang';
 /**
  * Predicates for use with {@link DebugElement}'s query functions.
+ *
+ * @experimental All debugging apis are currently experimental.
  */
 export declare class By {
     /**

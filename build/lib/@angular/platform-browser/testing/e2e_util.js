@@ -1,16 +1,20 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var webdriver = require('selenium-webdriver');
-exports.browser = global['browser'];
-exports.$ = global['$'];
-function clickAll(buttonSelectors /** TODO #9100 */) {
-    buttonSelectors.forEach(function (selector /** TODO #9100 */) { exports.$(selector).click(); });
-}
-exports.clickAll = clickAll;
+/**
+ * @experimental This API will be moved to Protractor.
+ */
 function verifyNoBrowserErrors() {
     // TODO(tbosch): Bug in ChromeDriver: Need to execute at least one command
     // so that the browser logs can be read out!
-    exports.browser.executeScript('1+1');
-    exports.browser.manage().logs().get('browser').then(function (browserLog) {
+    browser.executeScript('1+1');
+    browser.manage().logs().get('browser').then(function (browserLog) {
         var filteredLog = browserLog.filter(function (logEntry) {
             if (logEntry.level.value >= webdriver.logging.Level.INFO.value) {
                 console.log('>> ' + logEntry.message);

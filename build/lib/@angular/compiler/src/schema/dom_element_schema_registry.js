@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -262,7 +269,10 @@ var DomElementSchemaRegistry = (function (_super) {
     }
     DomElementSchemaRegistry.prototype.hasProperty = function (tagName, propName) {
         if (tagName.indexOf('-') !== -1) {
-            // can't tell now as we don't know which properties a custom element will get
+            if (tagName === 'ng-container' || tagName === 'ng-content') {
+                return false;
+            }
+            // Can't tell now as we don't know which properties a custom element will get
             // once it is instantiated
             return true;
         }

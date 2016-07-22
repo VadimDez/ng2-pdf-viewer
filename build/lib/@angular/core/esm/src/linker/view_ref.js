@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy } from '../change_detection/constants';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ChangeDetectorStatus } from '../change_detection/constants';
 import { unimplemented } from '../facade/exceptions';
 /**
  * @stable
@@ -69,17 +76,18 @@ export class ViewRef_ {
     constructor(_view) {
         this._view = _view;
         this._view = _view;
+        this._originalMode = this._view.cdMode;
     }
     get internalView() { return this._view; }
     get rootNodes() { return this._view.flatRootNodes; }
     get context() { return this._view.context; }
     get destroyed() { return this._view.destroyed; }
     markForCheck() { this._view.markPathToRootAsCheckOnce(); }
-    detach() { this._view.cdMode = ChangeDetectionStrategy.Detached; }
+    detach() { this._view.cdMode = ChangeDetectorStatus.Detached; }
     detectChanges() { this._view.detectChanges(false); }
     checkNoChanges() { this._view.detectChanges(true); }
     reattach() {
-        this._view.cdMode = ChangeDetectionStrategy.CheckAlways;
+        this._view.cdMode = this._originalMode;
         this.markForCheck();
     }
     onDestroy(callback) { this._view.disposables.push(callback); }

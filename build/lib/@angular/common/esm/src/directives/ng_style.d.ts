@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { DoCheck, ElementRef, KeyValueDiffers, Renderer } from '@angular/core';
 /**
  * The `NgStyle` directive changes styles based on a result of expression evaluation.

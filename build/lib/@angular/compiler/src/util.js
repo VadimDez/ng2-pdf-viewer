@@ -1,17 +1,19 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var collection_1 = require('./facade/collection');
 var lang_1 = require('./facade/lang');
 exports.MODULE_SUFFIX = lang_1.IS_DART ? '.dart' : '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
-var DASH_CASE_REGEXP = /-([a-z])/g;
 function camelCaseToDashCase(input) {
     return lang_1.StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
 }
 exports.camelCaseToDashCase = camelCaseToDashCase;
-function dashCaseToCamelCase(input) {
-    return lang_1.StringWrapper.replaceAllMapped(input, DASH_CASE_REGEXP, function (m) { return m[1].toUpperCase(); });
-}
-exports.dashCaseToCamelCase = dashCaseToCamelCase;
 function splitAtColon(input, defaultValues) {
     var parts = lang_1.StringWrapper.split(input.trim(), /\s*:\s*/g);
     if (parts.length > 1) {

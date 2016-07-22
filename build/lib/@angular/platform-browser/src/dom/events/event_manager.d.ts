@@ -1,5 +1,18 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { NgZone, OpaqueToken } from '@angular/core';
+/**
+ * @stable
+ */
 export declare const EVENT_MANAGER_PLUGINS: OpaqueToken;
+/**
+ * @stable
+ */
 export declare class EventManager {
     private _zone;
     private _plugins;

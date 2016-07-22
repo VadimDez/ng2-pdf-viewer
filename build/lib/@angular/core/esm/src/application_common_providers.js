@@ -1,6 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { APPLICATION_CORE_PROVIDERS } from './application_ref';
 import { APP_ID_RANDOM_PROVIDER } from './application_tokens';
 import { IterableDiffers, KeyValueDiffers, defaultIterableDiffers, defaultKeyValueDiffers } from './change_detection/change_detection';
+import { ComponentFactoryResolver } from './linker/component_factory_resolver';
 import { ComponentResolver, ReflectorComponentResolver } from './linker/component_resolver';
 import { DynamicComponentLoader, DynamicComponentLoader_ } from './linker/dynamic_component_loader';
 import { ViewUtils } from './linker/view_utils';
@@ -14,6 +22,7 @@ export const APPLICATION_COMMON_PROVIDERS =
 /*@ts2dart_const*/ [
     APPLICATION_CORE_PROVIDERS,
     /* @ts2dart_Provider */ { provide: ComponentResolver, useClass: ReflectorComponentResolver },
+    { provide: ComponentFactoryResolver, useValue: ComponentFactoryResolver.NULL },
     APP_ID_RANDOM_PROVIDER,
     ViewUtils,
     /* @ts2dart_Provider */ { provide: IterableDiffers, useValue: defaultIterableDiffers },

@@ -1,15 +1,21 @@
-import { PipeTransform } from '@angular/core';
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
  *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { PipeTransform } from '@angular/core';
+import { NgLocalization } from '../localization';
+/**
  *  Maps a value to a string that pluralizes the value properly.
  *
  *  ## Usage
  *
  *  expression | i18nPlural:mapping
  *
- *  where `expression` is a number and `mapping` is an object that indicates the proper text for
- *  when the `expression` evaluates to 0, 1, or some other number.  You can interpolate the actual
- *  value into the text using the `#` sign.
+ *  where `expression` is a number and `mapping` is an object that mimics the ICU format,
+ *  see http://userguide.icu-project.org/formatparse/messages
  *
  *  ## Example
  *
@@ -20,7 +26,7 @@ import { PipeTransform } from '@angular/core';
  *
  *  class MyApp {
  *    messages: any[];
- *    messageMapping: any = {
+ *    messageMapping: {[k:string]: string} = {
  *      '=0': 'No messages.',
  *      '=1': 'One message.',
  *      'other': '# messages.'
@@ -32,6 +38,8 @@ import { PipeTransform } from '@angular/core';
  * @experimental
  */
 export declare class I18nPluralPipe implements PipeTransform {
+    private _localization;
+    constructor(_localization: NgLocalization);
     transform(value: number, pluralMap: {
         [count: string]: string;
     }): string;

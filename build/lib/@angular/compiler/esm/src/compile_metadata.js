@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ChangeDetectionStrategy } from '@angular/core';
 import { CHANGE_DETECTION_STRATEGY_VALUES, LIFECYCLE_HOOKS_VALUES, VIEW_ENCAPSULATION_VALUES, reflector } from '../core_private';
 import { ListWrapper, StringMapWrapper } from '../src/facade/collection';
@@ -449,17 +456,38 @@ export class CompileQueryMetadata {
     }
 }
 /**
+ * Metadata about a stylesheet
+ */
+export class CompileStylesheetMetadata {
+    constructor({ moduleUrl, styles, styleUrls } = {}) {
+        this.moduleUrl = moduleUrl;
+        this.styles = _normalizeArray(styles);
+        this.styleUrls = _normalizeArray(styleUrls);
+    }
+    static fromJson(data) {
+        return new CompileStylesheetMetadata({ moduleUrl: data['moduleUrl'], styles: data['styles'], styleUrls: data['styleUrls'] });
+    }
+    toJson() {
+        return { 'moduleUrl': this.moduleUrl, 'styles': this.styles, 'styleUrls': this.styleUrls };
+    }
+}
+/**
  * Metadata regarding compilation of a template.
  */
 export class CompileTemplateMetadata {
-    constructor({ encapsulation, template, templateUrl, styles, styleUrls, animations, ngContentSelectors } = {}) {
+    constructor({ encapsulation, template, templateUrl, styles, styleUrls, externalStylesheets, animations, ngContentSelectors, interpolation } = {}) {
         this.encapsulation = encapsulation;
         this.template = template;
         this.templateUrl = templateUrl;
-        this.styles = isPresent(styles) ? styles : [];
-        this.styleUrls = isPresent(styleUrls) ? styleUrls : [];
+        this.styles = _normalizeArray(styles);
+        this.styleUrls = _normalizeArray(styleUrls);
+        this.externalStylesheets = _normalizeArray(externalStylesheets);
         this.animations = isPresent(animations) ? ListWrapper.flatten(animations) : [];
         this.ngContentSelectors = isPresent(ngContentSelectors) ? ngContentSelectors : [];
+        if (isPresent(interpolation) && interpolation.length != 2) {
+            throw new BaseException(`'interpolation' should have a start and an end symbol.`);
+        }
+        this.interpolation = interpolation;
     }
     static fromJson(data) {
         var animations = _arrayFromJson(data['animations'], metadataFromJson);
@@ -471,8 +499,10 @@ export class CompileTemplateMetadata {
             templateUrl: data['templateUrl'],
             styles: data['styles'],
             styleUrls: data['styleUrls'],
+            externalStylesheets: _arrayFromJson(data['externalStylesheets'], CompileStylesheetMetadata.fromJson),
             animations: animations,
-            ngContentSelectors: data['ngContentSelectors']
+            ngContentSelectors: data['ngContentSelectors'],
+            interpolation: data['interpolation']
         });
     }
     toJson() {
@@ -483,8 +513,10 @@ export class CompileTemplateMetadata {
             'templateUrl': this.templateUrl,
             'styles': this.styles,
             'styleUrls': this.styleUrls,
+            'externalStylesheets': _objToJson(this.externalStylesheets),
             'animations': _objToJson(this.animations),
-            'ngContentSelectors': this.ngContentSelectors
+            'ngContentSelectors': this.ngContentSelectors,
+            'interpolation': this.interpolation
         };
     }
 }
@@ -492,7 +524,7 @@ export class CompileTemplateMetadata {
  * Metadata regarding compilation of a directive.
  */
 export class CompileDirectiveMetadata {
-    constructor({ type, isComponent, selector, exportAs, changeDetection, inputs, outputs, hostListeners, hostProperties, hostAttributes, lifecycleHooks, providers, viewProviders, queries, viewQueries, template } = {}) {
+    constructor({ type, isComponent, selector, exportAs, changeDetection, inputs, outputs, hostListeners, hostProperties, hostAttributes, lifecycleHooks, providers, viewProviders, queries, viewQueries, precompile, template } = {}) {
         this.type = type;
         this.isComponent = isComponent;
         this.selector = selector;
@@ -508,9 +540,10 @@ export class CompileDirectiveMetadata {
         this.viewProviders = _normalizeArray(viewProviders);
         this.queries = _normalizeArray(queries);
         this.viewQueries = _normalizeArray(viewQueries);
+        this.precompile = _normalizeArray(precompile);
         this.template = template;
     }
-    static create({ type, isComponent, selector, exportAs, changeDetection, inputs, outputs, host, lifecycleHooks, providers, viewProviders, queries, viewQueries, template } = {}) {
+    static create({ type, isComponent, selector, exportAs, changeDetection, inputs, outputs, host, lifecycleHooks, providers, viewProviders, queries, viewQueries, precompile, template } = {}) {
         var hostListeners = {};
         var hostProperties = {};
         var hostAttributes = {};
@@ -562,6 +595,7 @@ export class CompileDirectiveMetadata {
             viewProviders: viewProviders,
             queries: queries,
             viewQueries: viewQueries,
+            precompile: precompile,
             template: template
         });
     }
@@ -586,7 +620,8 @@ export class CompileDirectiveMetadata {
             providers: _arrayFromJson(data['providers'], metadataFromJson),
             viewProviders: _arrayFromJson(data['viewProviders'], metadataFromJson),
             queries: _arrayFromJson(data['queries'], CompileQueryMetadata.fromJson),
-            viewQueries: _arrayFromJson(data['viewQueries'], CompileQueryMetadata.fromJson)
+            viewQueries: _arrayFromJson(data['viewQueries'], CompileQueryMetadata.fromJson),
+            precompile: _arrayFromJson(data['precompile'], CompileTypeMetadata.fromJson)
         });
     }
     toJson() {
@@ -608,7 +643,8 @@ export class CompileDirectiveMetadata {
             'providers': _arrayToJson(this.providers),
             'viewProviders': _arrayToJson(this.viewProviders),
             'queries': _arrayToJson(this.queries),
-            'viewQueries': _arrayToJson(this.viewQueries)
+            'viewQueries': _arrayToJson(this.viewQueries),
+            'precompile': _arrayToJson(this.precompile)
         };
     }
 }

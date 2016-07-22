@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../core_private');
@@ -8,12 +15,8 @@ function _isPipeMetadata(type) {
 }
 var PipeResolver = (function () {
     function PipeResolver(_reflector) {
-        if (lang_1.isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = core_private_1.reflector;
-        }
+        if (_reflector === void 0) { _reflector = core_private_1.reflector; }
+        this._reflector = _reflector;
     }
     /**
      * Return {@link PipeMetadata} for a given `Type`.
@@ -39,5 +42,4 @@ var PipeResolver = (function () {
     return PipeResolver;
 }());
 exports.PipeResolver = PipeResolver;
-exports.CODEGEN_PIPE_RESOLVER = new PipeResolver(core_private_1.reflector);
 //# sourceMappingURL=pipe_resolver.js.map

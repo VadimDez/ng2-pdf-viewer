@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var exceptions_1 = require('../facade/exceptions');
@@ -5,7 +12,7 @@ var intl_1 = require('../facade/intl');
 var lang_1 = require('../facade/lang');
 var invalid_pipe_argument_exception_1 = require('./invalid_pipe_argument_exception');
 var defaultLocale = 'en-US';
-var _re = lang_1.RegExpWrapper.create('^(\\d+)?\\.((\\d+)(\\-(\\d+))?)?$');
+var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(\-(\d+))?)?$/g;
 /**
  * Internal function to format numbers used by Decimal, Percent and Date pipes.
  */
@@ -19,7 +26,7 @@ function formatNumber(pipe, value, style, digits, currency, currencyAsSymbol) {
     }
     var minInt = 1, minFraction = 0, maxFraction = 3;
     if (lang_1.isPresent(digits)) {
-        var parts = lang_1.RegExpWrapper.firstMatch(_re, digits);
+        var parts = lang_1.RegExpWrapper.firstMatch(_NUMBER_FORMAT_REGEXP, digits);
         if (lang_1.isBlank(parts)) {
             throw new exceptions_1.BaseException(digits + " is not a valid digit info for number pipes");
         }

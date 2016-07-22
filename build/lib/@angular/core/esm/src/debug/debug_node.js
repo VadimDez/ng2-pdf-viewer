@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ListWrapper, MapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 export class EventListener {
@@ -8,7 +15,7 @@ export class EventListener {
     ;
 }
 /**
- * @experimental
+ * @experimental All debugging apis are currently experimental.
  */
 export class DebugNode {
     constructor(nativeNode, parent, _debugInfo) {
@@ -42,7 +49,7 @@ export class DebugNode {
     inject(token) { return this.injector.get(token); }
 }
 /**
- * @experimental
+ * @experimental All debugging apis are currently experimental.
  */
 export class DebugElement extends DebugNode {
     constructor(nativeNode, parent, _debugInfo) {

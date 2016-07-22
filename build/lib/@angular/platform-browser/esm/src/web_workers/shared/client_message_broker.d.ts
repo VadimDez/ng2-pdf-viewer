@@ -1,8 +1,15 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Type } from '@angular/core';
 import { MessageBus } from './message_bus';
 import { Serializer } from './serializer';
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export declare abstract class ClientMessageBrokerFactory {
     /**
@@ -19,7 +26,7 @@ export declare class ClientMessageBrokerFactory_ extends ClientMessageBrokerFact
     createMessageBroker(channel: string, runInZone?: boolean): ClientMessageBroker;
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export declare abstract class ClientMessageBroker {
     abstract runOnService(args: UiArguments, returnType: Type): Promise<any>;
@@ -34,7 +41,7 @@ export declare class ClientMessageBroker_ extends ClientMessageBroker {
     private _handleMessage(message);
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export declare class FnArg {
     value: any;
@@ -42,7 +49,7 @@ export declare class FnArg {
     constructor(value: any, type: Type);
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export declare class UiArguments {
     method: string;

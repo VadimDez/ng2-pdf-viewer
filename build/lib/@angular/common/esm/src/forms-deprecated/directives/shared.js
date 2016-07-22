@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ListWrapper, StringMapWrapper } from '../../facade/collection';
 import { BaseException } from '../../facade/exceptions';
 import { hasConstructor, isBlank, isPresent, looseIdentical } from '../../facade/lang';
@@ -8,6 +15,7 @@ import { normalizeAsyncValidator, normalizeValidator } from './normalize_validat
 import { NumberValueAccessor } from './number_value_accessor';
 import { RadioControlValueAccessor } from './radio_control_value_accessor';
 import { SelectControlValueAccessor } from './select_control_value_accessor';
+import { SelectMultipleControlValueAccessor } from './select_multiple_control_value_accessor';
 export function controlPath(name, parent) {
     var p = ListWrapper.clone(parent.path);
     p.push(name);
@@ -70,6 +78,7 @@ export function selectValueAccessor(dir, valueAccessors) {
         }
         else if (hasConstructor(v, CheckboxControlValueAccessor) || hasConstructor(v, NumberValueAccessor) ||
             hasConstructor(v, SelectControlValueAccessor) ||
+            hasConstructor(v, SelectMultipleControlValueAccessor) ||
             hasConstructor(v, RadioControlValueAccessor)) {
             if (isPresent(builtinAccessor))
                 _throwError(dir, 'More than one built-in value accessor matches');

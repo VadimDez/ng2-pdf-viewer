@@ -1,9 +1,19 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { ObservableWrapper, PromiseWrapper } from '../../facade/async';
 import { ListWrapper, Map } from '../../facade/collection';
 import { FunctionWrapper, isPresent } from '../../facade/lang';
 import { MessageBus } from '../shared/message_bus';
 import { Serializer } from '../shared/serializer';
+/**
+ * @experimental WebWorker support in Angular is currently experimental.
+ */
 export class ServiceMessageBrokerFactory {
 }
 export class ServiceMessageBrokerFactory_ extends ServiceMessageBrokerFactory {
@@ -27,16 +37,15 @@ ServiceMessageBrokerFactory_.ctorParameters = [
     { type: Serializer, },
 ];
 /**
- * @experimental
- */
-export class ServiceMessageBroker {
-}
-/**
  * Helper class for UIComponents that allows components to register methods.
  * If a registered method message is received from the broker on the worker,
  * the UIMessageBroker deserializes its arguments and calls the registered method.
  * If that method returns a promise, the UIMessageBroker returns the result to the worker.
+ *
+ * @experimental WebWorker support in Angular is currently experimental.
  */
+export class ServiceMessageBroker {
+}
 export class ServiceMessageBroker_ extends ServiceMessageBroker {
     constructor(messageBus, _serializer, channel /** TODO #9100 */) {
         super();
@@ -75,7 +84,7 @@ export class ServiceMessageBroker_ extends ServiceMessageBroker {
     }
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is currently experimental.
  */
 export class ReceivedMessage {
     constructor(data) {

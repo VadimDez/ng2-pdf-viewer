@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Type, isBlank, isPresent, isArray } from '../facade/lang';
 import { MapWrapper, ListWrapper } from '../facade/collection';
 import { reflector } from '../reflection/reflection';
@@ -62,7 +69,7 @@ export function resolveReflectiveFactory(provider) {
         resolvedDeps = _dependenciesFor(useClass);
     }
     else if (isPresent(provider.useExisting)) {
-        factoryFn = (aliasInstance /** TODO #9100 */) => aliasInstance;
+        factoryFn = (aliasInstance) => aliasInstance;
         resolvedDeps = [ReflectiveDependency.fromKey(ReflectiveKey.get(provider.useExisting))];
     }
     else if (isPresent(provider.useFactory)) {

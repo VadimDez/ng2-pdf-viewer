@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var PromiseCompleter = (function () {
     function PromiseCompleter() {
@@ -41,7 +48,6 @@ var PromiseWrapper = (function () {
     PromiseWrapper.scheduleMicrotask = function (computation) {
         PromiseWrapper.then(PromiseWrapper.resolve(null), computation, function (_) { });
     };
-    PromiseWrapper.isPromise = function (obj) { return obj instanceof Promise; };
     PromiseWrapper.completer = function () { return new PromiseCompleter(); };
     return PromiseWrapper;
 }());

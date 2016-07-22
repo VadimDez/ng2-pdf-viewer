@@ -1,6 +1,15 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ConcreteType, Type } from '../facade/lang';
 /**
  * Declares the interface to be used with {@link Class}.
+ *
+ * @stable
  */
 export interface ClassDefinition {
     /**
@@ -44,6 +53,7 @@ export interface ClassDefinition {
  * @ng.View({...})
  * class MyClass {...}
  * ```
+ * @stable
  */
 export interface TypeDecorator {
     /**
@@ -60,7 +70,7 @@ export interface TypeDecorator {
     /**
      * Generate a class from the definition and annotate it with {@link TypeDecorator#annotations}.
      */
-    Class(obj: ClassDefinition): ConcreteType;
+    Class(obj: ClassDefinition): ConcreteType<any>;
 }
 /**
  * Provides a way for expressing ES6 classes with parameter annotations in ES5.
@@ -144,7 +154,7 @@ export interface TypeDecorator {
  * ```
  * @stable
  */
-export declare function Class(clsDef: ClassDefinition): ConcreteType;
+export declare function Class(clsDef: ClassDefinition): ConcreteType<any>;
 export declare function makeDecorator(annotationCls: any, chainFn?: (fn: Function) => void): (...args: any[]) => (cls: any) => any;
 export declare function makeParamDecorator(annotationCls: any): any;
 export declare function makePropDecorator(annotationCls: any): any;

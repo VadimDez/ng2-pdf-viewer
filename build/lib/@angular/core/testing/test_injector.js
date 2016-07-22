@@ -1,12 +1,20 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var index_1 = require('../index');
+var application_ref_1 = require('../src/application_ref');
 var collection_1 = require('../src/facade/collection');
 var exceptions_1 = require('../src/facade/exceptions');
 var lang_1 = require('../src/facade/lang');
-var async_1 = require('./async');
 var async_test_completer_1 = require('./async_test_completer');
-var async_2 = require('./async');
-exports.async = async_2.async;
+/**
+ * @experimental
+ */
 var TestInjector = (function () {
     function TestInjector() {
         this._instantiated = false;
@@ -27,6 +35,7 @@ var TestInjector = (function () {
         this._providers = collection_1.ListWrapper.concat(this._providers, providers);
     };
     TestInjector.prototype.createInjector = function () {
+        application_ref_1.lockRunMode();
         var rootInjector = index_1.ReflectiveInjector.resolveAndCreate(this.platformProviders);
         this._injector = rootInjector.resolveAndCreateChild(collection_1.ListWrapper.concat(this.applicationProviders, this._providers));
         this._instantiated = true;
@@ -50,6 +59,9 @@ var TestInjector = (function () {
 }());
 exports.TestInjector = TestInjector;
 var _testInjector = null;
+/**
+ * @experimental
+ */
 function getTestInjector() {
     if (_testInjector == null) {
         _testInjector = new TestInjector();
@@ -62,11 +74,13 @@ exports.getTestInjector = getTestInjector;
  * common to every test in the suite.
  *
  * This may only be called once, to set up the common providers for the current test
- * suite on teh current platform. If you absolutely need to change the providers,
+ * suite on the current platform. If you absolutely need to change the providers,
  * first use `resetBaseTestProviders`.
  *
  * Test Providers for individual platforms are available from
  * 'angular2/platform/testing/<platform_name>'.
+ *
+ * @experimental
  */
 function setBaseTestProviders(platformProviders, applicationProviders) {
     var testInjector = getTestInjector();
@@ -85,6 +99,8 @@ function setBaseTestProviders(platformProviders, applicationProviders) {
 exports.setBaseTestProviders = setBaseTestProviders;
 /**
  * Reset the providers for the test injector.
+ *
+ * @experimental
  */
 function resetBaseTestProviders() {
     var testInjector = getTestInjector();
@@ -115,6 +131,7 @@ exports.resetBaseTestProviders = resetBaseTestProviders;
  * eventually
  *   becomes `it('...', @Inject (object: AClass, async: AsyncTestCompleter) => { ... });`
  *
+ * @stable
  */
 function inject(tokens, fn) {
     var testInjector = getTestInjector();
@@ -133,6 +150,9 @@ function inject(tokens, fn) {
     }
 }
 exports.inject = inject;
+/**
+ * @experimental
+ */
 var InjectSetupWrapper = (function () {
     function InjectSetupWrapper(_providers) {
         this._providers = _providers;
@@ -150,44 +170,17 @@ var InjectSetupWrapper = (function () {
             return inject_impl(tokens, fn)();
         };
     };
-    /** @deprecated {use async(withProviders().inject())} */
-    InjectSetupWrapper.prototype.injectAsync = function (tokens, fn) {
-        var _this = this;
-        return function () {
-            _this._addProviders();
-            return injectAsync_impl(tokens, fn)();
-        };
-    };
     return InjectSetupWrapper;
 }());
 exports.InjectSetupWrapper = InjectSetupWrapper;
+/**
+ * @experimental
+ */
 function withProviders(providers) {
     return new InjectSetupWrapper(providers);
 }
 exports.withProviders = withProviders;
-/**
- * @deprecated {use async(inject())}
- *
- * Allows injecting dependencies in `beforeEach()` and `it()`. The test must return
- * a promise which will resolve when all asynchronous activity is complete.
- *
- * Example:
- *
- * ```
- * it('...', injectAsync([AClass], (object) => {
- *   return object.doSomething().then(() => {
- *     expect(...);
- *   });
- * })
- * ```
- *
- */
-function injectAsync(tokens, fn) {
-    return async_1.async(inject(tokens, fn));
-}
-exports.injectAsync = injectAsync;
 // This is to ensure inject(Async) within InjectSetupWrapper doesn't call itself
 // when transpiled to Dart.
 var inject_impl = inject;
-var injectAsync_impl = injectAsync;
 //# sourceMappingURL=test_injector.js.map

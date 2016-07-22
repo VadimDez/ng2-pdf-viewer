@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -14,9 +21,7 @@ function findFirstClosedCycle(keys) {
             res.push(keys[i]);
             return res;
         }
-        else {
-            res.push(keys[i]);
-        }
+        res.push(keys[i]);
     }
     return res;
 }
@@ -26,9 +31,7 @@ function constructResolvingPath(keys) {
         var tokenStrs = reversed.map(function (k) { return lang_1.stringify(k.token); });
         return ' (' + tokenStrs.join(' -> ') + ')';
     }
-    else {
-        return '';
-    }
+    return '';
 }
 /**
  * Base class for all errors arising from misconfigured providers.
@@ -138,7 +141,7 @@ exports.CyclicDependencyError = CyclicDependencyError;
  */
 var InstantiationError = (function (_super) {
     __extends(InstantiationError, _super);
-    function InstantiationError(injector, originalException /** TODO #9100 */, originalStack /** TODO #9100 */, key) {
+    function InstantiationError(injector, originalException, originalStack, key) {
         _super.call(this, 'DI Exception', originalException, originalStack, null);
         this.keys = [key];
         this.injectors = [injector];
@@ -181,7 +184,7 @@ exports.InstantiationError = InstantiationError;
  */
 var InvalidProviderError = (function (_super) {
     __extends(InvalidProviderError, _super);
-    function InvalidProviderError(provider /** TODO #9100 */) {
+    function InvalidProviderError(provider) {
         _super.call(this, "Invalid provider - only instances of Provider and Type are allowed, got: " + provider);
     }
     return InvalidProviderError;
@@ -218,10 +221,10 @@ exports.InvalidProviderError = InvalidProviderError;
  */
 var NoAnnotationError = (function (_super) {
     __extends(NoAnnotationError, _super);
-    function NoAnnotationError(typeOrFunc /** TODO #9100 */, params) {
+    function NoAnnotationError(typeOrFunc, params) {
         _super.call(this, NoAnnotationError._genMessage(typeOrFunc, params));
     }
-    NoAnnotationError._genMessage = function (typeOrFunc /** TODO #9100 */, params) {
+    NoAnnotationError._genMessage = function (typeOrFunc, params) {
         var signature = [];
         for (var i = 0, ii = params.length; i < ii; i++) {
             var parameter = params[i];
@@ -256,7 +259,7 @@ exports.NoAnnotationError = NoAnnotationError;
  */
 var OutOfBoundsError = (function (_super) {
     __extends(OutOfBoundsError, _super);
-    function OutOfBoundsError(index /** TODO #9100 */) {
+    function OutOfBoundsError(index) {
         _super.call(this, "Index " + index + " is out-of-bounds.");
     }
     return OutOfBoundsError;
@@ -277,7 +280,7 @@ exports.OutOfBoundsError = OutOfBoundsError;
  */
 var MixingMultiProvidersWithRegularProvidersError = (function (_super) {
     __extends(MixingMultiProvidersWithRegularProvidersError, _super);
-    function MixingMultiProvidersWithRegularProvidersError(provider1 /** TODO #9100 */, provider2 /** TODO #9100 */) {
+    function MixingMultiProvidersWithRegularProvidersError(provider1, provider2) {
         _super.call(this, 'Cannot mix multi providers and regular providers, got: ' + provider1.toString() + ' ' +
             provider2.toString());
     }

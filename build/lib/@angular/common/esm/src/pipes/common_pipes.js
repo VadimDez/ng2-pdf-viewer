@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { AsyncPipe } from './async_pipe';
 import { DatePipe } from './date_pipe';
 import { I18nPluralPipe } from './i18n_plural_pipe';

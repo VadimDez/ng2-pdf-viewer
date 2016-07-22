@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { COMMON_DIRECTIVES, COMMON_PIPES } from '@angular/common';
 import { COMPILER_PROVIDERS, CompilerConfig, XHR } from '@angular/compiler';
 import { ApplicationRef, PLATFORM_DIRECTIVES, PLATFORM_PIPES, ReflectiveInjector, coreLoadAndBootstrap } from '@angular/core';
@@ -7,6 +14,9 @@ import { PromiseWrapper } from './src/facade/async';
 import { isPresent } from './src/facade/lang';
 import { CachedXHR } from './src/xhr/xhr_cache';
 import { XHRImpl } from './src/xhr/xhr_impl';
+/**
+ * @experimental
+ */
 export const BROWSER_APP_COMPILER_PROVIDERS = [
     COMPILER_PROVIDERS, {
         provide: CompilerConfig,
@@ -19,6 +29,9 @@ export const BROWSER_APP_COMPILER_PROVIDERS = [
     { provide: PLATFORM_DIRECTIVES, useValue: COMMON_DIRECTIVES, multi: true },
     { provide: PLATFORM_PIPES, useValue: COMMON_PIPES, multi: true }
 ];
+/**
+ * @experimental
+ */
 export const CACHED_TEMPLATE_PROVIDER = [{ provide: XHR, useClass: CachedXHR }];
 /**
  * Bootstrapping for Angular applications.
@@ -87,6 +100,9 @@ export const CACHED_TEMPLATE_PROVIDER = [{ provide: XHR, useClass: CachedXHR }];
  *   app injector to override default injection behavior.
  *
  * Returns a `Promise` of {@link ComponentRef}.
+ *
+ * @experimental This api cannot be used with the offline compiler and thus is still subject to
+ * change.
  */
 export function bootstrap(appComponentType, customProviders) {
     reflector.reflectionCapabilities = new ReflectionCapabilities();
@@ -97,6 +113,9 @@ export function bootstrap(appComponentType, customProviders) {
     var appInjector = ReflectiveInjector.resolveAndCreate(providers, browserPlatform().injector);
     return coreLoadAndBootstrap(appComponentType, appInjector);
 }
+/**
+ * @experimental
+ */
 export function bootstrapWorkerUi(workerScriptUri, customProviders) {
     var app = ReflectiveInjector.resolveAndCreate([
         WORKER_UI_APPLICATION_PROVIDERS, BROWSER_APP_COMPILER_PROVIDERS,
@@ -108,6 +127,9 @@ export function bootstrapWorkerUi(workerScriptUri, customProviders) {
     // in the future...
     return PromiseWrapper.resolve(app.get(ApplicationRef));
 }
+/**
+ * @experimental
+ */
 const WORKER_APP_COMPILER_PROVIDERS = [
     COMPILER_PROVIDERS, {
         provide: CompilerConfig,
@@ -120,6 +142,9 @@ const WORKER_APP_COMPILER_PROVIDERS = [
     { provide: PLATFORM_DIRECTIVES, useValue: COMMON_DIRECTIVES, multi: true },
     { provide: PLATFORM_PIPES, useValue: COMMON_PIPES, multi: true }
 ];
+/**
+ * @experimental
+ */
 export function bootstrapWorkerApp(appComponentType, customProviders) {
     var appInjector = ReflectiveInjector.resolveAndCreate([
         WORKER_APP_APPLICATION_PROVIDERS, WORKER_APP_COMPILER_PROVIDERS,

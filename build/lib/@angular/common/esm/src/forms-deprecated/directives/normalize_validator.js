@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 export function normalizeValidator(validator) {
     if (validator.validate !== undefined) {
         return (c) => validator.validate(c);
@@ -8,7 +15,7 @@ export function normalizeValidator(validator) {
 }
 export function normalizeAsyncValidator(validator) {
     if (validator.validate !== undefined) {
-        return (c) => Promise.resolve(validator.validate(c));
+        return (c) => validator.validate(c);
     }
     else {
         return validator;

@@ -1,7 +1,14 @@
-import { Injectable, Pipe } from '@angular/core';
-import { isDate, isNumber, isString, DateWrapper, isBlank } from '../facade/lang';
-import { DateFormatter } from '../facade/intl';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Pipe } from '@angular/core';
 import { StringMapWrapper } from '../facade/collection';
+import { DateFormatter } from '../facade/intl';
+import { DateWrapper, NumberWrapper, isBlank, isDate, isString } from '../facade/lang';
 import { InvalidPipeArgumentException } from './invalid_pipe_argument_exception';
 // TODO: move to a global configurable location along with other i18n components.
 var defaultLocale = 'en-US';
@@ -12,8 +19,8 @@ export class DatePipe {
         if (!this.supports(value)) {
             throw new InvalidPipeArgumentException(DatePipe, value);
         }
-        if (isNumber(value)) {
-            value = DateWrapper.fromMillis(value);
+        if (NumberWrapper.isNumeric(value)) {
+            value = DateWrapper.fromMillis(NumberWrapper.parseInt(value, 10));
         }
         else if (isString(value)) {
             value = DateWrapper.fromISOString(value);
@@ -24,7 +31,7 @@ export class DatePipe {
         return DateFormatter.format(value, defaultLocale, pattern);
     }
     supports(obj) {
-        if (isDate(obj) || isNumber(obj)) {
+        if (isDate(obj) || NumberWrapper.isNumeric(obj)) {
             return true;
         }
         if (isString(obj) && isDate(DateWrapper.fromISOString(obj))) {
@@ -47,6 +54,5 @@ DatePipe._ALIASES = {
 /** @nocollapse */
 DatePipe.decorators = [
     { type: Pipe, args: [{ name: 'date', pure: true },] },
-    { type: Injectable },
 ];
 //# sourceMappingURL=date_pipe.js.map

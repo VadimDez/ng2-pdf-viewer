@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var collection_1 = require('../facade/collection');
 var exceptions_1 = require('../facade/exceptions');
@@ -316,6 +323,8 @@ exports.ReflectiveInjectorDynamicStrategy = ReflectiveInjectorDynamicStrategy;
  *
  * Notice, we don't use the `new` operator because we explicitly want to have the `Injector`
  * resolve all of the object's dependencies automatically.
+ *
+ * @stable
  */
 var ReflectiveInjector = (function () {
     function ReflectiveInjector() {
@@ -820,9 +829,9 @@ var ReflectiveInjector_ = (function () {
 exports.ReflectiveInjector_ = ReflectiveInjector_;
 var INJECTOR_KEY = reflective_key_1.ReflectiveKey.get(injector_1.Injector);
 function _mapProviders(injector, fn) {
-    var res = [];
+    var res = new Array(injector._proto.numberOfProviders);
     for (var i = 0; i < injector._proto.numberOfProviders; ++i) {
-        res.push(fn(injector._proto.getProviderAtIndex(i)));
+        res[i] = fn(injector._proto.getProviderAtIndex(i));
     }
     return res;
 }

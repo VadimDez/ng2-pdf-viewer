@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { FORM_PROVIDERS } from '@angular/common';
 import { APPLICATION_COMMON_PROVIDERS, APP_INITIALIZER, ExceptionHandler, NgZone, OpaqueToken, PLATFORM_COMMON_PROVIDERS, ReflectiveInjector, RootRenderer, assertPlatform, createPlatform, getPlatform } from '@angular/core';
 import { BROWSER_SANITIZATION_PROVIDERS } from './browser';

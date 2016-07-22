@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -5,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
+var chars = require('../chars');
 var exceptions_1 = require('../facade/exceptions');
 var lang_1 = require('../facade/lang');
 (function (TokenType) {
@@ -17,6 +24,7 @@ var lang_1 = require('../facade/lang');
     TokenType[TokenType["Number"] = 5] = "Number";
 })(exports.TokenType || (exports.TokenType = {}));
 var TokenType = exports.TokenType;
+var KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else'];
 var Lexer = (function () {
     function Lexer() {
     }
@@ -104,49 +112,6 @@ function newNumberToken(index, n) {
     return new Token(index, TokenType.Number, n, '');
 }
 exports.EOF = new Token(-1, TokenType.Character, 0, '');
-exports.$EOF = 0;
-exports.$TAB = 9;
-exports.$LF = 10;
-exports.$VTAB = 11;
-exports.$FF = 12;
-exports.$CR = 13;
-exports.$SPACE = 32;
-exports.$BANG = 33;
-exports.$DQ = 34;
-exports.$HASH = 35;
-exports.$$ = 36;
-exports.$PERCENT = 37;
-exports.$AMPERSAND = 38;
-exports.$SQ = 39;
-exports.$LPAREN = 40;
-exports.$RPAREN = 41;
-exports.$STAR = 42;
-exports.$PLUS = 43;
-exports.$COMMA = 44;
-exports.$MINUS = 45;
-exports.$PERIOD = 46;
-exports.$SLASH = 47;
-exports.$COLON = 58;
-exports.$SEMICOLON = 59;
-exports.$LT = 60;
-exports.$EQ = 61;
-exports.$GT = 62;
-exports.$QUESTION = 63;
-var $0 = 48;
-var $9 = 57;
-var $A = 65, $E = 69, $Z = 90;
-exports.$LBRACKET = 91;
-exports.$BACKSLASH = 92;
-exports.$RBRACKET = 93;
-var $CARET = 94;
-var $_ = 95;
-exports.$BT = 96;
-var $a = 97, $e = 101, $f = 102;
-var $n = 110, $r = 114, $t = 116, $u = 117, $v = 118, $z = 122;
-exports.$LBRACE = 123;
-exports.$BAR = 124;
-exports.$RBRACE = 125;
-var $NBSP = 160;
 var ScannerError = (function (_super) {
     __extends(ScannerError, _super);
     function ScannerError(message) {
@@ -167,14 +132,14 @@ var _Scanner = (function () {
     }
     _Scanner.prototype.advance = function () {
         this.peek =
-            ++this.index >= this.length ? exports.$EOF : lang_1.StringWrapper.charCodeAt(this.input, this.index);
+            ++this.index >= this.length ? chars.$EOF : lang_1.StringWrapper.charCodeAt(this.input, this.index);
     };
     _Scanner.prototype.scanToken = function () {
         var input = this.input, length = this.length, peek = this.peek, index = this.index;
         // Skip whitespace.
-        while (peek <= exports.$SPACE) {
+        while (peek <= chars.$SPACE) {
             if (++index >= length) {
-                peek = exports.$EOF;
+                peek = chars.$EOF;
                 break;
             }
             else {
@@ -189,48 +154,49 @@ var _Scanner = (function () {
         // Handle identifiers and numbers.
         if (isIdentifierStart(peek))
             return this.scanIdentifier();
-        if (isDigit(peek))
+        if (chars.isDigit(peek))
             return this.scanNumber(index);
         var start = index;
         switch (peek) {
-            case exports.$PERIOD:
+            case chars.$PERIOD:
                 this.advance();
-                return isDigit(this.peek) ? this.scanNumber(start) : newCharacterToken(start, exports.$PERIOD);
-            case exports.$LPAREN:
-            case exports.$RPAREN:
-            case exports.$LBRACE:
-            case exports.$RBRACE:
-            case exports.$LBRACKET:
-            case exports.$RBRACKET:
-            case exports.$COMMA:
-            case exports.$COLON:
-            case exports.$SEMICOLON:
+                return chars.isDigit(this.peek) ? this.scanNumber(start) :
+                    newCharacterToken(start, chars.$PERIOD);
+            case chars.$LPAREN:
+            case chars.$RPAREN:
+            case chars.$LBRACE:
+            case chars.$RBRACE:
+            case chars.$LBRACKET:
+            case chars.$RBRACKET:
+            case chars.$COMMA:
+            case chars.$COLON:
+            case chars.$SEMICOLON:
                 return this.scanCharacter(start, peek);
-            case exports.$SQ:
-            case exports.$DQ:
+            case chars.$SQ:
+            case chars.$DQ:
                 return this.scanString();
-            case exports.$HASH:
-            case exports.$PLUS:
-            case exports.$MINUS:
-            case exports.$STAR:
-            case exports.$SLASH:
-            case exports.$PERCENT:
-            case $CARET:
+            case chars.$HASH:
+            case chars.$PLUS:
+            case chars.$MINUS:
+            case chars.$STAR:
+            case chars.$SLASH:
+            case chars.$PERCENT:
+            case chars.$CARET:
                 return this.scanOperator(start, lang_1.StringWrapper.fromCharCode(peek));
-            case exports.$QUESTION:
-                return this.scanComplexOperator(start, '?', exports.$PERIOD, '.');
-            case exports.$LT:
-            case exports.$GT:
-                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), exports.$EQ, '=');
-            case exports.$BANG:
-            case exports.$EQ:
-                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), exports.$EQ, '=', exports.$EQ, '=');
-            case exports.$AMPERSAND:
-                return this.scanComplexOperator(start, '&', exports.$AMPERSAND, '&');
-            case exports.$BAR:
-                return this.scanComplexOperator(start, '|', exports.$BAR, '|');
-            case $NBSP:
-                while (isWhitespace(this.peek))
+            case chars.$QUESTION:
+                return this.scanComplexOperator(start, '?', chars.$PERIOD, '.');
+            case chars.$LT:
+            case chars.$GT:
+                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), chars.$EQ, '=');
+            case chars.$BANG:
+            case chars.$EQ:
+                return this.scanComplexOperator(start, lang_1.StringWrapper.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
+            case chars.$AMPERSAND:
+                return this.scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
+            case chars.$BAR:
+                return this.scanComplexOperator(start, '|', chars.$BAR, '|');
+            case chars.$NBSP:
+                while (chars.isWhitespace(this.peek))
                     this.advance();
                 return this.scanToken();
         }
@@ -275,27 +241,23 @@ var _Scanner = (function () {
         while (isIdentifierPart(this.peek))
             this.advance();
         var str = this.input.substring(start, this.index);
-        if (collection_1.SetWrapper.has(KEYWORDS, str)) {
-            return newKeywordToken(start, str);
-        }
-        else {
-            return newIdentifierToken(start, str);
-        }
+        return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, str) :
+            newIdentifierToken(start, str);
     };
     _Scanner.prototype.scanNumber = function (start) {
         var simple = (this.index === start);
         this.advance(); // Skip initial digit.
         while (true) {
-            if (isDigit(this.peek)) {
+            if (chars.isDigit(this.peek)) {
             }
-            else if (this.peek == exports.$PERIOD) {
+            else if (this.peek == chars.$PERIOD) {
                 simple = false;
             }
             else if (isExponentStart(this.peek)) {
                 this.advance();
                 if (isExponentSign(this.peek))
                     this.advance();
-                if (!isDigit(this.peek))
+                if (!chars.isDigit(this.peek))
                     this.error('Invalid exponent', -1);
                 simple = false;
             }
@@ -305,7 +267,6 @@ var _Scanner = (function () {
             this.advance();
         }
         var str = this.input.substring(start, this.index);
-        // TODO
         var value = simple ? lang_1.NumberWrapper.parseIntAutoRadix(str) : lang_1.NumberWrapper.parseFloat(str);
         return newNumberToken(start, value);
     };
@@ -317,13 +278,13 @@ var _Scanner = (function () {
         var marker = this.index;
         var input = this.input;
         while (this.peek != quote) {
-            if (this.peek == exports.$BACKSLASH) {
+            if (this.peek == chars.$BACKSLASH) {
                 if (buffer == null)
                     buffer = new lang_1.StringJoiner();
                 buffer.add(input.substring(marker, this.index));
                 this.advance();
                 var unescapedCode;
-                if (this.peek == $u) {
+                if (this.peek == chars.$u) {
                     // 4 character hex code for unicode character.
                     var hex = input.substring(this.index + 1, this.index + 5);
                     try {
@@ -343,7 +304,7 @@ var _Scanner = (function () {
                 buffer.add(lang_1.StringWrapper.fromCharCode(unescapedCode));
                 marker = this.index;
             }
-            else if (this.peek == exports.$EOF) {
+            else if (this.peek == chars.$EOF) {
                 this.error('Unterminated quote', 0);
             }
             else {
@@ -366,11 +327,9 @@ var _Scanner = (function () {
     };
     return _Scanner;
 }());
-function isWhitespace(code) {
-    return (code >= exports.$TAB && code <= exports.$SPACE) || (code == $NBSP);
-}
 function isIdentifierStart(code) {
-    return ($a <= code && code <= $z) || ($A <= code && code <= $Z) || (code == $_) || (code == exports.$$);
+    return (chars.$a <= code && code <= chars.$z) || (chars.$A <= code && code <= chars.$Z) ||
+        (code == chars.$_) || (code == chars.$$);
 }
 function isIdentifier(input) {
     if (input.length == 0)
@@ -379,7 +338,7 @@ function isIdentifier(input) {
     if (!isIdentifierStart(scanner.peek))
         return false;
     scanner.advance();
-    while (scanner.peek !== exports.$EOF) {
+    while (scanner.peek !== chars.$EOF) {
         if (!isIdentifierPart(scanner.peek))
             return false;
         scanner.advance();
@@ -388,41 +347,33 @@ function isIdentifier(input) {
 }
 exports.isIdentifier = isIdentifier;
 function isIdentifierPart(code) {
-    return ($a <= code && code <= $z) || ($A <= code && code <= $Z) || ($0 <= code && code <= $9) ||
-        (code == $_) || (code == exports.$$);
-}
-function isDigit(code) {
-    return $0 <= code && code <= $9;
+    return chars.isAsciiLetter(code) || chars.isDigit(code) || (code == chars.$_) ||
+        (code == chars.$$);
 }
 function isExponentStart(code) {
-    return code == $e || code == $E;
+    return code == chars.$e || code == chars.$E;
 }
 function isExponentSign(code) {
-    return code == exports.$MINUS || code == exports.$PLUS;
+    return code == chars.$MINUS || code == chars.$PLUS;
 }
 function isQuote(code) {
-    return code === exports.$SQ || code === exports.$DQ || code === exports.$BT;
+    return code === chars.$SQ || code === chars.$DQ || code === chars.$BT;
 }
 exports.isQuote = isQuote;
 function unescape(code) {
     switch (code) {
-        case $n:
-            return exports.$LF;
-        case $f:
-            return exports.$FF;
-        case $r:
-            return exports.$CR;
-        case $t:
-            return exports.$TAB;
-        case $v:
-            return exports.$VTAB;
+        case chars.$n:
+            return chars.$LF;
+        case chars.$f:
+            return chars.$FF;
+        case chars.$r:
+            return chars.$CR;
+        case chars.$t:
+            return chars.$TAB;
+        case chars.$v:
+            return chars.$VTAB;
         default:
             return code;
     }
 }
-var OPERATORS = collection_1.SetWrapper.createFromList([
-    '+', '-', '*', '/', '%', '^', '=', '==', '!=', '===', '!==', '<',
-    '>', '<=', '>=', '&&', '||', '&', '|', '!', '?', '#', '?.'
-]);
-var KEYWORDS = collection_1.SetWrapper.createFromList(['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else']);
 //# sourceMappingURL=lexer.js.map

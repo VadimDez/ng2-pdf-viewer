@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Inject, Injectable, ViewEncapsulation } from '@angular/core';
 import { BaseException } from '../facade/exceptions';
 import { Json, RegExpWrapper, StringWrapper, isArray, isBlank, isPresent, isString, stringify } from '../facade/lang';
@@ -9,7 +16,8 @@ import { getDOM } from './dom_adapter';
 import { camelCaseToDashCase } from './util';
 const NAMESPACE_URIS = {
     'xlink': 'http://www.w3.org/1999/xlink',
-    'svg': 'http://www.w3.org/2000/svg'
+    'svg': 'http://www.w3.org/2000/svg',
+    'xhtml': 'http://www.w3.org/1999/xhtml'
 };
 const TEMPLATE_COMMENT_TEXT = 'template bindings={}';
 var TEMPLATE_BINDINGS_EXP = /^template bindings=(.*)$/g;

@@ -1,6 +1,9 @@
 /**
- * This indirection is needed to free up Component, etc symbols in the public API
- * to be used by the decorator versions of these annotations.
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
 var di_1 = require('./metadata/di');
@@ -59,6 +62,7 @@ var decorators_1 = require('./util/decorators');
  *
  * {@example core/ts/metadata/metadata.ts region='component'}
  * @stable
+ * @Annotation
  */
 exports.Component = decorators_1.makeDecorator(directives_1.ComponentMetadata, function (fn) { return fn.View = View; });
 // TODO(alexeagle): remove the duplication of this doc. It is copied from DirectiveMetadata.
@@ -316,7 +320,7 @@ exports.Component = decorators_1.makeDecorator(directives_1.ComponentMetadata, f
  *   overlayManager:OverlayManager; // NOT YET IMPLEMENTED
  *
  *   constructor(overlayManager:OverlayManager) {
- *     this.overlay = overlay;
+ *     this.overlayManager = overlayManager;
  *   }
  *
  *   onMouseEnter() {
@@ -440,6 +444,7 @@ exports.Component = decorators_1.makeDecorator(directives_1.ComponentMetadata, f
  * the instantiated
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
  * @stable
+ * @Annotation
  */
 exports.Directive = decorators_1.makeDecorator(directives_1.DirectiveMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewMetadata.
@@ -472,6 +477,7 @@ exports.Directive = decorators_1.makeDecorator(directives_1.DirectiveMetadata);
  * }
  * ```
  * @deprecated
+ * @Annotation
  */
 var View = decorators_1.makeDecorator(view_1.ViewMetadata, function (fn) { return fn.View = View; });
 /**
@@ -491,6 +497,7 @@ var View = decorators_1.makeDecorator(view_1.ViewMetadata, function (fn) { retur
  *
  * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
  * @stable
+ * @Annotation
  */
 exports.Attribute = decorators_1.makeParamDecorator(di_1.AttributeMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from QueryMetadata.
@@ -601,6 +608,7 @@ exports.Attribute = decorators_1.makeParamDecorator(di_1.AttributeMetadata);
  * The injected object is an unmodifiable live list.
  * See {@link QueryList} for more details.
  * @deprecated
+ * @Annotation
  */
 exports.Query = decorators_1.makeParamDecorator(di_1.QueryMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ContentChildrenMetadata.
@@ -624,6 +632,7 @@ exports.Query = decorators_1.makeParamDecorator(di_1.QueryMetadata);
  * }
  * ```
  * @stable
+ * @Annotation
  */
 exports.ContentChildren = decorators_1.makePropDecorator(di_1.ContentChildrenMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ContentChildMetadata.
@@ -656,6 +665,7 @@ exports.ContentChildren = decorators_1.makePropDecorator(di_1.ContentChildrenMet
  * </container>
  * ```
  * @stable
+ * @Annotation
  */
 exports.ContentChild = decorators_1.makePropDecorator(di_1.ContentChildMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewChildrenMetadata.
@@ -738,6 +748,7 @@ exports.ContentChild = decorators_1.makePropDecorator(di_1.ContentChildMetadata)
  *
  * See also: [ViewChildrenMetadata]
  * @stable
+ * @Annotation
  */
 exports.ViewChildren = decorators_1.makePropDecorator(di_1.ViewChildrenMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewChildMetadata.
@@ -811,6 +822,7 @@ exports.ViewChildren = decorators_1.makePropDecorator(di_1.ViewChildrenMetadata)
  * ```
  * See also: [ViewChildMetadata]
  * @stable
+ * @Annotation
  */
 exports.ViewChild = decorators_1.makePropDecorator(di_1.ViewChildMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewQueryMetadata.
@@ -849,6 +861,7 @@ exports.ViewChild = decorators_1.makePropDecorator(di_1.ViewChildMetadata);
  * The injected object is an iterable and observable live list.
  * See {@link QueryList} for more details.
  * @deprecated
+ * @Annotation
  */
 exports.ViewQuery = decorators_1.makeParamDecorator(di_1.ViewQueryMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from PipeMetadata.
@@ -859,6 +872,7 @@ exports.ViewQuery = decorators_1.makeParamDecorator(di_1.ViewQueryMetadata);
  *
  * {@example core/ts/metadata/metadata.ts region='pipe'}
  * @stable
+ * @Annotation
  */
 exports.Pipe = decorators_1.makeDecorator(directives_1.PipeMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from InputMetadata.
@@ -903,6 +917,7 @@ exports.Pipe = decorators_1.makeDecorator(directives_1.PipeMetadata);
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 exports.Input = decorators_1.makePropDecorator(directives_1.InputMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from OutputMetadata.
@@ -947,6 +962,7 @@ exports.Input = decorators_1.makePropDecorator(directives_1.InputMetadata);
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 exports.Output = decorators_1.makePropDecorator(directives_1.OutputMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from HostBindingMetadata.
@@ -985,6 +1001,7 @@ exports.Output = decorators_1.makePropDecorator(directives_1.OutputMetadata);
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 exports.HostBinding = decorators_1.makePropDecorator(directives_1.HostBindingMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from HostListenerMetadata.
@@ -1022,6 +1039,7 @@ exports.HostBinding = decorators_1.makePropDecorator(directives_1.HostBindingMet
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 exports.HostListener = decorators_1.makePropDecorator(directives_1.HostListenerMetadata);
 //# sourceMappingURL=metadata.js.map

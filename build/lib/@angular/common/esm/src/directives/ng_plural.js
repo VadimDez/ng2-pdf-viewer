@@ -1,13 +1,14 @@
-import { Attribute, ContentChildren, Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { Map } from '../facade/collection';
-import { NumberWrapper, isPresent } from '../facade/lang';
-import { SwitchView } from './ng_switch';
-const _CATEGORY_DEFAULT = 'other';
 /**
- * @experimental
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
  */
-export class NgLocalization {
-}
+import { Attribute, ContentChildren, Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { isPresent } from '../facade/lang';
+import { NgLocalization, getPluralCategory } from '../localization';
+import { SwitchView } from './ng_switch';
 export class NgPluralCase {
     constructor(value, template, viewContainer) {
         this.value = value;
@@ -27,7 +28,7 @@ NgPluralCase.ctorParameters = [
 export class NgPlural {
     constructor(_localization) {
         this._localization = _localization;
-        this._caseViews = new Map();
+        this._caseViews = {};
         this.cases = null;
     }
     set ngPlural(value) {
@@ -36,17 +37,15 @@ export class NgPlural {
     }
     ngAfterContentInit() {
         this.cases.forEach((pluralCase) => {
-            this._caseViews.set(this._formatValue(pluralCase), pluralCase._view);
+            this._caseViews[pluralCase.value] = pluralCase._view;
         });
         this._updateView();
     }
     /** @internal */
     _updateView() {
         this._clearViews();
-        var view = this._caseViews.get(this._switchValue);
-        if (!isPresent(view))
-            view = this._getCategoryView(this._switchValue);
-        this._activateView(view);
+        var key = getPluralCategory(this._switchValue, Object.getOwnPropertyNames(this._caseViews), this._localization);
+        this._activateView(this._caseViews[key]);
     }
     /** @internal */
     _clearViews() {
@@ -60,20 +59,6 @@ export class NgPlural {
         this._activeView = view;
         this._activeView.create();
     }
-    /** @internal */
-    _getCategoryView(value) {
-        var category = this._localization.getPluralCategory(value);
-        var categoryView = this._caseViews.get(category);
-        return isPresent(categoryView) ? categoryView : this._caseViews.get(_CATEGORY_DEFAULT);
-    }
-    /** @internal */
-    _isValueView(pluralCase) { return pluralCase.value[0] === '='; }
-    /** @internal */
-    _formatValue(pluralCase) {
-        return this._isValueView(pluralCase) ? this._stripValue(pluralCase.value) : pluralCase.value;
-    }
-    /** @internal */
-    _stripValue(value) { return NumberWrapper.parseInt(value.substring(1), 10); }
 }
 /** @nocollapse */
 NgPlural.decorators = [

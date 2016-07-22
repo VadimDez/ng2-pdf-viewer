@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -26,6 +33,14 @@ exports.IS_DART = false;
 // exports the original value of the symbol.
 var _global = globalScope;
 exports.global = _global;
+/**
+ * Runtime representation a type that a Component or other object is instances of.
+ *
+ * An example of a `Type` is `MyCustomComponent` class, which in JavaScript is be represented by
+ * the `MyCustomComponent` constructor function.
+ *
+ * @stable
+ */
 exports.Type = Function;
 function getTypeNameForDebugging(type) {
     if (type['name']) {
@@ -36,33 +51,6 @@ function getTypeNameForDebugging(type) {
 exports.getTypeNameForDebugging = getTypeNameForDebugging;
 exports.Math = _global.Math;
 exports.Date = _global.Date;
-var _devMode = true;
-var _modeLocked = false;
-function lockMode() {
-    _modeLocked = true;
-}
-exports.lockMode = lockMode;
-/**
- * Disable Angular's development mode, which turns off assertions and other
- * checks within the framework.
- *
- * One important assertion this disables verifies that a change detection pass
- * does not result in additional changes to any bindings (also known as
- * unidirectional data flow).
- * @stable
- */
-function enableProdMode() {
-    if (_modeLocked) {
-        // Cannot use BaseException as that ends up importing from facade/lang.
-        throw 'Cannot enable prod mode after platform setup.';
-    }
-    _devMode = false;
-}
-exports.enableProdMode = enableProdMode;
-function assertionsEnabled() {
-    return _devMode;
-}
-exports.assertionsEnabled = assertionsEnabled;
 // TODO: remove calls to assert in production environment
 // Note: Can't just export this and import in in other files
 // as `assert` is a reserved keyword in Dart
@@ -279,6 +267,7 @@ var NumberWrapper = (function () {
         enumerable: true,
         configurable: true
     });
+    NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
     NumberWrapper.isNaN = function (value) { return isNaN(value); };
     NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
     return NumberWrapper;
@@ -465,16 +454,12 @@ function hasConstructor(value, type) {
     return value.constructor === type;
 }
 exports.hasConstructor = hasConstructor;
-function bitWiseOr(values) {
-    return values.reduce(function (a, b) { return a | b; });
-}
-exports.bitWiseOr = bitWiseOr;
-function bitWiseAnd(values) {
-    return values.reduce(function (a, b) { return a & b; });
-}
-exports.bitWiseAnd = bitWiseAnd;
 function escape(s) {
     return _global.encodeURI(s);
 }
 exports.escape = escape;
+function escapeRegExp(s) {
+    return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+}
+exports.escapeRegExp = escapeRegExp;
 //# sourceMappingURL=lang.js.map

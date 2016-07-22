@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 /**
  * This class should not be used directly by an application developer. Instead, use
@@ -29,17 +36,17 @@ var PlatformLocation = (function () {
     function PlatformLocation() {
     }
     Object.defineProperty(PlatformLocation.prototype, "pathname", {
-        /* abstract */ get: function () { return null; },
+        get: function () { return null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(PlatformLocation.prototype, "search", {
-        /* abstract */ get: function () { return null; },
+        get: function () { return null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(PlatformLocation.prototype, "hash", {
-        /* abstract */ get: function () { return null; },
+        get: function () { return null; },
         enumerable: true,
         configurable: true
     });

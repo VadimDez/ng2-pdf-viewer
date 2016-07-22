@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injector } from '../di';
 import { Predicate } from '../facade/collection';
 import { RenderDebugInfo } from '../render/api';
@@ -7,7 +14,7 @@ export declare class EventListener {
     constructor(name: string, callback: Function);
 }
 /**
- * @experimental
+ * @experimental All debugging apis are currently experimental.
  */
 export declare class DebugNode {
     private _debugInfo;
@@ -31,7 +38,7 @@ export declare class DebugNode {
     inject(token: any): any;
 }
 /**
- * @experimental
+ * @experimental All debugging apis are currently experimental.
  */
 export declare class DebugElement extends DebugNode {
     name: string;

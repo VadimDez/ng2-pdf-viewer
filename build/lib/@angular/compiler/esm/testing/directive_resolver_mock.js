@@ -1,13 +1,22 @@
-import { ComponentMetadata, DirectiveMetadata, Injectable } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Compiler, ComponentMetadata, DirectiveMetadata, Injectable, Injector } from '@angular/core';
 import { DirectiveResolver } from '../src/directive_resolver';
 import { Map } from '../src/facade/collection';
 import { isPresent } from '../src/facade/lang';
 export class MockDirectiveResolver extends DirectiveResolver {
-    constructor(...args) {
-        super(...args);
+    constructor(_injector) {
+        super();
+        this._injector = _injector;
         this._providerOverrides = new Map();
         this.viewProviderOverrides = new Map();
     }
+    get _compiler() { return this._injector.get(Compiler); }
     resolve(type) {
         var dm = super.resolve(type);
         var providerOverrides = this._providerOverrides.get(type);
@@ -33,7 +42,8 @@ export class MockDirectiveResolver extends DirectiveResolver {
                 queries: dm.queries,
                 changeDetection: dm.changeDetection,
                 providers: providers,
-                viewProviders: viewProviders
+                viewProviders: viewProviders,
+                precompile: dm.precompile
             });
         }
         return new DirectiveMetadata({
@@ -48,13 +58,19 @@ export class MockDirectiveResolver extends DirectiveResolver {
     }
     setProvidersOverride(type, providers) {
         this._providerOverrides.set(type, providers);
+        this._compiler.clearCacheFor(type);
     }
     setViewProvidersOverride(type, viewProviders) {
         this.viewProviderOverrides.set(type, viewProviders);
+        this._compiler.clearCacheFor(type);
     }
 }
 /** @nocollapse */
 MockDirectiveResolver.decorators = [
     { type: Injectable },
+];
+/** @nocollapse */
+MockDirectiveResolver.ctorParameters = [
+    { type: Injector, },
 ];
 //# sourceMappingURL=directive_resolver_mock.js.map

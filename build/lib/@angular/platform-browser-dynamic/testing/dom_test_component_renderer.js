@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -7,7 +14,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 var testing_1 = require('@angular/compiler/testing');
 var core_1 = require('@angular/core');
 var platform_browser_1 = require('@angular/platform-browser');
-var testing_2 = require('@angular/platform-browser/testing');
 var platform_browser_private_1 = require('../platform_browser_private');
 var DOMTestComponentRenderer = (function (_super) {
     __extends(DOMTestComponentRenderer, _super);
@@ -16,7 +22,7 @@ var DOMTestComponentRenderer = (function (_super) {
         this._doc = _doc;
     }
     DOMTestComponentRenderer.prototype.insertRootElement = function (rootElId) {
-        var rootEl = testing_2.el("<div id=\"" + rootElId + "\"></div>");
+        var rootEl = platform_browser_private_1.getDOM().firstChild(platform_browser_private_1.getDOM().content(platform_browser_private_1.getDOM().createTemplate("<div id=\"" + rootElId + "\"></div>")));
         // TODO(juliemr): can/should this be optional?
         var oldRoots = platform_browser_private_1.getDOM().querySelectorAll(this._doc, '[id^=root]');
         for (var i = 0; i < oldRoots.length; i++) {

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -5,7 +12,7 @@ function __export(m) {
 /**
  * @module
  * @description
- * Starting point to import all public core APIs.
+ * Entry point from which you should import all public core APIs.
  */
 __export(require('./src/metadata'));
 __export(require('./src/util'));
@@ -20,6 +27,9 @@ exports.coreLoadAndBootstrap = application_ref_1.coreLoadAndBootstrap;
 exports.createNgZone = application_ref_1.createNgZone;
 exports.PlatformRef = application_ref_1.PlatformRef;
 exports.ApplicationRef = application_ref_1.ApplicationRef;
+exports.enableProdMode = application_ref_1.enableProdMode;
+exports.lockRunMode = application_ref_1.lockRunMode;
+exports.isDevMode = application_ref_1.isDevMode;
 var application_tokens_1 = require('./src/application_tokens');
 exports.APP_ID = application_tokens_1.APP_ID;
 exports.APP_INITIALIZER = application_tokens_1.APP_INITIALIZER;
@@ -45,7 +55,6 @@ exports.wtfStartTimeRange = profile_1.wtfStartTimeRange;
 exports.wtfEndTimeRange = profile_1.wtfEndTimeRange;
 var lang_1 = require('./src/facade/lang');
 exports.Type = lang_1.Type;
-exports.enableProdMode = lang_1.enableProdMode;
 var async_1 = require('./src/facade/async');
 exports.EventEmitter = async_1.EventEmitter;
 var exceptions_1 = require('./src/facade/exceptions');

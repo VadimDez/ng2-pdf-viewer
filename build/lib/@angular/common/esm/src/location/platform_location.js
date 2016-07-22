@@ -1,4 +1,11 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
  * This class should not be used directly by an application developer. Instead, use
  * {@link Location}.
  *
@@ -25,8 +32,8 @@
  * @stable
  */
 export class PlatformLocation {
-    /* abstract */ get pathname() { return null; }
-    /* abstract */ get search() { return null; }
-    /* abstract */ get hash() { return null; }
+    get pathname() { return null; }
+    get search() { return null; }
+    get hash() { return null; }
 }
 //# sourceMappingURL=platform_location.js.map

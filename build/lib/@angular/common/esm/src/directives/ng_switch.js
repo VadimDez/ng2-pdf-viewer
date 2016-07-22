@@ -1,7 +1,16 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Directive, Host, TemplateRef, ViewContainerRef } from '@angular/core';
 import { ListWrapper, Map } from '../facade/collection';
 import { isBlank, isPresent, normalizeBlank } from '../facade/lang';
 const _CASE_DEFAULT = new Object();
+// TODO: remove when fully deprecated
+let _warned = false;
 export class SwitchView {
     constructor(_viewContainerRef, _templateRef) {
         this._viewContainerRef = _viewContainerRef;
@@ -109,8 +118,8 @@ export class NgSwitchCase {
         this._value = value;
     }
     set ngSwitchWhen(value) {
-        if (!this._warned) {
-            this._warned = true;
+        if (!_warned) {
+            _warned = true;
             console.warn('*ngSwitchWhen is deprecated and will be removed. Use *ngSwitchCase instead');
         }
         this._switch._onCaseValueChanged(this._value, value, this._view);

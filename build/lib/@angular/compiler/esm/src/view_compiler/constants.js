@@ -1,5 +1,12 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
-import { ChangeDetectorState, ViewType } from '../../core_private';
+import { ChangeDetectorStatus, ViewType } from '../../core_private';
 import { CompileIdentifierMetadata } from '../compile_metadata';
 import { isBlank, resolveEnumToken } from '../facade/lang';
 import { Identifiers } from '../identifiers';
@@ -30,25 +37,24 @@ export class ViewEncapsulationEnum {
 ViewEncapsulationEnum.Emulated = ViewEncapsulationEnum.fromValue(ViewEncapsulation.Emulated);
 ViewEncapsulationEnum.Native = ViewEncapsulationEnum.fromValue(ViewEncapsulation.Native);
 ViewEncapsulationEnum.None = ViewEncapsulationEnum.fromValue(ViewEncapsulation.None);
-export class ChangeDetectorStateEnum {
-    static fromValue(value) {
-        return _enumExpression(Identifiers.ChangeDetectorState, value);
-    }
-}
-ChangeDetectorStateEnum.NeverChecked = ChangeDetectorStateEnum.fromValue(ChangeDetectorState.NeverChecked);
-ChangeDetectorStateEnum.CheckedBefore = ChangeDetectorStateEnum.fromValue(ChangeDetectorState.CheckedBefore);
-ChangeDetectorStateEnum.Errored = ChangeDetectorStateEnum.fromValue(ChangeDetectorState.Errored);
 export class ChangeDetectionStrategyEnum {
     static fromValue(value) {
         return _enumExpression(Identifiers.ChangeDetectionStrategy, value);
     }
 }
-ChangeDetectionStrategyEnum.CheckOnce = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.CheckOnce);
-ChangeDetectionStrategyEnum.Checked = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.Checked);
-ChangeDetectionStrategyEnum.CheckAlways = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.CheckAlways);
-ChangeDetectionStrategyEnum.Detached = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.Detached);
 ChangeDetectionStrategyEnum.OnPush = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.OnPush);
 ChangeDetectionStrategyEnum.Default = ChangeDetectionStrategyEnum.fromValue(ChangeDetectionStrategy.Default);
+export class ChangeDetectorStatusEnum {
+    static fromValue(value) {
+        return _enumExpression(Identifiers.ChangeDetectorStatus, value);
+    }
+}
+ChangeDetectorStatusEnum.CheckOnce = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.CheckOnce);
+ChangeDetectorStatusEnum.Checked = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.Checked);
+ChangeDetectorStatusEnum.CheckAlways = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.CheckAlways);
+ChangeDetectorStatusEnum.Detached = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.Detached);
+ChangeDetectorStatusEnum.Errored = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.Errored);
+ChangeDetectorStatusEnum.Destroyed = ChangeDetectorStatusEnum.fromValue(ChangeDetectorStatus.Destroyed);
 export class ViewConstructorVars {
 }
 ViewConstructorVars.viewUtils = o.variable('viewUtils');

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ANY_STATE as ANY_STATE_, DEFAULT_STATE as DEFAULT_STATE_, EMPTY_STATE as EMPTY_STATE_, FILL_STYLE_FLAG as FILL_STYLE_FLAG_ } from './src/animation/animation_constants';
 import { AnimationDriver as AnimationDriver_, NoOpAnimationDriver as NoOpAnimationDriver_ } from './src/animation/animation_driver';
 import { AnimationGroupPlayer as AnimationGroupPlayer_ } from './src/animation/animation_group_player';
@@ -12,6 +19,7 @@ import * as console from './src/console';
 import * as debug from './src/debug/debug_renderer';
 import * as provider_util from './src/di/provider_util';
 import * as reflective_provider from './src/di/reflective_provider';
+import * as component_factory_resolver from './src/linker/component_factory_resolver';
 import * as component_resolver from './src/linker/component_resolver';
 import * as debug_context from './src/linker/debug_context';
 import * as element from './src/linker/element';
@@ -30,13 +38,14 @@ import * as security from './src/security';
 import * as decorators from './src/util/decorators';
 export var __core_private__ = {
     isDefaultChangeDetectionStrategy: constants.isDefaultChangeDetectionStrategy,
-    ChangeDetectorState: constants.ChangeDetectorState,
+    ChangeDetectorStatus: constants.ChangeDetectorStatus,
     CHANGE_DETECTION_STRATEGY_VALUES: constants.CHANGE_DETECTION_STRATEGY_VALUES,
     constructDependencies: reflective_provider.constructDependencies,
     LifecycleHooks: lifecycle_hooks.LifecycleHooks,
     LIFECYCLE_HOOKS_VALUES: lifecycle_hooks.LIFECYCLE_HOOKS_VALUES,
     ReflectorReader: reflector_reader.ReflectorReader,
     ReflectorComponentResolver: component_resolver.ReflectorComponentResolver,
+    CodegenComponentFactoryResolver: component_factory_resolver.CodegenComponentFactoryResolver,
     AppElement: element.AppElement,
     AppView: view.AppView,
     DebugAppView: view.DebugAppView,

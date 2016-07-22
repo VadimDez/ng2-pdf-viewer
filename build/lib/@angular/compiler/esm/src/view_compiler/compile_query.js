@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ListWrapper } from '../facade/collection';
 import { isBlank, isPresent } from '../facade/lang';
 import { Identifiers } from '../identifiers';
@@ -87,10 +94,10 @@ function mapNestedViews(declarationAppElement, view, expressions) {
     ]);
 }
 export function createQueryList(query, directiveInstance, propertyName, compileView) {
-    compileView.fields.push(new o.ClassField(propertyName, o.importType(Identifiers.QueryList)));
+    compileView.fields.push(new o.ClassField(propertyName, o.importType(Identifiers.QueryList, [o.DYNAMIC_TYPE])));
     var expr = o.THIS_EXPR.prop(propertyName);
     compileView.createMethod.addStmt(o.THIS_EXPR.prop(propertyName)
-        .set(o.importExpr(Identifiers.QueryList).instantiate([]))
+        .set(o.importExpr(Identifiers.QueryList, [o.DYNAMIC_TYPE]).instantiate([]))
         .toStmt());
     return expr;
 }

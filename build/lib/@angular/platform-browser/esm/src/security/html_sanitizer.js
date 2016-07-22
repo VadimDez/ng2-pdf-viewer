@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { isDevMode } from '@angular/core';
 import { getDOM } from '../dom/dom_adapter';
-import { assertionsEnabled } from '../facade/lang';
-import { sanitizeUrl } from './url_sanitizer';
+import { sanitizeSrcset, sanitizeUrl } from './url_sanitizer';
 /** A <body> element that can be safely used to parse untrusted HTML. Lazily initialized below. */
 let inertElement = null;
 /** Lazily initialized to make sure the DOM adapter gets set before use. */
@@ -55,19 +62,21 @@ const OPTIONAL_END_TAG_INLINE_ELEMENTS = tagSet('rp,rt');
 const OPTIONAL_END_TAG_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, OPTIONAL_END_TAG_BLOCK_ELEMENTS);
 // Safe Block Elements - HTML5
 const BLOCK_ELEMENTS = merge(OPTIONAL_END_TAG_BLOCK_ELEMENTS, tagSet('address,article,' +
-    'aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,' +
-    'h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,section,table,ul'));
+    'aside,blockquote,caption,center,del,details,dialog,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,' +
+    'h6,header,hgroup,hr,ins,main,map,menu,nav,ol,pre,section,summary,table,ul'));
 // Inline Elements - HTML5
-const INLINE_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, tagSet('a,abbr,acronym,b,' +
-    'bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s,' +
-    'samp,small,span,strike,strong,sub,sup,time,tt,u,var'));
+const INLINE_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, tagSet('a,abbr,acronym,audio,b,' +
+    'bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,picture,q,ruby,rp,rt,s,' +
+    'samp,small,source,span,strike,strong,sub,sup,time,track,tt,u,var,video'));
 const VALID_ELEMENTS = merge(VOID_ELEMENTS, BLOCK_ELEMENTS, INLINE_ELEMENTS, OPTIONAL_END_TAG_ELEMENTS);
 // Attributes that have href and hence need to be sanitized
-const URI_ATTRS = tagSet('background,cite,href,longdesc,src,xlink:href');
-const HTML_ATTRS = tagSet('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
-    'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,' +
-    'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,' +
-    'scope,scrolling,shape,size,span,start,summary,tabindex,target,title,type,' +
+const URI_ATTRS = tagSet('background,cite,href,itemtype,longdesc,poster,src,xlink:href');
+// Attributes that have special href set hence need to be sanitized
+const SRCSET_ATTRS = tagSet('srcset');
+const HTML_ATTRS = tagSet('abbr,accesskey,align,alt,autoplay,axis,bgcolor,border,cellpadding,cellspacing,class,clear,color,cols,colspan,' +
+    'compact,controls,coords,datetime,default,dir,download,face,headers,height,hidden,hreflang,hspace,' +
+    'ismap,itemscope,itemprop,kind,label,lang,language,loop,media,muted,nohref,nowrap,open,preload,rel,rev,role,rows,rowspan,rules,' +
+    'scope,scrolling,shape,size,sizes,span,srclang,start,summary,tabindex,target,title,translate,type,usemap,' +
     'valign,value,vspace,width');
 // NB: This currently conciously doesn't support SVG. SVG sanitization has had several security
 // issues in the past, so it seems safer to leave it out if possible. If support for binding SVG via
@@ -75,7 +84,7 @@ const HTML_ATTRS = tagSet('abbr,align,alt,axis,bgcolor,border,cellpadding,cellsp
 // NB: Sanitization does not allow <form> elements or other active elements (<button> etc). Those
 // can be sanitized, but they increase security surface area without a legitimate use case, so they
 // are left out here.
-const VALID_ATTRS = merge(URI_ATTRS, HTML_ATTRS);
+const VALID_ATTRS = merge(URI_ATTRS, SRCSET_ATTRS, HTML_ATTRS);
 /**
  * SanitizingHtmlSerializer serializes a DOM fragment, stripping out any unsafe elements and unsafe
  * attributes.
@@ -127,6 +136,8 @@ class SanitizingHtmlSerializer {
                 // TODO(martinprobst): Special case image URIs for data:image/...
                 if (URI_ATTRS[lower])
                     value = sanitizeUrl(value);
+                if (SRCSET_ATTRS[lower])
+                    value = sanitizeSrcset(value);
                 this.buf.push(' ');
                 this.buf.push(attrName);
                 this.buf.push('="');
@@ -190,11 +201,11 @@ function stripCustomNsAttrs(el) {
  * Sanitizes the given unsafe, untrusted HTML fragment, and returns HTML text that is safe to add to
  * the DOM in a browser environment.
  */
-export function sanitizeHtml(unsafeHtml) {
+export function sanitizeHtml(unsafeHtmlInput) {
     try {
-        let containerEl = getInertElement();
+        const containerEl = getInertElement();
         // Make sure unsafeHtml is actually a string (TypeScript types are not enforced at runtime).
-        unsafeHtml = unsafeHtml ? String(unsafeHtml) : '';
+        let unsafeHtml = unsafeHtmlInput ? String(unsafeHtmlInput) : '';
         // mXSS protection. Repeatedly parse the document to make sure it stabilizes, so that a browser
         // trying to auto-correct incorrect HTML cannot cause formerly inert HTML to become dangerous.
         let mXSSAttempts = 5;
@@ -219,8 +230,8 @@ export function sanitizeHtml(unsafeHtml) {
         for (let child of DOM.childNodesAsList(parent)) {
             DOM.removeChild(parent, child);
         }
-        if (assertionsEnabled() && safeHtml !== unsafeHtml) {
-            DOM.log('WARNING: sanitizing HTML stripped some content.');
+        if (isDevMode() && safeHtml !== unsafeHtmlInput) {
+            DOM.log('WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).');
         }
         return safeHtml;
     }

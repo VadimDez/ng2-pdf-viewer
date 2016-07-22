@@ -1,20 +1,23 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../core_private');
-var lang_1 = require('../src/facade/lang');
-var exceptions_1 = require('../src/facade/exceptions');
 var collection_1 = require('../src/facade/collection');
+var exceptions_1 = require('../src/facade/exceptions');
+var lang_1 = require('../src/facade/lang');
 function _isDirectiveMetadata(type) {
     return type instanceof core_1.DirectiveMetadata;
 }
 var DirectiveResolver = (function () {
     function DirectiveResolver(_reflector) {
-        if (lang_1.isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = core_private_1.reflector;
-        }
+        if (_reflector === void 0) { _reflector = core_private_1.reflector; }
+        this._reflector = _reflector;
     }
     /**
      * Return {@link DirectiveMetadata} for a given `Type`.
@@ -65,16 +68,7 @@ var DirectiveResolver = (function () {
                     var args = lang_1.isPresent(a.args) ? a.args.join(', ') : '';
                     host[("(" + a.eventName + ")")] = propName + "(" + args + ")";
                 }
-                if (a instanceof core_1.ContentChildrenMetadata) {
-                    queries[propName] = a;
-                }
-                if (a instanceof core_1.ViewChildrenMetadata) {
-                    queries[propName] = a;
-                }
-                if (a instanceof core_1.ContentChildMetadata) {
-                    queries[propName] = a;
-                }
-                if (a instanceof core_1.ViewChildMetadata) {
+                if (a instanceof core_1.QueryMetadata) {
                     queries[propName] = a;
                 }
             });
@@ -108,7 +102,8 @@ var DirectiveResolver = (function () {
                 queries: mergedQueries,
                 changeDetection: dm.changeDetection,
                 providers: dm.providers,
-                viewProviders: dm.viewProviders
+                viewProviders: dm.viewProviders,
+                precompile: dm.precompile
             });
         }
         else {

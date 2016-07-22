@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -121,6 +128,9 @@ exports.ComponentRef_ = ComponentRef_;
  * @ts2dart_const
  */
 var EMPTY_CONTEXT = new Object();
+/**
+ * @stable
+ */
 var ComponentFactory = (function () {
     function ComponentFactory(selector, _viewFactory, _componentType) {
         this.selector = selector;

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { RegExpWrapper, isBlank, isPresent } from '../facade/lang';
 import { HtmlElementAst } from '../html_ast';
 import { HtmlParser } from '../html_parser';
@@ -67,13 +74,24 @@ function _id(el) {
     return ids.length > 0 ? ids[0].value : null;
 }
 function _serializeMessage(m) {
-    let desc = isPresent(m.description) ? ` desc='${m.description}'` : '';
-    return `<msg id='${id(m)}'${desc}>${m.content}</msg>`;
+    const desc = isPresent(m.description) ? ` desc='${_escapeXml(m.description)}'` : '';
+    const meaning = isPresent(m.meaning) ? ` meaning='${_escapeXml(m.meaning)}'` : '';
+    return `<msg id='${id(m)}'${desc}${meaning}>${m.content}</msg>`;
 }
 function _expandPlaceholder(input) {
     return RegExpWrapper.replaceAll(_PLACEHOLDER_REGEXP, input, (match) => {
         let nameWithQuotes = match[2];
         return `<ph name=${nameWithQuotes}></ph>`;
     });
+}
+const _XML_ESCAPED_CHARS = [
+    [/&/g, '&amp;'],
+    [/"/g, '&quot;'],
+    [/'/g, '&apos;'],
+    [/</g, '&lt;'],
+    [/>/g, '&gt;'],
+];
+function _escapeXml(value) {
+    return _XML_ESCAPED_CHARS.reduce((value, escape) => value.replace(escape[0], escape[1]), value);
 }
 //# sourceMappingURL=xmb_serializer.js.map

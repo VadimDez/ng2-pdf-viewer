@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Injectable, Pipe, WrappedValue } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ChangeDetectorRef, Pipe, WrappedValue } from '@angular/core';
 import { ObservableWrapper } from '../facade/async';
 import { isBlank, isPresent, isPromise } from '../facade/lang';
 import { InvalidPipeArgumentException } from './invalid_pipe_argument_exception';
@@ -94,7 +101,6 @@ export class AsyncPipe {
 /** @nocollapse */
 AsyncPipe.decorators = [
     { type: Pipe, args: [{ name: 'async', pure: false },] },
-    { type: Injectable },
 ];
 /** @nocollapse */
 AsyncPipe.ctorParameters = [

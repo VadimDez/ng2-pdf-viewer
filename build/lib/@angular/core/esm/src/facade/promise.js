@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 export class PromiseCompleter {
     constructor() {
         this.promise = new Promise((res, rej) => {
@@ -35,7 +42,6 @@ export class PromiseWrapper {
     static scheduleMicrotask(computation) {
         PromiseWrapper.then(PromiseWrapper.resolve(null), computation, (_) => { });
     }
-    static isPromise(obj) { return obj instanceof Promise; }
     static completer() { return new PromiseCompleter(); }
 }
 //# sourceMappingURL=promise.js.map

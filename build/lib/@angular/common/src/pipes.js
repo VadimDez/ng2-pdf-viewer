@@ -1,9 +1,16 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+"use strict";
+/**
  * @module
  * @description
  * This module provides a set of common Pipes.
  */
-"use strict";
 var async_pipe_1 = require('./pipes/async_pipe');
 exports.AsyncPipe = async_pipe_1.AsyncPipe;
 var common_pipes_1 = require('./pipes/common_pipes');

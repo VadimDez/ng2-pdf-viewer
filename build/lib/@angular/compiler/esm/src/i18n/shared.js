@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { StringWrapper, isBlank, isPresent } from '../facade/lang';
 import { HtmlCommentAst, HtmlElementAst, HtmlTextAst, htmlVisitAll } from '../html_ast';
 import { ParseError } from '../parse_util';
@@ -16,27 +23,28 @@ export class I18nError extends ParseError {
 export function partition(nodes, errors, implicitTags) {
     let parts = [];
     for (let i = 0; i < nodes.length; ++i) {
-        let n = nodes[i];
-        let temp = [];
-        if (_isOpeningComment(n)) {
-            let i18n = n.value.replace(/^i18n:?/, '').trim();
-            i++;
-            while (!_isClosingComment(nodes[i])) {
-                temp.push(nodes[i++]);
-                if (i === nodes.length) {
-                    errors.push(new I18nError(n.sourceSpan, 'Missing closing \'i18n\' comment.'));
-                    break;
-                }
+        let node = nodes[i];
+        let msgNodes = [];
+        // Nodes between `<!-- i18n -->` and `<!-- /i18n -->`
+        if (_isOpeningComment(node)) {
+            let i18n = node.value.replace(/^i18n:?/, '').trim();
+            while (++i < nodes.length && !_isClosingComment(nodes[i])) {
+                msgNodes.push(nodes[i]);
             }
-            parts.push(new Part(null, null, temp, i18n, true));
+            if (i === nodes.length) {
+                errors.push(new I18nError(node.sourceSpan, 'Missing closing \'i18n\' comment.'));
+                break;
+            }
+            parts.push(new Part(null, null, msgNodes, i18n, true));
         }
-        else if (n instanceof HtmlElementAst) {
-            let i18n = _findI18nAttr(n);
-            let hasI18n = isPresent(i18n) || implicitTags.indexOf(n.name) > -1;
-            parts.push(new Part(n, null, n.children, isPresent(i18n) ? i18n.value : null, hasI18n));
+        else if (node instanceof HtmlElementAst) {
+            // Node with an `i18n` attribute
+            let i18n = _findI18nAttr(node);
+            let hasI18n = isPresent(i18n) || implicitTags.indexOf(node.name) > -1;
+            parts.push(new Part(node, null, node.children, isPresent(i18n) ? i18n.value : null, hasI18n));
         }
-        else if (n instanceof HtmlTextAst) {
-            parts.push(new Part(null, n, null, null, false));
+        else if (node instanceof HtmlTextAst) {
+            parts.push(new Part(null, node, null, null, false));
         }
     }
     return parts;
@@ -58,15 +66,15 @@ export class Part {
         }
         return this.children[0].sourceSpan;
     }
-    createMessage(parser) {
-        return new Message(stringifyNodes(this.children, parser), meaning(this.i18n), description(this.i18n));
+    createMessage(parser, interpolationConfig) {
+        return new Message(stringifyNodes(this.children, parser, interpolationConfig), meaning(this.i18n), description(this.i18n));
     }
 }
 function _isOpeningComment(n) {
     return n instanceof HtmlCommentAst && isPresent(n.value) && n.value.startsWith('i18n');
 }
 function _isClosingComment(n) {
-    return n instanceof HtmlCommentAst && isPresent(n.value) && n.value == '/i18n';
+    return n instanceof HtmlCommentAst && isPresent(n.value) && n.value === '/i18n';
 }
 function _findI18nAttr(p) {
     let attrs = p.attrs;
@@ -93,21 +101,21 @@ export function description(i18n) {
  *
  * @internal
  */
-export function messageFromI18nAttribute(parser, p, i18nAttr) {
+export function messageFromI18nAttribute(parser, interpolationConfig, p, i18nAttr) {
     let expectedName = i18nAttr.name.substring(5);
     let attr = p.attrs.find(a => a.name == expectedName);
     if (attr) {
-        return messageFromAttribute(parser, attr, meaning(i18nAttr.value), description(i18nAttr.value));
+        return messageFromAttribute(parser, interpolationConfig, attr, meaning(i18nAttr.value), description(i18nAttr.value));
     }
     throw new I18nError(p.sourceSpan, `Missing attribute '${expectedName}'.`);
 }
-export function messageFromAttribute(parser, attr, meaning = null, description = null) {
-    let value = removeInterpolation(attr.value, attr.sourceSpan, parser);
+export function messageFromAttribute(parser, interpolationConfig, attr, meaning = null, description = null) {
+    let value = removeInterpolation(attr.value, attr.sourceSpan, parser, interpolationConfig);
     return new Message(value, meaning, description);
 }
-export function removeInterpolation(value, source, parser) {
+export function removeInterpolation(value, source, parser, interpolationConfig) {
     try {
-        let parsed = parser.splitInterpolation(value, source.toString());
+        let parsed = parser.splitInterpolation(value, source.toString(), interpolationConfig);
         let usedNames = new Map();
         if (isPresent(parsed)) {
             let res = '';
@@ -144,13 +152,14 @@ export function dedupePhName(usedNames, name) {
         return name;
     }
 }
-export function stringifyNodes(nodes, parser) {
-    let visitor = new _StringifyVisitor(parser);
+export function stringifyNodes(nodes, parser, interpolationConfig) {
+    let visitor = new _StringifyVisitor(parser, interpolationConfig);
     return htmlVisitAll(visitor, nodes).join('');
 }
 class _StringifyVisitor {
-    constructor(_parser) {
+    constructor(_parser, _interpolationConfig) {
         this._parser = _parser;
+        this._interpolationConfig = _interpolationConfig;
         this._index = 0;
     }
     visitElement(ast, context) {
@@ -161,7 +170,7 @@ class _StringifyVisitor {
     visitAttr(ast, context) { return null; }
     visitText(ast, context) {
         let index = this._index++;
-        let noInterpolation = removeInterpolation(ast.value, ast.sourceSpan, this._parser);
+        let noInterpolation = removeInterpolation(ast.value, ast.sourceSpan, this._parser, this._interpolationConfig);
         if (noInterpolation != ast.value) {
             return `<ph name="t${index}">${noInterpolation}</ph>`;
         }

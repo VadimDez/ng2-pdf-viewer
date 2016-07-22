@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -73,6 +80,23 @@ var CompileElement = (function (_super) {
         this.appElement = o.THIS_EXPR.prop(fieldName);
         this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.AppElement), this.appElement);
     };
+    CompileElement.prototype.createComponentFactoryResolver = function (precompileComponent) {
+        if (!precompileComponent || precompileComponent.length === 0) {
+            return;
+        }
+        var createComponentFactoryResolverExpr = o.importExpr(identifiers_1.Identifiers.CodegenComponentFactoryResolver).instantiate([
+            o.literalArr(precompileComponent.map(function (precompiledComponent) { return o.importExpr(precompiledComponent); })),
+            util_1.injectFromViewParentInjector(identifiers_1.identifierToken(identifiers_1.Identifiers.ComponentFactoryResolver), false)
+        ]);
+        var provider = new compile_metadata_1.CompileProviderMetadata({
+            token: identifiers_1.identifierToken(identifiers_1.Identifiers.ComponentFactoryResolver),
+            useValue: createComponentFactoryResolverExpr
+        });
+        // Add ComponentFactoryResolver as first provider as it does not have deps on other providers
+        // ProviderAstType.PrivateService as only the component and its view can see it,
+        // but nobody else
+        this._resolvedProvidersArray.unshift(new template_ast_1.ProviderAst(provider.token, false, true, [provider], template_ast_1.ProviderAstType.PrivateService, this.sourceAst.sourceSpan));
+    };
     CompileElement.prototype.setComponentView = function (compViewExpr) {
         this._compViewExpr = compViewExpr;
         this.contentNodesByNgContentIndex =
@@ -137,7 +161,7 @@ var CompileElement = (function (_super) {
             var queriesForProvider = _this._getQueriesFor(resolvedProvider.token);
             collection_1.ListWrapper.addAll(queriesWithReads, queriesForProvider.map(function (query) { return new _QueryWithRead(query, resolvedProvider.token); }));
         });
-        collection_1.StringMapWrapper.forEach(this.referenceTokens, function (_ /** TODO #9100 */, varName /** TODO #9100 */) {
+        collection_1.StringMapWrapper.forEach(this.referenceTokens, function (_, varName) {
             var token = _this.referenceTokens[varName];
             var varValue;
             if (lang_1.isPresent(token)) {
@@ -261,6 +285,14 @@ var CompileElement = (function (_super) {
             }
             // access regular providers on the element
             if (lang_1.isBlank(result)) {
+                var resolvedProvider = this._resolvedProviders.get(dep.token);
+                // don't allow directives / public services to access private services.
+                // only components and private services can access private services.
+                if (resolvedProvider && (requestingProviderType === template_ast_1.ProviderAstType.Directive ||
+                    requestingProviderType === template_ast_1.ProviderAstType.PublicService) &&
+                    resolvedProvider.providerType === template_ast_1.ProviderAstType.PrivateService) {
+                    return null;
+                }
                 result = this._instances.get(dep.token);
             }
         }
@@ -356,7 +388,7 @@ var _ValueOutputAstTransformer = (function (_super) {
     _ValueOutputAstTransformer.prototype.visitStringMap = function (map, context) {
         var _this = this;
         var entries = [];
-        collection_1.StringMapWrapper.forEach(map, function (value /** TODO #9100 */, key /** TODO #9100 */) {
+        collection_1.StringMapWrapper.forEach(map, function (value, key) {
             entries.push([key, util_2.visitValue(value, _this, context)]);
         });
         return o.literalMap(entries);

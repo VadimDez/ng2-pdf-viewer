@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -7,7 +14,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 var async_1 = require('../facade/async');
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
-var promise_1 = require('../facade/promise');
 /**
  * Indicates that a Control is valid, i.e. that no errors exist in the input value.
  */
@@ -47,7 +53,7 @@ function _find(control, path) {
     }, control);
 }
 function toObservable(r) {
-    return promise_1.PromiseWrapper.isPromise(r) ? async_1.ObservableWrapper.fromPromise(r) : r;
+    return lang_1.isPromise(r) ? async_1.ObservableWrapper.fromPromise(r) : r;
 }
 /**
  * @experimental

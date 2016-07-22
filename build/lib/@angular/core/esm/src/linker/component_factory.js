@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { unimplemented } from '../facade/exceptions';
 import { isBlank } from '../facade/lang';
 import { ViewUtils } from './view_utils';
@@ -60,6 +67,9 @@ export class ComponentRef_ extends ComponentRef {
  * @ts2dart_const
  */
 const EMPTY_CONTEXT = new Object();
+/**
+ * @stable
+ */
 export class ComponentFactory {
     constructor(selector, _viewFactory, _componentType) {
         this.selector = selector;

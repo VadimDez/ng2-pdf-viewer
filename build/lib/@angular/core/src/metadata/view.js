@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 /**
  * Defines template and style encapsulation options available for Component's {@link View}.
@@ -58,10 +65,12 @@ exports.VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulati
  * }
  * ```
  * @ts2dart_const
+ *
+ * @experimental You should most likely be using ComponentMetadata instead.
  */
 var ViewMetadata = (function () {
     function ViewMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, directives = _b.directives, pipes = _b.pipes, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations;
+        var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, directives = _b.directives, pipes = _b.pipes, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations, interpolation = _b.interpolation;
         this.templateUrl = templateUrl;
         this.template = template;
         this.styleUrls = styleUrls;
@@ -70,6 +79,7 @@ var ViewMetadata = (function () {
         this.pipes = pipes;
         this.encapsulation = encapsulation;
         this.animations = animations;
+        this.interpolation = interpolation;
     }
     return ViewMetadata;
 }());

@@ -1,5 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Parser } from '../expression_parser/parser';
 import { HtmlParser } from '../html_parser';
+import { InterpolationConfig } from '../interpolation_config';
 import { ParseError } from '../parse_util';
 import { Message } from './message';
 /**
@@ -83,9 +91,9 @@ export declare class MessageExtractor {
     constructor(_htmlParser: HtmlParser, _parser: Parser, _implicitTags: string[], _implicitAttrs: {
         [k: string]: string[];
     });
-    extract(template: string, sourceUrl: string): ExtractionResult;
-    private _extractMessagesFromPart(part);
-    private _recurse(nodes);
-    private _recurseToExtractMessagesFromAttributes(nodes);
-    private _extractMessagesFromAttributes(p);
+    extract(template: string, sourceUrl: string, interpolationConfig?: InterpolationConfig): ExtractionResult;
+    private _extractMessagesFromPart(part, interpolationConfig);
+    private _recurse(nodes, interpolationConfig);
+    private _recurseToExtractMessagesFromAttributes(nodes, interpolationConfig);
+    private _extractMessagesFromAttributes(p, interpolationConfig);
 }

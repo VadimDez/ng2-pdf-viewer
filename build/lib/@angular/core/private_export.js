@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var animation_constants_1 = require('./src/animation/animation_constants');
 var animation_driver_1 = require('./src/animation/animation_driver');
@@ -13,6 +20,7 @@ var console = require('./src/console');
 var debug = require('./src/debug/debug_renderer');
 var provider_util = require('./src/di/provider_util');
 var reflective_provider = require('./src/di/reflective_provider');
+var component_factory_resolver = require('./src/linker/component_factory_resolver');
 var component_resolver = require('./src/linker/component_resolver');
 var debug_context = require('./src/linker/debug_context');
 var element = require('./src/linker/element');
@@ -31,13 +39,14 @@ var security = require('./src/security');
 var decorators = require('./src/util/decorators');
 exports.__core_private__ = {
     isDefaultChangeDetectionStrategy: constants.isDefaultChangeDetectionStrategy,
-    ChangeDetectorState: constants.ChangeDetectorState,
+    ChangeDetectorStatus: constants.ChangeDetectorStatus,
     CHANGE_DETECTION_STRATEGY_VALUES: constants.CHANGE_DETECTION_STRATEGY_VALUES,
     constructDependencies: reflective_provider.constructDependencies,
     LifecycleHooks: lifecycle_hooks.LifecycleHooks,
     LIFECYCLE_HOOKS_VALUES: lifecycle_hooks.LIFECYCLE_HOOKS_VALUES,
     ReflectorReader: reflector_reader.ReflectorReader,
     ReflectorComponentResolver: component_resolver.ReflectorComponentResolver,
+    CodegenComponentFactoryResolver: component_factory_resolver.CodegenComponentFactoryResolver,
     AppElement: element.AppElement,
     AppView: view.AppView,
     DebugAppView: view.DebugAppView,

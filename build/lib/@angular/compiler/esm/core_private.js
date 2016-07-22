@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { __core_private__ as r } from '@angular/core';
 export var isDefaultChangeDetectionStrategy = r.isDefaultChangeDetectionStrategy;
-export var ChangeDetectorState = r.ChangeDetectorState;
+export var ChangeDetectorStatus = r.ChangeDetectorStatus;
 export var CHANGE_DETECTION_STRATEGY_VALUES = r.CHANGE_DETECTION_STRATEGY_VALUES;
 export var constructDependencies = r.constructDependencies;
 export var LifecycleHooks = r.LifecycleHooks;
@@ -8,6 +15,7 @@ export var LIFECYCLE_HOOKS_VALUES = r.LIFECYCLE_HOOKS_VALUES;
 export var ReflectorReader = r.ReflectorReader;
 export var ReflectorComponentResolver = r.ReflectorComponentResolver;
 export var AppElement = r.AppElement;
+export var CodegenComponentFactoryResolver = r.CodegenComponentFactoryResolver;
 export var AppView = r.AppView;
 export var DebugAppView = r.DebugAppView;
 export var ViewType = r.ViewType;

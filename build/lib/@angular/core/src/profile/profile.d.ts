@@ -1,4 +1,11 @@
-import * as impl from './wtf_impl';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { WtfScopeFn } from './wtf_impl';
 export { WtfScopeFn } from './wtf_impl';
 /**
  * True if WTF is enabled.
@@ -34,7 +41,7 @@ export declare var wtfEnabled: boolean;
  *
  * @experimental
  */
-export declare var wtfCreateScope: (signature: string, flags?: any) => impl.WtfScopeFn;
+export declare var wtfCreateScope: (signature: string, flags?: any) => WtfScopeFn;
 /**
  * Used to mark end of Scope.
  *

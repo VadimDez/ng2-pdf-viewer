@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -11,7 +18,7 @@ var lang_1 = require('../../facade/lang');
 var message_bus_1 = require('./message_bus');
 var serializer_1 = require('./serializer');
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 var ClientMessageBrokerFactory = (function () {
     function ClientMessageBrokerFactory() {
@@ -47,7 +54,7 @@ var ClientMessageBrokerFactory_ = (function (_super) {
 }(ClientMessageBrokerFactory));
 exports.ClientMessageBrokerFactory_ = ClientMessageBrokerFactory_;
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 var ClientMessageBroker = (function () {
     function ClientMessageBroker() {
@@ -160,7 +167,7 @@ var MessageData = (function () {
     return MessageData;
 }());
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 var FnArg = (function () {
     function FnArg(value /** TODO #9100 */, type) {
@@ -171,7 +178,7 @@ var FnArg = (function () {
 }());
 exports.FnArg = FnArg;
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 var UiArguments = (function () {
     function UiArguments(method, args) {

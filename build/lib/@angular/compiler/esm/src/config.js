@@ -1,16 +1,28 @@
-import { ViewEncapsulation } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ViewEncapsulation, isDevMode } from '@angular/core';
 import { unimplemented } from '../src/facade/exceptions';
-import { assertionsEnabled } from '../src/facade/lang';
 import { Identifiers } from './identifiers';
 export class CompilerConfig {
-    constructor({ renderTypes = new DefaultRenderTypes(), defaultEncapsulation = ViewEncapsulation.Emulated, genDebugInfo = assertionsEnabled(), logBindingUpdate = assertionsEnabled(), useJit = true, platformDirectives = [], platformPipes = [] } = {}) {
+    constructor({ renderTypes = new DefaultRenderTypes(), defaultEncapsulation = ViewEncapsulation.Emulated, genDebugInfo, logBindingUpdate, useJit = true, platformDirectives = [], platformPipes = [] } = {}) {
         this.renderTypes = renderTypes;
         this.defaultEncapsulation = defaultEncapsulation;
-        this.genDebugInfo = genDebugInfo;
-        this.logBindingUpdate = logBindingUpdate;
+        this._genDebugInfo = genDebugInfo;
+        this._logBindingUpdate = logBindingUpdate;
         this.useJit = useJit;
         this.platformDirectives = platformDirectives;
         this.platformPipes = platformPipes;
+    }
+    get genDebugInfo() {
+        return this._genDebugInfo === void 0 ? isDevMode() : this._genDebugInfo;
+    }
+    get logBindingUpdate() {
+        return this._logBindingUpdate === void 0 ? isDevMode() : this._logBindingUpdate;
     }
 }
 /**

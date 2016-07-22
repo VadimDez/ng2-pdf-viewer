@@ -1,29 +1,19 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable, ViewMetadata, ComponentMetadata } from '@angular/core';
 import { ReflectorReader, reflector } from '../core_private';
 import { stringify, isBlank, isPresent } from '../src/facade/lang';
 import { BaseException } from '../src/facade/exceptions';
-import { Map } from '../src/facade/collection';
 export class ViewResolver {
-    constructor(_reflector) {
-        /** @internal */
-        this._cache = new Map();
-        if (isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = reflector;
-        }
+    constructor(_reflector = reflector) {
+        this._reflector = _reflector;
     }
     resolve(component) {
-        var view = this._cache.get(component);
-        if (isBlank(view)) {
-            view = this._resolve(component);
-            this._cache.set(component, view);
-        }
-        return view;
-    }
-    /** @internal */
-    _resolve(component) {
         var compMeta;
         this._reflector.annotations(component).forEach(m => {
             if (m instanceof ComponentMetadata) {
@@ -43,7 +33,8 @@ export class ViewResolver {
                     encapsulation: compMeta.encapsulation,
                     styles: compMeta.styles,
                     styleUrls: compMeta.styleUrls,
-                    animations: compMeta.animations
+                    animations: compMeta.animations,
+                    interpolation: compMeta.interpolation
                 });
             }
         }

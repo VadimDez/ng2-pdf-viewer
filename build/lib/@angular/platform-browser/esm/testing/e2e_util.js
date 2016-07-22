@@ -1,9 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import * as webdriver from 'selenium-webdriver';
-export var browser = global['browser'];
-export var $ = global['$'];
-export function clickAll(buttonSelectors /** TODO #9100 */) {
-    buttonSelectors.forEach(function (selector /** TODO #9100 */) { $(selector).click(); });
-}
+/**
+ * @experimental This API will be moved to Protractor.
+ */
 export function verifyNoBrowserErrors() {
     // TODO(tbosch): Bug in ChromeDriver: Need to execute at least one command
     // so that the browser logs can be read out!

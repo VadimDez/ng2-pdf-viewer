@@ -1,8 +1,15 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
-var modelModule = require('./model');
+var model_1 = require('./model');
 var FormBuilder = (function () {
     function FormBuilder() {
     }
@@ -18,7 +25,7 @@ var FormBuilder = (function () {
         var optionals = (lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, 'optionals') : null);
         var validator = lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, 'validator') : null;
         var asyncValidator = lang_1.isPresent(extra) ? collection_1.StringMapWrapper.get(extra, 'asyncValidator') : null;
-        return new modelModule.ControlGroup(controls, optionals, validator, asyncValidator);
+        return new model_1.ControlGroup(controls, optionals, validator, asyncValidator);
     };
     /**
      * Construct a new {@link Control} with the given `value`,`validator`, and `asyncValidator`.
@@ -26,7 +33,7 @@ var FormBuilder = (function () {
     FormBuilder.prototype.control = function (value, validator, asyncValidator) {
         if (validator === void 0) { validator = null; }
         if (asyncValidator === void 0) { asyncValidator = null; }
-        return new modelModule.Control(value, validator, asyncValidator);
+        return new model_1.Control(value, validator, asyncValidator);
     };
     /**
      * Construct an array of {@link Control}s from the given `controlsConfig` array of
@@ -37,7 +44,7 @@ var FormBuilder = (function () {
         if (validator === void 0) { validator = null; }
         if (asyncValidator === void 0) { asyncValidator = null; }
         var controls = controlsConfig.map(function (c) { return _this._createControl(c); });
-        return new modelModule.ControlArray(controls, validator, asyncValidator);
+        return new model_1.ControlArray(controls, validator, asyncValidator);
     };
     /** @internal */
     FormBuilder.prototype._reduceControls = function (controlsConfig) {
@@ -50,9 +57,8 @@ var FormBuilder = (function () {
     };
     /** @internal */
     FormBuilder.prototype._createControl = function (controlConfig) {
-        if (controlConfig instanceof modelModule.Control ||
-            controlConfig instanceof modelModule.ControlGroup ||
-            controlConfig instanceof modelModule.ControlArray) {
+        if (controlConfig instanceof model_1.Control || controlConfig instanceof model_1.ControlGroup ||
+            controlConfig instanceof model_1.ControlArray) {
             return controlConfig;
         }
         else if (lang_1.isArray(controlConfig)) {

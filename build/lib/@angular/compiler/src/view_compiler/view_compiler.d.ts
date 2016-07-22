@@ -2,12 +2,13 @@ import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metada
 import { CompilerConfig } from '../config';
 import * as o from '../output/output_ast';
 import { TemplateAst } from '../template_ast';
-import { ViewCompileDependency } from './view_builder';
+import { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
+export { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
 export declare class ViewCompileResult {
     statements: o.Statement[];
     viewFactoryVar: string;
-    dependencies: ViewCompileDependency[];
-    constructor(statements: o.Statement[], viewFactoryVar: string, dependencies: ViewCompileDependency[]);
+    dependencies: Array<ViewFactoryDependency | ComponentFactoryDependency>;
+    constructor(statements: o.Statement[], viewFactoryVar: string, dependencies: Array<ViewFactoryDependency | ComponentFactoryDependency>);
 }
 export declare class ViewCompiler {
     private _genConfig;

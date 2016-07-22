@@ -48,7 +48,7 @@ export declare class HashLocationStrategy extends LocationStrategy {
     constructor(_platformLocation: PlatformLocation, _baseHref?: string);
     onPopState(fn: UrlChangeListener): void;
     getBaseHref(): string;
-    path(): string;
+    path(includeHash?: boolean): string;
     prepareExternalUrl(internal: string): string;
     pushState(state: any, title: string, path: string, queryParams: string): void;
     replaceState(state: any, title: string, path: string, queryParams: string): void;

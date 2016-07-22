@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Subject } from 'rxjs/Subject';
 import { PromiseObservable } from 'rxjs/observable/PromiseObservable';
 import { toPromise } from 'rxjs/operator/toPromise';
@@ -31,7 +38,7 @@ export class ObservableWrapper {
     /**
      * @deprecated - use callEmit() instead
      */
-    static callNext(emitter, value) { emitter.next(value); }
+    static callNext(emitter, value) { emitter.emit(value); }
     static callEmit(emitter, value) { emitter.emit(value); }
     static callError(emitter, error) { emitter.error(error); }
     static callComplete(emitter) { emitter.complete(); }
