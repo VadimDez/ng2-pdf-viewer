@@ -1,8 +1,9 @@
 {
-  "name": "ng2-pdf-viewer-example",
-  "version": "0.0.2",
+  "name": "ng2-pdf-viewer",
+  "version": "0.0.4",
   "description": "Angular2 component for rendering PDF",
   "main": "dist/pdf-viewer.component.js",
+  "typings": "./dist/pdf-viewer.component.min.d.ts",
   "directories": {
     "example": "example"
   },
@@ -34,7 +35,7 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "peerDependencies": {
-    "@angular/core": "2.0.0-rc.2",
+    "@angular/core": "2.0.0-rc.4",
     "pdfjs-dist": "^1.5.296"
   },
   "dependencies": {
@@ -44,7 +45,6 @@
     "@angular/platform-browser": "2.0.0-rc.4",
     "@angular/platform-browser-dynamic": "2.0.0-rc.4",
     "es6-shim": "^0.35.0",
-    "ng2-pdf-viewer": "0.0.1",
     "pdfjs-dist": "^1.5.296",
     "reflect-metadata": "0.1.3",
     "rxjs": "5.0.0-beta.6",
