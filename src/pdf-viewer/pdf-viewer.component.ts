@@ -6,12 +6,13 @@ import PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
-  template: '<canvas></canvas>'
+  template: '<div class="ng2-pdf-viewer-container"><canvas></canvas></div>'
 })
 
 export class PdfViewerComponent {
 
   @Input('original-size') originalSize: boolean = false;
+  @Input('show-all') showAll: boolean = true;
   private _src: string;
   private _pdf: any;
   private _page: number = 1;
@@ -43,8 +44,45 @@ export class PdfViewerComponent {
         this._page = 1;
       }
 
-      this.renderPage(this._page);
+      if (!this.showAll) {
+        return this.renderPage(this._page);
+      }
+
+      return this.renderMultiplePages();
     });
+  }
+
+  private renderMultiplePages() {
+    let container = this.element.nativeElement.querySelector('div');
+    this.element.nativeElement.querySelector('canvas').hidden = true;
+    let i = 1;
+
+    const renderPage = (page: any) => {
+      let viewport = page.getViewport(1);
+      let canvas: HTMLCanvasElement = document.createElement('canvas');
+      let context = canvas.getContext('2d');
+
+      if (!this.originalSize) {
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
+      }
+
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      page.render({
+        canvasContext: context,
+        viewport: viewport
+      });
+
+      container.appendChild(canvas);
+
+      if (i < this._pdf.numPages) {
+        i++;
+        this._pdf.getPage(i).then(renderPage);
+      }
+    };
+
+    this._pdf.getPage(i).then(renderPage);
   }
 
   private isValidPageNumber(page: number) {
@@ -53,9 +91,11 @@ export class PdfViewerComponent {
 
   private renderPage(initialPage: number) {
     this._pdf.getPage(initialPage).then((page: any) => {
-      var viewport = page.getViewport(1);
-      var canvas = this.element.nativeElement.querySelector('canvas');
-      var context = canvas.getContext('2d');
+      let viewport = page.getViewport(1);
+      let canvas = this.element.nativeElement.querySelector('canvas');
+      let context = canvas.getContext('2d');
+
+      canvas.hidden = false;
 
       if (!this.originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);

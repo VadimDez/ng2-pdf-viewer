@@ -25,6 +25,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 function PdfViewerComponent(element) {
                     this.element = element;
                     this.originalSize = false;
+                    this.showAll = true;
                     this._page = 1;
                 }
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
@@ -53,8 +54,37 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         if (!_this.isValidPageNumber(_this._page)) {
                             _this._page = 1;
                         }
-                        _this.renderPage(_this._page);
+                        if (!_this.showAll) {
+                            return _this.renderPage(_this._page);
+                        }
+                        return _this.renderMultiplePages();
                     });
+                };
+                PdfViewerComponent.prototype.renderMultiplePages = function () {
+                    var _this = this;
+                    var container = this.element.nativeElement.querySelector('div');
+                    this.element.nativeElement.querySelector('canvas').hidden = true;
+                    var i = 1;
+                    var renderPage = function (page) {
+                        var viewport = page.getViewport(1);
+                        var canvas = document.createElement('canvas');
+                        var context = canvas.getContext('2d');
+                        if (!_this.originalSize) {
+                            viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
+                        }
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        page.render({
+                            canvasContext: context,
+                            viewport: viewport
+                        });
+                        container.appendChild(canvas);
+                        if (i < _this._pdf.numPages) {
+                            i++;
+                            _this._pdf.getPage(i).then(renderPage);
+                        }
+                    };
+                    this._pdf.getPage(i).then(renderPage);
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
                     return this._pdf.numPages >= page && page >= 1;
@@ -65,6 +95,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         var viewport = page.getViewport(1);
                         var canvas = _this.element.nativeElement.querySelector('canvas');
                         var context = canvas.getContext('2d');
+                        canvas.hidden = false;
                         if (!_this.originalSize) {
                             viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         }
@@ -81,6 +112,10 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     __metadata('design:type', Boolean)
                 ], PdfViewerComponent.prototype, "originalSize", void 0);
                 __decorate([
+                    core_1.Input('show-all'), 
+                    __metadata('design:type', Boolean)
+                ], PdfViewerComponent.prototype, "showAll", void 0);
+                __decorate([
                     core_1.Input(), 
                     __metadata('design:type', Object), 
                     __metadata('design:paramtypes', [Object])
@@ -93,7 +128,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
-                        template: '<canvas></canvas>'
+                        template: '<div class="ng2-pdf-viewer-container"><canvas></canvas></div>'
                     }), 
                     __metadata('design:paramtypes', [core_1.ElementRef])
                 ], PdfViewerComponent);
