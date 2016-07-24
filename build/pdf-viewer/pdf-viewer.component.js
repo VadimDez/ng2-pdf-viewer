@@ -83,41 +83,29 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                 PdfViewerComponent.prototype.renderMultiplePages = function () {
                     var _this = this;
                     var container = this.element.nativeElement.querySelector('div');
-                    var i = 1;
+                    var page = 1;
+                    var renderPageFn = function (page) { return function () { return _this.renderPage(page); }; };
                     this.removeAllChildNodes(container);
-                    var renderPage = function (page) {
-                        var viewport = page.getViewport(1);
-                        var canvas = document.createElement('canvas');
-                        if (!_this._originalSize) {
-                            viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
-                        }
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
-                        page.render({
-                            canvasContext: canvas.getContext('2d'),
-                            viewport: viewport
-                        });
-                        container.appendChild(canvas);
-                        if (i < _this._pdf.numPages) {
-                            i++;
-                            _this._pdf.getPage(i).then(renderPage);
-                        }
-                    };
-                    this._pdf.getPage(i).then(renderPage);
+                    var d = this.renderPage(page++);
+                    for (page; page <= this._pdf.numPages; page++) {
+                        d = d.then(renderPageFn(page));
+                    }
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
                     return this._pdf.numPages >= page && page >= 1;
                 };
-                PdfViewerComponent.prototype.renderPage = function (initialPage) {
+                PdfViewerComponent.prototype.renderPage = function (page) {
                     var _this = this;
-                    this._pdf.getPage(initialPage).then(function (page) {
+                    return this._pdf.getPage(page).then(function (page) {
                         var viewport = page.getViewport(1);
                         var container = _this.element.nativeElement.querySelector('div');
                         var canvas = document.createElement('canvas');
                         if (!_this._originalSize) {
                             viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         }
-                        _this.removeAllChildNodes(container);
+                        if (!_this._showAll) {
+                            _this.removeAllChildNodes(container);
+                        }
                         container.appendChild(canvas);
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;

@@ -71,43 +71,24 @@ export class PdfViewerComponent {
 
   private renderMultiplePages() {
     let container = this.element.nativeElement.querySelector('div');
-    let i = 1;
+    let page = 1;
+    const renderPageFn = (page: number) => () => this.renderPage(page);
 
     this.removeAllChildNodes(container);
 
-    const renderPage = (page: any) => {
-      let viewport = page.getViewport(1);
-      let canvas: HTMLCanvasElement = document.createElement('canvas');
+    let d = this.renderPage(page++);
 
-      if (!this._originalSize) {
-        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
-      }
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      page.render({
-        canvasContext: canvas.getContext('2d'),
-        viewport: viewport
-      });
-
-      container.appendChild(canvas);
-
-      if (i < this._pdf.numPages) {
-        i++;
-        this._pdf.getPage(i).then(renderPage);
-      }
-    };
-
-    this._pdf.getPage(i).then(renderPage);
+    for (page; page <= this._pdf.numPages; page++) {
+      d = d.then(renderPageFn(page));
+    }
   }
 
   private isValidPageNumber(page: number) {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private renderPage(initialPage: number) {
-    this._pdf.getPage(initialPage).then((page: any) => {
+  private renderPage(page: number) {
+    return this._pdf.getPage(page).then((page: any) => {
       let viewport = page.getViewport(1);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
@@ -116,7 +97,10 @@ export class PdfViewerComponent {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
       }
 
-      this.removeAllChildNodes(container);
+      if (!this._showAll) {
+        this.removeAllChildNodes(container);
+      }
+
       container.appendChild(canvas);
 
       canvas.height = viewport.height;
