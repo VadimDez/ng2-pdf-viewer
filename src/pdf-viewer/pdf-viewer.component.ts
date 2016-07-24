@@ -6,7 +6,7 @@ import PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
-  template: '<div class="ng2-pdf-viewer-container"><canvas></canvas></div>'
+  template: '<div class="ng2-pdf-viewer-container"></div>'
 })
 
 export class PdfViewerComponent {
@@ -54,13 +54,13 @@ export class PdfViewerComponent {
 
   private renderMultiplePages() {
     let container = this.element.nativeElement.querySelector('div');
-    this.element.nativeElement.querySelector('canvas').hidden = true;
     let i = 1;
+
+    this.removeAllChildNodes(container);
 
     const renderPage = (page: any) => {
       let viewport = page.getViewport(1);
       let canvas: HTMLCanvasElement = document.createElement('canvas');
-      let context = canvas.getContext('2d');
 
       if (!this.originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
@@ -70,7 +70,7 @@ export class PdfViewerComponent {
       canvas.width = viewport.width;
 
       page.render({
-        canvasContext: context,
+        canvasContext: canvas.getContext('2d'),
         viewport: viewport
       });
 
@@ -92,22 +92,29 @@ export class PdfViewerComponent {
   private renderPage(initialPage: number) {
     this._pdf.getPage(initialPage).then((page: any) => {
       let viewport = page.getViewport(1);
-      let canvas = this.element.nativeElement.querySelector('canvas');
-      let context = canvas.getContext('2d');
-
-      canvas.hidden = false;
+      let container = this.element.nativeElement.querySelector('div');
+      let canvas: HTMLCanvasElement = document.createElement('canvas');
 
       if (!this.originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
       }
 
+      this.removeAllChildNodes(container);
+      container.appendChild(canvas);
+
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
       page.render({
-        canvasContext: context,
+        canvasContext: canvas.getContext('2d'),
         viewport: viewport
       });
     });
+  }
+
+  private removeAllChildNodes(element: HTMLElement) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
   }
 }
