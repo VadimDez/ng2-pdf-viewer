@@ -10,9 +10,8 @@ import PDFJS from 'pdfjs-dist';
 })
 
 export class PdfViewerComponent {
-
-  @Input('original-size') originalSize: boolean = false;
   @Input('show-all') showAll: boolean = true;
+  private _originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
   private _page: number = 1;
@@ -33,6 +32,15 @@ export class PdfViewerComponent {
     if (this._pdf && this.isValidPageNumber(_page)) {
       this._page = _page;
       this.renderPage(_page);
+    }
+  }
+
+  @Input('original-size')
+  set originalSize(originalSize: boolean) {
+    this._originalSize = originalSize;
+
+    if (this._pdf) {
+      this.fn();
     }
   }
 
@@ -62,7 +70,7 @@ export class PdfViewerComponent {
       let viewport = page.getViewport(1);
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 
-      if (!this.originalSize) {
+      if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
       }
 
@@ -95,7 +103,7 @@ export class PdfViewerComponent {
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 
-      if (!this.originalSize) {
+      if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
       }
 

@@ -7,3 +7,7 @@
 .page-number {
     width: 50px;
 }
+
+pdf-viewer {
+    display: block;
+}

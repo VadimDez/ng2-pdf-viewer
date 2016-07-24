@@ -26,7 +26,16 @@
                 </button>
             </div>
 
-            <pdf-viewer [src]="pdfSrc" [page]="page" [original-size]="false" style="display: block;"></pdf-viewer>
+            <div>
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="original-size">
+                    <input type="checkbox" id="original-size" class="mdl-switch__input"
+                           [checked]="originalSize"
+                           [(ngModel)]="originalSize">
+                    <span class="mdl-switch__label">Original size</span>
+                </label>
+            </div>
+
+            <pdf-viewer [src]="pdfSrc" [page]="page" [original-size]="originalSize"></pdf-viewer>
 
         </div>
     </main>

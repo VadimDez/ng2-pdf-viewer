@@ -24,8 +24,8 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
             PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
-                    this.originalSize = false;
                     this.showAll = true;
+                    this._originalSize = false;
                     this._page = 1;
                 }
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
@@ -42,6 +42,16 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         if (this._pdf && this.isValidPageNumber(_page)) {
                             this._page = _page;
                             this.renderPage(_page);
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
+                    set: function (originalSize) {
+                        this._originalSize = originalSize;
+                        if (this._pdf) {
+                            this.fn();
                         }
                     },
                     enumerable: true,
@@ -68,7 +78,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     var renderPage = function (page) {
                         var viewport = page.getViewport(1);
                         var canvas = document.createElement('canvas');
-                        if (!_this.originalSize) {
+                        if (!_this._originalSize) {
                             viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         }
                         canvas.height = viewport.height;
@@ -94,7 +104,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         var viewport = page.getViewport(1);
                         var container = _this.element.nativeElement.querySelector('div');
                         var canvas = document.createElement('canvas');
-                        if (!_this.originalSize) {
+                        if (!_this._originalSize) {
                             viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         }
                         _this.removeAllChildNodes(container);
@@ -113,10 +123,6 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     }
                 };
                 __decorate([
-                    core_1.Input('original-size'), 
-                    __metadata('design:type', Boolean)
-                ], PdfViewerComponent.prototype, "originalSize", void 0);
-                __decorate([
                     core_1.Input('show-all'), 
                     __metadata('design:type', Boolean)
                 ], PdfViewerComponent.prototype, "showAll", void 0);
@@ -130,6 +136,11 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     __metadata('design:type', Object), 
                     __metadata('design:paramtypes', [Object])
                 ], PdfViewerComponent.prototype, "page", null);
+                __decorate([
+                    core_1.Input('original-size'), 
+                    __metadata('design:type', Boolean), 
+                    __metadata('design:paramtypes', [Boolean])
+                ], PdfViewerComponent.prototype, "originalSize", null);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
