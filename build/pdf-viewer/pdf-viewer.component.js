@@ -24,7 +24,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
             PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
-                    this.showAll = true;
+                    this.showAll = false;
                     this._originalSize = false;
                     this._page = 1;
                 }

@@ -29,6 +29,7 @@ System.register(['@angular/core', './../pdf-viewer/pdf-viewer.component', './mdl
                     this.pdfSrc = './pdf-test.pdf';
                     this.page = 1;
                     this.originalSize = false;
+                    this.showAll = true;
                 }
                 AppComponent.prototype.incrementPage = function (amount) {
                     this.page += amount;

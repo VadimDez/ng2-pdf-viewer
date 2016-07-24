@@ -17,7 +17,7 @@ export class AppComponent {
   pdfSrc: string = './pdf-test.pdf';
   page: number = 1;
   originalSize: boolean = false;
-
+  showAll: boolean = true;
 
   incrementPage(amount) {
     this.page += amount;

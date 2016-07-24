@@ -10,7 +10,7 @@ import PDFJS from 'pdfjs-dist';
 })
 
 export class PdfViewerComponent {
-  @Input('show-all') showAll: boolean = true;
+  @Input('show-all') showAll: boolean = false;
   private _originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
