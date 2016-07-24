@@ -10,7 +10,7 @@ import PDFJS from 'pdfjs-dist';
 })
 
 export class PdfViewerComponent {
-  @Input('show-all') showAll: boolean = false;
+  private _showAll: boolean = false;
   private _originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
@@ -44,6 +44,15 @@ export class PdfViewerComponent {
     }
   }
 
+  @Input('show-all')
+  set showAll(value: boolean) {
+    this._showAll = value;
+
+    if (this._pdf) {
+      this.fn();
+    }
+  }
+
   private fn() {
     PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
@@ -52,7 +61,7 @@ export class PdfViewerComponent {
         this._page = 1;
       }
 
-      if (!this.showAll) {
+      if (!this._showAll) {
         return this.renderPage(this._page);
       }
 

@@ -24,7 +24,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
             PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
-                    this.showAll = false;
+                    this._showAll = false;
                     this._originalSize = false;
                     this._page = 1;
                 }
@@ -57,6 +57,16 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     enumerable: true,
                     configurable: true
                 });
+                Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
+                    set: function (value) {
+                        this._showAll = value;
+                        if (this._pdf) {
+                            this.fn();
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 PdfViewerComponent.prototype.fn = function () {
                     var _this = this;
                     pdfjs_dist_1.default.getDocument(this._src).then(function (pdf) {
@@ -64,7 +74,7 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         if (!_this.isValidPageNumber(_this._page)) {
                             _this._page = 1;
                         }
-                        if (!_this.showAll) {
+                        if (!_this._showAll) {
                             return _this.renderPage(_this._page);
                         }
                         return _this.renderMultiplePages();
@@ -123,10 +133,6 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     }
                 };
                 __decorate([
-                    core_1.Input('show-all'), 
-                    __metadata('design:type', Boolean)
-                ], PdfViewerComponent.prototype, "showAll", void 0);
-                __decorate([
                     core_1.Input(), 
                     __metadata('design:type', Object), 
                     __metadata('design:paramtypes', [Object])
@@ -141,6 +147,11 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     __metadata('design:type', Boolean), 
                     __metadata('design:paramtypes', [Boolean])
                 ], PdfViewerComponent.prototype, "originalSize", null);
+                __decorate([
+                    core_1.Input('show-all'), 
+                    __metadata('design:type', Boolean), 
+                    __metadata('design:paramtypes', [Boolean])
+                ], PdfViewerComponent.prototype, "showAll", null);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
