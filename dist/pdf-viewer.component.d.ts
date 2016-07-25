@@ -3,15 +3,19 @@
  */
 import { ElementRef } from '@angular/core';
 export declare class PdfViewerComponent {
-    private element;
     originalSize: boolean;
+    src: string;
+    page: number;
+    showAll: boolean;
+    private element;
     private _src;
     private _pdf;
     private _page;
+    private _showAll;
     constructor(element: ElementRef);
-    src: string;
-    page: number;
     private fn();
     private isValidPageNumber(page);
-    private renderPage(initialPage);
+    private renderPage(page);
+    private renderMultiplePages();
+    private isValidPageNumber();
 }
