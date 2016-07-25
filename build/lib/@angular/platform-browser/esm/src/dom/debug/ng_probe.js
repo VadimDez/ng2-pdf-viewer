@@ -1,6 +1,12 @@
-import { ApplicationRef, NgZone, RootRenderer, getDebugNode } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ApplicationRef, NgZone, RootRenderer, getDebugNode, isDevMode } from '@angular/core';
 import { DebugDomRootRenderer } from '../../../core_private';
-import { assertionsEnabled } from '../../facade/lang';
 import { getDOM } from '../dom_adapter';
 import { DomRootRenderer } from '../dom_renderer';
 const CORE_TOKENS = {
@@ -18,7 +24,7 @@ export function inspectNativeElement(element /** TODO #9100 */) {
     return getDebugNode(element);
 }
 function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
-    if (assertionsEnabled()) {
+    if (isDevMode()) {
         return _createRootRenderer(rootRenderer);
     }
     return rootRenderer;

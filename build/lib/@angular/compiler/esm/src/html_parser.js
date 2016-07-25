@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { isPresent, isBlank } from '../src/facade/lang';
 import { ListWrapper } from '../src/facade/collection';
@@ -234,18 +241,14 @@ class TreeBuilder {
                 this.elementStack.pop();
             }
         }
-        var tagDef = getHtmlTagDefinition(el.name);
-        var parentEl = this._getParentElement();
-        if (tagDef.requireExtraParent(isPresent(parentEl) ? parentEl.name : null)) {
-            var newParent = new HtmlElementAst(tagDef.parentToAdd, [], [el], el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
-            this._addToParent(newParent);
-            this.elementStack.push(newParent);
-            this.elementStack.push(el);
+        const tagDef = getHtmlTagDefinition(el.name);
+        const { parent, container } = this._getParentElementSkippingContainers();
+        if (isPresent(parent) && tagDef.requireExtraParent(parent.name)) {
+            var newParent = new HtmlElementAst(tagDef.parentToAdd, [], [], el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
+            this._insertBeforeContainer(parent, container, newParent);
         }
-        else {
-            this._addToParent(el);
-            this.elementStack.push(el);
-        }
+        this._addToParent(el);
+        this.elementStack.push(el);
     }
     _consumeEndTag(endTagToken) {
         var fullName = getElementFullName(endTagToken.parts[0], endTagToken.parts[1], this._getParentElement());
@@ -286,6 +289,21 @@ class TreeBuilder {
     _getParentElement() {
         return this.elementStack.length > 0 ? ListWrapper.last(this.elementStack) : null;
     }
+    /**
+     * Returns the parent in the DOM and the container.
+     *
+     * `<ng-container>` elements are skipped as they are not rendered as DOM element.
+     */
+    _getParentElementSkippingContainers() {
+        let container = null;
+        for (let i = this.elementStack.length - 1; i >= 0; i--) {
+            if (this.elementStack[i].name !== 'ng-container') {
+                return { parent: this.elementStack[i], container };
+            }
+            container = this.elementStack[i];
+        }
+        return { parent: ListWrapper.last(this.elementStack), container };
+    }
     _addToParent(node) {
         var parent = this._getParentElement();
         if (isPresent(parent)) {
@@ -293,6 +311,31 @@ class TreeBuilder {
         }
         else {
             this.rootNodes.push(node);
+        }
+    }
+    /**
+     * Insert a node between the parent and the container.
+     * When no container is given, the node is appended as a child of the parent.
+     * Also updates the element stack accordingly.
+     *
+     * @internal
+     */
+    _insertBeforeContainer(parent, container, node) {
+        if (!container) {
+            this._addToParent(node);
+            this.elementStack.push(node);
+        }
+        else {
+            if (parent) {
+                // replace the container with the new node in the children
+                let index = parent.children.indexOf(container);
+                parent.children[index] = node;
+            }
+            else {
+                this.rootNodes.push(node);
+            }
+            node.children.push(container);
+            this.elementStack.splice(this.elementStack.indexOf(container), 0, node);
         }
     }
 }

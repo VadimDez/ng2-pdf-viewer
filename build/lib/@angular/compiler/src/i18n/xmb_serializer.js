@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80,13 +87,24 @@ function _id(el) {
     return ids.length > 0 ? ids[0].value : null;
 }
 function _serializeMessage(m) {
-    var desc = lang_1.isPresent(m.description) ? " desc='" + m.description + "'" : '';
-    return "<msg id='" + message_1.id(m) + "'" + desc + ">" + m.content + "</msg>";
+    var desc = lang_1.isPresent(m.description) ? " desc='" + _escapeXml(m.description) + "'" : '';
+    var meaning = lang_1.isPresent(m.meaning) ? " meaning='" + _escapeXml(m.meaning) + "'" : '';
+    return "<msg id='" + message_1.id(m) + "'" + desc + meaning + ">" + m.content + "</msg>";
 }
 function _expandPlaceholder(input) {
     return lang_1.RegExpWrapper.replaceAll(_PLACEHOLDER_REGEXP, input, function (match) {
         var nameWithQuotes = match[2];
         return "<ph name=" + nameWithQuotes + "></ph>";
     });
+}
+var _XML_ESCAPED_CHARS = [
+    [/&/g, '&amp;'],
+    [/"/g, '&quot;'],
+    [/'/g, '&apos;'],
+    [/</g, '&lt;'],
+    [/>/g, '&gt;'],
+];
+function _escapeXml(value) {
+    return _XML_ESCAPED_CHARS.reduce(function (value, escape) { return value.replace(escape[0], escape[1]); }, value);
 }
 //# sourceMappingURL=xmb_serializer.js.map

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable, RenderComponentType, ViewEncapsulation } from '@angular/core';
 import { VIEW_ENCAPSULATION_VALUES } from '../../../core_private';
 import { BaseException } from '../../facade/exceptions';
@@ -7,7 +14,7 @@ import { LocationType } from './serialized_types';
 // PRIMITIVE is any type that does not need to be serialized (string, number, boolean)
 // We set it to String so that it is considered a Type.
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is currently experimental.
  */
 export const PRIMITIVE = String;
 export class Serializer {

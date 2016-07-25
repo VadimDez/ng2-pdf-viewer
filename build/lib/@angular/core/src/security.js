@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 /**
  * A SecurityContext marks a location that has dangerous security implications, e.g. a DOM property
@@ -5,6 +12,8 @@
  * handled.
  *
  * See DomSanitizationService for more details on security in Angular applications.
+ *
+ * @stable
  */
 (function (SecurityContext) {
     SecurityContext[SecurityContext["NONE"] = 0] = "NONE";
@@ -18,6 +27,8 @@ var SecurityContext = exports.SecurityContext;
 /**
  * SanitizationService is used by the views to sanitize potentially dangerous values. This is a
  * private API, use code should only refer to DomSanitizationService.
+ *
+ * @stable
  */
 var SanitizationService = (function () {
     function SanitizationService() {

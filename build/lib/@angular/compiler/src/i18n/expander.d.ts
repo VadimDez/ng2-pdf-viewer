@@ -16,11 +16,11 @@ import { ParseError } from '../parse_util';
  * will be expanded into
  *
  * ```
- * <ul [ngPlural]="messages.length">
- *   <template ngPluralCase="=0"><li i18n="plural_=0">zero</li></template>
- *   <template ngPluralCase="=1"><li i18n="plural_=1">one</li></template>
- *   <template ngPluralCase="other"><li i18n="plural_other">more than one</li></template>
- * </ul>
+ * <ng-container [ngPlural]="messages.length">
+ *   <template ngPluralCase="=0">zero</ng-container>
+ *   <template ngPluralCase="=1">one</ng-container>
+ *   <template ngPluralCase="other">more than one</ng-container>
+ * </ng-container>
  * ```
  */
 export declare function expandNodes(nodes: HtmlAst[]): ExpansionResult;

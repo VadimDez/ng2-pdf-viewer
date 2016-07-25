@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var dom_adapter_1 = require('../src/dom/dom_adapter');
 var collection_1 = require('../src/facade/collection');
@@ -65,9 +72,7 @@ var BrowserDetection = (function () {
         // The Intl API is only properly supported in recent Chrome and Opera.
         // Note: Edge is disguised as Chrome 42, so checking the "Edge" part is needed,
         // see https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-        get: function () {
-            return this._ua.indexOf('Chrome/4') > -1 && this._ua.indexOf('Edge') == -1;
-        },
+        get: function () { return !!lang_1.global.Intl; },
         enumerable: true,
         configurable: true
     });

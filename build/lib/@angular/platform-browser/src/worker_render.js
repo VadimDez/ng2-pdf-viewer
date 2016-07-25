@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../core_private');
@@ -39,7 +46,7 @@ var WebWorkerInstance = (function () {
 }());
 exports.WebWorkerInstance = WebWorkerInstance;
 /**
- * @experimental
+ * @experimental WebWorker support is currently experimental.
  */
 exports.WORKER_SCRIPT = new core_1.OpaqueToken('WebWorkerScript');
 /**
@@ -47,18 +54,18 @@ exports.WORKER_SCRIPT = new core_1.OpaqueToken('WebWorkerScript');
  * created.
  *
  * TODO(vicb): create an interface for startable services to implement
- * @experimental
+ * @experimental WebWorker support is currently experimental.
  */
 exports.WORKER_UI_STARTABLE_MESSAGING_SERVICE = new core_1.OpaqueToken('WorkerRenderStartableMsgService');
 /**
- * * @experimental
+ * @experimental WebWorker support is currently experimental.
  */
 exports.WORKER_UI_PLATFORM_PROVIDERS = [
     core_1.PLATFORM_COMMON_PROVIDERS, { provide: WORKER_RENDER_PLATFORM_MARKER, useValue: true },
     { provide: core_1.PLATFORM_INITIALIZER, useValue: initWebWorkerRenderPlatform, multi: true }
 ];
 /**
- * * @experimental
+ * @experimental WebWorker support is currently experimental.
  */
 exports.WORKER_UI_APPLICATION_PROVIDERS = [
     core_1.APPLICATION_COMMON_PROVIDERS,
@@ -95,7 +102,7 @@ function initializeGenericWorkerRenderer(injector) {
     bus.attachToZone(zone);
     // initialize message services after the bus has been created
     var services = injector.get(exports.WORKER_UI_STARTABLE_MESSAGING_SERVICE);
-    zone.runGuarded(function () { services.forEach(function (svc /** TODO #9100 */) { svc.start(); }); });
+    zone.runGuarded(function () { services.forEach(function (svc) { svc.start(); }); });
 }
 function messageBusFactory(instance) {
     return instance.bus;
@@ -106,7 +113,7 @@ function initWebWorkerRenderPlatform() {
     testability_1.BrowserGetTestability.init();
 }
 /**
- * * @experimental
+ * @experimental WebWorker support is currently experimental.
  */
 function workerUiPlatform() {
     if (lang_1.isBlank(core_1.getPlatform())) {

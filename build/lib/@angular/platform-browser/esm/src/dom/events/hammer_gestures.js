@@ -1,7 +1,20 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Inject, Injectable, OpaqueToken } from '@angular/core';
 import { BaseException } from '../../facade/exceptions';
 import { isPresent } from '../../facade/lang';
 import { HammerGesturesPluginCommon } from './hammer_common';
+/**
+ * A DI token that you can use to provide{@link HammerGestureConfig} to Angular. Use it to configure
+ * Hammer gestures.
+ *
+ * @experimental
+ */
 export const HAMMER_GESTURE_CONFIG = new OpaqueToken('HammerGestureConfig');
 export class HammerGestureConfig {
     constructor() {

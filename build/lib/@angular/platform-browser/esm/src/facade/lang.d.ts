@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 export interface BrowserNodeGlobal {
     Object: typeof Object;
     Array: typeof Array;
@@ -23,36 +30,26 @@ export declare function scheduleMicroTask(fn: Function): void;
 export declare const IS_DART: boolean;
 declare var _global: BrowserNodeGlobal;
 export { _global as global };
-export declare var Type: FunctionConstructor;
 /**
  * Runtime representation a type that a Component or other object is instances of.
  *
  * An example of a `Type` is `MyCustomComponent` class, which in JavaScript is be represented by
  * the `MyCustomComponent` constructor function.
+ *
+ * @stable
  */
+export declare var Type: FunctionConstructor;
 export interface Type extends Function {
 }
 /**
  * Runtime representation of a type that is constructable (non-abstract).
  */
-export interface ConcreteType extends Type {
-    new (...args: any[]): any;
+export interface ConcreteType<T> extends Type {
+    new (...args: any[]): T;
 }
 export declare function getTypeNameForDebugging(type: Type): string;
 export declare var Math: any;
 export declare var Date: DateConstructor;
-export declare function lockMode(): void;
-/**
- * Disable Angular's development mode, which turns off assertions and other
- * checks within the framework.
- *
- * One important assertion this disables verifies that a change detection pass
- * does not result in additional changes to any bindings (also known as
- * unidirectional data flow).
- * @stable
- */
-export declare function enableProdMode(): void;
-export declare function assertionsEnabled(): boolean;
 export declare function isPresent(obj: any): boolean;
 export declare function isBlank(obj: any): boolean;
 export declare function isBoolean(obj: any): boolean;
@@ -60,7 +57,7 @@ export declare function isNumber(obj: any): boolean;
 export declare function isString(obj: any): obj is String;
 export declare function isFunction(obj: any): boolean;
 export declare function isType(obj: any): boolean;
-export declare function isStringMap(obj: any): boolean;
+export declare function isStringMap(obj: any): obj is Object;
 export declare function isStrictStringMap(obj: any): boolean;
 export declare function isPromise(obj: any): boolean;
 export declare function isArray(obj: any): boolean;
@@ -80,7 +77,7 @@ export declare class StringWrapper {
     static replace(s: string, from: string, replace: string): string;
     static replaceAll(s: string, from: RegExp, replace: string): string;
     static slice<T>(s: string, from?: number, to?: number): string;
-    static replaceAllMapped(s: string, from: RegExp, cb: Function): string;
+    static replaceAllMapped(s: string, from: RegExp, cb: (m: string[]) => string): string;
     static contains(s: string, substr: string): boolean;
     static compare(a: string, b: string): number;
 }
@@ -103,6 +100,7 @@ export declare class NumberWrapper {
     static parseInt(text: string, radix: number): number;
     static parseFloat(text: string): number;
     static readonly NaN: number;
+    static isNumeric(value: any): boolean;
     static isNaN(value: any): boolean;
     static isInteger(value: any): boolean;
 }
@@ -153,6 +151,5 @@ export declare function evalExpression(sourceUrl: string, expr: string, declarat
 }): any;
 export declare function isPrimitive(obj: any): boolean;
 export declare function hasConstructor(value: Object, type: Type): boolean;
-export declare function bitWiseOr(values: number[]): number;
-export declare function bitWiseAnd(values: number[]): number;
 export declare function escape(s: string): string;
+export declare function escapeRegExp(s: string): string;

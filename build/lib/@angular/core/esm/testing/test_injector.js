@@ -1,10 +1,19 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { PLATFORM_INITIALIZER, ReflectiveInjector } from '../index';
+import { lockRunMode } from '../src/application_ref';
 import { ListWrapper } from '../src/facade/collection';
 import { BaseException } from '../src/facade/exceptions';
 import { FunctionWrapper, isPresent } from '../src/facade/lang';
-import { async } from './async';
 import { AsyncTestCompleter } from './async_test_completer';
-export { async } from './async';
+/**
+ * @experimental
+ */
 export class TestInjector {
     constructor() {
         this._instantiated = false;
@@ -25,6 +34,7 @@ export class TestInjector {
         this._providers = ListWrapper.concat(this._providers, providers);
     }
     createInjector() {
+        lockRunMode();
         var rootInjector = ReflectiveInjector.resolveAndCreate(this.platformProviders);
         this._injector = rootInjector.resolveAndCreateChild(ListWrapper.concat(this.applicationProviders, this._providers));
         this._instantiated = true;
@@ -45,6 +55,9 @@ export class TestInjector {
     }
 }
 var _testInjector = null;
+/**
+ * @experimental
+ */
 export function getTestInjector() {
     if (_testInjector == null) {
         _testInjector = new TestInjector();
@@ -56,11 +69,13 @@ export function getTestInjector() {
  * common to every test in the suite.
  *
  * This may only be called once, to set up the common providers for the current test
- * suite on teh current platform. If you absolutely need to change the providers,
+ * suite on the current platform. If you absolutely need to change the providers,
  * first use `resetBaseTestProviders`.
  *
  * Test Providers for individual platforms are available from
  * 'angular2/platform/testing/<platform_name>'.
+ *
+ * @experimental
  */
 export function setBaseTestProviders(platformProviders, applicationProviders) {
     var testInjector = getTestInjector();
@@ -78,6 +93,8 @@ export function setBaseTestProviders(platformProviders, applicationProviders) {
 }
 /**
  * Reset the providers for the test injector.
+ *
+ * @experimental
  */
 export function resetBaseTestProviders() {
     var testInjector = getTestInjector();
@@ -107,6 +124,7 @@ export function resetBaseTestProviders() {
  * eventually
  *   becomes `it('...', @Inject (object: AClass, async: AsyncTestCompleter) => { ... });`
  *
+ * @stable
  */
 export function inject(tokens, fn) {
     let testInjector = getTestInjector();
@@ -124,6 +142,9 @@ export function inject(tokens, fn) {
         return () => { return getTestInjector().execute(tokens, fn); };
     }
 }
+/**
+ * @experimental
+ */
 export class InjectSetupWrapper {
     constructor(_providers) {
         this._providers = _providers;
@@ -140,39 +161,14 @@ export class InjectSetupWrapper {
             return inject_impl(tokens, fn)();
         };
     }
-    /** @deprecated {use async(withProviders().inject())} */
-    injectAsync(tokens, fn) {
-        return () => {
-            this._addProviders();
-            return injectAsync_impl(tokens, fn)();
-        };
-    }
-}
-export function withProviders(providers) {
-    return new InjectSetupWrapper(providers);
 }
 /**
- * @deprecated {use async(inject())}
- *
- * Allows injecting dependencies in `beforeEach()` and `it()`. The test must return
- * a promise which will resolve when all asynchronous activity is complete.
- *
- * Example:
- *
- * ```
- * it('...', injectAsync([AClass], (object) => {
- *   return object.doSomething().then(() => {
- *     expect(...);
- *   });
- * })
- * ```
- *
+ * @experimental
  */
-export function injectAsync(tokens, fn) {
-    return async(inject(tokens, fn));
+export function withProviders(providers) {
+    return new InjectSetupWrapper(providers);
 }
 // This is to ensure inject(Async) within InjectSetupWrapper doesn't call itself
 // when transpiled to Dart.
 var inject_impl = inject;
-var injectAsync_impl = injectAsync;
 //# sourceMappingURL=test_injector.js.map

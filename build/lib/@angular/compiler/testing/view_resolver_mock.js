@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -10,8 +17,9 @@ var collection_1 = require('../src/facade/collection');
 var lang_1 = require('../src/facade/lang');
 var MockViewResolver = (function (_super) {
     __extends(MockViewResolver, _super);
-    function MockViewResolver() {
+    function MockViewResolver(_injector) {
         _super.call(this);
+        this._injector = _injector;
         /** @internal */
         this._views = new collection_1.Map();
         /** @internal */
@@ -19,39 +27,43 @@ var MockViewResolver = (function (_super) {
         /** @internal */
         this._animations = new collection_1.Map();
         /** @internal */
-        this._viewCache = new collection_1.Map();
-        /** @internal */
         this._directiveOverrides = new collection_1.Map();
     }
+    Object.defineProperty(MockViewResolver.prototype, "_compiler", {
+        get: function () { return this._injector.get(core_1.Compiler); },
+        enumerable: true,
+        configurable: true
+    });
+    MockViewResolver.prototype._clearCacheFor = function (component) { this._compiler.clearCacheFor(component); };
     /**
      * Overrides the {@link ViewMetadata} for a component.
      */
     MockViewResolver.prototype.setView = function (component, view) {
-        this._checkOverrideable(component);
         this._views.set(component, view);
+        this._clearCacheFor(component);
     };
     /**
      * Overrides the inline template for a component - other configuration remains unchanged.
      */
     MockViewResolver.prototype.setInlineTemplate = function (component, template) {
-        this._checkOverrideable(component);
         this._inlineTemplates.set(component, template);
+        this._clearCacheFor(component);
     };
     MockViewResolver.prototype.setAnimations = function (component, animations) {
-        this._checkOverrideable(component);
         this._animations.set(component, animations);
+        this._clearCacheFor(component);
     };
     /**
      * Overrides a directive from the component {@link ViewMetadata}.
      */
     MockViewResolver.prototype.overrideViewDirective = function (component, from, to) {
-        this._checkOverrideable(component);
         var overrides = this._directiveOverrides.get(component);
         if (lang_1.isBlank(overrides)) {
             overrides = new collection_1.Map();
             this._directiveOverrides.set(component, overrides);
         }
         overrides.set(from, to);
+        this._clearCacheFor(component);
     };
     /**
      * Returns the {@link ViewMetadata} for a component:
@@ -62,10 +74,7 @@ var MockViewResolver = (function (_super) {
      * - Override the @View definition, see `setInlineTemplate`.
      */
     MockViewResolver.prototype.resolve = function (component) {
-        var view = this._viewCache.get(component);
-        if (lang_1.isPresent(view))
-            return view;
-        view = this._views.get(component);
+        var view = this._views.get(component);
         if (lang_1.isBlank(view)) {
             view = _super.prototype.resolve.call(this, component);
         }
@@ -104,31 +113,19 @@ var MockViewResolver = (function (_super) {
             styles: view.styles,
             styleUrls: view.styleUrls,
             pipes: view.pipes,
-            encapsulation: view.encapsulation
+            encapsulation: view.encapsulation,
+            interpolation: view.interpolation
         });
-        this._viewCache.set(component, view);
         return view;
-    };
-    /**
-     * @internal
-     *
-     * Once a component has been compiled, the AppProtoView is stored in the compiler cache.
-     *
-     * Then it should not be possible to override the component configuration after the component
-     * has been compiled.
-     */
-    MockViewResolver.prototype._checkOverrideable = function (component) {
-        var cached = this._viewCache.get(component);
-        if (lang_1.isPresent(cached)) {
-            throw new core_1.BaseException("The component " + lang_1.stringify(component) + " has already been compiled, its configuration can not be changed");
-        }
     };
     /** @nocollapse */
     MockViewResolver.decorators = [
         { type: core_1.Injectable },
     ];
     /** @nocollapse */
-    MockViewResolver.ctorParameters = [];
+    MockViewResolver.ctorParameters = [
+        { type: core_1.Injector, },
+    ];
     return MockViewResolver;
 }(index_1.ViewResolver));
 exports.MockViewResolver = MockViewResolver;

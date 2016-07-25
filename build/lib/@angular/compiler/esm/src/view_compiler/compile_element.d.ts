@@ -1,7 +1,7 @@
 import * as o from '../output/output_ast';
 import { ProviderAst, ReferenceAst, TemplateAst } from '../template_ast';
 import { CompileView } from './compile_view';
-import { CompileDirectiveMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { CompileDirectiveMetadata, CompileTokenMetadata, CompileIdentifierMetadata } from '../compile_metadata';
 export declare class CompileNode {
     parent: CompileElement;
     view: CompileView;
@@ -36,6 +36,7 @@ export declare class CompileElement extends CompileNode {
     };
     constructor(parent: CompileElement, view: CompileView, nodeIndex: number, renderNode: o.Expression, sourceAst: TemplateAst, component: CompileDirectiveMetadata, _directives: CompileDirectiveMetadata[], _resolvedProvidersArray: ProviderAst[], hasViewContainer: boolean, hasEmbeddedView: boolean, references: ReferenceAst[]);
     private _createAppElement();
+    createComponentFactoryResolver(precompileComponent: CompileIdentifierMetadata[]): void;
     setComponentView(compViewExpr: o.Expression): void;
     setEmbeddedView(embeddedView: CompileView): void;
     beforeChildren(): void;

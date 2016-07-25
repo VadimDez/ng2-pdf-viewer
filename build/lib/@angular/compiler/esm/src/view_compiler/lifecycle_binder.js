@@ -1,7 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { LifecycleHooks } from '../../core_private';
 import * as o from '../output/output_ast';
-import { ChangeDetectorStateEnum, DetectChangesVars } from './constants';
-var STATE_IS_NEVER_CHECKED = o.THIS_EXPR.prop('cdState').identical(ChangeDetectorStateEnum.NeverChecked);
+import { DetectChangesVars } from './constants';
+var STATE_IS_NEVER_CHECKED = o.THIS_EXPR.prop('numberOfChecks').identical(new o.LiteralExpr(0));
 var NOT_THROW_ON_CHANGES = o.not(DetectChangesVars.throwOnChange);
 export function bindDirectiveDetectChangesLifecycleCallbacks(directiveAst, directiveInstance, compileElement) {
     var view = compileElement.view;

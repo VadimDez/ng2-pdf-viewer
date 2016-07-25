@@ -15,6 +15,8 @@ import { AbstractControl } from '../model';
  *   }
  * }
  * ```
+ *
+ * @experimental
  */
 export interface Validator {
     validate(c: AbstractControl): {

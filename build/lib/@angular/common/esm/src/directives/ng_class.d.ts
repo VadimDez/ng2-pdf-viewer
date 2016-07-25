@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { DoCheck, ElementRef, IterableDiffers, KeyValueDiffers, OnDestroy, Renderer } from '@angular/core';
 /**
  * The `NgClass` directive conditionally adds and removes CSS classes on an HTML element based on

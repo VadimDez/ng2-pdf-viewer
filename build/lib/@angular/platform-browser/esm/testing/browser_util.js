@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { getDOM } from '../src/dom/dom_adapter';
 import { ListWrapper } from '../src/facade/collection';
-import { StringWrapper, isPresent, isString } from '../src/facade/lang';
+import { StringWrapper, global, isPresent, isString } from '../src/facade/lang';
 export class BrowserDetection {
     constructor(ua) {
         this._overrideUa = ua;
@@ -31,9 +38,7 @@ export class BrowserDetection {
     // The Intl API is only properly supported in recent Chrome and Opera.
     // Note: Edge is disguised as Chrome 42, so checking the "Edge" part is needed,
     // see https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-    get supportsIntlApi() {
-        return this._ua.indexOf('Chrome/4') > -1 && this._ua.indexOf('Edge') == -1;
-    }
+    get supportsIntlApi() { return !!global.Intl; }
     get isChromeDesktop() {
         return this._ua.indexOf('Chrome') > -1 && this._ua.indexOf('Mobile Safari') == -1 &&
             this._ua.indexOf('Edge') == -1;

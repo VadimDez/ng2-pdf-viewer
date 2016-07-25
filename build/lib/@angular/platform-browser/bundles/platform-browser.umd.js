@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v2.0.0-rc.2
+ * @license Angular 2.0.0-rc.4
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -14,6 +14,13 @@ var __extends = (this && this.__extends) || function (d, b) {
             (factory((global.ng = global.ng || {}, global.ng.platformBrowser = global.ng.platformBrowser || {}), global.ng.common, global.ng.core, global.Rx, global.Rx, global.Rx.Observable.prototype, global.Rx));
 }(this, function (exports, _angular_common, _angular_core, rxjs_Subject, rxjs_observable_PromiseObservable, rxjs_operator_toPromise, rxjs_Observable) {
     'use strict';
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
     var globalScope;
     if (typeof window === 'undefined') {
         if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
@@ -31,10 +38,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     // exports the original value of the symbol.
     var global$1 = globalScope;
     var Date = global$1.Date;
-    var _devMode = true;
-    function assertionsEnabled() {
-        return _devMode;
-    }
     // TODO: remove calls to assert in production environment
     // Note: Can't just export this and import in in other files
     // as `assert` is a reserved keyword in Dart
@@ -197,6 +200,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             enumerable: true,
             configurable: true
         });
+        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
         NumberWrapper.isNaN = function (value) { return isNaN(value); };
         NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
         return NumberWrapper;
@@ -332,6 +336,13 @@ var __extends = (this && this.__extends) || function (d, b) {
         ;
         return DomAdapter;
     }());
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
     function supportsState() {
         return !!window.history.pushState;
     }
@@ -428,6 +439,13 @@ var __extends = (this && this.__extends) || function (d, b) {
         return Title;
     }());
     /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    /**
      * JS version of browser APIs. This library can only run in the browser.
      */
     var win = typeof window !== 'undefined' && window || {};
@@ -512,6 +530,8 @@ var __extends = (this && this.__extends) || function (d, b) {
      * 1. Type `ng.` (usually the console will show auto-complete suggestion)
      * 1. Try the change detection profiler `ng.profiler.timeChangeDetection()`
      *    then hit Enter.
+     *
+     * @experimental All debugging apis are currently experimental.
      */
     function enableDebugTools(ref) {
         context.ng = new AngularTools(ref);
@@ -519,12 +539,16 @@ var __extends = (this && this.__extends) || function (d, b) {
     }
     /**
      * Disables Angular 2 tools.
+     *
+     * @experimental All debugging apis are currently experimental.
      */
     function disableDebugTools() {
         delete context.ng;
     }
     /**
      * Predicates for use with {@link DebugElement}'s query functions.
+     *
+     * @experimental All debugging apis are currently experimental.
      */
     var By = (function () {
         function By() {
@@ -563,13 +587,15 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return By;
     }());
-    var wtfInit = _angular_core.__core_private__.wtfInit;
-    var VIEW_ENCAPSULATION_VALUES = _angular_core.__core_private__.VIEW_ENCAPSULATION_VALUES;
-    var DebugDomRootRenderer = _angular_core.__core_private__.DebugDomRootRenderer;
-    var SecurityContext = _angular_core.__core_private__.SecurityContext;
-    var SanitizationService = _angular_core.__core_private__.SanitizationService;
-    var NoOpAnimationDriver = _angular_core.__core_private__.NoOpAnimationDriver;
-    var AnimationDriver = _angular_core.__core_private__.AnimationDriver;
+    /**
+     * A DI Token representing the main rendering context. In a browser this is the DOM Document.
+     *
+     * Note: Document might not be available in the Application Context when Application and Rendering
+     * Contexts are not the same (e.g. when running the application into a Web Worker).
+     *
+     * @stable
+     */
+    var DOCUMENT = new _angular_core.OpaqueToken('DocumentToken');
     var Map$1 = global$1.Map;
     var Set$1 = global$1.Set;
     // Safari and Internet Explorer do not support the iterable parameter to the
@@ -885,74 +911,8 @@ var __extends = (this && this.__extends) || function (d, b) {
         return BaseException$1;
     }(Error));
     /**
-     * A DI Token representing the main rendering context. In a browser this is the DOM Document.
-     *
-     * Note: Document might not be available in the Application Context when Application and Rendering
-     * Contexts are not the same (e.g. when running the application into a Web Worker).
+     * @stable
      */
-    var DOCUMENT = new _angular_core.OpaqueToken('DocumentToken');
-    var SharedStylesHost = (function () {
-        function SharedStylesHost() {
-            /** @internal */
-            this._styles = [];
-            /** @internal */
-            this._stylesSet = new Set();
-        }
-        SharedStylesHost.prototype.addStyles = function (styles) {
-            var _this = this;
-            var additions = [];
-            styles.forEach(function (style) {
-                if (!SetWrapper.has(_this._stylesSet, style)) {
-                    _this._stylesSet.add(style);
-                    _this._styles.push(style);
-                    additions.push(style);
-                }
-            });
-            this.onStylesAdded(additions);
-        };
-        SharedStylesHost.prototype.onStylesAdded = function (additions) { };
-        SharedStylesHost.prototype.getAllStyles = function () { return this._styles; };
-        return SharedStylesHost;
-    }());
-    /** @nocollapse */
-    SharedStylesHost.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    SharedStylesHost.ctorParameters = [];
-    var DomSharedStylesHost = (function (_super) {
-        __extends(DomSharedStylesHost, _super);
-        function DomSharedStylesHost(doc) {
-            _super.call(this);
-            this._hostNodes = new Set();
-            this._hostNodes.add(doc.head);
-        }
-        /** @internal */
-        DomSharedStylesHost.prototype._addStylesToHost = function (styles, host) {
-            for (var i = 0; i < styles.length; i++) {
-                var style = styles[i];
-                getDOM().appendChild(host, getDOM().createStyleElement(style));
-            }
-        };
-        DomSharedStylesHost.prototype.addHost = function (hostNode) {
-            this._addStylesToHost(this._styles, hostNode);
-            this._hostNodes.add(hostNode);
-        };
-        DomSharedStylesHost.prototype.removeHost = function (hostNode) { SetWrapper.delete(this._hostNodes, hostNode); };
-        DomSharedStylesHost.prototype.onStylesAdded = function (additions) {
-            var _this = this;
-            this._hostNodes.forEach(function (hostNode) { _this._addStylesToHost(additions, hostNode); });
-        };
-        return DomSharedStylesHost;
-    }(SharedStylesHost));
-    /** @nocollapse */
-    DomSharedStylesHost.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    DomSharedStylesHost.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Inject, args: [DOCUMENT,] },] },
-    ];
     var EVENT_MANAGER_PLUGINS = new _angular_core.OpaqueToken('EventManagerPlugins');
     var EventManager = (function () {
         function EventManager(plugins, _zone) {
@@ -1005,333 +965,6 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return EventManagerPlugin;
     }());
-    var CAMEL_CASE_REGEXP = /([A-Z])/g;
-    var DASH_CASE_REGEXP = /-([a-z])/g;
-    function camelCaseToDashCase(input) {
-        return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m /** TODO #9100 */) { return '-' + m[1].toLowerCase(); });
-    }
-    function dashCaseToCamelCase(input) {
-        return StringWrapper.replaceAllMapped(input, DASH_CASE_REGEXP, function (m /** TODO #9100 */) { return m[1].toUpperCase(); });
-    }
-    var NAMESPACE_URIS = {
-        'xlink': 'http://www.w3.org/1999/xlink',
-        'svg': 'http://www.w3.org/2000/svg'
-    };
-    var TEMPLATE_COMMENT_TEXT = 'template bindings={}';
-    var TEMPLATE_BINDINGS_EXP = /^template bindings=(.*)$/g;
-    var DomRootRenderer = (function () {
-        function DomRootRenderer(document, eventManager, sharedStylesHost, animationDriver) {
-            this.document = document;
-            this.eventManager = eventManager;
-            this.sharedStylesHost = sharedStylesHost;
-            this.animationDriver = animationDriver;
-            this.registeredComponents = new Map();
-        }
-        DomRootRenderer.prototype.renderComponent = function (componentProto) {
-            var renderer = this.registeredComponents.get(componentProto.id);
-            if (isBlank(renderer)) {
-                renderer = new DomRenderer(this, componentProto, this.animationDriver);
-                this.registeredComponents.set(componentProto.id, renderer);
-            }
-            return renderer;
-        };
-        return DomRootRenderer;
-    }());
-    var DomRootRenderer_ = (function (_super) {
-        __extends(DomRootRenderer_, _super);
-        function DomRootRenderer_(_document, _eventManager, sharedStylesHost, animationDriver) {
-            _super.call(this, _document, _eventManager, sharedStylesHost, animationDriver);
-        }
-        return DomRootRenderer_;
-    }(DomRootRenderer));
-    /** @nocollapse */
-    DomRootRenderer_.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    DomRootRenderer_.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Inject, args: [DOCUMENT,] },] },
-        { type: EventManager, },
-        { type: DomSharedStylesHost, },
-        { type: AnimationDriver, },
-    ];
-    var DomRenderer = (function () {
-        function DomRenderer(_rootRenderer, componentProto, _animationDriver) {
-            this._rootRenderer = _rootRenderer;
-            this.componentProto = componentProto;
-            this._animationDriver = _animationDriver;
-            this._styles = _flattenStyles(componentProto.id, componentProto.styles, []);
-            if (componentProto.encapsulation !== _angular_core.ViewEncapsulation.Native) {
-                this._rootRenderer.sharedStylesHost.addStyles(this._styles);
-            }
-            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Emulated) {
-                this._contentAttr = _shimContentAttribute(componentProto.id);
-                this._hostAttr = _shimHostAttribute(componentProto.id);
-            }
-            else {
-                this._contentAttr = null;
-                this._hostAttr = null;
-            }
-        }
-        DomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
-            var el;
-            if (isString(selectorOrNode)) {
-                el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
-                if (isBlank(el)) {
-                    throw new BaseException$1("The selector \"" + selectorOrNode + "\" did not match any elements");
-                }
-            }
-            else {
-                el = selectorOrNode;
-            }
-            getDOM().clearNodes(el);
-            return el;
-        };
-        DomRenderer.prototype.createElement = function (parent, name, debugInfo) {
-            var nsAndName = splitNamespace(name);
-            var el = isPresent(nsAndName[0]) ?
-                getDOM().createElementNS(NAMESPACE_URIS[nsAndName[0]], nsAndName[1]) :
-                getDOM().createElement(nsAndName[1]);
-            if (isPresent(this._contentAttr)) {
-                getDOM().setAttribute(el, this._contentAttr, '');
-            }
-            if (isPresent(parent)) {
-                getDOM().appendChild(parent, el);
-            }
-            return el;
-        };
-        DomRenderer.prototype.createViewRoot = function (hostElement) {
-            var nodesParent;
-            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Native) {
-                nodesParent = getDOM().createShadowRoot(hostElement);
-                this._rootRenderer.sharedStylesHost.addHost(nodesParent);
-                for (var i = 0; i < this._styles.length; i++) {
-                    getDOM().appendChild(nodesParent, getDOM().createStyleElement(this._styles[i]));
-                }
-            }
-            else {
-                if (isPresent(this._hostAttr)) {
-                    getDOM().setAttribute(hostElement, this._hostAttr, '');
-                }
-                nodesParent = hostElement;
-            }
-            return nodesParent;
-        };
-        DomRenderer.prototype.createTemplateAnchor = function (parentElement, debugInfo) {
-            var comment = getDOM().createComment(TEMPLATE_COMMENT_TEXT);
-            if (isPresent(parentElement)) {
-                getDOM().appendChild(parentElement, comment);
-            }
-            return comment;
-        };
-        DomRenderer.prototype.createText = function (parentElement, value, debugInfo) {
-            var node = getDOM().createTextNode(value);
-            if (isPresent(parentElement)) {
-                getDOM().appendChild(parentElement, node);
-            }
-            return node;
-        };
-        DomRenderer.prototype.projectNodes = function (parentElement, nodes) {
-            if (isBlank(parentElement))
-                return;
-            appendNodes(parentElement, nodes);
-        };
-        DomRenderer.prototype.attachViewAfter = function (node, viewRootNodes) { moveNodesAfterSibling(node, viewRootNodes); };
-        DomRenderer.prototype.detachView = function (viewRootNodes) {
-            for (var i = 0; i < viewRootNodes.length; i++) {
-                getDOM().remove(viewRootNodes[i]);
-            }
-        };
-        DomRenderer.prototype.destroyView = function (hostElement, viewAllNodes) {
-            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Native && isPresent(hostElement)) {
-                this._rootRenderer.sharedStylesHost.removeHost(getDOM().getShadowRoot(hostElement));
-            }
-        };
-        DomRenderer.prototype.listen = function (renderElement, name, callback) {
-            return this._rootRenderer.eventManager.addEventListener(renderElement, name, decoratePreventDefault(callback));
-        };
-        DomRenderer.prototype.listenGlobal = function (target, name, callback) {
-            return this._rootRenderer.eventManager.addGlobalEventListener(target, name, decoratePreventDefault(callback));
-        };
-        DomRenderer.prototype.setElementProperty = function (renderElement, propertyName, propertyValue) {
-            getDOM().setProperty(renderElement, propertyName, propertyValue);
-        };
-        DomRenderer.prototype.setElementAttribute = function (renderElement, attributeName, attributeValue) {
-            var attrNs;
-            var nsAndName = splitNamespace(attributeName);
-            if (isPresent(nsAndName[0])) {
-                attributeName = nsAndName[0] + ':' + nsAndName[1];
-                attrNs = NAMESPACE_URIS[nsAndName[0]];
-            }
-            if (isPresent(attributeValue)) {
-                if (isPresent(attrNs)) {
-                    getDOM().setAttributeNS(renderElement, attrNs, attributeName, attributeValue);
-                }
-                else {
-                    getDOM().setAttribute(renderElement, attributeName, attributeValue);
-                }
-            }
-            else {
-                if (isPresent(attrNs)) {
-                    getDOM().removeAttributeNS(renderElement, attrNs, nsAndName[1]);
-                }
-                else {
-                    getDOM().removeAttribute(renderElement, attributeName);
-                }
-            }
-        };
-        DomRenderer.prototype.setBindingDebugInfo = function (renderElement, propertyName, propertyValue) {
-            var dashCasedPropertyName = camelCaseToDashCase(propertyName);
-            if (getDOM().isCommentNode(renderElement)) {
-                var existingBindings = RegExpWrapper.firstMatch(TEMPLATE_BINDINGS_EXP, StringWrapper.replaceAll(getDOM().getText(renderElement), /\n/g, ''));
-                var parsedBindings = Json.parse(existingBindings[1]);
-                parsedBindings[dashCasedPropertyName] = propertyValue;
-                getDOM().setText(renderElement, StringWrapper.replace(TEMPLATE_COMMENT_TEXT, '{}', Json.stringify(parsedBindings)));
-            }
-            else {
-                this.setElementAttribute(renderElement, propertyName, propertyValue);
-            }
-        };
-        DomRenderer.prototype.setElementClass = function (renderElement, className, isAdd) {
-            if (isAdd) {
-                getDOM().addClass(renderElement, className);
-            }
-            else {
-                getDOM().removeClass(renderElement, className);
-            }
-        };
-        DomRenderer.prototype.setElementStyle = function (renderElement, styleName, styleValue) {
-            if (isPresent(styleValue)) {
-                getDOM().setStyle(renderElement, styleName, stringify(styleValue));
-            }
-            else {
-                getDOM().removeStyle(renderElement, styleName);
-            }
-        };
-        DomRenderer.prototype.invokeElementMethod = function (renderElement, methodName, args) {
-            getDOM().invoke(renderElement, methodName, args);
-        };
-        DomRenderer.prototype.setText = function (renderNode, text) { getDOM().setText(renderNode, text); };
-        DomRenderer.prototype.animate = function (element, startingStyles, keyframes, duration, delay, easing) {
-            return this._animationDriver.animate(element, startingStyles, keyframes, duration, delay, easing);
-        };
-        return DomRenderer;
-    }());
-    function moveNodesAfterSibling(sibling /** TODO #9100 */, nodes /** TODO #9100 */) {
-        var parent = getDOM().parentElement(sibling);
-        if (nodes.length > 0 && isPresent(parent)) {
-            var nextSibling = getDOM().nextSibling(sibling);
-            if (isPresent(nextSibling)) {
-                for (var i = 0; i < nodes.length; i++) {
-                    getDOM().insertBefore(nextSibling, nodes[i]);
-                }
-            }
-            else {
-                for (var i = 0; i < nodes.length; i++) {
-                    getDOM().appendChild(parent, nodes[i]);
-                }
-            }
-        }
-    }
-    function appendNodes(parent /** TODO #9100 */, nodes /** TODO #9100 */) {
-        for (var i = 0; i < nodes.length; i++) {
-            getDOM().appendChild(parent, nodes[i]);
-        }
-    }
-    function decoratePreventDefault(eventHandler) {
-        return function (event /** TODO #9100 */) {
-            var allowDefaultBehavior = eventHandler(event);
-            if (allowDefaultBehavior === false) {
-                // TODO(tbosch): move preventDefault into event plugins...
-                getDOM().preventDefault(event);
-            }
-        };
-    }
-    var COMPONENT_REGEX = /%COMP%/g;
-    var COMPONENT_VARIABLE = '%COMP%';
-    var HOST_ATTR = "_nghost-" + COMPONENT_VARIABLE;
-    var CONTENT_ATTR = "_ngcontent-" + COMPONENT_VARIABLE;
-    function _shimContentAttribute(componentShortId) {
-        return StringWrapper.replaceAll(CONTENT_ATTR, COMPONENT_REGEX, componentShortId);
-    }
-    function _shimHostAttribute(componentShortId) {
-        return StringWrapper.replaceAll(HOST_ATTR, COMPONENT_REGEX, componentShortId);
-    }
-    function _flattenStyles(compId, styles, target) {
-        for (var i = 0; i < styles.length; i++) {
-            var style = styles[i];
-            if (isArray(style)) {
-                _flattenStyles(compId, style, target);
-            }
-            else {
-                style = StringWrapper.replaceAll(style, COMPONENT_REGEX, compId);
-                target.push(style);
-            }
-        }
-        return target;
-    }
-    var NS_PREFIX_RE = /^:([^:]+):(.+)/g;
-    function splitNamespace(name) {
-        if (name[0] != ':') {
-            return [null, name];
-        }
-        var match = RegExpWrapper.firstMatch(NS_PREFIX_RE, name);
-        return [match[1], match[2]];
-    }
-    var CORE_TOKENS = {
-        'ApplicationRef': _angular_core.ApplicationRef,
-        'NgZone': _angular_core.NgZone
-    };
-    var INSPECT_GLOBAL_NAME = 'ng.probe';
-    var CORE_TOKENS_GLOBAL_NAME = 'ng.coreTokens';
-    /**
-     * Returns a {@link DebugElement} for the given native DOM element, or
-     * null if the given native element does not have an Angular view associated
-     * with it.
-     */
-    function inspectNativeElement(element /** TODO #9100 */) {
-        return _angular_core.getDebugNode(element);
-    }
-    function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
-        if (assertionsEnabled()) {
-            return _createRootRenderer(rootRenderer);
-        }
-        return rootRenderer;
-    }
-    function _createRootRenderer(rootRenderer /** TODO #9100 */) {
-        getDOM().setGlobalVar(INSPECT_GLOBAL_NAME, inspectNativeElement);
-        getDOM().setGlobalVar(CORE_TOKENS_GLOBAL_NAME, CORE_TOKENS);
-        return new DebugDomRootRenderer(rootRenderer);
-    }
-    /**
-     * Providers which support debugging Angular applications (e.g. via `ng.probe`).
-     */
-    var ELEMENT_PROBE_PROVIDERS = [{ provide: _angular_core.RootRenderer, useFactory: _createConditionalRootRenderer, deps: [DomRootRenderer] }];
-    var DomEventsPlugin = (function (_super) {
-        __extends(DomEventsPlugin, _super);
-        function DomEventsPlugin() {
-            _super.apply(this, arguments);
-        }
-        // This plugin should come last in the list of plugins, because it accepts all
-        // events.
-        DomEventsPlugin.prototype.supports = function (eventName) { return true; };
-        DomEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
-            var zone = this.manager.getZone();
-            var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-            return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
-        };
-        DomEventsPlugin.prototype.addGlobalEventListener = function (target, eventName, handler) {
-            var element = getDOM().getGlobalEventTarget(target);
-            var zone = this.manager.getZone();
-            var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-            return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
-        };
-        return DomEventsPlugin;
-    }(EventManagerPlugin));
-    /** @nocollapse */
-    DomEventsPlugin.decorators = [
-        { type: _angular_core.Injectable },
-    ];
     var _eventNames = {
         // pan
         'pan': true,
@@ -1380,6 +1013,12 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return HammerGesturesPluginCommon;
     }(EventManagerPlugin));
+    /**
+     * A DI token that you can use to provide{@link HammerGestureConfig} to Angular. Use it to configure
+     * Hammer gestures.
+     *
+     * @experimental
+     */
     var HAMMER_GESTURE_CONFIG = new _angular_core.OpaqueToken('HammerGestureConfig');
     var HammerGestureConfig = (function () {
         function HammerGestureConfig() {
@@ -1440,100 +1079,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     HammerGesturesPlugin.ctorParameters = [
         { type: HammerGestureConfig, decorators: [{ type: _angular_core.Inject, args: [HAMMER_GESTURE_CONFIG,] },] },
     ];
-    var modifierKeys = ['alt', 'control', 'meta', 'shift'];
-    var modifierKeyGetters = {
-        'alt': function (event) { return event.altKey; },
-        'control': function (event) { return event.ctrlKey; },
-        'meta': function (event) { return event.metaKey; },
-        'shift': function (event) { return event.shiftKey; }
-    };
-    var KeyEventsPlugin = (function (_super) {
-        __extends(KeyEventsPlugin, _super);
-        function KeyEventsPlugin() {
-            _super.call(this);
-        }
-        KeyEventsPlugin.prototype.supports = function (eventName) {
-            return isPresent(KeyEventsPlugin.parseEventName(eventName));
-        };
-        KeyEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
-            var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
-            var outsideHandler = KeyEventsPlugin.eventCallback(element, StringMapWrapper.get(parsedEvent, 'fullKey'), handler, this.manager.getZone());
-            return this.manager.getZone().runOutsideAngular(function () {
-                return getDOM().onAndCancel(element, StringMapWrapper.get(parsedEvent, 'domEventName'), outsideHandler);
-            });
-        };
-        KeyEventsPlugin.parseEventName = function (eventName) {
-            var parts = eventName.toLowerCase().split('.');
-            var domEventName = parts.shift();
-            if ((parts.length === 0) ||
-                !(StringWrapper.equals(domEventName, 'keydown') ||
-                    StringWrapper.equals(domEventName, 'keyup'))) {
-                return null;
-            }
-            var key = KeyEventsPlugin._normalizeKey(parts.pop());
-            var fullKey = '';
-            modifierKeys.forEach(function (modifierName) {
-                if (ListWrapper.contains(parts, modifierName)) {
-                    ListWrapper.remove(parts, modifierName);
-                    fullKey += modifierName + '.';
-                }
-            });
-            fullKey += key;
-            if (parts.length != 0 || key.length === 0) {
-                // returning null instead of throwing to let another plugin process the event
-                return null;
-            }
-            var result = StringMapWrapper.create();
-            StringMapWrapper.set(result, 'domEventName', domEventName);
-            StringMapWrapper.set(result, 'fullKey', fullKey);
-            return result;
-        };
-        KeyEventsPlugin.getEventFullKey = function (event) {
-            var fullKey = '';
-            var key = getDOM().getEventKey(event);
-            key = key.toLowerCase();
-            if (StringWrapper.equals(key, ' ')) {
-                key = 'space'; // for readability
-            }
-            else if (StringWrapper.equals(key, '.')) {
-                key = 'dot'; // because '.' is used as a separator in event names
-            }
-            modifierKeys.forEach(function (modifierName) {
-                if (modifierName != key) {
-                    var modifierGetter = StringMapWrapper.get(modifierKeyGetters, modifierName);
-                    if (modifierGetter(event)) {
-                        fullKey += modifierName + '.';
-                    }
-                }
-            });
-            fullKey += key;
-            return fullKey;
-        };
-        KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
-            return function (event /** TODO #9100 */) {
-                if (StringWrapper.equals(KeyEventsPlugin.getEventFullKey(event), fullKey)) {
-                    zone.runGuarded(function () { return handler(event); });
-                }
-            };
-        };
-        /** @internal */
-        KeyEventsPlugin._normalizeKey = function (keyName) {
-            // TODO: switch to a StringMap if the mapping grows too much
-            switch (keyName) {
-                case 'esc':
-                    return 'escape';
-                default:
-                    return keyName;
-            }
-        };
-        return KeyEventsPlugin;
-    }(EventManagerPlugin));
-    /** @nocollapse */
-    KeyEventsPlugin.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    KeyEventsPlugin.ctorParameters = [];
+    var wtfInit = _angular_core.__core_private__.wtfInit;
+    var VIEW_ENCAPSULATION_VALUES = _angular_core.__core_private__.VIEW_ENCAPSULATION_VALUES;
+    var DebugDomRootRenderer = _angular_core.__core_private__.DebugDomRootRenderer;
+    /**
+     * @experimental bogus marker to pass the ts-api-guardian's check - this api should be public so
+     * this line will go away when that happens
+     */
+    var SecurityContext = _angular_core.__core_private__.SecurityContext;
+    var SanitizationService = _angular_core.__core_private__.SanitizationService;
+    var NoOpAnimationDriver = _angular_core.__core_private__.NoOpAnimationDriver;
+    var AnimationDriver = _angular_core.__core_private__.AnimationDriver;
     /**
      * A pattern that recognizes a commonly useful subset of URLs that are safe.
      *
@@ -1561,15 +1117,20 @@ var __extends = (this && this.__extends) || function (d, b) {
      * This regular expression was taken from the Closure sanitization library.
      */
     var SAFE_URL_PATTERN = /^(?:(?:https?|mailto|ftp|tel|file):|[^&:/?#]*(?:[/?#]|$))/gi;
-    /** A pattern that matches safe data URLs. Only matches image and video types. */
-    var DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm));base64,[a-z0-9+\/]+=*$/i;
+    /** A pattern that matches safe data URLs. Only matches image, video and audio types. */
+    var DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm)|audio\/(?:mp3|oga|ogg|opus));base64,[a-z0-9+\/]+=*$/i;
     function sanitizeUrl(url) {
         url = String(url);
         if (url.match(SAFE_URL_PATTERN) || url.match(DATA_URL_PATTERN))
             return url;
-        if (assertionsEnabled())
-            getDOM().log('WARNING: sanitizing unsafe URL value ' + url);
+        if (_angular_core.isDevMode()) {
+            getDOM().log("WARNING: sanitizing unsafe URL value " + url + " (see http://g.co/ng/security#xss)");
+        }
         return 'unsafe:' + url;
+    }
+    function sanitizeSrcset(srcset) {
+        srcset = String(srcset);
+        return srcset.split(',').map(function (srcset) { return sanitizeUrl(srcset.trim()); }).join(', ');
     }
     /** A <body> element that can be safely used to parse untrusted HTML. Lazily initialized below. */
     var inertElement = null;
@@ -1632,19 +1193,21 @@ var __extends = (this && this.__extends) || function (d, b) {
     var OPTIONAL_END_TAG_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, OPTIONAL_END_TAG_BLOCK_ELEMENTS);
     // Safe Block Elements - HTML5
     var BLOCK_ELEMENTS = merge(OPTIONAL_END_TAG_BLOCK_ELEMENTS, tagSet('address,article,' +
-        'aside,blockquote,caption,center,del,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,' +
-        'h6,header,hgroup,hr,ins,map,menu,nav,ol,pre,section,table,ul'));
+        'aside,blockquote,caption,center,del,details,dialog,dir,div,dl,figure,figcaption,footer,h1,h2,h3,h4,h5,' +
+        'h6,header,hgroup,hr,ins,main,map,menu,nav,ol,pre,section,summary,table,ul'));
     // Inline Elements - HTML5
-    var INLINE_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, tagSet('a,abbr,acronym,b,' +
-        'bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,q,ruby,rp,rt,s,' +
-        'samp,small,span,strike,strong,sub,sup,time,tt,u,var'));
+    var INLINE_ELEMENTS = merge(OPTIONAL_END_TAG_INLINE_ELEMENTS, tagSet('a,abbr,acronym,audio,b,' +
+        'bdi,bdo,big,br,cite,code,del,dfn,em,font,i,img,ins,kbd,label,map,mark,picture,q,ruby,rp,rt,s,' +
+        'samp,small,source,span,strike,strong,sub,sup,time,track,tt,u,var,video'));
     var VALID_ELEMENTS = merge(VOID_ELEMENTS, BLOCK_ELEMENTS, INLINE_ELEMENTS, OPTIONAL_END_TAG_ELEMENTS);
     // Attributes that have href and hence need to be sanitized
-    var URI_ATTRS = tagSet('background,cite,href,longdesc,src,xlink:href');
-    var HTML_ATTRS = tagSet('abbr,align,alt,axis,bgcolor,border,cellpadding,cellspacing,class,clear,' +
-        'color,cols,colspan,compact,coords,dir,face,headers,height,hreflang,hspace,' +
-        'ismap,lang,language,nohref,nowrap,rel,rev,rows,rowspan,rules,' +
-        'scope,scrolling,shape,size,span,start,summary,tabindex,target,title,type,' +
+    var URI_ATTRS = tagSet('background,cite,href,itemtype,longdesc,poster,src,xlink:href');
+    // Attributes that have special href set hence need to be sanitized
+    var SRCSET_ATTRS = tagSet('srcset');
+    var HTML_ATTRS = tagSet('abbr,accesskey,align,alt,autoplay,axis,bgcolor,border,cellpadding,cellspacing,class,clear,color,cols,colspan,' +
+        'compact,controls,coords,datetime,default,dir,download,face,headers,height,hidden,hreflang,hspace,' +
+        'ismap,itemscope,itemprop,kind,label,lang,language,loop,media,muted,nohref,nowrap,open,preload,rel,rev,role,rows,rowspan,rules,' +
+        'scope,scrolling,shape,size,sizes,span,srclang,start,summary,tabindex,target,title,translate,type,usemap,' +
         'valign,value,vspace,width');
     // NB: This currently conciously doesn't support SVG. SVG sanitization has had several security
     // issues in the past, so it seems safer to leave it out if possible. If support for binding SVG via
@@ -1652,7 +1215,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     // NB: Sanitization does not allow <form> elements or other active elements (<button> etc). Those
     // can be sanitized, but they increase security surface area without a legitimate use case, so they
     // are left out here.
-    var VALID_ATTRS = merge(URI_ATTRS, HTML_ATTRS);
+    var VALID_ATTRS = merge(URI_ATTRS, SRCSET_ATTRS, HTML_ATTRS);
     /**
      * SanitizingHtmlSerializer serializes a DOM fragment, stripping out any unsafe elements and unsafe
      * attributes.
@@ -1705,6 +1268,8 @@ var __extends = (this && this.__extends) || function (d, b) {
                     // TODO(martinprobst): Special case image URIs for data:image/...
                     if (URI_ATTRS[lower])
                         value = sanitizeUrl(value);
+                    if (SRCSET_ATTRS[lower])
+                        value = sanitizeSrcset(value);
                     _this.buf.push(' ');
                     _this.buf.push(attrName);
                     _this.buf.push('="');
@@ -1770,11 +1335,11 @@ var __extends = (this && this.__extends) || function (d, b) {
      * Sanitizes the given unsafe, untrusted HTML fragment, and returns HTML text that is safe to add to
      * the DOM in a browser environment.
      */
-    function sanitizeHtml(unsafeHtml) {
+    function sanitizeHtml(unsafeHtmlInput) {
         try {
             var containerEl = getInertElement();
             // Make sure unsafeHtml is actually a string (TypeScript types are not enforced at runtime).
-            unsafeHtml = unsafeHtml ? String(unsafeHtml) : '';
+            var unsafeHtml = unsafeHtmlInput ? String(unsafeHtmlInput) : '';
             // mXSS protection. Repeatedly parse the document to make sure it stabilizes, so that a browser
             // trying to auto-correct incorrect HTML cannot cause formerly inert HTML to become dangerous.
             var mXSSAttempts = 5;
@@ -1800,8 +1365,8 @@ var __extends = (this && this.__extends) || function (d, b) {
                 var child = _a[_i];
                 DOM.removeChild(parent_1, child);
             }
-            if (assertionsEnabled() && safeHtml !== unsafeHtml) {
-                DOM.log('WARNING: sanitizing HTML stripped some content.');
+            if (_angular_core.isDevMode() && safeHtml !== unsafeHtmlInput) {
+                DOM.log('WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).');
             }
             return safeHtml;
         }
@@ -1877,6 +1442,8 @@ var __extends = (this && this.__extends) || function (d, b) {
      */
     function sanitizeStyle(value) {
         value = String(value).trim(); // Make sure it's actually a string.
+        if (!value)
+            return '';
         // Single url(...) values are supported, but only for URLs that sanitize cleanly. See above for
         // reasoning behind this.
         var urlMatch = URL_RE.exec(value);
@@ -1884,8 +1451,9 @@ var __extends = (this && this.__extends) || function (d, b) {
             value.match(SAFE_STYLE_VALUE) && hasBalancedQuotes(value)) {
             return value; // Safe style values.
         }
-        if (assertionsEnabled())
-            getDOM().log('WARNING: sanitizing unsafe style value ' + value);
+        if (_angular_core.isDevMode()) {
+            getDOM().log("WARNING: sanitizing unsafe style value " + value + " (see http://g.co/ng/security#xss).");
+        }
         return 'unsafe';
     }
     /**
@@ -1911,6 +1479,13 @@ var __extends = (this && this.__extends) || function (d, b) {
      * It is not required (and not recommended) to bypass security if the value is safe, e.g. a URL that
      * does not start with a suspicious protocol, or an HTML snippet that does not contain dangerous
      * code. The sanitizer leaves safe values intact.
+     *
+     * @security Calling any of the `bypassSecurityTrust...` APIs disables Angular's built-in
+     * sanitization for the value passed in. Carefully check and audit all values and code paths going
+     * into this call. Make sure any user data is appropriately escaped for this security context.
+     * For more detail, see the [Security Guide](http://g.co/ng/security).
+     *
+     * @stable
      */
     var DomSanitizationService = (function () {
         function DomSanitizationService() {
@@ -1953,14 +1528,15 @@ var __extends = (this && this.__extends) || function (d, b) {
                         return value.changingThisBreaksApplicationSecurity;
                     }
                     this.checkNotSafeValue(value, 'ResourceURL');
-                    throw new Error('unsafe value used in a resource URL context');
+                    throw new Error('unsafe value used in a resource URL context (see http://g.co/ng/security#xss)');
                 default:
-                    throw new Error("Unexpected SecurityContext " + ctx);
+                    throw new Error("Unexpected SecurityContext " + ctx + " (see http://g.co/ng/security#xss)");
             }
         };
         DomSanitizationServiceImpl.prototype.checkNotSafeValue = function (value, expectedType) {
             if (value instanceof SafeValueImpl) {
-                throw new Error("Required a safe " + expectedType + ", got a " + value.getTypeName());
+                throw new Error(("Required a safe " + expectedType + ", got a " + value.getTypeName() + " ") +
+                    "(see http://g.co/ng/security#xss)");
             }
         };
         DomSanitizationServiceImpl.prototype.bypassSecurityTrustHtml = function (value) { return new SafeHtmlImpl(value); };
@@ -1981,6 +1557,10 @@ var __extends = (this && this.__extends) || function (d, b) {
             this.changingThisBreaksApplicationSecurity = changingThisBreaksApplicationSecurity;
             // empty
         }
+        SafeValueImpl.prototype.toString = function () {
+            return ("SafeValue must use [property]=binding: " + this.changingThisBreaksApplicationSecurity) +
+                " (see http://g.co/ng/security#xss)";
+        };
         return SafeValueImpl;
     }());
     var SafeHtmlImpl = (function (_super) {
@@ -2023,6 +1603,14 @@ var __extends = (this && this.__extends) || function (d, b) {
         SafeResourceUrlImpl.prototype.getTypeName = function () { return 'ResourceURL'; };
         return SafeResourceUrlImpl;
     }(SafeValueImpl));
+    var CAMEL_CASE_REGEXP = /([A-Z])/g;
+    var DASH_CASE_REGEXP = /-([a-z])/g;
+    function camelCaseToDashCase(input) {
+        return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m /** TODO #9100 */) { return '-' + m[1].toLowerCase(); });
+    }
+    function dashCaseToCamelCase(input) {
+        return StringWrapper.replaceAllMapped(input, DASH_CASE_REGEXP, function (m /** TODO #9100 */) { return m[1].toUpperCase(); });
+    }
     var WebAnimationsPlayer = (function () {
         function WebAnimationsPlayer(_player, totalTime) {
             var _this = this;
@@ -2091,7 +1679,13 @@ var __extends = (this && this.__extends) || function (d, b) {
                 start['offset'] = null;
                 formattedSteps = [start, start];
             }
-            var player = this._triggerWebAnimation(anyElm, formattedSteps, { 'duration': duration, 'delay': delay, 'easing': easing, 'fill': 'forwards' });
+            var playerOptions = {
+                'duration': duration,
+                'delay': delay,
+                'easing': easing,
+                'fill': 'both' // we use `both` because it allows for styling at 0% to work with `delay`
+            };
+            var player = this._triggerWebAnimation(anyElm, formattedSteps, playerOptions);
             return new WebAnimationsPlayer(player, duration);
         };
         /** @internal */
@@ -2758,17 +2352,501 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return BrowserGetTestability;
     }());
+    var SharedStylesHost = (function () {
+        function SharedStylesHost() {
+            /** @internal */
+            this._styles = [];
+            /** @internal */
+            this._stylesSet = new Set();
+        }
+        SharedStylesHost.prototype.addStyles = function (styles) {
+            var _this = this;
+            var additions = [];
+            styles.forEach(function (style) {
+                if (!SetWrapper.has(_this._stylesSet, style)) {
+                    _this._stylesSet.add(style);
+                    _this._styles.push(style);
+                    additions.push(style);
+                }
+            });
+            this.onStylesAdded(additions);
+        };
+        SharedStylesHost.prototype.onStylesAdded = function (additions) { };
+        SharedStylesHost.prototype.getAllStyles = function () { return this._styles; };
+        return SharedStylesHost;
+    }());
+    /** @nocollapse */
+    SharedStylesHost.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    /** @nocollapse */
+    SharedStylesHost.ctorParameters = [];
+    var DomSharedStylesHost = (function (_super) {
+        __extends(DomSharedStylesHost, _super);
+        function DomSharedStylesHost(doc) {
+            _super.call(this);
+            this._hostNodes = new Set();
+            this._hostNodes.add(doc.head);
+        }
+        /** @internal */
+        DomSharedStylesHost.prototype._addStylesToHost = function (styles, host) {
+            for (var i = 0; i < styles.length; i++) {
+                var style = styles[i];
+                getDOM().appendChild(host, getDOM().createStyleElement(style));
+            }
+        };
+        DomSharedStylesHost.prototype.addHost = function (hostNode) {
+            this._addStylesToHost(this._styles, hostNode);
+            this._hostNodes.add(hostNode);
+        };
+        DomSharedStylesHost.prototype.removeHost = function (hostNode) { SetWrapper.delete(this._hostNodes, hostNode); };
+        DomSharedStylesHost.prototype.onStylesAdded = function (additions) {
+            var _this = this;
+            this._hostNodes.forEach(function (hostNode) { _this._addStylesToHost(additions, hostNode); });
+        };
+        return DomSharedStylesHost;
+    }(SharedStylesHost));
+    /** @nocollapse */
+    DomSharedStylesHost.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    /** @nocollapse */
+    DomSharedStylesHost.ctorParameters = [
+        { type: undefined, decorators: [{ type: _angular_core.Inject, args: [DOCUMENT,] },] },
+    ];
+    var NAMESPACE_URIS = {
+        'xlink': 'http://www.w3.org/1999/xlink',
+        'svg': 'http://www.w3.org/2000/svg',
+        'xhtml': 'http://www.w3.org/1999/xhtml'
+    };
+    var TEMPLATE_COMMENT_TEXT = 'template bindings={}';
+    var TEMPLATE_BINDINGS_EXP = /^template bindings=(.*)$/g;
+    var DomRootRenderer = (function () {
+        function DomRootRenderer(document, eventManager, sharedStylesHost, animationDriver) {
+            this.document = document;
+            this.eventManager = eventManager;
+            this.sharedStylesHost = sharedStylesHost;
+            this.animationDriver = animationDriver;
+            this.registeredComponents = new Map();
+        }
+        DomRootRenderer.prototype.renderComponent = function (componentProto) {
+            var renderer = this.registeredComponents.get(componentProto.id);
+            if (isBlank(renderer)) {
+                renderer = new DomRenderer(this, componentProto, this.animationDriver);
+                this.registeredComponents.set(componentProto.id, renderer);
+            }
+            return renderer;
+        };
+        return DomRootRenderer;
+    }());
+    var DomRootRenderer_ = (function (_super) {
+        __extends(DomRootRenderer_, _super);
+        function DomRootRenderer_(_document, _eventManager, sharedStylesHost, animationDriver) {
+            _super.call(this, _document, _eventManager, sharedStylesHost, animationDriver);
+        }
+        return DomRootRenderer_;
+    }(DomRootRenderer));
+    /** @nocollapse */
+    DomRootRenderer_.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    /** @nocollapse */
+    DomRootRenderer_.ctorParameters = [
+        { type: undefined, decorators: [{ type: _angular_core.Inject, args: [DOCUMENT,] },] },
+        { type: EventManager, },
+        { type: DomSharedStylesHost, },
+        { type: AnimationDriver, },
+    ];
+    var DomRenderer = (function () {
+        function DomRenderer(_rootRenderer, componentProto, _animationDriver) {
+            this._rootRenderer = _rootRenderer;
+            this.componentProto = componentProto;
+            this._animationDriver = _animationDriver;
+            this._styles = _flattenStyles(componentProto.id, componentProto.styles, []);
+            if (componentProto.encapsulation !== _angular_core.ViewEncapsulation.Native) {
+                this._rootRenderer.sharedStylesHost.addStyles(this._styles);
+            }
+            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Emulated) {
+                this._contentAttr = _shimContentAttribute(componentProto.id);
+                this._hostAttr = _shimHostAttribute(componentProto.id);
+            }
+            else {
+                this._contentAttr = null;
+                this._hostAttr = null;
+            }
+        }
+        DomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
+            var el;
+            if (isString(selectorOrNode)) {
+                el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
+                if (isBlank(el)) {
+                    throw new BaseException$1("The selector \"" + selectorOrNode + "\" did not match any elements");
+                }
+            }
+            else {
+                el = selectorOrNode;
+            }
+            getDOM().clearNodes(el);
+            return el;
+        };
+        DomRenderer.prototype.createElement = function (parent, name, debugInfo) {
+            var nsAndName = splitNamespace(name);
+            var el = isPresent(nsAndName[0]) ?
+                getDOM().createElementNS(NAMESPACE_URIS[nsAndName[0]], nsAndName[1]) :
+                getDOM().createElement(nsAndName[1]);
+            if (isPresent(this._contentAttr)) {
+                getDOM().setAttribute(el, this._contentAttr, '');
+            }
+            if (isPresent(parent)) {
+                getDOM().appendChild(parent, el);
+            }
+            return el;
+        };
+        DomRenderer.prototype.createViewRoot = function (hostElement) {
+            var nodesParent;
+            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Native) {
+                nodesParent = getDOM().createShadowRoot(hostElement);
+                this._rootRenderer.sharedStylesHost.addHost(nodesParent);
+                for (var i = 0; i < this._styles.length; i++) {
+                    getDOM().appendChild(nodesParent, getDOM().createStyleElement(this._styles[i]));
+                }
+            }
+            else {
+                if (isPresent(this._hostAttr)) {
+                    getDOM().setAttribute(hostElement, this._hostAttr, '');
+                }
+                nodesParent = hostElement;
+            }
+            return nodesParent;
+        };
+        DomRenderer.prototype.createTemplateAnchor = function (parentElement, debugInfo) {
+            var comment = getDOM().createComment(TEMPLATE_COMMENT_TEXT);
+            if (isPresent(parentElement)) {
+                getDOM().appendChild(parentElement, comment);
+            }
+            return comment;
+        };
+        DomRenderer.prototype.createText = function (parentElement, value, debugInfo) {
+            var node = getDOM().createTextNode(value);
+            if (isPresent(parentElement)) {
+                getDOM().appendChild(parentElement, node);
+            }
+            return node;
+        };
+        DomRenderer.prototype.projectNodes = function (parentElement, nodes) {
+            if (isBlank(parentElement))
+                return;
+            appendNodes(parentElement, nodes);
+        };
+        DomRenderer.prototype.attachViewAfter = function (node, viewRootNodes) { moveNodesAfterSibling(node, viewRootNodes); };
+        DomRenderer.prototype.detachView = function (viewRootNodes) {
+            for (var i = 0; i < viewRootNodes.length; i++) {
+                getDOM().remove(viewRootNodes[i]);
+            }
+        };
+        DomRenderer.prototype.destroyView = function (hostElement, viewAllNodes) {
+            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Native && isPresent(hostElement)) {
+                this._rootRenderer.sharedStylesHost.removeHost(getDOM().getShadowRoot(hostElement));
+            }
+        };
+        DomRenderer.prototype.listen = function (renderElement, name, callback) {
+            return this._rootRenderer.eventManager.addEventListener(renderElement, name, decoratePreventDefault(callback));
+        };
+        DomRenderer.prototype.listenGlobal = function (target, name, callback) {
+            return this._rootRenderer.eventManager.addGlobalEventListener(target, name, decoratePreventDefault(callback));
+        };
+        DomRenderer.prototype.setElementProperty = function (renderElement, propertyName, propertyValue) {
+            getDOM().setProperty(renderElement, propertyName, propertyValue);
+        };
+        DomRenderer.prototype.setElementAttribute = function (renderElement, attributeName, attributeValue) {
+            var attrNs;
+            var nsAndName = splitNamespace(attributeName);
+            if (isPresent(nsAndName[0])) {
+                attributeName = nsAndName[0] + ':' + nsAndName[1];
+                attrNs = NAMESPACE_URIS[nsAndName[0]];
+            }
+            if (isPresent(attributeValue)) {
+                if (isPresent(attrNs)) {
+                    getDOM().setAttributeNS(renderElement, attrNs, attributeName, attributeValue);
+                }
+                else {
+                    getDOM().setAttribute(renderElement, attributeName, attributeValue);
+                }
+            }
+            else {
+                if (isPresent(attrNs)) {
+                    getDOM().removeAttributeNS(renderElement, attrNs, nsAndName[1]);
+                }
+                else {
+                    getDOM().removeAttribute(renderElement, attributeName);
+                }
+            }
+        };
+        DomRenderer.prototype.setBindingDebugInfo = function (renderElement, propertyName, propertyValue) {
+            var dashCasedPropertyName = camelCaseToDashCase(propertyName);
+            if (getDOM().isCommentNode(renderElement)) {
+                var existingBindings = RegExpWrapper.firstMatch(TEMPLATE_BINDINGS_EXP, StringWrapper.replaceAll(getDOM().getText(renderElement), /\n/g, ''));
+                var parsedBindings = Json.parse(existingBindings[1]);
+                parsedBindings[dashCasedPropertyName] = propertyValue;
+                getDOM().setText(renderElement, StringWrapper.replace(TEMPLATE_COMMENT_TEXT, '{}', Json.stringify(parsedBindings)));
+            }
+            else {
+                this.setElementAttribute(renderElement, propertyName, propertyValue);
+            }
+        };
+        DomRenderer.prototype.setElementClass = function (renderElement, className, isAdd) {
+            if (isAdd) {
+                getDOM().addClass(renderElement, className);
+            }
+            else {
+                getDOM().removeClass(renderElement, className);
+            }
+        };
+        DomRenderer.prototype.setElementStyle = function (renderElement, styleName, styleValue) {
+            if (isPresent(styleValue)) {
+                getDOM().setStyle(renderElement, styleName, stringify(styleValue));
+            }
+            else {
+                getDOM().removeStyle(renderElement, styleName);
+            }
+        };
+        DomRenderer.prototype.invokeElementMethod = function (renderElement, methodName, args) {
+            getDOM().invoke(renderElement, methodName, args);
+        };
+        DomRenderer.prototype.setText = function (renderNode, text) { getDOM().setText(renderNode, text); };
+        DomRenderer.prototype.animate = function (element, startingStyles, keyframes, duration, delay, easing) {
+            return this._animationDriver.animate(element, startingStyles, keyframes, duration, delay, easing);
+        };
+        return DomRenderer;
+    }());
+    function moveNodesAfterSibling(sibling /** TODO #9100 */, nodes /** TODO #9100 */) {
+        var parent = getDOM().parentElement(sibling);
+        if (nodes.length > 0 && isPresent(parent)) {
+            var nextSibling = getDOM().nextSibling(sibling);
+            if (isPresent(nextSibling)) {
+                for (var i = 0; i < nodes.length; i++) {
+                    getDOM().insertBefore(nextSibling, nodes[i]);
+                }
+            }
+            else {
+                for (var i = 0; i < nodes.length; i++) {
+                    getDOM().appendChild(parent, nodes[i]);
+                }
+            }
+        }
+    }
+    function appendNodes(parent /** TODO #9100 */, nodes /** TODO #9100 */) {
+        for (var i = 0; i < nodes.length; i++) {
+            getDOM().appendChild(parent, nodes[i]);
+        }
+    }
+    function decoratePreventDefault(eventHandler) {
+        return function (event /** TODO #9100 */) {
+            var allowDefaultBehavior = eventHandler(event);
+            if (allowDefaultBehavior === false) {
+                // TODO(tbosch): move preventDefault into event plugins...
+                getDOM().preventDefault(event);
+            }
+        };
+    }
+    var COMPONENT_REGEX = /%COMP%/g;
+    var COMPONENT_VARIABLE = '%COMP%';
+    var HOST_ATTR = "_nghost-" + COMPONENT_VARIABLE;
+    var CONTENT_ATTR = "_ngcontent-" + COMPONENT_VARIABLE;
+    function _shimContentAttribute(componentShortId) {
+        return StringWrapper.replaceAll(CONTENT_ATTR, COMPONENT_REGEX, componentShortId);
+    }
+    function _shimHostAttribute(componentShortId) {
+        return StringWrapper.replaceAll(HOST_ATTR, COMPONENT_REGEX, componentShortId);
+    }
+    function _flattenStyles(compId, styles, target) {
+        for (var i = 0; i < styles.length; i++) {
+            var style = styles[i];
+            if (isArray(style)) {
+                _flattenStyles(compId, style, target);
+            }
+            else {
+                style = StringWrapper.replaceAll(style, COMPONENT_REGEX, compId);
+                target.push(style);
+            }
+        }
+        return target;
+    }
+    var NS_PREFIX_RE = /^:([^:]+):(.+)/g;
+    function splitNamespace(name) {
+        if (name[0] != ':') {
+            return [null, name];
+        }
+        var match = RegExpWrapper.firstMatch(NS_PREFIX_RE, name);
+        return [match[1], match[2]];
+    }
+    var CORE_TOKENS = {
+        'ApplicationRef': _angular_core.ApplicationRef,
+        'NgZone': _angular_core.NgZone
+    };
+    var INSPECT_GLOBAL_NAME = 'ng.probe';
+    var CORE_TOKENS_GLOBAL_NAME = 'ng.coreTokens';
+    /**
+     * Returns a {@link DebugElement} for the given native DOM element, or
+     * null if the given native element does not have an Angular view associated
+     * with it.
+     */
+    function inspectNativeElement(element /** TODO #9100 */) {
+        return _angular_core.getDebugNode(element);
+    }
+    function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
+        if (_angular_core.isDevMode()) {
+            return _createRootRenderer(rootRenderer);
+        }
+        return rootRenderer;
+    }
+    function _createRootRenderer(rootRenderer /** TODO #9100 */) {
+        getDOM().setGlobalVar(INSPECT_GLOBAL_NAME, inspectNativeElement);
+        getDOM().setGlobalVar(CORE_TOKENS_GLOBAL_NAME, CORE_TOKENS);
+        return new DebugDomRootRenderer(rootRenderer);
+    }
+    /**
+     * Providers which support debugging Angular applications (e.g. via `ng.probe`).
+     */
+    var ELEMENT_PROBE_PROVIDERS = [{ provide: _angular_core.RootRenderer, useFactory: _createConditionalRootRenderer, deps: [DomRootRenderer] }];
+    var DomEventsPlugin = (function (_super) {
+        __extends(DomEventsPlugin, _super);
+        function DomEventsPlugin() {
+            _super.apply(this, arguments);
+        }
+        // This plugin should come last in the list of plugins, because it accepts all
+        // events.
+        DomEventsPlugin.prototype.supports = function (eventName) { return true; };
+        DomEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
+            var zone = this.manager.getZone();
+            var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
+            return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
+        };
+        DomEventsPlugin.prototype.addGlobalEventListener = function (target, eventName, handler) {
+            var element = getDOM().getGlobalEventTarget(target);
+            var zone = this.manager.getZone();
+            var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
+            return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
+        };
+        return DomEventsPlugin;
+    }(EventManagerPlugin));
+    /** @nocollapse */
+    DomEventsPlugin.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    var modifierKeys = ['alt', 'control', 'meta', 'shift'];
+    var modifierKeyGetters = {
+        'alt': function (event) { return event.altKey; },
+        'control': function (event) { return event.ctrlKey; },
+        'meta': function (event) { return event.metaKey; },
+        'shift': function (event) { return event.shiftKey; }
+    };
+    var KeyEventsPlugin = (function (_super) {
+        __extends(KeyEventsPlugin, _super);
+        function KeyEventsPlugin() {
+            _super.call(this);
+        }
+        KeyEventsPlugin.prototype.supports = function (eventName) {
+            return isPresent(KeyEventsPlugin.parseEventName(eventName));
+        };
+        KeyEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
+            var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
+            var outsideHandler = KeyEventsPlugin.eventCallback(element, StringMapWrapper.get(parsedEvent, 'fullKey'), handler, this.manager.getZone());
+            return this.manager.getZone().runOutsideAngular(function () {
+                return getDOM().onAndCancel(element, StringMapWrapper.get(parsedEvent, 'domEventName'), outsideHandler);
+            });
+        };
+        KeyEventsPlugin.parseEventName = function (eventName) {
+            var parts = eventName.toLowerCase().split('.');
+            var domEventName = parts.shift();
+            if ((parts.length === 0) ||
+                !(StringWrapper.equals(domEventName, 'keydown') ||
+                    StringWrapper.equals(domEventName, 'keyup'))) {
+                return null;
+            }
+            var key = KeyEventsPlugin._normalizeKey(parts.pop());
+            var fullKey = '';
+            modifierKeys.forEach(function (modifierName) {
+                if (ListWrapper.contains(parts, modifierName)) {
+                    ListWrapper.remove(parts, modifierName);
+                    fullKey += modifierName + '.';
+                }
+            });
+            fullKey += key;
+            if (parts.length != 0 || key.length === 0) {
+                // returning null instead of throwing to let another plugin process the event
+                return null;
+            }
+            var result = StringMapWrapper.create();
+            StringMapWrapper.set(result, 'domEventName', domEventName);
+            StringMapWrapper.set(result, 'fullKey', fullKey);
+            return result;
+        };
+        KeyEventsPlugin.getEventFullKey = function (event) {
+            var fullKey = '';
+            var key = getDOM().getEventKey(event);
+            key = key.toLowerCase();
+            if (StringWrapper.equals(key, ' ')) {
+                key = 'space'; // for readability
+            }
+            else if (StringWrapper.equals(key, '.')) {
+                key = 'dot'; // because '.' is used as a separator in event names
+            }
+            modifierKeys.forEach(function (modifierName) {
+                if (modifierName != key) {
+                    var modifierGetter = StringMapWrapper.get(modifierKeyGetters, modifierName);
+                    if (modifierGetter(event)) {
+                        fullKey += modifierName + '.';
+                    }
+                }
+            });
+            fullKey += key;
+            return fullKey;
+        };
+        KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
+            return function (event /** TODO #9100 */) {
+                if (StringWrapper.equals(KeyEventsPlugin.getEventFullKey(event), fullKey)) {
+                    zone.runGuarded(function () { return handler(event); });
+                }
+            };
+        };
+        /** @internal */
+        KeyEventsPlugin._normalizeKey = function (keyName) {
+            // TODO: switch to a StringMap if the mapping grows too much
+            switch (keyName) {
+                case 'esc':
+                    return 'escape';
+                default:
+                    return keyName;
+            }
+        };
+        return KeyEventsPlugin;
+    }(EventManagerPlugin));
+    /** @nocollapse */
+    KeyEventsPlugin.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    /** @nocollapse */
+    KeyEventsPlugin.ctorParameters = [];
     var BROWSER_PLATFORM_MARKER = new _angular_core.OpaqueToken('BrowserPlatformMarker');
     /**
      * A set of providers to initialize the Angular platform in a web browser.
      *
      * Used automatically by `bootstrap`, or can be passed to {@link platform}.
+     *
+     * @experimental API related to bootstrapping are still under review.
      */
     var BROWSER_PLATFORM_PROVIDERS = [
         { provide: BROWSER_PLATFORM_MARKER, useValue: true }, _angular_core.PLATFORM_COMMON_PROVIDERS,
         { provide: _angular_core.PLATFORM_INITIALIZER, useValue: initDomAdapter, multi: true },
         { provide: _angular_common.PlatformLocation, useClass: BrowserPlatformLocation }
     ];
+    /**
+     * @security Replacing built-in sanitization providers exposes the application to XSS risks.
+     * Attacker-controlled data introduced by an unsanitized provider could expose your
+     * application to XSS risks. For more detail, see the [Security Guide](http://g.co/ng/security).
+     * @experimental
+     */
     var BROWSER_SANITIZATION_PROVIDERS = [
         { provide: SanitizationService, useExisting: DomSanitizationService },
         { provide: DomSanitizationService, useClass: DomSanitizationServiceImpl },
@@ -2777,6 +2855,8 @@ var __extends = (this && this.__extends) || function (d, b) {
      * A set of providers to initialize an Angular application in a web browser.
      *
      * Used automatically by `bootstrap`, or can be passed to {@link PlatformRef.application}.
+     *
+     * @experimental API related to bootstrapping are still under review.
      */
     var BROWSER_APP_PROVIDERS = [
         _angular_core.APPLICATION_COMMON_PROVIDERS, _angular_common.FORM_PROVIDERS, BROWSER_SANITIZATION_PROVIDERS,
@@ -2792,6 +2872,9 @@ var __extends = (this && this.__extends) || function (d, b) {
         { provide: AnimationDriver, useFactory: _resolveDefaultAnimationDriver }, DomSharedStylesHost,
         _angular_core.Testability, EventManager, ELEMENT_PROBE_PROVIDERS
     ];
+    /**
+     * @experimental API related to bootstrapping are still under review.
+     */
     function browserPlatform() {
         if (isBlank(_angular_core.getPlatform())) {
             _angular_core.createPlatform(_angular_core.ReflectiveInjector.resolveAndCreate(BROWSER_PLATFORM_PROVIDERS));
@@ -2815,6 +2898,13 @@ var __extends = (this && this.__extends) || function (d, b) {
         }
         return new NoOpAnimationDriver();
     }
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
     var PromiseCompleter = (function () {
         function PromiseCompleter() {
             var _this = this;
@@ -2856,7 +2946,6 @@ var __extends = (this && this.__extends) || function (d, b) {
         PromiseWrapper.scheduleMicrotask = function (computation) {
             PromiseWrapper.then(PromiseWrapper.resolve(null), computation, function (_) { });
         };
-        PromiseWrapper.isPromise = function (obj) { return obj instanceof Promise; };
         PromiseWrapper.completer = function () { return new PromiseCompleter(); };
         return PromiseWrapper;
     }());
@@ -2879,7 +2968,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         /**
          * @deprecated - use callEmit() instead
          */
-        ObservableWrapper.callNext = function (emitter, value) { emitter.next(value); };
+        ObservableWrapper.callNext = function (emitter, value) { emitter.emit(value); };
         ObservableWrapper.callEmit = function (emitter, value) { emitter.emit(value); };
         ObservableWrapper.callError = function (emitter, error) { emitter.error(error); };
         ObservableWrapper.callComplete = function (emitter) { emitter.complete(); };
@@ -2987,11 +3076,19 @@ var __extends = (this && this.__extends) || function (d, b) {
         return EventEmitter;
     }(rxjs_Subject.Subject));
     /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    /**
      * Message Bus is a low level API used to communicate between the UI and the background.
      * Communication is based on a channel abstraction. Messages published in a
      * given channel to one MessageBusSink are received on the same channel
      * by the corresponding MessageBusSource.
-     * @experimental
+     *
+     * @experimental WebWorker support in Angular is currenlty experimental.
      */
     var MessageBus = (function () {
         function MessageBus() {
@@ -3037,6 +3134,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     ];
     /** @nocollapse */
     RenderStore.ctorParameters = [];
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
     // This file contains interface versions of browser types that can be serialized to Plain Old
     // JavaScript Objects
     var LocationType = (function () {
@@ -3056,7 +3160,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     // PRIMITIVE is any type that does not need to be serialized (string, number, boolean)
     // We set it to String so that it is considered a Type.
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is currently experimental.
      */
     var PRIMITIVE = String;
     var Serializer = (function () {
@@ -3163,7 +3267,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         return RenderStoreObject;
     }());
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is experimental.
      */
     var ClientMessageBrokerFactory = (function () {
         function ClientMessageBrokerFactory() {
@@ -3197,7 +3301,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         { type: Serializer, },
     ];
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is experimental.
      */
     var ClientMessageBroker = (function () {
         function ClientMessageBroker() {
@@ -3308,7 +3412,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         return MessageData;
     }());
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is experimental.
      */
     var FnArg = (function () {
         function FnArg(value /** TODO #9100 */, type) {
@@ -3318,7 +3422,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         return FnArg;
     }());
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is experimental.
      */
     var UiArguments = (function () {
         function UiArguments(method, args) {
@@ -3327,6 +3431,9 @@ var __extends = (this && this.__extends) || function (d, b) {
         }
         return UiArguments;
     }());
+    /**
+     * @experimental WebWorker support in Angular is currently experimental.
+     */
     var ServiceMessageBrokerFactory = (function () {
         function ServiceMessageBrokerFactory() {
         }
@@ -3356,19 +3463,18 @@ var __extends = (this && this.__extends) || function (d, b) {
         { type: Serializer, },
     ];
     /**
-     * @experimental
+     * Helper class for UIComponents that allows components to register methods.
+     * If a registered method message is received from the broker on the worker,
+     * the UIMessageBroker deserializes its arguments and calls the registered method.
+     * If that method returns a promise, the UIMessageBroker returns the result to the worker.
+     *
+     * @experimental WebWorker support in Angular is currently experimental.
      */
     var ServiceMessageBroker = (function () {
         function ServiceMessageBroker() {
         }
         return ServiceMessageBroker;
     }());
-    /**
-     * Helper class for UIComponents that allows components to register methods.
-     * If a registered method message is received from the broker on the worker,
-     * the UIMessageBroker deserializes its arguments and calls the registered method.
-     * If that method returns a promise, the UIMessageBroker returns the result to the worker.
-     */
     var ServiceMessageBroker_ = (function (_super) {
         __extends(ServiceMessageBroker_, _super);
         function ServiceMessageBroker_(messageBus, _serializer, channel /** TODO #9100 */) {
@@ -3412,7 +3518,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         return ServiceMessageBroker_;
     }(ServiceMessageBroker));
     /**
-     * @experimental
+     * @experimental WebWorker support in Angular is currently experimental.
      */
     var ReceivedMessage = (function () {
         function ReceivedMessage(data) {
@@ -3424,12 +3530,26 @@ var __extends = (this && this.__extends) || function (d, b) {
         return ReceivedMessage;
     }());
     /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    /**
      * All channels used by angular's WebWorker components are listed here.
      * You should not use these channels in your application code.
      */
     var RENDERER_CHANNEL = 'ng-Renderer';
     var EVENT_CHANNEL = 'ng-Events';
     var ROUTER_CHANNEL = 'ng-Router';
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
     // no deserialization is necessary in TS.
     // This is only here to match dart interface
     function deserializeGenericEvent(serializedEvent) {
@@ -4041,7 +4161,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         { type: _angular_core.Injectable },
     ];
     /**
-     * @experimental
+     * @experimental WebWorker support is currently experimental.
      */
     var WORKER_SCRIPT = new _angular_core.OpaqueToken('WebWorkerScript');
     /**
@@ -4049,18 +4169,18 @@ var __extends = (this && this.__extends) || function (d, b) {
      * created.
      *
      * TODO(vicb): create an interface for startable services to implement
-     * @experimental
+     * @experimental WebWorker support is currently experimental.
      */
     var WORKER_UI_STARTABLE_MESSAGING_SERVICE = new _angular_core.OpaqueToken('WorkerRenderStartableMsgService');
     /**
-     * * @experimental
+     * @experimental WebWorker support is currently experimental.
      */
     var WORKER_UI_PLATFORM_PROVIDERS = [
         _angular_core.PLATFORM_COMMON_PROVIDERS, { provide: WORKER_RENDER_PLATFORM_MARKER, useValue: true },
         { provide: _angular_core.PLATFORM_INITIALIZER, useValue: initWebWorkerRenderPlatform, multi: true }
     ];
     /**
-     * * @experimental
+     * @experimental WebWorker support is currently experimental.
      */
     var WORKER_UI_APPLICATION_PROVIDERS = [
         _angular_core.APPLICATION_COMMON_PROVIDERS,
@@ -4097,7 +4217,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         bus.attachToZone(zone);
         // initialize message services after the bus has been created
         var services = injector.get(WORKER_UI_STARTABLE_MESSAGING_SERVICE);
-        zone.runGuarded(function () { services.forEach(function (svc /** TODO #9100 */) { svc.start(); }); });
+        zone.runGuarded(function () { services.forEach(function (svc) { svc.start(); }); });
     }
     function messageBusFactory(instance) {
         return instance.bus;
@@ -4108,7 +4228,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         BrowserGetTestability.init();
     }
     /**
-     * * @experimental
+     * @experimental WebWorker support is currently experimental.
      */
     function workerUiPlatform() {
         if (isBlank(_angular_core.getPlatform())) {
@@ -4637,24 +4757,20 @@ var __extends = (this && this.__extends) || function (d, b) {
         DomRootRenderer: DomRootRenderer,
         DomRootRenderer_: DomRootRenderer_,
         DomSharedStylesHost: DomSharedStylesHost,
-        SharedStylesHost: SharedStylesHost
+        SharedStylesHost: SharedStylesHost,
+        ELEMENT_PROBE_PROVIDERS: ELEMENT_PROBE_PROVIDERS,
+        DomEventsPlugin: DomEventsPlugin
     };
-    /* @deprecated use BROWSER_PLATFORM_PROVIDERS */
-    var BROWSER_PROVIDERS = BROWSER_PLATFORM_PROVIDERS;
-    exports.BROWSER_PROVIDERS = BROWSER_PROVIDERS;
     exports.BrowserPlatformLocation = BrowserPlatformLocation;
     exports.Title = Title;
     exports.disableDebugTools = disableDebugTools;
     exports.enableDebugTools = enableDebugTools;
     exports.By = By;
-    exports.ELEMENT_PROBE_PROVIDERS = ELEMENT_PROBE_PROVIDERS;
     exports.DOCUMENT = DOCUMENT;
-    exports.DomEventsPlugin = DomEventsPlugin;
     exports.EVENT_MANAGER_PLUGINS = EVENT_MANAGER_PLUGINS;
     exports.EventManager = EventManager;
     exports.HAMMER_GESTURE_CONFIG = HAMMER_GESTURE_CONFIG;
     exports.HammerGestureConfig = HammerGestureConfig;
-    exports.KeyEventsPlugin = KeyEventsPlugin;
     exports.DomSanitizationService = DomSanitizationService;
     exports.SecurityContext = SecurityContext;
     exports.ClientMessageBroker = ClientMessageBroker;

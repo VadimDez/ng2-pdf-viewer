@@ -1,7 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ObservableWrapper, PromiseWrapper } from '../src/facade/async';
 import { ListWrapper } from '../src/facade/collection';
 import { BaseException, ExceptionHandler, unimplemented } from '../src/facade/exceptions';
-import { IS_DART, assertionsEnabled, isBlank, isPresent, isPromise, lockMode } from '../src/facade/lang';
+import { IS_DART, isBlank, isPresent, isPromise } from '../src/facade/lang';
 import { APP_INITIALIZER, PLATFORM_INITIALIZER } from './application_tokens';
 import { Console } from './console';
 import { Injectable, Injector } from './di';
@@ -14,14 +21,58 @@ import { NgZone } from './zone/ng_zone';
  * @experimental
  */
 export function createNgZone() {
-    return new NgZone({ enableLongStackTrace: assertionsEnabled() });
+    return new NgZone({ enableLongStackTrace: isDevMode() });
 }
+var _devMode = true;
+var _runModeLocked = false;
 var _platform;
 var _inPlatformCreate = false;
 /**
+ * Disable Angular's development mode, which turns off assertions and other
+ * checks within the framework.
+ *
+ * One important assertion this disables verifies that a change detection pass
+ * does not result in additional changes to any bindings (also known as
+ * unidirectional data flow).
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
+ */
+export function enableProdMode() {
+    if (_runModeLocked) {
+        // Cannot use BaseException as that ends up importing from facade/lang.
+        throw new BaseException('Cannot enable prod mode after platform setup.');
+    }
+    _devMode = false;
+}
+/**
+ * Returns whether Angular is in development mode.
+ * This can only be read after `lockRunMode` has been called.
+ *
+ * By default, this is true, unless a user calls `enableProdMode`.
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
+ */
+export function isDevMode() {
+    if (!_runModeLocked) {
+        throw new BaseException(`Dev mode can't be read before bootstrap!`);
+    }
+    return _devMode;
+}
+/**
+ * Locks the run mode of Angular. After this has been called,
+ * it can't be changed any more. I.e. `isDevMode()` will always
+ * return the same value.
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
+ */
+export function lockRunMode() {
+    _runModeLocked = true;
+}
+/**
  * Creates a platform.
  * Platforms have to be eagerly created via this function.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function createPlatform(injector) {
     if (_inPlatformCreate) {
@@ -30,7 +81,7 @@ export function createPlatform(injector) {
     if (isPresent(_platform) && !_platform.disposed) {
         throw new BaseException('There can be only one platform. Destroy the previous one to create a new one.');
     }
-    lockMode();
+    lockRunMode();
     _inPlatformCreate = true;
     try {
         _platform = injector.get(PlatformRef);
@@ -43,7 +94,8 @@ export function createPlatform(injector) {
 /**
  * Checks that there currently is a platform
  * which contains the given token as a provider.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function assertPlatform(requiredToken) {
     var platform = getPlatform();
@@ -57,7 +109,8 @@ export function assertPlatform(requiredToken) {
 }
 /**
  * Dispose the existing platform.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function disposePlatform() {
     if (isPresent(_platform) && !_platform.disposed) {
@@ -66,7 +119,8 @@ export function disposePlatform() {
 }
 /**
  * Returns the current platform.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function getPlatform() {
     return isPresent(_platform) && !_platform.disposed ? _platform : null;
@@ -74,7 +128,8 @@ export function getPlatform() {
 /**
  * Shortcut for ApplicationRef.bootstrap.
  * Requires a platform to be created first.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function coreBootstrap(componentFactory, injector) {
     var appRef = injector.get(ApplicationRef);
@@ -84,7 +139,8 @@ export function coreBootstrap(componentFactory, injector) {
  * Resolves the componentFactory for the given component,
  * waits for asynchronous initializers and bootstraps the component.
  * Requires a platform to be created first.
- * @experimental
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export function coreLoadAndBootstrap(componentType, injector) {
     var appRef = injector.get(ApplicationRef);
@@ -102,7 +158,8 @@ export function coreLoadAndBootstrap(componentType, injector) {
  *
  * A page's platform is initialized implicitly when {@link bootstrap}() is called, or
  * explicitly by calling {@link createPlatform}().
- * @stable
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export class PlatformRef {
     /**
@@ -153,7 +210,8 @@ PlatformRef_.ctorParameters = [
  * A reference to an Angular application running on a page.
  *
  * For more about Angular applications, see the documentation for {@link bootstrap}.
- * @stable
+ *
+ * @experimental APIs related to application bootstrap are currently under review.
  */
 export class ApplicationRef {
     /**
@@ -193,7 +251,7 @@ export class ApplicationRef_ extends ApplicationRef {
         /** @internal */
         this._enforceNoNewChanges = false;
         var zone = _injector.get(NgZone);
-        this._enforceNoNewChanges = assertionsEnabled();
+        this._enforceNoNewChanges = isDevMode();
         zone.run(() => { this._exceptionHandler = _injector.get(ExceptionHandler); });
         this._asyncInitDonePromise = this.run(() => {
             let inits = _injector.get(APP_INITIALIZER, null);
@@ -275,7 +333,7 @@ export class ApplicationRef_ extends ApplicationRef {
             }
             this._loadComponent(compRef);
             let c = this._injector.get(Console);
-            if (assertionsEnabled()) {
+            if (isDevMode()) {
                 let prodDescription = IS_DART ? 'Production mode is disabled in Dart.' :
                     'Call enableProdMode() to enable the production mode.';
                 c.log(`Angular 2 is running in the development mode. ${prodDescription}`);

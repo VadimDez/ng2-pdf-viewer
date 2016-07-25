@@ -1,6 +1,8 @@
 import { Location } from '../index';
 /**
  * A spy for {@link Location} that allows tests to fire simulated location events.
+ *
+ * @experimental
  */
 export declare class SpyLocation implements Location {
     urlChanges: string[];

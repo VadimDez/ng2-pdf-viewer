@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { RenderComponentType, Renderer, RootRenderer } from '@angular/core';
 import { AnimationKeyframe, AnimationPlayer, AnimationStyles, RenderDebugInfo } from '../../../core_private';
 import { ClientMessageBrokerFactory, FnArg } from '../shared/client_message_broker';

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -97,6 +104,7 @@ var ViewRef_ = (function () {
     function ViewRef_(_view) {
         this._view = _view;
         this._view = _view;
+        this._originalMode = this._view.cdMode;
     }
     Object.defineProperty(ViewRef_.prototype, "internalView", {
         get: function () { return this._view; },
@@ -119,11 +127,11 @@ var ViewRef_ = (function () {
         configurable: true
     });
     ViewRef_.prototype.markForCheck = function () { this._view.markPathToRootAsCheckOnce(); };
-    ViewRef_.prototype.detach = function () { this._view.cdMode = constants_1.ChangeDetectionStrategy.Detached; };
+    ViewRef_.prototype.detach = function () { this._view.cdMode = constants_1.ChangeDetectorStatus.Detached; };
     ViewRef_.prototype.detectChanges = function () { this._view.detectChanges(false); };
     ViewRef_.prototype.checkNoChanges = function () { this._view.detectChanges(true); };
     ViewRef_.prototype.reattach = function () {
-        this._view.cdMode = constants_1.ChangeDetectionStrategy.CheckAlways;
+        this._view.cdMode = this._originalMode;
         this.markForCheck();
     };
     ViewRef_.prototype.onDestroy = function (callback) { this._view.disposables.push(callback); };

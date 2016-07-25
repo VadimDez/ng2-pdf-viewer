@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Inject, Injectable, Optional } from '@angular/core';
 import { isPresent } from '../facade/lang';
 import { Location } from './location';
@@ -17,7 +24,7 @@ export class HashLocationStrategy extends LocationStrategy {
         this._platformLocation.onHashChange(fn);
     }
     getBaseHref() { return this._baseHref; }
-    path() {
+    path(includeHash = false) {
         // the hash value is always prefixed with a `#`
         // and if it is empty then it will stay empty
         var path = this._platformLocation.hash;

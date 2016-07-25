@@ -12,5 +12,7 @@
  *   })
  * });
  * ```
+ *
+ * @stable
  */
-export declare function async(fn: Function): Function;
+export declare function async(fn: Function): (done: any) => any;

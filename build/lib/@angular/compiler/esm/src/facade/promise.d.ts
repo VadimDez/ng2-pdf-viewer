@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 export declare class PromiseCompleter<R> {
     promise: Promise<R>;
     resolve: (value?: R | PromiseLike<R>) => void;
@@ -12,6 +19,5 @@ export declare class PromiseWrapper {
     static then<T, U>(promise: Promise<T>, success: (value: T) => U | PromiseLike<U>, rejection?: (error: any, stack?: any) => U | PromiseLike<U>): Promise<U>;
     static wrap<T>(computation: () => T): Promise<T>;
     static scheduleMicrotask(computation: () => any): void;
-    static isPromise(obj: any): boolean;
     static completer<T>(): PromiseCompleter<T>;
 }

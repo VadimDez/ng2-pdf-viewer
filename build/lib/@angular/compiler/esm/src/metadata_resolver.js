@@ -1,9 +1,16 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { AnimationAnimateMetadata, AnimationGroupMetadata, AnimationKeyframesSequenceMetadata, AnimationStateDeclarationMetadata, AnimationStateTransitionMetadata, AnimationStyleMetadata, AnimationWithStepsMetadata, AttributeMetadata, ComponentMetadata, HostMetadata, InjectMetadata, Injectable, OptionalMetadata, Provider, QueryMetadata, SelfMetadata, SkipSelfMetadata, resolveForwardRef } from '@angular/core';
 import { LIFECYCLE_HOOKS_VALUES, ReflectorReader, createProvider, isProviderLiteral, reflector } from '../core_private';
 import { StringMapWrapper } from '../src/facade/collection';
 import { BaseException } from '../src/facade/exceptions';
 import { Type, isArray, isBlank, isPresent, isString, isStringMap, stringify } from '../src/facade/lang';
-import { assertArrayOfStrings } from './assertions';
+import { assertArrayOfStrings, assertInterpolationSymbols } from './assertions';
 import * as cpl from './compile_metadata';
 import { CompilerConfig } from './config';
 import { hasLifecycleHook } from './directive_lifecycle_reflector';
@@ -13,21 +20,16 @@ import { getUrlScheme } from './url_resolver';
 import { MODULE_SUFFIX, ValueTransformer, sanitizeIdentifier, visitValue } from './util';
 import { ViewResolver } from './view_resolver';
 export class CompileMetadataResolver {
-    constructor(_directiveResolver, _pipeResolver, _viewResolver, _config, _reflector) {
+    constructor(_directiveResolver, _pipeResolver, _viewResolver, _config, _reflector = reflector) {
         this._directiveResolver = _directiveResolver;
         this._pipeResolver = _pipeResolver;
         this._viewResolver = _viewResolver;
         this._config = _config;
+        this._reflector = _reflector;
         this._directiveCache = new Map();
         this._pipeCache = new Map();
         this._anonymousTypes = new Map();
         this._anonymousTypeIndex = 0;
-        if (isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = reflector;
-        }
     }
     sanitizeTokenName(token) {
         let identifier = stringify(token);
@@ -41,6 +43,14 @@ export class CompileMetadataResolver {
             identifier = `anonymous_token_${found}_`;
         }
         return sanitizeIdentifier(identifier);
+    }
+    clearCacheFor(compType) {
+        this._directiveCache.delete(compType);
+        this._pipeCache.delete(compType);
+    }
+    clearCache() {
+        this._directiveCache.clear();
+        this._pipeCache.clear();
     }
     getAnimationEntryMetadata(entry) {
         var defs = entry.definitions.map(def => this.getAnimationStateMetadata(def));
@@ -90,31 +100,39 @@ export class CompileMetadataResolver {
             var changeDetectionStrategy = null;
             var viewProviders = [];
             var moduleUrl = staticTypeModuleUrl(directiveType);
+            var precompileTypes = [];
             if (dirMeta instanceof ComponentMetadata) {
-                assertArrayOfStrings('styles', dirMeta.styles);
                 var cmpMeta = dirMeta;
                 var viewMeta = this._viewResolver.resolve(directiveType);
                 assertArrayOfStrings('styles', viewMeta.styles);
+                assertInterpolationSymbols('interpolation', viewMeta.interpolation);
                 var animations = isPresent(viewMeta.animations) ?
                     viewMeta.animations.map(e => this.getAnimationEntryMetadata(e)) :
                     null;
+                assertArrayOfStrings('styles', viewMeta.styles);
+                assertArrayOfStrings('styleUrls', viewMeta.styleUrls);
                 templateMeta = new cpl.CompileTemplateMetadata({
                     encapsulation: viewMeta.encapsulation,
                     template: viewMeta.template,
                     templateUrl: viewMeta.templateUrl,
                     styles: viewMeta.styles,
                     styleUrls: viewMeta.styleUrls,
-                    animations: animations
+                    animations: animations,
+                    interpolation: viewMeta.interpolation
                 });
                 changeDetectionStrategy = cmpMeta.changeDetection;
                 if (isPresent(dirMeta.viewProviders)) {
-                    viewProviders = this.getProvidersMetadata(dirMeta.viewProviders);
+                    viewProviders = this.getProvidersMetadata(verifyNonBlankProviders(directiveType, dirMeta.viewProviders, 'viewProviders'));
                 }
                 moduleUrl = componentModuleUrl(this._reflector, directiveType, cmpMeta);
+                if (cmpMeta.precompile) {
+                    precompileTypes = flattenArray(cmpMeta.precompile)
+                        .map((cmp) => this.getTypeMetadata(cmp, staticTypeModuleUrl(cmp)));
+                }
             }
             var providers = [];
             if (isPresent(dirMeta.providers)) {
-                providers = this.getProvidersMetadata(dirMeta.providers);
+                providers = this.getProvidersMetadata(verifyNonBlankProviders(directiveType, dirMeta.providers, 'providers'));
             }
             var queries = [];
             var viewQueries = [];
@@ -136,7 +154,8 @@ export class CompileMetadataResolver {
                 providers: providers,
                 viewProviders: viewProviders,
                 queries: queries,
-                viewQueries: viewQueries
+                viewQueries: viewQueries,
+                precompile: precompileTypes
             });
             this._directiveCache.set(directiveType, meta);
         }
@@ -157,20 +176,20 @@ export class CompileMetadataResolver {
             throw e;
         }
     }
-    getTypeMetadata(type, moduleUrl) {
+    getTypeMetadata(type, moduleUrl, dependencies = null) {
         return new cpl.CompileTypeMetadata({
             name: this.sanitizeTokenName(type),
             moduleUrl: moduleUrl,
             runtime: type,
-            diDeps: this.getDependenciesMetadata(type, null)
+            diDeps: this.getDependenciesMetadata(type, dependencies)
         });
     }
-    getFactoryMetadata(factory, moduleUrl) {
+    getFactoryMetadata(factory, moduleUrl, dependencies = null) {
         return new cpl.CompileFactoryMetadata({
             name: this.sanitizeTokenName(factory),
             moduleUrl: moduleUrl,
             runtime: factory,
-            diDeps: this.getDependenciesMetadata(factory, null)
+            diDeps: this.getDependenciesMetadata(factory, dependencies)
         });
     }
     getPipeMetadata(pipeType) {
@@ -214,9 +233,6 @@ export class CompileMetadataResolver {
             params = [];
         }
         let dependenciesMetadata = params.map((param) => {
-            if (isBlank(param)) {
-                return null;
-            }
             let isAttribute = false;
             let isHost = false;
             let isSelf = false;
@@ -320,21 +336,21 @@ export class CompileMetadataResolver {
     }
     getProviderMetadata(provider) {
         var compileDeps;
+        var compileTypeMetadata = null;
+        var compileFactoryMetadata = null;
         if (isPresent(provider.useClass)) {
-            compileDeps = this.getDependenciesMetadata(provider.useClass, provider.dependencies);
+            compileTypeMetadata = this.getTypeMetadata(provider.useClass, staticTypeModuleUrl(provider.useClass), provider.dependencies);
+            compileDeps = compileTypeMetadata.diDeps;
         }
         else if (isPresent(provider.useFactory)) {
-            compileDeps = this.getDependenciesMetadata(provider.useFactory, provider.dependencies);
+            compileFactoryMetadata = this.getFactoryMetadata(provider.useFactory, staticTypeModuleUrl(provider.useFactory), provider.dependencies);
+            compileDeps = compileFactoryMetadata.diDeps;
         }
         return new cpl.CompileProviderMetadata({
             token: this.getTokenMetadata(provider.token),
-            useClass: isPresent(provider.useClass) ?
-                this.getTypeMetadata(provider.useClass, staticTypeModuleUrl(provider.useClass)) :
-                null,
+            useClass: compileTypeMetadata,
             useValue: convertToCompileValue(provider.useValue),
-            useFactory: isPresent(provider.useFactory) ?
-                this.getFactoryMetadata(provider.useFactory, staticTypeModuleUrl(provider.useFactory)) :
-                null,
+            useFactory: compileFactoryMetadata,
             useExisting: isPresent(provider.useExisting) ? this.getTokenMetadata(provider.useExisting) :
                 null,
             deps: compileDeps,
@@ -402,7 +418,7 @@ function flattenPipes(view, platformPipes) {
     }
     return pipes;
 }
-function flattenArray(tree, out) {
+function flattenArray(tree, out = []) {
     for (var i = 0; i < tree.length; i++) {
         var item = resolveForwardRef(tree[i]);
         if (isArray(item)) {
@@ -412,6 +428,19 @@ function flattenArray(tree, out) {
             out.push(item);
         }
     }
+    return out;
+}
+function verifyNonBlankProviders(directiveType, providersTree, providersType) {
+    var flat = [];
+    var errMsg;
+    flattenArray(providersTree, flat);
+    for (var i = 0; i < flat.length; i++) {
+        if (isBlank(flat[i])) {
+            errMsg = flat.map(provider => isBlank(provider) ? '?' : stringify(provider)).join(', ');
+            throw new BaseException(`One or more of ${providersType} for "${stringify(directiveType)}" were not defined: [${errMsg}].`);
+        }
+    }
+    return providersTree;
 }
 function isStaticType(value) {
     return isStringMap(value) && isPresent(value['name']) && isPresent(value['filePath']);

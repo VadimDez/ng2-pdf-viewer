@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { AnimationEntryMetadata } from '../animation/metadata';
 import { ChangeDetectionStrategy } from '../change_detection/constants';
 import { InjectableMetadata } from '../di/metadata';
@@ -923,7 +930,15 @@ export declare class ComponentMetadata extends DirectiveMetadata {
     directives: Array<Type | any[]>;
     pipes: Array<Type | any[]>;
     encapsulation: ViewEncapsulation;
-    constructor({selector, inputs, outputs, properties, events, host, exportAs, moduleId, providers, viewProviders, changeDetection, queries, templateUrl, template, styleUrls, styles, animations, directives, pipes, encapsulation}?: {
+    interpolation: [string, string];
+    /**
+     * Defines the components that should be precompiled as well when
+     * this component is defined. For each components listed here,
+     * Angular will create a {@link ComponentFactory ComponentFactory} and store it in the
+     * {@link ComponentFactoryResolver ComponentFactoryResolver}.
+     */
+    precompile: Array<Type | any[]>;
+    constructor({selector, inputs, outputs, properties, events, host, exportAs, moduleId, providers, viewProviders, changeDetection, queries, templateUrl, template, styleUrls, styles, animations, directives, pipes, encapsulation, interpolation, precompile}?: {
         selector?: string;
         inputs?: string[];
         outputs?: string[];
@@ -948,6 +963,8 @@ export declare class ComponentMetadata extends DirectiveMetadata {
         directives?: Array<Type | any[]>;
         pipes?: Array<Type | any[]>;
         encapsulation?: ViewEncapsulation;
+        interpolation?: [string, string];
+        precompile?: Array<Type | any[]>;
     });
 }
 /**

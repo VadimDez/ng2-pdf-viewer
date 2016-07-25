@@ -1,30 +1,21 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../core_private');
 var lang_1 = require('../src/facade/lang');
 var exceptions_1 = require('../src/facade/exceptions');
-var collection_1 = require('../src/facade/collection');
 var ViewResolver = (function () {
     function ViewResolver(_reflector) {
-        /** @internal */
-        this._cache = new collection_1.Map();
-        if (lang_1.isPresent(_reflector)) {
-            this._reflector = _reflector;
-        }
-        else {
-            this._reflector = core_private_1.reflector;
-        }
+        if (_reflector === void 0) { _reflector = core_private_1.reflector; }
+        this._reflector = _reflector;
     }
     ViewResolver.prototype.resolve = function (component) {
-        var view = this._cache.get(component);
-        if (lang_1.isBlank(view)) {
-            view = this._resolve(component);
-            this._cache.set(component, view);
-        }
-        return view;
-    };
-    /** @internal */
-    ViewResolver.prototype._resolve = function (component) {
         var compMeta;
         this._reflector.annotations(component).forEach(function (m) {
             if (m instanceof core_1.ComponentMetadata) {
@@ -44,7 +35,8 @@ var ViewResolver = (function () {
                     encapsulation: compMeta.encapsulation,
                     styles: compMeta.styles,
                     styleUrls: compMeta.styleUrls,
-                    animations: compMeta.animations
+                    animations: compMeta.animations,
+                    interpolation: compMeta.interpolation
                 });
             }
         }

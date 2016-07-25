@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var core_private_1 = require('../../core_private');
@@ -39,33 +46,32 @@ var ViewEncapsulationEnum = (function () {
     return ViewEncapsulationEnum;
 }());
 exports.ViewEncapsulationEnum = ViewEncapsulationEnum;
-var ChangeDetectorStateEnum = (function () {
-    function ChangeDetectorStateEnum() {
-    }
-    ChangeDetectorStateEnum.fromValue = function (value) {
-        return _enumExpression(identifiers_1.Identifiers.ChangeDetectorState, value);
-    };
-    ChangeDetectorStateEnum.NeverChecked = ChangeDetectorStateEnum.fromValue(core_private_1.ChangeDetectorState.NeverChecked);
-    ChangeDetectorStateEnum.CheckedBefore = ChangeDetectorStateEnum.fromValue(core_private_1.ChangeDetectorState.CheckedBefore);
-    ChangeDetectorStateEnum.Errored = ChangeDetectorStateEnum.fromValue(core_private_1.ChangeDetectorState.Errored);
-    return ChangeDetectorStateEnum;
-}());
-exports.ChangeDetectorStateEnum = ChangeDetectorStateEnum;
 var ChangeDetectionStrategyEnum = (function () {
     function ChangeDetectionStrategyEnum() {
     }
     ChangeDetectionStrategyEnum.fromValue = function (value) {
         return _enumExpression(identifiers_1.Identifiers.ChangeDetectionStrategy, value);
     };
-    ChangeDetectionStrategyEnum.CheckOnce = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.CheckOnce);
-    ChangeDetectionStrategyEnum.Checked = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.Checked);
-    ChangeDetectionStrategyEnum.CheckAlways = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.CheckAlways);
-    ChangeDetectionStrategyEnum.Detached = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.Detached);
     ChangeDetectionStrategyEnum.OnPush = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.OnPush);
     ChangeDetectionStrategyEnum.Default = ChangeDetectionStrategyEnum.fromValue(core_1.ChangeDetectionStrategy.Default);
     return ChangeDetectionStrategyEnum;
 }());
 exports.ChangeDetectionStrategyEnum = ChangeDetectionStrategyEnum;
+var ChangeDetectorStatusEnum = (function () {
+    function ChangeDetectorStatusEnum() {
+    }
+    ChangeDetectorStatusEnum.fromValue = function (value) {
+        return _enumExpression(identifiers_1.Identifiers.ChangeDetectorStatus, value);
+    };
+    ChangeDetectorStatusEnum.CheckOnce = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.CheckOnce);
+    ChangeDetectorStatusEnum.Checked = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.Checked);
+    ChangeDetectorStatusEnum.CheckAlways = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.CheckAlways);
+    ChangeDetectorStatusEnum.Detached = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.Detached);
+    ChangeDetectorStatusEnum.Errored = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.Errored);
+    ChangeDetectorStatusEnum.Destroyed = ChangeDetectorStatusEnum.fromValue(core_private_1.ChangeDetectorStatus.Destroyed);
+    return ChangeDetectorStatusEnum;
+}());
+exports.ChangeDetectorStatusEnum = ChangeDetectorStatusEnum;
 var ViewConstructorVars = (function () {
     function ViewConstructorVars() {
     }

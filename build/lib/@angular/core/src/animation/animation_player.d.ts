@@ -1,3 +1,6 @@
+/**
+ * @experimental Animation support is experimental.
+ */
 export declare abstract class AnimationPlayer {
     abstract onDone(fn: Function): void;
     abstract play(): void;

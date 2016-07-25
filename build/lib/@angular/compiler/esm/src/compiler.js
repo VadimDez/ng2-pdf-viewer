@@ -1,4 +1,11 @@
-import { ComponentResolver } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Compiler, ComponentResolver } from '@angular/core';
 export * from './template_ast';
 export { TEMPLATE_TRANSFORMS } from './template_parser';
 export { CompilerConfig, RenderTypes } from './config';
@@ -37,6 +44,7 @@ export const COMPILER_PROVIDERS =
     /*@ts2dart_Provider*/ { provide: CompilerConfig, useValue: new CompilerConfig() },
     RuntimeCompiler,
     /*@ts2dart_Provider*/ { provide: ComponentResolver, useExisting: RuntimeCompiler },
+    /*@ts2dart_Provider*/ { provide: Compiler, useExisting: RuntimeCompiler },
     DomElementSchemaRegistry,
     /*@ts2dart_Provider*/ { provide: ElementSchemaRegistry, useExisting: DomElementSchemaRegistry },
     UrlResolver, ViewResolver, DirectiveResolver, PipeResolver

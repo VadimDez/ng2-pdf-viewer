@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Directive, ElementRef, IterableDiffers, KeyValueDiffers, Renderer } from '@angular/core';
 import { StringMapWrapper, isListLikeIterable } from '../facade/collection';
 import { isArray, isPresent, isString } from '../facade/lang';

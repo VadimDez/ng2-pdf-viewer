@@ -5,7 +5,7 @@ export declare class ReflectionCapabilities implements PlatformReflectionCapabil
     private _reflect;
     constructor(reflect?: any);
     isReflectionEnabled(): boolean;
-    factory(t: ConcreteType): Function;
+    factory(t: ConcreteType<any>): Function;
     parameters(typeOrFunc: Type): any[][];
     annotations(typeOrFunc: Type): any[];
     propMetadata(typeOrFunc: any): {

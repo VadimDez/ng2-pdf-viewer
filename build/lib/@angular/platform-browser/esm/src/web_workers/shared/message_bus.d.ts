@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { NgZone } from '@angular/core';
 import { EventEmitter } from '../../facade/async';
 /**
@@ -5,7 +12,8 @@ import { EventEmitter } from '../../facade/async';
  * Communication is based on a channel abstraction. Messages published in a
  * given channel to one MessageBusSink are received on the same channel
  * by the corresponding MessageBusSource.
- * @experimental
+ *
+ * @experimental WebWorker support in Angular is currenlty experimental.
  */
 export declare abstract class MessageBus implements MessageBusSource, MessageBusSink {
     /**
@@ -35,7 +43,7 @@ export declare abstract class MessageBus implements MessageBusSource, MessageBus
     abstract to(channel: string): EventEmitter<any>;
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is currenlty experimental.
  */
 export interface MessageBusSource {
     /**
@@ -58,7 +66,7 @@ export interface MessageBusSource {
     from(channel: string): EventEmitter<any>;
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is currenlty experimental.
  */
 export interface MessageBusSink {
     /**

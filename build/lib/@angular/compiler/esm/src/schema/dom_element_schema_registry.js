@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { SecurityContext } from '../../core_private';
 import { StringMapWrapper } from '../facade/collection';
@@ -254,7 +261,10 @@ export class DomElementSchemaRegistry extends ElementSchemaRegistry {
     }
     hasProperty(tagName, propName) {
         if (tagName.indexOf('-') !== -1) {
-            // can't tell now as we don't know which properties a custom element will get
+            if (tagName === 'ng-container' || tagName === 'ng-content') {
+                return false;
+            }
+            // Can't tell now as we don't know which properties a custom element will get
             // once it is instantiated
             return true;
         }

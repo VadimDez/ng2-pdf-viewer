@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "@angular/core@2.0.0-rc.2",
+      "@angular/core@2.0.0-rc.4",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/core@2.0.0-rc.2",
-  "_id": "@angular/core@2.0.0-rc.2",
+  "_from": "@angular/core@2.0.0-rc.4",
+  "_id": "@angular/core@2.0.0-rc.4",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/core",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
     "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/core-2.0.0-rc.2.tgz_1466013731566_0.9461118599865586"
+    "tmp": "tmp/core-2.0.0-rc.4.tgz_1467308861507_0.20231292047537863"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
@@ -23,20 +23,19 @@
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/core",
-    "raw": "@angular/core@2.0.0-rc.2",
-    "rawSpec": "2.0.0-rc.2",
+    "raw": "@angular/core@2.0.0-rc.4",
+    "rawSpec": "2.0.0-rc.4",
     "scope": "@angular",
-    "spec": "2.0.0-rc.2",
+    "spec": "2.0.0-rc.4",
     "type": "version"
   },
   "_requiredBy": [
-    "/",
-    "/ng2-pdf-viewer"
+    "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/core/-/core-2.0.0-rc.2.tgz",
-  "_shasum": "a5761cdaf1c65b0c726b34e8bc1bb5dd692086c3",
+  "_resolved": "https://registry.npmjs.org/@angular/core/-/core-2.0.0-rc.4.tgz",
+  "_shasum": "f3f98f906fcf0cb87d2c7d7f230ca95ea81cb6e0",
   "_shrinkwrap": null,
-  "_spec": "@angular/core@2.0.0-rc.2",
+  "_spec": "@angular/core@2.0.0-rc.4",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -49,8 +48,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "a5761cdaf1c65b0c726b34e8bc1bb5dd692086c3",
-    "tarball": "https://registry.npmjs.org/@angular/core/-/core-2.0.0-rc.2.tgz"
+    "shasum": "f3f98f906fcf0cb87d2c7d7f230ca95ea81cb6e0",
+    "tarball": "https://registry.npmjs.org/@angular/core/-/core-2.0.0-rc.4.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
   "jsnext:main": "esm/index.js",
@@ -75,5 +74,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.0.0-rc.2"
+  "version": "2.0.0-rc.4"
 }

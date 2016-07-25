@@ -1,7 +1,17 @@
-import { AnimationEntryMetadata, Type, ViewMetadata } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { AnimationEntryMetadata, Injector, Type, ViewMetadata } from '@angular/core';
 import { ViewResolver } from '../index';
 export declare class MockViewResolver extends ViewResolver {
-    constructor();
+    private _injector;
+    constructor(_injector: Injector);
+    private _compiler;
+    private _clearCacheFor(component);
     /**
      * Overrides the {@link ViewMetadata} for a component.
      */

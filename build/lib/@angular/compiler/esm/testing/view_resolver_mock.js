@@ -1,10 +1,18 @@
-import { BaseException, Injectable, ViewMetadata, resolveForwardRef } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { BaseException, Compiler, Injectable, Injector, ViewMetadata, resolveForwardRef } from '@angular/core';
 import { ViewResolver } from '../index';
 import { Map } from '../src/facade/collection';
 import { isArray, isBlank, isPresent, stringify } from '../src/facade/lang';
 export class MockViewResolver extends ViewResolver {
-    constructor() {
+    constructor(_injector) {
         super();
+        this._injector = _injector;
         /** @internal */
         this._views = new Map();
         /** @internal */
@@ -12,39 +20,39 @@ export class MockViewResolver extends ViewResolver {
         /** @internal */
         this._animations = new Map();
         /** @internal */
-        this._viewCache = new Map();
-        /** @internal */
         this._directiveOverrides = new Map();
     }
+    get _compiler() { return this._injector.get(Compiler); }
+    _clearCacheFor(component) { this._compiler.clearCacheFor(component); }
     /**
      * Overrides the {@link ViewMetadata} for a component.
      */
     setView(component, view) {
-        this._checkOverrideable(component);
         this._views.set(component, view);
+        this._clearCacheFor(component);
     }
     /**
      * Overrides the inline template for a component - other configuration remains unchanged.
      */
     setInlineTemplate(component, template) {
-        this._checkOverrideable(component);
         this._inlineTemplates.set(component, template);
+        this._clearCacheFor(component);
     }
     setAnimations(component, animations) {
-        this._checkOverrideable(component);
         this._animations.set(component, animations);
+        this._clearCacheFor(component);
     }
     /**
      * Overrides a directive from the component {@link ViewMetadata}.
      */
     overrideViewDirective(component, from, to) {
-        this._checkOverrideable(component);
         var overrides = this._directiveOverrides.get(component);
         if (isBlank(overrides)) {
             overrides = new Map();
             this._directiveOverrides.set(component, overrides);
         }
         overrides.set(from, to);
+        this._clearCacheFor(component);
     }
     /**
      * Returns the {@link ViewMetadata} for a component:
@@ -55,10 +63,7 @@ export class MockViewResolver extends ViewResolver {
      * - Override the @View definition, see `setInlineTemplate`.
      */
     resolve(component) {
-        var view = this._viewCache.get(component);
-        if (isPresent(view))
-            return view;
-        view = this._views.get(component);
+        var view = this._views.get(component);
         if (isBlank(view)) {
             view = super.resolve(component);
         }
@@ -97,24 +102,10 @@ export class MockViewResolver extends ViewResolver {
             styles: view.styles,
             styleUrls: view.styleUrls,
             pipes: view.pipes,
-            encapsulation: view.encapsulation
+            encapsulation: view.encapsulation,
+            interpolation: view.interpolation
         });
-        this._viewCache.set(component, view);
         return view;
-    }
-    /**
-     * @internal
-     *
-     * Once a component has been compiled, the AppProtoView is stored in the compiler cache.
-     *
-     * Then it should not be possible to override the component configuration after the component
-     * has been compiled.
-     */
-    _checkOverrideable(component) {
-        var cached = this._viewCache.get(component);
-        if (isPresent(cached)) {
-            throw new BaseException(`The component ${stringify(component)} has already been compiled, its configuration can not be changed`);
-        }
     }
 }
 /** @nocollapse */
@@ -122,7 +113,9 @@ MockViewResolver.decorators = [
     { type: Injectable },
 ];
 /** @nocollapse */
-MockViewResolver.ctorParameters = [];
+MockViewResolver.ctorParameters = [
+    { type: Injector, },
+];
 function flattenArray(tree, out) {
     if (!isPresent(tree))
         return;

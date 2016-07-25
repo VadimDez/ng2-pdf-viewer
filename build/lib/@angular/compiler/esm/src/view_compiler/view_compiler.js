@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { AnimationCompiler } from '../animation/animation_compiler';
 import { CompilerConfig } from '../config';
@@ -5,6 +12,7 @@ import { CompileElement } from './compile_element';
 import { CompileView } from './compile_view';
 import { bindView } from './view_binder';
 import { buildView, finishView } from './view_builder';
+export { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
 export class ViewCompileResult {
     constructor(statements, viewFactoryVar, dependencies) {
         this.statements = statements;

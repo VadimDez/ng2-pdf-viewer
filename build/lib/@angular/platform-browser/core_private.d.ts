@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { __core_private__ as r, __core_private_types__ as t } from '@angular/core';
 export declare type RenderDebugInfo = t.RenderDebugInfo;
 export declare var RenderDebugInfo: typeof t.RenderDebugInfo;
@@ -6,6 +13,10 @@ export declare var ReflectionCapabilities: typeof t.ReflectionCapabilities;
 export declare var VIEW_ENCAPSULATION_VALUES: typeof t.VIEW_ENCAPSULATION_VALUES;
 export declare type DebugDomRootRenderer = t.DebugDomRootRenderer;
 export declare var DebugDomRootRenderer: typeof t.DebugDomRootRenderer;
+/**
+ * @experimental bogus marker to pass the ts-api-guardian's check - this api should be public so
+ * this line will go away when that happens
+ */
 export declare var SecurityContext: typeof t.SecurityContext;
 export declare type SecurityContext = t.SecurityContext;
 export declare var SanitizationService: typeof t.SanitizationService;

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var async_1 = require('../facade/async');
 var collection_1 = require('../facade/collection');
@@ -42,47 +49,53 @@ var QueryList = (function () {
         configurable: true
     });
     Object.defineProperty(QueryList.prototype, "first", {
-        get: function () { return collection_1.ListWrapper.first(this._results); },
+        get: function () { return this._results[0]; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(QueryList.prototype, "last", {
-        get: function () { return collection_1.ListWrapper.last(this._results); },
+        get: function () { return this._results[this.length - 1]; },
         enumerable: true,
         configurable: true
     });
     /**
-     * returns a new array with the passed in function applied to each element.
+     * See
+     * [Array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
      */
     QueryList.prototype.map = function (fn) { return this._results.map(fn); };
     /**
-     * returns a filtered array.
+     * See
+     * [Array.filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
      */
-    QueryList.prototype.filter = function (fn) { return this._results.filter(fn); };
+    QueryList.prototype.filter = function (fn) {
+        return this._results.filter(fn);
+    };
     /**
-     * returns a reduced value.
+     * See
+     * [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
      */
-    QueryList.prototype.reduce = function (fn, init) { return this._results.reduce(fn, init); };
+    QueryList.prototype.reduce = function (fn, init) {
+        return this._results.reduce(fn, init);
+    };
     /**
-     * executes function for each element in a query.
+     * See
+     * [Array.forEach](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
      */
     QueryList.prototype.forEach = function (fn) { this._results.forEach(fn); };
     /**
-     * converts QueryList into an array
+     * See
+     * [Array.some](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
      */
-    QueryList.prototype.toArray = function () { return collection_1.ListWrapper.clone(this._results); };
-    QueryList.prototype[lang_1.getSymbolIterator()] = function () {
-        return this._results[lang_1.getSymbolIterator()]();
+    QueryList.prototype.some = function (fn) {
+        return this._results.some(fn);
     };
+    QueryList.prototype.toArray = function () { return this._results.slice(); };
+    QueryList.prototype[lang_1.getSymbolIterator()] = function () { return this._results[lang_1.getSymbolIterator()](); };
     QueryList.prototype.toString = function () { return this._results.toString(); };
-    /**
-     * @internal
-     */
     QueryList.prototype.reset = function (res) {
         this._results = collection_1.ListWrapper.flatten(res);
         this._dirty = false;
     };
-    /** @internal */
     QueryList.prototype.notifyOnChanges = function () { this._emitter.emit(this); };
     /** internal */
     QueryList.prototype.setDirty = function () { this._dirty = true; };

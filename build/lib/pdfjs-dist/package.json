@@ -6,14 +6,14 @@
     ]
   ],
   "_from": "pdfjs-dist@>=1.5.296 <2.0.0",
-  "_id": "pdfjs-dist@1.5.334",
+  "_id": "pdfjs-dist@1.5.336",
   "_inCache": true,
   "_installable": true,
   "_location": "/pdfjs-dist",
   "_nodeVersion": "4.4.3",
   "_npmOperationalInternal": {
     "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/pdfjs-dist-1.5.334.tgz_1468090095740_0.0854710596613586"
+    "tmp": "tmp/pdfjs-dist-1.5.336.tgz_1468151416670_0.8152431172784418"
   },
   "_npmUser": {
     "email": "ydelendik@mozilla.com",
@@ -33,8 +33,8 @@
     "/",
     "/ng2-pdf-viewer"
   ],
-  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.334.tgz",
-  "_shasum": "9bec0c90bfe3e7b71510bc5bf3dd2a73381f3824",
+  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.336.tgz",
+  "_shasum": "145dcbae8d454e904c786dc6f248838c933d0db4",
   "_shrinkwrap": null,
   "_spec": "pdfjs-dist@^1.5.296",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
@@ -51,11 +51,11 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "9bec0c90bfe3e7b71510bc5bf3dd2a73381f3824",
-    "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.334.tgz"
+    "shasum": "145dcbae8d454e904c786dc6f248838c933d0db4",
+    "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.5.336.tgz"
   },
   "format": "amd",
-  "gitHead": "2a77bb3edc79d11edd63c2a93a7f6815a3c1c9e9",
+  "gitHead": "591da5f5948fde5cd53e4067b61845c30f6aaf45",
   "homepage": "http://mozilla.github.io/pdf.js/",
   "keywords": [
     "Mozilla",
@@ -78,5 +78,5 @@
     "url": "git+https://github.com/mozilla/pdfjs-dist.git"
   },
   "scripts": {},
-  "version": "1.5.334"
+  "version": "1.5.336"
 }

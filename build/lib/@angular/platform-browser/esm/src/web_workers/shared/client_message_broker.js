@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { ObservableWrapper, PromiseWrapper } from '../../facade/async';
 import { StringMapWrapper } from '../../facade/collection';
@@ -5,7 +12,7 @@ import { DateWrapper, StringWrapper, isPresent, print, stringify } from '../../f
 import { MessageBus } from './message_bus';
 import { Serializer } from './serializer';
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export class ClientMessageBrokerFactory {
 }
@@ -33,7 +40,7 @@ ClientMessageBrokerFactory_.ctorParameters = [
     { type: Serializer, },
 ];
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export class ClientMessageBroker {
 }
@@ -136,7 +143,7 @@ class MessageData {
     }
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export class FnArg {
     constructor(value /** TODO #9100 */, type) {
@@ -145,7 +152,7 @@ export class FnArg {
     }
 }
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is experimental.
  */
 export class UiArguments {
     constructor(method, args) {

@@ -1,9 +1,16 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+"use strict";
+/**
  * @module
  * @description
  * Change detection enables data binding in Angular.
  */
-"use strict";
 var change_detection_1 = require('./change_detection/change_detection');
 exports.ChangeDetectionStrategy = change_detection_1.ChangeDetectionStrategy;
 exports.ChangeDetectorRef = change_detection_1.ChangeDetectorRef;

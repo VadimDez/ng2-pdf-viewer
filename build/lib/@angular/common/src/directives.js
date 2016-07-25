@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 /**
  * @module
@@ -13,7 +20,6 @@ exports.NgFor = ng_for_1.NgFor;
 var ng_if_1 = require('./directives/ng_if');
 exports.NgIf = ng_if_1.NgIf;
 var ng_plural_1 = require('./directives/ng_plural');
-exports.NgLocalization = ng_plural_1.NgLocalization;
 exports.NgPlural = ng_plural_1.NgPlural;
 exports.NgPluralCase = ng_plural_1.NgPluralCase;
 var ng_style_1 = require('./directives/ng_style');

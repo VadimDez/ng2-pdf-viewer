@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ListWrapper } from '../facade/collection';
 import { BaseException, WrappedException } from '../facade/exceptions';
 import { isBlank, stringify } from '../facade/lang';
@@ -8,9 +15,7 @@ function findFirstClosedCycle(keys) {
             res.push(keys[i]);
             return res;
         }
-        else {
-            res.push(keys[i]);
-        }
+        res.push(keys[i]);
     }
     return res;
 }
@@ -20,9 +25,7 @@ function constructResolvingPath(keys) {
         var tokenStrs = reversed.map(k => stringify(k.token));
         return ' (' + tokenStrs.join(' -> ') + ')';
     }
-    else {
-        return '';
-    }
+    return '';
 }
 /**
  * Base class for all errors arising from misconfigured providers.
@@ -118,7 +121,7 @@ export class CyclicDependencyError extends AbstractProviderError {
  * @stable
  */
 export class InstantiationError extends WrappedException {
-    constructor(injector, originalException /** TODO #9100 */, originalStack /** TODO #9100 */, key) {
+    constructor(injector, originalException, originalStack, key) {
         super('DI Exception', originalException, originalStack, null);
         this.keys = [key];
         this.injectors = [injector];
@@ -146,7 +149,7 @@ export class InstantiationError extends WrappedException {
  * @stable
  */
 export class InvalidProviderError extends BaseException {
-    constructor(provider /** TODO #9100 */) {
+    constructor(provider) {
         super(`Invalid provider - only instances of Provider and Type are allowed, got: ${provider}`);
     }
 }
@@ -180,10 +183,10 @@ export class InvalidProviderError extends BaseException {
  * @stable
  */
 export class NoAnnotationError extends BaseException {
-    constructor(typeOrFunc /** TODO #9100 */, params) {
+    constructor(typeOrFunc, params) {
         super(NoAnnotationError._genMessage(typeOrFunc, params));
     }
-    static _genMessage(typeOrFunc /** TODO #9100 */, params) {
+    static _genMessage(typeOrFunc, params) {
         var signature = [];
         for (var i = 0, ii = params.length; i < ii; i++) {
             var parameter = params[i];
@@ -215,7 +218,7 @@ export class NoAnnotationError extends BaseException {
  * @stable
  */
 export class OutOfBoundsError extends BaseException {
-    constructor(index /** TODO #9100 */) {
+    constructor(index) {
         super(`Index ${index} is out-of-bounds.`);
     }
 }
@@ -233,7 +236,7 @@ export class OutOfBoundsError extends BaseException {
  * ```
  */
 export class MixingMultiProvidersWithRegularProvidersError extends BaseException {
-    constructor(provider1 /** TODO #9100 */, provider2 /** TODO #9100 */) {
+    constructor(provider1, provider2) {
         super('Cannot mix multi providers and regular providers, got: ' + provider1.toString() + ' ' +
             provider2.toString());
     }

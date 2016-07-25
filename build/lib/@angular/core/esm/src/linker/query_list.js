@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { EventEmitter } from '../facade/async';
 import { ListWrapper } from '../facade/collection';
 import { getSymbolIterator } from '../facade/lang';
@@ -32,40 +39,46 @@ export class QueryList {
     }
     get changes() { return this._emitter; }
     get length() { return this._results.length; }
-    get first() { return ListWrapper.first(this._results); }
-    get last() { return ListWrapper.last(this._results); }
+    get first() { return this._results[0]; }
+    get last() { return this._results[this.length - 1]; }
     /**
-     * returns a new array with the passed in function applied to each element.
+     * See
+     * [Array.map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
      */
     map(fn) { return this._results.map(fn); }
     /**
-     * returns a filtered array.
+     * See
+     * [Array.filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
      */
-    filter(fn) { return this._results.filter(fn); }
+    filter(fn) {
+        return this._results.filter(fn);
+    }
     /**
-     * returns a reduced value.
+     * See
+     * [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
      */
-    reduce(fn, init) { return this._results.reduce(fn, init); }
+    reduce(fn, init) {
+        return this._results.reduce(fn, init);
+    }
     /**
-     * executes function for each element in a query.
+     * See
+     * [Array.forEach](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
      */
     forEach(fn) { this._results.forEach(fn); }
     /**
-     * converts QueryList into an array
+     * See
+     * [Array.some](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
      */
-    toArray() { return ListWrapper.clone(this._results); }
-    [getSymbolIterator()]() {
-        return this._results[getSymbolIterator()]();
+    some(fn) {
+        return this._results.some(fn);
     }
+    toArray() { return this._results.slice(); }
+    [getSymbolIterator()]() { return this._results[getSymbolIterator()](); }
     toString() { return this._results.toString(); }
-    /**
-     * @internal
-     */
     reset(res) {
         this._results = ListWrapper.flatten(res);
         this._dirty = false;
     }
-    /** @internal */
     notifyOnChanges() { this._emitter.emit(this); }
     /** internal */
     setDirty() { this._dirty = true; }

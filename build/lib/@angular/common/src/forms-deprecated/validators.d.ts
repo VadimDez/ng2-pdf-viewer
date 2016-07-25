@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { OpaqueToken } from '@angular/core';
 import { AsyncValidatorFn, ValidatorFn } from './directives/validators';
-import * as modelModule from './model';
+import { AbstractControl } from './model';
 /**
  * Providers for validators to be used for {@link Control}s in a form.
  *
@@ -41,7 +48,7 @@ export declare class Validators {
     /**
      * Validator that requires controls to have a non-empty value.
      */
-    static required(control: modelModule.AbstractControl): {
+    static required(control: AbstractControl): {
         [key: string]: boolean;
     };
     /**
@@ -59,7 +66,7 @@ export declare class Validators {
     /**
      * No-op validator.
      */
-    static nullValidator(c: modelModule.AbstractControl): {
+    static nullValidator(c: AbstractControl): {
         [key: string]: boolean;
     };
     /**

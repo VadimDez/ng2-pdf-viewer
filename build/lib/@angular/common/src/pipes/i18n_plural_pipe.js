@@ -1,24 +1,36 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var lang_1 = require('../facade/lang');
+var localization_1 = require('../localization');
 var invalid_pipe_argument_exception_1 = require('./invalid_pipe_argument_exception');
-var interpolationExp = lang_1.RegExpWrapper.create('#');
+var _INTERPOLATION_REGEXP = /#/g;
 var I18nPluralPipe = (function () {
-    function I18nPluralPipe() {
+    function I18nPluralPipe(_localization) {
+        this._localization = _localization;
     }
     I18nPluralPipe.prototype.transform = function (value, pluralMap) {
-        var key;
-        var valueStr;
+        if (lang_1.isBlank(value))
+            return '';
         if (!lang_1.isStringMap(pluralMap)) {
             throw new invalid_pipe_argument_exception_1.InvalidPipeArgumentException(I18nPluralPipe, pluralMap);
         }
-        key = value === 0 || value === 1 ? "=" + value : 'other';
-        valueStr = lang_1.isPresent(value) ? value.toString() : '';
-        return lang_1.StringWrapper.replaceAll(pluralMap[key], interpolationExp, valueStr);
+        var key = localization_1.getPluralCategory(value, Object.getOwnPropertyNames(pluralMap), this._localization);
+        return lang_1.StringWrapper.replaceAll(pluralMap[key], _INTERPOLATION_REGEXP, value.toString());
     };
     /** @nocollapse */
     I18nPluralPipe.decorators = [
         { type: core_1.Pipe, args: [{ name: 'i18nPlural', pure: true },] },
+    ];
+    /** @nocollapse */
+    I18nPluralPipe.ctorParameters = [
+        { type: localization_1.NgLocalization, },
     ];
     return I18nPluralPipe;
 }());

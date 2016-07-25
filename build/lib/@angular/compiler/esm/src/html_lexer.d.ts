@@ -1,3 +1,4 @@
+import { InterpolationConfig } from './interpolation_config';
 import { ParseError, ParseSourceSpan } from './parse_util';
 export declare enum HtmlTokenType {
     TAG_OPEN_START = 0,
@@ -36,4 +37,4 @@ export declare class HtmlTokenizeResult {
     errors: HtmlTokenError[];
     constructor(tokens: HtmlToken[], errors: HtmlTokenError[]);
 }
-export declare function tokenizeHtml(sourceContent: string, sourceUrl: string, tokenizeExpansionForms?: boolean): HtmlTokenizeResult;
+export declare function tokenizeHtml(sourceContent: string, sourceUrl: string, tokenizeExpansionForms?: boolean, interpolationConfig?: InterpolationConfig): HtmlTokenizeResult;

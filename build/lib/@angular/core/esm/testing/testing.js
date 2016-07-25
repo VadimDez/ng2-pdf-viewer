@@ -1,170 +1,116 @@
-import { isPromise } from '../src/facade/lang';
-import { getTestInjector } from './test_injector';
-export { async, inject, injectAsync } from './test_injector';
-var _global = (typeof window === 'undefined' ? global : window);
-export var expect = _global.expect;
 /**
- * Run a function (with an optional asynchronous callback) after each test case.
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { getTestInjector } from './test_injector';
+var _global = (typeof window === 'undefined' ? global : window);
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
  * See http://jasmine.github.io/ for more details.
+ */
+export var expect = _global.expect;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='afterEach'}
+ * See http://jasmine.github.io/ for more details.
  */
 export var afterEach = _global.afterEach;
 /**
- * Group test cases together under a common description prefix.
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
  * See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='describeIt'}
  */
 export var describe = _global.describe;
 /**
- * See {@link fdescribe}.
- */
-export var ddescribe = _global.fdescribe;
-/**
- * Like {@link describe}, but instructs the test runner to only run
- * the test cases in this group. This is useful for debugging.
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
  * See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='fdescribe'}
  */
 export var fdescribe = _global.fdescribe;
 /**
- * Like {@link describe}, but instructs the test runner to exclude
- * this group of test cases from execution. This is useful for
- * debugging, or for excluding broken tests until they can be fixed.
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
  * See http://jasmine.github.io/ for more details.
+ */
+export var ddescribe = _global.ddescribe;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='xdescribe'}
+ * See http://jasmine.github.io/ for more details.
  */
 export var xdescribe = _global.xdescribe;
-var jsmBeforeEach = _global.beforeEach;
-var jsmIt = _global.it;
-var jsmIIt = _global.fit;
-var jsmXIt = _global.xit;
-var testInjector = getTestInjector();
-// Reset the test providers before each test.
-jsmBeforeEach(() => { testInjector.reset(); });
 /**
- * Allows overriding default providers of the test injector,
- * which are defined in test_injector.js.
- *
- * The given function must return a list of DI providers.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='beforeEachProviders'}
- */
-export function beforeEachProviders(fn) {
-    jsmBeforeEach(() => {
-        var providers = fn();
-        if (!providers)
-            return;
-        try {
-            testInjector.addProviders(providers);
-        }
-        catch (e) {
-            throw new Error('beforeEachProviders was called after the injector had ' +
-                'been used in a beforeEach or it block. This invalidates the ' +
-                'test injector');
-        }
-    });
-}
-function _wrapTestFn(fn) {
-    // Wraps a test or beforeEach function to handle synchronous and asynchronous execution.
-    return (done) => {
-        if (fn.length === 0) {
-            let retVal = fn();
-            if (isPromise(retVal)) {
-                // Asynchronous test function - wait for completion.
-                retVal.then(done, done.fail);
-            }
-            else {
-                // Synchronous test function - complete immediately.
-                done();
-            }
-        }
-        else {
-            // Asynchronous test function that takes "done" as parameter.
-            fn(done);
-        }
-    };
-}
-function _it(jsmFn, name, testFn, testTimeOut) {
-    jsmFn(name, _wrapTestFn(testFn), testTimeOut);
-}
-/**
- * Wrapper around Jasmine beforeEach function.
- *
- * beforeEach may be used with the `inject` function to fetch dependencies.
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
  *
  * See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='beforeEach'}
  */
-export function beforeEach(fn) {
-    jsmBeforeEach(_wrapTestFn(fn));
+export var beforeEach = _global.beforeEach;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
+ *
+ * See http://jasmine.github.io/ for more details.
+ */
+export var it = _global.it;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
+ *
+ * See http://jasmine.github.io/ for more details.
+ */
+export var fit = _global.fit;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
+ *
+ * See http://jasmine.github.io/ for more details.
+ */
+export var iit = _global.fit;
+/**
+ * @deprecated you no longer need to import jasmine functions from @angular/core/testing. Simply use
+ * the globals.
+ *
+ * See http://jasmine.github.io/ for more details.
+ */
+export var xit = _global.xit;
+var testInjector = getTestInjector();
+// Reset the test providers before each test.
+if (_global.beforeEach) {
+    beforeEach(() => { testInjector.reset(); });
 }
 /**
- * Define a single test case with the given test name and execution function.
+ * Allows overriding default providers of the test injector,
+ * which are defined in test_injector.js
  *
- * The test function can be either a synchronous function, the result of {@link async},
- * or an injected function created via {@link inject}.
- *
- * Wrapper around Jasmine it function. See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='describeIt'}
+ * @stable
  */
-export function it(name, fn, timeOut = null) {
-    return _it(jsmIt, name, fn, timeOut);
+export function addProviders(providers) {
+    if (!providers)
+        return;
+    try {
+        testInjector.addProviders(providers);
+    }
+    catch (e) {
+        throw new Error('addProviders can\'t be called after the injector has been already created for this test. ' +
+            'This is most likely because you\'ve already used the injector to inject a beforeEach or the ' +
+            'current `it` function.');
+    }
 }
 /**
- * Like {@link it}, but instructs the test runner to exclude this test
- * entirely. Useful for debugging or for excluding broken tests until
- * they can be fixed.
- *
- * Wrapper around Jasmine xit function. See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='xit'}
+ * @deprecated Use beforeEach(() => addProviders())
  */
-export function xit(name, fn, timeOut = null) {
-    return _it(jsmXIt, name, fn, timeOut);
-}
-/**
- * See {@link fit}.
- */
-export function iit(name, fn, timeOut = null) {
-    return _it(jsmIIt, name, fn, timeOut);
-}
-/**
- * Like {@link it}, but instructs the test runner to only run this test.
- * Useful for debugging.
- *
- * Wrapper around Jasmine fit function. See http://jasmine.github.io/ for more details.
- *
- * ## Example:
- *
- * {@example testing/ts/testing.ts region='fit'}
- */
-export function fit(name, fn, timeOut = null) {
-    return _it(jsmIIt, name, fn, timeOut);
+export function beforeEachProviders(fn) {
+    beforeEach(() => { addProviders(fn()); });
 }
 //# sourceMappingURL=testing.js.map

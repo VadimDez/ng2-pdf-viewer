@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Inject, Injectable, OpaqueToken, Optional } from '@angular/core';
 import { Console, MAX_INTERPOLATION_VALUES, SecurityContext } from '../core_private';
 import { ListWrapper, StringMapWrapper, SetWrapper } from '../src/facade/collection';
@@ -139,6 +146,13 @@ class TemplateParseVisitor {
         this.directivesIndex = new Map();
         this.ngContentCount = 0;
         this.selectorMatcher = new SelectorMatcher();
+        const tempMeta = providerViewContext.component.template;
+        if (isPresent(tempMeta) && isPresent(tempMeta.interpolation)) {
+            this._interpolationConfig = {
+                start: tempMeta.interpolation[0],
+                end: tempMeta.interpolation[1]
+            };
+        }
         ListWrapper.forEachWithIndex(directives, (directive, index) => {
             var selector = CssSelector.parse(directive.selector);
             this.selectorMatcher.addSelectables(selector, directive);
@@ -153,7 +167,7 @@ class TemplateParseVisitor {
     _parseInterpolation(value, sourceSpan) {
         var sourceInfo = sourceSpan.start.toString();
         try {
-            var ast = this._exprParser.parseInterpolation(value, sourceInfo);
+            var ast = this._exprParser.parseInterpolation(value, sourceInfo, this._interpolationConfig);
             this._checkPipes(ast, sourceSpan);
             if (isPresent(ast) &&
                 ast.ast.expressions.length > MAX_INTERPOLATION_VALUES) {
@@ -169,7 +183,7 @@ class TemplateParseVisitor {
     _parseAction(value, sourceSpan) {
         var sourceInfo = sourceSpan.start.toString();
         try {
-            var ast = this._exprParser.parseAction(value, sourceInfo);
+            var ast = this._exprParser.parseAction(value, sourceInfo, this._interpolationConfig);
             this._checkPipes(ast, sourceSpan);
             return ast;
         }
@@ -181,7 +195,7 @@ class TemplateParseVisitor {
     _parseBinding(value, sourceSpan) {
         var sourceInfo = sourceSpan.start.toString();
         try {
-            var ast = this._exprParser.parseBinding(value, sourceInfo);
+            var ast = this._exprParser.parseBinding(value, sourceInfo, this._interpolationConfig);
             this._checkPipes(ast, sourceSpan);
             return ast;
         }
@@ -266,6 +280,9 @@ class TemplateParseVisitor {
         element.attrs.forEach(attr => {
             var hasBinding = this._parseAttr(isTemplateElement, attr, matchableAttrs, elementOrDirectiveProps, animationProps, events, elementOrDirectiveRefs, elementVars);
             var hasTemplateBinding = this._parseInlineTemplateBinding(attr, templateMatchableAttrs, templateElementOrDirectiveProps, templateElementVars);
+            if (hasTemplateBinding && hasInlineTemplates) {
+                this._reportError(`Can't have multiple template bindings on one element. Use only one attribute named 'template' or prefixed with *`, attr.sourceSpan);
+            }
             if (!hasBinding && !hasTemplateBinding) {
                 // don't include the bindings as attributes as well in the AST
                 attrs.push(this.visitAttr(attr, null));
@@ -429,6 +446,12 @@ class TemplateParseVisitor {
         this._parsePropertyAst(name, this._parseBinding(expression, sourceSpan), sourceSpan, targetMatchableAttrs, targetProps);
     }
     _parseAnimation(name, expression, sourceSpan, targetMatchableAttrs, targetAnimationProps) {
+        // This will occur when a @trigger is not paired with an expression.
+        // For animations it is valid to not have an expression since */void
+        // states will be applied by angular when the element is attached/detached
+        if (!isPresent(expression) || expression.length == 0) {
+            expression = 'null';
+        }
         var ast = this._parseBinding(expression, sourceSpan);
         targetMatchableAttrs.push([name, ast.source]);
         targetAnimationProps.push(new BoundElementPropertyAst(name, PropertyBindingType.Animation, SecurityContext.NONE, ast, null, sourceSpan));
@@ -632,17 +655,19 @@ class TemplateParseVisitor {
             this._reportError(`Components on an embedded template: ${componentTypeNames.join(',')}`, sourceSpan);
         }
         elementProps.forEach(prop => {
-            this._reportError(`Property binding ${prop.name} not used by any directive on an embedded template`, sourceSpan);
+            this._reportError(`Property binding ${prop.name} not used by any directive on an embedded template. Make sure that the property name is spelled correctly and all directives are listed in the "directives" section.`, sourceSpan);
         });
     }
     _assertAllEventsPublishedByDirectives(directives, events) {
         var allDirectiveEvents = new Set();
         directives.forEach(directive => {
-            StringMapWrapper.forEach(directive.directive.outputs, (eventName, _ /** TODO #???? */) => { allDirectiveEvents.add(eventName); });
+            StringMapWrapper.forEach(directive.directive.outputs, (eventName) => {
+                allDirectiveEvents.add(eventName);
+            });
         });
         events.forEach(event => {
             if (isPresent(event.target) || !SetWrapper.has(allDirectiveEvents, event.name)) {
-                this._reportError(`Event binding ${event.fullName} not emitted by any directive on an embedded template`, event.sourceSpan);
+                this._reportError(`Event binding ${event.fullName} not emitted by any directive on an embedded template. Make sure that the event name is spelled correctly and all directives are listed in the "directives" section.`, event.sourceSpan);
             }
         });
     }

@@ -1,5 +1,5 @@
 /*
- * SystemJS v0.19.26
+ * SystemJS v0.19.31
  */
 (function() {
 function bootstrap() {// from https://gist.github.com/Yaffle/1088850
@@ -101,10 +101,12 @@ global.URLPolyfill = URLPolyfill;
     }
   })();
 
+  var errArgs = new Error(0, '_').fileName == '_';
+
   function addToError(err, msg) {
     // parse the stack removing loader code lines for simplification
     if (!err.originalErr) {
-      var stack = (err.stack || err.message || err).split('\n');
+      var stack = (err.stack || err.message || err).toString().split('\n');
       var newStack = [];
       for (var i = 0; i < stack.length; i++) {
         if (typeof $__curScript == 'undefined' || stack[i].indexOf($__curScript.src) == -1)
@@ -112,13 +114,13 @@ global.URLPolyfill = URLPolyfill;
       }
     }
 
-    var newMsg = (newStack ? newStack.join('\n\t') : err.message) + '\n\t' + msg;
+    var newMsg = '(SystemJS) ' + (newStack ? newStack.join('\n\t') : err.message.substr(11)) + '\n\t' + msg;
 
     // Convert file:/// URLs to paths in Node
     if (!isBrowser)
       newMsg = newMsg.replace(isWindows ? /file:\/\/\//g : /file:\/\//g, '');
 
-    var newErr = new Error(newMsg, err.fileName, err.lineNumber);
+    var newErr = errArgs ? new Error(newMsg, err.fileName, err.lineNumber) : new Error(newMsg);
     
     // Node needs stack adjustment for throw to show message
     if (!isBrowser)
@@ -143,6 +145,7 @@ global.URLPolyfill = URLPolyfill;
   }
 
   var baseURI;
+
   // environent baseURI detection
   if (typeof document != 'undefined' && document.getElementsByTagName) {
     baseURI = document.baseURI;
@@ -151,8 +154,13 @@ global.URLPolyfill = URLPolyfill;
       var bases = document.getElementsByTagName('base');
       baseURI = bases[0] && bases[0].href || window.location.href;
     }
+  }
+  else if (typeof location != 'undefined') {
+    baseURI = __global.location.href;
+  }
 
-    // sanitize out the hash and querystring
+  // sanitize out the hash and querystring
+  if (baseURI) {
     baseURI = baseURI.split('#')[0].split('?')[0];
     baseURI = baseURI.substr(0, baseURI.lastIndexOf('/') + 1);
   }
@@ -160,9 +168,6 @@ global.URLPolyfill = URLPolyfill;
     baseURI = 'file://' + (isWindows ? '/' : '') + process.cwd() + '/';
     if (isWindows)
       baseURI = baseURI.replace(/\\/g, '/');
-  }
-  else if (typeof location != 'undefined') {
-    baseURI = __global.location.href;
   }
   else {
     throw new TypeError('No environment baseURI');
@@ -174,6 +179,7 @@ global.URLPolyfill = URLPolyfill;
   catch(e) {}
 
   var URL = nativeURL ? __global.URL : __global.URLPolyfill;
+
 /*
 *********************************************************************************************
 
@@ -319,11 +325,13 @@ function logloads(loads) {
 
   // 15.2.3.2 Load Records and LoadRequest Objects
 
+  var anonCnt = 0;
+
   // 15.2.3.2.1
   function createLoad(name) {
     return {
       status: 'loading',
-      name: name,
+      name: name || '<Anonymous' + ++anonCnt + '>',
       linkSets: [],
       dependencies: [],
       metadata: {}
@@ -368,7 +376,6 @@ function logloads(loads) {
         load = loader.loads[i];
         if (load.name != name)
           continue;
-        console.assert(load.status == 'loading' || load.status == 'loaded', 'loading or loaded');
         return load;
       }
 
@@ -408,8 +415,6 @@ function logloads(loads) {
     );
   }
 
-  var anonCnt = 0;
-
   // 15.2.4.5
   function proceedToTranslate(loader, load, p) {
     p
@@ -417,6 +422,8 @@ function logloads(loads) {
     .then(function(source) {
       if (load.status != 'loading')
         return;
+
+      load.address = load.address || load.name;
 
       return Promise.resolve(loader.loaderObj.translate({ name: load.name, metadata: load.metadata, address: load.address, source: source }))
 
@@ -428,38 +435,14 @@ function logloads(loads) {
 
       // 15.2.4.5.3 InstantiateSucceeded
       .then(function(instantiateResult) {
-        if (instantiateResult === undefined) {
-          load.address = load.address || '<Anonymous Module ' + ++anonCnt + '>';
+        if (instantiateResult === undefined)
+          throw new TypeError('Declarative modules unsupported in the polyfill.');
+        
+        if (typeof instantiateResult != 'object')
+          throw new TypeError('Invalid instantiate return value');
 
-          // instead of load.kind, use load.isDeclarative
-          load.isDeclarative = true;
-          return transpile.call(loader.loaderObj, load)
-          .then(function(transpiled) {
-            // Hijack System.register to set declare function
-            var curSystem = __global.System;
-            var curRegister = curSystem.register;
-            curSystem.register = function(name, deps, declare) {
-              if (typeof name != 'string') {
-                declare = deps;
-                deps = name;
-              }
-              // store the registered declaration as load.declare
-              // store the deps as load.deps
-              load.declare = declare;
-              load.depsList = deps;
-            }
-            // empty {} context is closest to undefined 'this' we can get
-            __eval(transpiled, load.address, {});
-            curSystem.register = curRegister;
-          });
-        }
-        else if (typeof instantiateResult == 'object') {
-          load.depsList = instantiateResult.deps || [];
-          load.execute = instantiateResult.execute;
-          load.isDeclarative = false;
-        }
-        else
-          throw TypeError('Invalid instantiate return value');
+        load.depsList = instantiateResult.deps || [];
+        load.execute = instantiateResult.execute;
       })
       // 15.2.4.6 ProcessLoadDependencies
       .then(function() {
@@ -605,8 +588,6 @@ function logloads(loads) {
     if (load.status == 'failed')
       return;
 
-    console.assert(load.status == 'loading' || load.status == 'loaded', 'loading or loaded on link set');
-
     for (var i = 0, l = linkSet.loads.length; i < l; i++)
       if (linkSet.loads[i] == load)
         return;
@@ -681,9 +662,7 @@ function logloads(loads) {
       var loads = [].concat(linkSet.loads);
       for (var i = 0, l = loads.length; i < l; i++) {
         var load = loads[i];
-        load.module = !load.isDeclarative ? {
-          module: _newModule({})
-        } : {
+        load.module = {
           name: load.name,
           module: _newModule({}),
           evaluated: true
@@ -771,13 +750,12 @@ function logloads(loads) {
         depMap: depMap,
         address: load.address,
         metadata: load.metadata,
-        source: load.source,
-        kind: load.isDeclarative ? 'declarative' : 'dynamic'
+        source: load.source
       };
     }
     // if not anonymous, add to the module table
     if (load.name) {
-      console.assert(!loader.modules[load.name], 'load not in module table');
+      console.assert(!loader.modules[load.name] || loader.modules[load.name].module === load.module.module, 'load not in module table');
       loader.modules[load.name] = load.module;
     }
     var loadIndex = indexOf.call(loader.loads, load);
@@ -851,7 +829,6 @@ function logloads(loads) {
     get: function(key) {
       if (!this._loader.modules[key])
         return;
-      doEnsureEvaluated(this._loader.modules[key], [], this);
       return this._loader.modules[key].module;
     },
     // 26.3.3.7
@@ -871,16 +848,14 @@ function logloads(loads) {
       .then(function(name) {
         var loader = loaderObj._loader;
 
-        if (loader.modules[name]) {
-          doEnsureEvaluated(loader.modules[name], [], loader._loader);
+        if (loader.modules[name])
           return loader.modules[name].module;
-        }
 
         return loader.importPromises[name] || createImportPromise(loaderObj, name,
           loadModule(loader, name, {})
           .then(function(load) {
             delete loader.importPromises[name];
-            return evaluateLoadedModule(loader, load);
+            return load.module.module;
           }));
       });
     },
@@ -910,7 +885,7 @@ function logloads(loads) {
       var sourcePromise = Promise.resolve(source);
       var loader = this._loader;
       var p = linkSet.done.then(function() {
-        return evaluateLoadedModule(loader, load);
+        return load.module.module;
       });
       proceedToTranslate(loader, load, sourcePromise);
       return p;
@@ -960,9 +935,7 @@ function logloads(loads) {
     // 26.3.3.17 @@toStringTag not implemented
 
     // 26.3.3.18.1
-    normalize: function(name, referrerName, referrerAddress) {
-      return name;
-    },
+    normalize: function(name, referrerName, referrerAddress) {},
     // 26.3.3.18.2
     locate: function(load) {
       return load.name;
@@ -980,8 +953,9 @@ function logloads(loads) {
   };
 
   var _newModule = Loader.prototype.newModule;
+
 /*
- * ES6 Module Declarative Linking Code - Dev Build Only
+ * ES6 Module Declarative Linking Code
  */
   function link(linkSet, linkError) {
 
@@ -1008,79 +982,10 @@ function logloads(loads) {
     }
   }
 
-  function evaluateLoadedModule(loader, load) {
-    console.assert(load.status == 'linked', 'is linked ' + load.name);
-    return load.module.module;
-  }
-
-  function doEnsureEvaluated() {}
-
-  function transpile() {
-    throw new TypeError('ES6 transpilation is only provided in the dev module loader build.');
-  }
-})();/*
-*********************************************************************************************
-
-  System Loader Implementation
-
-    - Implemented to https://github.com/jorendorff/js-loaders/blob/master/browser-loader.js
-
-    - <script type="module"> supported
-
-*********************************************************************************************
-*/
+})();
 
 var System;
 
-function SystemLoader() {
-  Loader.call(this);
-  this.paths = {};
-}
-
-// NB no specification provided for System.paths, used ideas discussed in https://github.com/jorendorff/js-loaders/issues/25
-function applyPaths(paths, name) {
-  // most specific (most number of slashes in path) match wins
-  var pathMatch = '', wildcard, maxWildcardPrefixLen = 0;
-
-  // check to see if we have a paths entry
-  for (var p in paths) {
-    var pathParts = p.split('*');
-    if (pathParts.length > 2)
-      throw new TypeError('Only one wildcard in a path is permitted');
-
-    // exact path match
-    if (pathParts.length == 1) {
-      if (name == p)
-        return paths[p];
-      
-      // support trailing / in paths rules
-      else if (name.substr(0, p.length - 1) == p.substr(0, p.length - 1) && (name.length < p.length || name[p.length - 1] == p[p.length - 1]) && paths[p][paths[p].length - 1] == '/')
-        return paths[p].substr(0, paths[p].length - 1) + (name.length > p.length ? '/' + name.substr(p.length) : '');
-    }
-    // wildcard path match
-    else {
-      var wildcardPrefixLen = pathParts[0].length;
-      if (wildcardPrefixLen >= maxWildcardPrefixLen &&
-          name.substr(0, pathParts[0].length) == pathParts[0] &&
-          name.substr(name.length - pathParts[1].length) == pathParts[1]) {
-            maxWildcardPrefixLen = wildcardPrefixLen;
-            pathMatch = p;
-            wildcard = name.substr(pathParts[0].length, name.length - pathParts[1].length - pathParts[0].length);
-          }
-    }
-  }
-
-  var outPath = paths[pathMatch];
-  if (typeof wildcard == 'string')
-    outPath = outPath.replace('*', wildcard);
-
-  return outPath;
-}
-
-// inline Object.create-style class extension
-function LoaderProto() {}
-LoaderProto.prototype = Loader.prototype;
-SystemLoader.prototype = new LoaderProto();
   var fetchTextFromURL;
   if (typeof XMLHttpRequest != 'undefined') {
     fetchTextFromURL = function(url, authorization, fulfill, reject) {
@@ -1206,12 +1111,6 @@ SystemLoader.prototype = new LoaderProto();
   else {
     throw new TypeError('No environment fetch API available.');
   }
-
-  SystemLoader.prototype.fetch = function(load) {
-    return new Promise(function(resolve, reject) {
-      fetchTextFromURL(load.address, undefined, resolve, reject);
-    });
-  };
 /*
  * Traceur, Babel and TypeScript transpile hook for Loader
  */
@@ -1299,21 +1198,20 @@ var transpile = (function() {
   return transpile;
 })();
 // SystemJS Loader Class and Extension helpers
-
 function SystemJSLoader() {
-  SystemLoader.call(this);
+  Loader.call(this);
+
+  this.paths = {};
+  this._loader.paths = {};
 
   systemJSConstructor.call(this);
 }
 
 // inline Object.create-style class extension
 function SystemProto() {};
-SystemProto.prototype = SystemLoader.prototype;
+SystemProto.prototype = Loader.prototype;
 SystemJSLoader.prototype = new SystemProto();
 SystemJSLoader.prototype.constructor = SystemJSLoader;
-
-// remove ESML instantiate
-SystemJSLoader.prototype.instantiate = function() {};
 
 var systemJSConstructor;
 
@@ -1322,6 +1220,87 @@ function hook(name, hook) {
 }
 function hookConstructor(hook) {
   systemJSConstructor = hook(systemJSConstructor || function() {});
+}
+
+
+var absURLRegEx = /^[^\/]+:\/\//;
+function isAbsolute(name) {
+  return name.match(absURLRegEx);
+}
+function isRel(name) {
+  return (name[0] == '.' && (!name[1] || name[1] == '/' || name[1] == '.')) || name[0] == '/';
+}
+function isPlain(name) {
+  return !isRel(name) && !isAbsolute(name);
+}
+
+var baseURIObj = new URL(baseURI);
+
+function urlResolve(name, parent) {
+  // url resolution shortpaths
+  if (name[0] == '.') {
+    // dot-relative url normalization
+    if (name[1] == '/' && name[2] != '.')
+      return (parent && parent.substr(0, parent.lastIndexOf('/') + 1) || baseURI) + name.substr(2);
+  }
+  else if (name[0] != '/' && name.indexOf(':') == -1) {
+    // plain parent normalization
+    return (parent && parent.substr(0, parent.lastIndexOf('/') + 1) || baseURI) + name;
+  }
+
+  return new URL(name, parent && parent.replace(/#/g, '%05') || baseURIObj).href.replace(/%05/g, '#');
+}
+
+// NB no specification provided for System.paths, used ideas discussed in https://github.com/jorendorff/js-loaders/issues/25
+function applyPaths(loader, name) {
+  // most specific (most number of slashes in path) match wins
+  var pathMatch = '', wildcard, maxWildcardPrefixLen = 0;
+
+  var paths = loader.paths;
+  var pathsCache = loader._loader.paths;
+
+  // check to see if we have a paths entry
+  for (var p in paths) {
+    if (paths.hasOwnProperty && !paths.hasOwnProperty(p))
+      continue;
+
+    // paths sanitization
+    var path = paths[p];
+    if (path !== pathsCache[p])
+      path = paths[p] = pathsCache[p] = urlResolve(paths[p], isRel(paths[p]) ? baseURI : loader.baseURL);
+
+    // exact path match
+    if (p.indexOf('*') === -1) {
+      if (name == p)
+        return paths[p];
+      
+      // support trailing / in paths rules
+      else if (name.substr(0, p.length - 1) == p.substr(0, p.length - 1) && (name.length < p.length || name[p.length - 1] == p[p.length - 1]) && (paths[p][paths[p].length - 1] == '/' || paths[p] == '')) {
+        return paths[p].substr(0, paths[p].length - 1) + (name.length > p.length ? (paths[p] && '/' || '') + name.substr(p.length) : '');
+      }
+    }
+    // wildcard path match
+    else {
+      var pathParts = p.split('*');
+      if (pathParts.length > 2)
+        throw new TypeError('Only one wildcard in a path is permitted');
+
+      var wildcardPrefixLen = pathParts[0].length;
+      if (wildcardPrefixLen >= maxWildcardPrefixLen &&
+          name.substr(0, pathParts[0].length) == pathParts[0] &&
+          name.substr(name.length - pathParts[1].length) == pathParts[1]) {
+            maxWildcardPrefixLen = wildcardPrefixLen;
+            pathMatch = p;
+            wildcard = name.substr(pathParts[0].length, name.length - pathParts[1].length - pathParts[0].length);
+          }
+    }
+  }
+
+  var outPath = paths[pathMatch];
+  if (typeof wildcard == 'string')
+    outPath = outPath.replace('*', wildcard);
+
+  return outPath;
 }
 
 function dedupe(deps) {
@@ -1360,18 +1339,18 @@ catch(e) {
 function getESModule(exports) {
   var esModule = {};
   // don't trigger getters/setters in environments that support them
-  if (typeof exports == 'object' || typeof exports == 'function') {
-    var hasOwnProperty = exports && exports.hasOwnProperty;
-    if (getOwnPropertyDescriptor) {
-      for (var p in exports) {
-        if (!trySilentDefineProperty(esModule, exports, p))
-          setPropertyIfHasOwnProperty(esModule, exports, p, hasOwnProperty);
+  if ((typeof exports == 'object' || typeof exports == 'function') && exports !== __global) {
+      if (getOwnPropertyDescriptor) {
+        for (var p in exports) {
+          // The default property is copied to esModule later on
+          if (p === 'default')
+            continue;
+          defineOrCopyProperty(esModule, exports, p);
+        }
       }
-    }
-    else {
-      for (var p in exports)
-        setPropertyIfHasOwnProperty(esModule, exports, p, hasOwnProperty);
-    }
+      else {
+        extend(esModule, exports);
+      }
   }
   esModule['default'] = exports;
   defineProperty(esModule, '__useDefault', {
@@ -1380,41 +1359,40 @@ function getESModule(exports) {
   return esModule;
 }
 
-function setPropertyIfHasOwnProperty(targetObj, sourceObj, propName, hasOwnProperty) {
-  if (!hasOwnProperty || sourceObj.hasOwnProperty(propName))
-    targetObj[propName] = sourceObj[propName];
-}
-
-function trySilentDefineProperty(targetObj, sourceObj, propName) {
+function defineOrCopyProperty(targetObj, sourceObj, propName) {
   try {
     var d;
     if (d = Object.getOwnPropertyDescriptor(sourceObj, propName))
       defineProperty(targetObj, propName, d);
-
-    return true;
-  } catch (ex) {
-    // Object.getOwnPropertyDescriptor threw an exception, fall back to normal set property.
+  }
+  catch (ex) {
+    // Object.getOwnPropertyDescriptor threw an exception, fall back to normal set property
+    // we dont need hasOwnProperty here because getOwnPropertyDescriptor would have returned undefined above
+    targetObj[propName] = sourceObj[propName];
     return false;
   }
 }
 
 function extend(a, b, prepend) {
+  var hasOwnProperty = b && b.hasOwnProperty;
   for (var p in b) {
+    if (hasOwnProperty && !b.hasOwnProperty(p))
+      continue;
     if (!prepend || !(p in a))
       a[p] = b[p];
   }
   return a;
 }
 
-// package configuration options
-var packageProperties = ['main', 'format', 'defaultExtension', 'meta', 'map', 'basePath', 'depCache'];
-
 // meta first-level extends where:
 // array + array appends
 // object + object extends
 // other properties replace
 function extendMeta(a, b, prepend) {
+  var hasOwnProperty = b && b.hasOwnProperty;
   for (var p in b) {
+    if (hasOwnProperty && !b.hasOwnProperty(p))
+      continue;
     var val = b[p];
     if (!(p in a))
       a[p] = val;
@@ -1425,6 +1403,62 @@ function extendMeta(a, b, prepend) {
     else if (!prepend)
       a[p] = val;
   }
+}
+
+function extendPkgConfig(pkgCfgA, pkgCfgB, pkgName, loader, warnInvalidProperties) {
+  for (var prop in pkgCfgB) {
+    if (indexOf.call(['main', 'format', 'defaultExtension', 'basePath'], prop) != -1) {
+      pkgCfgA[prop] = pkgCfgB[prop];
+    }
+    else if (prop == 'map') {
+      extend(pkgCfgA.map = pkgCfgA.map || {}, pkgCfgB.map);
+    }
+    else if (prop == 'meta') {
+      extend(pkgCfgA.meta = pkgCfgA.meta || {}, pkgCfgB.meta);
+    }
+    else if (prop == 'depCache') {
+      for (var d in pkgCfgB.depCache) {
+        var dNormalized;
+
+        if (d.substr(0, 2) == './')
+          dNormalized = pkgName + '/' + d.substr(2);
+        else
+          dNormalized = coreResolve.call(loader, d);
+        loader.depCache[dNormalized] = (loader.depCache[dNormalized] || []).concat(pkgCfgB.depCache[d]);
+      }
+    }
+    else if (warnInvalidProperties && indexOf.call(['browserConfig', 'nodeConfig', 'devConfig', 'productionConfig'], prop) == -1 && 
+        (!pkgCfgB.hasOwnProperty || pkgCfgB.hasOwnProperty(prop))) {
+      warn.call(loader, '"' + prop + '" is not a valid package configuration option in package ' + pkgName);
+    }
+  }
+}
+
+// deeply-merge (to first level) config with any existing package config
+function setPkgConfig(loader, pkgName, cfg, prependConfig) {
+  var pkg;
+
+  // first package is config by reference for fast path, cloned after that
+  if (!loader.packages[pkgName]) {
+    pkg = loader.packages[pkgName] = cfg;
+  }
+  else {
+    var basePkg = loader.packages[pkgName];
+    pkg = loader.packages[pkgName] = {};
+
+    extendPkgConfig(pkg, prependConfig ? cfg : basePkg, pkgName, loader, prependConfig);
+    extendPkgConfig(pkg, prependConfig ? basePkg : cfg, pkgName, loader, !prependConfig);
+  }
+  
+  // main object becomes main map
+  if (typeof pkg.main == 'object') {
+    pkg.map = pkg.map || {};
+    pkg.map['./@main'] = pkg.main;
+    pkg.main['default'] = pkg.main['default'] || './';
+    pkg.main = '@main';
+  }
+
+  return pkg;
 }
 
 function warn(msg) {
@@ -1439,11 +1473,12 @@ var __exec;
 
   var hasBtoa = typeof btoa != 'undefined';
 
-  function getSource(load) {
+  function getSource(load, wrap) {
     var lastLineIndex = load.source.lastIndexOf('\n');
 
     // wrap ES formats with a System closure for System global encapsulation
-    var wrap = load.metadata.format != 'global';
+    if (load.metadata.format == 'global')
+      wrap = false;
 
     var sourceMap = load.metadata.sourceMap;
     if (sourceMap) {
@@ -1490,20 +1525,23 @@ var __exec;
     curLoad = undefined;
   }
 
+  var nwjs = typeof process != 'undefined' && process.versions && process.versions['node-webkit'];
   var vm;
   __exec = function(load) {
+    if (!load.source)
+      return;
     if ((load.metadata.integrity || load.metadata.nonce) && supportsScriptExec)
       return scriptExec.call(this, load);
     try {
       preExec(this, load);
       curLoad = load;
       // global scoped eval for node (avoids require scope leak)
-      if (this._nodeRequire) {
+      if (this._nodeRequire && !nwjs) {
         vm = vm || this._nodeRequire('vm');
-        vm.runInThisContext(getSource(load));
+        vm.runInThisContext(getSource(load, true), { filename: load.address + (load.metadata.sourceMap ? '!transpiled' : '') });
       }
       else {
-        (0, eval)(getSource(load));
+        (0, eval)(getSource(load, true));
       }
       postExec();
     }
@@ -1535,6 +1573,8 @@ var __exec;
     var e;
     window.onerror = function(_e) {
       e = addToError(_e, 'Evaluating ' + load.address);
+      if (onerror)
+        onerror.apply(this, arguments);
     }
     preExec(this, load);
 
@@ -1552,29 +1592,11 @@ var __exec;
   }
 
 })();
-var absURLRegEx = /^[^\/]+:\/\//;
-
 function readMemberExpression(p, value) {
   var pParts = p.split('.');
   while (pParts.length)
     value = value[pParts.shift()];
   return value;
-}
-
-var baseURLCache = {};
-function getBaseURLObj() {
-  if (baseURLCache[this.baseURL])
-    return baseURLCache[this.baseURL];
-
-  // normalize baseURL if not already
-  if (this.baseURL[this.baseURL.length - 1] != '/')
-    this.baseURL += '/';
-
-  var baseURL = new URL(this.baseURL, baseURI);
-
-  this.baseURL = baseURL.href;
-
-  return (baseURLCache[this.baseURL] = baseURL);
 }
 
 function getMapMatch(map, name) {
@@ -1593,27 +1615,37 @@ function getMapMatch(map, name) {
   return bestMatch;
 }
 
-function setProduction(isProduction) {
-  this.set('@system-env', this.newModule({
+function prepareBaseURL(loader) {
+  // ensure baseURl is fully normalized
+  if (this._loader.baseURL !== this.baseURL) {
+    if (this.baseURL[this.baseURL.length - 1] != '/')
+      this.baseURL += '/';
+    
+    this._loader.baseURL = this.baseURL = new URL(this.baseURL, baseURIObj).href;
+  }
+}
+
+var envModule;
+function setProduction(isProduction, isBuilder) {
+  this.set('@system-env', envModule = this.newModule({
     browser: isBrowser,
     node: !!this._nodeRequire,
-    production: isProduction,
+    production: !isBuilder && isProduction,
+    dev: isBuilder || !isProduction,
+    build: isBuilder,
     'default': true
   }));
 }
-
-var baseURIObj = new URL(baseURI);
 
 hookConstructor(function(constructor) {
   return function() {
     constructor.call(this);
 
     // support baseURL
-    this.baseURL = baseURI.substr(0, baseURI.lastIndexOf('/') + 1);
+    this.baseURL = baseURI;
 
     // support map and paths
     this.map = {};
-    this.paths = {};
 
     // global behaviour flags
     this.warnings = false;
@@ -1629,18 +1661,13 @@ hookConstructor(function(constructor) {
     // support the empty module, as a concept
     this.set('@empty', this.newModule({}));
 
-    setProduction.call(this, false);
+    setProduction.call(this, false, false);
   };
 });
 
 // include the node require since we're overriding it
 if (typeof require != 'undefined' && typeof process != 'undefined' && !process.browser)
   SystemJSLoader.prototype._nodeRequire = require;
-
-var nodeCoreModules = ['assert', 'buffer', 'child_process', 'cluster', 'console', 'constants', 
-    'crypto', 'dgram', 'dns', 'domain', 'events', 'fs', 'http', 'https', 'module', 'net', 'os', 'path', 
-    'process', 'punycode', 'querystring', 'readline', 'repl', 'stream', 'string_decoder', 'sys', 'timers', 
-    'tls', 'tty', 'url', 'util', 'vm', 'zlib'];
 
 /*
   Core SystemJS Normalization
@@ -1656,25 +1683,30 @@ var nodeCoreModules = ['assert', 'buffer', 'child_process', 'cluster', 'console'
   a URL.
  */
 
-function isPlain(name) {
-  return (name[0] != '.' || (!!name[1] && name[1] != '/' && name[1] != '.')) && name[0] != '/' && !name.match(absURLRegEx);
-}
+function getNodeModule(name) {
+  if (!isPlain(name))
+    throw new Error('Node module ' + name + ' can\'t be loaded as it is not a package require.');
 
-function urlResolve(name, parent) {
-  if (parent)
-    parent = parent.replace(/#/g, '%05');
-  return new URL(name, parent || baseURIObj).href.replace(/%05/g, '#');
-}
-
-// only applies to plain names
-function baseURLResolve(loader, name) {
-  return new URL(name, getBaseURLObj.call(loader)).href;
+  var nodePath = this._nodeRequire('path');
+  // try to load from node_modules
+  var module;
+  try {
+    module = this._nodeRequire(nodePath.resolve(process.cwd(), 'node_modules', name));
+  }
+  catch(e) {
+    // fall back to direct require (in theory this is core modules only, which should really be filtered)
+    if (e.code == 'MODULE_NOT_FOUND')
+      module = this._nodeRequire(name);
+  }
+  return module;
 }
 
 function coreResolve(name, parentName) {
   // standard URL resolution
-  if (!isPlain(name))
+  if (isRel(name))
     return urlResolve(name, parentName);
+  else if (isAbsolute(name))
+    return name;
 
   // plain names not starting with './', '://' and '/' go through custom resolution
   var mapMatch = getMapMatch(this.map, name);
@@ -1682,32 +1714,32 @@ function coreResolve(name, parentName) {
   if (mapMatch) {
     name = this.map[mapMatch] + name.substr(mapMatch.length);
 
-    if (!isPlain(name))
+    if (isRel(name))
       return urlResolve(name);
+    else if (isAbsolute(name))
+      return name;
   }
 
   if (this.has(name))
     return name;
   // dynamically load node-core modules when requiring `@node/fs` for example
-  if (name.substr(0, 6) == '@node/' && nodeCoreModules.indexOf(name.substr(6)) != -1) {
+  if (name.substr(0, 6) == '@node/') {
     if (!this._nodeRequire)
       throw new TypeError('Error loading ' + name + '. Can only load node core modules in Node.');
-    this.set(name, this.newModule(getESModule(this._nodeRequire(name.substr(6)))));
+    this.set(name, this.newModule(getESModule(getNodeModule.call(this, name.substr(6)))));
     return name;
   }
 
-  var pathed = applyPaths(this.paths, name);
+  // prepare the baseURL to ensure it is normalized
+  prepareBaseURL.call(this);
 
-  if (pathed && !isPlain(pathed))
-    return urlResolve(pathed);
-
-  return baseURLResolve(this, pathed || name);
+  return applyPaths(this, name) || this.baseURL + name;
 }
 
 hook('normalize', function(normalize) {
   return function(name, parentName, skipExt) {
     var resolved = coreResolve.call(this, name, parentName);
-    if (!skipExt && this.defaultJSExtensions && resolved.substr(resolved.length - 3, 3) != '.js' && !isPlain(resolved))
+    if (this.defaultJSExtensions && !skipExt && resolved.substr(resolved.length - 3, 3) != '.js' && !isPlain(resolved))
       resolved += '.js';
     return resolved;
   };
@@ -1768,7 +1800,7 @@ hook('translate', function(systemTranslate) {
   return function(load) {
     if (load.metadata.format == 'detect')
       load.metadata.format = undefined;
-    return systemTranslate.call(this, load);
+    return systemTranslate.apply(this, arguments);
   };
 });
 
@@ -1845,10 +1877,34 @@ hook('instantiate', function(instantiate) {
   For easy normalization canonicalization with latest URL support.
 
 */
-SystemJSLoader.prototype.env = 'development';
+function envSet(loader, cfg, envCallback) {
+  if (envModule.browser && cfg.browserConfig)
+    envCallback(cfg.browserConfig);
+  if (envModule.node && cfg.nodeConfig)
+    envCallback(cfg.nodeConfig);
+  if (envModule.dev && cfg.devConfig)
+    envCallback(cfg.devConfig);
+  if (envModule.build && cfg.buildConfig)
+    envCallback(cfg.buildConfig);
+  if (envModule.production && cfg.productionConfig)
+    envCallback(cfg.productionConfig);
+}
+
+SystemJSLoader.prototype.getConfig = function(name) {
+  var cfg = {};
+  var loader = this;
+  for (var p in loader) {
+    if (loader.hasOwnProperty && !loader.hasOwnProperty(p) || p in SystemJSLoader.prototype)
+      continue;
+    if (indexOf.call(['_loader', 'amdDefine', 'amdRequire', 'defined', 'failed', 'version'], p) == -1)
+      cfg[p] = loader[p];
+  }
+  cfg.production = envModule.production;
+  return cfg;
+};
 
 var curCurScript;
-SystemJSLoader.prototype.config = function(cfg) {
+SystemJSLoader.prototype.config = function(cfg, isEnvConfig) {
   var loader = this;
 
   if ('loaderErrorStack' in cfg) {
@@ -1866,21 +1922,47 @@ SystemJSLoader.prototype.config = function(cfg) {
   if (cfg.transpilerRuntime === false)
     loader._loader.loadedTranspilerRuntime = true;
 
-  // always configure baseURL first
-  if (cfg.baseURL) {
-    var hasConfig = false;
-    function checkHasConfig(obj) {
-      for (var p in obj)
-        if (hasOwnProperty.call(obj, p))
-          return true;
+  if ('production' in cfg || 'build' in cfg)
+    setProduction.call(loader, !!cfg.production, !!(cfg.build || envModule && envModule.build));
+
+  if (!isEnvConfig) {
+    // if using nodeConfig / browserConfig / productionConfig, take baseURL from there
+    // these exceptions will be unnecessary when we can properly implement config queuings
+    var baseURL;
+    envSet(loader, cfg, function(cfg) {
+      baseURL = baseURL || cfg.baseURL;
+    });
+    baseURL = baseURL || cfg.baseURL;
+
+    // always configure baseURL first
+    if (baseURL) {
+      var hasConfig = false;
+      function checkHasConfig(obj) {
+        for (var p in obj)
+          if (obj.hasOwnProperty(p))
+            return true;
+      }
+      if (checkHasConfig(loader.packages) || checkHasConfig(loader.meta) || checkHasConfig(loader.depCache) || checkHasConfig(loader.bundles) || checkHasConfig(loader.packageConfigPaths))
+        throw new TypeError('Incorrect configuration order. The baseURL must be configured with the first SystemJS.config call.');
+
+      this.baseURL = baseURL;
+      prepareBaseURL.call(this);
     }
-    if (checkHasConfig(loader.packages) || checkHasConfig(loader.meta) || checkHasConfig(loader.depCache) || checkHasConfig(loader.bundles) || checkHasConfig(loader.packageConfigPaths))
-      throw new TypeError('Incorrect configuration order. The baseURL must be configured with the first SystemJS.config call.');
 
-    loader.baseURL = cfg.baseURL;
+    if (cfg.paths)
+      extend(loader.paths, cfg.paths);
 
-    // sanitize baseURL
-    getBaseURLObj.call(loader);
+    envSet(loader, cfg, function(cfg) {
+      if (cfg.paths)
+        extend(loader.paths, cfg.paths);
+    });
+
+    // warn on wildcard path deprecations
+    if (this.warnings) {
+      for (var p in loader.paths)
+        if (p.indexOf('*') != -1)
+          warn.call(loader, 'Paths configuration "' + p + '" -> "' + loader.paths[p] + '" uses wildcards which are being deprecated for simpler trailing "/" folder paths.');
+    }
   }
 
   if (cfg.defaultJSExtensions) {
@@ -1890,14 +1972,6 @@ SystemJSLoader.prototype.config = function(cfg) {
 
   if (cfg.pluginFirst)
     loader.pluginFirst = cfg.pluginFirst;
-
-  if (cfg.production)
-    setProduction.call(loader, true);
-
-  if (cfg.paths) {
-    for (var p in cfg.paths)
-      loader.paths[p] = cfg.paths[p];
-  }
 
   if (cfg.map) {
     var objMaps = '';
@@ -1940,10 +2014,7 @@ SystemJSLoader.prototype.config = function(cfg) {
     for (var i = 0; i < cfg.packageConfigPaths.length; i++) {
       var path = cfg.packageConfigPaths[i];
       var packageLength = Math.max(path.lastIndexOf('*') + 1, path.lastIndexOf('/'));
-      var defaultJSExtension = loader.defaultJSExtensions && path.substr(packageLength - 3, 3) != '.js';
-      var normalized = loader.decanonicalize(path.substr(0, packageLength));
-      if (defaultJSExtension && normalized.substr(normalized.length - 3, 3) == '.js')
-        normalized = normalized.substr(0, normalized.length - 3);
+      var normalized = coreResolve.call(loader, path.substr(0, packageLength));
       packageConfigPaths[i] = normalized + path.substr(packageLength);
     }
     loader.packageConfigPaths = packageConfigPaths;
@@ -1974,36 +2045,15 @@ SystemJSLoader.prototype.config = function(cfg) {
       if (prop[prop.length - 1] == '/')
         prop = prop.substr(0, prop.length - 1);
 
-      loader.packages[prop] = loader.packages[prop] || {};
-
-      var pkg = cfg.packages[p];
-
-      // meta backwards compatibility
-      if (pkg.modules) {
-        warn.call(loader, 'Package ' + p + ' is configured with "modules", which is deprecated as it has been renamed to "meta".');
-        pkg.meta = pkg.modules;
-        delete pkg.modules;
-      }
-
-      if (typeof pkg.main == 'object') {
-        pkg.map = pkg.map || {};
-        pkg.map['./@main'] = pkg.main;
-        pkg.main['default'] = pkg.main['default'] || './';
-        pkg.main = '@main';
-      }
-
-      for (var q in pkg)
-        if (indexOf.call(packageProperties, q) == -1)
-          warn.call(loader, '"' + q + '" is not a valid package configuration option in package ' + p);
-
-      extendMeta(loader.packages[prop], pkg);
+      setPkgConfig(loader, prop, cfg.packages[p], false);
     }
   }
 
   for (var c in cfg) {
     var v = cfg[c];
 
-    if (c == 'baseURL' || c == 'map' || c == 'packages' || c == 'bundles' || c == 'paths' || c == 'warnings' || c == 'packageConfigPaths' || c == 'loaderErrorStack')
+    if (indexOf.call(['baseURL', 'map', 'packages', 'bundles', 'paths', 'warnings', 'packageConfigPaths', 
+          'loaderErrorStack', 'browserConfig', 'nodeConfig', 'devConfig', 'buildConfig', 'productionConfig'], c) != -1)
       continue;
 
     if (typeof v != 'object' || v instanceof Array) {
@@ -2015,21 +2065,21 @@ SystemJSLoader.prototype.config = function(cfg) {
       for (var p in v) {
         // base-level wildcard meta does not normalize to retain catch-all quality
         if (c == 'meta' && p[0] == '*') {
-          loader[c][p] = v[p];
+          extend(loader[c][p] = loader[c][p] || {}, v[p]);
         }
         else if (c == 'meta') {
           // meta can go through global map, with defaultJSExtensions adding
           var resolved = coreResolve.call(loader, p);
           if (loader.defaultJSExtensions && resolved.substr(resolved.length - 3, 3) != '.js' && !isPlain(resolved))
             resolved += '.js';
-          loader[c][resolved] = v[p];
+          extend(loader[c][resolved] = loader[c][resolved] || {}, v[p]);
         }
         else if (c == 'depCache') {
           var defaultJSExtension = loader.defaultJSExtensions && p.substr(p.length - 3, 3) != '.js';
           var prop = loader.decanonicalize(p);
           if (defaultJSExtension && prop.substr(prop.length - 3, 3) == '.js')
             prop = prop.substr(0, prop.length - 3);
-          loader[c][prop] = v[p];
+          loader[c][prop] = [].concat(v[p]);
         }
         else {
           loader[c][p] = v[p];
@@ -2037,6 +2087,10 @@ SystemJSLoader.prototype.config = function(cfg) {
       }
     }
   }
+
+  envSet(loader, cfg, function(cfg) {
+    loader.config(cfg, true);
+  });
 };/*
  * Package Configuration Extension
  *
@@ -2065,7 +2119,8 @@ SystemJSLoader.prototype.config = function(cfg) {
  *
  *        // environment-specific map configurations
  *        './index.js': {
- *          '~browser': './index-node.js'
+ *          '~browser': './index-node.js',
+ *          './custom-condition.js|~export': './index-custom.js'
  *        }
  *     },
  *     // allows for setting package-prefixed depCache
@@ -2156,11 +2211,6 @@ SystemJSLoader.prototype.config = function(cfg) {
     if (!subPath || subPath[subPath.length - 1] == '/' || skipExtensions || pkg.defaultExtension === false)
       return subPath;
 
-    // NB are you sure about this?
-    // skip if we have interpolation conditional syntax in subPath?
-    if (subPath.match(interpolationRegEx))
-      return subPath;
-
     var metaMatch = false;
 
     // exact meta or meta with any content after the last wildcard skips extension
@@ -2213,36 +2263,40 @@ SystemJSLoader.prototype.config = function(cfg) {
         if (mapPath != './' + subPath)
           mapMatch = getMapMatch(pkg.map, mapPath);
       }
-      if (mapMatch)
-        return doMapSync(loader, pkg, pkgName, mapMatch, mapPath, skipExtensions);
+      if (mapMatch) {
+        var mapped = doMapSync(loader, pkg, pkgName, mapMatch, mapPath, skipExtensions);
+        if (mapped)
+          return mapped;
+      }
     }
 
     // normal package resolution
     return pkgName + '/' + addDefaultExtension(loader, pkg, pkgName, subPath, skipExtensions);
   }
 
-  function validateMapping(mapMatch, mapped, pkgName) {
+  function validMapping(mapMatch, mapped, pkgName, path) {
     // disallow internal to subpath maps
     if (mapMatch == '.')
       throw new Error('Package ' + pkgName + ' has a map entry for "." which is not permitted.');
-    // disallow internal ./x -> ./x/y recursive maps
-    else if (mapped.substr(0, mapMatch.length) == mapMatch && (mapMatch[mapMatch.length - 1] != '/' && mapped[mapMatch.length] == '/'))
-      throw new Error('Package ' + pkgName + ' has a recursive map for "' + mapMatch + '" which is not permitted.');
+    
+    // allow internal ./x -> ./x/y or ./x/ -> ./x/y recursive maps
+    // but only if the path is exactly ./x and not ./x/z
+    if (mapped.substr(0, mapMatch.length) == mapMatch && path.length > mapMatch.length)
+      return false;
+
+    return true;
   }
 
   function doMapSync(loader, pkg, pkgName, mapMatch, path, skipExtensions) {
+    if (path[path.length - 1] == '/')
+      path = path.substr(0, path.length - 1);
     var mapped = pkg.map[mapMatch];
 
     if (typeof mapped == 'object')
       throw new Error('Synchronous conditional normalization not supported sync normalizing ' + mapMatch + ' in ' + pkgName);
 
-    validateMapping(mapMatch, mapped, pkgName);
-
-    // ignore conditionals in sync
-    if (typeof mapped != 'string')
-      mapped = mapMatch = path;
-
-    validateMapping(mapMatch, mapped, pkgName);
+    if (!validMapping(mapMatch, mapped, pkgName, path) || typeof mapped != 'string')
+      return;
 
     // package map to main / base-level
     if (mapped == '.')
@@ -2295,7 +2349,6 @@ SystemJSLoader.prototype.config = function(cfg) {
 
   function doStringMap(loader, pkg, pkgName, mapMatch, mapped, path, skipExtensions) {
     // NB the interpolation cases should strictly skip subsequent interpolation
-
     // package map to main / base-level
     if (mapped == '.')
       mapped = pkgName;
@@ -2312,10 +2365,14 @@ SystemJSLoader.prototype.config = function(cfg) {
   }
 
   function doMap(loader, pkg, pkgName, mapMatch, path, skipExtensions) {
+    if (path[path.length - 1] == '/')
+      path = path.substr(0, path.length - 1);
+
     var mapped = pkg.map[mapMatch];
 
     if (typeof mapped == 'string') {
-      validateMapping(mapMatch, mapped, pkgName);
+      if (!validMapping(mapMatch, mapped, pkgName, path))
+        return Promise.resolve();
       return doStringMap(loader, pkg, pkgName, mapMatch, mapped, path, skipExtensions);
     }
 
@@ -2323,24 +2380,33 @@ SystemJSLoader.prototype.config = function(cfg) {
     if (loader.builder)
       return Promise.resolve(pkgName + '/#:' + path);
 
+    // we load all conditions upfront
+    var conditionPromises = [];
+    var conditions = [];
+    for (var e in mapped) {
+      var c = parseCondition(e);
+      conditions.push({
+        condition: c,
+        map: mapped[e]
+      });
+      conditionPromises.push(loader['import'](c.module, pkgName));
+    }
+
     // map object -> conditional map
-    return loader['import'](pkg.map['@env'] || '@system-env', pkgName)
-    .then(function(env) {
+    return Promise.all(conditionPromises)
+    .then(function(conditionValues) {
       // first map condition to match is used
-      for (var e in mapped) {
-        var negate = e[0] == '~';
-
-        var value = readMemberExpression(negate ? e.substr(1) : e, env);
-
-        if (!negate && value || negate && !value)
-          return mapped[e];
+      for (var i = 0; i < conditions.length; i++) {
+        var c = conditions[i].condition;
+        var value = readMemberExpression(c.prop, conditionValues[i]);
+        if (!c.negate && value || c.negate && !value)
+          return conditions[i].map;
       }
     })
     .then(function(mapped) {
       if (mapped) {
-        if (typeof mapped != 'string')
-          throw new Error('Unable to map a package conditional to a package conditional.');
-        validateMapping(mapMatch, mapped, pkgName);
+        if (!validMapping(mapMatch, mapped, pkgName, path))
+          return;
         return doStringMap(loader, pkg, pkgName, mapMatch, mapped, path, skipExtensions);
       }
 
@@ -2358,7 +2424,7 @@ SystemJSLoader.prototype.config = function(cfg) {
       if (this.builder)
         return decanonicalize.call(this, name, parentName, true);
 
-      var decanonicalized = decanonicalize.call(this, name, parentName);
+      var decanonicalized = decanonicalize.call(this, name, parentName, false);
 
       if (!this.defaultJSExtensions)
         return decanonicalized;
@@ -2385,8 +2451,6 @@ SystemJSLoader.prototype.config = function(cfg) {
 
   hook('normalizeSync', function(normalizeSync) {
     return function(name, parentName, isPlugin) {
-      warn.call(this, 'SystemJS.normalizeSync has been deprecated for SystemJS.decanonicalize.');
-
       var loader = this;
       isPlugin = isPlugin === true;
 
@@ -2404,14 +2468,17 @@ SystemJSLoader.prototype.config = function(cfg) {
         var parentMap = parentPackage.map;
         var parentMapMatch = parentMap && getMapMatch(parentMap, name);
 
-        if (parentMapMatch && typeof parentMap[parentMapMatch] == 'string')
-          return doMapSync(loader, parentPackage, parentPackageName, parentMapMatch, name, isPlugin);
+        if (parentMapMatch && typeof parentMap[parentMapMatch] == 'string') {
+          var mapped = doMapSync(loader, parentPackage, parentPackageName, parentMapMatch, name, isPlugin);      
+          if (mapped)
+            return mapped;
+        }
       }
 
       var defaultJSExtension = loader.defaultJSExtensions && name.substr(name.length - 3, 3) != '.js';
 
       // apply map, core, paths, contextual package map
-      var normalized = normalizeSync.call(loader, name, parentName);
+      var normalized = normalizeSync.call(loader, name, parentName, false);
 
       // undo defaultJSExtension
       if (defaultJSExtension && normalized.substr(normalized.length - 3, 3) != '.js')
@@ -2465,7 +2532,7 @@ SystemJSLoader.prototype.config = function(cfg) {
         var defaultJSExtension = loader.defaultJSExtensions && name.substr(name.length - 3, 3) != '.js';
 
         // apply map, core, paths, contextual package map
-        var normalized = normalize.call(loader, name, parentName);
+        var normalized = normalize.call(loader, name, parentName, false);
 
         // undo defaultJSExtension
         if (defaultJSExtension && normalized.substr(normalized.length - 3, 3) != '.js')
@@ -2538,6 +2605,7 @@ SystemJSLoader.prototype.config = function(cfg) {
 
     // NB remove this when json is default
     (configLoader.meta[pkgConfigPath] = configLoader.meta[pkgConfigPath] || {}).format = 'json';
+    configLoader.meta[pkgConfigPath].loader = null;
 
     return configLoader.load(pkgConfigPath)
     .then(function() {
@@ -2553,39 +2621,7 @@ SystemJSLoader.prototype.config = function(cfg) {
         warn.call(loader, 'Package config file ' + pkgConfigPath + ' is configured with "modules", which is deprecated as it has been renamed to "meta".');
       }
 
-      // remove any non-system properties if generic config file (eg package.json)
-      for (var p in cfg) {
-        if (indexOf.call(packageProperties, p) == -1)
-          delete cfg[p];
-      }
-
-      // deeply-merge (to first level) config with any existing package config
-      var pkg = loader.packages[pkgName] = loader.packages[pkgName] || {};
-      extendMeta(pkg, cfg, true);
-
-      // support external depCache
-      if (cfg.depCache) {
-        for (var d in cfg.depCache) {
-          var dNormalized;
-
-          if (d.substr(0, 2) == './')
-            dNormalized = pkgName + '/' + d.substr(2);
-          else
-            dNormalized = coreResolve.call(loader, d);
-          loader.depCache[dNormalized] = (loader.depCache[dNormalized] || []).concat(cfg.depCache[d]);
-        }
-        delete cfg.depCache;
-      }
-
-      // main object becomes main map
-      if (typeof pkg.main == 'object') {
-        pkg.map = pkg.map || {};
-        pkg.map['./@main'] = pkg.main;
-        pkg.main['default'] = pkg.main['default'] || './';
-        pkg.main = '@main';
-      }
-
-      return pkg;
+      return setPkgConfig(loader, pkgName, cfg, true);
     });
   }
 
@@ -2626,10 +2662,6 @@ SystemJSLoader.prototype.config = function(cfg) {
           var pkg = loader.packages[pkgName];
           var subPath = load.name.substr(pkgName.length + 1);
 
-          // format
-          if (pkg.format)
-            load.metadata.format = load.metadata.format || pkg.format;
-
           var meta = {};
           if (pkg.meta) {
             var bestDepth = 0;
@@ -2643,6 +2675,10 @@ SystemJSLoader.prototype.config = function(cfg) {
 
             extendMeta(load.metadata, meta);
           }
+
+          // format
+          if (pkg.format && !load.metadata.loader)
+            load.metadata.format = load.metadata.format || pkg.format;
         }
 
         return address;
@@ -3001,7 +3037,7 @@ function createEntry() {
           curMeta.bundle = true;
       }
       // anonymous register
-      if (!entry.name || load && entry.name == load.name) {
+      if (!entry.name || load && !curMeta.entry && entry.name == load.name) {
         if (!curMeta)
           throw new TypeError('Invalid System.register call. Anonymous System.register calls can only be made by modules loaded by SystemJS.import and not via script tags.');
         if (curMeta.entry) {
@@ -3064,9 +3100,7 @@ function createEntry() {
     }
   }
 
-  function link(name, loader) {
-    var startEntry = loader.defined[name];
-
+  function link(name, startEntry, loader) {
     // skip if already linked
     if (startEntry.module)
       return;
@@ -3209,7 +3243,7 @@ function createEntry() {
 
     else {
       if (entry.declarative)
-        ensureEvaluated(name, [], loader);
+        ensureEvaluated(name, entry, [], loader);
     
       else if (!entry.evaluated)
         linkDynamicModule(entry, loader);
@@ -3266,13 +3300,13 @@ function createEntry() {
 
     // __esModule flag treats as already-named
     if (exports && (exports.__esModule || exports instanceof Module))
-      entry.esModule = exports;
+      entry.esModule = loader.newModule(exports);
     // set module as 'default' export, then fake named exports by iterating properties
     else if (entry.esmExports && exports !== __global)
-      entry.esModule = getESModule(exports);
+      entry.esModule = loader.newModule(getESModule(exports));
     // just use the 'default' export
     else
-      entry.esModule = { 'default': exports };
+      entry.esModule = loader.newModule({ 'default': exports });
   }
 
   /*
@@ -3284,9 +3318,7 @@ function createEntry() {
    * Then we evaluate the module itself depth-first left to right 
    * execution to match ES6 modules
    */
-  function ensureEvaluated(moduleName, seen, loader) {
-    var entry = loader.defined[moduleName];
-
+  function ensureEvaluated(moduleName, entry, seen, loader) {
     // if already seen, that means it's an already-evaluated non circular dependency
     if (!entry || entry.evaluated || !entry.declarative)
       return;
@@ -3301,7 +3333,7 @@ function createEntry() {
         if (!loader.defined[depName])
           loader.get(depName);
         else
-          ensureEvaluated(depName, seen, loader);
+          ensureEvaluated(depName, loader.defined[depName], seen, loader);
       }
     }
 
@@ -3338,12 +3370,43 @@ function createEntry() {
     // we run the meta detection here (register is after meta)
     return function(load) {
       load.metadata.deps = load.metadata.deps || [];
-      return Promise.resolve(translate.call(this, load)).then(function(source) {
+      return Promise.resolve(translate.apply(this, arguments)).then(function(source) {
         // run detection for register format
         if (load.metadata.format == 'register' || !load.metadata.format && detectRegisterFormat(load.source))
           load.metadata.format = 'register';
         return source;
       });
+    };
+  });
+
+  // implement a perforance shortpath for System.load with no deps
+  hook('load', function(doLoad) {
+    return function(normalized) {
+      var loader = this;
+      var entry = loader.defined[normalized];
+
+      if (!entry || entry.deps.length)
+        return doLoad.apply(this, arguments);
+
+      entry.originalIndices = entry.normalizedDeps = [];
+
+      // recursively ensure that the module and all its 
+      // dependencies are linked (with dependency group handling)
+      link(normalized, entry, loader);
+
+      // now handle dependency execution in correct order
+      ensureEvaluated(normalized, entry, [], loader);
+      if (!entry.esModule)
+        entry.esModule = loader.newModule(entry.module.exports);
+
+      // remove from the registry
+      if (!loader.trace)
+        loader.defined[normalized] = undefined;
+
+      // return the defined module object
+      loader.set(normalized, entry.esModule);
+
+      return Promise.resolve();
     };
   });
 
@@ -3366,6 +3429,7 @@ function createEntry() {
         // don't support deps for ES modules
         if (!entry.declarative)
           entry.deps = entry.deps.concat(load.metadata.deps);
+        entry.deps = entry.deps.concat(load.metadata.deps);
       }
 
       // picked up already by an anonymous System.register script injection
@@ -3424,16 +3488,20 @@ function createEntry() {
           execute: function() {
             // recursively ensure that the module and all its 
             // dependencies are linked (with dependency group handling)
-            link(load.name, loader);
+            link(load.name, entry, loader);
 
             // now handle dependency execution in correct order
-            ensureEvaluated(load.name, [], loader);
+            ensureEvaluated(load.name, entry, [], loader);
+
+            if (!entry.esModule)
+              entry.esModule = loader.newModule(entry.module.exports);
 
             // remove from the registry
-            loader.defined[load.name] = undefined;
+            if (!loader.trace)
+              loader.defined[load.name] = undefined;
 
             // return the defined module object
-            return loader.newModule(entry.declarative ? entry.module.exports : entry.esModule);
+            return entry.esModule;
           }
         };
       });
@@ -3453,7 +3521,8 @@ function createEntry() {
   hook('translate', function(translate) {
     return function(load) {
       var loader = this;
-      return translate.call(loader, load)
+      var args = arguments;
+      return translate.apply(loader, args)
       .then(function(source) {
         // detect & transpile ES6
         if (load.metadata.format == 'esm' || load.metadata.format == 'es6' || !load.metadata.format && source.match(esmRegEx)) {
@@ -3461,6 +3530,13 @@ function createEntry() {
             warn.call(loader, 'Module ' + load.name + ' has metadata setting its format to "es6", which is deprecated.\nThis should be updated to "esm".');
 
           load.metadata.format = 'esm';
+
+          if (load.metadata.deps) {
+            var depInject = '';
+            for (var i = 0; i < load.metadata.deps.length; i++)
+              depInject += 'import "' + load.metadata.deps[i] + '"; ';
+            load.source = depInject + source;
+          }
 
           if (loader.transpiler === false) {
             // we accept translation to esm for builds though to enable eg rollup optimizations
@@ -3492,18 +3568,19 @@ function createEntry() {
               if (typeof load.metadata.sourceMap == 'string')
                 load.metadata.sourceMap = JSON.parse(load.metadata.sourceMap);
 
-              return Promise.resolve(transpiler.translate.call(loader, load))
+              return Promise.resolve(transpiler.translate.apply(loader, args))
               .then(function(source) {
                 // sanitize sourceMap if an object not a JSON string
                 var sourceMap = load.metadata.sourceMap;
                 if (sourceMap && typeof sourceMap == 'object') {
-                  var originalName = load.name.split('!')[0];
+                  var originalName = load.address.split('!')[0];
                   
                   // force set the filename of the original file
-                  sourceMap.file = originalName + '!transpiled';
+                  if (!sourceMap.file || sourceMap.file == load.address)
+                    sourceMap.file = originalName + '!transpiled';
 
                   // force set the sources list if only one source
-                  if (!sourceMap.sources || sourceMap.sources.length <= 1)
+                  if (!sourceMap.sources || sourceMap.sources.length <= 1 && (!sourceMap.sources[0] || sourceMap.sources[0] == load.address))
                     sourceMap.sources = [originalName];
                 }
 
@@ -3561,13 +3638,13 @@ function createEntry() {
 
         // detect transpiler runtime usage to load runtimes
         if ((load.metadata.format == 'register' || load.metadata.bundle) && loader._loader.loadedTranspilerRuntime !== true) {
-          if (!__global.$traceurRuntime && load.source.match(traceurRuntimeRegEx)) {
+          if (loader.transpiler == 'traceur' && !__global.$traceurRuntime && load.source.match(traceurRuntimeRegEx)) {
             loader._loader.loadedTranspilerRuntime = loader._loader.loadedTranspilerRuntime || false;
             return loader['import']('traceur-runtime').then(function() {
               return source;
             });
           }
-          if (!__global.babelHelpers && load.source.match(babelHelpersRegEx)) {
+          if (loader.transpiler == 'babel' && !__global.babelHelpers && load.source.match(babelHelpersRegEx)) {
             loader._loader.loadedTranspilerRuntime = loader._loader.loadedTranspilerRuntime || false;
             return loader['import']('babel/external-helpers').then(function() {
               return source;
@@ -3613,7 +3690,7 @@ hook('instantiate', function(instantiate) {
       load.metadata.format = 'global';
 
     // global is a fallback module format
-    if (load.metadata.format == 'global' && !load.metadata.registered) {
+    if (load.metadata.format == 'global' && !load.metadata.entry) {
 
       var entry = createEntry();
 
@@ -3642,8 +3719,7 @@ hook('instantiate', function(instantiate) {
         if (exportName)
           load.source += '\n' + __globalName + '["' + exportName + '"] = ' + exportName + ';';
 
-        var retrieveGlobal = loader.get('@@global-helpers').prepareGlobal(module.id, exportName, globals);
-
+        var retrieveGlobal = loader.get('@@global-helpers').prepareGlobal(module.id, exportName, globals, !!load.metadata.encapsulateGlobal);
         __exec.call(loader, load);
 
         return retrieveGlobal();
@@ -3728,7 +3804,7 @@ hookConstructor(function(constructor) {
     }
 
     loader.set('@@global-helpers', loader.newModule({
-      prepareGlobal: function(moduleName, exports, globals) {
+      prepareGlobal: function(moduleName, exports, globals, encapsulate) {
         // disable module detection
         var curDefine = __global.define;
         
@@ -3755,33 +3831,36 @@ hookConstructor(function(constructor) {
 
         // return function to retrieve global
         return function() {
-          var globalValue;
+          var globalValue = exports ? getGlobalValue(exports) : {};
 
-          if (exports) {
-            globalValue = getGlobalValue(exports);
-          }
-          else {
-            globalValue = {};
-            var singleGlobal;
-            var multipleExports;
+          var singleGlobal;
+          var multipleExports = !!exports;
 
+          if (!exports || encapsulate)
             forEachGlobalValue(function(name, value) {
               if (globalSnapshot[name] === value)
                 return;
               if (typeof value == 'undefined')
                 return;
-              globalValue[name] = value;
+              
+              // allow global encapsulation where globals are removed
+              if (encapsulate)
+                __global[name] = undefined;
 
-              if (typeof singleGlobal != 'undefined') {
-                if (!multipleExports && singleGlobal !== value)
-                  multipleExports = true;
-              }
-              else {
-                singleGlobal = value;
+              if (!exports) {
+                globalValue[name] = value;
+
+                if (typeof singleGlobal != 'undefined') {
+                  if (!multipleExports && singleGlobal !== value)
+                    multipleExports = true;
+                }
+                else {
+                  singleGlobal = value;
+                }
               }
             });
-            globalValue = multipleExports ? globalValue : singleGlobal;
-          }
+
+          globalValue = multipleExports ? globalValue : singleGlobal;
 
           // revert globals
           if (oldGlobals) {
@@ -3832,11 +3911,13 @@ hookConstructor(function(constructor) {
     if (source.length / source.split('\n').length < 200) {
       while (match = stringRegEx.exec(source))
         stringLocations.push([match.index, match.index + match[0].length]);
+
+      // TODO: track template literals here before comments
       
       while (match = commentRegEx.exec(source)) {
         // only track comments not starting in strings
         if (!inLocation(stringLocations, match))
-          commentLocations.push([match.index, match.index + match[0].length]);
+          commentLocations.push([match.index + match[1].length, match.index + match[0].length - 1]);
       }
     }
 
@@ -3890,6 +3971,9 @@ hookConstructor(function(constructor) {
           require.resolve = function(name) {
             return loader.get('@@cjs-helpers').requireResolve(name, module.id);
           };
+          // support module.paths ish
+          module.paths = [];
+          module.require = _require;
 
           // ensure meta deps execute first
           if (!load.metadata.cjsDeferDepsExecute)
@@ -4332,8 +4416,8 @@ hookConstructor(function(constructor) {
     return function(name, parentName, isPlugin) {
       var loader = this;
       
-      parentName = getParentName(this, parentName);
       var parsed = parsePlugin(loader, name);
+      parentName = getParentName(this, parentName);
 
       if (!parsed)
         return normalizeSync.call(this, name, parentName, isPlugin);
@@ -4361,7 +4445,7 @@ hookConstructor(function(constructor) {
 
       return Promise.all([
         loader.normalize(parsed.argument, parentName, true),
-        loader.normalize(parsed.plugin, parentName)
+        loader.normalize(parsed.plugin, parentName, false)
       ])
       .then(function(normalized) {
         return combinePluginParts(loader, normalized[0], normalized[1], checkDefaultExtension(loader, parsed.argument));
@@ -4397,7 +4481,7 @@ hookConstructor(function(constructor) {
 
         // normalize plugin relative to parent in locate here when
         // using plugin via loader metadata
-        return loader.normalize(load.metadata.loader, load.name)
+        return (loader.pluginLoader || loader).normalize(load.metadata.loader, load.name)
         .then(function(loaderNormalized) {
           load.metadata.loader = loaderNormalized;
           return address;
@@ -4453,8 +4537,9 @@ hookConstructor(function(constructor) {
   hook('translate', function(translate) {
     return function(load) {
       var loader = this;
+      var args = arguments;
       if (load.metadata.loaderModule && load.metadata.loaderModule.translate && load.metadata.format != 'defined') {
-        return Promise.resolve(load.metadata.loaderModule.translate.call(loader, load)).then(function(result) {
+        return Promise.resolve(load.metadata.loaderModule.translate.apply(loader, args)).then(function(result) {
           var sourceMap = load.metadata.sourceMap;
 
           // sanitize sourceMap if an object not a JSON string
@@ -4462,13 +4547,14 @@ hookConstructor(function(constructor) {
             if (typeof sourceMap != 'object')
               throw new Error('load.metadata.sourceMap must be set to an object.');
 
-            var originalName = load.name.split('!')[0];
+            var originalName = load.address.split('!')[0];
             
             // force set the filename of the original file
-            sourceMap.file = originalName + '!transpiled';
+            if (!sourceMap.file || sourceMap.file == load.address)
+              sourceMap.file = originalName + '!transpiled';
 
             // force set the sources list if only one source
-            if (!sourceMap.sources || sourceMap.sources.length <= 1)
+            if (!sourceMap.sources || sourceMap.sources.length <= 1 && (!sourceMap.sources[0] || sourceMap.sources[0] == load.address))
               sourceMap.sources = [originalName];
           }
 
@@ -4480,11 +4566,11 @@ hookConstructor(function(constructor) {
           else
             warn.call(this, 'Plugin ' + load.metadata.loader + ' should return the source in translate, instead of setting load.source directly. This support will be deprecated.');
 
-          return translate.call(loader, load);
+          return translate.apply(loader, args);
         });
       }
       else {
-        return translate.call(loader, load);
+        return translate.apply(loader, args);
       }
     };
   });
@@ -4553,9 +4639,11 @@ hookConstructor(function(constructor) {
  *
  *   These conditions can also be negated via:
  *     
- *     import 'es5-shim#?~./conditions.js|es6'
+ *     import 'es5-shim#?./conditions.js|~es6'
  *
  */
+
+  var sysConditions = ['browser', 'node', 'dev', 'build', 'production', 'default'];
 
   function parseCondition(condition) {
     var conditionExport, conditionModule, negation;
@@ -4564,36 +4652,49 @@ hookConstructor(function(constructor) {
     var conditionExportIndex = condition.lastIndexOf('|');
     if (conditionExportIndex != -1) {
       conditionExport = condition.substr(conditionExportIndex + 1);
-      conditionModule = condition.substr(negation, conditionExportIndex - negation) || '@system-env';
+      conditionModule = condition.substr(negation, conditionExportIndex - negation);
+      
+      if (negation)
+        warn.call(this, 'Condition negation form "' + condition + '" is deprecated for "' + conditionModule + '|~' + conditionExport + '"');
+
+      if (conditionExport[0] == '~') {
+        negation = true;
+        conditionExport = conditionExport.substr(1);
+      }
     }
     else {
-      conditionExport = null;
+      conditionExport = 'default';
       conditionModule = condition.substr(negation);
+      if (sysConditions.indexOf(conditionModule) != -1) {
+        conditionExport = conditionModule;
+        conditionModule = null;
+      }
     }
 
     return {
-      module: conditionModule,
+      module: conditionModule || '@system-env',
       prop: conditionExport,
       negate: negation
     };
   }
 
   function serializeCondition(conditionObj) {
-    return (conditionObj.negate ? '~' : '') + conditionObj.module + (conditionObj.prop ? '|' + conditionObj.prop : '');
+    return conditionObj.module + '|' + (conditionObj.negate ? '~' : '') + conditionObj.prop;
   }
 
   function resolveCondition(conditionObj, parentName, bool) {
-    return this['import'](conditionObj.module, parentName)
-    .then(function(m) {
-      if (conditionObj.prop)
-        m = readMemberExpression(conditionObj.prop, m);
-      else if (typeof m == 'object' && m + '' == 'Module')
-        m = m['default'];
+    var self = this;
+    return this.normalize(conditionObj.module, parentName)
+    .then(function(normalizedCondition) {
+      return self.load(normalizedCondition)
+      .then(function(q) {
+        var m = readMemberExpression(conditionObj.prop, self.get(normalizedCondition));
 
-      if (bool && typeof m != 'boolean')
-        throw new TypeError('Condition ' + serializeCondition(conditionObj) + ' did not resolve to a boolean.');
+        if (bool && typeof m != 'boolean')
+          throw new TypeError('Condition ' + serializeCondition(conditionObj) + ' did not resolve to a boolean.');
 
-      return conditionObj.negate ? !m : m;
+        return conditionObj.negate ? !m : m;
+      });
     });
   }
 
@@ -4605,7 +4706,7 @@ hookConstructor(function(constructor) {
     if (!conditionalMatch)
       return Promise.resolve(name);
 
-    var conditionObj = parseCondition(conditionalMatch[0].substr(2, conditionalMatch[0].length - 3));
+    var conditionObj = parseCondition.call(this, conditionalMatch[0].substr(2, conditionalMatch[0].length - 3));
 
     // in builds, return normalized conditional
     if (this.builder)
@@ -4634,7 +4735,7 @@ hookConstructor(function(constructor) {
     if (booleanIndex == -1)
       return Promise.resolve(name);
 
-    var conditionObj = parseCondition(name.substr(booleanIndex + 2));
+    var conditionObj = parseCondition.call(this, name.substr(booleanIndex + 2));
 
     // in builds, return normalized conditional
     if (this.builder)
@@ -4652,11 +4753,11 @@ hookConstructor(function(constructor) {
 
   // normalizeSync does not parse conditionals at all although it could
   hook('normalize', function(normalize) {
-    return function(name, parentName, parentAddress) {
+    return function(name, parentName, skipExt) {
       var loader = this;
       return booleanConditional.call(loader, name, parentName)
       .then(function(name) {
-        return normalize.call(loader, name, parentName, parentAddress);
+        return normalize.call(loader, name, parentName, skipExt);
       })
       .then(function(normalized) {
         return interpolateConditional.call(loader, normalized, parentName);
@@ -4803,6 +4904,12 @@ hookConstructor(function(constructor) {
 
   hook('translate', function(translate) {
     return function(load) {
+      // shortpath for bundled
+      if (load.metadata.format == 'defined') {
+        load.metadata.deps = load.metadata.deps || [];
+        return Promise.resolve(load.source);
+      }
+
       // NB meta will be post-translate pending transpiler conversion to plugins
       var meta = load.source.match(metaRegEx);
       if (meta) {
@@ -4845,7 +4952,7 @@ hookConstructor(function(constructor) {
         }
       }
 
-      return translate.call(this, load);
+      return translate.apply(this, arguments);
     };
   });
 })();
@@ -4969,23 +5076,8 @@ hookConstructor(function(constructor) {
 System = new SystemJSLoader();
 
 __global.SystemJS = System;
-System.version = '0.19.26 Standard';
-  // -- exporting --
-
-  if (typeof exports === 'object')
-    module.exports = Loader;
-
-  __global.Reflect = __global.Reflect || {};
-  __global.Reflect.Loader = __global.Reflect.Loader || Loader;
-  __global.Reflect.global = __global.Reflect.global || __global;
-  __global.LoaderPolyfill = Loader;
-
-  if (!System) {
-    System = new SystemLoader();
-    System.constructor = SystemLoader;
-  }
-
-  if (typeof exports === 'object')
+System.version = '0.19.31 Standard';
+  if (typeof module == 'object' && module.exports && typeof exports == 'object')
     module.exports = System;
 
   __global.System = System;

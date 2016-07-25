@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -35,10 +42,7 @@ var AppView = (function () {
         this.contentChildren = [];
         this.viewChildren = [];
         this.viewContainerElement = null;
-        // The names of the below fields must be kept in sync with codegen_name_util.ts or
-        // change detection will fail.
-        this.cdState = change_detection_1.ChangeDetectorState.NeverChecked;
-        this.destroyed = false;
+        this.numberOfChecks = 0;
         this.activeAnimationPlayers = new active_animation_players_map_1.ActiveAnimationPlayersMap();
         this.ref = new view_ref_1.ViewRef_(this);
         if (type === view_type_1.ViewType.COMPONENT || type === view_type_1.ViewType.HOST) {
@@ -48,6 +52,11 @@ var AppView = (function () {
             this.renderer = declarationAppElement.parentView.renderer;
         }
     }
+    Object.defineProperty(AppView.prototype, "destroyed", {
+        get: function () { return this.cdMode === change_detection_1.ChangeDetectorStatus.Destroyed; },
+        enumerable: true,
+        configurable: true
+    });
     AppView.prototype.cancelActiveAnimation = function (element, animationName, removeAllAnimations) {
         if (removeAllAnimations === void 0) { removeAllAnimations = false; }
         if (removeAllAnimations) {
@@ -140,7 +149,7 @@ var AppView = (function () {
         this._destroyRecurse();
     };
     AppView.prototype._destroyRecurse = function () {
-        if (this.destroyed) {
+        if (this.cdMode === change_detection_1.ChangeDetectorStatus.Destroyed) {
             return;
         }
         var children = this.contentChildren;
@@ -152,7 +161,7 @@ var AppView = (function () {
             children[i]._destroyRecurse();
         }
         this.destroyLocal();
-        this.destroyed = true;
+        this.cdMode = change_detection_1.ChangeDetectorStatus.Destroyed;
     };
     AppView.prototype.destroyLocal = function () {
         var _this = this;
@@ -225,16 +234,16 @@ var AppView = (function () {
     AppView.prototype.dirtyParentQueriesInternal = function () { };
     AppView.prototype.detectChanges = function (throwOnChange) {
         var s = _scope_check(this.clazz);
-        if (this.cdMode === change_detection_1.ChangeDetectionStrategy.Checked ||
-            this.cdState === change_detection_1.ChangeDetectorState.Errored)
+        if (this.cdMode === change_detection_1.ChangeDetectorStatus.Checked ||
+            this.cdMode === change_detection_1.ChangeDetectorStatus.Errored)
             return;
-        if (this.destroyed) {
+        if (this.cdMode === change_detection_1.ChangeDetectorStatus.Destroyed) {
             this.throwDestroyedError('detectChanges');
         }
         this.detectChangesInternal(throwOnChange);
-        if (this.cdMode === change_detection_1.ChangeDetectionStrategy.CheckOnce)
-            this.cdMode = change_detection_1.ChangeDetectionStrategy.Checked;
-        this.cdState = change_detection_1.ChangeDetectorState.CheckedBefore;
+        if (this.cdMode === change_detection_1.ChangeDetectorStatus.CheckOnce)
+            this.cdMode = change_detection_1.ChangeDetectorStatus.Checked;
+        this.numberOfChecks++;
         profile_1.wtfLeave(s);
     };
     /**
@@ -247,7 +256,7 @@ var AppView = (function () {
     AppView.prototype.detectContentChildrenChanges = function (throwOnChange) {
         for (var i = 0; i < this.contentChildren.length; ++i) {
             var child = this.contentChildren[i];
-            if (child.cdMode === change_detection_1.ChangeDetectionStrategy.Detached)
+            if (child.cdMode === change_detection_1.ChangeDetectorStatus.Detached)
                 continue;
             child.detectChanges(throwOnChange);
         }
@@ -255,7 +264,7 @@ var AppView = (function () {
     AppView.prototype.detectViewChildrenChanges = function (throwOnChange) {
         for (var i = 0; i < this.viewChildren.length; ++i) {
             var child = this.viewChildren[i];
-            if (child.cdMode === change_detection_1.ChangeDetectionStrategy.Detached)
+            if (child.cdMode === change_detection_1.ChangeDetectorStatus.Detached)
                 continue;
             child.detectChanges(throwOnChange);
         }
@@ -270,12 +279,12 @@ var AppView = (function () {
         this.dirtyParentQueriesInternal();
         this.viewContainerElement = null;
     };
-    AppView.prototype.markAsCheckOnce = function () { this.cdMode = change_detection_1.ChangeDetectionStrategy.CheckOnce; };
+    AppView.prototype.markAsCheckOnce = function () { this.cdMode = change_detection_1.ChangeDetectorStatus.CheckOnce; };
     AppView.prototype.markPathToRootAsCheckOnce = function () {
         var c = this;
-        while (lang_1.isPresent(c) && c.cdMode !== change_detection_1.ChangeDetectionStrategy.Detached) {
-            if (c.cdMode === change_detection_1.ChangeDetectionStrategy.Checked) {
-                c.cdMode = change_detection_1.ChangeDetectionStrategy.CheckOnce;
+        while (lang_1.isPresent(c) && c.cdMode !== change_detection_1.ChangeDetectorStatus.Detached) {
+            if (c.cdMode === change_detection_1.ChangeDetectorStatus.Checked) {
+                c.cdMode = change_detection_1.ChangeDetectorStatus.CheckOnce;
             }
             var parentEl = c.type === view_type_1.ViewType.COMPONENT ? c.declarationAppElement : c.viewContainerElement;
             c = lang_1.isPresent(parentEl) ? parentEl.parentView : null;
@@ -350,7 +359,7 @@ var DebugAppView = (function (_super) {
     DebugAppView.prototype._rethrowWithContext = function (e, stack) {
         if (!(e instanceof exceptions_1.ViewWrappedException)) {
             if (!(e instanceof exceptions_1.ExpressionChangedAfterItHasBeenCheckedException)) {
-                this.cdState = change_detection_1.ChangeDetectorState.Errored;
+                this.cdMode = change_detection_1.ChangeDetectorStatus.Errored;
             }
             if (lang_1.isPresent(this._currentDebugContext)) {
                 throw new exceptions_1.ViewWrappedException(e, stack, this._currentDebugContext);

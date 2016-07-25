@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var default_iterable_differ_1 = require('./differs/default_iterable_differ');
 var default_keyvalue_differ_1 = require('./differs/default_keyvalue_differ');
@@ -14,9 +21,8 @@ var change_detector_ref_1 = require('./change_detector_ref');
 exports.ChangeDetectorRef = change_detector_ref_1.ChangeDetectorRef;
 var constants_1 = require('./constants');
 exports.CHANGE_DETECTION_STRATEGY_VALUES = constants_1.CHANGE_DETECTION_STRATEGY_VALUES;
-exports.CHANGE_DETECTOR_STATE_VALUES = constants_1.CHANGE_DETECTOR_STATE_VALUES;
 exports.ChangeDetectionStrategy = constants_1.ChangeDetectionStrategy;
-exports.ChangeDetectorState = constants_1.ChangeDetectorState;
+exports.ChangeDetectorStatus = constants_1.ChangeDetectorStatus;
 exports.isDefaultChangeDetectionStrategy = constants_1.isDefaultChangeDetectionStrategy;
 var default_iterable_differ_2 = require('./differs/default_iterable_differ');
 exports.CollectionChangeRecord = default_iterable_differ_2.CollectionChangeRecord;

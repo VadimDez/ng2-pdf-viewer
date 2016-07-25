@@ -1,7 +1,7 @@
 import { Type } from '../../facade/lang';
 import { RenderStore } from './render_store';
 /**
- * @experimental
+ * @experimental WebWorker support in Angular is currently experimental.
  */
 export declare const PRIMITIVE: Type;
 export declare class Serializer {

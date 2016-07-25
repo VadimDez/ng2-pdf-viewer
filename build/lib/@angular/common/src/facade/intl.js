@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 (function (NumberFormatStyle) {
     NumberFormatStyle[NumberFormatStyle["Decimal"] = 0] = "Decimal";
@@ -66,9 +73,9 @@ var DATE_FORMATS = {
     h: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
     jj: datePartGetterFactory(digitCondition('hour', 2)),
     j: datePartGetterFactory(digitCondition('hour', 1)),
-    mm: datePartGetterFactory(digitCondition('minute', 2)),
+    mm: digitModifier(datePartGetterFactory(digitCondition('minute', 2))),
     m: datePartGetterFactory(digitCondition('minute', 1)),
-    ss: datePartGetterFactory(digitCondition('second', 2)),
+    ss: digitModifier(datePartGetterFactory(digitCondition('second', 2))),
     s: datePartGetterFactory(digitCondition('second', 1)),
     // while ISO 8601 requires fractions to be prefixed with `.` or `,`
     // we can be just safely rely on using `sss` since we currently don't support single or two digit
@@ -90,6 +97,12 @@ var DATE_FORMATS = {
     GGG: datePartGetterFactory(nameCondition('era', 3)),
     GGGG: datePartGetterFactory(nameCondition('era', 4))
 };
+function digitModifier(inner) {
+    return function (date, locale) {
+        var result = inner(date, locale);
+        return result.length == 1 ? '0' + result : result;
+    };
+}
 function hourClockExtracter(inner) {
     return function (date, locale) {
         var result = inner(date, locale);

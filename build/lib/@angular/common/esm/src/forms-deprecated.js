@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { RadioControlRegistry } from './forms-deprecated/directives/radio_control_value_accessor';
 import { FormBuilder } from './forms-deprecated/form_builder';
 export { FORM_DIRECTIVES, RadioButtonState } from './forms-deprecated/directives';

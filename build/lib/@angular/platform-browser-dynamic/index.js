@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var common_1 = require('@angular/common');
 var compiler_1 = require('@angular/compiler');
@@ -8,6 +15,9 @@ var async_1 = require('./src/facade/async');
 var lang_1 = require('./src/facade/lang');
 var xhr_cache_1 = require('./src/xhr/xhr_cache');
 var xhr_impl_1 = require('./src/xhr/xhr_impl');
+/**
+ * @experimental
+ */
 exports.BROWSER_APP_COMPILER_PROVIDERS = [
     compiler_1.COMPILER_PROVIDERS, {
         provide: compiler_1.CompilerConfig,
@@ -20,6 +30,9 @@ exports.BROWSER_APP_COMPILER_PROVIDERS = [
     { provide: core_1.PLATFORM_DIRECTIVES, useValue: common_1.COMMON_DIRECTIVES, multi: true },
     { provide: core_1.PLATFORM_PIPES, useValue: common_1.COMMON_PIPES, multi: true }
 ];
+/**
+ * @experimental
+ */
 exports.CACHED_TEMPLATE_PROVIDER = [{ provide: compiler_1.XHR, useClass: xhr_cache_1.CachedXHR }];
 /**
  * Bootstrapping for Angular applications.
@@ -88,6 +101,9 @@ exports.CACHED_TEMPLATE_PROVIDER = [{ provide: compiler_1.XHR, useClass: xhr_cac
  *   app injector to override default injection behavior.
  *
  * Returns a `Promise` of {@link ComponentRef}.
+ *
+ * @experimental This api cannot be used with the offline compiler and thus is still subject to
+ * change.
  */
 function bootstrap(appComponentType, customProviders) {
     core_private_1.reflector.reflectionCapabilities = new core_private_1.ReflectionCapabilities();
@@ -99,6 +115,9 @@ function bootstrap(appComponentType, customProviders) {
     return core_1.coreLoadAndBootstrap(appComponentType, appInjector);
 }
 exports.bootstrap = bootstrap;
+/**
+ * @experimental
+ */
 function bootstrapWorkerUi(workerScriptUri, customProviders) {
     var app = core_1.ReflectiveInjector.resolveAndCreate([
         platform_browser_1.WORKER_UI_APPLICATION_PROVIDERS, exports.BROWSER_APP_COMPILER_PROVIDERS,
@@ -111,6 +130,9 @@ function bootstrapWorkerUi(workerScriptUri, customProviders) {
     return async_1.PromiseWrapper.resolve(app.get(core_1.ApplicationRef));
 }
 exports.bootstrapWorkerUi = bootstrapWorkerUi;
+/**
+ * @experimental
+ */
 var WORKER_APP_COMPILER_PROVIDERS = [
     compiler_1.COMPILER_PROVIDERS, {
         provide: compiler_1.CompilerConfig,
@@ -123,6 +145,9 @@ var WORKER_APP_COMPILER_PROVIDERS = [
     { provide: core_1.PLATFORM_DIRECTIVES, useValue: common_1.COMMON_DIRECTIVES, multi: true },
     { provide: core_1.PLATFORM_PIPES, useValue: common_1.COMMON_PIPES, multi: true }
 ];
+/**
+ * @experimental
+ */
 function bootstrapWorkerApp(appComponentType, customProviders) {
     var appInjector = core_1.ReflectiveInjector.resolveAndCreate([
         platform_browser_1.WORKER_APP_APPLICATION_PROVIDERS, WORKER_APP_COMPILER_PROVIDERS,

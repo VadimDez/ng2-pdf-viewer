@@ -1,10 +1,17 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ViewEncapsulation } from '@angular/core';
 import { CompileIdentifierMetadata } from './compile_metadata';
 export declare class CompilerConfig {
     renderTypes: RenderTypes;
     defaultEncapsulation: ViewEncapsulation;
-    genDebugInfo: boolean;
-    logBindingUpdate: boolean;
+    private _genDebugInfo;
+    private _logBindingUpdate;
     useJit: boolean;
     platformDirectives: any[];
     platformPipes: any[];
@@ -17,6 +24,8 @@ export declare class CompilerConfig {
         platformDirectives?: any[];
         platformPipes?: any[];
     });
+    genDebugInfo: boolean;
+    logBindingUpdate: boolean;
 }
 /**
  * Types used for the renderer.

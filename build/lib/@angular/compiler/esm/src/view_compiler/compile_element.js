@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { BaseException } from '@angular/core';
 import { ListWrapper, StringMapWrapper } from '../facade/collection';
 import { isBlank, isPresent } from '../facade/lang';
@@ -63,6 +70,23 @@ export class CompileElement extends CompileNode {
         this.appElement = o.THIS_EXPR.prop(fieldName);
         this._instances.add(identifierToken(Identifiers.AppElement), this.appElement);
     }
+    createComponentFactoryResolver(precompileComponent) {
+        if (!precompileComponent || precompileComponent.length === 0) {
+            return;
+        }
+        var createComponentFactoryResolverExpr = o.importExpr(Identifiers.CodegenComponentFactoryResolver).instantiate([
+            o.literalArr(precompileComponent.map((precompiledComponent) => o.importExpr(precompiledComponent))),
+            injectFromViewParentInjector(identifierToken(Identifiers.ComponentFactoryResolver), false)
+        ]);
+        var provider = new CompileProviderMetadata({
+            token: identifierToken(Identifiers.ComponentFactoryResolver),
+            useValue: createComponentFactoryResolverExpr
+        });
+        // Add ComponentFactoryResolver as first provider as it does not have deps on other providers
+        // ProviderAstType.PrivateService as only the component and its view can see it,
+        // but nobody else
+        this._resolvedProvidersArray.unshift(new ProviderAst(provider.token, false, true, [provider], ProviderAstType.PrivateService, this.sourceAst.sourceSpan));
+    }
     setComponentView(compViewExpr) {
         this._compViewExpr = compViewExpr;
         this.contentNodesByNgContentIndex =
@@ -126,7 +150,7 @@ export class CompileElement extends CompileNode {
             var queriesForProvider = this._getQueriesFor(resolvedProvider.token);
             ListWrapper.addAll(queriesWithReads, queriesForProvider.map(query => new _QueryWithRead(query, resolvedProvider.token)));
         });
-        StringMapWrapper.forEach(this.referenceTokens, (_ /** TODO #9100 */, varName /** TODO #9100 */) => {
+        StringMapWrapper.forEach(this.referenceTokens, (_, varName) => {
             var token = this.referenceTokens[varName];
             var varValue;
             if (isPresent(token)) {
@@ -247,6 +271,14 @@ export class CompileElement extends CompileNode {
             }
             // access regular providers on the element
             if (isBlank(result)) {
+                let resolvedProvider = this._resolvedProviders.get(dep.token);
+                // don't allow directives / public services to access private services.
+                // only components and private services can access private services.
+                if (resolvedProvider && (requestingProviderType === ProviderAstType.Directive ||
+                    requestingProviderType === ProviderAstType.PublicService) &&
+                    resolvedProvider.providerType === ProviderAstType.PrivateService) {
+                    return null;
+                }
                 result = this._instances.get(dep.token);
             }
         }
@@ -333,7 +365,7 @@ class _ValueOutputAstTransformer extends ValueTransformer {
     }
     visitStringMap(map, context) {
         var entries = [];
-        StringMapWrapper.forEach(map, (value /** TODO #9100 */, key /** TODO #9100 */) => {
+        StringMapWrapper.forEach(map, (value, key) => {
             entries.push([key, visitValue(value, this, context)]);
         });
         return o.literalMap(entries);

@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "@angular/compiler@2.0.0-rc.2",
+      "@angular/compiler@2.0.0-rc.4",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/compiler@2.0.0-rc.2",
-  "_id": "@angular/compiler@2.0.0-rc.2",
+  "_from": "@angular/compiler@2.0.0-rc.4",
+  "_id": "@angular/compiler@2.0.0-rc.4",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/compiler",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
-    "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/compiler-2.0.0-rc.2.tgz_1466013716988_0.3187530254945159"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/compiler-2.0.0-rc.4.tgz_1467308849422_0.7418568241409957"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
@@ -23,20 +23,19 @@
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/compiler",
-    "raw": "@angular/compiler@2.0.0-rc.2",
-    "rawSpec": "2.0.0-rc.2",
+    "raw": "@angular/compiler@2.0.0-rc.4",
+    "rawSpec": "2.0.0-rc.4",
     "scope": "@angular",
-    "spec": "2.0.0-rc.2",
+    "spec": "2.0.0-rc.4",
     "type": "version"
   },
   "_requiredBy": [
-    "/",
-    "/ng2-pdf-viewer"
+    "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.2.tgz",
-  "_shasum": "19986c20e58eb558cc36d41c486a442b8b2dc8d7",
+  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.4.tgz",
+  "_shasum": "1cb82028b8ed732009cf4c82dbc7f3385dca3684",
   "_shrinkwrap": null,
-  "_spec": "@angular/compiler@2.0.0-rc.2",
+  "_spec": "@angular/compiler@2.0.0-rc.4",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -49,8 +48,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "19986c20e58eb558cc36d41c486a442b8b2dc8d7",
-    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.2.tgz"
+    "shasum": "1cb82028b8ed732009cf4c82dbc7f3385dca3684",
+    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.0.0-rc.4.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
   "jsnext:main": "esm/index.js",
@@ -65,7 +64,7 @@
   "name": "@angular/compiler",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/core": "2.0.0-rc.2"
+    "@angular/core": "^2.0.0-rc.4"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -74,5 +73,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.0.0-rc.2"
+  "version": "2.0.0-rc.4"
 }

@@ -1,4 +1,11 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
  * This indirection is needed to free up Component, etc symbols in the public API
  * to be used by the decorator versions of these annotations.
  */
@@ -17,6 +24,8 @@ import { Type } from '../src/facade/lang';
  * Interface for the {@link DirectiveMetadata} decorator function.
  *
  * See {@link DirectiveFactory}.
+ *
+ * @stable
  */
 export interface DirectiveDecorator extends TypeDecorator {
 }
@@ -24,6 +33,8 @@ export interface DirectiveDecorator extends TypeDecorator {
  * Interface for the {@link ComponentMetadata} decorator function.
  *
  * See {@link ComponentFactory}.
+ *
+ * @stable
  */
 export interface ComponentDecorator extends TypeDecorator {
     /**
@@ -38,12 +49,15 @@ export interface ComponentDecorator extends TypeDecorator {
         styles?: string[];
         styleUrls?: string[];
         animations?: AnimationEntryMetadata[];
+        interpolation?: [string, string];
     }): ViewDecorator;
 }
 /**
  * Interface for the {@link ViewMetadata} decorator function.
  *
  * See {@link ViewFactory}.
+ *
+ * @experimental
  */
 export interface ViewDecorator extends TypeDecorator {
     /**
@@ -58,6 +72,7 @@ export interface ViewDecorator extends TypeDecorator {
         styles?: string[];
         styleUrls?: string[];
         animations?: AnimationEntryMetadata[];
+        interpolation?: [string, string];
     }): ViewDecorator;
 }
 /**
@@ -90,6 +105,8 @@ export interface ViewDecorator extends TypeDecorator {
  *   new ng.Directive({...})
  * ]
  * ```
+ *
+ * @stable
  */
 export interface DirectiveMetadataFactory {
     (obj: {
@@ -153,6 +170,8 @@ export interface DirectiveMetadataFactory {
  *   new ng.Component({...})
  * ]
  * ```
+ *
+ * @stable
  */
 export interface ComponentMetadataFactory {
     (obj: {
@@ -180,6 +199,8 @@ export interface ComponentMetadataFactory {
         directives?: Array<Type | any[]>;
         pipes?: Array<Type | any[]>;
         encapsulation?: ViewEncapsulation;
+        interpolation?: [string, string];
+        precompile?: Array<Type | any[]>;
     }): ComponentDecorator;
     new (obj: {
         selector?: string;
@@ -206,6 +227,8 @@ export interface ComponentMetadataFactory {
         directives?: Array<Type | any[]>;
         pipes?: Array<Type | any[]>;
         encapsulation?: ViewEncapsulation;
+        interpolation?: [string, string];
+        precompile?: Array<Type | any[]>;
     }): ComponentMetadata;
 }
 /**
@@ -249,6 +272,8 @@ export interface ComponentMetadataFactory {
  *   new ng.View({...})
  * ]
  * ```
+ *
+ * @experimental You should most likely use ComponentMetadataFactory instead
  */
 export interface ViewMetadataFactory {
     (obj: {
@@ -260,6 +285,7 @@ export interface ViewMetadataFactory {
         styles?: string[];
         styleUrls?: string[];
         animations?: AnimationEntryMetadata[];
+        interpolation?: [string, string];
     }): ViewDecorator;
     new (obj: {
         templateUrl?: string;
@@ -270,6 +296,7 @@ export interface ViewMetadataFactory {
         styles?: string[];
         styleUrls?: string[];
         animations?: AnimationEntryMetadata[];
+        interpolation?: [string, string];
     }): ViewMetadata;
 }
 /**
@@ -305,6 +332,8 @@ export interface ViewMetadataFactory {
  *   [new ng.Attribute('title')]
  * ]
  * ```
+ *
+ * @stable
  */
 export interface AttributeMetadataFactory {
     (name: string): TypeDecorator;
@@ -491,6 +520,7 @@ export interface HostListenerMetadataFactory {
  *
  * {@example core/ts/metadata/metadata.ts region='component'}
  * @stable
+ * @Annotation
  */
 export declare var Component: ComponentMetadataFactory;
 /**
@@ -747,7 +777,7 @@ export declare var Component: ComponentMetadataFactory;
  *   overlayManager:OverlayManager; // NOT YET IMPLEMENTED
  *
  *   constructor(overlayManager:OverlayManager) {
- *     this.overlay = overlay;
+ *     this.overlayManager = overlayManager;
  *   }
  *
  *   onMouseEnter() {
@@ -871,6 +901,7 @@ export declare var Component: ComponentMetadataFactory;
  * the instantiated
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
  * @stable
+ * @Annotation
  */
 export declare var Directive: DirectiveMetadataFactory;
 /**
@@ -890,6 +921,7 @@ export declare var Directive: DirectiveMetadataFactory;
  *
  * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
  * @stable
+ * @Annotation
  */
 export declare var Attribute: AttributeMetadataFactory;
 /**
@@ -999,6 +1031,7 @@ export declare var Attribute: AttributeMetadataFactory;
  * The injected object is an unmodifiable live list.
  * See {@link QueryList} for more details.
  * @deprecated
+ * @Annotation
  */
 export declare var Query: QueryMetadataFactory;
 /**
@@ -1021,6 +1054,7 @@ export declare var Query: QueryMetadataFactory;
  * }
  * ```
  * @stable
+ * @Annotation
  */
 export declare var ContentChildren: ContentChildrenMetadataFactory;
 /**
@@ -1052,6 +1086,7 @@ export declare var ContentChildren: ContentChildrenMetadataFactory;
  * </container>
  * ```
  * @stable
+ * @Annotation
  */
 export declare var ContentChild: ContentChildMetadataFactory;
 /**
@@ -1133,6 +1168,7 @@ export declare var ContentChild: ContentChildMetadataFactory;
  *
  * See also: [ViewChildrenMetadata]
  * @stable
+ * @Annotation
  */
 export declare var ViewChildren: ViewChildrenMetadataFactory;
 /**
@@ -1205,6 +1241,7 @@ export declare var ViewChildren: ViewChildrenMetadataFactory;
  * ```
  * See also: [ViewChildMetadata]
  * @stable
+ * @Annotation
  */
 export declare var ViewChild: ViewChildMetadataFactory;
 /**
@@ -1242,6 +1279,7 @@ export declare var ViewChild: ViewChildMetadataFactory;
  * The injected object is an iterable and observable live list.
  * See {@link QueryList} for more details.
  * @deprecated
+ * @Annotation
  */
 export declare var ViewQuery: QueryMetadataFactory;
 /**
@@ -1251,6 +1289,7 @@ export declare var ViewQuery: QueryMetadataFactory;
  *
  * {@example core/ts/metadata/metadata.ts region='pipe'}
  * @stable
+ * @Annotation
  */
 export declare var Pipe: PipeMetadataFactory;
 /**
@@ -1294,6 +1333,7 @@ export declare var Pipe: PipeMetadataFactory;
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 export declare var Input: InputMetadataFactory;
 /**
@@ -1337,6 +1377,7 @@ export declare var Input: InputMetadataFactory;
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 export declare var Output: OutputMetadataFactory;
 /**
@@ -1374,6 +1415,7 @@ export declare var Output: OutputMetadataFactory;
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 export declare var HostBinding: HostBindingMetadataFactory;
 /**
@@ -1410,5 +1452,6 @@ export declare var HostBinding: HostBindingMetadataFactory;
  * bootstrap(App);
  * ```
  * @stable
+ * @Annotation
  */
 export declare var HostListener: HostListenerMetadataFactory;

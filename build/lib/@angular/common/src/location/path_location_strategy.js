@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -31,9 +38,12 @@ var PathLocationStrategy = (function (_super) {
     PathLocationStrategy.prototype.prepareExternalUrl = function (internal) {
         return location_1.Location.joinWithSlash(this._baseHref, internal);
     };
-    PathLocationStrategy.prototype.path = function () {
-        return this._platformLocation.pathname +
+    PathLocationStrategy.prototype.path = function (includeHash) {
+        if (includeHash === void 0) { includeHash = false; }
+        var pathname = this._platformLocation.pathname +
             location_1.Location.normalizeQueryParams(this._platformLocation.search);
+        var hash = this._platformLocation.hash;
+        return hash && includeHash ? "" + pathname + hash : pathname;
     };
     PathLocationStrategy.prototype.pushState = function (state, title, url, queryParams) {
         var externalUrl = this.prepareExternalUrl(url + location_1.Location.normalizeQueryParams(queryParams));

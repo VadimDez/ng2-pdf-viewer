@@ -3,7 +3,7 @@ import { KeyValueDifferFactory, KeyValueDiffers } from './differs/keyvalue_diffe
 export { SimpleChanges } from '../metadata/lifecycle_hooks';
 export { SimpleChange, ValueUnwrapper, WrappedValue, devModeEqual, looseIdentical, uninitialized } from './change_detection_util';
 export { ChangeDetectorRef } from './change_detector_ref';
-export { CHANGE_DETECTION_STRATEGY_VALUES, CHANGE_DETECTOR_STATE_VALUES, ChangeDetectionStrategy, ChangeDetectorState, isDefaultChangeDetectionStrategy } from './constants';
+export { CHANGE_DETECTION_STRATEGY_VALUES, ChangeDetectionStrategy, ChangeDetectorStatus, isDefaultChangeDetectionStrategy } from './constants';
 export { CollectionChangeRecord, DefaultIterableDifferFactory } from './differs/default_iterable_differ';
 export { DefaultIterableDiffer } from './differs/default_iterable_differ';
 export { DefaultKeyValueDifferFactory, KeyValueChangeRecord } from './differs/default_keyvalue_differ';

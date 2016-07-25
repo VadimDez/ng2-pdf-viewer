@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -10,11 +17,17 @@ var collection_1 = require('../src/facade/collection');
 var lang_1 = require('../src/facade/lang');
 var MockDirectiveResolver = (function (_super) {
     __extends(MockDirectiveResolver, _super);
-    function MockDirectiveResolver() {
-        _super.apply(this, arguments);
+    function MockDirectiveResolver(_injector) {
+        _super.call(this);
+        this._injector = _injector;
         this._providerOverrides = new collection_1.Map();
         this.viewProviderOverrides = new collection_1.Map();
     }
+    Object.defineProperty(MockDirectiveResolver.prototype, "_compiler", {
+        get: function () { return this._injector.get(core_1.Compiler); },
+        enumerable: true,
+        configurable: true
+    });
     MockDirectiveResolver.prototype.resolve = function (type) {
         var dm = _super.prototype.resolve.call(this, type);
         var providerOverrides = this._providerOverrides.get(type);
@@ -40,7 +53,8 @@ var MockDirectiveResolver = (function (_super) {
                 queries: dm.queries,
                 changeDetection: dm.changeDetection,
                 providers: providers,
-                viewProviders: viewProviders
+                viewProviders: viewProviders,
+                precompile: dm.precompile
             });
         }
         return new core_1.DirectiveMetadata({
@@ -55,13 +69,19 @@ var MockDirectiveResolver = (function (_super) {
     };
     MockDirectiveResolver.prototype.setProvidersOverride = function (type, providers) {
         this._providerOverrides.set(type, providers);
+        this._compiler.clearCacheFor(type);
     };
     MockDirectiveResolver.prototype.setViewProvidersOverride = function (type, viewProviders) {
         this.viewProviderOverrides.set(type, viewProviders);
+        this._compiler.clearCacheFor(type);
     };
     /** @nocollapse */
     MockDirectiveResolver.decorators = [
         { type: core_1.Injectable },
+    ];
+    /** @nocollapse */
+    MockDirectiveResolver.ctorParameters = [
+        { type: core_1.Injector, },
     ];
     return MockDirectiveResolver;
 }(directive_resolver_1.DirectiveResolver));

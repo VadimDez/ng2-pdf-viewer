@@ -1,9 +1,14 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable, ViewEncapsulation } from '@angular/core';
-import { isPresent } from '../src/facade/lang';
-import { CompileIdentifierMetadata } from './compile_metadata';
+import { CompileIdentifierMetadata, CompileStylesheetMetadata } from './compile_metadata';
 import * as o from './output/output_ast';
 import { ShadowCss } from './shadow_css';
-import { extractStyleUrls } from './style_url_resolver';
 import { UrlResolver } from './url_resolver';
 const COMPONENT_VARIABLE = '%COMP%';
 const HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
@@ -16,10 +21,18 @@ export class StylesCompileDependency {
     }
 }
 export class StylesCompileResult {
-    constructor(statements, stylesVar, dependencies) {
+    constructor(componentStylesheet, externalStylesheets) {
+        this.componentStylesheet = componentStylesheet;
+        this.externalStylesheets = externalStylesheets;
+    }
+}
+export class CompiledStylesheet {
+    constructor(statements, stylesVar, dependencies, isShimmed, meta) {
         this.statements = statements;
         this.stylesVar = stylesVar;
         this.dependencies = dependencies;
+        this.isShimmed = isShimmed;
+        this.meta = meta;
     }
 }
 export class StyleCompiler {
@@ -29,26 +42,34 @@ export class StyleCompiler {
     }
     compileComponent(comp) {
         var shim = comp.template.encapsulation === ViewEncapsulation.Emulated;
-        return this._compileStyles(getStylesVarName(comp), comp.template.styles, comp.template.styleUrls, shim);
+        var externalStylesheets = [];
+        var componentStylesheet = this._compileStyles(comp, new CompileStylesheetMetadata({
+            styles: comp.template.styles,
+            styleUrls: comp.template.styleUrls,
+            moduleUrl: comp.type.moduleUrl
+        }), true);
+        comp.template.externalStylesheets.forEach((stylesheetMeta) => {
+            var compiledStylesheet = this._compileStyles(comp, stylesheetMeta, false);
+            externalStylesheets.push(compiledStylesheet);
+        });
+        return new StylesCompileResult(componentStylesheet, externalStylesheets);
     }
-    compileStylesheet(stylesheetUrl, cssText, isShimmed) {
-        var styleWithImports = extractStyleUrls(this._urlResolver, stylesheetUrl, cssText);
-        return this._compileStyles(getStylesVarName(null), [styleWithImports.style], styleWithImports.styleUrls, isShimmed);
-    }
-    _compileStyles(stylesVar, plainStyles, absUrls, shim) {
-        var styleExpressions = plainStyles.map(plainStyle => o.literal(this._shimIfNeeded(plainStyle, shim)));
+    _compileStyles(comp, stylesheet, isComponentStylesheet) {
+        var shim = comp.template.encapsulation === ViewEncapsulation.Emulated;
+        var styleExpressions = stylesheet.styles.map(plainStyle => o.literal(this._shimIfNeeded(plainStyle, shim)));
         var dependencies = [];
-        for (var i = 0; i < absUrls.length; i++) {
+        for (var i = 0; i < stylesheet.styleUrls.length; i++) {
             var identifier = new CompileIdentifierMetadata({ name: getStylesVarName(null) });
-            dependencies.push(new StylesCompileDependency(absUrls[i], shim, identifier));
+            dependencies.push(new StylesCompileDependency(stylesheet.styleUrls[i], shim, identifier));
             styleExpressions.push(new o.ExternalExpr(identifier));
         }
         // styles variable contains plain strings and arrays of other styles arrays (recursive),
         // so we set its type to dynamic.
+        var stylesVar = getStylesVarName(isComponentStylesheet ? comp : null);
         var stmt = o.variable(stylesVar)
             .set(o.literalArr(styleExpressions, new o.ArrayType(o.DYNAMIC_TYPE, [o.TypeModifier.Const])))
             .toDeclStmt(null, [o.StmtModifier.Final]);
-        return new StylesCompileResult([stmt], stylesVar, dependencies);
+        return new CompiledStylesheet([stmt], stylesVar, dependencies, shim, stylesheet);
     }
     _shimIfNeeded(style, shim) {
         return shim ? this._shadowCss.shimCssText(style, CONTENT_ATTR, HOST_ATTR) : style;
@@ -64,7 +85,7 @@ StyleCompiler.ctorParameters = [
 ];
 function getStylesVarName(component) {
     var result = `styles`;
-    if (isPresent(component)) {
+    if (component) {
         result += `_${component.type.name}`;
     }
     return result;

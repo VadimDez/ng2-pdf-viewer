@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var core_1 = require('@angular/core');
 var async_1 = require('../facade/async');
@@ -124,7 +131,7 @@ var Validators = (function () {
 }());
 exports.Validators = Validators;
 function _convertToPromise(obj) {
-    return promise_1.PromiseWrapper.isPromise(obj) ? obj : async_1.ObservableWrapper.toPromise(obj);
+    return lang_1.isPromise(obj) ? obj : async_1.ObservableWrapper.toPromise(obj);
 }
 function _executeValidators(control, validators) {
     return validators.map(function (v) { return v(control); });
