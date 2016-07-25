@@ -13,8 +13,27 @@
             </div>
 
             <div>
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="original-size">
+                    <input type="checkbox" id="original-size" class="mdl-switch__input"
+                           [checked]="originalSize"
+                           [(ngModel)]="originalSize">
+                    <span class="mdl-switch__label">Original size</span>
+                </label>
+            </div>
+
+            <div>
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="show-all">
+                    <input type="checkbox" id="show-all" class="mdl-switch__input"
+                           [checked]="showAll"
+                           [(ngModel)]="showAll">
+                    <span class="mdl-switch__label">Show all pages</span>
+                </label>
+            </div>
+
+
+            <div mdl *ngIf="!showAll">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
-                    -
+                    Previous
                 </button>
                 <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="pdf-page" [(ngModel)]="page">
@@ -22,11 +41,15 @@
                     <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
                 <button (click)="incrementPage(1)" class="mdl-button mdl-js-button">
-                    +
+                    Next
                 </button>
             </div>
 
-            <pdf-viewer [src]="pdfSrc" [page]="page" [original-size]="false" style="display: block;"></pdf-viewer>
+            <pdf-viewer [src]="pdfSrc"
+                        [page]="page"
+                        [original-size]="originalSize"
+                        [show-all]="showAll"
+            ></pdf-viewer>
 
         </div>
     </main>

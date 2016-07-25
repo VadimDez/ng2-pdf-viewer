@@ -6,12 +6,12 @@ import PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
-  template: '<canvas></canvas>'
+  template: '<div class="ng2-pdf-viewer-container"></div>'
 })
 
 export class PdfViewerComponent {
-
-  @Input('original-size') originalSize: boolean = false;
+  private _showAll: boolean = false;
+  private _originalSize: boolean = false;
   private _src: string;
   private _pdf: any;
   private _page: number = 1;
@@ -35,6 +35,24 @@ export class PdfViewerComponent {
     }
   }
 
+  @Input('original-size')
+  set originalSize(originalSize: boolean) {
+    this._originalSize = originalSize;
+
+    if (this._pdf) {
+      this.fn();
+    }
+  }
+
+  @Input('show-all')
+  set showAll(value: boolean) {
+    this._showAll = value;
+
+    if (this._pdf) {
+      this.fn();
+    }
+  }
+
   private fn() {
     PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
@@ -43,31 +61,61 @@ export class PdfViewerComponent {
         this._page = 1;
       }
 
-      this.renderPage(this._page);
+      if (!this._showAll) {
+        return this.renderPage(this._page);
+      }
+
+      return this.renderMultiplePages();
     });
+  }
+
+  private renderMultiplePages() {
+    let container = this.element.nativeElement.querySelector('div');
+    let page = 1;
+    const renderPageFn = (page: number) => () => this.renderPage(page);
+
+    this.removeAllChildNodes(container);
+
+    let d = this.renderPage(page++);
+
+    for (page; page <= this._pdf.numPages; page++) {
+      d = d.then(renderPageFn(page));
+    }
   }
 
   private isValidPageNumber(page: number) {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private renderPage(initialPage: number) {
-    this._pdf.getPage(initialPage).then((page: any) => {
-      var viewport = page.getViewport(1);
-      var canvas = this.element.nativeElement.querySelector('canvas');
-      var context = canvas.getContext('2d');
+  private renderPage(page: number) {
+    return this._pdf.getPage(page).then((page: any) => {
+      let viewport = page.getViewport(1);
+      let container = this.element.nativeElement.querySelector('div');
+      let canvas: HTMLCanvasElement = document.createElement('canvas');
 
-      if (!this.originalSize) {
+      if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
       }
+
+      if (!this._showAll) {
+        this.removeAllChildNodes(container);
+      }
+
+      container.appendChild(canvas);
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
       page.render({
-        canvasContext: context,
+        canvasContext: canvas.getContext('2d'),
         viewport: viewport
       });
     });
+  }
+
+  private removeAllChildNodes(element: HTMLElement) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
   }
 }

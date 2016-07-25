@@ -24,7 +24,8 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
             PdfViewerComponent = (function () {
                 function PdfViewerComponent(element) {
                     this.element = element;
-                    this.originalSize = false;
+                    this._showAll = false;
+                    this._originalSize = false;
                     this._page = 1;
                 }
                 Object.defineProperty(PdfViewerComponent.prototype, "src", {
@@ -46,6 +47,26 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     enumerable: true,
                     configurable: true
                 });
+                Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
+                    set: function (originalSize) {
+                        this._originalSize = originalSize;
+                        if (this._pdf) {
+                            this.fn();
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
+                    set: function (value) {
+                        this._showAll = value;
+                        if (this._pdf) {
+                            this.fn();
+                        }
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 PdfViewerComponent.prototype.fn = function () {
                     var _this = this;
                     pdfjs_dist_1.default.getDocument(this._src).then(function (pdf) {
@@ -53,33 +74,52 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                         if (!_this.isValidPageNumber(_this._page)) {
                             _this._page = 1;
                         }
-                        _this.renderPage(_this._page);
+                        if (!_this._showAll) {
+                            return _this.renderPage(_this._page);
+                        }
+                        return _this.renderMultiplePages();
                     });
+                };
+                PdfViewerComponent.prototype.renderMultiplePages = function () {
+                    var _this = this;
+                    var container = this.element.nativeElement.querySelector('div');
+                    var page = 1;
+                    var renderPageFn = function (page) { return function () { return _this.renderPage(page); }; };
+                    this.removeAllChildNodes(container);
+                    var d = this.renderPage(page++);
+                    for (page; page <= this._pdf.numPages; page++) {
+                        d = d.then(renderPageFn(page));
+                    }
                 };
                 PdfViewerComponent.prototype.isValidPageNumber = function (page) {
                     return this._pdf.numPages >= page && page >= 1;
                 };
-                PdfViewerComponent.prototype.renderPage = function (initialPage) {
+                PdfViewerComponent.prototype.renderPage = function (page) {
                     var _this = this;
-                    this._pdf.getPage(initialPage).then(function (page) {
+                    return this._pdf.getPage(page).then(function (page) {
                         var viewport = page.getViewport(1);
-                        var canvas = _this.element.nativeElement.querySelector('canvas');
-                        var context = canvas.getContext('2d');
-                        if (!_this.originalSize) {
+                        var container = _this.element.nativeElement.querySelector('div');
+                        var canvas = document.createElement('canvas');
+                        if (!_this._originalSize) {
                             viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
                         }
+                        if (!_this._showAll) {
+                            _this.removeAllChildNodes(container);
+                        }
+                        container.appendChild(canvas);
                         canvas.height = viewport.height;
                         canvas.width = viewport.width;
                         page.render({
-                            canvasContext: context,
+                            canvasContext: canvas.getContext('2d'),
                             viewport: viewport
                         });
                     });
                 };
-                __decorate([
-                    core_1.Input('original-size'), 
-                    __metadata('design:type', Boolean)
-                ], PdfViewerComponent.prototype, "originalSize", void 0);
+                PdfViewerComponent.prototype.removeAllChildNodes = function (element) {
+                    while (element.firstChild) {
+                        element.removeChild(element.firstChild);
+                    }
+                };
                 __decorate([
                     core_1.Input(), 
                     __metadata('design:type', Object), 
@@ -90,10 +130,20 @@ System.register(['@angular/core', 'pdfjs-dist'], function(exports_1, context_1) 
                     __metadata('design:type', Object), 
                     __metadata('design:paramtypes', [Object])
                 ], PdfViewerComponent.prototype, "page", null);
+                __decorate([
+                    core_1.Input('original-size'), 
+                    __metadata('design:type', Boolean), 
+                    __metadata('design:paramtypes', [Boolean])
+                ], PdfViewerComponent.prototype, "originalSize", null);
+                __decorate([
+                    core_1.Input('show-all'), 
+                    __metadata('design:type', Boolean), 
+                    __metadata('design:paramtypes', [Boolean])
+                ], PdfViewerComponent.prototype, "showAll", null);
                 PdfViewerComponent = __decorate([
                     core_1.Component({
                         selector: 'pdf-viewer',
-                        template: '<canvas></canvas>'
+                        template: '<div class="ng2-pdf-viewer-container"></div>'
                     }), 
                     __metadata('design:paramtypes', [core_1.ElementRef])
                 ], PdfViewerComponent);

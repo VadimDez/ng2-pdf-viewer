@@ -86,6 +86,14 @@ if set to *false* - size will be as same as container block
 [original-size]="true"
 ```
 
+#### [show-all]
+
+Show single or all pages altogether
+
+```
+[show-all]="true"
+```
+
 ### License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)
