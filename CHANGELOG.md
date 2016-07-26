@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.7
+
+* Added webpack compatibility - [#2](https://github.com/VadimDez/ng2-pdf-viewer/issues/2)
+* Changed default value for original size flag 
+
 ## 0.0.6
 
 * Added option to show one or all pdf pages altogether
