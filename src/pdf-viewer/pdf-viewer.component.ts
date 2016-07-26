@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component, Input, ElementRef } from '@angular/core';
-import PDFJS from 'pdfjs-dist';
+import * as PDFJS from 'pdfjs-dist';
 
 @Component({
   selector: 'pdf-viewer',
@@ -11,7 +11,7 @@ import PDFJS from 'pdfjs-dist';
 
 export class PdfViewerComponent {
   private _showAll: boolean = false;
-  private _originalSize: boolean = false;
+  private _originalSize: boolean = true;
   private _src: string;
   private _pdf: any;
   private _page: number = 1;
