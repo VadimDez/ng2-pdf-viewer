@@ -17,7 +17,7 @@ var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
         this._showAll = false;
-        this._originalSize = false;
+        this._originalSize = true;
         this._page = 1;
     }
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
