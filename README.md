@@ -12,25 +12,8 @@ npm install ng2-pdf-viewer --save
 
 ### Usage
 
-In your ```system.config.js```
+In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
 
-Append to ```map```
-
-```js
-var map = {
-    ...
-    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer'
-}
-```
-
-and then add to ```packages```
-
-```js
-var packages = {
-    ...
-    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.min.js' }
-}
-```
 
 Import component to your component
 
