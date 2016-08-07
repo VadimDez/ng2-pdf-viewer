@@ -1,4 +1,4 @@
-# Angular2 PDF Viewer [![npm version](https://badge.fury.io/js/ng2-pdf-viewer.svg)](https://badge.fury.io/js/ng2-pdf-viewer)
+# Angular2 PDF Viewer [![npm version](https://badge.fury.io/js/ng2-pdf-viewer.svg)](https://badge.fury.io/js/ng2-pdf-viewer) ![](https://david-dm.org/vadimdez/ng2-pdf-viewer.svg)
 
 > PDF Viewer Component for Angular 2
 
