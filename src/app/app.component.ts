@@ -13,6 +13,7 @@ import { MDL } from './mdl';
   directives: [MDL, PdfViewerComponent]
 })
 
+
 export class AppComponent {
   pdfSrc: string = './pdf-test.pdf';
   page: number = 1;

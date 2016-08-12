@@ -10711,8 +10711,8 @@ exports._UnsupportedManager = _UnsupportedManager;
    * typed arrays to workers.
    * @var {boolean}
    */
-  PDFJS.disableWorker = true;//(PDFJS.disableWorker === undefined ?
-                         // false : PDFJS.disableWorker);
+  PDFJS.disableWorker = (PDFJS.disableWorker === undefined ?
+                         false : PDFJS.disableWorker);
 
   /**
    * Path and filename of the worker file. Required when the worker is enabled
