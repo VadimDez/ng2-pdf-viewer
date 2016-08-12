@@ -49,7 +49,7 @@ export class AppComponent {
 Pass pdf location
  
 ```
-[src]="https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf"
+[src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
 #### [page]
