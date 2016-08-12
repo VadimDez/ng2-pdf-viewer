@@ -6,15 +6,15 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
-var lang_1 = require('../facade/lang');
 var collection_1 = require('../facade/collection');
+var lang_1 = require('../facade/lang');
 var reflection_1 = require('../reflection/reflection');
-var reflective_key_1 = require('./reflective_key');
-var metadata_1 = require('./metadata');
-var reflective_exceptions_1 = require('./reflective_exceptions');
 var forward_ref_1 = require('./forward_ref');
+var metadata_1 = require('./metadata');
 var provider_1 = require('./provider');
 var provider_util_1 = require('./provider_util');
+var reflective_exceptions_1 = require('./reflective_exceptions');
+var reflective_key_1 = require('./reflective_key');
 /**
  * `Dependency` is used by the framework to extend DI.
  * This is internal to Angular and should not be used directly.

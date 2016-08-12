@@ -12,9 +12,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var lang_1 = require('../facade/lang');
+var util_1 = require('../util');
 var abstract_emitter_1 = require('./abstract_emitter');
 var abstract_js_emitter_1 = require('./abstract_js_emitter');
-var util_1 = require('../util');
 function jitStatements(sourceUrl, statements, resultVar) {
     var converter = new JitEmitterVisitor();
     var ctx = abstract_emitter_1.EmitterVisitorContext.createRoot([resultVar]);

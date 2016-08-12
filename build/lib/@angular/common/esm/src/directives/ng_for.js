@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ChangeDetectorRef, Directive, IterableDiffers, TemplateRef, ViewContainerRef } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, IterableDiffers, TemplateRef, ViewContainerRef } from '@angular/core';
 import { BaseException } from '../facade/exceptions';
 import { getTypeNameForDebugging, isBlank, isPresent } from '../facade/lang';
 export class NgForRow {
@@ -26,48 +26,59 @@ export class NgFor {
         this._iterableDiffers = _iterableDiffers;
         this._cdr = _cdr;
     }
-    set ngForOf(value) {
-        this._ngForOf = value;
-        if (isBlank(this._differ) && isPresent(value)) {
-            try {
-                this._differ = this._iterableDiffers.find(value).create(this._cdr, this._ngForTrackBy);
-            }
-            catch (e) {
-                throw new BaseException(`Cannot find a differ supporting object '${value}' of type '${getTypeNameForDebugging(value)}'. NgFor only supports binding to Iterables such as Arrays.`);
-            }
-        }
-    }
     set ngForTemplate(value) {
         if (isPresent(value)) {
             this._templateRef = value;
         }
     }
-    set ngForTrackBy(value) { this._ngForTrackBy = value; }
+    ngOnChanges(changes) {
+        if ('ngForOf' in changes) {
+            // React on ngForOf changes only once all inputs have been initialized
+            const value = changes['ngForOf'].currentValue;
+            if (isBlank(this._differ) && isPresent(value)) {
+                try {
+                    this._differ = this._iterableDiffers.find(value).create(this._cdr, this.ngForTrackBy);
+                }
+                catch (e) {
+                    throw new BaseException(`Cannot find a differ supporting object '${value}' of type '${getTypeNameForDebugging(value)}'. NgFor only supports binding to Iterables such as Arrays.`);
+                }
+            }
+        }
+    }
     ngDoCheck() {
         if (isPresent(this._differ)) {
-            var changes = this._differ.diff(this._ngForOf);
+            const changes = this._differ.diff(this.ngForOf);
             if (isPresent(changes))
                 this._applyChanges(changes);
         }
     }
     _applyChanges(changes) {
-        // TODO(rado): check if change detection can produce a change record that is
-        // easier to consume than current.
-        var recordViewTuples = [];
-        changes.forEachRemovedItem((removedRecord) => recordViewTuples.push(new RecordViewTuple(removedRecord, null)));
-        changes.forEachMovedItem((movedRecord) => recordViewTuples.push(new RecordViewTuple(movedRecord, null)));
-        var insertTuples = this._bulkRemove(recordViewTuples);
-        changes.forEachAddedItem((addedRecord) => insertTuples.push(new RecordViewTuple(addedRecord, null)));
-        this._bulkInsert(insertTuples);
-        for (var i = 0; i < insertTuples.length; i++) {
+        const insertTuples = [];
+        changes.forEachOperation((item, adjustedPreviousIndex, currentIndex) => {
+            if (item.previousIndex == null) {
+                let view = this._viewContainer.createEmbeddedView(this._templateRef, new NgForRow(null, null, null), currentIndex);
+                let tuple = new RecordViewTuple(item, view);
+                insertTuples.push(tuple);
+            }
+            else if (currentIndex == null) {
+                this._viewContainer.remove(adjustedPreviousIndex);
+            }
+            else {
+                let view = this._viewContainer.get(adjustedPreviousIndex);
+                this._viewContainer.move(view, currentIndex);
+                let tuple = new RecordViewTuple(item, view);
+                insertTuples.push(tuple);
+            }
+        });
+        for (let i = 0; i < insertTuples.length; i++) {
             this._perViewChange(insertTuples[i].view, insertTuples[i].record);
         }
-        for (var i = 0, ilen = this._viewContainer.length; i < ilen; i++) {
+        for (let i = 0, ilen = this._viewContainer.length; i < ilen; i++) {
             var viewRef = this._viewContainer.get(i);
             viewRef.context.index = i;
             viewRef.context.count = ilen;
         }
-        changes.forEachIdentityChange((record /** TODO #9100 */) => {
+        changes.forEachIdentityChange((record) => {
             var viewRef = this._viewContainer.get(record.currentIndex);
             viewRef.context.$implicit = record.item;
         });
@@ -75,40 +86,10 @@ export class NgFor {
     _perViewChange(view, record) {
         view.context.$implicit = record.item;
     }
-    _bulkRemove(tuples) {
-        tuples.sort((a, b) => a.record.previousIndex - b.record.previousIndex);
-        var movedTuples = [];
-        for (var i = tuples.length - 1; i >= 0; i--) {
-            var tuple = tuples[i];
-            // separate moved views from removed views.
-            if (isPresent(tuple.record.currentIndex)) {
-                tuple.view =
-                    this._viewContainer.detach(tuple.record.previousIndex);
-                movedTuples.push(tuple);
-            }
-            else {
-                this._viewContainer.remove(tuple.record.previousIndex);
-            }
-        }
-        return movedTuples;
-    }
-    _bulkInsert(tuples) {
-        tuples.sort((a, b) => a.record.currentIndex - b.record.currentIndex);
-        for (var i = 0; i < tuples.length; i++) {
-            var tuple = tuples[i];
-            if (isPresent(tuple.view)) {
-                this._viewContainer.insert(tuple.view, tuple.record.currentIndex);
-            }
-            else {
-                tuple.view = this._viewContainer.createEmbeddedView(this._templateRef, new NgForRow(null, null, null), tuple.record.currentIndex);
-            }
-        }
-        return tuples;
-    }
 }
 /** @nocollapse */
 NgFor.decorators = [
-    { type: Directive, args: [{ selector: '[ngFor][ngForOf]', inputs: ['ngForTrackBy', 'ngForOf', 'ngForTemplate'] },] },
+    { type: Directive, args: [{ selector: '[ngFor][ngForOf]' },] },
 ];
 /** @nocollapse */
 NgFor.ctorParameters = [
@@ -117,6 +98,12 @@ NgFor.ctorParameters = [
     { type: IterableDiffers, },
     { type: ChangeDetectorRef, },
 ];
+/** @nocollapse */
+NgFor.propDecorators = {
+    'ngForOf': [{ type: Input },],
+    'ngForTrackBy': [{ type: Input },],
+    'ngForTemplate': [{ type: Input },],
+};
 class RecordViewTuple {
     constructor(record, view) {
         this.record = record;

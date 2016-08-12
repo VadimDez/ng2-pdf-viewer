@@ -49,7 +49,6 @@ var StyleCompiler = (function () {
     }
     StyleCompiler.prototype.compileComponent = function (comp) {
         var _this = this;
-        var shim = comp.template.encapsulation === core_1.ViewEncapsulation.Emulated;
         var externalStylesheets = [];
         var componentStylesheet = this._compileStyles(comp, new compile_metadata_1.CompileStylesheetMetadata({
             styles: comp.template.styles,

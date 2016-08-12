@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var core_1 = require('@angular/core');
-var core_private_1 = require('../../core_private');
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
 var dom_security_schema_1 = require('./dom_security_schema');
@@ -75,8 +74,7 @@ var OBJECT = 'object';
 // dom_security_schema.ts. Reach out to mprobst & rjamet for details.
 //
 // =================================================================================================
-var SCHEMA = 
-/*@ts2dart_const*/ ([
+var SCHEMA = ([
     '*|textContent,%classList,className,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*copy,*cut,*paste,*search,*selectstart,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerHTML,#scrollLeft,#scrollTop',
     '^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*autocomplete,*autocompleteerror,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
     'media|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,#volume',
@@ -267,22 +265,22 @@ var DomElementSchemaRegistry = (function (_super) {
             });
         });
     }
-    DomElementSchemaRegistry.prototype.hasProperty = function (tagName, propName) {
+    DomElementSchemaRegistry.prototype.hasProperty = function (tagName, propName, schemaMetas) {
         if (tagName.indexOf('-') !== -1) {
             if (tagName === 'ng-container' || tagName === 'ng-content') {
                 return false;
             }
-            // Can't tell now as we don't know which properties a custom element will get
-            // once it is instantiated
-            return true;
-        }
-        else {
-            var elementProperties = this.schema[tagName.toLowerCase()];
-            if (!lang_1.isPresent(elementProperties)) {
-                elementProperties = this.schema['unknown'];
+            if (schemaMetas.some(function (schema) { return schema.name === core_1.CUSTOM_ELEMENTS_SCHEMA.name; })) {
+                // Can't tell now as we don't know which properties a custom element will get
+                // once it is instantiated
+                return true;
             }
-            return lang_1.isPresent(elementProperties[propName]);
         }
+        var elementProperties = this.schema[tagName.toLowerCase()];
+        if (!lang_1.isPresent(elementProperties)) {
+            elementProperties = this.schema['unknown'];
+        }
+        return lang_1.isPresent(elementProperties[propName]);
     };
     /**
      * securityContext returns the security context for the given property on the given DOM tag.
@@ -303,12 +301,13 @@ var DomElementSchemaRegistry = (function (_super) {
         if (ctx !== undefined)
             return ctx;
         ctx = dom_security_schema_1.SECURITY_SCHEMA['*|' + propName];
-        return ctx !== undefined ? ctx : core_private_1.SecurityContext.NONE;
+        return ctx !== undefined ? ctx : core_1.SecurityContext.NONE;
     };
     DomElementSchemaRegistry.prototype.getMappedPropName = function (propName) {
         var mappedPropName = collection_1.StringMapWrapper.get(attrToPropMap, propName);
         return lang_1.isPresent(mappedPropName) ? mappedPropName : propName;
     };
+    DomElementSchemaRegistry.prototype.getDefaultComponentElementName = function () { return 'ng-component'; };
     /** @nocollapse */
     DomElementSchemaRegistry.decorators = [
         { type: core_1.Injectable },

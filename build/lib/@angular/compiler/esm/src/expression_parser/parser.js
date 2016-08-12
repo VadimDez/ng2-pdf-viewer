@@ -7,18 +7,10 @@
  */
 import { Injectable } from '@angular/core';
 import * as chars from '../chars';
-import { ListWrapper } from '../facade/collection';
-import { BaseException } from '../facade/exceptions';
-import { RegExpWrapper, StringWrapper, escapeRegExp, isBlank, isPresent } from '../facade/lang';
-import { DEFAULT_INTERPOLATION_CONFIG } from '../interpolation_config';
-import { ASTWithSource, Binary, BindingPipe, Chain, Conditional, EmptyExpr, FunctionCall, ImplicitReceiver, Interpolation, KeyedRead, KeyedWrite, LiteralArray, LiteralMap, LiteralPrimitive, MethodCall, PrefixNot, PropertyRead, PropertyWrite, Quote, SafeMethodCall, SafePropertyRead, TemplateBinding } from './ast';
-import { EOF, Lexer, isIdentifier, isQuote } from './lexer';
-var _implicitReceiver = new ImplicitReceiver();
-class ParseException extends BaseException {
-    constructor(message, input, errLocation, ctxLocation) {
-        super(`Parser Error: ${message} ${errLocation} [${input}] in ${ctxLocation}`);
-    }
-}
+import { StringWrapper, escapeRegExp, isBlank, isPresent } from '../facade/lang';
+import { DEFAULT_INTERPOLATION_CONFIG } from '../ml_parser/interpolation_config';
+import { ASTWithSource, Binary, BindingPipe, Chain, Conditional, EmptyExpr, FunctionCall, ImplicitReceiver, Interpolation, KeyedRead, KeyedWrite, LiteralArray, LiteralMap, LiteralPrimitive, MethodCall, ParseSpan, ParserError, PrefixNot, PropertyRead, PropertyWrite, Quote, SafeMethodCall, SafePropertyRead, TemplateBinding } from './ast';
+import { EOF, Lexer, TokenType, isIdentifier, isQuote } from './lexer';
 export class SplitInterpolation {
     constructor(strings, expressions) {
         this.strings = strings;
@@ -26,35 +18,40 @@ export class SplitInterpolation {
     }
 }
 export class TemplateBindingParseResult {
-    constructor(templateBindings, warnings) {
+    constructor(templateBindings, warnings, errors) {
         this.templateBindings = templateBindings;
         this.warnings = warnings;
+        this.errors = errors;
     }
 }
 function _createInterpolateRegExp(config) {
-    const regexp = escapeRegExp(config.start) + '([\\s\\S]*?)' + escapeRegExp(config.end);
-    return RegExpWrapper.create(regexp, 'g');
+    const pattern = escapeRegExp(config.start) + '([\\s\\S]*?)' + escapeRegExp(config.end);
+    return new RegExp(pattern, 'g');
 }
 export class Parser {
-    constructor(/** @internal */ _lexer) {
+    constructor(_lexer) {
         this._lexer = _lexer;
+        this.errors = [];
     }
     parseAction(input, location, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
         this._checkNoInterpolation(input, location, interpolationConfig);
-        var tokens = this._lexer.tokenize(this._stripComments(input));
-        var ast = new _ParseAST(input, location, tokens, true).parseChain();
-        return new ASTWithSource(ast, input, location);
+        const tokens = this._lexer.tokenize(this._stripComments(input));
+        const ast = new _ParseAST(input, location, tokens, true, this.errors).parseChain();
+        return new ASTWithSource(ast, input, location, this.errors);
     }
     parseBinding(input, location, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
         var ast = this._parseBindingAst(input, location, interpolationConfig);
-        return new ASTWithSource(ast, input, location);
+        return new ASTWithSource(ast, input, location, this.errors);
     }
     parseSimpleBinding(input, location, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
         var ast = this._parseBindingAst(input, location, interpolationConfig);
         if (!SimpleExpressionChecker.check(ast)) {
-            throw new ParseException('Host binding expression can only contain field access and constants', input, location);
+            this._reportError('Host binding expression can only contain field access and constants', input, location);
         }
-        return new ASTWithSource(ast, input, location);
+        return new ASTWithSource(ast, input, location, this.errors);
+    }
+    _reportError(message, input, errLocation, ctxLocation) {
+        this.errors.push(new ParserError(message, input, errLocation, ctxLocation));
     }
     _parseBindingAst(input, location, interpolationConfig) {
         // Quotes expressions use 3rd-party expression language. We don't want to use
@@ -65,7 +62,7 @@ export class Parser {
         }
         this._checkNoInterpolation(input, location, interpolationConfig);
         var tokens = this._lexer.tokenize(this._stripComments(input));
-        return new _ParseAST(input, location, tokens, false).parseChain();
+        return new _ParseAST(input, location, tokens, false, this.errors).parseChain();
     }
     _parseQuote(input, location) {
         if (isBlank(input))
@@ -77,11 +74,11 @@ export class Parser {
         if (!isIdentifier(prefix))
             return null;
         var uninterpretedExpression = input.substring(prefixSeparatorIndex + 1);
-        return new Quote(prefix, uninterpretedExpression, location);
+        return new Quote(new ParseSpan(0, input.length), prefix, uninterpretedExpression, location);
     }
     parseTemplateBindings(input, location) {
         var tokens = this._lexer.tokenize(input);
-        return new _ParseAST(input, location, tokens, false).parseTemplateBindings();
+        return new _ParseAST(input, location, tokens, false, this.errors).parseTemplateBindings();
     }
     parseInterpolation(input, location, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
         let split = this.splitInterpolation(input, location, interpolationConfig);
@@ -90,10 +87,10 @@ export class Parser {
         let expressions = [];
         for (let i = 0; i < split.expressions.length; ++i) {
             var tokens = this._lexer.tokenize(this._stripComments(split.expressions[i]));
-            var ast = new _ParseAST(input, location, tokens, false).parseChain();
+            var ast = new _ParseAST(input, location, tokens, false, this.errors).parseChain();
             expressions.push(ast);
         }
-        return new ASTWithSource(new Interpolation(split.strings, expressions), input, location);
+        return new ASTWithSource(new Interpolation(new ParseSpan(0, isBlank(input) ? 0 : input.length), split.strings, expressions), input, location, this.errors);
     }
     splitInterpolation(input, location, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
         const regexp = _createInterpolateRegExp(interpolationConfig);
@@ -101,9 +98,9 @@ export class Parser {
         if (parts.length <= 1) {
             return null;
         }
-        var strings = [];
-        var expressions = [];
-        for (var i = 0; i < parts.length; i++) {
+        const strings = [];
+        const expressions = [];
+        for (let i = 0; i < parts.length; i++) {
             var part = parts[i];
             if (i % 2 === 0) {
                 // fixed string
@@ -113,23 +110,23 @@ export class Parser {
                 expressions.push(part);
             }
             else {
-                throw new ParseException('Blank expressions are not allowed in interpolated strings', input, `at column ${this._findInterpolationErrorColumn(parts, i, interpolationConfig)} in`, location);
+                this._reportError('Blank expressions are not allowed in interpolated strings', input, `at column ${this._findInterpolationErrorColumn(parts, i, interpolationConfig)} in`, location);
             }
         }
         return new SplitInterpolation(strings, expressions);
     }
     wrapLiteralPrimitive(input, location) {
-        return new ASTWithSource(new LiteralPrimitive(input), input, location);
+        return new ASTWithSource(new LiteralPrimitive(new ParseSpan(0, isBlank(input) ? 0 : input.length), input), input, location, this.errors);
     }
     _stripComments(input) {
-        let i = this._commentStart(input);
+        const i = this._commentStart(input);
         return isPresent(i) ? input.substring(0, i).trim() : input;
     }
     _commentStart(input) {
         var outerQuote = null;
-        for (var i = 0; i < input.length - 1; i++) {
-            let char = StringWrapper.charCodeAt(input, i);
-            let nextChar = StringWrapper.charCodeAt(input, i + 1);
+        for (let i = 0; i < input.length - 1; i++) {
+            const char = StringWrapper.charCodeAt(input, i);
+            const nextChar = StringWrapper.charCodeAt(input, i + 1);
             if (char === chars.$SLASH && nextChar == chars.$SLASH && isBlank(outerQuote))
                 return i;
             if (outerQuote === char) {
@@ -145,7 +142,7 @@ export class Parser {
         var regexp = _createInterpolateRegExp(interpolationConfig);
         var parts = StringWrapper.split(input, regexp);
         if (parts.length > 1) {
-            throw new ParseException(`Got interpolation (${interpolationConfig.start}${interpolationConfig.end}) where expression was expected`, input, `at column ${this._findInterpolationErrorColumn(parts, 1, interpolationConfig)} in`, location);
+            this._reportError(`Got interpolation (${interpolationConfig.start}${interpolationConfig.end}) where expression was expected`, input, `at column ${this._findInterpolationErrorColumn(parts, 1, interpolationConfig)} in`, location);
         }
     }
     _findInterpolationErrorColumn(parts, partInErrIdx, interpolationConfig) {
@@ -167,11 +164,15 @@ Parser.ctorParameters = [
     { type: Lexer, },
 ];
 export class _ParseAST {
-    constructor(input, location, tokens, parseAction) {
+    constructor(input, location, tokens, parseAction, errors) {
         this.input = input;
         this.location = location;
         this.tokens = tokens;
         this.parseAction = parseAction;
+        this.errors = errors;
+        this.rparensExpected = 0;
+        this.rbracketsExpected = 0;
+        this.rbracesExpected = 0;
         this.index = 0;
     }
     peek(offset) {
@@ -182,6 +183,7 @@ export class _ParseAST {
     get inputIndex() {
         return (this.index < this.tokens.length) ? this.next.index : this.input.length;
     }
+    span(start) { return new ParseSpan(start, this.inputIndex); }
     advance() { this.index++; }
     optionalCharacter(code) {
         if (this.next.isCharacter(code)) {
@@ -218,6 +220,7 @@ export class _ParseAST {
         var n = this.next;
         if (!n.isIdentifier() && !n.isKeyword()) {
             this.error(`Unexpected token ${n}, expected identifier or keyword`);
+            return '';
         }
         this.advance();
         return n.toString();
@@ -226,12 +229,14 @@ export class _ParseAST {
         var n = this.next;
         if (!n.isIdentifier() && !n.isKeyword() && !n.isString()) {
             this.error(`Unexpected token ${n}, expected identifier, keyword, or string`);
+            return '';
         }
         this.advance();
         return n.toString();
     }
     parseChain() {
         var exprs = [];
+        const start = this.inputIndex;
         while (this.index < this.tokens.length) {
             var expr = this.parsePipe();
             exprs.push(expr);
@@ -247,10 +252,10 @@ export class _ParseAST {
             }
         }
         if (exprs.length == 0)
-            return new EmptyExpr();
+            return new EmptyExpr(this.span(start));
         if (exprs.length == 1)
             return exprs[0];
-        return new Chain(exprs);
+        return new Chain(this.span(start), exprs);
     }
     parsePipe() {
         var result = this.parseExpression();
@@ -264,24 +269,28 @@ export class _ParseAST {
                 while (this.optionalCharacter(chars.$COLON)) {
                     args.push(this.parseExpression());
                 }
-                result = new BindingPipe(result, name, args);
+                result = new BindingPipe(this.span(result.span.start), result, name, args);
             } while (this.optionalOperator('|'));
         }
         return result;
     }
     parseExpression() { return this.parseConditional(); }
     parseConditional() {
-        var start = this.inputIndex;
-        var result = this.parseLogicalOr();
+        const start = this.inputIndex;
+        const result = this.parseLogicalOr();
         if (this.optionalOperator('?')) {
-            var yes = this.parsePipe();
+            const yes = this.parsePipe();
+            let no;
             if (!this.optionalCharacter(chars.$COLON)) {
                 var end = this.inputIndex;
                 var expression = this.input.substring(start, end);
                 this.error(`Conditional expression ${expression} requires all 3 expressions`);
+                no = new EmptyExpr(this.span(start));
             }
-            var no = this.parsePipe();
-            return new Conditional(result, yes, no);
+            else {
+                no = this.parsePipe();
+            }
+            return new Conditional(this.span(start), result, yes, no);
         }
         else {
             return result;
@@ -289,111 +298,118 @@ export class _ParseAST {
     }
     parseLogicalOr() {
         // '||'
-        var result = this.parseLogicalAnd();
+        let result = this.parseLogicalAnd();
         while (this.optionalOperator('||')) {
-            result = new Binary('||', result, this.parseLogicalAnd());
+            const right = this.parseLogicalAnd();
+            result = new Binary(this.span(result.span.start), '||', result, right);
         }
         return result;
     }
     parseLogicalAnd() {
         // '&&'
-        var result = this.parseEquality();
+        let result = this.parseEquality();
         while (this.optionalOperator('&&')) {
-            result = new Binary('&&', result, this.parseEquality());
+            const right = this.parseEquality();
+            result = new Binary(this.span(result.span.start), '&&', result, right);
         }
         return result;
     }
     parseEquality() {
         // '==','!=','===','!=='
-        var result = this.parseRelational();
-        while (true) {
-            if (this.optionalOperator('==')) {
-                result = new Binary('==', result, this.parseRelational());
+        let result = this.parseRelational();
+        while (this.next.type == TokenType.Operator) {
+            let operator = this.next.strValue;
+            switch (operator) {
+                case '==':
+                case '===':
+                case '!=':
+                case '!==':
+                    this.advance();
+                    const right = this.parseRelational();
+                    result = new Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('===')) {
-                result = new Binary('===', result, this.parseRelational());
-            }
-            else if (this.optionalOperator('!=')) {
-                result = new Binary('!=', result, this.parseRelational());
-            }
-            else if (this.optionalOperator('!==')) {
-                result = new Binary('!==', result, this.parseRelational());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     }
     parseRelational() {
         // '<', '>', '<=', '>='
-        var result = this.parseAdditive();
-        while (true) {
-            if (this.optionalOperator('<')) {
-                result = new Binary('<', result, this.parseAdditive());
+        let result = this.parseAdditive();
+        while (this.next.type == TokenType.Operator) {
+            let operator = this.next.strValue;
+            switch (operator) {
+                case '<':
+                case '>':
+                case '<=':
+                case '>=':
+                    this.advance();
+                    const right = this.parseAdditive();
+                    result = new Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('>')) {
-                result = new Binary('>', result, this.parseAdditive());
-            }
-            else if (this.optionalOperator('<=')) {
-                result = new Binary('<=', result, this.parseAdditive());
-            }
-            else if (this.optionalOperator('>=')) {
-                result = new Binary('>=', result, this.parseAdditive());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     }
     parseAdditive() {
         // '+', '-'
-        var result = this.parseMultiplicative();
-        while (true) {
-            if (this.optionalOperator('+')) {
-                result = new Binary('+', result, this.parseMultiplicative());
+        let result = this.parseMultiplicative();
+        while (this.next.type == TokenType.Operator) {
+            const operator = this.next.strValue;
+            switch (operator) {
+                case '+':
+                case '-':
+                    this.advance();
+                    let right = this.parseMultiplicative();
+                    result = new Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('-')) {
-                result = new Binary('-', result, this.parseMultiplicative());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     }
     parseMultiplicative() {
         // '*', '%', '/'
-        var result = this.parsePrefix();
-        while (true) {
-            if (this.optionalOperator('*')) {
-                result = new Binary('*', result, this.parsePrefix());
+        let result = this.parsePrefix();
+        while (this.next.type == TokenType.Operator) {
+            const operator = this.next.strValue;
+            switch (operator) {
+                case '*':
+                case '%':
+                case '/':
+                    this.advance();
+                    let right = this.parsePrefix();
+                    result = new Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('%')) {
-                result = new Binary('%', result, this.parsePrefix());
-            }
-            else if (this.optionalOperator('/')) {
-                result = new Binary('/', result, this.parsePrefix());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     }
     parsePrefix() {
-        if (this.optionalOperator('+')) {
-            return this.parsePrefix();
+        if (this.next.type == TokenType.Operator) {
+            const start = this.inputIndex;
+            const operator = this.next.strValue;
+            let result;
+            switch (operator) {
+                case '+':
+                    this.advance();
+                    return this.parsePrefix();
+                case '-':
+                    this.advance();
+                    result = this.parsePrefix();
+                    return new Binary(this.span(start), operator, new LiteralPrimitive(new ParseSpan(start, start), 0), result);
+                case '!':
+                    this.advance();
+                    result = this.parsePrefix();
+                    return new PrefixNot(this.span(start), result);
+            }
         }
-        else if (this.optionalOperator('-')) {
-            return new Binary('-', new LiteralPrimitive(0), this.parsePrefix());
-        }
-        else if (this.optionalOperator('!')) {
-            return new PrefixNot(this.parsePrefix());
-        }
-        else {
-            return this.parseCallChain();
-        }
+        return this.parseCallChain();
     }
     parseCallChain() {
-        var result = this.parsePrimary();
+        let result = this.parsePrimary();
         while (true) {
             if (this.optionalCharacter(chars.$PERIOD)) {
                 result = this.parseAccessMemberOrMethodCall(result, false);
@@ -402,20 +418,24 @@ export class _ParseAST {
                 result = this.parseAccessMemberOrMethodCall(result, true);
             }
             else if (this.optionalCharacter(chars.$LBRACKET)) {
-                var key = this.parsePipe();
+                this.rbracketsExpected++;
+                const key = this.parsePipe();
+                this.rbracketsExpected--;
                 this.expectCharacter(chars.$RBRACKET);
                 if (this.optionalOperator('=')) {
-                    var value = this.parseConditional();
-                    result = new KeyedWrite(result, key, value);
+                    const value = this.parseConditional();
+                    result = new KeyedWrite(this.span(result.span.start), result, key, value);
                 }
                 else {
-                    result = new KeyedRead(result, key);
+                    result = new KeyedRead(this.span(result.span.start), result, key);
                 }
             }
             else if (this.optionalCharacter(chars.$LPAREN)) {
-                var args = this.parseCallArguments();
+                this.rparensExpected++;
+                const args = this.parseCallArguments();
+                this.rparensExpected--;
                 this.expectCharacter(chars.$RPAREN);
-                result = new FunctionCall(result, args);
+                result = new FunctionCall(this.span(result.span.start), result, args);
             }
             else {
                 return result;
@@ -423,55 +443,68 @@ export class _ParseAST {
         }
     }
     parsePrimary() {
+        const start = this.inputIndex;
         if (this.optionalCharacter(chars.$LPAREN)) {
-            let result = this.parsePipe();
+            this.rparensExpected++;
+            const result = this.parsePipe();
+            this.rparensExpected--;
             this.expectCharacter(chars.$RPAREN);
             return result;
         }
-        else if (this.next.isKeywordNull() || this.next.isKeywordUndefined()) {
+        else if (this.next.isKeywordNull()) {
             this.advance();
-            return new LiteralPrimitive(null);
+            return new LiteralPrimitive(this.span(start), null);
+        }
+        else if (this.next.isKeywordUndefined()) {
+            this.advance();
+            return new LiteralPrimitive(this.span(start), void 0);
         }
         else if (this.next.isKeywordTrue()) {
             this.advance();
-            return new LiteralPrimitive(true);
+            return new LiteralPrimitive(this.span(start), true);
         }
         else if (this.next.isKeywordFalse()) {
             this.advance();
-            return new LiteralPrimitive(false);
+            return new LiteralPrimitive(this.span(start), false);
+        }
+        else if (this.next.isKeywordThis()) {
+            this.advance();
+            return new ImplicitReceiver(this.span(start));
         }
         else if (this.optionalCharacter(chars.$LBRACKET)) {
-            var elements = this.parseExpressionList(chars.$RBRACKET);
+            this.rbracketsExpected++;
+            const elements = this.parseExpressionList(chars.$RBRACKET);
+            this.rbracketsExpected--;
             this.expectCharacter(chars.$RBRACKET);
-            return new LiteralArray(elements);
+            return new LiteralArray(this.span(start), elements);
         }
         else if (this.next.isCharacter(chars.$LBRACE)) {
             return this.parseLiteralMap();
         }
         else if (this.next.isIdentifier()) {
-            return this.parseAccessMemberOrMethodCall(_implicitReceiver, false);
+            return this.parseAccessMemberOrMethodCall(new ImplicitReceiver(this.span(start)), false);
         }
         else if (this.next.isNumber()) {
-            var value = this.next.toNumber();
+            const value = this.next.toNumber();
             this.advance();
-            return new LiteralPrimitive(value);
+            return new LiteralPrimitive(this.span(start), value);
         }
         else if (this.next.isString()) {
-            var literalValue = this.next.toString();
+            const literalValue = this.next.toString();
             this.advance();
-            return new LiteralPrimitive(literalValue);
+            return new LiteralPrimitive(this.span(start), literalValue);
         }
         else if (this.index >= this.tokens.length) {
             this.error(`Unexpected end of expression: ${this.input}`);
+            return new EmptyExpr(this.span(start));
         }
         else {
             this.error(`Unexpected token ${this.next}`);
+            return new EmptyExpr(this.span(start));
         }
-        // error() throws, so we don't reach here.
-        throw new BaseException('Fell through all cases in parsePrimary');
     }
     parseExpressionList(terminator) {
-        var result = [];
+        let result = [];
         if (!this.next.isCharacter(terminator)) {
             do {
                 result.push(this.parsePipe());
@@ -480,50 +513,59 @@ export class _ParseAST {
         return result;
     }
     parseLiteralMap() {
-        var keys = [];
-        var values = [];
+        let keys = [];
+        let values = [];
+        const start = this.inputIndex;
         this.expectCharacter(chars.$LBRACE);
         if (!this.optionalCharacter(chars.$RBRACE)) {
+            this.rbracesExpected++;
             do {
                 var key = this.expectIdentifierOrKeywordOrString();
                 keys.push(key);
                 this.expectCharacter(chars.$COLON);
                 values.push(this.parsePipe());
             } while (this.optionalCharacter(chars.$COMMA));
+            this.rbracesExpected--;
             this.expectCharacter(chars.$RBRACE);
         }
-        return new LiteralMap(keys, values);
+        return new LiteralMap(this.span(start), keys, values);
     }
     parseAccessMemberOrMethodCall(receiver, isSafe = false) {
-        let id = this.expectIdentifierOrKeyword();
+        const start = receiver.span.start;
+        const id = this.expectIdentifierOrKeyword();
         if (this.optionalCharacter(chars.$LPAREN)) {
-            let args = this.parseCallArguments();
+            this.rparensExpected++;
+            const args = this.parseCallArguments();
             this.expectCharacter(chars.$RPAREN);
-            return isSafe ? new SafeMethodCall(receiver, id, args) : new MethodCall(receiver, id, args);
+            this.rparensExpected--;
+            let span = this.span(start);
+            return isSafe ? new SafeMethodCall(span, receiver, id, args) :
+                new MethodCall(span, receiver, id, args);
         }
         else {
             if (isSafe) {
                 if (this.optionalOperator('=')) {
                     this.error('The \'?.\' operator cannot be used in the assignment');
+                    return new EmptyExpr(this.span(start));
                 }
                 else {
-                    return new SafePropertyRead(receiver, id);
+                    return new SafePropertyRead(this.span(start), receiver, id);
                 }
             }
             else {
                 if (this.optionalOperator('=')) {
                     if (!this.parseAction) {
                         this.error('Bindings cannot contain assignments');
+                        return new EmptyExpr(this.span(start));
                     }
                     let value = this.parseConditional();
-                    return new PropertyWrite(receiver, id, value);
+                    return new PropertyWrite(this.span(start), receiver, id, value);
                 }
                 else {
-                    return new PropertyRead(receiver, id);
+                    return new PropertyRead(this.span(start), receiver, id);
                 }
             }
         }
-        return null;
     }
     parseCallArguments() {
         if (this.next.isCharacter(chars.$RPAREN))
@@ -538,8 +580,8 @@ export class _ParseAST {
      * An identifier, a keyword, a string with an optional `-` inbetween.
      */
     expectTemplateBindingKey() {
-        var result = '';
-        var operatorFound = false;
+        let result = '';
+        let operatorFound = false;
         do {
             result += this.expectIdentifierOrKeywordOrString();
             operatorFound = this.optionalOperator('-');
@@ -550,9 +592,9 @@ export class _ParseAST {
         return result.toString();
     }
     parseTemplateBindings() {
-        var bindings = [];
-        var prefix = null;
-        var warnings = [];
+        let bindings = [];
+        let prefix = null;
+        let warnings = [];
         while (this.index < this.tokens.length) {
             var keyIsVar = this.peekKeywordLet();
             if (!keyIsVar && this.peekDeprecatedKeywordVar()) {
@@ -588,24 +630,52 @@ export class _ParseAST {
             }
             else if (this.next !== EOF && !this.peekKeywordLet() && !this.peekDeprecatedKeywordVar() &&
                 !this.peekDeprecatedOperatorHash()) {
-                var start = this.inputIndex;
+                const start = this.inputIndex;
                 var ast = this.parsePipe();
                 var source = this.input.substring(start, this.inputIndex);
-                expression = new ASTWithSource(ast, source, this.location);
+                expression = new ASTWithSource(ast, source, this.location, this.errors);
             }
             bindings.push(new TemplateBinding(key, keyIsVar, name, expression));
             if (!this.optionalCharacter(chars.$SEMICOLON)) {
                 this.optionalCharacter(chars.$COMMA);
             }
         }
-        return new TemplateBindingParseResult(bindings, warnings);
+        return new TemplateBindingParseResult(bindings, warnings, this.errors);
     }
     error(message, index = null) {
+        this.errors.push(new ParserError(message, this.input, this.locationText(index), this.location));
+        this.skip();
+    }
+    locationText(index = null) {
         if (isBlank(index))
             index = this.index;
-        var location = (index < this.tokens.length) ? `at column ${this.tokens[index].index + 1} in` :
+        return (index < this.tokens.length) ? `at column ${this.tokens[index].index + 1} in` :
             `at the end of the expression`;
-        throw new ParseException(message, this.input, location, this.location);
+    }
+    // Error recovery should skip tokens until it encounters a recovery point. skip() treats
+    // the end of input and a ';' as unconditionally a recovery point. It also treats ')',
+    // '}' and ']' as conditional recovery points if one of calling productions is expecting
+    // one of these symbols. This allows skip() to recover from errors such as '(a.) + 1' allowing
+    // more of the AST to be retained (it doesn't skip any tokens as the ')' is retained because
+    // of the '(' begins an '(' <expr> ')' production). The recovery points of grouping symbols
+    // must be conditional as they must be skipped if none of the calling productions are not
+    // expecting the closing token else we will never make progress in the case of an
+    // extrainious group closing symbol (such as a stray ')'). This is not the case for ';' because
+    // parseChain() is always the root production and it expects a ';'.
+    // If a production expects one of these token it increments the corresponding nesting count,
+    // and then decrements it just prior to checking if the token is in the input.
+    skip() {
+        let n = this.next;
+        while (this.index < this.tokens.length && !n.isCharacter(chars.$SEMICOLON) &&
+            (this.rparensExpected <= 0 || !n.isCharacter(chars.$RPAREN)) &&
+            (this.rbracesExpected <= 0 || !n.isCharacter(chars.$RBRACE)) &&
+            (this.rbracketsExpected <= 0 || !n.isCharacter(chars.$RBRACKET))) {
+            if (this.next.isError()) {
+                this.errors.push(new ParserError(this.next.toString(), this.input, this.locationText(), this.location));
+            }
+            this.advance();
+            n = this.next;
+        }
     }
 }
 class SimpleExpressionChecker {
@@ -634,13 +704,7 @@ class SimpleExpressionChecker {
     visitPipe(ast, context) { this.simple = false; }
     visitKeyedRead(ast, context) { this.simple = false; }
     visitKeyedWrite(ast, context) { this.simple = false; }
-    visitAll(asts) {
-        var res = ListWrapper.createFixedSize(asts.length);
-        for (var i = 0; i < asts.length; ++i) {
-            res[i] = asts[i].visit(this);
-        }
-        return res;
-    }
+    visitAll(asts) { return asts.map(node => node.visit(this)); }
     visitChain(ast, context) { this.simple = false; }
     visitQuote(ast, context) { this.simple = false; }
 }

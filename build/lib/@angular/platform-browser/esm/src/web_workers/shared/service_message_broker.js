@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { ObservableWrapper, PromiseWrapper } from '../../facade/async';
 import { ListWrapper, Map } from '../../facade/collection';
 import { FunctionWrapper, isPresent } from '../../facade/lang';
 import { MessageBus } from '../shared/message_bus';
@@ -54,7 +53,7 @@ export class ServiceMessageBroker_ extends ServiceMessageBroker {
         this._methods = new Map();
         this._sink = messageBus.to(channel);
         var source = messageBus.from(channel);
-        ObservableWrapper.subscribe(source, (message) => this._handleMessage(message));
+        source.subscribe({ next: (message) => this._handleMessage(message) });
     }
     registerMethod(methodName, signature, method, returnType) {
         this._methods.set(methodName, (message) => {
@@ -78,8 +77,8 @@ export class ServiceMessageBroker_ extends ServiceMessageBroker {
         }
     }
     _wrapWebWorkerPromise(id, promise, type) {
-        PromiseWrapper.then(promise, (result) => {
-            ObservableWrapper.callEmit(this._sink, { 'type': 'result', 'value': this._serializer.serialize(result, type), 'id': id });
+        promise.then((result) => {
+            this._sink.emit({ 'type': 'result', 'value': this._serializer.serialize(result, type), 'id': id });
         });
     }
 }

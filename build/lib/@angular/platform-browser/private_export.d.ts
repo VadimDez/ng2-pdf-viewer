@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import * as browser from './src/browser';
 import * as ng_proble from './src/dom/debug/ng_probe';
 import * as dom_adapter from './src/dom/dom_adapter';
 import * as dom_renderer from './src/dom/dom_renderer';
@@ -26,6 +27,7 @@ export declare namespace __platform_browser_private_types__ {
     var ELEMENT_PROBE_PROVIDERS: typeof ng_proble.ELEMENT_PROBE_PROVIDERS;
     type DomEventsPlugin = dom_events.DomEventsPlugin;
     var DomEventsPlugin: typeof dom_events.DomEventsPlugin;
+    var initDomAdapter: typeof browser.initDomAdapter;
 }
 export declare var __platform_browser_private__: {
     DomAdapter: typeof dom_adapter.DomAdapter;
@@ -37,4 +39,6 @@ export declare var __platform_browser_private__: {
     SharedStylesHost: typeof shared_styles_host.SharedStylesHost;
     ELEMENT_PROBE_PROVIDERS: any[];
     DomEventsPlugin: typeof dom_events.DomEventsPlugin;
+    initDomAdapter: () => void;
+    INTERNAL_BROWSER_PLATFORM_PROVIDERS: any[];
 };

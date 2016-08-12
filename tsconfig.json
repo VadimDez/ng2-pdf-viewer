@@ -7,12 +7,13 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "removeComments": false,
+    "removeComments": true,
     "noImplicitAny": false
   },
   "exclude": [
     "gulpfile.ts",
     "node_modules",
+    "typings",
     "dist"
   ]
 }

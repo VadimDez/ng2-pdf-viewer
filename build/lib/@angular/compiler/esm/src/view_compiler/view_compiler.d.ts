@@ -1,7 +1,7 @@
 import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metadata';
 import { CompilerConfig } from '../config';
 import * as o from '../output/output_ast';
-import { TemplateAst } from '../template_ast';
+import { TemplateAst } from '../template_parser/template_ast';
 import { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
 export { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
 export declare class ViewCompileResult {

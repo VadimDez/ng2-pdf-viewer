@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var PromiseObservable_1 = require('rxjs/observable/PromiseObservable');
 var async_1 = require('../facade/async');
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
@@ -53,7 +54,7 @@ function _find(control, path) {
     }, control);
 }
 function toObservable(r) {
-    return lang_1.isPromise(r) ? async_1.ObservableWrapper.fromPromise(r) : r;
+    return lang_1.isPromise(r) ? PromiseObservable_1.PromiseObservable.create(r) : r;
 }
 /**
  * @experimental
@@ -152,8 +153,8 @@ var AbstractControl = (function () {
             this._runAsyncValidator(emitEvent);
         }
         if (emitEvent) {
-            async_1.ObservableWrapper.callEmit(this._valueChanges, this._value);
-            async_1.ObservableWrapper.callEmit(this._statusChanges, this._status);
+            this._valueChanges.emit(this._value);
+            this._statusChanges.emit(this._status);
         }
         if (lang_1.isPresent(this._parent) && !onlySelf) {
             this._parent.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
@@ -168,12 +169,12 @@ var AbstractControl = (function () {
             this._status = exports.PENDING;
             this._cancelExistingSubscription();
             var obs = toObservable(this.asyncValidator(this));
-            this._asyncValidationSubscription = async_1.ObservableWrapper.subscribe(obs, function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); });
+            this._asyncValidationSubscription = obs.subscribe({ next: function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); } });
         }
     };
     AbstractControl.prototype._cancelExistingSubscription = function () {
         if (lang_1.isPresent(this._asyncValidationSubscription)) {
-            async_1.ObservableWrapper.dispose(this._asyncValidationSubscription);
+            this._asyncValidationSubscription.unsubscribe();
         }
     };
     /**
@@ -205,7 +206,7 @@ var AbstractControl = (function () {
         this._errors = errors;
         this._status = this._calculateStatus();
         if (emitEvent) {
-            async_1.ObservableWrapper.callEmit(this._statusChanges, this._status);
+            this._statusChanges.emit(this._status);
         }
         if (lang_1.isPresent(this._parent)) {
             this._parent._updateControlsErrors();

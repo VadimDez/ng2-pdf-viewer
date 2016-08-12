@@ -1,6 +1,13 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { Injectable } from '@angular/core';
 import { LocationStrategy } from '../index';
-import { EventEmitter, ObservableWrapper } from '../src/facade/async';
+import { EventEmitter } from '../src/facade/async';
 export class MockLocationStrategy extends LocationStrategy {
     constructor() {
         super();
@@ -13,9 +20,9 @@ export class MockLocationStrategy extends LocationStrategy {
     }
     simulatePopState(url) {
         this.internalPath = url;
-        ObservableWrapper.callEmit(this._subject, new _MockPopStateEvent(this.path()));
+        this._subject.emit(new _MockPopStateEvent(this.path()));
     }
-    path() { return this.internalPath; }
+    path(includeHash = false) { return this.internalPath; }
     prepareExternalUrl(internal) {
         if (internal.startsWith('/') && this.internalBaseHref.endsWith('/')) {
             return this.internalBaseHref + internal.substring(1);
@@ -36,7 +43,7 @@ export class MockLocationStrategy extends LocationStrategy {
         var externalUrl = this.prepareExternalUrl(url);
         this.urlChanges.push('replace: ' + externalUrl);
     }
-    onPopState(fn) { ObservableWrapper.subscribe(this._subject, fn); }
+    onPopState(fn) { this._subject.subscribe({ next: fn }); }
     getBaseHref() { return this.internalBaseHref; }
     back() {
         if (this.urlChanges.length > 0) {

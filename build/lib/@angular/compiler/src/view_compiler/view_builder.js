@@ -14,11 +14,12 @@ var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
 var identifiers_1 = require('../identifiers');
 var o = require('../output/output_ast');
-var template_ast_1 = require('../template_ast');
+var template_ast_1 = require('../template_parser/template_ast');
+var util_1 = require('../util');
 var compile_element_1 = require('./compile_element');
 var compile_view_1 = require('./compile_view');
 var constants_1 = require('./constants');
-var util_1 = require('./util');
+var util_2 = require('./util');
 var IMPLICIT_TEMPLATE_VAR = '\$implicit';
 var CLASS_ATTR = 'class';
 var STYLE_ATTR = 'style';
@@ -182,14 +183,14 @@ var ViewBuilderVisitor = (function () {
         this.view.nodes.push(compileElement);
         var compViewExpr = null;
         if (lang_1.isPresent(component)) {
-            var nestedComponentIdentifier = new compile_metadata_1.CompileIdentifierMetadata({ name: util_1.getViewFactoryName(component, 0) });
+            var nestedComponentIdentifier = new compile_metadata_1.CompileIdentifierMetadata({ name: util_2.getViewFactoryName(component, 0) });
             this.targetDependencies.push(new ViewFactoryDependency(component.type, nestedComponentIdentifier));
-            var precompileComponentIdentifiers = component.precompile.map(function (precompileComp) {
-                var id = new compile_metadata_1.CompileIdentifierMetadata({ name: precompileComp.name });
-                _this.targetDependencies.push(new ComponentFactoryDependency(precompileComp, id));
+            var entryComponentIdentifiers = component.entryComponents.map(function (entryComponent) {
+                var id = new compile_metadata_1.CompileIdentifierMetadata({ name: entryComponent.name });
+                _this.targetDependencies.push(new ComponentFactoryDependency(entryComponent, id));
                 return id;
             });
-            compileElement.createComponentFactoryResolver(precompileComponentIdentifiers);
+            compileElement.createComponentFactoryResolver(entryComponentIdentifiers);
             compViewExpr = o.variable("compView_" + nodeIndex); // fix highlighting: `
             compileElement.setComponentView(compViewExpr);
             this.view.createMethod.addStmt(compViewExpr
@@ -208,7 +209,7 @@ var ViewBuilderVisitor = (function () {
                 codeGenContentNodes = constants_1.ViewProperties.projectableNodes;
             }
             else {
-                codeGenContentNodes = o.literalArr(compileElement.contentNodesByNgContentIndex.map(function (nodes) { return util_1.createFlatArray(nodes); }));
+                codeGenContentNodes = o.literalArr(compileElement.contentNodesByNgContentIndex.map(function (nodes) { return util_2.createFlatArray(nodes); }));
             }
             this.view.createMethod.addStmt(compViewExpr
                 .callMethod('create', [compileElement.getComponent(), codeGenContentNodes, o.NULL_EXPR])
@@ -231,7 +232,7 @@ var ViewBuilderVisitor = (function () {
         var directives = ast.directives.map(function (directiveAst) { return directiveAst.directive; });
         var compileElement = new compile_element_1.CompileElement(parent, this.view, nodeIndex, renderNode, ast, null, directives, ast.providers, ast.hasViewContainer, true, ast.references);
         this.view.nodes.push(compileElement);
-        var compiledAnimations = this._animationCompiler.compileComponent(this.view.component);
+        var compiledAnimations = this._animationCompiler.compileComponent(this.view.component, [ast]);
         this.nestedViewCount++;
         var embeddedView = new compile_view_1.CompileView(this.view.component, this.view.genConfig, this.view.pipeMetas, o.NULL_EXPR, compiledAnimations, this.view.viewIndex + this.nestedViewCount, compileElement, templateVariableBindings);
         this.nestedViewCount += buildView(embeddedView, ast.children, this.targetDependencies);
@@ -404,12 +405,14 @@ function createViewFactory(view, viewClass, renderCompTypeVar) {
         templateUrlInfo = view.component.template.templateUrl;
     }
     if (view.viewIndex === 0) {
+        var animationsExpr = o.literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnVariable]; }));
         initRenderCompTypeStmts = [new o.IfStmt(renderCompTypeVar.identical(o.NULL_EXPR), [
                 renderCompTypeVar
                     .set(constants_1.ViewConstructorVars.viewUtils.callMethod('createRenderComponentType', [
                     o.literal(templateUrlInfo),
                     o.literal(view.component.template.ngContentSelectors.length),
-                    constants_1.ViewEncapsulationEnum.fromValue(view.component.template.encapsulation), view.styles
+                    constants_1.ViewEncapsulationEnum.fromValue(view.component.template.encapsulation), view.styles,
+                    animationsExpr
                 ]))
                     .toStmt()
             ])];
@@ -438,7 +441,7 @@ function generateCreateMethod(view) {
     return parentRenderNodeStmts.concat(view.createMethod.finish(), [
         o.THIS_EXPR
             .callMethod('init', [
-            util_1.createFlatArray(view.rootNodesOrAppElements),
+            util_2.createFlatArray(view.rootNodesOrAppElements),
             o.literalArr(view.nodes.map(function (node) { return node.renderNode; })), o.literalArr(view.disposables),
             o.literalArr(view.subscriptions)
         ])

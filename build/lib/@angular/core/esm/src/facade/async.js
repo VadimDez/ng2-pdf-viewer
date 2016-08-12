@@ -6,47 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Subject } from 'rxjs/Subject';
-import { PromiseObservable } from 'rxjs/observable/PromiseObservable';
-import { toPromise } from 'rxjs/operator/toPromise';
-import { global, noop } from './lang';
 export { Observable } from 'rxjs/Observable';
 export { Subject } from 'rxjs/Subject';
-export { PromiseCompleter, PromiseWrapper } from './promise';
-export class TimerWrapper {
-    static setTimeout(fn, millis) {
-        return global.setTimeout(fn, millis);
-    }
-    static clearTimeout(id) { global.clearTimeout(id); }
-    static setInterval(fn, millis) {
-        return global.setInterval(fn, millis);
-    }
-    static clearInterval(id) { global.clearInterval(id); }
-}
-export class ObservableWrapper {
-    // TODO(vsavkin): when we use rxnext, try inferring the generic type from the first arg
-    static subscribe(emitter, onNext, onError, onComplete = () => { }) {
-        onError = (typeof onError === 'function') && onError || noop;
-        onComplete = (typeof onComplete === 'function') && onComplete || noop;
-        return emitter.subscribe({ next: onNext, error: onError, complete: onComplete });
-    }
-    static isObservable(obs) { return !!obs.subscribe; }
-    /**
-     * Returns whether `obs` has any subscribers listening to events.
-     */
-    static hasSubscribers(obs) { return obs.observers.length > 0; }
-    static dispose(subscription) { subscription.unsubscribe(); }
-    /**
-     * @deprecated - use callEmit() instead
-     */
-    static callNext(emitter, value) { emitter.emit(value); }
-    static callEmit(emitter, value) { emitter.emit(value); }
-    static callError(emitter, error) { emitter.error(error); }
-    static callComplete(emitter) { emitter.complete(); }
-    static fromPromise(promise) {
-        return PromiseObservable.create(promise);
-    }
-    static toPromise(obj) { return toPromise.call(obj); }
-}
 /**
  * Use by directives and components to emit custom Events.
  *

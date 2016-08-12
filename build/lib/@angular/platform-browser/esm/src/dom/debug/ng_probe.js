@@ -23,7 +23,7 @@ const CORE_TOKENS_GLOBAL_NAME = 'ng.coreTokens';
 export function inspectNativeElement(element /** TODO #9100 */) {
     return getDebugNode(element);
 }
-function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
+export function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
     if (isDevMode()) {
         return _createRootRenderer(rootRenderer);
     }

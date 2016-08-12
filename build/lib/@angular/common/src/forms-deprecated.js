@@ -6,11 +6,25 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
+/**
+ * @module
+ * @description
+ * This module is used for handling user input, by defining and building a {@link ControlGroup} that
+ * consists of
+ * {@link Control} objects, and mapping them onto the DOM. {@link Control} objects can then be used
+ * to read information
+ * from the form DOM elements.
+ *
+ * Forms providers are not included in default providers; you must import these providers
+ * explicitly.
+ */
+var core_1 = require('@angular/core');
+var directives_1 = require('./forms-deprecated/directives');
 var radio_control_value_accessor_1 = require('./forms-deprecated/directives/radio_control_value_accessor');
 var form_builder_1 = require('./forms-deprecated/form_builder');
-var directives_1 = require('./forms-deprecated/directives');
-exports.FORM_DIRECTIVES = directives_1.FORM_DIRECTIVES;
-exports.RadioButtonState = directives_1.RadioButtonState;
+var directives_2 = require('./forms-deprecated/directives');
+exports.FORM_DIRECTIVES = directives_2.FORM_DIRECTIVES;
+exports.RadioButtonState = directives_2.RadioButtonState;
 var abstract_control_directive_1 = require('./forms-deprecated/directives/abstract_control_directive');
 exports.AbstractControlDirective = abstract_control_directive_1.AbstractControlDirective;
 var checkbox_value_accessor_1 = require('./forms-deprecated/directives/checkbox_value_accessor');
@@ -68,4 +82,20 @@ exports.Validators = validators_2.Validators;
  * @experimental
  */
 exports.FORM_PROVIDERS = [form_builder_1.FormBuilder, radio_control_value_accessor_1.RadioControlRegistry];
+var DeprecatedFormsModule = (function () {
+    function DeprecatedFormsModule() {
+    }
+    /** @nocollapse */
+    DeprecatedFormsModule.decorators = [
+        { type: core_1.NgModule, args: [{
+                    providers: [
+                        exports.FORM_PROVIDERS,
+                    ],
+                    declarations: directives_1.FORM_DIRECTIVES,
+                    exports: directives_1.FORM_DIRECTIVES
+                },] },
+    ];
+    return DeprecatedFormsModule;
+}());
+exports.DeprecatedFormsModule = DeprecatedFormsModule;
 //# sourceMappingURL=forms-deprecated.js.map

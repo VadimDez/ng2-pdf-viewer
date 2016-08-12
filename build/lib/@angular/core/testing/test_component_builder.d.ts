@@ -5,28 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { AnimationEntryMetadata, ComponentFactory, Injector, NgZone, OpaqueToken, ViewMetadata } from '../index';
+import { AnimationEntryMetadata, ComponentFactory, Injector, NgZone, ViewMetadata } from '../index';
 import { ConcreteType, Type } from '../src/facade/lang';
 import { ComponentFixture } from './component_fixture';
 /**
- * An abstract class for inserting the root test component element in a platform independent way.
- *
- * @experimental
- */
-export declare class TestComponentRenderer {
-    insertRootElement(rootElementId: string): void;
-}
-/**
- * @experimental
- */
-export declare var ComponentFixtureAutoDetect: OpaqueToken;
-/**
- * @experimental
- */
-export declare var ComponentFixtureNoNgZone: OpaqueToken;
-/**
  * Builds a ComponentFixture for use in component level tests.
- * @stable
+ *
+ * @deprecated Use `TestBed.configureTestModule` / `TestBed.override...` / `TestBed.createComponent`
+ * instead.
  */
 export declare class TestComponentBuilder {
     protected _injector: Injector;

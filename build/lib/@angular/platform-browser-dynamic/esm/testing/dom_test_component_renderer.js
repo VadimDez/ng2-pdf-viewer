@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { TestComponentRenderer } from '@angular/compiler/testing';
 import { Inject, Injectable } from '@angular/core';
+import { TestComponentRenderer } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/platform-browser';
 import { getDOM } from '../platform_browser_private';
 export class DOMTestComponentRenderer extends TestComponentRenderer {

@@ -1,4 +1,11 @@
-import { SanitizationService, SecurityContext } from '../../core_private';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { SanitizationService, SecurityContext } from '@angular/core';
 export { SecurityContext };
 /**
  * Marker interface for a value that's safe to use in a particular context.

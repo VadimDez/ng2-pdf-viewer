@@ -10,7 +10,7 @@ var core_1 = require('@angular/core');
 var collection_1 = require('../../facade/collection');
 var lang_1 = require('../../facade/lang');
 var control_value_accessor_1 = require('./control_value_accessor');
-var SELECT_MULTIPLE_VALUE_ACCESSOR = {
+exports.SELECT_MULTIPLE_VALUE_ACCESSOR = {
     provide: control_value_accessor_1.NG_VALUE_ACCESSOR,
     useExisting: core_1.forwardRef(function () { return SelectMultipleControlValueAccessor; }),
     multi: true
@@ -102,8 +102,8 @@ var SelectMultipleControlValueAccessor = (function () {
     SelectMultipleControlValueAccessor.decorators = [
         { type: core_1.Directive, args: [{
                     selector: 'select[multiple][ngControl],select[multiple][ngFormControl],select[multiple][ngModel]',
-                    host: { '(input)': 'onChange($event.target)', '(blur)': 'onTouched()' },
-                    providers: [SELECT_MULTIPLE_VALUE_ACCESSOR]
+                    host: { '(change)': 'onChange($event.target)', '(blur)': 'onTouched()' },
+                    providers: [exports.SELECT_MULTIPLE_VALUE_ACCESSOR]
                 },] },
     ];
     /** @nocollapse */

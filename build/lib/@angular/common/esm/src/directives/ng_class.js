@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Directive, ElementRef, IterableDiffers, KeyValueDiffers, Renderer } from '@angular/core';
+import { Directive, ElementRef, Input, IterableDiffers, KeyValueDiffers, Renderer } from '@angular/core';
 import { StringMapWrapper, isListLikeIterable } from '../facade/collection';
 import { isArray, isPresent, isString } from '../facade/lang';
 export class NgClass {
@@ -22,7 +22,7 @@ export class NgClass {
         this._applyInitialClasses(false);
         this._applyClasses(this._rawClass, false);
     }
-    set rawClass(v) {
+    set ngClass(v) {
         this._cleanupClasses(this._rawClass);
         if (isString(v)) {
             v = v.split(' ');
@@ -53,7 +53,6 @@ export class NgClass {
             }
         }
     }
-    ngOnDestroy() { this._cleanupClasses(this._rawClass); }
     _cleanupClasses(rawClassVal) {
         this._applyClasses(rawClassVal, true);
         this._applyInitialClasses(false);
@@ -107,7 +106,7 @@ export class NgClass {
 }
 /** @nocollapse */
 NgClass.decorators = [
-    { type: Directive, args: [{ selector: '[ngClass]', inputs: ['rawClass: ngClass', 'initialClasses: class'] },] },
+    { type: Directive, args: [{ selector: '[ngClass]' },] },
 ];
 /** @nocollapse */
 NgClass.ctorParameters = [
@@ -116,4 +115,9 @@ NgClass.ctorParameters = [
     { type: ElementRef, },
     { type: Renderer, },
 ];
+/** @nocollapse */
+NgClass.propDecorators = {
+    'initialClasses': [{ type: Input, args: ['class',] },],
+    'ngClass': [{ type: Input },],
+};
 //# sourceMappingURL=ng_class.js.map

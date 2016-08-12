@@ -16,7 +16,7 @@ export declare class SwitchView {
 /**
  * Adds or removes DOM sub-trees when their match expressions match the switch expression.
  *
- * Elements within `NgSwitch` but without `ngSwitchCase` or `NgSwitchDefault` directives will be
+ * Elements within `NgSwitch` but without `NgSwitchCase` or `NgSwitchDefault` directives will be
  * preserved at the location as specified in the template.
  *
  * `NgSwitch` simply inserts nested elements based on which match expression matches the value
@@ -56,7 +56,7 @@ export declare class SwitchView {
  *       <template ngSwitchDefault>&gt; 2, STOP!</template>
  *     </p>
  *   `,
- *   directives: [NgSwitch, ngSwitchCase, NgSwitchDefault]
+ *   directives: [NgSwitch, NgSwitchCase, NgSwitchDefault]
  * })
  * export class App {
  *   value = 'init';

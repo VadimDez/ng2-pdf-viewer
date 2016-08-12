@@ -11,20 +11,24 @@ var lang_1 = require('../facade/lang');
 var identifiers_1 = require('../identifiers');
 var o = require('../output/output_ast');
 var util_1 = require('./util');
-var _PurePipeProxy = (function () {
-    function _PurePipeProxy(view, instance, argCount) {
-        this.view = view;
-        this.instance = instance;
-        this.argCount = argCount;
-    }
-    return _PurePipeProxy;
-}());
 var CompilePipe = (function () {
     function CompilePipe(view, meta) {
+        var _this = this;
         this.view = view;
         this.meta = meta;
-        this._purePipeProxies = [];
+        this._purePipeProxyCount = 0;
         this.instance = o.THIS_EXPR.prop("_pipe_" + meta.name + "_" + view.pipeCount++);
+        var deps = this.meta.type.diDeps.map(function (diDep) {
+            if (diDep.token.equalsTo(identifiers_1.identifierToken(identifiers_1.Identifiers.ChangeDetectorRef))) {
+                return util_1.getPropertyInView(o.THIS_EXPR.prop('ref'), _this.view, _this.view.componentView);
+            }
+            return util_1.injectFromViewParentInjector(diDep.token, false);
+        });
+        this.view.fields.push(new o.ClassField(this.instance.name, o.importType(this.meta.type)));
+        this.view.createMethod.resetDebugInfo(null, null);
+        this.view.createMethod.addStmt(o.THIS_EXPR.prop(this.instance.name)
+            .set(o.importExpr(this.meta.type).instantiate(deps))
+            .toStmt());
     }
     CompilePipe.call = function (view, name, args) {
         var compView = view.componentView;
@@ -51,35 +55,15 @@ var CompilePipe = (function () {
         enumerable: true,
         configurable: true
     });
-    CompilePipe.prototype.create = function () {
-        var _this = this;
-        var deps = this.meta.type.diDeps.map(function (diDep) {
-            if (diDep.token.equalsTo(identifiers_1.identifierToken(identifiers_1.Identifiers.ChangeDetectorRef))) {
-                return util_1.getPropertyInView(o.THIS_EXPR.prop('ref'), _this.view, _this.view.componentView);
-            }
-            return util_1.injectFromViewParentInjector(diDep.token, false);
-        });
-        this.view.fields.push(new o.ClassField(this.instance.name, o.importType(this.meta.type)));
-        this.view.createMethod.resetDebugInfo(null, null);
-        this.view.createMethod.addStmt(o.THIS_EXPR.prop(this.instance.name)
-            .set(o.importExpr(this.meta.type).instantiate(deps))
-            .toStmt());
-        this._purePipeProxies.forEach(function (purePipeProxy) {
-            var pipeInstanceSeenFromPureProxy = util_1.getPropertyInView(_this.instance, purePipeProxy.view, _this.view);
-            util_1.createPureProxy(pipeInstanceSeenFromPureProxy.prop('transform')
-                .callMethod(o.BuiltinMethod.bind, [pipeInstanceSeenFromPureProxy]), purePipeProxy.argCount, purePipeProxy.instance, purePipeProxy.view);
-        });
-    };
     CompilePipe.prototype._call = function (callingView, args) {
         if (this.meta.pure) {
             // PurePipeProxies live on the view that called them.
-            var purePipeProxy = new _PurePipeProxy(callingView, o.THIS_EXPR.prop(this.instance.name + "_" + this._purePipeProxies.length), args.length);
-            this._purePipeProxies.push(purePipeProxy);
+            var purePipeProxyInstance = o.THIS_EXPR.prop(this.instance.name + "_" + this._purePipeProxyCount++);
+            var pipeInstanceSeenFromPureProxy = util_1.getPropertyInView(this.instance, callingView, this.view);
+            util_1.createPureProxy(pipeInstanceSeenFromPureProxy.prop('transform')
+                .callMethod(o.BuiltinMethod.bind, [pipeInstanceSeenFromPureProxy]), args.length, purePipeProxyInstance, callingView);
             return o.importExpr(identifiers_1.Identifiers.castByValue)
-                .callFn([
-                purePipeProxy.instance,
-                util_1.getPropertyInView(this.instance.prop('transform'), callingView, this.view)
-            ])
+                .callFn([purePipeProxyInstance, pipeInstanceSeenFromPureProxy.prop('transform')])
                 .callFn(args);
         }
         else {

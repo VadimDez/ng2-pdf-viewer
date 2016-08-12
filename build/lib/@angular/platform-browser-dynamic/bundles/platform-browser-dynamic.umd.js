@@ -1,5 +1,5 @@
 /**
- * @license Angular 2.0.0-rc.4
+ * @license Angular v2.0.0-rc.5
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -9,13 +9,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/compiler'), require('@angular/core'), require('@angular/platform-browser'), require('rxjs/Subject'), require('rxjs/observable/PromiseObservable'), require('rxjs/operator/toPromise'), require('rxjs/Observable')) :
-        typeof define === 'function' && define.amd ? define(['exports', '@angular/common', '@angular/compiler', '@angular/core', '@angular/platform-browser', 'rxjs/Subject', 'rxjs/observable/PromiseObservable', 'rxjs/operator/toPromise', 'rxjs/Observable'], factory) :
-            (factory((global.ng = global.ng || {}, global.ng.platformBrowserDynamic = global.ng.platformBrowserDynamic || {}), global.ng.common, global.ng.compiler, global.ng.core, global.ng.platformBrowser, global.Rx, global.Rx, global.Rx.Observable.prototype, global.Rx));
-}(this, function (exports, _angular_common, _angular_compiler, _angular_core, _angular_platformBrowser, rxjs_Subject, rxjs_observable_PromiseObservable, rxjs_operator_toPromise, rxjs_Observable) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/compiler'), require('@angular/core'), require('@angular/platform-browser')) :
+        typeof define === 'function' && define.amd ? define(['exports', '@angular/compiler', '@angular/core', '@angular/platform-browser'], factory) :
+            (factory((global.ng = global.ng || {}, global.ng.platformBrowserDynamic = global.ng.platformBrowserDynamic || {}), global.ng.compiler, global.ng.core, global.ng.platformBrowser));
+}(this, function (exports, _angular_compiler, _angular_core, _angular_platformBrowser) {
     'use strict';
-    var ReflectionCapabilities = _angular_core.__core_private__.ReflectionCapabilities;
-    var reflector = _angular_core.__core_private__.reflector;
+    var Console = _angular_core.__core_private__.Console;
+    var INTERNAL_BROWSER_PLATFORM_PROVIDERS = _angular_platformBrowser.__platform_browser_private__.INTERNAL_BROWSER_PLATFORM_PROVIDERS;
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -54,57 +54,58 @@ var __extends = (this && this.__extends) || function (d, b) {
     function isArray(obj) {
         return Array.isArray(obj);
     }
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var PromiseCompleter = (function () {
-        function PromiseCompleter() {
-            var _this = this;
-            this.promise = new Promise(function (res, rej) {
-                _this.resolve = res;
-                _this.reject = rej;
-            });
+    var XHRImpl = (function (_super) {
+        __extends(XHRImpl, _super);
+        function XHRImpl() {
+            _super.apply(this, arguments);
         }
-        return PromiseCompleter;
-    }());
-    var PromiseWrapper = (function () {
-        function PromiseWrapper() {
-        }
-        PromiseWrapper.resolve = function (obj) { return Promise.resolve(obj); };
-        PromiseWrapper.reject = function (obj, _) { return Promise.reject(obj); };
-        // Note: We can't rename this method into `catch`, as this is not a valid
-        // method name in Dart.
-        PromiseWrapper.catchError = function (promise, onError) {
-            return promise.catch(onError);
-        };
-        PromiseWrapper.all = function (promises) {
-            if (promises.length == 0)
-                return Promise.resolve([]);
-            return Promise.all(promises);
-        };
-        PromiseWrapper.then = function (promise, success, rejection) {
-            return promise.then(success, rejection);
-        };
-        PromiseWrapper.wrap = function (computation) {
-            return new Promise(function (res, rej) {
-                try {
-                    res(computation());
-                }
-                catch (e) {
-                    rej(e);
-                }
+        XHRImpl.prototype.get = function (url) {
+            var resolve;
+            var reject;
+            var promise = new Promise(function (res, rej) {
+                resolve = res;
+                reject = rej;
             });
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'text';
+            xhr.onload = function () {
+                // responseText is the old-school way of retrieving response (supported by IE8 & 9)
+                // response/responseType properties were introduced in XHR Level2 spec (supported by IE10)
+                var response = isPresent(xhr.response) ? xhr.response : xhr.responseText;
+                // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
+                var status = xhr.status === 1223 ? 204 : xhr.status;
+                // fix status code when it is 0 (0 status is undocumented).
+                // Occurs when accessing file resources or on Android 4.1 stock browser
+                // while retrieving files from application cache.
+                if (status === 0) {
+                    status = response ? 200 : 0;
+                }
+                if (200 <= status && status <= 300) {
+                    resolve(response);
+                }
+                else {
+                    reject("Failed to load " + url);
+                }
+            };
+            xhr.onerror = function () { reject("Failed to load " + url); };
+            xhr.send();
+            return promise;
         };
-        PromiseWrapper.scheduleMicrotask = function (computation) {
-            PromiseWrapper.then(PromiseWrapper.resolve(null), computation, function (_) { });
-        };
-        PromiseWrapper.completer = function () { return new PromiseCompleter(); };
-        return PromiseWrapper;
-    }());
+        return XHRImpl;
+    }(_angular_compiler.XHR));
+    /** @nocollapse */
+    XHRImpl.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
+        INTERNAL_BROWSER_PLATFORM_PROVIDERS,
+        {
+            provide: _angular_core.COMPILER_OPTIONS,
+            useValue: { providers: [{ provide: _angular_compiler.XHR, useClass: XHRImpl }] },
+            multi: true
+        },
+    ];
     var Map$1 = global$1.Map;
     var Set = global$1.Set;
     // Safari and Internet Explorer do not support the iterable parameter to the
@@ -358,68 +359,31 @@ var __extends = (this && this.__extends) || function (d, b) {
         }
         CachedXHR.prototype.get = function (url) {
             if (this._cache.hasOwnProperty(url)) {
-                return PromiseWrapper.resolve(this._cache[url]);
+                return Promise.resolve(this._cache[url]);
             }
             else {
-                return PromiseWrapper.reject('CachedXHR: Did not find cached template for ' + url, null);
+                return Promise.reject('CachedXHR: Did not find cached template for ' + url);
             }
         };
         return CachedXHR;
     }(_angular_compiler.XHR));
-    var XHRImpl = (function (_super) {
-        __extends(XHRImpl, _super);
-        function XHRImpl() {
-            _super.apply(this, arguments);
-        }
-        XHRImpl.prototype.get = function (url) {
-            var completer = PromiseWrapper.completer();
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'text';
-            xhr.onload = function () {
-                // responseText is the old-school way of retrieving response (supported by IE8 & 9)
-                // response/responseType properties were introduced in XHR Level2 spec (supported by IE10)
-                var response = isPresent(xhr.response) ? xhr.response : xhr.responseText;
-                // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
-                var status = xhr.status === 1223 ? 204 : xhr.status;
-                // fix status code when it is 0 (0 status is undocumented).
-                // Occurs when accessing file resources or on Android 4.1 stock browser
-                // while retrieving files from application cache.
-                if (status === 0) {
-                    status = response ? 200 : 0;
-                }
-                if (200 <= status && status <= 300) {
-                    completer.resolve(response);
-                }
-                else {
-                    completer.reject("Failed to load " + url, null);
-                }
-            };
-            xhr.onerror = function () { completer.reject("Failed to load " + url, null); };
-            xhr.send();
-            return completer.promise;
-        };
-        return XHRImpl;
-    }(_angular_compiler.XHR));
     /**
-     * @experimental
+     * @deprecated The compiler providers are already included in the {@link CompilerFactory} that is
+     * contained the {@link browserDynamicPlatform}()`.
      */
-    var BROWSER_APP_COMPILER_PROVIDERS = [
-        _angular_compiler.COMPILER_PROVIDERS, {
-            provide: _angular_compiler.CompilerConfig,
-            useFactory: function (platformDirectives, platformPipes) {
-                return new _angular_compiler.CompilerConfig({ platformDirectives: platformDirectives, platformPipes: platformPipes });
-            },
-            deps: [_angular_core.PLATFORM_DIRECTIVES, _angular_core.PLATFORM_PIPES]
-        },
-        { provide: _angular_compiler.XHR, useClass: XHRImpl },
-        { provide: _angular_core.PLATFORM_DIRECTIVES, useValue: _angular_common.COMMON_DIRECTIVES, multi: true },
-        { provide: _angular_core.PLATFORM_PIPES, useValue: _angular_common.COMMON_PIPES, multi: true }
-    ];
+    var BROWSER_APP_COMPILER_PROVIDERS = [];
     /**
      * @experimental
      */
     var CACHED_TEMPLATE_PROVIDER = [{ provide: _angular_compiler.XHR, useClass: CachedXHR }];
+    /**
+     * @experimental API related to bootstrapping are still under review.
+     */
+    var platformBrowserDynamic = _angular_core.createPlatformFactory(_angular_compiler.platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
+    /**
+     * @deprecated Use {@link platformBrowserDynamic} instead
+     */
+    var browserDynamicPlatform = platformBrowserDynamic;
     /**
      * Bootstrapping for Angular applications.
      *
@@ -479,69 +443,124 @@ var __extends = (this && this.__extends) || function (d, b) {
      * applications on a page, Angular treats each application injector's services as private
      * to that application.
      *
-     * ## API
+     * ## API (version 1)
      *
      * - `appComponentType`: The root component which should act as the application. This is
      *   a reference to a `Type` which is annotated with `@Component(...)`.
      * - `customProviders`: An additional set of providers that can be added to the
      *   app injector to override default injection behavior.
      *
+     * ## API (version 2)
+     * - `appComponentType`: The root component which should act as the application. This is
+     *   a reference to a `Type` which is annotated with `@Component(...)`.
+     * - `providers`, `declarations`, `imports`, `entryComponents`: Defines the properties
+     *   of the dynamically created module that is used to bootstrap the module.
+     * - to configure the compiler, use the `compilerOptions` parameter.
+     *
      * Returns a `Promise` of {@link ComponentRef}.
      *
-     * @experimental This api cannot be used with the offline compiler and thus is still subject to
-     * change.
+     * @deprecated This api cannot be used with the offline compiler. Use
+     * `PlatformRef.boostrapModule()` instead.
      */
+    // Note: We are using typescript overloads here to have 2 function signatures!
     function bootstrap(appComponentType, customProviders) {
-        reflector.reflectionCapabilities = new ReflectionCapabilities();
-        var providers = [
-            _angular_platformBrowser.BROWSER_APP_PROVIDERS, BROWSER_APP_COMPILER_PROVIDERS,
-            isPresent(customProviders) ? customProviders : []
+        var compilerOptions;
+        var declarations = [];
+        var entryComponents = [];
+        var deprecationMessages = [];
+        var deprecatedConfiguration = _angular_compiler.analyzeAppProvidersForDeprecatedConfiguration(customProviders);
+        declarations = deprecatedConfiguration.moduleDeclarations.concat(declarations);
+        compilerOptions = deprecatedConfiguration.compilerOptions;
+        deprecationMessages = deprecatedConfiguration.deprecationMessages;
+        var DynamicModule = (function () {
+            function DynamicModule() {
+            }
+            return DynamicModule;
+        }());
+        /** @nocollapse */
+        DynamicModule.decorators = [
+            { type: _angular_core.NgModule, args: [{
+                        providers: customProviders,
+                        declarations: declarations.concat([appComponentType]),
+                        imports: [_angular_platformBrowser.BrowserModule],
+                        entryComponents: entryComponents,
+                        bootstrap: [appComponentType],
+                        schemas: [_angular_core.CUSTOM_ELEMENTS_SCHEMA]
+                    },] },
         ];
-        var appInjector = _angular_core.ReflectiveInjector.resolveAndCreate(providers, _angular_platformBrowser.browserPlatform().injector);
-        return _angular_core.coreLoadAndBootstrap(appComponentType, appInjector);
+        return platformBrowserDynamic()
+            .bootstrapModule(DynamicModule, compilerOptions)
+            .then(function (moduleRef) {
+            var console = moduleRef.injector.get(Console);
+            deprecationMessages.forEach(function (msg) { return console.warn(msg); });
+            var appRef = moduleRef.injector.get(_angular_core.ApplicationRef);
+            return appRef.components[0];
+        });
     }
     /**
+     * Bootstraps the worker ui.
+     *
      * @experimental
      */
     function bootstrapWorkerUi(workerScriptUri, customProviders) {
-        var app = _angular_core.ReflectiveInjector.resolveAndCreate([
-            _angular_platformBrowser.WORKER_UI_APPLICATION_PROVIDERS, BROWSER_APP_COMPILER_PROVIDERS,
-            { provide: _angular_platformBrowser.WORKER_SCRIPT, useValue: workerScriptUri },
-            isPresent(customProviders) ? customProviders : []
-        ], _angular_platformBrowser.workerUiPlatform().injector);
-        // Return a promise so that we keep the same semantics as Dart,
-        // and we might want to wait for the app side to come up
-        // in the future...
-        return PromiseWrapper.resolve(app.get(_angular_core.ApplicationRef));
+        if (customProviders === void 0) { customProviders = []; }
+        // For now, just creates the worker ui platform...
+        return Promise.resolve(_angular_platformBrowser.platformWorkerUi([{
+                provide: _angular_platformBrowser.WORKER_SCRIPT,
+                useValue: workerScriptUri,
+            }].concat(customProviders)));
     }
     /**
-     * @experimental
+     * @experimental API related to bootstrapping are still under review.
      */
-    var WORKER_APP_COMPILER_PROVIDERS = [
-        _angular_compiler.COMPILER_PROVIDERS, {
-            provide: _angular_compiler.CompilerConfig,
-            useFactory: function (platformDirectives, platformPipes) {
-                return new _angular_compiler.CompilerConfig({ platformDirectives: platformDirectives, platformPipes: platformPipes });
-            },
-            deps: [_angular_core.PLATFORM_DIRECTIVES, _angular_core.PLATFORM_PIPES]
-        },
-        { provide: _angular_compiler.XHR, useClass: XHRImpl },
-        { provide: _angular_core.PLATFORM_DIRECTIVES, useValue: _angular_common.COMMON_DIRECTIVES, multi: true },
-        { provide: _angular_core.PLATFORM_PIPES, useValue: _angular_common.COMMON_PIPES, multi: true }
-    ];
+    var platformWorkerAppDynamic = _angular_core.createPlatformFactory(_angular_compiler.platformCoreDynamic, 'workerAppDynamic', [{
+            provide: _angular_core.COMPILER_OPTIONS,
+            useValue: { providers: [{ provide: _angular_compiler.XHR, useClass: XHRImpl }] },
+            multi: true
+        }]);
     /**
-     * @experimental
+     * @deprecated Use {@link platformWorkerAppDynamic} instead
+     */
+    var workerAppDynamicPlatform = platformWorkerAppDynamic;
+    /**
+     * @deprecated Create an {@link NgModule} that includes the {@link WorkerAppModule} and use {@link
+     * bootstrapModule}
+     * with the {@link workerAppDynamicPlatform}() instead.
      */
     function bootstrapWorkerApp(appComponentType, customProviders) {
-        var appInjector = _angular_core.ReflectiveInjector.resolveAndCreate([
-            _angular_platformBrowser.WORKER_APP_APPLICATION_PROVIDERS, WORKER_APP_COMPILER_PROVIDERS,
-            isPresent(customProviders) ? customProviders : []
-        ], _angular_platformBrowser.workerAppPlatform().injector);
-        return _angular_core.coreLoadAndBootstrap(appComponentType, appInjector);
+        console.warn('bootstrapWorkerApp is deprecated. Create an @NgModule that includes the `WorkerAppModule` and use `bootstrapModule` with the `workerAppDynamicPlatform()` instead.');
+        var deprecatedConfiguration = _angular_compiler.analyzeAppProvidersForDeprecatedConfiguration(customProviders);
+        var declarations = [deprecatedConfiguration.moduleDeclarations.concat([appComponentType])];
+        var DynamicModule = (function () {
+            function DynamicModule() {
+            }
+            return DynamicModule;
+        }());
+        /** @nocollapse */
+        DynamicModule.decorators = [
+            { type: _angular_core.NgModule, args: [{
+                        providers: customProviders,
+                        declarations: declarations,
+                        imports: [_angular_platformBrowser.WorkerAppModule],
+                        bootstrap: [appComponentType]
+                    },] },
+        ];
+        return platformWorkerAppDynamic()
+            .bootstrapModule(DynamicModule, deprecatedConfiguration.compilerOptions)
+            .then(function (moduleRef) {
+            var console = moduleRef.injector.get(Console);
+            deprecatedConfiguration.deprecationMessages.forEach(function (msg) { return console.warn(msg); });
+            var appRef = moduleRef.injector.get(_angular_core.ApplicationRef);
+            return appRef.components[0];
+        });
     }
     exports.BROWSER_APP_COMPILER_PROVIDERS = BROWSER_APP_COMPILER_PROVIDERS;
     exports.CACHED_TEMPLATE_PROVIDER = CACHED_TEMPLATE_PROVIDER;
+    exports.platformBrowserDynamic = platformBrowserDynamic;
+    exports.browserDynamicPlatform = browserDynamicPlatform;
     exports.bootstrap = bootstrap;
     exports.bootstrapWorkerUi = bootstrapWorkerUi;
+    exports.platformWorkerAppDynamic = platformWorkerAppDynamic;
+    exports.workerAppDynamicPlatform = workerAppDynamicPlatform;
     exports.bootstrapWorkerApp = bootstrapWorkerApp;
 }));

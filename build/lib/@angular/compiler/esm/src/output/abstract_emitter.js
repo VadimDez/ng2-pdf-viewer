@@ -175,7 +175,6 @@ export class AbstractEmitterVisitor {
             name = this.getBuiltinMethodName(expr.builtin);
             if (isBlank(name)) {
                 // some builtins just mean to skip the call.
-                // e.g. `bind` in Dart.
                 return null;
             }
         }

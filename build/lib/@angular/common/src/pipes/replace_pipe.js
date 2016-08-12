@@ -27,7 +27,7 @@ var ReplacePipe = (function () {
             throw new invalid_pipe_argument_exception_1.InvalidPipeArgumentException(ReplacePipe, replacement);
         }
         if (lang_1.isFunction(replacement)) {
-            var rgxPattern = lang_1.isString(pattern) ? lang_1.RegExpWrapper.create(pattern) : pattern;
+            var rgxPattern = lang_1.isString(pattern) ? new RegExp(pattern, 'g') : pattern;
             return lang_1.StringWrapper.replaceAllMapped(input, rgxPattern, replacement);
         }
         if (pattern instanceof RegExp) {

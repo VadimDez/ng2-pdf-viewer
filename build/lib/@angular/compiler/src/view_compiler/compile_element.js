@@ -11,18 +11,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
+var compile_metadata_1 = require('../compile_metadata');
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
 var identifiers_1 = require('../identifiers');
 var o = require('../output/output_ast');
-var template_ast_1 = require('../template_ast');
-var constants_1 = require('./constants');
-var compile_metadata_1 = require('../compile_metadata');
-var util_1 = require('./util');
-var compile_query_1 = require('./compile_query');
+var value_util_1 = require('../output/value_util');
+var template_ast_1 = require('../template_parser/template_ast');
+var util_1 = require('../util');
 var compile_method_1 = require('./compile_method');
-var util_2 = require('../util');
+var compile_query_1 = require('./compile_query');
+var constants_1 = require('./constants');
+var util_2 = require('./util');
 var CompileNode = (function () {
     function CompileNode(parent, view, nodeIndex, renderNode, sourceAst) {
         this.parent = parent;
@@ -47,18 +47,18 @@ var CompileElement = (function (_super) {
         this.hasViewContainer = hasViewContainer;
         this.hasEmbeddedView = hasEmbeddedView;
         this._compViewExpr = null;
-        this._instances = new compile_metadata_1.CompileTokenMap();
+        this.instances = new compile_metadata_1.CompileIdentifierMap();
         this._queryCount = 0;
-        this._queries = new compile_metadata_1.CompileTokenMap();
+        this._queries = new compile_metadata_1.CompileIdentifierMap();
         this._componentConstructorViewQueryLists = [];
         this.contentNodesByNgContentIndex = null;
         this.referenceTokens = {};
         references.forEach(function (ref) { return _this.referenceTokens[ref.name] = ref.value; });
         this.elementRef = o.importExpr(identifiers_1.Identifiers.ElementRef).instantiate([this.renderNode]);
-        this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.ElementRef), this.elementRef);
+        this.instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.ElementRef), this.elementRef);
         this.injector = o.THIS_EXPR.callMethod('injector', [o.literal(this.nodeIndex)]);
-        this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.Injector), this.injector);
-        this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.Renderer), o.THIS_EXPR.prop('renderer'));
+        this.instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.Injector), this.injector);
+        this.instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.Renderer), o.THIS_EXPR.prop('renderer'));
         if (this.hasViewContainer || this.hasEmbeddedView || lang_1.isPresent(this.component)) {
             this._createAppElement();
         }
@@ -78,15 +78,15 @@ var CompileElement = (function (_super) {
             .toStmt();
         this.view.createMethod.addStmt(statement);
         this.appElement = o.THIS_EXPR.prop(fieldName);
-        this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.AppElement), this.appElement);
+        this.instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.AppElement), this.appElement);
     };
-    CompileElement.prototype.createComponentFactoryResolver = function (precompileComponent) {
-        if (!precompileComponent || precompileComponent.length === 0) {
+    CompileElement.prototype.createComponentFactoryResolver = function (entryComponents) {
+        if (!entryComponents || entryComponents.length === 0) {
             return;
         }
         var createComponentFactoryResolverExpr = o.importExpr(identifiers_1.Identifiers.CodegenComponentFactoryResolver).instantiate([
-            o.literalArr(precompileComponent.map(function (precompiledComponent) { return o.importExpr(precompiledComponent); })),
-            util_1.injectFromViewParentInjector(identifiers_1.identifierToken(identifiers_1.Identifiers.ComponentFactoryResolver), false)
+            o.literalArr(entryComponents.map(function (entryComponent) { return o.importExpr(entryComponent); })),
+            util_2.injectFromViewParentInjector(identifiers_1.identifierToken(identifiers_1.Identifiers.ComponentFactoryResolver), false)
         ]);
         var provider = new compile_metadata_1.CompileProviderMetadata({
             token: identifiers_1.identifierToken(identifiers_1.Identifiers.ComponentFactoryResolver),
@@ -95,7 +95,7 @@ var CompileElement = (function (_super) {
         // Add ComponentFactoryResolver as first provider as it does not have deps on other providers
         // ProviderAstType.PrivateService as only the component and its view can see it,
         // but nobody else
-        this._resolvedProvidersArray.unshift(new template_ast_1.ProviderAst(provider.token, false, true, [provider], template_ast_1.ProviderAstType.PrivateService, this.sourceAst.sourceSpan));
+        this._resolvedProvidersArray.unshift(new template_ast_1.ProviderAst(provider.token, false, true, [provider], template_ast_1.ProviderAstType.PrivateService, [], this.sourceAst.sourceSpan));
     };
     CompileElement.prototype.setComponentView = function (compViewExpr) {
         this._compViewExpr = compViewExpr;
@@ -113,15 +113,15 @@ var CompileElement = (function (_super) {
             ]);
             var provider = new compile_metadata_1.CompileProviderMetadata({ token: identifiers_1.identifierToken(identifiers_1.Identifiers.TemplateRef), useValue: createTemplateRefExpr });
             // Add TemplateRef as first provider as it does not have deps on other providers
-            this._resolvedProvidersArray.unshift(new template_ast_1.ProviderAst(provider.token, false, true, [provider], template_ast_1.ProviderAstType.Builtin, this.sourceAst.sourceSpan));
+            this._resolvedProvidersArray.unshift(new template_ast_1.ProviderAst(provider.token, false, true, [provider], template_ast_1.ProviderAstType.Builtin, [], this.sourceAst.sourceSpan));
         }
     };
     CompileElement.prototype.beforeChildren = function () {
         var _this = this;
         if (this.hasViewContainer) {
-            this._instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.ViewContainerRef), this.appElement.prop('vcRef'));
+            this.instances.add(identifiers_1.identifierToken(identifiers_1.Identifiers.ViewContainerRef), this.appElement.prop('vcRef'));
         }
-        this._resolvedProviders = new compile_metadata_1.CompileTokenMap();
+        this._resolvedProviders = new compile_metadata_1.CompileIdentifierMap();
         this._resolvedProvidersArray.forEach(function (provider) { return _this._resolvedProviders.add(provider.token, provider); });
         // create all the provider instances, some in the view constructor,
         // some as getters. We rely on the fact that they are already sorted topologically.
@@ -142,18 +142,16 @@ var CompileElement = (function (_super) {
                         .instantiate(depsExpr, o.importType(provider.useClass));
                 }
                 else {
-                    return _convertValueToOutputAst(provider.useValue);
+                    return value_util_1.convertValueToOutputAst(provider.useValue);
                 }
             });
-            var propName = "_" + resolvedProvider.token.name + "_" + _this.nodeIndex + "_" + _this._instances.size;
+            var propName = "_" + resolvedProvider.token.name + "_" + _this.nodeIndex + "_" + _this.instances.size;
             var instance = createProviderProperty(propName, resolvedProvider, providerValueExpressions, resolvedProvider.multiProvider, resolvedProvider.eager, _this);
-            _this._instances.add(resolvedProvider.token, instance);
+            _this.instances.add(resolvedProvider.token, instance);
         });
-        this.directiveInstances =
-            this._directives.map(function (directive) { return _this._instances.get(identifiers_1.identifierToken(directive.type)); });
-        for (var i = 0; i < this.directiveInstances.length; i++) {
-            var directiveInstance = this.directiveInstances[i];
+        for (var i = 0; i < this._directives.length; i++) {
             var directive = this._directives[i];
+            var directiveInstance = this.instances.get(identifiers_1.identifierToken(directive.type));
             directive.queries.forEach(function (queryMeta) { _this._addQuery(queryMeta, directiveInstance); });
         }
         var queriesWithReads = [];
@@ -165,7 +163,7 @@ var CompileElement = (function (_super) {
             var token = _this.referenceTokens[varName];
             var varValue;
             if (lang_1.isPresent(token)) {
-                varValue = _this._instances.get(token);
+                varValue = _this.instances.get(token);
             }
             else {
                 varValue = _this.renderNode;
@@ -178,13 +176,13 @@ var CompileElement = (function (_super) {
             var value;
             if (lang_1.isPresent(queryWithRead.read.identifier)) {
                 // query for an identifier
-                value = _this._instances.get(queryWithRead.read);
+                value = _this.instances.get(queryWithRead.read);
             }
             else {
                 // query for a reference
                 var token = _this.referenceTokens[queryWithRead.read.value];
                 if (lang_1.isPresent(token)) {
-                    value = _this._instances.get(token);
+                    value = _this.instances.get(token);
                 }
                 else {
                     value = _this.elementRef;
@@ -210,7 +208,7 @@ var CompileElement = (function (_super) {
             // Note: afterChildren is called after recursing into children.
             // This is good so that an injector match in an element that is closer to a requesting element
             // matches first.
-            var providerExpr = _this._instances.get(resolvedProvider.token);
+            var providerExpr = _this.instances.get(resolvedProvider.token);
             // Note: view providers are only visible on the injector of that element.
             // This is not fully correct as the rules during codegen don't allow a directive
             // to get hold of a view provdier on the same element. We still do this semantic
@@ -226,7 +224,7 @@ var CompileElement = (function (_super) {
         this.contentNodesByNgContentIndex[ngContentIndex].push(nodeExpr);
     };
     CompileElement.prototype.getComponent = function () {
-        return lang_1.isPresent(this.component) ? this._instances.get(identifiers_1.identifierToken(this.component.type)) :
+        return lang_1.isPresent(this.component) ? this.instances.get(identifiers_1.identifierToken(this.component.type)) :
             null;
     };
     CompileElement.prototype.getProviderTokens = function () {
@@ -279,7 +277,7 @@ var CompileElement = (function (_super) {
                         return this._compViewExpr.prop('ref');
                     }
                     else {
-                        return util_1.getPropertyInView(o.THIS_EXPR.prop('ref'), this.view, this.view.componentView);
+                        return util_2.getPropertyInView(o.THIS_EXPR.prop('ref'), this.view, this.view.componentView);
                     }
                 }
             }
@@ -293,7 +291,7 @@ var CompileElement = (function (_super) {
                     resolvedProvider.providerType === template_ast_1.ProviderAstType.PrivateService) {
                     return null;
                 }
-                result = this._instances.get(dep.token);
+                result = this.instances.get(dep.token);
             }
         }
         return result;
@@ -313,12 +311,12 @@ var CompileElement = (function (_super) {
             result = currElement._getLocalDependency(template_ast_1.ProviderAstType.PublicService, new compile_metadata_1.CompileDiDependencyMetadata({ token: dep.token }));
         }
         if (lang_1.isBlank(result)) {
-            result = util_1.injectFromViewParentInjector(dep.token, dep.isOptional);
+            result = util_2.injectFromViewParentInjector(dep.token, dep.isOptional);
         }
         if (lang_1.isBlank(result)) {
             result = o.NULL_EXPR;
         }
-        return util_1.getPropertyInView(result, this.view, currElement.view);
+        return util_2.getPropertyInView(result, this.view, currElement.view);
     };
     return CompileElement;
 }(CompileNode));
@@ -373,38 +371,4 @@ var _QueryWithRead = (function () {
     }
     return _QueryWithRead;
 }());
-function _convertValueToOutputAst(value) {
-    return util_2.visitValue(value, new _ValueOutputAstTransformer(), null);
-}
-var _ValueOutputAstTransformer = (function (_super) {
-    __extends(_ValueOutputAstTransformer, _super);
-    function _ValueOutputAstTransformer() {
-        _super.apply(this, arguments);
-    }
-    _ValueOutputAstTransformer.prototype.visitArray = function (arr, context) {
-        var _this = this;
-        return o.literalArr(arr.map(function (value) { return util_2.visitValue(value, _this, context); }));
-    };
-    _ValueOutputAstTransformer.prototype.visitStringMap = function (map, context) {
-        var _this = this;
-        var entries = [];
-        collection_1.StringMapWrapper.forEach(map, function (value, key) {
-            entries.push([key, util_2.visitValue(value, _this, context)]);
-        });
-        return o.literalMap(entries);
-    };
-    _ValueOutputAstTransformer.prototype.visitPrimitive = function (value, context) { return o.literal(value); };
-    _ValueOutputAstTransformer.prototype.visitOther = function (value, context) {
-        if (value instanceof compile_metadata_1.CompileIdentifierMetadata) {
-            return o.importExpr(value);
-        }
-        else if (value instanceof o.Expression) {
-            return value;
-        }
-        else {
-            throw new core_1.BaseException("Illegal state: Don't now how to compile value " + value);
-        }
-    };
-    return _ValueOutputAstTransformer;
-}(util_2.ValueTransformer));
 //# sourceMappingURL=compile_element.js.map

@@ -14,7 +14,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 var compiler_1 = require('@angular/compiler');
 var exceptions_1 = require('../facade/exceptions');
 var lang_1 = require('../facade/lang');
-var promise_1 = require('../facade/promise');
 /**
  * An implementation of XHR that uses a template cache to avoid doing an actual
  * XHR.
@@ -33,10 +32,10 @@ var CachedXHR = (function (_super) {
     }
     CachedXHR.prototype.get = function (url) {
         if (this._cache.hasOwnProperty(url)) {
-            return promise_1.PromiseWrapper.resolve(this._cache[url]);
+            return Promise.resolve(this._cache[url]);
         }
         else {
-            return promise_1.PromiseWrapper.reject('CachedXHR: Did not find cached template for ' + url, null);
+            return Promise.reject('CachedXHR: Did not find cached template for ' + url);
         }
     };
     return CachedXHR;

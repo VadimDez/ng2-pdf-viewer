@@ -127,6 +127,14 @@ var ViewContainerRef_ = (function () {
         this._element.attachView(viewRef_.internalView, index);
         return profile_1.wtfLeave(s, viewRef_);
     };
+    ViewContainerRef_.prototype.move = function (viewRef, currentIndex) {
+        var s = this._insertScope();
+        if (currentIndex == -1)
+            return;
+        var viewRef_ = viewRef;
+        this._element.moveView(viewRef_.internalView, currentIndex);
+        return profile_1.wtfLeave(s, viewRef_);
+    };
     ViewContainerRef_.prototype.indexOf = function (viewRef) {
         return collection_1.ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
     };

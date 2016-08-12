@@ -7,7 +7,6 @@
  */
 import { Provider } from './index';
 import { ANY_STATE as ANY_STATE_, DEFAULT_STATE as DEFAULT_STATE_, EMPTY_STATE as EMPTY_STATE_, FILL_STYLE_FLAG as FILL_STYLE_FLAG_ } from './src/animation/animation_constants';
-import { AnimationDriver as AnimationDriver_, NoOpAnimationDriver as NoOpAnimationDriver_ } from './src/animation/animation_driver';
 import { AnimationGroupPlayer as AnimationGroupPlayer_ } from './src/animation/animation_group_player';
 import { AnimationKeyframe as AnimationKeyframe_ } from './src/animation/animation_keyframe';
 import { AnimationPlayer as AnimationPlayer_, NoOpAnimationPlayer as NoOpAnimationPlayer_ } from './src/animation/animation_player';
@@ -21,9 +20,9 @@ import * as debug from './src/debug/debug_renderer';
 import * as provider_util from './src/di/provider_util';
 import * as reflective_provider from './src/di/reflective_provider';
 import * as component_factory_resolver from './src/linker/component_factory_resolver';
-import * as component_resolver from './src/linker/component_resolver';
 import * as debug_context from './src/linker/debug_context';
 import * as element from './src/linker/element';
+import * as ng_module_factory from './src/linker/ng_module_factory';
 import * as template_ref from './src/linker/template_ref';
 import * as view from './src/linker/view';
 import * as view_type from './src/linker/view_type';
@@ -36,7 +35,6 @@ import { Reflector } from './src/reflection/reflection';
 import * as reflection_capabilities from './src/reflection/reflection_capabilities';
 import * as reflector_reader from './src/reflection/reflector_reader';
 import * as api from './src/render/api';
-import * as security from './src/security';
 import * as decorators from './src/util/decorators';
 export declare namespace __core_private_types__ {
     var isDefaultChangeDetectionStrategy: typeof constants.isDefaultChangeDetectionStrategy;
@@ -49,11 +47,11 @@ export declare namespace __core_private_types__ {
     var LIFECYCLE_HOOKS_VALUES: typeof lifecycle_hooks.LIFECYCLE_HOOKS_VALUES;
     type ReflectorReader = reflector_reader.ReflectorReader;
     var ReflectorReader: typeof reflector_reader.ReflectorReader;
-    var ReflectorComponentResolver: typeof component_resolver.ReflectorComponentResolver;
     var CodegenComponentFactoryResolver: typeof component_factory_resolver.CodegenComponentFactoryResolver;
     type AppElement = element.AppElement;
     var AppElement: typeof element.AppElement;
     var AppView: typeof view.AppView;
+    var NgModuleInjector: typeof ng_module_factory.NgModuleInjector;
     type DebugAppView<T> = view.DebugAppView<T>;
     var DebugAppView: typeof view.DebugAppView;
     type ViewType = view_type.ViewType;
@@ -67,14 +65,10 @@ export declare namespace __core_private_types__ {
     var DebugContext: typeof debug_context.DebugContext;
     var StaticNodeDebugInfo: typeof debug_context.StaticNodeDebugInfo;
     var devModeEqual: typeof change_detection_util.devModeEqual;
-    var uninitialized: typeof change_detection_util.uninitialized;
+    var UNINITIALIZED: typeof change_detection_util.UNINITIALIZED;
     var ValueUnwrapper: typeof change_detection_util.ValueUnwrapper;
     type RenderDebugInfo = api.RenderDebugInfo;
     var RenderDebugInfo: typeof api.RenderDebugInfo;
-    type SecurityContext = security.SecurityContext;
-    var SecurityContext: typeof security.SecurityContext;
-    type SanitizationService = security.SanitizationService;
-    var SanitizationService: typeof security.SanitizationService;
     type TemplateRef_<C> = template_ref.TemplateRef_<C>;
     var TemplateRef_: typeof template_ref.TemplateRef_;
     var wtfInit: typeof wtf_init.wtfInit;
@@ -107,10 +101,6 @@ export declare namespace __core_private_types__ {
     var NoOpAnimationPlayer: typeof NoOpAnimationPlayer_;
     type AnimationPlayer = AnimationPlayer_;
     var AnimationPlayer: typeof AnimationPlayer_;
-    type NoOpAnimationDriver = NoOpAnimationDriver_;
-    var NoOpAnimationDriver: typeof NoOpAnimationDriver_;
-    type AnimationDriver = AnimationDriver_;
-    var AnimationDriver: typeof AnimationDriver_;
     type AnimationSequencePlayer = AnimationSequencePlayer_;
     var AnimationSequencePlayer: typeof AnimationSequencePlayer_;
     type AnimationGroupPlayer = AnimationGroupPlayer_;
@@ -138,11 +128,11 @@ export declare var __core_private__: {
     LifecycleHooks: typeof lifecycle_hooks.LifecycleHooks;
     LIFECYCLE_HOOKS_VALUES: lifecycle_hooks.LifecycleHooks[];
     ReflectorReader: typeof reflector_reader.ReflectorReader;
-    ReflectorComponentResolver: typeof component_resolver.ReflectorComponentResolver;
     CodegenComponentFactoryResolver: typeof component_factory_resolver.CodegenComponentFactoryResolver;
     AppElement: typeof element.AppElement;
     AppView: typeof view.AppView;
     DebugAppView: typeof view.DebugAppView;
+    NgModuleInjector: typeof ng_module_factory.NgModuleInjector;
     ViewType: typeof view_type.ViewType;
     MAX_INTERPOLATION_VALUES: number;
     checkBinding: (throwOnChange: boolean, oldValue: any, newValue: any) => boolean;
@@ -153,11 +143,11 @@ export declare var __core_private__: {
     DebugContext: typeof debug_context.DebugContext;
     StaticNodeDebugInfo: typeof debug_context.StaticNodeDebugInfo;
     devModeEqual: (a: any, b: any) => boolean;
-    uninitialized: Object;
+    UNINITIALIZED: {
+        toString: () => string;
+    };
     ValueUnwrapper: typeof change_detection_util.ValueUnwrapper;
     RenderDebugInfo: typeof api.RenderDebugInfo;
-    SecurityContext: typeof security.SecurityContext;
-    SanitizationService: typeof security.SanitizationService;
     TemplateRef_: typeof template_ref.TemplateRef_;
     wtfInit: () => void;
     ReflectionCapabilities: typeof reflection_capabilities.ReflectionCapabilities;
@@ -183,8 +173,6 @@ export declare var __core_private__: {
     Reflector: typeof Reflector;
     NoOpAnimationPlayer: typeof NoOpAnimationPlayer_;
     AnimationPlayer: typeof AnimationPlayer_;
-    NoOpAnimationDriver: typeof NoOpAnimationDriver_;
-    AnimationDriver: typeof AnimationDriver_;
     AnimationSequencePlayer: typeof AnimationSequencePlayer_;
     AnimationGroupPlayer: typeof AnimationGroupPlayer_;
     AnimationKeyframe: typeof AnimationKeyframe_;

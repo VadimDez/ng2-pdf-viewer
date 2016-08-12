@@ -1,4 +1,11 @@
 /**
+ * Clears out the shared fake async zone for a test.
+ * To be called in a global `beforeEach`.
+ *
+ * @experimental
+ */
+export declare function resetFakeAsyncZone(): void;
+/**
  * Wraps a function to be executed in the fakeAsync zone:
  * - microtasks are manually executed by calling `flushMicrotasks()`,
  * - timers are synchronous, `tick()` simulates the asynchronous passage of time.

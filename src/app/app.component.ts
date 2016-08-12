@@ -1,9 +1,8 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, AfterViewInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
-// import { PdfViewerComponent } from 'pdf-viewer';
 import { MDL } from './mdl';
 
 @Component({
@@ -12,6 +11,7 @@ import { MDL } from './mdl';
   styleUrls: ['./app/app.component.css'],
   directives: [MDL, PdfViewerComponent]
 })
+
 
 export class AppComponent {
   pdfSrc: string = './pdf-test.pdf';

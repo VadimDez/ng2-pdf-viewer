@@ -6,22 +6,23 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
+var core_1 = require('@angular/core');
 var core_private_1 = require('../../core_private');
 var lang_1 = require('../facade/lang');
 var identifiers_1 = require('../identifiers');
 var o = require('../output/output_ast');
-var constants_1 = require('./constants');
-var template_ast_1 = require('../template_ast');
+var template_ast_1 = require('../template_parser/template_ast');
 var util_1 = require('../util');
-var expression_converter_1 = require('./expression_converter');
 var compile_binding_1 = require('./compile_binding');
-var core_1 = require('@angular/core');
+var constants_1 = require('./constants');
+var expression_converter_1 = require('./expression_converter');
 function createBindFieldExpr(exprIndex) {
     return o.THIS_EXPR.prop("_expr_" + exprIndex);
 }
 function createCurrValueExpr(exprIndex) {
     return o.variable("currVal_" + exprIndex); // fix syntax highlighting: `
 }
+var _animationViewCheckedFlagMap = new Map();
 function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, method) {
     var checkExpression = expression_converter_1.convertCdExpressionToIr(view, context, parsedExpression, constants_1.DetectChangesVars.valUnwrapper);
     if (lang_1.isBlank(checkExpression.expression)) {
@@ -30,7 +31,7 @@ function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, 
     }
     // private is fine here as no child view will reference the cached value...
     view.fields.push(new o.ClassField(fieldExpr.name, null, [o.StmtModifier.Private]));
-    view.createMethod.addStmt(o.THIS_EXPR.prop(fieldExpr.name).set(o.importExpr(identifiers_1.Identifiers.uninitialized)).toStmt());
+    view.createMethod.addStmt(o.THIS_EXPR.prop(fieldExpr.name).set(o.importExpr(identifiers_1.Identifiers.UNINITIALIZED)).toStmt());
     if (checkExpression.needsValueUnwrapper) {
         var initValueUnwrapperStmt = constants_1.DetectChangesVars.valUnwrapper.callMethod('reset', []).toStmt();
         method.addStmt(initValueUnwrapperStmt);
@@ -55,7 +56,7 @@ function bindRenderText(boundText, compileNode, view) {
             .toStmt()], view.detectChangesRenderPropertiesMethod);
 }
 exports.bindRenderText = bindRenderText;
-function bindAndWriteToRenderer(boundProps, context, compileElement) {
+function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp) {
     var view = compileElement.view;
     var renderNode = compileElement.renderNode;
     boundProps.forEach(function (boundProp) {
@@ -101,25 +102,31 @@ function bindAndWriteToRenderer(boundProps, context, compileElement) {
                 break;
             case template_ast_1.PropertyBindingType.Animation:
                 var animationName = boundProp.name;
-                var animation = view.componentView.animations.get(animationName);
-                if (!lang_1.isPresent(animation)) {
-                    throw new core_1.BaseException("Internal Error: couldn't find an animation entry for " + boundProp.name);
+                var targetViewExpr = o.THIS_EXPR;
+                if (isHostProp) {
+                    targetViewExpr = compileElement.appElement.prop('componentView');
                 }
+                var animationFnExpr = targetViewExpr.prop('componentType').prop('animations').key(o.literal(animationName));
                 // it's important to normalize the void value as `void` explicitly
                 // so that the styles data can be obtained from the stringmap
                 var emptyStateValue = o.literal(core_private_1.EMPTY_STATE);
                 // void => ...
                 var oldRenderVar = o.variable('oldRenderVar');
                 updateStmts.push(oldRenderVar.set(oldRenderValue).toDeclStmt());
-                updateStmts.push(new o.IfStmt(oldRenderVar.equals(o.importExpr(identifiers_1.Identifiers.uninitialized)), [oldRenderVar.set(emptyStateValue).toStmt()]));
+                updateStmts.push(new o.IfStmt(oldRenderVar.equals(o.importExpr(identifiers_1.Identifiers.UNINITIALIZED)), [oldRenderVar.set(emptyStateValue).toStmt()]));
                 // ... => void
                 var newRenderVar = o.variable('newRenderVar');
                 updateStmts.push(newRenderVar.set(renderValue).toDeclStmt());
-                updateStmts.push(new o.IfStmt(newRenderVar.equals(o.importExpr(identifiers_1.Identifiers.uninitialized)), [newRenderVar.set(emptyStateValue).toStmt()]));
-                updateStmts.push(animation.fnVariable.callFn([o.THIS_EXPR, renderNode, oldRenderVar, newRenderVar])
+                updateStmts.push(new o.IfStmt(newRenderVar.equals(o.importExpr(identifiers_1.Identifiers.UNINITIALIZED)), [newRenderVar.set(emptyStateValue).toStmt()]));
+                updateStmts.push(animationFnExpr.callFn([o.THIS_EXPR, renderNode, oldRenderVar, newRenderVar]).toStmt());
+                view.detachMethod.addStmt(animationFnExpr.callFn([o.THIS_EXPR, renderNode, oldRenderValue, emptyStateValue])
                     .toStmt());
-                view.detachMethod.addStmt(animation.fnVariable.callFn([o.THIS_EXPR, renderNode, oldRenderValue, emptyStateValue])
-                    .toStmt());
+                if (!_animationViewCheckedFlagMap.get(view)) {
+                    _animationViewCheckedFlagMap.set(view, true);
+                    var triggerStmt = o.THIS_EXPR.callMethod('triggerQueuedAnimations', []).toStmt();
+                    view.afterViewLifecycleCallbacksMethod.addStmt(triggerStmt);
+                    view.detachMethod.addStmt(triggerStmt);
+                }
                 break;
         }
         bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, view.detectChangesRenderPropertiesMethod);
@@ -128,21 +135,21 @@ function bindAndWriteToRenderer(boundProps, context, compileElement) {
 function sanitizedValue(boundProp, renderValue) {
     var enumValue;
     switch (boundProp.securityContext) {
-        case core_private_1.SecurityContext.NONE:
+        case core_1.SecurityContext.NONE:
             return renderValue; // No sanitization needed.
-        case core_private_1.SecurityContext.HTML:
+        case core_1.SecurityContext.HTML:
             enumValue = 'HTML';
             break;
-        case core_private_1.SecurityContext.STYLE:
+        case core_1.SecurityContext.STYLE:
             enumValue = 'STYLE';
             break;
-        case core_private_1.SecurityContext.SCRIPT:
+        case core_1.SecurityContext.SCRIPT:
             enumValue = 'SCRIPT';
             break;
-        case core_private_1.SecurityContext.URL:
+        case core_1.SecurityContext.URL:
             enumValue = 'URL';
             break;
-        case core_private_1.SecurityContext.RESOURCE_URL:
+        case core_1.SecurityContext.RESOURCE_URL:
             enumValue = 'RESOURCE_URL';
             break;
         default:
@@ -153,11 +160,11 @@ function sanitizedValue(boundProp, renderValue) {
     return ctx.callMethod('sanitize', args);
 }
 function bindRenderInputs(boundProps, compileElement) {
-    bindAndWriteToRenderer(boundProps, compileElement.view.componentContext, compileElement);
+    bindAndWriteToRenderer(boundProps, compileElement.view.componentContext, compileElement, false);
 }
 exports.bindRenderInputs = bindRenderInputs;
 function bindDirectiveHostProps(directiveAst, directiveInstance, compileElement) {
-    bindAndWriteToRenderer(directiveAst.hostProperties, directiveInstance, compileElement);
+    bindAndWriteToRenderer(directiveAst.hostProperties, directiveInstance, compileElement, true);
 }
 exports.bindDirectiveHostProps = bindDirectiveHostProps;
 function bindDirectiveInputs(directiveAst, directiveInstance, compileElement) {
@@ -167,7 +174,7 @@ function bindDirectiveInputs(directiveAst, directiveInstance, compileElement) {
     var view = compileElement.view;
     var detectChangesInInputsMethod = view.detectChangesInInputsMethod;
     detectChangesInInputsMethod.resetDebugInfo(compileElement.nodeIndex, compileElement.sourceAst);
-    var lifecycleHooks = directiveAst.directive.lifecycleHooks;
+    var lifecycleHooks = directiveAst.directive.type.lifecycleHooks;
     var calcChangesMap = lifecycleHooks.indexOf(core_private_1.LifecycleHooks.OnChanges) !== -1;
     var isOnPushComp = directiveAst.directive.isComponent &&
         !core_private_1.isDefaultChangeDetectionStrategy(directiveAst.directive.changeDetection);
@@ -208,11 +215,18 @@ function bindDirectiveInputs(directiveAst, directiveInstance, compileElement) {
 }
 exports.bindDirectiveInputs = bindDirectiveInputs;
 function logBindingUpdateStmt(renderNode, propName, value) {
-    return o.THIS_EXPR.prop('renderer')
+    var tryStmt = o.THIS_EXPR.prop('renderer')
         .callMethod('setBindingDebugInfo', [
         renderNode, o.literal("ng-reflect-" + util_1.camelCaseToDashCase(propName)),
         value.isBlank().conditional(o.NULL_EXPR, value.callMethod('toString', []))
     ])
         .toStmt();
+    var catchStmt = o.THIS_EXPR.prop('renderer')
+        .callMethod('setBindingDebugInfo', [
+        renderNode, o.literal("ng-reflect-" + util_1.camelCaseToDashCase(propName)),
+        o.literal('[ERROR] Exception while trying to serialize the value')
+    ])
+        .toStmt();
+    return new o.TryCatchStmt([tryStmt], [catchStmt]);
 }
 //# sourceMappingURL=property_binder.js.map

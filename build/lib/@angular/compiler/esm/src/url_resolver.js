@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, Injectable, PACKAGE_ROOT_URL } from '@angular/core';
-import { StringWrapper, isPresent, isBlank, RegExpWrapper } from '../src/facade/lang';
+import { StringWrapper, isBlank, isPresent } from './facade/lang';
 const _ASSET_SCHEME = 'asset:';
 /**
  * Create a {@link UrlResolver} with no package prefix.
@@ -181,7 +181,7 @@ function _buildFromEncodedParts(opt_scheme, opt_userInfo, opt_domain, opt_port, 
  * @type {!RegExp}
  * @internal
  */
-var _splitRe = RegExpWrapper.create('^' +
+var _splitRe = new RegExp('^' +
     '(?:' +
     '([^:/?#.]+)' +
     // used by other URL parts such as :,
@@ -228,7 +228,7 @@ var _ComponentIndex;
  *     arbitrary strings may still look like path names.
  */
 function _split(uri) {
-    return RegExpWrapper.firstMatch(_splitRe, uri);
+    return uri.match(_splitRe);
 }
 /**
   * Removes dot segments in given path component, as described in

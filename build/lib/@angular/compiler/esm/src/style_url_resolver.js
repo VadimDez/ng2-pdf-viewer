@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { RegExpWrapper, StringWrapper, isBlank, isPresent } from '../src/facade/lang';
+import { StringWrapper, isBlank, isPresent } from './facade/lang';
 export class StyleWithImports {
     constructor(style, styleUrls) {
         this.style = style;
@@ -15,8 +15,8 @@ export class StyleWithImports {
 export function isStyleUrlResolvable(url) {
     if (isBlank(url) || url.length === 0 || url[0] == '/')
         return false;
-    var schemeMatch = RegExpWrapper.firstMatch(_urlWithSchemaRe, url);
-    return isBlank(schemeMatch) || schemeMatch[1] == 'package' || schemeMatch[1] == 'asset';
+    const schemeMatch = url.match(_urlWithSchemaRe);
+    return schemeMatch === null || schemeMatch[1] == 'package' || schemeMatch[1] == 'asset';
 }
 /**
  * Rewrites stylesheets by resolving and removing the @import urls that
@@ -36,7 +36,5 @@ export function extractStyleUrls(resolver, baseUrl, cssText) {
     return new StyleWithImports(modifiedCssText, foundUrls);
 }
 var _cssImportRe = /@import\s+(?:url\()?\s*(?:(?:['"]([^'"]*))|([^;\)\s]*))[^;]*;?/g;
-// TODO: can't use /^[^:/?#.]+:/g due to clang-format bug:
-//       https://github.com/angular/angular/issues/4596
-var _urlWithSchemaRe = /^([a-zA-Z\-\+\.]+):/g;
+var _urlWithSchemaRe = /^([^:/?#]+):/;
 //# sourceMappingURL=style_url_resolver.js.map

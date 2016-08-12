@@ -38,7 +38,7 @@ export declare abstract class MessageBus implements MessageBusSource, MessageBus
     abstract from(channel: string): EventEmitter<any>;
     /**
      * Returns an {@link EventEmitter} for the given channel
-     * To publish methods to that channel just call next (or add in dart) on the returned emitter
+     * To publish methods to that channel just call next on the returned emitter
      */
     abstract to(channel: string): EventEmitter<any>;
 }
@@ -84,7 +84,7 @@ export interface MessageBusSink {
     attachToZone(zone: NgZone): void;
     /**
      * Returns an {@link EventEmitter} for the given channel
-     * To publish methods to that channel just call next (or add in dart) on the returned emitter
+     * To publish methods to that channel just call next on the returned emitter
      */
     to(channel: string): EventEmitter<any>;
 }

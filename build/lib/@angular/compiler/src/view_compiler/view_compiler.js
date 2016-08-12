@@ -32,7 +32,7 @@ var ViewCompiler = (function () {
     }
     ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes) {
         var dependencies = [];
-        var compiledAnimations = this._animationCompiler.compileComponent(component);
+        var compiledAnimations = this._animationCompiler.compileComponent(component, template);
         var statements = [];
         compiledAnimations.map(function (entry) {
             statements.push(entry.statesMapStatement);

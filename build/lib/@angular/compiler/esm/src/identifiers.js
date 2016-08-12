@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, ElementRef, Injector, QueryList, RenderComponentType, Renderer, SimpleChange, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
-import { AnimationGroupPlayer as AnimationGroupPlayer_, AnimationKeyframe as AnimationKeyframe_, AnimationSequencePlayer as AnimationSequencePlayer_, AnimationStyles as AnimationStyles_, AppElement, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, DebugAppView, DebugContext, EMPTY_ARRAY, EMPTY_MAP, NoOpAnimationPlayer as NoOpAnimationPlayer_, SecurityContext, StaticNodeDebugInfo, TemplateRef_, ValueUnwrapper, ViewType, ViewUtils, balanceAnimationKeyframes as impBalanceAnimationKeyframes, castByValue, checkBinding, clearStyles as impClearStyles, collectAndResolveStyles as impCollectAndResolveStyles, devModeEqual, flattenNestedViewRenderNodes, interpolate, prepareFinalAnimationStyles as impBalanceAnimationStyles, pureProxy1, pureProxy10, pureProxy2, pureProxy3, pureProxy4, pureProxy5, pureProxy6, pureProxy7, pureProxy8, pureProxy9, renderStyles as impRenderStyles, uninitialized } from '../core_private';
+import { ANALYZE_FOR_ENTRY_COMPONENTS, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ElementRef, Injector, NgModuleFactory, QueryList, RenderComponentType, Renderer, SecurityContext, SimpleChange, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { AnimationGroupPlayer as AnimationGroupPlayer_, AnimationKeyframe as AnimationKeyframe_, AnimationSequencePlayer as AnimationSequencePlayer_, AnimationStyles as AnimationStyles_, AppElement, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, DebugAppView, DebugContext, EMPTY_ARRAY, EMPTY_MAP, NgModuleInjector, NoOpAnimationPlayer as NoOpAnimationPlayer_, StaticNodeDebugInfo, TemplateRef_, UNINITIALIZED, ValueUnwrapper, ViewType, ViewUtils, balanceAnimationKeyframes as impBalanceAnimationKeyframes, castByValue, checkBinding, clearStyles as impClearStyles, collectAndResolveStyles as impCollectAndResolveStyles, devModeEqual, flattenNestedViewRenderNodes, interpolate, prepareFinalAnimationStyles as impBalanceAnimationStyles, pureProxy1, pureProxy10, pureProxy2, pureProxy3, pureProxy4, pureProxy5, pureProxy6, pureProxy7, pureProxy8, pureProxy9, renderStyles as impRenderStyles } from '../core_private';
 import { CompileIdentifierMetadata, CompileTokenMetadata } from './compile_metadata';
 import { assetUrl } from './util';
 var APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
@@ -35,7 +35,7 @@ var impChangeDetectionStrategy = ChangeDetectionStrategy;
 var impStaticNodeDebugInfo = StaticNodeDebugInfo;
 var impRenderer = Renderer;
 var impSimpleChange = SimpleChange;
-var impUninitialized = uninitialized;
+var impUNINITIALIZED = UNINITIALIZED;
 var impChangeDetectorStatus = ChangeDetectorStatus;
 var impFlattenNestedViewRenderNodes = flattenNestedViewRenderNodes;
 var impDevModeEqual = devModeEqual;
@@ -52,6 +52,11 @@ var impNoOpAnimationPlayer = NoOpAnimationPlayer_;
 var ANIMATION_STYLE_UTIL_ASSET_URL = assetUrl('core', 'animation/animation_style_util');
 export class Identifiers {
 }
+Identifiers.ANALYZE_FOR_ENTRY_COMPONENTS = new CompileIdentifierMetadata({
+    name: 'ANALYZE_FOR_ENTRY_COMPONENTS',
+    moduleUrl: assetUrl('core', 'metadata/di'),
+    runtime: ANALYZE_FOR_ENTRY_COMPONENTS
+});
 Identifiers.ViewUtils = new CompileIdentifierMetadata({ name: 'ViewUtils', moduleUrl: assetUrl('core', 'linker/view_utils'), runtime: impViewUtils });
 Identifiers.AppView = new CompileIdentifierMetadata({ name: 'AppView', moduleUrl: APP_VIEW_MODULE_URL, runtime: impAppView });
 Identifiers.DebugAppView = new CompileIdentifierMetadata({ name: 'DebugAppView', moduleUrl: APP_VIEW_MODULE_URL, runtime: impDebugAppView });
@@ -97,6 +102,21 @@ Identifiers.ComponentFactoryResolver = new CompileIdentifierMetadata({
     moduleUrl: assetUrl('core', 'linker/component_factory_resolver'),
     runtime: ComponentFactoryResolver
 });
+Identifiers.ComponentFactory = new CompileIdentifierMetadata({
+    name: 'ComponentFactory',
+    runtime: ComponentFactory,
+    moduleUrl: assetUrl('core', 'linker/component_factory')
+});
+Identifiers.NgModuleFactory = new CompileIdentifierMetadata({
+    name: 'NgModuleFactory',
+    runtime: NgModuleFactory,
+    moduleUrl: assetUrl('core', 'linker/ng_module_factory')
+});
+Identifiers.NgModuleInjector = new CompileIdentifierMetadata({
+    name: 'NgModuleInjector',
+    runtime: NgModuleInjector,
+    moduleUrl: assetUrl('core', 'linker/ng_module_factory')
+});
 Identifiers.ValueUnwrapper = new CompileIdentifierMetadata({ name: 'ValueUnwrapper', moduleUrl: CD_MODULE_URL, runtime: impValueUnwrapper });
 Identifiers.Injector = new CompileIdentifierMetadata({ name: 'Injector', moduleUrl: assetUrl('core', 'di/injector'), runtime: impInjector });
 Identifiers.ViewEncapsulation = new CompileIdentifierMetadata({
@@ -122,7 +142,7 @@ Identifiers.DebugContext = new CompileIdentifierMetadata({
 });
 Identifiers.Renderer = new CompileIdentifierMetadata({ name: 'Renderer', moduleUrl: assetUrl('core', 'render/api'), runtime: impRenderer });
 Identifiers.SimpleChange = new CompileIdentifierMetadata({ name: 'SimpleChange', moduleUrl: CD_MODULE_URL, runtime: impSimpleChange });
-Identifiers.uninitialized = new CompileIdentifierMetadata({ name: 'uninitialized', moduleUrl: CD_MODULE_URL, runtime: impUninitialized });
+Identifiers.UNINITIALIZED = new CompileIdentifierMetadata({ name: 'UNINITIALIZED', moduleUrl: CD_MODULE_URL, runtime: impUNINITIALIZED });
 Identifiers.ChangeDetectorStatus = new CompileIdentifierMetadata({ name: 'ChangeDetectorStatus', moduleUrl: CD_MODULE_URL, runtime: impChangeDetectorStatus });
 Identifiers.checkBinding = new CompileIdentifierMetadata({ name: 'checkBinding', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: impCheckBinding });
 Identifiers.flattenNestedViewRenderNodes = new CompileIdentifierMetadata({

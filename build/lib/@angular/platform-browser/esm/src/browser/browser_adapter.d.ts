@@ -117,4 +117,4 @@ export declare class BrowserDomAdapter extends GenericBrowserDomAdapter {
     getCookie(name: string): string;
     setCookie(name: string, value: string): void;
 }
-export declare function parseCookieValue(cookie: string, name: string): string;
+export declare function parseCookieValue(cookieStr: string, name: string): string;

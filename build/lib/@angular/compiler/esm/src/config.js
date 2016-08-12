@@ -9,14 +9,14 @@ import { ViewEncapsulation, isDevMode } from '@angular/core';
 import { unimplemented } from '../src/facade/exceptions';
 import { Identifiers } from './identifiers';
 export class CompilerConfig {
-    constructor({ renderTypes = new DefaultRenderTypes(), defaultEncapsulation = ViewEncapsulation.Emulated, genDebugInfo, logBindingUpdate, useJit = true, platformDirectives = [], platformPipes = [] } = {}) {
+    constructor({ renderTypes = new DefaultRenderTypes(), defaultEncapsulation = ViewEncapsulation.Emulated, genDebugInfo, logBindingUpdate, useJit = true, deprecatedPlatformDirectives = [], deprecatedPlatformPipes = [] } = {}) {
         this.renderTypes = renderTypes;
         this.defaultEncapsulation = defaultEncapsulation;
         this._genDebugInfo = genDebugInfo;
         this._logBindingUpdate = logBindingUpdate;
         this.useJit = useJit;
-        this.platformDirectives = platformDirectives;
-        this.platformPipes = platformPipes;
+        this.platformDirectives = deprecatedPlatformDirectives;
+        this.platformPipes = deprecatedPlatformPipes;
     }
     get genDebugInfo() {
         return this._genDebugInfo === void 0 ? isDevMode() : this._genDebugInfo;

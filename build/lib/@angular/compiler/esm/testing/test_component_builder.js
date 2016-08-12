@@ -5,31 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Injectable, Injector } from '@angular/core';
-import { TestComponentBuilder } from '@angular/core/testing';
-import { DirectiveResolver, ViewResolver } from '../index';
+import { Inject, Injectable, Injector } from '@angular/core';
+import { TestBed, TestComponentBuilder } from '@angular/core/testing';
+import { DirectiveResolver } from '../index';
 import { MapWrapper } from '../src/facade/collection';
 import { isPresent } from '../src/facade/lang';
-/**
- * @deprecated Import TestComponentRenderer from @angular/core/testing
- */
-export { TestComponentRenderer } from '@angular/core/testing';
-/**
- * @deprecated Import TestComponentBuilder from @angular/core/testing
- */
-export { TestComponentBuilder } from '@angular/core/testing';
-/**
- * @deprecated Import ComponentFixture from @angular/core/testing
- */
-export { ComponentFixture } from '@angular/core/testing';
-/**
- * @deprecated Import ComponentFixtureNoNgZone from @angular/core/testing
- */
-export { ComponentFixtureNoNgZone } from '@angular/core/testing';
-/**
- * @deprecated Import ComponentFixtureAutoDetect from @angular/core/testing
- */
-export { ComponentFixtureAutoDetect } from '@angular/core/testing';
 export class OverridingTestComponentBuilder extends TestComponentBuilder {
     constructor(injector) {
         super(injector);
@@ -101,12 +81,11 @@ export class OverridingTestComponentBuilder extends TestComponentBuilder {
     }
     _applyMetadataOverrides() {
         let mockDirectiveResolver = this._injector.get(DirectiveResolver);
-        let mockViewResolver = this._injector.get(ViewResolver);
-        this._viewOverrides.forEach((view, type) => { mockViewResolver.setView(type, view); });
-        this._templateOverrides.forEach((template, type) => mockViewResolver.setInlineTemplate(type, template));
-        this._animationOverrides.forEach((animationsEntry, type) => mockViewResolver.setAnimations(type, animationsEntry));
+        this._viewOverrides.forEach((view, type) => { mockDirectiveResolver.setView(type, view); });
+        this._templateOverrides.forEach((template, type) => mockDirectiveResolver.setInlineTemplate(type, template));
+        this._animationOverrides.forEach((animationsEntry, type) => mockDirectiveResolver.setAnimations(type, animationsEntry));
         this._directiveOverrides.forEach((overrides, component) => {
-            overrides.forEach((to, from) => { mockViewResolver.overrideViewDirective(component, from, to); });
+            overrides.forEach((to, from) => { mockDirectiveResolver.overrideViewDirective(component, from, to); });
         });
         this._bindingsOverrides.forEach((bindings, type) => mockDirectiveResolver.setProvidersOverride(type, bindings));
         this._viewBindingsOverrides.forEach((bindings, type) => mockDirectiveResolver.setViewProvidersOverride(type, bindings));
@@ -118,6 +97,6 @@ OverridingTestComponentBuilder.decorators = [
 ];
 /** @nocollapse */
 OverridingTestComponentBuilder.ctorParameters = [
-    { type: Injector, },
+    { type: Injector, decorators: [{ type: Inject, args: [TestBed,] },] },
 ];
 //# sourceMappingURL=test_component_builder.js.map

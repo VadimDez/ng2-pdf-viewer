@@ -12,60 +12,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subject_1 = require('rxjs/Subject');
-var PromiseObservable_1 = require('rxjs/observable/PromiseObservable');
-var toPromise_1 = require('rxjs/operator/toPromise');
-var lang_1 = require('./lang');
 var Observable_1 = require('rxjs/Observable');
 exports.Observable = Observable_1.Observable;
 var Subject_2 = require('rxjs/Subject');
 exports.Subject = Subject_2.Subject;
-var promise_1 = require('./promise');
-exports.PromiseCompleter = promise_1.PromiseCompleter;
-exports.PromiseWrapper = promise_1.PromiseWrapper;
-var TimerWrapper = (function () {
-    function TimerWrapper() {
-    }
-    TimerWrapper.setTimeout = function (fn, millis) {
-        return lang_1.global.setTimeout(fn, millis);
-    };
-    TimerWrapper.clearTimeout = function (id) { lang_1.global.clearTimeout(id); };
-    TimerWrapper.setInterval = function (fn, millis) {
-        return lang_1.global.setInterval(fn, millis);
-    };
-    TimerWrapper.clearInterval = function (id) { lang_1.global.clearInterval(id); };
-    return TimerWrapper;
-}());
-exports.TimerWrapper = TimerWrapper;
-var ObservableWrapper = (function () {
-    function ObservableWrapper() {
-    }
-    // TODO(vsavkin): when we use rxnext, try inferring the generic type from the first arg
-    ObservableWrapper.subscribe = function (emitter, onNext, onError, onComplete) {
-        if (onComplete === void 0) { onComplete = function () { }; }
-        onError = (typeof onError === 'function') && onError || lang_1.noop;
-        onComplete = (typeof onComplete === 'function') && onComplete || lang_1.noop;
-        return emitter.subscribe({ next: onNext, error: onError, complete: onComplete });
-    };
-    ObservableWrapper.isObservable = function (obs) { return !!obs.subscribe; };
-    /**
-     * Returns whether `obs` has any subscribers listening to events.
-     */
-    ObservableWrapper.hasSubscribers = function (obs) { return obs.observers.length > 0; };
-    ObservableWrapper.dispose = function (subscription) { subscription.unsubscribe(); };
-    /**
-     * @deprecated - use callEmit() instead
-     */
-    ObservableWrapper.callNext = function (emitter, value) { emitter.emit(value); };
-    ObservableWrapper.callEmit = function (emitter, value) { emitter.emit(value); };
-    ObservableWrapper.callError = function (emitter, error) { emitter.error(error); };
-    ObservableWrapper.callComplete = function (emitter) { emitter.complete(); };
-    ObservableWrapper.fromPromise = function (promise) {
-        return PromiseObservable_1.PromiseObservable.create(promise);
-    };
-    ObservableWrapper.toPromise = function (obj) { return toPromise_1.toPromise.call(obj); };
-    return ObservableWrapper;
-}());
-exports.ObservableWrapper = ObservableWrapper;
 /**
  * Use by directives and components to emit custom Events.
  *

@@ -18,7 +18,7 @@ export class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_all'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_all'}
      */
     static all() { return (debugElement) => true; }
     /**
@@ -26,7 +26,7 @@ export class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_css'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_css'}
      */
     static css(selector) {
         return (debugElement) => {
@@ -40,7 +40,7 @@ export class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_directive'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_directive'}
      */
     static directive(type) {
         return (debugElement) => { return debugElement.providerTokens.indexOf(type) !== -1; };

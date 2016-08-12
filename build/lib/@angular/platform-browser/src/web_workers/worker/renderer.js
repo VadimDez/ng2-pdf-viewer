@@ -7,7 +7,6 @@
  */
 "use strict";
 var core_1 = require('@angular/core');
-var async_1 = require('../../facade/async');
 var collection_1 = require('../../facade/collection');
 var lang_1 = require('../../facade/lang');
 var client_message_broker_1 = require('../shared/client_message_broker');
@@ -26,7 +25,7 @@ var WebWorkerRootRenderer = (function () {
         this._messageBroker = messageBrokerFactory.createMessageBroker(messaging_api_1.RENDERER_CHANNEL);
         bus.initChannel(messaging_api_1.EVENT_CHANNEL);
         var source = bus.from(messaging_api_1.EVENT_CHANNEL);
-        async_1.ObservableWrapper.subscribe(source, function (message) { return _this._dispatchEvent(message); });
+        source.subscribe({ next: function (message) { return _this._dispatchEvent(message); } });
     }
     WebWorkerRootRenderer.prototype._dispatchEvent = function (message) {
         var eventName = message['eventName'];

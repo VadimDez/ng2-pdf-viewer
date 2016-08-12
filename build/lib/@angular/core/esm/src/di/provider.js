@@ -21,7 +21,6 @@ import { isBlank, isFunction, isType, normalizeBool, stringify } from '../facade
  *
  * expect(injector.get("message")).toEqual('Hello');
  * ```
- * @ts2dart_const
  * @deprecated
  */
 export class Provider {
@@ -70,7 +69,6 @@ export class Provider {
  * See {@link Provider} instead.
  *
  * @deprecated
- * @ts2dart_const
  */
 export class Binding extends Provider {
     constructor(token, { toClass, toValue, toAlias, toFactory, deps, multi }) {
@@ -108,7 +106,7 @@ export class Binding extends Provider {
  * to an existing `token`.
  * See {@link ProviderBuilder} for more details.
  *
- * The `token` is most commonly a class or {@link OpaqueToken-class.html}.
+ * The `token` is most commonly a class or {@link OpaqueToken}.
  *
  * @deprecated
  */

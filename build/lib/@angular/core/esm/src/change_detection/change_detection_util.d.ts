@@ -1,5 +1,7 @@
 export { looseIdentical } from '../facade/lang';
-export declare var uninitialized: Object;
+export declare const UNINITIALIZED: {
+    toString: () => string;
+};
 export declare function devModeEqual(a: any, b: any): boolean;
 /**
  * Indicates that the result of a {@link PipeMetadata} transformation has changed even though the

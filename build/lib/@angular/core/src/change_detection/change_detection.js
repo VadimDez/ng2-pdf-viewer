@@ -12,11 +12,11 @@ var iterable_differs_1 = require('./differs/iterable_differs');
 var keyvalue_differs_1 = require('./differs/keyvalue_differs');
 var change_detection_util_1 = require('./change_detection_util');
 exports.SimpleChange = change_detection_util_1.SimpleChange;
+exports.UNINITIALIZED = change_detection_util_1.UNINITIALIZED;
 exports.ValueUnwrapper = change_detection_util_1.ValueUnwrapper;
 exports.WrappedValue = change_detection_util_1.WrappedValue;
 exports.devModeEqual = change_detection_util_1.devModeEqual;
 exports.looseIdentical = change_detection_util_1.looseIdentical;
-exports.uninitialized = change_detection_util_1.uninitialized;
 var change_detector_ref_1 = require('./change_detector_ref');
 exports.ChangeDetectorRef = change_detector_ref_1.ChangeDetectorRef;
 var constants_1 = require('./constants');
@@ -39,13 +39,11 @@ exports.KeyValueDiffers = keyvalue_differs_2.KeyValueDiffers;
 /**
  * Structural diffing for `Object`s and `Map`s.
  */
-exports.keyValDiff = 
-/*@ts2dart_const*/ [new default_keyvalue_differ_1.DefaultKeyValueDifferFactory()];
+exports.keyValDiff = [new default_keyvalue_differ_1.DefaultKeyValueDifferFactory()];
 /**
  * Structural diffing for `Iterable` types such as `Array`s.
  */
-exports.iterableDiff = 
-/*@ts2dart_const*/ [new default_iterable_differ_1.DefaultIterableDifferFactory()];
+exports.iterableDiff = [new default_iterable_differ_1.DefaultIterableDifferFactory()];
 exports.defaultIterableDiffers = new iterable_differs_1.IterableDiffers(exports.iterableDiff);
 exports.defaultKeyValueDiffers = new keyvalue_differs_1.KeyValueDiffers(exports.keyValDiff);
 //# sourceMappingURL=change_detection.js.map

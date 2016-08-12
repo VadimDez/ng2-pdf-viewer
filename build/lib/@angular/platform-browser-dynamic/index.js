@@ -6,34 +6,30 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
-var common_1 = require('@angular/common');
 var compiler_1 = require('@angular/compiler');
 var core_1 = require('@angular/core');
 var platform_browser_1 = require('@angular/platform-browser');
 var core_private_1 = require('./core_private');
-var async_1 = require('./src/facade/async');
-var lang_1 = require('./src/facade/lang');
+var platform_providers_1 = require('./src/platform_providers');
 var xhr_cache_1 = require('./src/xhr/xhr_cache');
 var xhr_impl_1 = require('./src/xhr/xhr_impl');
 /**
- * @experimental
+ * @deprecated The compiler providers are already included in the {@link CompilerFactory} that is
+ * contained the {@link browserDynamicPlatform}()`.
  */
-exports.BROWSER_APP_COMPILER_PROVIDERS = [
-    compiler_1.COMPILER_PROVIDERS, {
-        provide: compiler_1.CompilerConfig,
-        useFactory: function (platformDirectives, platformPipes) {
-            return new compiler_1.CompilerConfig({ platformDirectives: platformDirectives, platformPipes: platformPipes });
-        },
-        deps: [core_1.PLATFORM_DIRECTIVES, core_1.PLATFORM_PIPES]
-    },
-    { provide: compiler_1.XHR, useClass: xhr_impl_1.XHRImpl },
-    { provide: core_1.PLATFORM_DIRECTIVES, useValue: common_1.COMMON_DIRECTIVES, multi: true },
-    { provide: core_1.PLATFORM_PIPES, useValue: common_1.COMMON_PIPES, multi: true }
-];
+exports.BROWSER_APP_COMPILER_PROVIDERS = [];
 /**
  * @experimental
  */
 exports.CACHED_TEMPLATE_PROVIDER = [{ provide: compiler_1.XHR, useClass: xhr_cache_1.CachedXHR }];
+/**
+ * @experimental API related to bootstrapping are still under review.
+ */
+exports.platformBrowserDynamic = core_1.createPlatformFactory(compiler_1.platformCoreDynamic, 'browserDynamic', platform_providers_1.INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
+/**
+ * @deprecated Use {@link platformBrowserDynamic} instead
+ */
+exports.browserDynamicPlatform = exports.platformBrowserDynamic;
 /**
  * Bootstrapping for Angular applications.
  *
@@ -93,67 +89,121 @@ exports.CACHED_TEMPLATE_PROVIDER = [{ provide: compiler_1.XHR, useClass: xhr_cac
  * applications on a page, Angular treats each application injector's services as private
  * to that application.
  *
- * ## API
+ * ## API (version 1)
  *
  * - `appComponentType`: The root component which should act as the application. This is
  *   a reference to a `Type` which is annotated with `@Component(...)`.
  * - `customProviders`: An additional set of providers that can be added to the
  *   app injector to override default injection behavior.
  *
+ * ## API (version 2)
+ * - `appComponentType`: The root component which should act as the application. This is
+ *   a reference to a `Type` which is annotated with `@Component(...)`.
+ * - `providers`, `declarations`, `imports`, `entryComponents`: Defines the properties
+ *   of the dynamically created module that is used to bootstrap the module.
+ * - to configure the compiler, use the `compilerOptions` parameter.
+ *
  * Returns a `Promise` of {@link ComponentRef}.
  *
- * @experimental This api cannot be used with the offline compiler and thus is still subject to
- * change.
+ * @deprecated This api cannot be used with the offline compiler. Use
+ * `PlatformRef.boostrapModule()` instead.
  */
+// Note: We are using typescript overloads here to have 2 function signatures!
 function bootstrap(appComponentType, customProviders) {
-    core_private_1.reflector.reflectionCapabilities = new core_private_1.ReflectionCapabilities();
-    var providers = [
-        platform_browser_1.BROWSER_APP_PROVIDERS, exports.BROWSER_APP_COMPILER_PROVIDERS,
-        lang_1.isPresent(customProviders) ? customProviders : []
-    ];
-    var appInjector = core_1.ReflectiveInjector.resolveAndCreate(providers, platform_browser_1.browserPlatform().injector);
-    return core_1.coreLoadAndBootstrap(appComponentType, appInjector);
+    var compilerOptions;
+    var declarations = [];
+    var entryComponents = [];
+    var deprecationMessages = [];
+    var deprecatedConfiguration = compiler_1.analyzeAppProvidersForDeprecatedConfiguration(customProviders);
+    declarations = deprecatedConfiguration.moduleDeclarations.concat(declarations);
+    compilerOptions = deprecatedConfiguration.compilerOptions;
+    deprecationMessages = deprecatedConfiguration.deprecationMessages;
+    var DynamicModule = (function () {
+        function DynamicModule() {
+        }
+        /** @nocollapse */
+        DynamicModule.decorators = [
+            { type: core_1.NgModule, args: [{
+                        providers: customProviders,
+                        declarations: declarations.concat([appComponentType]),
+                        imports: [platform_browser_1.BrowserModule],
+                        entryComponents: entryComponents,
+                        bootstrap: [appComponentType],
+                        schemas: [core_1.CUSTOM_ELEMENTS_SCHEMA]
+                    },] },
+        ];
+        return DynamicModule;
+    }());
+    return exports.platformBrowserDynamic()
+        .bootstrapModule(DynamicModule, compilerOptions)
+        .then(function (moduleRef) {
+        var console = moduleRef.injector.get(core_private_1.Console);
+        deprecationMessages.forEach(function (msg) { return console.warn(msg); });
+        var appRef = moduleRef.injector.get(core_1.ApplicationRef);
+        return appRef.components[0];
+    });
 }
 exports.bootstrap = bootstrap;
 /**
+ * Bootstraps the worker ui.
+ *
  * @experimental
  */
 function bootstrapWorkerUi(workerScriptUri, customProviders) {
-    var app = core_1.ReflectiveInjector.resolveAndCreate([
-        platform_browser_1.WORKER_UI_APPLICATION_PROVIDERS, exports.BROWSER_APP_COMPILER_PROVIDERS,
-        { provide: platform_browser_1.WORKER_SCRIPT, useValue: workerScriptUri },
-        lang_1.isPresent(customProviders) ? customProviders : []
-    ], platform_browser_1.workerUiPlatform().injector);
-    // Return a promise so that we keep the same semantics as Dart,
-    // and we might want to wait for the app side to come up
-    // in the future...
-    return async_1.PromiseWrapper.resolve(app.get(core_1.ApplicationRef));
+    if (customProviders === void 0) { customProviders = []; }
+    // For now, just creates the worker ui platform...
+    return Promise.resolve(platform_browser_1.platformWorkerUi([{
+            provide: platform_browser_1.WORKER_SCRIPT,
+            useValue: workerScriptUri,
+        }].concat(customProviders)));
 }
 exports.bootstrapWorkerUi = bootstrapWorkerUi;
 /**
- * @experimental
+ * @experimental API related to bootstrapping are still under review.
  */
-var WORKER_APP_COMPILER_PROVIDERS = [
-    compiler_1.COMPILER_PROVIDERS, {
-        provide: compiler_1.CompilerConfig,
-        useFactory: function (platformDirectives, platformPipes) {
-            return new compiler_1.CompilerConfig({ platformDirectives: platformDirectives, platformPipes: platformPipes });
-        },
-        deps: [core_1.PLATFORM_DIRECTIVES, core_1.PLATFORM_PIPES]
-    },
-    { provide: compiler_1.XHR, useClass: xhr_impl_1.XHRImpl },
-    { provide: core_1.PLATFORM_DIRECTIVES, useValue: common_1.COMMON_DIRECTIVES, multi: true },
-    { provide: core_1.PLATFORM_PIPES, useValue: common_1.COMMON_PIPES, multi: true }
-];
+exports.platformWorkerAppDynamic = core_1.createPlatformFactory(compiler_1.platformCoreDynamic, 'workerAppDynamic', [{
+        provide: core_1.COMPILER_OPTIONS,
+        useValue: { providers: [{ provide: compiler_1.XHR, useClass: xhr_impl_1.XHRImpl }] },
+        multi: true
+    }]);
 /**
- * @experimental
+ * @deprecated Use {@link platformWorkerAppDynamic} instead
+ */
+exports.workerAppDynamicPlatform = exports.platformWorkerAppDynamic;
+/**
+ * @deprecated Create an {@link NgModule} that includes the {@link WorkerAppModule} and use {@link
+ * bootstrapModule}
+ * with the {@link workerAppDynamicPlatform}() instead.
  */
 function bootstrapWorkerApp(appComponentType, customProviders) {
-    var appInjector = core_1.ReflectiveInjector.resolveAndCreate([
-        platform_browser_1.WORKER_APP_APPLICATION_PROVIDERS, WORKER_APP_COMPILER_PROVIDERS,
-        lang_1.isPresent(customProviders) ? customProviders : []
-    ], platform_browser_1.workerAppPlatform().injector);
-    return core_1.coreLoadAndBootstrap(appComponentType, appInjector);
+    console.warn('bootstrapWorkerApp is deprecated. Create an @NgModule that includes the `WorkerAppModule` and use `bootstrapModule` with the `workerAppDynamicPlatform()` instead.');
+    var deprecatedConfiguration = compiler_1.analyzeAppProvidersForDeprecatedConfiguration(customProviders);
+    var declarations = [deprecatedConfiguration.moduleDeclarations.concat([appComponentType])];
+    var DynamicModule = (function () {
+        function DynamicModule() {
+        }
+        /** @nocollapse */
+        DynamicModule.decorators = [
+            { type: core_1.NgModule, args: [{
+                        providers: customProviders,
+                        declarations: declarations,
+                        imports: [platform_browser_1.WorkerAppModule],
+                        bootstrap: [appComponentType]
+                    },] },
+        ];
+        return DynamicModule;
+    }());
+    return exports.platformWorkerAppDynamic()
+        .bootstrapModule(DynamicModule, deprecatedConfiguration.compilerOptions)
+        .then(function (moduleRef) {
+        var console = moduleRef.injector.get(core_private_1.Console);
+        deprecatedConfiguration.deprecationMessages.forEach(function (msg) { return console.warn(msg); });
+        var appRef = moduleRef.injector.get(core_1.ApplicationRef);
+        return appRef.components[0];
+    });
 }
 exports.bootstrapWorkerApp = bootstrapWorkerApp;
+function normalizeArray(arr) {
+    return arr ? arr : [];
+}
 //# sourceMappingURL=index.js.map

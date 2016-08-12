@@ -27,8 +27,9 @@ var ViewUtils = (function () {
     /**
      * Used by the generated code
      */
-    ViewUtils.prototype.createRenderComponentType = function (templateUrl, slotCount, encapsulation, styles) {
-        return new api_1.RenderComponentType(this._appId + "-" + this._nextCompTypeId++, templateUrl, slotCount, encapsulation, styles);
+    // TODO (matsko): add typing for the animation function
+    ViewUtils.prototype.createRenderComponentType = function (templateUrl, slotCount, encapsulation, styles, animations) {
+        return new api_1.RenderComponentType(this._appId + "-" + this._nextCompTypeId++, templateUrl, slotCount, encapsulation, styles, animations);
     };
     /** @internal */
     ViewUtils.prototype.renderComponent = function (renderComponentType) {
@@ -139,32 +140,6 @@ function checkBinding(throwOnChange, oldValue, newValue) {
     }
 }
 exports.checkBinding = checkBinding;
-function arrayLooseIdentical(a, b) {
-    if (a.length != b.length)
-        return false;
-    for (var i = 0; i < a.length; ++i) {
-        if (!lang_1.looseIdentical(a[i], b[i]))
-            return false;
-    }
-    return true;
-}
-exports.arrayLooseIdentical = arrayLooseIdentical;
-function mapLooseIdentical(m1, m2) {
-    var k1 = collection_1.StringMapWrapper.keys(m1);
-    var k2 = collection_1.StringMapWrapper.keys(m2);
-    if (k1.length != k2.length) {
-        return false;
-    }
-    var key;
-    for (var i = 0; i < k1.length; i++) {
-        key = k1[i];
-        if (!lang_1.looseIdentical(m1[key], m2[key])) {
-            return false;
-        }
-    }
-    return true;
-}
-exports.mapLooseIdentical = mapLooseIdentical;
 function castByValue(input, value) {
     return input;
 }
@@ -173,8 +148,7 @@ exports.EMPTY_ARRAY = [];
 exports.EMPTY_MAP = {};
 function pureProxy1(fn) {
     var result;
-    var v0;
-    v0 = change_detection_util_1.uninitialized;
+    var v0 = change_detection_util_1.UNINITIALIZED;
     return function (p0) {
         if (!lang_1.looseIdentical(v0, p0)) {
             v0 = p0;
@@ -186,8 +160,8 @@ function pureProxy1(fn) {
 exports.pureProxy1 = pureProxy1;
 function pureProxy2(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1;
-    v0 = v1 = change_detection_util_1.uninitialized;
+    var v0 = change_detection_util_1.UNINITIALIZED;
+    var v1 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1)) {
             v0 = p0;
@@ -200,8 +174,9 @@ function pureProxy2(fn) {
 exports.pureProxy2 = pureProxy2;
 function pureProxy3(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2;
-    v0 = v1 = v2 = change_detection_util_1.uninitialized;
+    var v0 = change_detection_util_1.UNINITIALIZED;
+    var v1 = change_detection_util_1.UNINITIALIZED;
+    var v2 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2)) {
             v0 = p0;
@@ -215,8 +190,8 @@ function pureProxy3(fn) {
 exports.pureProxy3 = pureProxy3;
 function pureProxy4(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3;
-    v0 = v1 = v2 = v3 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3;
+    v0 = v1 = v2 = v3 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3)) {
@@ -232,8 +207,8 @@ function pureProxy4(fn) {
 exports.pureProxy4 = pureProxy4;
 function pureProxy5(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4;
-    v0 = v1 = v2 = v3 = v4 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4;
+    v0 = v1 = v2 = v3 = v4 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4)) {
@@ -250,8 +225,8 @@ function pureProxy5(fn) {
 exports.pureProxy5 = pureProxy5;
 function pureProxy6(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5;
-    v0 = v1 = v2 = v3 = v4 = v5 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4, v5;
+    v0 = v1 = v2 = v3 = v4 = v5 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4, p5) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4) || !lang_1.looseIdentical(v5, p5)) {
@@ -269,8 +244,8 @@ function pureProxy6(fn) {
 exports.pureProxy6 = pureProxy6;
 function pureProxy7(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4, v5, v6;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4, p5, p6) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4) || !lang_1.looseIdentical(v5, p5) ||
@@ -290,8 +265,8 @@ function pureProxy7(fn) {
 exports.pureProxy7 = pureProxy7;
 function pureProxy8(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4, v5, v6, v7;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4, p5, p6, p7) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4) || !lang_1.looseIdentical(v5, p5) ||
@@ -312,8 +287,8 @@ function pureProxy8(fn) {
 exports.pureProxy8 = pureProxy8;
 function pureProxy9(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7 /** TODO #9100 */, v8;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4, v5, v6, v7, v8;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4, p5, p6, p7, p8) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4) || !lang_1.looseIdentical(v5, p5) ||
@@ -335,8 +310,8 @@ function pureProxy9(fn) {
 exports.pureProxy9 = pureProxy9;
 function pureProxy10(fn) {
     var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7 /** TODO #9100 */, v8 /** TODO #9100 */, v9;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = change_detection_util_1.uninitialized;
+    var v0, v1, v2, v3, v4, v5, v6, v7, v8, v9;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = change_detection_util_1.UNINITIALIZED;
     return function (p0, p1, p2, p3, p4, p5, p6, p7, p8, p9) {
         if (!lang_1.looseIdentical(v0, p0) || !lang_1.looseIdentical(v1, p1) || !lang_1.looseIdentical(v2, p2) ||
             !lang_1.looseIdentical(v3, p3) || !lang_1.looseIdentical(v4, p4) || !lang_1.looseIdentical(v5, p5) ||

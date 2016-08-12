@@ -1,4 +1,5 @@
 import { AbstractControl } from '../model';
+import { Validators } from '../validators';
 /**
  * An interface that can be implemented by classes that can act as validators.
  *
@@ -23,6 +24,7 @@ export interface Validator {
         [key: string]: any;
     };
 }
+export declare const REQUIRED: typeof Validators.required;
 export declare const REQUIRED_VALIDATOR: any;
 /**
  * A Directive that adds the `required` validator to any controls marked with the

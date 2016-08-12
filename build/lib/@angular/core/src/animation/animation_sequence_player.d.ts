@@ -5,11 +5,14 @@ export declare class AnimationSequencePlayer implements AnimationPlayer {
     private _activePlayer;
     private _subscriptions;
     private _finished;
+    private _started;
     parentPlayer: AnimationPlayer;
     constructor(_players: AnimationPlayer[]);
     private _onNext(start);
     private _onFinish();
+    init(): void;
     onDone(fn: Function): void;
+    hasStarted(): boolean;
     play(): void;
     pause(): void;
     restart(): void;

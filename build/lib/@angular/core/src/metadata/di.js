@@ -13,7 +13,43 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var forward_ref_1 = require('../di/forward_ref');
 var metadata_1 = require('../di/metadata');
+var opaque_token_1 = require('../di/opaque_token');
 var lang_1 = require('../facade/lang');
+/**
+ * This token can be used to create a virtual provider that will populate the
+ * `entryComponents` fields of components and ng modules based on its `useValue`.
+ * All components that are referenced in the `useValue` value (either directly
+ * or in a nested array or map) will be added to the `entryComponents` property.
+ *
+ * ### Example
+ * The following example shows how the router can populate the `entryComponents`
+ * field of an NgModule based on the router configuration which refers
+ * to components.
+ *
+ * ```typescript
+ * // helper function inside the router
+ * function provideRoutes(routes) {
+ *   return [
+ *     {provide: ROUTES, useValue: routes},
+ *     {provide: ANALYZE_FOR_ENTRY_COMPONENTS, useValue: routes, multi: true}
+ *   ];
+ * }
+ *
+ * // user code
+ * let routes = [
+ *   {path: '/root', component: RootComp},
+ *   {path: /teams', component: TeamsComp}
+ * ];
+ *
+ * @NgModule({
+ *   providers: [provideRoutes(routes)]
+ * })
+ * class ModuleWithRoutes {}
+ * ```
+ *
+ * @experimental
+ */
+exports.ANALYZE_FOR_ENTRY_COMPONENTS = new opaque_token_1.OpaqueToken('AnalyzeForEntryComponents');
 /**
  * Specifies that a constant attribute value should be injected.
  *
@@ -30,7 +66,6 @@ var lang_1 = require('../facade/lang');
  * A decorator can inject string literal `text` like so:
  *
  * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
- * @ts2dart_const
  * @stable
  */
 var AttributeMetadata = (function (_super) {
@@ -161,7 +196,6 @@ exports.AttributeMetadata = AttributeMetadata;
  *
  * The injected object is an unmodifiable live list.
  * See {@link QueryList} for more details.
- * @ts2dart_const
  * @deprecated
  */
 var QueryMetadata = (function (_super) {
@@ -231,7 +265,6 @@ exports.QueryMetadata = QueryMetadata;
  *   }
  * }
  * ```
- * @ts2dart_const
  * @stable
  */
 var ContentChildrenMetadata = (function (_super) {
@@ -263,7 +296,6 @@ exports.ContentChildrenMetadata = ContentChildrenMetadata;
  *   }
  * }
  * ```
- * @ts2dart_const
  * @stable
  */
 var ContentChildMetadata = (function (_super) {
@@ -309,7 +341,6 @@ exports.ContentChildMetadata = ContentChildMetadata;
  *
  * The injected object is an iterable and observable live list.
  * See {@link QueryList} for more details.
- * @ts2dart_const
  * @deprecated
  */
 var ViewQueryMetadata = (function (_super) {
@@ -406,7 +437,6 @@ exports.ViewQueryMetadata = ViewQueryMetadata;
  *   }
  * }
  * ```
- * @ts2dart_const
  * @stable
  */
 var ViewChildrenMetadata = (function (_super) {
@@ -487,7 +517,6 @@ exports.ViewChildrenMetadata = ViewChildrenMetadata;
  *   }
  * }
  * ```
- * @ts2dart_const
  * @stable
  */
 var ViewChildMetadata = (function (_super) {

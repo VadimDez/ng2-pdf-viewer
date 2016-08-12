@@ -44,7 +44,7 @@ import { isPresent } from '../facade/lang';
  * current `ElementInjector` resolves the constructor dependencies for each directive.
  *
  * Angular then resolves dependencies as follows, according to the order in which they appear in the
- * {@link ViewMetadata}:
+ * {@link ComponentMetadata}:
  *
  * 1. Dependencies on the current element
  * 2. Dependencies on element injectors and their parents until it encounters a Shadow DOM boundary
@@ -293,7 +293,8 @@ import { isPresent } from '../facade/lang';
  * location in the current view
  * where these actions are performed.
  *
- * Views are always created as children of the current {@link ViewMetadata}, and as siblings of the
+ * Views are always created as children of the current {@link ComponentMetadata}, and as siblings of
+ * the
  * `<template>` element. Thus a
  * directive in a child view cannot inject the directive that created it.
  *
@@ -326,8 +327,9 @@ import { isPresent } from '../facade/lang';
  *
  * ## Lifecycle hooks
  *
- * When the directive class implements some {@link ../../guide/lifecycle-hooks.html} the callbacks
- * are called by the change detection at defined points in time during the life of the directive.
+ * When the directive class implements some {@linkDocs guide/lifecycle-hooks} the
+ * callbacks are called by the change detection at defined points in time during the life of the
+ * directive.
  *
  * ### Example
  *
@@ -385,7 +387,6 @@ import { isPresent } from '../facade/lang';
  * Note also that although the `<li></li>` template still exists inside the `<template></template>`,
  * the instantiated
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
- * @ts2dart_const
  * @stable
  */
 export class DirectiveMetadata extends InjectableMetadata {
@@ -559,21 +560,19 @@ export class DirectiveMetadata extends InjectableMetadata {
  *
  * All template expressions and statements are then evaluated against the component instance.
  *
- * For details on the `@View` annotation, see {@link ViewMetadata}.
- *
  * ## Lifecycle hooks
  *
- * When the component class implements some {@link ../../guide/lifecycle-hooks.html} the callbacks
- * are called by the change detection at defined points in time during the life of the component.
+ * When the component class implements some {@linkDocs guide/lifecycle-hooks} the
+ * callbacks are called by the change detection at defined points in time during the life of the
+ * component.
  *
  * ### Example
  *
  * {@example core/ts/metadata/metadata.ts region='component'}
- * @ts2dart_const
  * @stable
  */
 export class ComponentMetadata extends DirectiveMetadata {
-    constructor({ selector, inputs, outputs, properties, events, host, exportAs, moduleId, providers, viewProviders, changeDetection = ChangeDetectionStrategy.Default, queries, templateUrl, template, styleUrls, styles, animations, directives, pipes, encapsulation, interpolation, precompile } = {}) {
+    constructor({ selector, inputs, outputs, properties, events, host, exportAs, moduleId, providers, viewProviders, changeDetection = ChangeDetectionStrategy.Default, queries, templateUrl, template, styleUrls, styles, animations, directives, pipes, encapsulation, interpolation, entryComponents } = {}) {
         super({
             selector: selector,
             inputs: inputs,
@@ -597,7 +596,7 @@ export class ComponentMetadata extends DirectiveMetadata {
         this.moduleId = moduleId;
         this.animations = animations;
         this.interpolation = interpolation;
-        this.precompile = precompile;
+        this.entryComponents = entryComponents;
     }
     /**
      * Defines the set of injectable objects that are visible to its view DOM children.
@@ -649,7 +648,6 @@ export class ComponentMetadata extends DirectiveMetadata {
  * ### Example
  *
  * {@example core/ts/metadata/metadata.ts region='pipe'}
- * @ts2dart_const
  * @stable
  */
 export class PipeMetadata extends InjectableMetadata {
@@ -700,7 +698,6 @@ export class PipeMetadata extends InjectableMetadata {
  *
  * bootstrap(App);
  * ```
- * @ts2dart_const
  * @stable
  */
 export class InputMetadata {
@@ -752,7 +749,6 @@ export class InputMetadata {
  * }
  * bootstrap(App);
  * ```
- * @ts2dart_const
  * @stable
  */
 export class OutputMetadata {
@@ -794,7 +790,6 @@ export class OutputMetadata {
  *
  * bootstrap(App);
  * ```
- * @ts2dart_const
  * @stable
  */
 export class HostBindingMetadata {
@@ -835,7 +830,6 @@ export class HostBindingMetadata {
  *
  * bootstrap(App);
  * ```
- * @ts2dart_const
  * @stable
  */
 export class HostListenerMetadata {

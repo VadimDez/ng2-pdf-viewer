@@ -9,7 +9,6 @@
 var collection_1 = require('../../facade/collection');
 var exceptions_1 = require('../../facade/exceptions');
 var lang_1 = require('../../facade/lang');
-/* @ts2dart_const */
 var DefaultIterableDifferFactory = (function () {
     function DefaultIterableDifferFactory() {
     }
@@ -61,6 +60,55 @@ var DefaultIterableDiffer = (function () {
         var record;
         for (record = this._itHead; record !== null; record = record._next) {
             fn(record);
+        }
+    };
+    DefaultIterableDiffer.prototype.forEachOperation = function (fn) {
+        var nextIt = this._itHead;
+        var nextRemove = this._removalsHead;
+        var addRemoveOffset = 0;
+        var moveOffsets = null;
+        while (nextIt || nextRemove) {
+            // Figure out which is the next record to process
+            // Order: remove, add, move
+            var record = !nextRemove ||
+                nextIt &&
+                    nextIt.currentIndex < getPreviousIndex(nextRemove, addRemoveOffset, moveOffsets) ?
+                nextIt :
+                nextRemove;
+            var adjPreviousIndex = getPreviousIndex(record, addRemoveOffset, moveOffsets);
+            var currentIndex = record.currentIndex;
+            // consume the item, and adjust the addRemoveOffset and update moveDistance if necessary
+            if (record === nextRemove) {
+                addRemoveOffset--;
+                nextRemove = nextRemove._nextRemoved;
+            }
+            else {
+                nextIt = nextIt._next;
+                if (record.previousIndex == null) {
+                    addRemoveOffset++;
+                }
+                else {
+                    // INVARIANT:  currentIndex < previousIndex
+                    if (!moveOffsets)
+                        moveOffsets = [];
+                    var localMovePreviousIndex = adjPreviousIndex - addRemoveOffset;
+                    var localCurrentIndex = currentIndex - addRemoveOffset;
+                    if (localMovePreviousIndex != localCurrentIndex) {
+                        for (var i = 0; i < localMovePreviousIndex; i++) {
+                            var offset = i < moveOffsets.length ? moveOffsets[i] : (moveOffsets[i] = 0);
+                            var index = offset + i;
+                            if (localCurrentIndex <= index && index < localMovePreviousIndex) {
+                                moveOffsets[i] = offset + 1;
+                            }
+                        }
+                        var previousIndex = record.previousIndex;
+                        moveOffsets[previousIndex] = localCurrentIndex - localMovePreviousIndex;
+                    }
+                }
+            }
+            if (adjPreviousIndex !== currentIndex) {
+                fn(record, adjPreviousIndex, currentIndex);
+            }
         }
     };
     DefaultIterableDiffer.prototype.forEachPreviousItem = function (fn) {
@@ -664,4 +712,14 @@ var _DuplicateMap = (function () {
     _DuplicateMap.prototype.toString = function () { return '_DuplicateMap(' + lang_1.stringify(this.map) + ')'; };
     return _DuplicateMap;
 }());
+function getPreviousIndex(item, addRemoveOffset, moveOffsets) {
+    var previousIndex = item.previousIndex;
+    if (previousIndex === null)
+        return previousIndex;
+    var moveOffset = 0;
+    if (moveOffsets && previousIndex < moveOffsets.length) {
+        moveOffset = moveOffsets[previousIndex];
+    }
+    return previousIndex + addRemoveOffset + moveOffset;
+}
 //# sourceMappingURL=default_iterable_differ.js.map

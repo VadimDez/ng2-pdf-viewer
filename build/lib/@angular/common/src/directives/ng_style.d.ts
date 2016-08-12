@@ -15,7 +15,8 @@ import { DoCheck, ElementRef, KeyValueDiffers, Renderer } from '@angular/core';
  *
  * ### Syntax
  *
- * - `<div [ngStyle]="{'font-style': style}"></div>`
+ * - `<div [ngStyle]="{'font-style': styleExp}"></div>`
+ * - `<div [ngStyle]="{'max-width.px': widthExp}"></div>`
  * - `<div [ngStyle]="styleExp"></div>` - here the `styleExp` must evaluate to an object
  *
  * ### Example ([live demo](http://plnkr.co/edit/YamGS6GkUh9GqWNQhCyM?p=preview)):
@@ -64,7 +65,7 @@ export declare class NgStyle implements DoCheck {
     private _ngEl;
     private _renderer;
     constructor(_differs: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer);
-    rawStyle: {
+    ngStyle: {
         [key: string]: string;
     };
     ngDoCheck(): void;

@@ -29,6 +29,7 @@ var NoOpAnimationPlayer = (function () {
     function NoOpAnimationPlayer() {
         var _this = this;
         this._subscriptions = [];
+        this._started = false;
         this.parentPlayer = null;
         lang_1.scheduleMicroTask(function () { return _this._onFinish(); });
     }
@@ -38,7 +39,9 @@ var NoOpAnimationPlayer = (function () {
         this._subscriptions = [];
     };
     NoOpAnimationPlayer.prototype.onDone = function (fn) { this._subscriptions.push(fn); };
-    NoOpAnimationPlayer.prototype.play = function () { };
+    NoOpAnimationPlayer.prototype.hasStarted = function () { return this._started; };
+    NoOpAnimationPlayer.prototype.init = function () { };
+    NoOpAnimationPlayer.prototype.play = function () { this._started = true; };
     NoOpAnimationPlayer.prototype.pause = function () { };
     NoOpAnimationPlayer.prototype.restart = function () { };
     NoOpAnimationPlayer.prototype.finish = function () { this._onFinish(); };

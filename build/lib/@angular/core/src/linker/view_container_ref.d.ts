@@ -81,6 +81,12 @@ export declare abstract class ViewContainerRef {
      */
     abstract insert(viewRef: ViewRef, index?: number): ViewRef;
     /**
+     * Moves a View identified by a {@link ViewRef} into the container at the specified `index`.
+     *
+     * Returns the inserted {@link ViewRef}.
+     */
+    abstract move(viewRef: ViewRef, currentIndex: number): ViewRef;
+    /**
      * Returns the index of the View, specified via {@link ViewRef}, within the current container or
      * `-1` if this container doesn't contain the View.
      */
@@ -109,6 +115,7 @@ export declare class ViewContainerRef_ implements ViewContainerRef {
     createEmbeddedView<C>(templateRef: TemplateRef<C>, context?: C, index?: number): EmbeddedViewRef<C>;
     createComponent<C>(componentFactory: ComponentFactory<C>, index?: number, injector?: Injector, projectableNodes?: any[][]): ComponentRef<C>;
     insert(viewRef: ViewRef, index?: number): ViewRef;
+    move(viewRef: ViewRef, currentIndex: number): ViewRef;
     indexOf(viewRef: ViewRef): number;
     remove(index?: number): void;
     detach(index?: number): ViewRef;

@@ -11,8 +11,9 @@ import { BaseException } from '../facade/exceptions';
 import { isBlank, isPresent } from '../facade/lang';
 import { Identifiers } from '../identifiers';
 import * as o from '../output/output_ast';
+import * as t from '../template_parser/template_ast';
 import { AnimationStepAst } from './animation_ast';
-import { parseAnimationEntry } from './animation_parser';
+import { AnimationParseError, parseAnimationEntry } from './animation_parser';
 export class CompiledAnimation {
     constructor(name, statesMapStatement, statesVariableName, fnStatement, fnVariable) {
         this.name = name;
@@ -23,23 +24,38 @@ export class CompiledAnimation {
     }
 }
 export class AnimationCompiler {
-    compileComponent(component) {
+    compileComponent(component, template) {
         var compiledAnimations = [];
-        var index = 0;
+        var groupedErrors = [];
+        var triggerLookup = {};
+        var componentName = component.type.name;
         component.template.animations.forEach(entry => {
             var result = parseAnimationEntry(entry);
+            var triggerName = entry.name;
             if (result.errors.length > 0) {
-                var errorMessage = '';
-                result.errors.forEach((error) => { errorMessage += '\n- ' + error.msg; });
-                // todo (matsko): include the component name when throwing
-                throw new BaseException(`Unable to parse the animation sequence for "${entry.name}" due to the following errors: ` +
-                    errorMessage);
+                var errorMessage = `Unable to parse the animation sequence for "${triggerName}" due to the following errors:`;
+                result.errors.forEach((error) => { errorMessage += '\n-- ' + error.msg; });
+                groupedErrors.push(errorMessage);
             }
-            var factoryName = `${component.type.name}_${entry.name}_${index}`;
-            index++;
-            var visitor = new _AnimationBuilder(entry.name, factoryName);
-            compiledAnimations.push(visitor.build(result.ast));
+            if (triggerLookup[triggerName]) {
+                groupedErrors.push(`The animation trigger "${triggerName}" has already been registered on "${componentName}"`);
+            }
+            else {
+                var factoryName = `${componentName}_${entry.name}`;
+                var visitor = new _AnimationBuilder(triggerName, factoryName);
+                var compileResult = visitor.build(result.ast);
+                compiledAnimations.push(compileResult);
+                triggerLookup[entry.name] = compileResult;
+            }
         });
+        _validateAnimationProperties(compiledAnimations, template).forEach(entry => {
+            groupedErrors.push(entry.msg);
+        });
+        if (groupedErrors.length > 0) {
+            var errorMessageStr = `Animation parsing for ${component.type.name} has failed due to the following errors:`;
+            groupedErrors.forEach(error => errorMessageStr += `\n- ${error}`);
+            throw new BaseException(errorMessageStr);
+        }
         return compiledAnimations;
     }
 }
@@ -195,7 +211,7 @@ class _AnimationBuilder {
                     .toStmt()])])
             .toStmt());
         statements.push(_ANIMATION_FACTORY_VIEW_VAR
-            .callMethod('registerAndStartAnimation', [
+            .callMethod('queueAnimation', [
             _ANIMATION_FACTORY_ELEMENT_VAR, o.literal(this.animationName),
             _ANIMATION_PLAYER_VAR
         ])
@@ -269,5 +285,39 @@ function _isEndStateAnimateStep(step) {
 }
 function _getStylesArray(obj) {
     return obj.styles.styles;
+}
+function _validateAnimationProperties(compiledAnimations, template) {
+    var visitor = new _AnimationTemplatePropertyVisitor(compiledAnimations);
+    t.templateVisitAll(visitor, template);
+    return visitor.errors;
+}
+class _AnimationTemplatePropertyVisitor {
+    constructor(animations) {
+        this._animationRegistry = {};
+        this.errors = [];
+        animations.forEach(entry => { this._animationRegistry[entry.name] = true; });
+    }
+    visitElement(ast, ctx) {
+        ast.inputs.forEach(input => {
+            if (input.type == t.PropertyBindingType.Animation) {
+                var animationName = input.name;
+                if (!isPresent(this._animationRegistry[animationName])) {
+                    this.errors.push(new AnimationParseError(`couldn't find an animation entry for ${animationName}`));
+                }
+            }
+        });
+        t.templateVisitAll(this, ast.children);
+    }
+    visitBoundText(ast, ctx) { }
+    visitText(ast, ctx) { }
+    visitEmbeddedTemplate(ast, ctx) { }
+    visitNgContent(ast, ctx) { }
+    visitAttr(ast, ctx) { }
+    visitDirective(ast, ctx) { }
+    visitEvent(ast, ctx) { }
+    visitReference(ast, ctx) { }
+    visitVariable(ast, ctx) { }
+    visitDirectiveProperty(ast, ctx) { }
+    visitElementProperty(ast, ctx) { }
 }
 //# sourceMappingURL=animation_compiler.js.map

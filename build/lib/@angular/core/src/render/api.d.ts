@@ -19,7 +19,12 @@ export declare class RenderComponentType {
     slotCount: number;
     encapsulation: ViewEncapsulation;
     styles: Array<string | any[]>;
-    constructor(id: string, templateUrl: string, slotCount: number, encapsulation: ViewEncapsulation, styles: Array<string | any[]>);
+    animations: {
+        [key: string]: Function;
+    };
+    constructor(id: string, templateUrl: string, slotCount: number, encapsulation: ViewEncapsulation, styles: Array<string | any[]>, animations: {
+        [key: string]: Function;
+    });
 }
 export declare abstract class RenderDebugInfo {
     injector: Injector;
@@ -52,10 +57,10 @@ export declare abstract class Renderer {
      * Used only in debug mode to serialize property changes to dom nodes as attributes.
      */
     abstract setBindingDebugInfo(renderElement: any, propertyName: string, propertyValue: string): void;
-    abstract setElementClass(renderElement: any, className: string, isAdd: boolean): any;
-    abstract setElementStyle(renderElement: any, styleName: string, styleValue: string): any;
-    abstract invokeElementMethod(renderElement: any, methodName: string, args?: any[]): any;
-    abstract setText(renderNode: any, text: string): any;
+    abstract setElementClass(renderElement: any, className: string, isAdd: boolean): void;
+    abstract setElementStyle(renderElement: any, styleName: string, styleValue: string): void;
+    abstract invokeElementMethod(renderElement: any, methodName: string, args?: any[]): void;
+    abstract setText(renderNode: any, text: string): void;
     abstract animate(element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[], duration: number, delay: number, easing: string): AnimationPlayer;
 }
 /**

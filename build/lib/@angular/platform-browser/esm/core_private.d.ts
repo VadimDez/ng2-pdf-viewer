@@ -13,23 +13,11 @@ export declare var ReflectionCapabilities: typeof t.ReflectionCapabilities;
 export declare var VIEW_ENCAPSULATION_VALUES: typeof t.VIEW_ENCAPSULATION_VALUES;
 export declare type DebugDomRootRenderer = t.DebugDomRootRenderer;
 export declare var DebugDomRootRenderer: typeof t.DebugDomRootRenderer;
-/**
- * @experimental bogus marker to pass the ts-api-guardian's check - this api should be public so
- * this line will go away when that happens
- */
-export declare var SecurityContext: typeof t.SecurityContext;
-export declare type SecurityContext = t.SecurityContext;
-export declare var SanitizationService: typeof t.SanitizationService;
-export declare type SanitizationService = t.SanitizationService;
 export declare var reflector: typeof t.reflector;
 export declare type NoOpAnimationPlayer = t.NoOpAnimationPlayer;
 export declare var NoOpAnimationPlayer: typeof t.NoOpAnimationPlayer;
 export declare type AnimationPlayer = t.AnimationPlayer;
 export declare var AnimationPlayer: typeof t.AnimationPlayer;
-export declare type NoOpAnimationDriver = t.NoOpAnimationDriver;
-export declare var NoOpAnimationDriver: typeof t.NoOpAnimationDriver;
-export declare type AnimationDriver = t.AnimationDriver;
-export declare var AnimationDriver: typeof t.AnimationDriver;
 export declare type AnimationSequencePlayer = t.AnimationSequencePlayer;
 export declare var AnimationSequencePlayer: typeof t.AnimationSequencePlayer;
 export declare type AnimationGroupPlayer = t.AnimationGroupPlayer;

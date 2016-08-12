@@ -5,46 +5,24 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Attribute, ContentChildren, Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Attribute, Directive, Host, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 import { isPresent } from '../facade/lang';
 import { NgLocalization, getPluralCategory } from '../localization';
 import { SwitchView } from './ng_switch';
-export class NgPluralCase {
-    constructor(value, template, viewContainer) {
-        this.value = value;
-        this._view = new SwitchView(viewContainer, template);
-    }
-}
-/** @nocollapse */
-NgPluralCase.decorators = [
-    { type: Directive, args: [{ selector: '[ngPluralCase]' },] },
-];
-/** @nocollapse */
-NgPluralCase.ctorParameters = [
-    { type: undefined, decorators: [{ type: Attribute, args: ['ngPluralCase',] },] },
-    { type: TemplateRef, },
-    { type: ViewContainerRef, },
-];
 export class NgPlural {
     constructor(_localization) {
         this._localization = _localization;
         this._caseViews = {};
-        this.cases = null;
     }
     set ngPlural(value) {
         this._switchValue = value;
         this._updateView();
     }
-    ngAfterContentInit() {
-        this.cases.forEach((pluralCase) => {
-            this._caseViews[pluralCase.value] = pluralCase._view;
-        });
-        this._updateView();
-    }
+    addCase(value, switchView) { this._caseViews[value] = switchView; }
     /** @internal */
     _updateView() {
         this._clearViews();
-        var key = getPluralCategory(this._switchValue, Object.getOwnPropertyNames(this._caseViews), this._localization);
+        var key = getPluralCategory(this._switchValue, Object.keys(this._caseViews), this._localization);
         this._activateView(this._caseViews[key]);
     }
     /** @internal */
@@ -70,7 +48,23 @@ NgPlural.ctorParameters = [
 ];
 /** @nocollapse */
 NgPlural.propDecorators = {
-    'cases': [{ type: ContentChildren, args: [NgPluralCase,] },],
     'ngPlural': [{ type: Input },],
 };
+export class NgPluralCase {
+    constructor(value, template, viewContainer, ngPlural) {
+        this.value = value;
+        ngPlural.addCase(value, new SwitchView(viewContainer, template));
+    }
+}
+/** @nocollapse */
+NgPluralCase.decorators = [
+    { type: Directive, args: [{ selector: '[ngPluralCase]' },] },
+];
+/** @nocollapse */
+NgPluralCase.ctorParameters = [
+    { type: undefined, decorators: [{ type: Attribute, args: ['ngPluralCase',] },] },
+    { type: TemplateRef, },
+    { type: ViewContainerRef, },
+    { type: NgPlural, decorators: [{ type: Host },] },
+];
 //# sourceMappingURL=ng_plural.js.map

@@ -138,6 +138,13 @@
       <span class="mdl-components__link-text">Cards</span>
     </a>
     
+    <a href="#chips-section" class="mdl-components__link mdl-component chips">
+      <div class="mdl-components__link-image"
+           style="background-image: url('../assets/comp_chips.png')">
+      </div>
+      <span class="mdl-components__link-text">Chips</span>
+    </a>
+    
     <a href="#dialog-section" class="mdl-components__link mdl-component dialog">
       <div class="mdl-components__link-image"
            style="background-image: url('../assets/comp_dialog.png')">
@@ -1222,7 +1229,7 @@ body {
 </tbody>
 </table>
 <blockquote>
-<p><strong>Note:</strong> Disabled versions of all the available button types are provided, and are invoked with the standard HTML boolean attribute <code>disabled</code>. <code>&lt;button class=&quot;mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect&quot; disabled&gt;Raised Ripples Disabled&lt;/button&gt;</code>. Alternatively, the <code>mdl-button--disabled</code> class can be used to achieve the same result.
+<p><strong>Note:</strong> Disabled versions of all the available button types are provided, and are invoked with the standard HTML boolean attribute <code>disabled</code>. <code>&lt;button class=&quot;mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect&quot; disabled&gt;Raised Ripples Disabled&lt;/button&gt;</code>. Alternatively, the <code>mdl-button--disabled</code> class can be used to achieve the same style but it does not disable the functionality of the element.
 This attribute may be added or removed programmatically via scripting.</p>
 </blockquote>
 
@@ -1807,6 +1814,274 @@ body {
 <td><code>mdl-card__actions</code></td>
 <td>Defines div as a card actions container and assigns appropriate text characteristics to actions text</td>
 <td>Required on &quot;inner&quot; actions div; content goes directly inside the div with no intervening containers</td>
+</tr>
+</tbody>
+</table>
+
+
+
+          </div>
+        
+      </div>
+    </section>
+    <section id="chips-section" class="mdl-components__page mdl-grid">
+      <div class="mdl-cell mdl-cell--12-col">
+        <div class="docs-text-styling component-title">
+          <h3>Chips</h3>
+          <p>Represents complex entities in small blocks.</p>
+        </div>
+
+        
+
+        
+
+          
+          <!-- Add warning, if the component has one -->
+          
+          <!-- Generating snippets -->
+          
+            
+            
+<div class="snippet-group">
+
+  <div class="snippet-header">
+    <div class="snippet-demos">
+      <div class="snippet-demo-padding"></div>
+      
+        
+        
+        
+        <div class="snippet-demo">
+          <div class="snippet-demo-container demo-chip demo-chip__basic">
+            <!-- Basic Chip -->
+<span class="mdl-chip">
+    <span class="mdl-chip__text">Basic Chip</span>
+</span>
+          </div>
+        </div>
+        
+        
+        
+        <div class="snippet-demo">
+          <div class="snippet-demo-container demo-chip demo-chip__deletable">
+            <!-- Deletable Chip -->
+<span class="mdl-chip mdl-chip--deletable">
+    <span class="mdl-chip__text">Deletable Chip</span>
+    <button type="button" class="mdl-chip__action"><i class="material-icons">cancel</i></button>
+</span>
+          </div>
+        </div>
+        
+        
+        
+        <div class="snippet-demo">
+          <div class="snippet-demo-container demo-chip demo-chip__button">
+            <!-- Button Chip -->
+<button type="button" class="mdl-chip">
+    <span class="mdl-chip__text">Button Chip</span>
+</button>
+          </div>
+        </div>
+      <div class="snippet-demo-padding"></div>
+    </div>
+    <div class="snippet-captions">
+      <div class="snippet-caption-padding"></div>
+      
+        <div class="snippet-caption">
+          Basic Chip
+        </div>
+        <div class="snippet-caption">
+          Deletable Chip
+        </div>
+        <div class="snippet-caption">
+          Button Chip
+        </div>
+      <div class="snippet-caption-padding"></div>
+    </div>
+  </div>
+  <div class="snippet-code">
+    <pre class="language-markup codepen-button-enabled"><code id="chip/basic.html">&lt;!-- Basic Chip --&gt;
+&lt;span class=&quot;mdl-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Basic Chip&lt;/span&gt;
+&lt;/span&gt;</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="chip/deletable.html">&lt;!-- Deletable Chip --&gt;
+&lt;span class=&quot;mdl-chip mdl-chip--deletable&quot;&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Deletable Chip&lt;/span&gt;
+    &lt;button type=&quot;button&quot; class=&quot;mdl-chip__action&quot;&gt;&lt;i class=&quot;material-icons&quot;&gt;cancel&lt;/i&gt;&lt;/button&gt;
+&lt;/span&gt;</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="chip/button.html">&lt;!-- Button Chip --&gt;
+&lt;button type=&quot;button&quot; class=&quot;mdl-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Button Chip&lt;/span&gt;
+&lt;/button&gt;</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><div class="codepen-extra-css">&lt;style&gt;
+body {
+  padding: 20px;
+  background: #fafafa;
+  position: relative;
+}
+&lt;/style&gt;</div><form class="codepen-button" action="https://codepen.io/pen/define" method="POST" target="_blank"></form></pre>
+  </div>
+</div>
+
+          
+            
+            
+<div class="snippet-group">
+
+  <div class="snippet-header">
+    <div class="snippet-demos">
+      <div class="snippet-demo-padding"></div>
+      
+        
+        
+        
+        <div class="snippet-demo">
+          <div class="snippet-demo-container demo-chip demo-chip__contact">
+            <!-- Contact Chip -->
+<span class="mdl-chip mdl-chip--contact">
+    <span class="mdl-chip__contact mdl-color--teal mdl-color-text--white">A</span>
+    <span class="mdl-chip__text">Contact Chip</span>
+</span>
+
+          </div>
+        </div>
+        
+        
+        
+        <div class="snippet-demo">
+          <div class="snippet-demo-container demo-chip demo-chip__deletable-contact">
+            <!-- Deletable Contact Chip -->
+<span class="mdl-chip mdl-chip--contact mdl-chip--deletable">
+    <img class="mdl-chip__contact" src="/templates/dashboard/images/user.jpg"></img>
+    <span class="mdl-chip__text">Deletable Contact Chip</span>
+    <a href="#" class="mdl-chip__action"><i class="material-icons">cancel</i></a>
+</span>
+          </div>
+        </div>
+      <div class="snippet-demo-padding"></div>
+    </div>
+    <div class="snippet-captions">
+      <div class="snippet-caption-padding"></div>
+      
+        <div class="snippet-caption">
+          Contact Chip
+        </div>
+        <div class="snippet-caption">
+          Deletable Contact Chip
+        </div>
+      <div class="snippet-caption-padding"></div>
+    </div>
+  </div>
+  <div class="snippet-code">
+    <pre class="language-markup codepen-button-enabled"><code id="chip/contact.html">&lt;!-- Contact Chip --&gt;
+&lt;span class=&quot;mdl-chip mdl-chip--contact&quot;&gt;
+    &lt;span class=&quot;mdl-chip__contact mdl-color--teal mdl-color-text--white&quot;&gt;A&lt;/span&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Contact Chip&lt;/span&gt;
+&lt;/span&gt;
+</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="chip/deletable-contact.html">&lt;!-- Deletable Contact Chip --&gt;
+&lt;span class=&quot;mdl-chip mdl-chip--contact mdl-chip--deletable&quot;&gt;
+    &lt;img class=&quot;mdl-chip__contact&quot; src=&quot;/templates/dashboard/images/user.jpg&quot;&gt;&lt;/img&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Deletable Contact Chip&lt;/span&gt;
+    &lt;a href=&quot;#&quot; class=&quot;mdl-chip__action&quot;&gt;&lt;i class=&quot;material-icons&quot;&gt;cancel&lt;/i&gt;&lt;/a&gt;
+&lt;/span&gt;</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><div class="codepen-extra-css">&lt;style&gt;
+body {
+  padding: 20px;
+  background: #fafafa;
+  position: relative;
+}
+&lt;/style&gt;</div><form class="codepen-button" action="https://codepen.io/pen/define" method="POST" target="_blank"></form></pre>
+  </div>
+</div>
+
+          
+          <!-- Adding the demo page -->
+        
+          <style>
+            
+          </style>
+          
+          <script>
+            
+          </script>
+          
+          
+          <div class="docs-text-styling docs-readme">
+            
+            
+
+
+<h2 id="introduction">Introduction</h2>
+<p>The Material Design Lite (MDL) <strong>chip</strong> component is a small, interactive element.
+Chips are commonly used for contacts, text, rules, icons, and photos.</p>
+<h2 id="to-include-an-mdl-chip-component-">TO INCLUDE AN MDL CHIP COMPONENT:</h2>
+<p>&nbsp;1. Create a container element for the chip; typically <code>&lt;span&gt;</code> and <code>&lt;div&gt;</code> are used, but any container element should work equally well. If you need interactivity, use a <code>&lt;button&gt;</code>, or add the <code>tabindex</code> attribute to your container.</p>
+<pre><code class="language-markup">&lt;span&gt;
+&lt;/span&gt;
+</code></pre>
+<p>&nbsp;2. Add in the text wrapper and the MDL classes.</p>
+<pre><code class="language-markup">&lt;span class=&quot;mdl-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Chip Text&lt;/span&gt;
+&lt;/span&gt;
+</code></pre>
+<p>&nbsp;3. For deletable chips, add in the delete icon. This can be an <code>&lt;a&gt;</code>, <code>&lt;button&gt;</code> or non-interactive tags like <code>&lt;span&gt;</code>.</p>
+<pre><code class="language-markup">&lt;span class=&quot;mdl-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Chip Text&lt;/span&gt;
+    &lt;a href=&quot;#&quot; class=&quot;mdl-chip__action&quot;&gt;&lt;i class=&quot;material-icons&quot;&gt;cancel&lt;/i&gt;&lt;/a&gt;
+&lt;/span&gt;
+</code></pre>
+<p>&nbsp;4. Contact chips need to have the <code>mdl-chip--contact</code> class added to the container, along with another container for the contact icon. The icon container for photos is typically an <code>&lt;img&gt;</code> tag, but other types of content can be used with a little extra supporting css.</p>
+<pre><code class="language-markup">&lt;span class=&quot;mdl-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__contact mdl-color--teal mdl-color-text--white&quot;&gt;A&lt;/span&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Chip Text&lt;/span&gt;
+    &lt;a href=&quot;#&quot; class=&quot;mdl-chip__action&quot;&gt;&lt;i class=&quot;material-icons&quot;&gt;cancel&lt;/i&gt;&lt;/a&gt;
+&lt;/span&gt;
+</code></pre>
+<h2 id="examples">Examples</h2>
+<p>A button based contact chip whose contact image is a <code>&lt;span&gt;</code> with a <code>background-image</code>.</p>
+<pre><code class="language-markup">&lt;style&gt;
+    .demo-chip .mdl-chip__contact {
+        background-image: url(&quot;./path/to/image&quot;);
+        background-size: cover;
+    }
+&lt;/style&gt;
+
+&lt;button class=&quot;mdl-chip demo-chip&quot;&gt;
+    &lt;span class=&quot;mdl-chip__contact&quot;&gt;&amp;nbsp;&lt;/span&gt;
+    &lt;span class=&quot;mdl-chip__text&quot;&gt;Chip Text&lt;/span&gt;
+    &lt;a href=&quot;#&quot; class=&quot;mdl-chip__action&quot;&gt;&lt;i class=&quot;material-icons&quot;&gt;cancel&lt;/i&gt;&lt;/a&gt;
+&lt;/button&gt;
+</code></pre>
+<h2 id="css-classes">CSS Classes</h2>
+<table>
+<thead>
+<tr>
+<th>MDL Class</th>
+<th>Effect</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mdl-chip</code></td>
+<td>Defines element as an MDL chip container</td>
+<td>Required on &quot;outer&quot; container</td>
+</tr>
+<tr>
+<td><code>mdl-chip--contact</code></td>
+<td>Defines an MDL chip as a contact style chip</td>
+<td>Optional, goes on &quot;outer&quot; container</td>
+</tr>
+<tr>
+<td><code>mdl-chip__text</code></td>
+<td>Defines element as the chip&#39;s text</td>
+<td>Required on &quot;inner&quot; text container</td>
+</tr>
+<tr>
+<td><code>mdl-chip__action</code></td>
+<td>Defines element as the chip&#39;s action</td>
+<td>Required on &quot;inner&quot; action container, if present</td>
+</tr>
+<tr>
+<td><code>mdl-chip__contact</code></td>
+<td>Defines element as the chip&#39;s contact container</td>
+<td>Required on &quot;inner&quot; contact container, if the <code>mdl-chip--contact</code> class is present on &quot;outer&quot; container</td>
 </tr>
 </tbody>
 </table>
@@ -3116,7 +3391,7 @@ After your dialog markup is created, add the event listeners to the page to trig
   &lt;div class=&quot;mdl-layout__drawer&quot;&gt;
     &lt;span class=&quot;mdl-layout__title&quot;&gt;Simple Layout&lt;/span&gt;
     &lt;nav class=&quot;mdl-navigation&quot;&gt;
-      &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 2&lt;/a&gt;
+      &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 1&lt;/a&gt;
       &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 2&lt;/a&gt;
       &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 3&lt;/a&gt;
     &lt;/nav&gt;
@@ -3140,7 +3415,7 @@ After your dialog markup is created, add the event listeners to the page to trig
   &lt;div class=&quot;mdl-layout__drawer&quot;&gt;
     &lt;span class=&quot;mdl-layout__title&quot;&gt;Simple Layout&lt;/span&gt;
     &lt;nav class=&quot;mdl-navigation&quot;&gt;
-      &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 2&lt;/a&gt;
+      &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 1&lt;/a&gt;
       &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 2&lt;/a&gt;
       &lt;a class=&quot;mdl-navigation__link&quot; href=&quot;#&quot;&gt;Nav link 3&lt;/a&gt;
     &lt;/nav&gt;
@@ -8002,34 +8277,6 @@ body {
   &lt;/tbody&gt;
 &lt;/table&gt;
 </code></pre>
-<p>A table that has name and values for the checkboxes.</p>
-<pre><code class="language-markup">&lt;table class=&quot;mdl-data-table mdl-js-data-table mdl-data-table--selectable&quot;&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th class=&quot;mdl-data-table__cell--non-numeric&quot;&gt;Material&lt;/th&gt;
-      &lt;th&gt;Quantity&lt;/th&gt;
-      &lt;th&gt;Unit price&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr data-mdl-data-table-selectable-name=&quot;materials[]&quot; data-mdl-data-table-selectable-value=&quot;acrylic&quot;&gt;
-      &lt;td class=&quot;mdl-data-table__cell--non-numeric&quot;&gt;Acrylic (Transparent)&lt;/td&gt;
-      &lt;td&gt;250&lt;/td&gt;
-      &lt;td&gt;$2.90&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr data-mdl-data-table-selectable-name=&quot;materials[]&quot; data-mdl-data-table-selectable-value=&quot;plywood&quot;&gt;
-      &lt;td class=&quot;mdl-data-table__cell--non-numeric&quot;&gt;Plywood (Birch)&lt;/td&gt;
-      &lt;td&gt;50&lt;/td&gt;
-      &lt;td&gt;$1.25&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr data-mdl-data-table-selectable-name=&quot;materials[]&quot; data-mdl-data-table-selectable-value=&quot;laminate&quot;&gt;
-      &lt;td class=&quot;mdl-data-table__cell--non-numeric&quot;&gt;Laminate (Gold on Blue)&lt;/td&gt;
-      &lt;td&gt;10&lt;/td&gt;
-      &lt;td&gt;$12.35&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-</code></pre>
 <h2 id="configuration-options">Configuration options</h2>
 <p>The MDL CSS classes apply various predefined visual and behavioral enhancements to the data-table. The table below lists the available classes and their effects.</p>
 <table>
@@ -8714,7 +8961,7 @@ This attribute may be added or removed programmatically via scripting.</p>
           <div class="snippet-demo-container demo-tooltip demo-tooltip__tooltip-simple">
             <!-- Simple Tooltip -->
 <div id="tt1" class="icon material-icons">add</div>
-<div class="mdl-tooltip" for="tt1">
+<div class="mdl-tooltip" data-mdl-for="tt1">
 Follow
 </div>
 
@@ -8750,7 +8997,7 @@ Print
   <div class="snippet-code">
     <pre class="language-markup codepen-button-enabled"><code id="tooltip/tooltip-simple.html">&lt;!-- Simple Tooltip --&gt;
 &lt;div id=&quot;tt1&quot; class=&quot;icon material-icons&quot;&gt;add&lt;/div&gt;
-&lt;div class=&quot;mdl-tooltip&quot; for=&quot;tt1&quot;&gt;
+&lt;div class=&quot;mdl-tooltip&quot; data-mdl-for=&quot;tt1&quot;&gt;
 Follow
 &lt;/div&gt;
 </code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="tooltip/tooltip-large.html">&lt;!-- Large Tooltip --&gt;
@@ -8784,7 +9031,7 @@ body {
           <div class="snippet-demo-container demo-tooltip demo-tooltip__tooltip-rich">
             <!-- Rich Tooltip -->
 <div id="tt3" class="icon material-icons">cloud_upload</div>
-<div class="mdl-tooltip" for="tt3">
+<div class="mdl-tooltip" data-mdl-for="tt3">
 Upload <strong>file.zip</strong>
 </div>
 
@@ -8820,7 +9067,7 @@ Share your content<br>via social media
   <div class="snippet-code">
     <pre class="language-markup codepen-button-enabled"><code id="tooltip/tooltip-rich.html">&lt;!-- Rich Tooltip --&gt;
 &lt;div id=&quot;tt3&quot; class=&quot;icon material-icons&quot;&gt;cloud_upload&lt;/div&gt;
-&lt;div class=&quot;mdl-tooltip&quot; for=&quot;tt3&quot;&gt;
+&lt;div class=&quot;mdl-tooltip&quot; data-mdl-for=&quot;tt3&quot;&gt;
 Upload &lt;strong&gt;file.zip&lt;/strong&gt;
 &lt;/div&gt;
 </code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="tooltip/tooltip-multiline.html">&lt;!-- Multiline Tooltip --&gt;
@@ -8862,7 +9109,7 @@ body {
 <p>&nbsp;1. Code an element, such as a <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, or <code>&lt;span&gt;</code>, and style it as desired; this will be the tooltip&#39;s target. Include an <code>id</code> attribute and unique value to link the container to its tooltip.</p>
 <pre><code class="language-markup">&lt;p id=&quot;tt1&quot;&gt;HTML&lt;/p&gt;
 </code></pre>
-<p>&nbsp;2. Following the target element, code a second element, such as a <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, or <code>&lt;span&gt;</code>; this will be the tooltip itself. Include a <code>for</code> attribute whose value matches that of the target&#39;s <code>id</code>.</p>
+<p>&nbsp;2. Following the target element, code a second element, such as a <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, or <code>&lt;span&gt;</code>; this will be the tooltip itself. Include a <code>for</code> (or <code>data-mdl-for</code>) attribute whose value matches that of the target&#39;s <code>id</code>.</p>
 <pre><code class="language-markup">&lt;p id=&quot;tt1&quot;&gt;HTML&lt;/p&gt;
 &lt;span for=&quot;tt1&quot;&gt;HyperText Markup Language&lt;/span&gt;
 </code></pre>

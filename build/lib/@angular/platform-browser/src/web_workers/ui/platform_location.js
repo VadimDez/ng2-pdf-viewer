@@ -8,7 +8,6 @@
 "use strict";
 var core_1 = require('@angular/core');
 var browser_platform_location_1 = require('../../browser/location/browser_platform_location');
-var async_1 = require('../../facade/async');
 var lang_1 = require('../../facade/lang');
 var message_bus_1 = require('../shared/message_bus');
 var messaging_api_1 = require('../shared/messaging_api');
@@ -34,12 +33,12 @@ var MessageBasedPlatformLocation = (function () {
         this._broker.registerMethod('back', null, lang_1.FunctionWrapper.bind(this._platformLocation.back, this._platformLocation));
     };
     MessageBasedPlatformLocation.prototype._getLocation = function () {
-        return async_1.PromiseWrapper.resolve(this._platformLocation.location);
+        return Promise.resolve(this._platformLocation.location);
     };
     MessageBasedPlatformLocation.prototype._sendUrlChangeEvent = function (e) {
         var loc = this._serializer.serialize(this._platformLocation.location, serialized_types_1.LocationType);
         var serializedEvent = { 'type': e.type };
-        async_1.ObservableWrapper.callEmit(this._channelSink, { 'event': serializedEvent, 'location': loc });
+        this._channelSink.emit({ 'event': serializedEvent, 'location': loc });
     };
     MessageBasedPlatformLocation.prototype._setPathname = function (pathname) { this._platformLocation.pathname = pathname; };
     /** @nocollapse */

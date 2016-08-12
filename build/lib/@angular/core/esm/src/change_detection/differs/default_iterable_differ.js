@@ -8,7 +8,6 @@
 import { isListLikeIterable, iterateListLike } from '../../facade/collection';
 import { BaseException } from '../../facade/exceptions';
 import { getMapKey, isArray, isBlank, isPresent, looseIdentical, stringify } from '../../facade/lang';
-/* @ts2dart_const */
 export class DefaultIterableDifferFactory {
     constructor() {
     }
@@ -50,6 +49,55 @@ export class DefaultIterableDiffer {
         var record;
         for (record = this._itHead; record !== null; record = record._next) {
             fn(record);
+        }
+    }
+    forEachOperation(fn) {
+        var nextIt = this._itHead;
+        var nextRemove = this._removalsHead;
+        var addRemoveOffset = 0;
+        var moveOffsets = null;
+        while (nextIt || nextRemove) {
+            // Figure out which is the next record to process
+            // Order: remove, add, move
+            let record = !nextRemove ||
+                nextIt &&
+                    nextIt.currentIndex < getPreviousIndex(nextRemove, addRemoveOffset, moveOffsets) ?
+                nextIt :
+                nextRemove;
+            var adjPreviousIndex = getPreviousIndex(record, addRemoveOffset, moveOffsets);
+            var currentIndex = record.currentIndex;
+            // consume the item, and adjust the addRemoveOffset and update moveDistance if necessary
+            if (record === nextRemove) {
+                addRemoveOffset--;
+                nextRemove = nextRemove._nextRemoved;
+            }
+            else {
+                nextIt = nextIt._next;
+                if (record.previousIndex == null) {
+                    addRemoveOffset++;
+                }
+                else {
+                    // INVARIANT:  currentIndex < previousIndex
+                    if (!moveOffsets)
+                        moveOffsets = [];
+                    let localMovePreviousIndex = adjPreviousIndex - addRemoveOffset;
+                    let localCurrentIndex = currentIndex - addRemoveOffset;
+                    if (localMovePreviousIndex != localCurrentIndex) {
+                        for (var i = 0; i < localMovePreviousIndex; i++) {
+                            var offset = i < moveOffsets.length ? moveOffsets[i] : (moveOffsets[i] = 0);
+                            var index = offset + i;
+                            if (localCurrentIndex <= index && index < localMovePreviousIndex) {
+                                moveOffsets[i] = offset + 1;
+                            }
+                        }
+                        var previousIndex = record.previousIndex;
+                        moveOffsets[previousIndex] = localCurrentIndex - localMovePreviousIndex;
+                    }
+                }
+            }
+            if (adjPreviousIndex !== currentIndex) {
+                fn(record, adjPreviousIndex, currentIndex);
+            }
         }
     }
     forEachPreviousItem(fn) {
@@ -636,5 +684,15 @@ class _DuplicateMap {
     get isEmpty() { return this.map.size === 0; }
     clear() { this.map.clear(); }
     toString() { return '_DuplicateMap(' + stringify(this.map) + ')'; }
+}
+function getPreviousIndex(item, addRemoveOffset, moveOffsets) {
+    var previousIndex = item.previousIndex;
+    if (previousIndex === null)
+        return previousIndex;
+    var moveOffset = 0;
+    if (moveOffsets && previousIndex < moveOffsets.length) {
+        moveOffset = moveOffsets[previousIndex];
+    }
+    return previousIndex + addRemoveOffset + moveOffset;
 }
 //# sourceMappingURL=default_iterable_differ.js.map

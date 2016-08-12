@@ -5,35 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 export { Observable } from 'rxjs/Observable';
 export { Subject } from 'rxjs/Subject';
-export { PromiseCompleter, PromiseWrapper } from './promise';
-export declare class TimerWrapper {
-    static setTimeout(fn: (...args: any[]) => void, millis: number): number;
-    static clearTimeout(id: number): void;
-    static setInterval(fn: (...args: any[]) => void, millis: number): number;
-    static clearInterval(id: number): void;
-}
-export declare class ObservableWrapper {
-    static subscribe<T>(emitter: any, onNext: (value: T) => void, onError?: (exception: any) => void, onComplete?: () => void): Object;
-    static isObservable(obs: any): boolean;
-    /**
-     * Returns whether `obs` has any subscribers listening to events.
-     */
-    static hasSubscribers(obs: EventEmitter<any>): boolean;
-    static dispose(subscription: any): void;
-    /**
-     * @deprecated - use callEmit() instead
-     */
-    static callNext(emitter: EventEmitter<any>, value: any): void;
-    static callEmit(emitter: EventEmitter<any>, value: any): void;
-    static callError(emitter: EventEmitter<any>, error: any): void;
-    static callComplete(emitter: EventEmitter<any>): void;
-    static fromPromise(promise: Promise<any>): Observable<any>;
-    static toPromise(obj: Observable<any>): Promise<any>;
-}
 /**
  * Use by directives and components to emit custom Events.
  *
@@ -88,7 +62,7 @@ export declare class EventEmitter<T> extends Subject<T> {
      * delivers events synchronously or asynchronously.
      */
     constructor(isAsync?: boolean);
-    emit(value: T): void;
+    emit(value?: T): void;
     /**
      * @deprecated - use .emit(value) instead
      */

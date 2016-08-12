@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { EventEmitter, Injectable } from '@angular/core';
-import { ObservableWrapper } from '../facade/async';
 import { LocationStrategy } from './location_strategy';
 export class Location {
     constructor(platformStrategy) {
@@ -15,9 +14,7 @@ export class Location {
         this._platformStrategy = platformStrategy;
         var browserBaseHref = this._platformStrategy.getBaseHref();
         this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
-        this._platformStrategy.onPopState((ev) => {
-            ObservableWrapper.callEmit(this._subject, { 'url': this.path(true), 'pop': true, 'type': ev.type });
-        });
+        this._platformStrategy.onPopState((ev) => { this._subject.emit({ 'url': this.path(true), 'pop': true, 'type': ev.type }); });
     }
     /**
      * Returns the normalized URL path.
@@ -79,7 +76,7 @@ export class Location {
      * Subscribe to the platform's `popState` events.
      */
     subscribe(onNext, onThrow = null, onReturn = null) {
-        return ObservableWrapper.subscribe(this._subject, onNext, onThrow, onReturn);
+        return this._subject.subscribe({ next: onNext, error: onThrow, complete: onReturn });
     }
     /**
      * Given a string of url parameters, prepend with '?' if needed, otherwise return parameters as

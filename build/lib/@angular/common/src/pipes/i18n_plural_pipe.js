@@ -21,7 +21,7 @@ var I18nPluralPipe = (function () {
         if (!lang_1.isStringMap(pluralMap)) {
             throw new invalid_pipe_argument_exception_1.InvalidPipeArgumentException(I18nPluralPipe, pluralMap);
         }
-        var key = localization_1.getPluralCategory(value, Object.getOwnPropertyNames(pluralMap), this._localization);
+        var key = localization_1.getPluralCategory(value, Object.keys(pluralMap), this._localization);
         return lang_1.StringWrapper.replaceAll(pluralMap[key], _INTERPOLATION_REGEXP, value.toString());
     };
     /** @nocollapse */

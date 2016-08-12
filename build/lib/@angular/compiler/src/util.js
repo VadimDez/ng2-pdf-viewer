@@ -8,20 +8,18 @@
 "use strict";
 var collection_1 = require('./facade/collection');
 var lang_1 = require('./facade/lang');
-exports.MODULE_SUFFIX = lang_1.IS_DART ? '.dart' : '';
+var o = require('./output/output_ast');
+exports.MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
 function camelCaseToDashCase(input) {
     return lang_1.StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
 }
 exports.camelCaseToDashCase = camelCaseToDashCase;
 function splitAtColon(input, defaultValues) {
-    var parts = lang_1.StringWrapper.split(input.trim(), /\s*:\s*/g);
-    if (parts.length > 1) {
-        return parts;
-    }
-    else {
+    var colonIndex = input.indexOf(':');
+    if (colonIndex == -1)
         return defaultValues;
-    }
+    return [input.slice(0, colonIndex).trim(), input.slice(colonIndex + 1).trim()];
 }
 exports.splitAtColon = splitAtColon;
 function sanitizeIdentifier(name) {
@@ -66,22 +64,37 @@ exports.ValueTransformer = ValueTransformer;
 function assetUrl(pkg, path, type) {
     if (path === void 0) { path = null; }
     if (type === void 0) { type = 'src'; }
-    if (lang_1.IS_DART) {
-        if (path == null) {
-            return "asset:angular2/" + pkg + "/" + pkg + ".dart";
-        }
-        else {
-            return "asset:angular2/lib/" + pkg + "/src/" + path + ".dart";
-        }
+    if (path == null) {
+        return "asset:@angular/lib/" + pkg + "/index";
     }
     else {
-        if (path == null) {
-            return "asset:@angular/lib/" + pkg + "/index";
-        }
-        else {
-            return "asset:@angular/lib/" + pkg + "/src/" + path;
-        }
+        return "asset:@angular/lib/" + pkg + "/src/" + path;
     }
 }
 exports.assetUrl = assetUrl;
+function createDiTokenExpression(token) {
+    if (lang_1.isPresent(token.value)) {
+        return o.literal(token.value);
+    }
+    else if (token.identifierIsInstance) {
+        return o.importExpr(token.identifier)
+            .instantiate([], o.importType(token.identifier, [], [o.TypeModifier.Const]));
+    }
+    else {
+        return o.importExpr(token.identifier);
+    }
+}
+exports.createDiTokenExpression = createDiTokenExpression;
+var SyncAsyncResult = (function () {
+    function SyncAsyncResult(syncResult, asyncResult) {
+        if (asyncResult === void 0) { asyncResult = null; }
+        this.syncResult = syncResult;
+        this.asyncResult = asyncResult;
+        if (!asyncResult) {
+            this.asyncResult = Promise.resolve(syncResult);
+        }
+    }
+    return SyncAsyncResult;
+}());
+exports.SyncAsyncResult = SyncAsyncResult;
 //# sourceMappingURL=util.js.map

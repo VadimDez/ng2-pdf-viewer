@@ -6,18 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
-var collection_1 = require('../src/facade/collection');
-var exceptions_1 = require('../src/facade/exceptions');
-var lang_1 = require('../src/facade/lang');
+var collection_1 = require('./facade/collection');
+var exceptions_1 = require('./facade/exceptions');
+var lang_1 = require('./facade/lang');
 var _EMPTY_ATTR_VALUE = '';
-// TODO: Can't use `const` here as
-// in Dart this is not transpiled into `final` yet...
-var _SELECTOR_REGEXP = lang_1.RegExpWrapper.create('(\\:not\\()|' +
+var _SELECTOR_REGEXP = new RegExp('(\\:not\\()|' +
     '([-\\w]+)|' +
     '(?:\\.([-\\w]+))|' +
     '(?:\\[([-\\w*]+)(?:=([^\\]]*))?\\])|' +
     '(\\))|' +
-    '(\\s*,\\s*)'); // ","
+    '(\\s*,\\s*)', // ","
+'g');
 /**
  * A css selector contains an element name,
  * css classes and attribute/value pairs with the purpose
@@ -40,11 +39,11 @@ var CssSelector = (function () {
             res.push(cssSel);
         };
         var cssSelector = new CssSelector();
-        var matcher = lang_1.RegExpWrapper.matcher(_SELECTOR_REGEXP, selector);
         var match;
         var current = cssSelector;
         var inNot = false;
-        while (lang_1.isPresent(match = lang_1.RegExpMatcherWrapper.next(matcher))) {
+        _SELECTOR_REGEXP.lastIndex = 0;
+        while (lang_1.isPresent(match = _SELECTOR_REGEXP.exec(selector))) {
             if (lang_1.isPresent(match[1])) {
                 if (inNot) {
                     throw new exceptions_1.BaseException('Nesting :not is not allowed in a selector');
@@ -142,12 +141,12 @@ exports.CssSelector = CssSelector;
  */
 var SelectorMatcher = (function () {
     function SelectorMatcher() {
-        this._elementMap = new collection_1.Map();
-        this._elementPartialMap = new collection_1.Map();
-        this._classMap = new collection_1.Map();
-        this._classPartialMap = new collection_1.Map();
-        this._attrValueMap = new collection_1.Map();
-        this._attrValuePartialMap = new collection_1.Map();
+        this._elementMap = new Map();
+        this._elementPartialMap = new Map();
+        this._classMap = new Map();
+        this._classPartialMap = new Map();
+        this._attrValueMap = new Map();
+        this._attrValuePartialMap = new Map();
         this._listContexts = [];
     }
     SelectorMatcher.createNotMatcher = function (notSelectors) {
@@ -206,7 +205,7 @@ var SelectorMatcher = (function () {
                     var terminalMap = matcher._attrValueMap;
                     var terminalValuesMap = terminalMap.get(attrName);
                     if (lang_1.isBlank(terminalValuesMap)) {
-                        terminalValuesMap = new collection_1.Map();
+                        terminalValuesMap = new Map();
                         terminalMap.set(attrName, terminalValuesMap);
                     }
                     this._addTerminal(terminalValuesMap, attrValue, selectable);
@@ -215,7 +214,7 @@ var SelectorMatcher = (function () {
                     var parttialMap = matcher._attrValuePartialMap;
                     var partialValuesMap = parttialMap.get(attrName);
                     if (lang_1.isBlank(partialValuesMap)) {
-                        partialValuesMap = new collection_1.Map();
+                        partialValuesMap = new Map();
                         parttialMap.set(attrName, partialValuesMap);
                     }
                     matcher = this._addPartial(partialValuesMap, attrValue);

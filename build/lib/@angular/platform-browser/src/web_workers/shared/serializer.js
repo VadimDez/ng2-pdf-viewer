@@ -104,7 +104,7 @@ var Serializer = (function () {
         };
     };
     Serializer.prototype._deserializeRenderComponentType = function (map) {
-        return new core_1.RenderComponentType(map['id'], map['templateUrl'], map['slotCount'], this.deserialize(map['encapsulation'], core_1.ViewEncapsulation), this.deserialize(map['styles'], exports.PRIMITIVE));
+        return new core_1.RenderComponentType(map['id'], map['templateUrl'], map['slotCount'], this.deserialize(map['encapsulation'], core_1.ViewEncapsulation), this.deserialize(map['styles'], exports.PRIMITIVE), {});
     };
     /** @nocollapse */
     Serializer.decorators = [

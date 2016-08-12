@@ -7,17 +7,16 @@
  */
 "use strict";
 var core_1 = require('@angular/core');
-var async_1 = require('../facade/async');
 var lang_1 = require('../facade/lang');
 var invalid_pipe_argument_exception_1 = require('./invalid_pipe_argument_exception');
 var ObservableStrategy = (function () {
     function ObservableStrategy() {
     }
     ObservableStrategy.prototype.createSubscription = function (async, updateLatestValue) {
-        return async_1.ObservableWrapper.subscribe(async, updateLatestValue, function (e) { throw e; });
+        return async.subscribe({ next: updateLatestValue, error: function (e) { throw e; } });
     };
-    ObservableStrategy.prototype.dispose = function (subscription) { async_1.ObservableWrapper.dispose(subscription); };
-    ObservableStrategy.prototype.onDestroy = function (subscription) { async_1.ObservableWrapper.dispose(subscription); };
+    ObservableStrategy.prototype.dispose = function (subscription) { subscription.unsubscribe(); };
+    ObservableStrategy.prototype.onDestroy = function (subscription) { subscription.unsubscribe(); };
     return ObservableStrategy;
 }());
 var PromiseStrategy = (function () {
@@ -83,7 +82,7 @@ var AsyncPipe = (function () {
         if (lang_1.isPromise(obj)) {
             return _promiseStrategy;
         }
-        else if (async_1.ObservableWrapper.isObservable(obj)) {
+        else if (obj.subscribe) {
             return _observableStrategy;
         }
         else {

@@ -34,7 +34,8 @@ var BrowserDetection = (function () {
     Object.defineProperty(BrowserDetection.prototype, "isAndroid", {
         get: function () {
             return this._ua.indexOf('Mozilla/5.0') > -1 && this._ua.indexOf('Android') > -1 &&
-                this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Chrome') == -1;
+                this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Chrome') == -1 &&
+                this._ua.indexOf('IEMobile') == -1;
         },
         enumerable: true,
         configurable: true
@@ -51,14 +52,16 @@ var BrowserDetection = (function () {
     });
     Object.defineProperty(BrowserDetection.prototype, "isWebkit", {
         get: function () {
-            return this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Edge') == -1;
+            return this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Edge') == -1 &&
+                this._ua.indexOf('IEMobile') == -1;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(BrowserDetection.prototype, "isIOS7", {
         get: function () {
-            return this._ua.indexOf('iPhone OS 7') > -1 || this._ua.indexOf('iPad OS 7') > -1;
+            return (this._ua.indexOf('iPhone OS 7') > -1 || this._ua.indexOf('iPad OS 7') > -1) &&
+                this._ua.indexOf('IEMobile') == -1;
         },
         enumerable: true,
         configurable: true

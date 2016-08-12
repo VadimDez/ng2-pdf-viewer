@@ -4,6 +4,7 @@ export declare const THROW_IF_NOT_FOUND: Object;
  */
 export declare abstract class Injector {
     static THROW_IF_NOT_FOUND: Object;
+    static NULL: Injector;
     /**
      * Retrieves an instance from the injector based on the provided token.
      * If not found:

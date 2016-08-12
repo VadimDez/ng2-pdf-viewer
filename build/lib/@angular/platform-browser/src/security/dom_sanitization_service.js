@@ -12,8 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var core_1 = require('@angular/core');
-var core_private_1 = require('../../core_private');
-exports.SecurityContext = core_private_1.SecurityContext;
+exports.SecurityContext = core_1.SecurityContext;
 var html_sanitizer_1 = require('./html_sanitizer');
 var style_sanitizer_1 = require('./style_sanitizer');
 var url_sanitizer_1 = require('./url_sanitizer');
@@ -63,29 +62,31 @@ var DomSanitizationServiceImpl = (function (_super) {
         if (value == null)
             return null;
         switch (ctx) {
-            case core_private_1.SecurityContext.NONE:
+            case core_1.SecurityContext.NONE:
                 return value;
-            case core_private_1.SecurityContext.HTML:
+            case core_1.SecurityContext.HTML:
                 if (value instanceof SafeHtmlImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'HTML');
                 return html_sanitizer_1.sanitizeHtml(String(value));
-            case core_private_1.SecurityContext.STYLE:
+            case core_1.SecurityContext.STYLE:
                 if (value instanceof SafeStyleImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'Style');
                 return style_sanitizer_1.sanitizeStyle(value);
-            case core_private_1.SecurityContext.SCRIPT:
+            case core_1.SecurityContext.SCRIPT:
                 if (value instanceof SafeScriptImpl)
                     return value.changingThisBreaksApplicationSecurity;
                 this.checkNotSafeValue(value, 'Script');
                 throw new Error('unsafe value used in a script context');
-            case core_private_1.SecurityContext.URL:
-                if (value instanceof SafeUrlImpl)
+            case core_1.SecurityContext.URL:
+                if (value instanceof SafeResourceUrlImpl || value instanceof SafeUrlImpl) {
+                    // Allow resource URLs in URL contexts, they are strictly more trusted.
                     return value.changingThisBreaksApplicationSecurity;
+                }
                 this.checkNotSafeValue(value, 'URL');
                 return url_sanitizer_1.sanitizeUrl(String(value));
-            case core_private_1.SecurityContext.RESOURCE_URL:
+            case core_1.SecurityContext.RESOURCE_URL:
                 if (value instanceof SafeResourceUrlImpl) {
                     return value.changingThisBreaksApplicationSecurity;
                 }

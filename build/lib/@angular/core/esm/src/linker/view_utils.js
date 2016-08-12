@@ -7,9 +7,9 @@
  */
 import { APP_ID } from '../application_tokens';
 import { devModeEqual } from '../change_detection/change_detection';
-import { uninitialized } from '../change_detection/change_detection_util';
+import { UNINITIALIZED } from '../change_detection/change_detection_util';
 import { Inject, Injectable } from '../di/decorators';
-import { ListWrapper, StringMapWrapper } from '../facade/collection';
+import { ListWrapper } from '../facade/collection';
 import { BaseException } from '../facade/exceptions';
 import { isBlank, isPresent, looseIdentical } from '../facade/lang';
 import { RenderComponentType, RootRenderer } from '../render/api';
@@ -26,8 +26,9 @@ export class ViewUtils {
     /**
      * Used by the generated code
      */
-    createRenderComponentType(templateUrl, slotCount, encapsulation, styles) {
-        return new RenderComponentType(`${this._appId}-${this._nextCompTypeId++}`, templateUrl, slotCount, encapsulation, styles);
+    // TODO (matsko): add typing for the animation function
+    createRenderComponentType(templateUrl, slotCount, encapsulation, styles, animations) {
+        return new RenderComponentType(`${this._appId}-${this._nextCompTypeId++}`, templateUrl, slotCount, encapsulation, styles, animations);
     }
     /** @internal */
     renderComponent(renderComponentType) {
@@ -132,39 +133,14 @@ export function checkBinding(throwOnChange, oldValue, newValue) {
         return !looseIdentical(oldValue, newValue);
     }
 }
-export function arrayLooseIdentical(a, b) {
-    if (a.length != b.length)
-        return false;
-    for (var i = 0; i < a.length; ++i) {
-        if (!looseIdentical(a[i], b[i]))
-            return false;
-    }
-    return true;
-}
-export function mapLooseIdentical(m1, m2) {
-    var k1 = StringMapWrapper.keys(m1);
-    var k2 = StringMapWrapper.keys(m2);
-    if (k1.length != k2.length) {
-        return false;
-    }
-    var key;
-    for (var i = 0; i < k1.length; i++) {
-        key = k1[i];
-        if (!looseIdentical(m1[key], m2[key])) {
-            return false;
-        }
-    }
-    return true;
-}
 export function castByValue(input, value) {
     return input;
 }
 export const EMPTY_ARRAY = [];
 export const EMPTY_MAP = {};
 export function pureProxy1(fn) {
-    var result;
-    var v0;
-    v0 = uninitialized;
+    let result;
+    let v0 = UNINITIALIZED;
     return (p0) => {
         if (!looseIdentical(v0, p0)) {
             v0 = p0;
@@ -174,9 +150,9 @@ export function pureProxy1(fn) {
     };
 }
 export function pureProxy2(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1;
-    v0 = v1 = uninitialized;
+    let result;
+    let v0 = UNINITIALIZED;
+    let v1 = UNINITIALIZED;
     return (p0, p1) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1)) {
             v0 = p0;
@@ -187,9 +163,10 @@ export function pureProxy2(fn) {
     };
 }
 export function pureProxy3(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2;
-    v0 = v1 = v2 = uninitialized;
+    let result;
+    let v0 = UNINITIALIZED;
+    let v1 = UNINITIALIZED;
+    let v2 = UNINITIALIZED;
     return (p0, p1, p2) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2)) {
             v0 = p0;
@@ -201,9 +178,9 @@ export function pureProxy3(fn) {
     };
 }
 export function pureProxy4(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3;
-    v0 = v1 = v2 = v3 = uninitialized;
+    let result;
+    let v0, v1, v2, v3;
+    v0 = v1 = v2 = v3 = UNINITIALIZED;
     return (p0, p1, p2, p3) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3)) {
@@ -217,9 +194,9 @@ export function pureProxy4(fn) {
     };
 }
 export function pureProxy5(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4;
-    v0 = v1 = v2 = v3 = v4 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4;
+    v0 = v1 = v2 = v3 = v4 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4)) {
@@ -234,9 +211,9 @@ export function pureProxy5(fn) {
     };
 }
 export function pureProxy6(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5;
-    v0 = v1 = v2 = v3 = v4 = v5 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4, v5;
+    v0 = v1 = v2 = v3 = v4 = v5 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4, p5) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4) || !looseIdentical(v5, p5)) {
@@ -252,9 +229,9 @@ export function pureProxy6(fn) {
     };
 }
 export function pureProxy7(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4, v5, v6;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4, p5, p6) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4) || !looseIdentical(v5, p5) ||
@@ -272,9 +249,9 @@ export function pureProxy7(fn) {
     };
 }
 export function pureProxy8(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4, v5, v6, v7;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4, p5, p6, p7) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4) || !looseIdentical(v5, p5) ||
@@ -293,9 +270,9 @@ export function pureProxy8(fn) {
     };
 }
 export function pureProxy9(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7 /** TODO #9100 */, v8;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4, v5, v6, v7, v8;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4, p5, p6, p7, p8) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4) || !looseIdentical(v5, p5) ||
@@ -315,9 +292,9 @@ export function pureProxy9(fn) {
     };
 }
 export function pureProxy10(fn) {
-    var result;
-    var v0 /** TODO #9100 */, v1 /** TODO #9100 */, v2 /** TODO #9100 */, v3 /** TODO #9100 */, v4 /** TODO #9100 */, v5 /** TODO #9100 */, v6 /** TODO #9100 */, v7 /** TODO #9100 */, v8 /** TODO #9100 */, v9;
-    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = uninitialized;
+    let result;
+    let v0, v1, v2, v3, v4, v5, v6, v7, v8, v9;
+    v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = UNINITIALIZED;
     return (p0, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
         if (!looseIdentical(v0, p0) || !looseIdentical(v1, p1) || !looseIdentical(v2, p2) ||
             !looseIdentical(v3, p3) || !looseIdentical(v4, p4) || !looseIdentical(v5, p5) ||

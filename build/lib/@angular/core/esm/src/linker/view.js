@@ -5,20 +5,19 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ObservableWrapper } from '../facade/async';
+import { AnimationGroupPlayer } from '../animation/animation_group_player';
+import { ViewAnimationMap } from '../animation/view_animation_map';
+import { ChangeDetectorStatus } from '../change_detection/change_detection';
 import { ListWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
+import { wtfCreateScope, wtfLeave } from '../profile/profile';
+import { DebugContext } from './debug_context';
 import { AppElement } from './element';
+import { ElementInjector } from './element_injector';
+import { ExpressionChangedAfterItHasBeenCheckedException, ViewDestroyedException, ViewWrappedException } from './exceptions';
 import { ViewRef_ } from './view_ref';
 import { ViewType } from './view_type';
 import { ensureSlotCount, flattenNestedViewRenderNodes } from './view_utils';
-import { ChangeDetectorStatus } from '../change_detection/change_detection';
-import { wtfCreateScope, wtfLeave } from '../profile/profile';
-import { ExpressionChangedAfterItHasBeenCheckedException, ViewDestroyedException, ViewWrappedException } from './exceptions';
-import { DebugContext } from './debug_context';
-import { ElementInjector } from './element_injector';
-import { AnimationGroupPlayer } from '../animation/animation_group_player';
-import { ActiveAnimationPlayersMap } from '../animation/active_animation_players_map';
 var _scope_check = wtfCreateScope(`AppView#check(ascii id)`);
 /**
  * Cost of making objects: http://jsperf.com/instantiate-size-of-object
@@ -37,7 +36,7 @@ export class AppView {
         this.viewChildren = [];
         this.viewContainerElement = null;
         this.numberOfChecks = 0;
-        this.activeAnimationPlayers = new ActiveAnimationPlayersMap();
+        this.animationPlayers = new ViewAnimationMap();
         this.ref = new ViewRef_(this);
         if (type === ViewType.COMPONENT || type === ViewType.HOST) {
             this.renderer = viewUtils.renderComponent(componentType);
@@ -49,19 +48,25 @@ export class AppView {
     get destroyed() { return this.cdMode === ChangeDetectorStatus.Destroyed; }
     cancelActiveAnimation(element, animationName, removeAllAnimations = false) {
         if (removeAllAnimations) {
-            this.activeAnimationPlayers.findAllPlayersByElement(element).forEach(player => player.destroy());
+            this.animationPlayers.findAllPlayersByElement(element).forEach(player => player.destroy());
         }
         else {
-            var player = this.activeAnimationPlayers.find(element, animationName);
+            var player = this.animationPlayers.find(element, animationName);
             if (isPresent(player)) {
                 player.destroy();
             }
         }
     }
-    registerAndStartAnimation(element, animationName, player) {
-        this.activeAnimationPlayers.set(element, animationName, player);
-        player.onDone(() => { this.activeAnimationPlayers.remove(element, animationName); });
-        player.play();
+    queueAnimation(element, animationName, player) {
+        this.animationPlayers.set(element, animationName, player);
+        player.onDone(() => { this.animationPlayers.remove(element, animationName); });
+    }
+    triggerQueuedAnimations() {
+        this.animationPlayers.getAllPlayers().forEach(player => {
+            if (!player.hasStarted()) {
+                player.play();
+            }
+        });
     }
     create(context, givenProjectableNodes, rootSelectorOrNode) {
         this.context = context;
@@ -157,15 +162,15 @@ export class AppView {
             this.disposables[i]();
         }
         for (var i = 0; i < this.subscriptions.length; i++) {
-            ObservableWrapper.dispose(this.subscriptions[i]);
+            this.subscriptions[i].unsubscribe();
         }
         this.destroyInternal();
         this.dirtyParentQueriesInternal();
-        if (this.activeAnimationPlayers.length == 0) {
+        if (this.animationPlayers.length == 0) {
             this.renderer.destroyView(hostElement, this.allNodes);
         }
         else {
-            var player = new AnimationGroupPlayer(this.activeAnimationPlayers.getAllPlayers());
+            var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
             player.onDone(() => { this.renderer.destroyView(hostElement, this.allNodes); });
         }
     }
@@ -179,11 +184,11 @@ export class AppView {
     detachInternal() { }
     detach() {
         this.detachInternal();
-        if (this.activeAnimationPlayers.length == 0) {
+        if (this.animationPlayers.length == 0) {
             this.renderer.detachView(this.flatRootNodes);
         }
         else {
-            var player = new AnimationGroupPlayer(this.activeAnimationPlayers.getAllPlayers());
+            var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
             player.onDone(() => { this.renderer.detachView(this.flatRootNodes); });
         }
     }
@@ -239,6 +244,7 @@ export class AppView {
             child.detectChanges(throwOnChange);
         }
     }
+    markContentChildAsMoved(renderAppElement) { this.dirtyParentQueriesInternal(); }
     addToContentChildren(renderAppElement) {
         renderAppElement.parentView.contentChildren.push(this);
         this.viewContainerElement = renderAppElement;
@@ -335,7 +341,7 @@ export class DebugAppView extends AppView {
     }
     eventHandler(cb) {
         var superHandler = super.eventHandler(cb);
-        return (event /** TODO #9100 */) => {
+        return (event) => {
             this._resetDebug();
             try {
                 return superHandler(event);

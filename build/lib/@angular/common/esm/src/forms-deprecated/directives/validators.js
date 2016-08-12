@@ -8,7 +8,7 @@
 import { Attribute, Directive, forwardRef } from '@angular/core';
 import { NumberWrapper } from '../../facade/lang';
 import { NG_VALIDATORS, Validators } from '../validators';
-const REQUIRED = Validators.required;
+export const REQUIRED = Validators.required;
 export const REQUIRED_VALIDATOR = {
     provide: NG_VALIDATORS,
     useValue: REQUIRED,

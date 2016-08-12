@@ -5,11 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { APPLICATION_COMMON_PROVIDERS, APP_INITIALIZER, ExceptionHandler, Injectable, Injector, NgZone, OpaqueToken, PLATFORM_COMMON_PROVIDERS, PLATFORM_INITIALIZER, ReflectiveInjector, RootRenderer, Testability, assertPlatform, createPlatform, getPlatform } from '@angular/core';
-import { AnimationDriver, NoOpAnimationDriver, wtfInit } from '../core_private';
+import { ExceptionHandler, Injectable, Injector, NgZone, OpaqueToken, PLATFORM_COMMON_PROVIDERS, PLATFORM_INITIALIZER, RootRenderer, Testability, createPlatformFactory, isDevMode, platformCore } from '@angular/core';
+import { wtfInit } from '../core_private';
 import { BROWSER_SANITIZATION_PROVIDERS } from './browser';
 import { BrowserDomAdapter } from './browser/browser_adapter';
 import { BrowserGetTestability } from './browser/testability';
+import { AnimationDriver } from './dom/animation_driver';
 import { getDOM } from './dom/dom_adapter';
 import { DomRootRenderer, DomRootRenderer_ } from './dom/dom_renderer';
 import { DOCUMENT } from './dom/dom_tokens';
@@ -19,7 +20,6 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig, HammerGesturesPlugin } from
 import { KeyEventsPlugin } from './dom/events/key_events';
 import { DomSharedStylesHost, SharedStylesHost } from './dom/shared_styles_host';
 import { BaseException } from './facade/exceptions';
-import { isBlank } from './facade/lang';
 import { ON_WEB_WORKER } from './web_workers/shared/api';
 import { ClientMessageBrokerFactory, ClientMessageBrokerFactory_ } from './web_workers/shared/client_message_broker';
 import { MessageBus } from './web_workers/shared/message_bus';
@@ -28,7 +28,6 @@ import { RenderStore } from './web_workers/shared/render_store';
 import { Serializer } from './web_workers/shared/serializer';
 import { ServiceMessageBrokerFactory, ServiceMessageBrokerFactory_ } from './web_workers/shared/service_message_broker';
 import { MessageBasedRenderer } from './web_workers/ui/renderer';
-const WORKER_RENDER_PLATFORM_MARKER = new OpaqueToken('WorkerRenderPlatformMarker');
 export class WebWorkerInstance {
     /** @internal */
     init(worker, bus) {
@@ -55,15 +54,8 @@ export const WORKER_UI_STARTABLE_MESSAGING_SERVICE = new OpaqueToken('WorkerRend
 /**
  * @experimental WebWorker support is currently experimental.
  */
-export const WORKER_UI_PLATFORM_PROVIDERS = [
-    PLATFORM_COMMON_PROVIDERS, { provide: WORKER_RENDER_PLATFORM_MARKER, useValue: true },
-    { provide: PLATFORM_INITIALIZER, useValue: initWebWorkerRenderPlatform, multi: true }
-];
-/**
- * @experimental WebWorker support is currently experimental.
- */
-export const WORKER_UI_APPLICATION_PROVIDERS = [
-    APPLICATION_COMMON_PROVIDERS,
+export const _WORKER_UI_PLATFORM_PROVIDERS = [
+    { provide: NgZone, useFactory: createNgZone, deps: [] },
     MessageBasedRenderer,
     { provide: WORKER_UI_STARTABLE_MESSAGING_SERVICE, useExisting: MessageBasedRenderer, multi: true },
     BROWSER_SANITIZATION_PROVIDERS,
@@ -88,9 +80,23 @@ export const WORKER_UI_APPLICATION_PROVIDERS = [
     Testability,
     EventManager,
     WebWorkerInstance,
-    { provide: APP_INITIALIZER, useFactory: initWebWorkerAppFn, multi: true, deps: [Injector] },
+    {
+        provide: PLATFORM_INITIALIZER,
+        useFactory: initWebWorkerRenderPlatform,
+        multi: true,
+        deps: [Injector]
+    },
     { provide: MessageBus, useFactory: messageBusFactory, deps: [WebWorkerInstance] }
 ];
+/**
+ * * @deprecated Use `platformWorkerUi()` or create a custom platform factory via
+ * `createPlatformFactory(platformWorkerUi, ...)`
+ */
+export const WORKER_UI_PLATFORM_PROVIDERS = [PLATFORM_COMMON_PROVIDERS, _WORKER_UI_PLATFORM_PROVIDERS];
+/**
+ * @deprecated Worker UI only has a platform but no application
+ */
+export const WORKER_UI_APPLICATION_PROVIDERS = [];
 function initializeGenericWorkerRenderer(injector) {
     var bus = injector.get(MessageBus);
     let zone = injector.get(NgZone);
@@ -102,28 +108,11 @@ function initializeGenericWorkerRenderer(injector) {
 function messageBusFactory(instance) {
     return instance.bus;
 }
-function initWebWorkerRenderPlatform() {
-    BrowserDomAdapter.makeCurrent();
-    wtfInit();
-    BrowserGetTestability.init();
-}
-/**
- * @experimental WebWorker support is currently experimental.
- */
-export function workerUiPlatform() {
-    if (isBlank(getPlatform())) {
-        createPlatform(ReflectiveInjector.resolveAndCreate(WORKER_UI_PLATFORM_PROVIDERS));
-    }
-    return assertPlatform(WORKER_RENDER_PLATFORM_MARKER);
-}
-function _exceptionHandler() {
-    return new ExceptionHandler(getDOM());
-}
-function _document() {
-    return getDOM().defaultDoc();
-}
-function initWebWorkerAppFn(injector) {
+function initWebWorkerRenderPlatform(injector) {
     return () => {
+        BrowserDomAdapter.makeCurrent();
+        wtfInit();
+        BrowserGetTestability.init();
         var scriptUri;
         try {
             scriptUri = injector.get(WORKER_SCRIPT);
@@ -135,6 +124,23 @@ function initWebWorkerAppFn(injector) {
         spawnWebWorker(scriptUri, instance);
         initializeGenericWorkerRenderer(injector);
     };
+}
+/**
+ * @experimental WebWorker support is currently experimental.
+ */
+export const platformWorkerUi = createPlatformFactory(platformCore, 'workerUi', _WORKER_UI_PLATFORM_PROVIDERS);
+/**
+ * @deprecated Use {@link platformWorkerUi} instead
+ */
+export const workerUiPlatform = platformWorkerUi;
+function _exceptionHandler() {
+    return new ExceptionHandler(getDOM());
+}
+function _document() {
+    return getDOM().defaultDoc();
+}
+function createNgZone() {
+    return new NgZone({ enableLongStackTrace: isDevMode() });
 }
 /**
  * Spawns a new class and initializes the WebWorkerInstance
@@ -149,6 +155,6 @@ function spawnWebWorker(uri, instance) {
 function _resolveDefaultAnimationDriver() {
     // web workers have not been tested or configured to
     // work with animations just yet...
-    return new NoOpAnimationDriver();
+    return AnimationDriver.NOOP;
 }
 //# sourceMappingURL=worker_render.js.map

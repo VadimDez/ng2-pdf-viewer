@@ -1,7 +1,7 @@
+import { CompileDirectiveMetadata, CompileIdentifierMap, CompileIdentifierMetadata, CompileTokenMetadata } from '../compile_metadata';
 import * as o from '../output/output_ast';
-import { ProviderAst, ReferenceAst, TemplateAst } from '../template_ast';
+import { ProviderAst, ReferenceAst, TemplateAst } from '../template_parser/template_ast';
 import { CompileView } from './compile_view';
-import { CompileDirectiveMetadata, CompileTokenMetadata, CompileIdentifierMetadata } from '../compile_metadata';
 export declare class CompileNode {
     parent: CompileElement;
     view: CompileView;
@@ -23,20 +23,19 @@ export declare class CompileElement extends CompileNode {
     appElement: o.ReadPropExpr;
     elementRef: o.Expression;
     injector: o.Expression;
-    private _instances;
+    instances: CompileIdentifierMap<CompileTokenMetadata, o.Expression>;
     private _resolvedProviders;
     private _queryCount;
     private _queries;
     private _componentConstructorViewQueryLists;
     contentNodesByNgContentIndex: Array<o.Expression>[];
     embeddedView: CompileView;
-    directiveInstances: o.Expression[];
     referenceTokens: {
         [key: string]: CompileTokenMetadata;
     };
     constructor(parent: CompileElement, view: CompileView, nodeIndex: number, renderNode: o.Expression, sourceAst: TemplateAst, component: CompileDirectiveMetadata, _directives: CompileDirectiveMetadata[], _resolvedProvidersArray: ProviderAst[], hasViewContainer: boolean, hasEmbeddedView: boolean, references: ReferenceAst[]);
     private _createAppElement();
-    createComponentFactoryResolver(precompileComponent: CompileIdentifierMetadata[]): void;
+    createComponentFactoryResolver(entryComponents: CompileIdentifierMetadata[]): void;
     setComponentView(compViewExpr: o.Expression): void;
     setEmbeddedView(embeddedView: CompileView): void;
     beforeChildren(): void;
