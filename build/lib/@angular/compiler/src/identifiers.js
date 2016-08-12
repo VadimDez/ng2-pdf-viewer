@@ -36,7 +36,7 @@ var impChangeDetectionStrategy = core_1.ChangeDetectionStrategy;
 var impStaticNodeDebugInfo = core_private_1.StaticNodeDebugInfo;
 var impRenderer = core_1.Renderer;
 var impSimpleChange = core_1.SimpleChange;
-var impUninitialized = core_private_1.uninitialized;
+var impUNINITIALIZED = core_private_1.UNINITIALIZED;
 var impChangeDetectorStatus = core_private_1.ChangeDetectorStatus;
 var impFlattenNestedViewRenderNodes = core_private_1.flattenNestedViewRenderNodes;
 var impDevModeEqual = core_private_1.devModeEqual;
@@ -54,6 +54,11 @@ var ANIMATION_STYLE_UTIL_ASSET_URL = util_1.assetUrl('core', 'animation/animatio
 var Identifiers = (function () {
     function Identifiers() {
     }
+    Identifiers.ANALYZE_FOR_ENTRY_COMPONENTS = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'ANALYZE_FOR_ENTRY_COMPONENTS',
+        moduleUrl: util_1.assetUrl('core', 'metadata/di'),
+        runtime: core_1.ANALYZE_FOR_ENTRY_COMPONENTS
+    });
     Identifiers.ViewUtils = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ViewUtils', moduleUrl: util_1.assetUrl('core', 'linker/view_utils'), runtime: impViewUtils });
     Identifiers.AppView = new compile_metadata_1.CompileIdentifierMetadata({ name: 'AppView', moduleUrl: APP_VIEW_MODULE_URL, runtime: impAppView });
     Identifiers.DebugAppView = new compile_metadata_1.CompileIdentifierMetadata({ name: 'DebugAppView', moduleUrl: APP_VIEW_MODULE_URL, runtime: impDebugAppView });
@@ -99,6 +104,21 @@ var Identifiers = (function () {
         moduleUrl: util_1.assetUrl('core', 'linker/component_factory_resolver'),
         runtime: core_1.ComponentFactoryResolver
     });
+    Identifiers.ComponentFactory = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'ComponentFactory',
+        runtime: core_1.ComponentFactory,
+        moduleUrl: util_1.assetUrl('core', 'linker/component_factory')
+    });
+    Identifiers.NgModuleFactory = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'NgModuleFactory',
+        runtime: core_1.NgModuleFactory,
+        moduleUrl: util_1.assetUrl('core', 'linker/ng_module_factory')
+    });
+    Identifiers.NgModuleInjector = new compile_metadata_1.CompileIdentifierMetadata({
+        name: 'NgModuleInjector',
+        runtime: core_private_1.NgModuleInjector,
+        moduleUrl: util_1.assetUrl('core', 'linker/ng_module_factory')
+    });
     Identifiers.ValueUnwrapper = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ValueUnwrapper', moduleUrl: CD_MODULE_URL, runtime: impValueUnwrapper });
     Identifiers.Injector = new compile_metadata_1.CompileIdentifierMetadata({ name: 'Injector', moduleUrl: util_1.assetUrl('core', 'di/injector'), runtime: impInjector });
     Identifiers.ViewEncapsulation = new compile_metadata_1.CompileIdentifierMetadata({
@@ -124,7 +144,7 @@ var Identifiers = (function () {
     });
     Identifiers.Renderer = new compile_metadata_1.CompileIdentifierMetadata({ name: 'Renderer', moduleUrl: util_1.assetUrl('core', 'render/api'), runtime: impRenderer });
     Identifiers.SimpleChange = new compile_metadata_1.CompileIdentifierMetadata({ name: 'SimpleChange', moduleUrl: CD_MODULE_URL, runtime: impSimpleChange });
-    Identifiers.uninitialized = new compile_metadata_1.CompileIdentifierMetadata({ name: 'uninitialized', moduleUrl: CD_MODULE_URL, runtime: impUninitialized });
+    Identifiers.UNINITIALIZED = new compile_metadata_1.CompileIdentifierMetadata({ name: 'UNINITIALIZED', moduleUrl: CD_MODULE_URL, runtime: impUNINITIALIZED });
     Identifiers.ChangeDetectorStatus = new compile_metadata_1.CompileIdentifierMetadata({ name: 'ChangeDetectorStatus', moduleUrl: CD_MODULE_URL, runtime: impChangeDetectorStatus });
     Identifiers.checkBinding = new compile_metadata_1.CompileIdentifierMetadata({ name: 'checkBinding', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: impCheckBinding });
     Identifiers.flattenNestedViewRenderNodes = new compile_metadata_1.CompileIdentifierMetadata({
@@ -153,7 +173,7 @@ var Identifiers = (function () {
     Identifiers.SecurityContext = new compile_metadata_1.CompileIdentifierMetadata({
         name: 'SecurityContext',
         moduleUrl: util_1.assetUrl('core', 'security'),
-        runtime: core_private_1.SecurityContext,
+        runtime: core_1.SecurityContext,
     });
     Identifiers.AnimationKeyframe = new compile_metadata_1.CompileIdentifierMetadata({
         name: 'AnimationKeyframe',

@@ -31,6 +31,7 @@ export declare class AppElement {
     readonly parentInjector: Injector;
     readonly injector: Injector;
     mapNestedViews(nestedViewClass: any, callback: Function): any[];
+    moveView(view: AppView<any>, currentIndex: number): void;
     attachView(view: AppView<any>, viewIndex: number): void;
     detachView(viewIndex: number): AppView<any>;
 }

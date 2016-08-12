@@ -9,7 +9,6 @@
 var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
 var view_type_1 = require('./view_type');
-/* @ts2dart_const */
 var StaticNodeDebugInfo = (function () {
     function StaticNodeDebugInfo(providerTokens, componentToken, refTokens) {
         this.providerTokens = providerTokens;
@@ -70,7 +69,7 @@ var DebugContext = (function () {
     });
     Object.defineProperty(DebugContext.prototype, "renderNode", {
         get: function () {
-            if (lang_1.isPresent(this._nodeIndex) && lang_1.isPresent(this._view.allNodes)) {
+            if (lang_1.isPresent(this._nodeIndex) && this._view.allNodes) {
                 return this._view.allNodes[this._nodeIndex];
             }
             else {
@@ -102,11 +101,10 @@ var DebugContext = (function () {
             var staticNodeInfo = this._staticNodeInfo;
             if (lang_1.isPresent(staticNodeInfo)) {
                 var refs = staticNodeInfo.refTokens;
-                collection_1.StringMapWrapper.forEach(refs, function (refToken /** TODO #9100 */, refName /** TODO #9100 */) {
+                collection_1.StringMapWrapper.forEach(refs, function (refToken, refName) {
                     var varValue;
                     if (lang_1.isBlank(refToken)) {
-                        varValue =
-                            lang_1.isPresent(_this._view.allNodes) ? _this._view.allNodes[_this._nodeIndex] : null;
+                        varValue = _this._view.allNodes ? _this._view.allNodes[_this._nodeIndex] : null;
                     }
                     else {
                         varValue = _this._view.injectorGet(refToken, _this._nodeIndex, null);

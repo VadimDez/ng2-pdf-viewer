@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * Defines template and style encapsulation options available for Component's {@link View}.
+ * Defines template and style encapsulation options available for Component's {@link Component}.
  *
  * See {@link ViewMetadata#encapsulation}.
  * @stable
@@ -63,9 +63,8 @@ export var VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsul
  *   }
  * }
  * ```
- * @ts2dart_const
  *
- * @experimental You should most likely be using ComponentMetadata instead.
+ * @deprecated Use ComponentMetadata instead.
  */
 export class ViewMetadata {
     constructor({ templateUrl, template, directives, pipes, encapsulation, styles, styleUrls, animations, interpolation } = {}) {

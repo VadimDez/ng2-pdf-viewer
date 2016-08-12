@@ -1,13 +1,13 @@
+import { AnimationPlayer } from '../animation/animation_player';
+import { ViewAnimationMap } from '../animation/view_animation_map';
+import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
+import { Injector } from '../di/injector';
 import { RenderComponentType, RenderDebugInfo, Renderer } from '../render/api';
+import { DebugContext, StaticNodeDebugInfo } from './debug_context';
 import { AppElement } from './element';
 import { ViewRef_ } from './view_ref';
 import { ViewType } from './view_type';
 import { ViewUtils } from './view_utils';
-import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
-import { StaticNodeDebugInfo, DebugContext } from './debug_context';
-import { Injector } from '../di/injector';
-import { AnimationPlayer } from '../animation/animation_player';
-import { ActiveAnimationPlayersMap } from '../animation/active_animation_players_map';
 /**
  * Cost of making objects: http://jsperf.com/instantiate-size-of-object
  *
@@ -32,12 +32,13 @@ export declare abstract class AppView<T> {
     projectableNodes: Array<any | any[]>;
     renderer: Renderer;
     private _hasExternalHostElement;
-    activeAnimationPlayers: ActiveAnimationPlayersMap;
+    animationPlayers: ViewAnimationMap;
     context: T;
     constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectorStatus);
     readonly destroyed: boolean;
     cancelActiveAnimation(element: any, animationName: string, removeAllAnimations?: boolean): void;
-    registerAndStartAnimation(element: any, animationName: string, player: AnimationPlayer): void;
+    queueAnimation(element: any, animationName: string, player: AnimationPlayer): void;
+    triggerQueuedAnimations(): void;
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
     /**
      * Overwritten by implementations.
@@ -79,6 +80,7 @@ export declare abstract class AppView<T> {
     detectChangesInternal(throwOnChange: boolean): void;
     detectContentChildrenChanges(throwOnChange: boolean): void;
     detectViewChildrenChanges(throwOnChange: boolean): void;
+    markContentChildAsMoved(renderAppElement: AppElement): void;
     addToContentChildren(renderAppElement: AppElement): void;
     removeFromContentChildren(renderAppElement: AppElement): void;
     markAsCheckOnce(): void;

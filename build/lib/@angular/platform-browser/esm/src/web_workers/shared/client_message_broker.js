@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { ObservableWrapper, PromiseWrapper } from '../../facade/async';
 import { StringMapWrapper } from '../../facade/collection';
 import { DateWrapper, StringWrapper, isPresent, print, stringify } from '../../facade/lang';
 import { MessageBus } from './message_bus';
@@ -52,7 +51,7 @@ export class ClientMessageBroker_ extends ClientMessageBroker {
         this._sink = messageBus.to(channel);
         this._serializer = _serializer;
         var source = messageBus.from(channel);
-        ObservableWrapper.subscribe(source, (message) => this._handleMessage(message));
+        source.subscribe({ next: (message) => this._handleMessage(message) });
     }
     _generateMessageId(name) {
         var time = stringify(DateWrapper.toMillis(DateWrapper.now()));
@@ -79,14 +78,15 @@ export class ClientMessageBroker_ extends ClientMessageBroker {
         var promise;
         var id = null;
         if (returnType != null) {
-            var completer = PromiseWrapper.completer();
+            let completer;
+            promise = new Promise((resolve, reject) => { completer = { resolve, reject }; });
             id = this._generateMessageId(args.method);
             this._pending.set(id, completer);
-            PromiseWrapper.catchError(completer.promise, (err, stack) => {
+            promise.catch((err) => {
                 print(err);
-                completer.reject(err, stack);
+                completer.reject(err);
             });
-            promise = PromiseWrapper.then(completer.promise, (value) => {
+            promise = promise.then((value) => {
                 if (this._serializer == null) {
                     return value;
                 }
@@ -103,7 +103,7 @@ export class ClientMessageBroker_ extends ClientMessageBroker {
         if (id != null) {
             message['id'] = id;
         }
-        ObservableWrapper.callEmit(this._sink, message);
+        this._sink.emit(message);
         return promise;
     }
     _handleMessage(message) {
@@ -116,7 +116,7 @@ export class ClientMessageBroker_ extends ClientMessageBroker {
                     this._pending.get(id).resolve(data.value);
                 }
                 else {
-                    this._pending.get(id).reject(data.value, null);
+                    this._pending.get(id).reject(data.value);
                 }
                 this._pending.delete(id);
             }

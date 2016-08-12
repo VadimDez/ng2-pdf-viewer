@@ -16,23 +16,23 @@ var NumberFormatter = (function () {
     function NumberFormatter() {
     }
     NumberFormatter.format = function (num, locale, style, _a) {
-        var _b = _a === void 0 ? {} : _a, _c = _b.minimumIntegerDigits, minimumIntegerDigits = _c === void 0 ? 1 : _c, _d = _b.minimumFractionDigits, minimumFractionDigits = _d === void 0 ? 0 : _d, _e = _b.maximumFractionDigits, maximumFractionDigits = _e === void 0 ? 3 : _e, currency = _b.currency, _f = _b.currencyAsSymbol, currencyAsSymbol = _f === void 0 ? false : _f;
-        var intlOptions = {
+        var _b = _a === void 0 ? {} : _a, minimumIntegerDigits = _b.minimumIntegerDigits, minimumFractionDigits = _b.minimumFractionDigits, maximumFractionDigits = _b.maximumFractionDigits, currency = _b.currency, _c = _b.currencyAsSymbol, currencyAsSymbol = _c === void 0 ? false : _c;
+        var options = {
             minimumIntegerDigits: minimumIntegerDigits,
             minimumFractionDigits: minimumFractionDigits,
-            maximumFractionDigits: maximumFractionDigits
+            maximumFractionDigits: maximumFractionDigits,
+            style: NumberFormatStyle[style].toLowerCase()
         };
-        intlOptions.style = NumberFormatStyle[style].toLowerCase();
         if (style == NumberFormatStyle.Currency) {
-            intlOptions.currency = currency;
-            intlOptions.currencyDisplay = currencyAsSymbol ? 'symbol' : 'code';
+            options.currency = currency;
+            options.currencyDisplay = currencyAsSymbol ? 'symbol' : 'code';
         }
-        return new Intl.NumberFormat(locale, intlOptions).format(num);
+        return new Intl.NumberFormat(locale, options).format(num);
     };
     return NumberFormatter;
 }());
 exports.NumberFormatter = NumberFormatter;
-var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsaZEwGjJ']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|J+|j+|m+|s+|a|Z|G+|w+))(.*)/;
+var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsazZEwGjJ']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|J+|j+|m+|s+|a|z|Z|G+|w+))(.*)/;
 var PATTERN_ALIASES = {
     yMMMdjms: datePartGetterFactory(combine([
         digitCondition('year', 1),
@@ -67,9 +67,9 @@ var DATE_FORMATS = {
     LLLL: datePartGetterFactory(nameCondition('month', 4)),
     dd: datePartGetterFactory(digitCondition('day', 2)),
     d: datePartGetterFactory(digitCondition('day', 1)),
-    HH: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false))),
+    HH: digitModifier(hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false)))),
     H: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), false))),
-    hh: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true))),
+    hh: digitModifier(hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true)))),
     h: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
     jj: datePartGetterFactory(digitCondition('hour', 2)),
     j: datePartGetterFactory(digitCondition('hour', 1)),
@@ -86,8 +86,8 @@ var DATE_FORMATS = {
     EE: datePartGetterFactory(nameCondition('weekday', 2)),
     E: datePartGetterFactory(nameCondition('weekday', 1)),
     a: hourClockExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
-    Z: datePartGetterFactory({ timeZoneName: 'long' }),
-    z: datePartGetterFactory({ timeZoneName: 'short' }),
+    Z: timeZoneGetter('short'),
+    z: timeZoneGetter('long'),
     ww: datePartGetterFactory({}),
     // first Thursday of the year. not support ?
     w: datePartGetterFactory({}),
@@ -113,6 +113,15 @@ function hourExtracter(inner) {
     return function (date, locale) {
         var result = inner(date, locale);
         return result.split(' ')[0];
+    };
+}
+function timeZoneGetter(timezone) {
+    // To workaround `Intl` API restriction for single timezone let format with 24 hours
+    var format = { hour: '2-digit', hour12: false, timeZoneName: timezone };
+    return function (date, locale) {
+        var result = new Intl.DateTimeFormat(locale, format).format(date);
+        // Then extract first 3 letters that related to hours
+        return result ? result.substring(3) : '';
     };
 }
 function hour12Modify(options, value) {
@@ -152,7 +161,7 @@ function dateFormatter(format, date, locale) {
         parts = datePartsFormatterCache.get(format);
     }
     else {
-        var matchs = DATE_FORMATS_SPLIT.exec(format);
+        var matches = DATE_FORMATS_SPLIT.exec(format);
         while (format) {
             match = DATE_FORMATS_SPLIT.exec(format);
             if (match) {

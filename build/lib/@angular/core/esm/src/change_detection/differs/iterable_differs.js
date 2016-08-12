@@ -11,11 +11,9 @@ import { BaseException } from '../../facade/exceptions';
 import { getTypeNameForDebugging, isBlank, isPresent } from '../../facade/lang';
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
- * @ts2dart_const
  * @stable
  */
 export class IterableDiffers {
-    /*@ts2dart_const*/
     constructor(factories) {
         this.factories = factories;
     }

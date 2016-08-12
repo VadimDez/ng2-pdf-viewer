@@ -6,11 +6,11 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
+var cdAst = require('../expression_parser/ast');
 var exceptions_1 = require('../facade/exceptions');
 var lang_1 = require('../facade/lang');
 var identifiers_1 = require('../identifiers');
 var o = require('../output/output_ast');
-var IMPLICIT_RECEIVER = o.variable('#implicit');
 var ExpressionWithWrappedValueInfo = (function () {
     function ExpressionWithWrappedValueInfo(expression, needsValueUnwrapper) {
         this.expression = expression;
@@ -60,6 +60,7 @@ var _AstToIrVisitor = (function () {
         this._nameResolver = _nameResolver;
         this._implicitReceiver = _implicitReceiver;
         this._valueUnwrapper = _valueUnwrapper;
+        this._map = new Map();
         this.needsValueUnwrapper = false;
     }
     _AstToIrVisitor.prototype.visitBinary = function (ast, mode) {
@@ -113,47 +114,47 @@ var _AstToIrVisitor = (function () {
             default:
                 throw new exceptions_1.BaseException("Unsupported operation " + ast.operation);
         }
-        return convertToStatementIfNeeded(mode, new o.BinaryOperatorExpr(op, ast.left.visit(this, _Mode.Expression), ast.right.visit(this, _Mode.Expression)));
+        return convertToStatementIfNeeded(mode, new o.BinaryOperatorExpr(op, this.visit(ast.left, _Mode.Expression), this.visit(ast.right, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitChain = function (ast, mode) {
         ensureStatementMode(mode, ast);
         return this.visitAll(ast.expressions, mode);
     };
     _AstToIrVisitor.prototype.visitConditional = function (ast, mode) {
-        var value = ast.condition.visit(this, _Mode.Expression);
-        return convertToStatementIfNeeded(mode, value.conditional(ast.trueExp.visit(this, _Mode.Expression), ast.falseExp.visit(this, _Mode.Expression)));
+        var value = this.visit(ast.condition, _Mode.Expression);
+        return convertToStatementIfNeeded(mode, value.conditional(this.visit(ast.trueExp, _Mode.Expression), this.visit(ast.falseExp, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitPipe = function (ast, mode) {
-        var input = ast.exp.visit(this, _Mode.Expression);
+        var input = this.visit(ast.exp, _Mode.Expression);
         var args = this.visitAll(ast.args, _Mode.Expression);
         var value = this._nameResolver.callPipe(ast.name, input, args);
         this.needsValueUnwrapper = true;
         return convertToStatementIfNeeded(mode, this._valueUnwrapper.callMethod('unwrap', [value]));
     };
     _AstToIrVisitor.prototype.visitFunctionCall = function (ast, mode) {
-        return convertToStatementIfNeeded(mode, ast.target.visit(this, _Mode.Expression).callFn(this.visitAll(ast.args, _Mode.Expression)));
+        return convertToStatementIfNeeded(mode, this.visit(ast.target, _Mode.Expression).callFn(this.visitAll(ast.args, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitImplicitReceiver = function (ast, mode) {
         ensureExpressionMode(mode, ast);
-        return IMPLICIT_RECEIVER;
+        return this._implicitReceiver;
     };
     _AstToIrVisitor.prototype.visitInterpolation = function (ast, mode) {
         ensureExpressionMode(mode, ast);
         var args = [o.literal(ast.expressions.length)];
         for (var i = 0; i < ast.strings.length - 1; i++) {
             args.push(o.literal(ast.strings[i]));
-            args.push(ast.expressions[i].visit(this, _Mode.Expression));
+            args.push(this.visit(ast.expressions[i], _Mode.Expression));
         }
         args.push(o.literal(ast.strings[ast.strings.length - 1]));
         return o.importExpr(identifiers_1.Identifiers.interpolate).callFn(args);
     };
     _AstToIrVisitor.prototype.visitKeyedRead = function (ast, mode) {
-        return convertToStatementIfNeeded(mode, ast.obj.visit(this, _Mode.Expression).key(ast.key.visit(this, _Mode.Expression)));
+        return convertToStatementIfNeeded(mode, this.visit(ast.obj, _Mode.Expression).key(this.visit(ast.key, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitKeyedWrite = function (ast, mode) {
-        var obj = ast.obj.visit(this, _Mode.Expression);
-        var key = ast.key.visit(this, _Mode.Expression);
-        var value = ast.value.visit(this, _Mode.Expression);
+        var obj = this.visit(ast.obj, _Mode.Expression);
+        var key = this.visit(ast.key, _Mode.Expression);
+        var value = this.visit(ast.value, _Mode.Expression);
         return convertToStatementIfNeeded(mode, obj.key(key).set(value));
     };
     _AstToIrVisitor.prototype.visitLiteralArray = function (ast, mode) {
@@ -162,7 +163,7 @@ var _AstToIrVisitor = (function () {
     _AstToIrVisitor.prototype.visitLiteralMap = function (ast, mode) {
         var parts = [];
         for (var i = 0; i < ast.keys.length; i++) {
-            parts.push([ast.keys[i], ast.values[i].visit(this, _Mode.Expression)]);
+            parts.push([ast.keys[i], this.visit(ast.values[i], _Mode.Expression)]);
         }
         return convertToStatementIfNeeded(mode, this._nameResolver.createLiteralMap(parts));
     };
@@ -170,66 +171,160 @@ var _AstToIrVisitor = (function () {
         return convertToStatementIfNeeded(mode, o.literal(ast.value));
     };
     _AstToIrVisitor.prototype.visitMethodCall = function (ast, mode) {
-        var args = this.visitAll(ast.args, _Mode.Expression);
-        var result = null;
-        var receiver = ast.receiver.visit(this, _Mode.Expression);
-        if (receiver === IMPLICIT_RECEIVER) {
-            var varExpr = this._nameResolver.getLocal(ast.name);
-            if (lang_1.isPresent(varExpr)) {
-                result = varExpr.callFn(args);
-            }
-            else {
-                receiver = this._implicitReceiver;
-            }
+        var leftMostSafe = this.leftMostSafeNode(ast);
+        if (leftMostSafe) {
+            return this.convertSafeAccess(ast, leftMostSafe, mode);
         }
-        if (lang_1.isBlank(result)) {
-            result = receiver.callMethod(ast.name, args);
+        else {
+            var args = this.visitAll(ast.args, _Mode.Expression);
+            var result = null;
+            var receiver = this.visit(ast.receiver, _Mode.Expression);
+            if (receiver === this._implicitReceiver) {
+                var varExpr = this._nameResolver.getLocal(ast.name);
+                if (lang_1.isPresent(varExpr)) {
+                    result = varExpr.callFn(args);
+                }
+            }
+            if (lang_1.isBlank(result)) {
+                result = receiver.callMethod(ast.name, args);
+            }
+            return convertToStatementIfNeeded(mode, result);
         }
-        return convertToStatementIfNeeded(mode, result);
     };
     _AstToIrVisitor.prototype.visitPrefixNot = function (ast, mode) {
-        return convertToStatementIfNeeded(mode, o.not(ast.expression.visit(this, _Mode.Expression)));
+        return convertToStatementIfNeeded(mode, o.not(this.visit(ast.expression, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitPropertyRead = function (ast, mode) {
-        var result = null;
-        var receiver = ast.receiver.visit(this, _Mode.Expression);
-        if (receiver === IMPLICIT_RECEIVER) {
-            result = this._nameResolver.getLocal(ast.name);
-            if (lang_1.isBlank(result)) {
-                receiver = this._implicitReceiver;
+        var leftMostSafe = this.leftMostSafeNode(ast);
+        if (leftMostSafe) {
+            return this.convertSafeAccess(ast, leftMostSafe, mode);
+        }
+        else {
+            var result = null;
+            var receiver = this.visit(ast.receiver, _Mode.Expression);
+            if (receiver === this._implicitReceiver) {
+                result = this._nameResolver.getLocal(ast.name);
             }
+            if (lang_1.isBlank(result)) {
+                result = receiver.prop(ast.name);
+            }
+            return convertToStatementIfNeeded(mode, result);
         }
-        if (lang_1.isBlank(result)) {
-            result = receiver.prop(ast.name);
-        }
-        return convertToStatementIfNeeded(mode, result);
     };
     _AstToIrVisitor.prototype.visitPropertyWrite = function (ast, mode) {
-        var receiver = ast.receiver.visit(this, _Mode.Expression);
-        if (receiver === IMPLICIT_RECEIVER) {
+        var receiver = this.visit(ast.receiver, _Mode.Expression);
+        if (receiver === this._implicitReceiver) {
             var varExpr = this._nameResolver.getLocal(ast.name);
             if (lang_1.isPresent(varExpr)) {
                 throw new exceptions_1.BaseException('Cannot assign to a reference or variable!');
             }
-            receiver = this._implicitReceiver;
         }
-        return convertToStatementIfNeeded(mode, receiver.prop(ast.name).set(ast.value.visit(this, _Mode.Expression)));
+        return convertToStatementIfNeeded(mode, receiver.prop(ast.name).set(this.visit(ast.value, _Mode.Expression)));
     };
     _AstToIrVisitor.prototype.visitSafePropertyRead = function (ast, mode) {
-        var receiver = ast.receiver.visit(this, _Mode.Expression);
-        return convertToStatementIfNeeded(mode, receiver.isBlank().conditional(o.NULL_EXPR, receiver.prop(ast.name)));
+        return this.convertSafeAccess(ast, this.leftMostSafeNode(ast), mode);
     };
     _AstToIrVisitor.prototype.visitSafeMethodCall = function (ast, mode) {
-        var receiver = ast.receiver.visit(this, _Mode.Expression);
-        var args = this.visitAll(ast.args, _Mode.Expression);
-        return convertToStatementIfNeeded(mode, receiver.isBlank().conditional(o.NULL_EXPR, receiver.callMethod(ast.name, args)));
+        return this.convertSafeAccess(ast, this.leftMostSafeNode(ast), mode);
     };
     _AstToIrVisitor.prototype.visitAll = function (asts, mode) {
         var _this = this;
-        return asts.map(function (ast) { return ast.visit(_this, mode); });
+        return asts.map(function (ast) { return _this.visit(ast, mode); });
     };
     _AstToIrVisitor.prototype.visitQuote = function (ast, mode) {
         throw new exceptions_1.BaseException('Quotes are not supported for evaluation!');
+    };
+    _AstToIrVisitor.prototype.visit = function (ast, mode) {
+        return (this._map.get(ast) || ast).visit(this, mode);
+    };
+    _AstToIrVisitor.prototype.convertSafeAccess = function (ast, leftMostSafe, mode) {
+        // If the expression contains a safe access node on the left it needs to be converted to
+        // an expression that guards the access to the member by checking the receiver for blank. As
+        // execution proceeds from left to right, the left most part of the expression must be guarded
+        // first but, because member access is left associative, the right side of the expression is at
+        // the top of the AST. The desired result requires lifting a copy of the the left part of the
+        // expression up to test it for blank before generating the unguarded version.
+        // Consider, for example the following expression: a?.b.c?.d.e
+        // This results in the ast:
+        //         .
+        //        / \
+        //       ?.   e
+        //      /  \
+        //     .    d
+        //    / \
+        //   ?.  c
+        //  /  \
+        // a    b
+        // The following tree should be generated:
+        //
+        //        /---- ? ----\
+        //       /      |      \
+        //     a   /--- ? ---\  null
+        //        /     |     \
+        //       .      .     null
+        //      / \    / \
+        //     .  c   .   e
+        //    / \    / \
+        //   a   b  ,   d
+        //         / \
+        //        .   c
+        //       / \
+        //      a   b
+        //
+        // Notice that the first guard condition is the left hand of the left most safe access node
+        // which comes in as leftMostSafe to this routine.
+        var condition = this.visit(leftMostSafe.receiver, mode).isBlank();
+        // Convert the ast to an unguarded access to the receiver's member. The map will substitute
+        // leftMostNode with its unguarded version in the call to `this.visit()`.
+        if (leftMostSafe instanceof cdAst.SafeMethodCall) {
+            this._map.set(leftMostSafe, new cdAst.MethodCall(leftMostSafe.span, leftMostSafe.receiver, leftMostSafe.name, leftMostSafe.args));
+        }
+        else {
+            this._map.set(leftMostSafe, new cdAst.PropertyRead(leftMostSafe.span, leftMostSafe.receiver, leftMostSafe.name));
+        }
+        // Recursively convert the node now without the guarded member access.
+        var access = this.visit(ast, mode);
+        // Remove the mapping. This is not strictly required as the converter only traverses each node
+        // once but is safer if the conversion is changed to traverse the nodes more than once.
+        this._map.delete(leftMostSafe);
+        // Produce the conditional
+        return condition.conditional(o.literal(null), access);
+    };
+    // Given a expression of the form a?.b.c?.d.e the the left most safe node is
+    // the (a?.b). The . and ?. are left associative thus can be rewritten as:
+    // ((((a?.c).b).c)?.d).e. This returns the most deeply nested safe read or
+    // safe method call as this needs be transform initially to:
+    //   a == null ? null : a.c.b.c?.d.e
+    // then to:
+    //   a == null ? null : a.b.c == null ? null : a.b.c.d.e
+    _AstToIrVisitor.prototype.leftMostSafeNode = function (ast) {
+        var _this = this;
+        var visit = function (visitor, ast) {
+            return (_this._map.get(ast) || ast).visit(visitor);
+        };
+        return ast.visit({
+            visitBinary: function (ast) { return null; },
+            visitChain: function (ast) { return null; },
+            visitConditional: function (ast) { return null; },
+            visitFunctionCall: function (ast) { return null; },
+            visitImplicitReceiver: function (ast) { return null; },
+            visitInterpolation: function (ast) { return null; },
+            visitKeyedRead: function (ast) { return visit(this, ast.obj); },
+            visitKeyedWrite: function (ast) { return null; },
+            visitLiteralArray: function (ast) { return null; },
+            visitLiteralMap: function (ast) { return null; },
+            visitLiteralPrimitive: function (ast) { return null; },
+            visitMethodCall: function (ast) { return visit(this, ast.receiver); },
+            visitPipe: function (ast) { return null; },
+            visitPrefixNot: function (ast) { return null; },
+            visitPropertyRead: function (ast) { return visit(this, ast.receiver); },
+            visitPropertyWrite: function (ast) { return null; },
+            visitQuote: function (ast) { return null; },
+            visitSafeMethodCall: function (ast) { return visit(this, ast.receiver) || ast; },
+            visitSafePropertyRead: function (ast) {
+                return visit(this, ast.receiver) || ast;
+            }
+        });
     };
     return _AstToIrVisitor;
 }());

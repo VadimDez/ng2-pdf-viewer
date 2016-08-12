@@ -6,8 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { isPresent, StringWrapper } from '../../facade/lang';
-import { StringMapWrapper, ListWrapper } from '../../facade/collection';
+import { ListWrapper, StringMapWrapper } from '../../facade/collection';
+import { StringWrapper, isPresent } from '../../facade/lang';
 import { getDOM } from '../dom_adapter';
 import { EventManagerPlugin } from './event_manager';
 var modifierKeys = ['alt', 'control', 'meta', 'shift'];

@@ -117,10 +117,7 @@ export class StringMapWrapper {
     static set(map, key, value) { map[key] = value; }
     static keys(map) { return Object.keys(map); }
     static values(map) {
-        return Object.keys(map).reduce((r, a) => {
-            r.push(map[a]);
-            return r;
-        }, []);
+        return Object.keys(map).map((k) => map[k]);
     }
     static isEmpty(map) {
         for (var prop in map) {
@@ -130,23 +127,17 @@ export class StringMapWrapper {
     }
     static delete(map, key) { delete map[key]; }
     static forEach(map, callback) {
-        for (var prop in map) {
-            if (map.hasOwnProperty(prop)) {
-                callback(map[prop], prop);
-            }
+        for (let k of Object.keys(map)) {
+            callback(map[k], k);
         }
     }
     static merge(m1, m2) {
         var m = {};
-        for (var attr in m1) {
-            if (m1.hasOwnProperty(attr)) {
-                m[attr] = m1[attr];
-            }
+        for (let k of Object.keys(m1)) {
+            m[k] = m1[k];
         }
-        for (var attr in m2) {
-            if (m2.hasOwnProperty(attr)) {
-                m[attr] = m2[attr];
-            }
+        for (let k of Object.keys(m2)) {
+            m[k] = m2[k];
         }
         return m;
     }

@@ -16,31 +16,6 @@ var testing_1 = require('@angular/core/testing');
 var index_1 = require('../index');
 var collection_1 = require('../src/facade/collection');
 var lang_1 = require('../src/facade/lang');
-/**
- * @deprecated Import TestComponentRenderer from @angular/core/testing
- */
-var testing_2 = require('@angular/core/testing');
-exports.TestComponentRenderer = testing_2.TestComponentRenderer;
-/**
- * @deprecated Import TestComponentBuilder from @angular/core/testing
- */
-var testing_3 = require('@angular/core/testing');
-exports.TestComponentBuilder = testing_3.TestComponentBuilder;
-/**
- * @deprecated Import ComponentFixture from @angular/core/testing
- */
-var testing_4 = require('@angular/core/testing');
-exports.ComponentFixture = testing_4.ComponentFixture;
-/**
- * @deprecated Import ComponentFixtureNoNgZone from @angular/core/testing
- */
-var testing_5 = require('@angular/core/testing');
-exports.ComponentFixtureNoNgZone = testing_5.ComponentFixtureNoNgZone;
-/**
- * @deprecated Import ComponentFixtureAutoDetect from @angular/core/testing
- */
-var testing_6 = require('@angular/core/testing');
-exports.ComponentFixtureAutoDetect = testing_6.ComponentFixtureAutoDetect;
 var OverridingTestComponentBuilder = (function (_super) {
     __extends(OverridingTestComponentBuilder, _super);
     function OverridingTestComponentBuilder(injector) {
@@ -113,12 +88,11 @@ var OverridingTestComponentBuilder = (function (_super) {
     };
     OverridingTestComponentBuilder.prototype._applyMetadataOverrides = function () {
         var mockDirectiveResolver = this._injector.get(index_1.DirectiveResolver);
-        var mockViewResolver = this._injector.get(index_1.ViewResolver);
-        this._viewOverrides.forEach(function (view, type) { mockViewResolver.setView(type, view); });
-        this._templateOverrides.forEach(function (template, type) { return mockViewResolver.setInlineTemplate(type, template); });
-        this._animationOverrides.forEach(function (animationsEntry, type) { return mockViewResolver.setAnimations(type, animationsEntry); });
+        this._viewOverrides.forEach(function (view, type) { mockDirectiveResolver.setView(type, view); });
+        this._templateOverrides.forEach(function (template, type) { return mockDirectiveResolver.setInlineTemplate(type, template); });
+        this._animationOverrides.forEach(function (animationsEntry, type) { return mockDirectiveResolver.setAnimations(type, animationsEntry); });
         this._directiveOverrides.forEach(function (overrides, component) {
-            overrides.forEach(function (to, from) { mockViewResolver.overrideViewDirective(component, from, to); });
+            overrides.forEach(function (to, from) { mockDirectiveResolver.overrideViewDirective(component, from, to); });
         });
         this._bindingsOverrides.forEach(function (bindings, type) { return mockDirectiveResolver.setProvidersOverride(type, bindings); });
         this._viewBindingsOverrides.forEach(function (bindings, type) { return mockDirectiveResolver.setViewProvidersOverride(type, bindings); });
@@ -129,7 +103,7 @@ var OverridingTestComponentBuilder = (function (_super) {
     ];
     /** @nocollapse */
     OverridingTestComponentBuilder.ctorParameters = [
-        { type: core_1.Injector, },
+        { type: core_1.Injector, decorators: [{ type: core_1.Inject, args: [testing_1.TestBed,] },] },
     ];
     return OverridingTestComponentBuilder;
 }(testing_1.TestComponentBuilder));

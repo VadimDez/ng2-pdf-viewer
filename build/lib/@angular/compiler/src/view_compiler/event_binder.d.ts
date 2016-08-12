@@ -7,7 +7,7 @@
  */
 import { CompileDirectiveMetadata } from '../compile_metadata';
 import * as o from '../output/output_ast';
-import { BoundEventAst, DirectiveAst } from '../template_ast';
+import { BoundEventAst, DirectiveAst } from '../template_parser/template_ast';
 import { CompileElement } from './compile_element';
 export declare class CompileEventListener {
     compileElement: CompileElement;

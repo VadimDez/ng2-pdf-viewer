@@ -31,6 +31,7 @@ function _createConditionalRootRenderer(rootRenderer /** TODO #9100 */) {
     }
     return rootRenderer;
 }
+exports._createConditionalRootRenderer = _createConditionalRootRenderer;
 function _createRootRenderer(rootRenderer /** TODO #9100 */) {
     dom_adapter_1.getDOM().setGlobalVar(INSPECT_GLOBAL_NAME, inspectNativeElement);
     dom_adapter_1.getDOM().setGlobalVar(CORE_TOKENS_GLOBAL_NAME, CORE_TOKENS);

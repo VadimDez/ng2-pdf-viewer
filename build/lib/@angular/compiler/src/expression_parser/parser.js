@@ -6,27 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var core_1 = require('@angular/core');
 var chars = require('../chars');
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
 var lang_1 = require('../facade/lang');
-var interpolation_config_1 = require('../interpolation_config');
+var interpolation_config_1 = require('../ml_parser/interpolation_config');
 var ast_1 = require('./ast');
 var lexer_1 = require('./lexer');
-var _implicitReceiver = new ast_1.ImplicitReceiver();
-var ParseException = (function (_super) {
-    __extends(ParseException, _super);
-    function ParseException(message, input, errLocation, ctxLocation) {
-        _super.call(this, "Parser Error: " + message + " " + errLocation + " [" + input + "] in " + ctxLocation);
-    }
-    return ParseException;
-}(exceptions_1.BaseException));
 var SplitInterpolation = (function () {
     function SplitInterpolation(strings, expressions) {
         this.strings = strings;
@@ -36,40 +21,45 @@ var SplitInterpolation = (function () {
 }());
 exports.SplitInterpolation = SplitInterpolation;
 var TemplateBindingParseResult = (function () {
-    function TemplateBindingParseResult(templateBindings, warnings) {
+    function TemplateBindingParseResult(templateBindings, warnings, errors) {
         this.templateBindings = templateBindings;
         this.warnings = warnings;
+        this.errors = errors;
     }
     return TemplateBindingParseResult;
 }());
 exports.TemplateBindingParseResult = TemplateBindingParseResult;
 function _createInterpolateRegExp(config) {
-    var regexp = lang_1.escapeRegExp(config.start) + '([\\s\\S]*?)' + lang_1.escapeRegExp(config.end);
-    return lang_1.RegExpWrapper.create(regexp, 'g');
+    var pattern = lang_1.escapeRegExp(config.start) + '([\\s\\S]*?)' + lang_1.escapeRegExp(config.end);
+    return new RegExp(pattern, 'g');
 }
 var Parser = (function () {
-    function Parser(/** @internal */ _lexer) {
+    function Parser(_lexer) {
         this._lexer = _lexer;
+        this.errors = [];
     }
     Parser.prototype.parseAction = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
         this._checkNoInterpolation(input, location, interpolationConfig);
         var tokens = this._lexer.tokenize(this._stripComments(input));
-        var ast = new _ParseAST(input, location, tokens, true).parseChain();
-        return new ast_1.ASTWithSource(ast, input, location);
+        var ast = new _ParseAST(input, location, tokens, true, this.errors).parseChain();
+        return new ast_1.ASTWithSource(ast, input, location, this.errors);
     };
     Parser.prototype.parseBinding = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
         var ast = this._parseBindingAst(input, location, interpolationConfig);
-        return new ast_1.ASTWithSource(ast, input, location);
+        return new ast_1.ASTWithSource(ast, input, location, this.errors);
     };
     Parser.prototype.parseSimpleBinding = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
         var ast = this._parseBindingAst(input, location, interpolationConfig);
         if (!SimpleExpressionChecker.check(ast)) {
-            throw new ParseException('Host binding expression can only contain field access and constants', input, location);
+            this._reportError('Host binding expression can only contain field access and constants', input, location);
         }
-        return new ast_1.ASTWithSource(ast, input, location);
+        return new ast_1.ASTWithSource(ast, input, location, this.errors);
+    };
+    Parser.prototype._reportError = function (message, input, errLocation, ctxLocation) {
+        this.errors.push(new ast_1.ParserError(message, input, errLocation, ctxLocation));
     };
     Parser.prototype._parseBindingAst = function (input, location, interpolationConfig) {
         // Quotes expressions use 3rd-party expression language. We don't want to use
@@ -80,7 +70,7 @@ var Parser = (function () {
         }
         this._checkNoInterpolation(input, location, interpolationConfig);
         var tokens = this._lexer.tokenize(this._stripComments(input));
-        return new _ParseAST(input, location, tokens, false).parseChain();
+        return new _ParseAST(input, location, tokens, false, this.errors).parseChain();
     };
     Parser.prototype._parseQuote = function (input, location) {
         if (lang_1.isBlank(input))
@@ -92,11 +82,11 @@ var Parser = (function () {
         if (!lexer_1.isIdentifier(prefix))
             return null;
         var uninterpretedExpression = input.substring(prefixSeparatorIndex + 1);
-        return new ast_1.Quote(prefix, uninterpretedExpression, location);
+        return new ast_1.Quote(new ast_1.ParseSpan(0, input.length), prefix, uninterpretedExpression, location);
     };
     Parser.prototype.parseTemplateBindings = function (input, location) {
         var tokens = this._lexer.tokenize(input);
-        return new _ParseAST(input, location, tokens, false).parseTemplateBindings();
+        return new _ParseAST(input, location, tokens, false, this.errors).parseTemplateBindings();
     };
     Parser.prototype.parseInterpolation = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
@@ -106,10 +96,10 @@ var Parser = (function () {
         var expressions = [];
         for (var i = 0; i < split.expressions.length; ++i) {
             var tokens = this._lexer.tokenize(this._stripComments(split.expressions[i]));
-            var ast = new _ParseAST(input, location, tokens, false).parseChain();
+            var ast = new _ParseAST(input, location, tokens, false, this.errors).parseChain();
             expressions.push(ast);
         }
-        return new ast_1.ASTWithSource(new ast_1.Interpolation(split.strings, expressions), input, location);
+        return new ast_1.ASTWithSource(new ast_1.Interpolation(new ast_1.ParseSpan(0, lang_1.isBlank(input) ? 0 : input.length), split.strings, expressions), input, location, this.errors);
     };
     Parser.prototype.splitInterpolation = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
@@ -130,13 +120,13 @@ var Parser = (function () {
                 expressions.push(part);
             }
             else {
-                throw new ParseException('Blank expressions are not allowed in interpolated strings', input, "at column " + this._findInterpolationErrorColumn(parts, i, interpolationConfig) + " in", location);
+                this._reportError('Blank expressions are not allowed in interpolated strings', input, "at column " + this._findInterpolationErrorColumn(parts, i, interpolationConfig) + " in", location);
             }
         }
         return new SplitInterpolation(strings, expressions);
     };
     Parser.prototype.wrapLiteralPrimitive = function (input, location) {
-        return new ast_1.ASTWithSource(new ast_1.LiteralPrimitive(input), input, location);
+        return new ast_1.ASTWithSource(new ast_1.LiteralPrimitive(new ast_1.ParseSpan(0, lang_1.isBlank(input) ? 0 : input.length), input), input, location, this.errors);
     };
     Parser.prototype._stripComments = function (input) {
         var i = this._commentStart(input);
@@ -162,7 +152,7 @@ var Parser = (function () {
         var regexp = _createInterpolateRegExp(interpolationConfig);
         var parts = lang_1.StringWrapper.split(input, regexp);
         if (parts.length > 1) {
-            throw new ParseException("Got interpolation (" + interpolationConfig.start + interpolationConfig.end + ") where expression was expected", input, "at column " + this._findInterpolationErrorColumn(parts, 1, interpolationConfig) + " in", location);
+            this._reportError("Got interpolation (" + interpolationConfig.start + interpolationConfig.end + ") where expression was expected", input, "at column " + this._findInterpolationErrorColumn(parts, 1, interpolationConfig) + " in", location);
         }
     };
     Parser.prototype._findInterpolationErrorColumn = function (parts, partInErrIdx, interpolationConfig) {
@@ -186,11 +176,15 @@ var Parser = (function () {
 }());
 exports.Parser = Parser;
 var _ParseAST = (function () {
-    function _ParseAST(input, location, tokens, parseAction) {
+    function _ParseAST(input, location, tokens, parseAction, errors) {
         this.input = input;
         this.location = location;
         this.tokens = tokens;
         this.parseAction = parseAction;
+        this.errors = errors;
+        this.rparensExpected = 0;
+        this.rbracketsExpected = 0;
+        this.rbracesExpected = 0;
         this.index = 0;
     }
     _ParseAST.prototype.peek = function (offset) {
@@ -209,6 +203,7 @@ var _ParseAST = (function () {
         enumerable: true,
         configurable: true
     });
+    _ParseAST.prototype.span = function (start) { return new ast_1.ParseSpan(start, this.inputIndex); };
     _ParseAST.prototype.advance = function () { this.index++; };
     _ParseAST.prototype.optionalCharacter = function (code) {
         if (this.next.isCharacter(code)) {
@@ -245,6 +240,7 @@ var _ParseAST = (function () {
         var n = this.next;
         if (!n.isIdentifier() && !n.isKeyword()) {
             this.error("Unexpected token " + n + ", expected identifier or keyword");
+            return '';
         }
         this.advance();
         return n.toString();
@@ -253,12 +249,14 @@ var _ParseAST = (function () {
         var n = this.next;
         if (!n.isIdentifier() && !n.isKeyword() && !n.isString()) {
             this.error("Unexpected token " + n + ", expected identifier, keyword, or string");
+            return '';
         }
         this.advance();
         return n.toString();
     };
     _ParseAST.prototype.parseChain = function () {
         var exprs = [];
+        var start = this.inputIndex;
         while (this.index < this.tokens.length) {
             var expr = this.parsePipe();
             exprs.push(expr);
@@ -274,10 +272,10 @@ var _ParseAST = (function () {
             }
         }
         if (exprs.length == 0)
-            return new ast_1.EmptyExpr();
+            return new ast_1.EmptyExpr(this.span(start));
         if (exprs.length == 1)
             return exprs[0];
-        return new ast_1.Chain(exprs);
+        return new ast_1.Chain(this.span(start), exprs);
     };
     _ParseAST.prototype.parsePipe = function () {
         var result = this.parseExpression();
@@ -291,7 +289,7 @@ var _ParseAST = (function () {
                 while (this.optionalCharacter(chars.$COLON)) {
                     args.push(this.parseExpression());
                 }
-                result = new ast_1.BindingPipe(result, name, args);
+                result = new ast_1.BindingPipe(this.span(result.span.start), result, name, args);
             } while (this.optionalOperator('|'));
         }
         return result;
@@ -302,13 +300,17 @@ var _ParseAST = (function () {
         var result = this.parseLogicalOr();
         if (this.optionalOperator('?')) {
             var yes = this.parsePipe();
+            var no = void 0;
             if (!this.optionalCharacter(chars.$COLON)) {
                 var end = this.inputIndex;
                 var expression = this.input.substring(start, end);
                 this.error("Conditional expression " + expression + " requires all 3 expressions");
+                no = new ast_1.EmptyExpr(this.span(start));
             }
-            var no = this.parsePipe();
-            return new ast_1.Conditional(result, yes, no);
+            else {
+                no = this.parsePipe();
+            }
+            return new ast_1.Conditional(this.span(start), result, yes, no);
         }
         else {
             return result;
@@ -318,7 +320,8 @@ var _ParseAST = (function () {
         // '||'
         var result = this.parseLogicalAnd();
         while (this.optionalOperator('||')) {
-            result = new ast_1.Binary('||', result, this.parseLogicalAnd());
+            var right = this.parseLogicalAnd();
+            result = new ast_1.Binary(this.span(result.span.start), '||', result, right);
         }
         return result;
     };
@@ -326,98 +329,104 @@ var _ParseAST = (function () {
         // '&&'
         var result = this.parseEquality();
         while (this.optionalOperator('&&')) {
-            result = new ast_1.Binary('&&', result, this.parseEquality());
+            var right = this.parseEquality();
+            result = new ast_1.Binary(this.span(result.span.start), '&&', result, right);
         }
         return result;
     };
     _ParseAST.prototype.parseEquality = function () {
         // '==','!=','===','!=='
         var result = this.parseRelational();
-        while (true) {
-            if (this.optionalOperator('==')) {
-                result = new ast_1.Binary('==', result, this.parseRelational());
+        while (this.next.type == lexer_1.TokenType.Operator) {
+            var operator = this.next.strValue;
+            switch (operator) {
+                case '==':
+                case '===':
+                case '!=':
+                case '!==':
+                    this.advance();
+                    var right = this.parseRelational();
+                    result = new ast_1.Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('===')) {
-                result = new ast_1.Binary('===', result, this.parseRelational());
-            }
-            else if (this.optionalOperator('!=')) {
-                result = new ast_1.Binary('!=', result, this.parseRelational());
-            }
-            else if (this.optionalOperator('!==')) {
-                result = new ast_1.Binary('!==', result, this.parseRelational());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     };
     _ParseAST.prototype.parseRelational = function () {
         // '<', '>', '<=', '>='
         var result = this.parseAdditive();
-        while (true) {
-            if (this.optionalOperator('<')) {
-                result = new ast_1.Binary('<', result, this.parseAdditive());
+        while (this.next.type == lexer_1.TokenType.Operator) {
+            var operator = this.next.strValue;
+            switch (operator) {
+                case '<':
+                case '>':
+                case '<=':
+                case '>=':
+                    this.advance();
+                    var right = this.parseAdditive();
+                    result = new ast_1.Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('>')) {
-                result = new ast_1.Binary('>', result, this.parseAdditive());
-            }
-            else if (this.optionalOperator('<=')) {
-                result = new ast_1.Binary('<=', result, this.parseAdditive());
-            }
-            else if (this.optionalOperator('>=')) {
-                result = new ast_1.Binary('>=', result, this.parseAdditive());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     };
     _ParseAST.prototype.parseAdditive = function () {
         // '+', '-'
         var result = this.parseMultiplicative();
-        while (true) {
-            if (this.optionalOperator('+')) {
-                result = new ast_1.Binary('+', result, this.parseMultiplicative());
+        while (this.next.type == lexer_1.TokenType.Operator) {
+            var operator = this.next.strValue;
+            switch (operator) {
+                case '+':
+                case '-':
+                    this.advance();
+                    var right = this.parseMultiplicative();
+                    result = new ast_1.Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('-')) {
-                result = new ast_1.Binary('-', result, this.parseMultiplicative());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     };
     _ParseAST.prototype.parseMultiplicative = function () {
         // '*', '%', '/'
         var result = this.parsePrefix();
-        while (true) {
-            if (this.optionalOperator('*')) {
-                result = new ast_1.Binary('*', result, this.parsePrefix());
+        while (this.next.type == lexer_1.TokenType.Operator) {
+            var operator = this.next.strValue;
+            switch (operator) {
+                case '*':
+                case '%':
+                case '/':
+                    this.advance();
+                    var right = this.parsePrefix();
+                    result = new ast_1.Binary(this.span(result.span.start), operator, result, right);
+                    continue;
             }
-            else if (this.optionalOperator('%')) {
-                result = new ast_1.Binary('%', result, this.parsePrefix());
-            }
-            else if (this.optionalOperator('/')) {
-                result = new ast_1.Binary('/', result, this.parsePrefix());
-            }
-            else {
-                return result;
-            }
+            break;
         }
+        return result;
     };
     _ParseAST.prototype.parsePrefix = function () {
-        if (this.optionalOperator('+')) {
-            return this.parsePrefix();
+        if (this.next.type == lexer_1.TokenType.Operator) {
+            var start = this.inputIndex;
+            var operator = this.next.strValue;
+            var result = void 0;
+            switch (operator) {
+                case '+':
+                    this.advance();
+                    return this.parsePrefix();
+                case '-':
+                    this.advance();
+                    result = this.parsePrefix();
+                    return new ast_1.Binary(this.span(start), operator, new ast_1.LiteralPrimitive(new ast_1.ParseSpan(start, start), 0), result);
+                case '!':
+                    this.advance();
+                    result = this.parsePrefix();
+                    return new ast_1.PrefixNot(this.span(start), result);
+            }
         }
-        else if (this.optionalOperator('-')) {
-            return new ast_1.Binary('-', new ast_1.LiteralPrimitive(0), this.parsePrefix());
-        }
-        else if (this.optionalOperator('!')) {
-            return new ast_1.PrefixNot(this.parsePrefix());
-        }
-        else {
-            return this.parseCallChain();
-        }
+        return this.parseCallChain();
     };
     _ParseAST.prototype.parseCallChain = function () {
         var result = this.parsePrimary();
@@ -429,20 +438,24 @@ var _ParseAST = (function () {
                 result = this.parseAccessMemberOrMethodCall(result, true);
             }
             else if (this.optionalCharacter(chars.$LBRACKET)) {
+                this.rbracketsExpected++;
                 var key = this.parsePipe();
+                this.rbracketsExpected--;
                 this.expectCharacter(chars.$RBRACKET);
                 if (this.optionalOperator('=')) {
                     var value = this.parseConditional();
-                    result = new ast_1.KeyedWrite(result, key, value);
+                    result = new ast_1.KeyedWrite(this.span(result.span.start), result, key, value);
                 }
                 else {
-                    result = new ast_1.KeyedRead(result, key);
+                    result = new ast_1.KeyedRead(this.span(result.span.start), result, key);
                 }
             }
             else if (this.optionalCharacter(chars.$LPAREN)) {
+                this.rparensExpected++;
                 var args = this.parseCallArguments();
+                this.rparensExpected--;
                 this.expectCharacter(chars.$RPAREN);
-                result = new ast_1.FunctionCall(result, args);
+                result = new ast_1.FunctionCall(this.span(result.span.start), result, args);
             }
             else {
                 return result;
@@ -450,52 +463,65 @@ var _ParseAST = (function () {
         }
     };
     _ParseAST.prototype.parsePrimary = function () {
+        var start = this.inputIndex;
         if (this.optionalCharacter(chars.$LPAREN)) {
+            this.rparensExpected++;
             var result = this.parsePipe();
+            this.rparensExpected--;
             this.expectCharacter(chars.$RPAREN);
             return result;
         }
-        else if (this.next.isKeywordNull() || this.next.isKeywordUndefined()) {
+        else if (this.next.isKeywordNull()) {
             this.advance();
-            return new ast_1.LiteralPrimitive(null);
+            return new ast_1.LiteralPrimitive(this.span(start), null);
+        }
+        else if (this.next.isKeywordUndefined()) {
+            this.advance();
+            return new ast_1.LiteralPrimitive(this.span(start), void 0);
         }
         else if (this.next.isKeywordTrue()) {
             this.advance();
-            return new ast_1.LiteralPrimitive(true);
+            return new ast_1.LiteralPrimitive(this.span(start), true);
         }
         else if (this.next.isKeywordFalse()) {
             this.advance();
-            return new ast_1.LiteralPrimitive(false);
+            return new ast_1.LiteralPrimitive(this.span(start), false);
+        }
+        else if (this.next.isKeywordThis()) {
+            this.advance();
+            return new ast_1.ImplicitReceiver(this.span(start));
         }
         else if (this.optionalCharacter(chars.$LBRACKET)) {
+            this.rbracketsExpected++;
             var elements = this.parseExpressionList(chars.$RBRACKET);
+            this.rbracketsExpected--;
             this.expectCharacter(chars.$RBRACKET);
-            return new ast_1.LiteralArray(elements);
+            return new ast_1.LiteralArray(this.span(start), elements);
         }
         else if (this.next.isCharacter(chars.$LBRACE)) {
             return this.parseLiteralMap();
         }
         else if (this.next.isIdentifier()) {
-            return this.parseAccessMemberOrMethodCall(_implicitReceiver, false);
+            return this.parseAccessMemberOrMethodCall(new ast_1.ImplicitReceiver(this.span(start)), false);
         }
         else if (this.next.isNumber()) {
             var value = this.next.toNumber();
             this.advance();
-            return new ast_1.LiteralPrimitive(value);
+            return new ast_1.LiteralPrimitive(this.span(start), value);
         }
         else if (this.next.isString()) {
             var literalValue = this.next.toString();
             this.advance();
-            return new ast_1.LiteralPrimitive(literalValue);
+            return new ast_1.LiteralPrimitive(this.span(start), literalValue);
         }
         else if (this.index >= this.tokens.length) {
             this.error("Unexpected end of expression: " + this.input);
+            return new ast_1.EmptyExpr(this.span(start));
         }
         else {
             this.error("Unexpected token " + this.next);
+            return new ast_1.EmptyExpr(this.span(start));
         }
-        // error() throws, so we don't reach here.
-        throw new exceptions_1.BaseException('Fell through all cases in parsePrimary');
     };
     _ParseAST.prototype.parseExpressionList = function (terminator) {
         var result = [];
@@ -509,49 +535,58 @@ var _ParseAST = (function () {
     _ParseAST.prototype.parseLiteralMap = function () {
         var keys = [];
         var values = [];
+        var start = this.inputIndex;
         this.expectCharacter(chars.$LBRACE);
         if (!this.optionalCharacter(chars.$RBRACE)) {
+            this.rbracesExpected++;
             do {
                 var key = this.expectIdentifierOrKeywordOrString();
                 keys.push(key);
                 this.expectCharacter(chars.$COLON);
                 values.push(this.parsePipe());
             } while (this.optionalCharacter(chars.$COMMA));
+            this.rbracesExpected--;
             this.expectCharacter(chars.$RBRACE);
         }
-        return new ast_1.LiteralMap(keys, values);
+        return new ast_1.LiteralMap(this.span(start), keys, values);
     };
     _ParseAST.prototype.parseAccessMemberOrMethodCall = function (receiver, isSafe) {
         if (isSafe === void 0) { isSafe = false; }
+        var start = receiver.span.start;
         var id = this.expectIdentifierOrKeyword();
         if (this.optionalCharacter(chars.$LPAREN)) {
+            this.rparensExpected++;
             var args = this.parseCallArguments();
             this.expectCharacter(chars.$RPAREN);
-            return isSafe ? new ast_1.SafeMethodCall(receiver, id, args) : new ast_1.MethodCall(receiver, id, args);
+            this.rparensExpected--;
+            var span = this.span(start);
+            return isSafe ? new ast_1.SafeMethodCall(span, receiver, id, args) :
+                new ast_1.MethodCall(span, receiver, id, args);
         }
         else {
             if (isSafe) {
                 if (this.optionalOperator('=')) {
                     this.error('The \'?.\' operator cannot be used in the assignment');
+                    return new ast_1.EmptyExpr(this.span(start));
                 }
                 else {
-                    return new ast_1.SafePropertyRead(receiver, id);
+                    return new ast_1.SafePropertyRead(this.span(start), receiver, id);
                 }
             }
             else {
                 if (this.optionalOperator('=')) {
                     if (!this.parseAction) {
                         this.error('Bindings cannot contain assignments');
+                        return new ast_1.EmptyExpr(this.span(start));
                     }
                     var value = this.parseConditional();
-                    return new ast_1.PropertyWrite(receiver, id, value);
+                    return new ast_1.PropertyWrite(this.span(start), receiver, id, value);
                 }
                 else {
-                    return new ast_1.PropertyRead(receiver, id);
+                    return new ast_1.PropertyRead(this.span(start), receiver, id);
                 }
             }
         }
-        return null;
     };
     _ParseAST.prototype.parseCallArguments = function () {
         if (this.next.isCharacter(chars.$RPAREN))
@@ -619,22 +654,51 @@ var _ParseAST = (function () {
                 var start = this.inputIndex;
                 var ast = this.parsePipe();
                 var source = this.input.substring(start, this.inputIndex);
-                expression = new ast_1.ASTWithSource(ast, source, this.location);
+                expression = new ast_1.ASTWithSource(ast, source, this.location, this.errors);
             }
             bindings.push(new ast_1.TemplateBinding(key, keyIsVar, name, expression));
             if (!this.optionalCharacter(chars.$SEMICOLON)) {
                 this.optionalCharacter(chars.$COMMA);
             }
         }
-        return new TemplateBindingParseResult(bindings, warnings);
+        return new TemplateBindingParseResult(bindings, warnings, this.errors);
     };
     _ParseAST.prototype.error = function (message, index) {
         if (index === void 0) { index = null; }
+        this.errors.push(new ast_1.ParserError(message, this.input, this.locationText(index), this.location));
+        this.skip();
+    };
+    _ParseAST.prototype.locationText = function (index) {
+        if (index === void 0) { index = null; }
         if (lang_1.isBlank(index))
             index = this.index;
-        var location = (index < this.tokens.length) ? "at column " + (this.tokens[index].index + 1) + " in" :
+        return (index < this.tokens.length) ? "at column " + (this.tokens[index].index + 1) + " in" :
             "at the end of the expression";
-        throw new ParseException(message, this.input, location, this.location);
+    };
+    // Error recovery should skip tokens until it encounters a recovery point. skip() treats
+    // the end of input and a ';' as unconditionally a recovery point. It also treats ')',
+    // '}' and ']' as conditional recovery points if one of calling productions is expecting
+    // one of these symbols. This allows skip() to recover from errors such as '(a.) + 1' allowing
+    // more of the AST to be retained (it doesn't skip any tokens as the ')' is retained because
+    // of the '(' begins an '(' <expr> ')' production). The recovery points of grouping symbols
+    // must be conditional as they must be skipped if none of the calling productions are not
+    // expecting the closing token else we will never make progress in the case of an
+    // extrainious group closing symbol (such as a stray ')'). This is not the case for ';' because
+    // parseChain() is always the root production and it expects a ';'.
+    // If a production expects one of these token it increments the corresponding nesting count,
+    // and then decrements it just prior to checking if the token is in the input.
+    _ParseAST.prototype.skip = function () {
+        var n = this.next;
+        while (this.index < this.tokens.length && !n.isCharacter(chars.$SEMICOLON) &&
+            (this.rparensExpected <= 0 || !n.isCharacter(chars.$RPAREN)) &&
+            (this.rbracesExpected <= 0 || !n.isCharacter(chars.$RBRACE)) &&
+            (this.rbracketsExpected <= 0 || !n.isCharacter(chars.$RBRACKET))) {
+            if (this.next.isError()) {
+                this.errors.push(new ast_1.ParserError(this.next.toString(), this.input, this.locationText(), this.location));
+            }
+            this.advance();
+            n = this.next;
+        }
     };
     return _ParseAST;
 }());
@@ -666,11 +730,8 @@ var SimpleExpressionChecker = (function () {
     SimpleExpressionChecker.prototype.visitKeyedRead = function (ast, context) { this.simple = false; };
     SimpleExpressionChecker.prototype.visitKeyedWrite = function (ast, context) { this.simple = false; };
     SimpleExpressionChecker.prototype.visitAll = function (asts) {
-        var res = collection_1.ListWrapper.createFixedSize(asts.length);
-        for (var i = 0; i < asts.length; ++i) {
-            res[i] = asts[i].visit(this);
-        }
-        return res;
+        var _this = this;
+        return asts.map(function (node) { return node.visit(_this); });
     };
     SimpleExpressionChecker.prototype.visitChain = function (ast, context) { this.simple = false; };
     SimpleExpressionChecker.prototype.visitQuote = function (ast, context) { this.simple = false; };

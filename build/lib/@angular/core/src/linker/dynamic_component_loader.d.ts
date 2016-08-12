@@ -1,11 +1,17 @@
-import { Injector } from '../di/injector';
-import { ResolvedReflectiveProvider } from '../di/reflective_provider';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Injector, ResolvedReflectiveProvider } from '../di';
 import { Type } from '../facade/lang';
+import { Compiler } from './compiler';
 import { ComponentRef } from './component_factory';
-import { ComponentResolver } from './component_resolver';
 import { ViewContainerRef } from './view_container_ref';
 /**
- * Use ComponentResolver and ViewContainerRef directly.
+ * Use ComponentFactoryResolver and ViewContainerRef directly.
  *
  * @deprecated
  */
@@ -103,7 +109,7 @@ export declare abstract class DynamicComponentLoader {
 }
 export declare class DynamicComponentLoader_ extends DynamicComponentLoader {
     private _compiler;
-    constructor(_compiler: ComponentResolver);
+    constructor(_compiler: Compiler);
     loadAsRoot(type: Type, overrideSelectorOrNode: string | any, injector: Injector, onDispose?: () => void, projectableNodes?: any[][]): Promise<ComponentRef<any>>;
     loadNextToLocation(type: Type, location: ViewContainerRef, providers?: ResolvedReflectiveProvider[], projectableNodes?: any[][]): Promise<ComponentRef<any>>;
 }

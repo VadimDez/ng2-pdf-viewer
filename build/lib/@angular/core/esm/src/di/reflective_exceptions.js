@@ -47,8 +47,8 @@ export class AbstractProviderError extends BaseException {
     get context() { return this.injectors[this.injectors.length - 1].debugContext(); }
 }
 /**
- * Thrown when trying to retrieve a dependency by `Key` from {@link Injector}, but the
- * {@link Injector} does not have a {@link Provider} for {@link Key}.
+ * Thrown when trying to retrieve a dependency by key from {@link Injector}, but the
+ * {@link Injector} does not have a {@link Provider} for the given key.
  *
  * ### Example ([live demo](http://plnkr.co/edit/vq8D3FRB9aGbnWJqtEPE?p=preview))
  *

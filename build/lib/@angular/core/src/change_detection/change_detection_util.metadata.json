@@ -1,1 +1,1 @@
-{"__symbolic":"module","version":1,"metadata":{"uninitialized":{"__symbolic":"new","expression":{"__symbolic":"reference","name":"Object"}}}}
+{"__symbolic":"module","version":1,"metadata":{"UNINITIALIZED":{"__symbolic":"error","message":"Function call not supported","line":14,"character":11}},"exports":[{"from":"../facade/lang","export":["looseIdentical"]}]}

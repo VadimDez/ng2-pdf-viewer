@@ -6,11 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { createScope, detectWTF, endTimeRange, leave, startTimeRange } from './wtf_impl';
-// Change exports to const once https://github.com/angular/ts2dart/issues/150
 /**
  * True if WTF is enabled.
  */
-export var wtfEnabled = detectWTF();
+export const wtfEnabled = detectWTF();
 function noopScope(arg0, arg1) {
     return null;
 }

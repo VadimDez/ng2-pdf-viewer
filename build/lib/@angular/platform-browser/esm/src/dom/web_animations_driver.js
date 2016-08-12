@@ -8,21 +8,19 @@
 import { AUTO_STYLE, BaseException } from '@angular/core';
 import { StringMapWrapper } from '../facade/collection';
 import { StringWrapper, isNumber, isPresent } from '../facade/lang';
-import { getDOM } from './dom_adapter';
 import { dashCaseToCamelCase } from './util';
 import { WebAnimationsPlayer } from './web_animations_player';
 export class WebAnimationsDriver {
     animate(element, startingStyles, keyframes, duration, delay, easing) {
-        var anyElm = element;
         var formattedSteps = [];
         var startingStyleLookup = {};
         if (isPresent(startingStyles) && startingStyles.styles.length > 0) {
-            startingStyleLookup = _populateStyles(anyElm, startingStyles, {});
+            startingStyleLookup = _populateStyles(element, startingStyles, {});
             startingStyleLookup['offset'] = 0;
             formattedSteps.push(startingStyleLookup);
         }
         keyframes.forEach((keyframe) => {
-            let data = _populateStyles(anyElm, keyframe.styles, startingStyleLookup);
+            let data = _populateStyles(element, keyframe.styles, startingStyleLookup);
             data['offset'] = keyframe.offset;
             formattedSteps.push(data);
         });
@@ -38,15 +36,14 @@ export class WebAnimationsDriver {
         var playerOptions = {
             'duration': duration,
             'delay': delay,
-            'easing': easing,
             'fill': 'both' // we use `both` because it allows for styling at 0% to work with `delay`
         };
-        var player = this._triggerWebAnimation(anyElm, formattedSteps, playerOptions);
-        return new WebAnimationsPlayer(player, duration);
-    }
-    /** @internal */
-    _triggerWebAnimation(elm, keyframes, options) {
-        return elm.animate(keyframes, options);
+        // we check for this to avoid having a null|undefined value be present
+        // for the easing (which results in an error for certain browsers #9752)
+        if (easing) {
+            playerOptions['easing'] = easing;
+        }
+        return new WebAnimationsPlayer(element, formattedSteps, playerOptions);
     }
 }
 function _populateStyles(element, styles, defaultStyles) {
@@ -54,9 +51,8 @@ function _populateStyles(element, styles, defaultStyles) {
     styles.styles.forEach((entry) => {
         StringMapWrapper.forEach(entry, (val, prop) => {
             var formattedProp = dashCaseToCamelCase(prop);
-            data[formattedProp] = val == AUTO_STYLE ?
-                _computeStyle(element, formattedProp) :
-                val.toString() + _resolveStyleUnit(val, prop, formattedProp);
+            data[formattedProp] =
+                val == AUTO_STYLE ? val : val.toString() + _resolveStyleUnit(val, prop, formattedProp);
         });
     });
     StringMapWrapper.forEach(defaultStyles, (value, prop) => {
@@ -124,8 +120,5 @@ function _isPixelDimensionStyle(prop) {
         default:
             return false;
     }
-}
-function _computeStyle(element, prop) {
-    return getDOM().getComputedStyle(element)[prop];
 }
 //# sourceMappingURL=web_animations_driver.js.map

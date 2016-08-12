@@ -24,8 +24,7 @@ export var SecurityContext;
     SecurityContext[SecurityContext["RESOURCE_URL"] = 5] = "RESOURCE_URL";
 })(SecurityContext || (SecurityContext = {}));
 /**
- * SanitizationService is used by the views to sanitize potentially dangerous values. This is a
- * private API, use code should only refer to DomSanitizationService.
+ * SanitizationService is used by the views to sanitize potentially dangerous values.
  *
  * @stable
  */

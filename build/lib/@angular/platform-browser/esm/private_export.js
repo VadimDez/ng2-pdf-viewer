@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import * as browser from './src/browser';
 import * as ng_proble from './src/dom/debug/ng_probe';
 import * as dom_adapter from './src/dom/dom_adapter';
 import * as dom_renderer from './src/dom/dom_renderer';
@@ -19,6 +20,8 @@ export var __platform_browser_private__ = {
     DomSharedStylesHost: shared_styles_host.DomSharedStylesHost,
     SharedStylesHost: shared_styles_host.SharedStylesHost,
     ELEMENT_PROBE_PROVIDERS: ng_proble.ELEMENT_PROBE_PROVIDERS,
-    DomEventsPlugin: dom_events.DomEventsPlugin
+    DomEventsPlugin: dom_events.DomEventsPlugin,
+    initDomAdapter: browser.initDomAdapter,
+    INTERNAL_BROWSER_PLATFORM_PROVIDERS: browser.INTERNAL_BROWSER_PLATFORM_PROVIDERS
 };
 //# sourceMappingURL=private_export.js.map

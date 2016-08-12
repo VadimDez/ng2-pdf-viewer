@@ -12,6 +12,7 @@ import { DebugNode } from '@angular/core';
  * with it.
  */
 export declare function inspectNativeElement(element: any): DebugNode;
+export declare function _createConditionalRootRenderer(rootRenderer: any): any;
 /**
  * Providers which support debugging Angular applications (e.g. via `ng.probe`).
  */

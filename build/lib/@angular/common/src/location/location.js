@@ -7,7 +7,6 @@
  */
 "use strict";
 var core_1 = require('@angular/core');
-var async_1 = require('../facade/async');
 var location_strategy_1 = require('./location_strategy');
 var Location = (function () {
     function Location(platformStrategy) {
@@ -17,9 +16,7 @@ var Location = (function () {
         this._platformStrategy = platformStrategy;
         var browserBaseHref = this._platformStrategy.getBaseHref();
         this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
-        this._platformStrategy.onPopState(function (ev) {
-            async_1.ObservableWrapper.callEmit(_this._subject, { 'url': _this.path(true), 'pop': true, 'type': ev.type });
-        });
+        this._platformStrategy.onPopState(function (ev) { _this._subject.emit({ 'url': _this.path(true), 'pop': true, 'type': ev.type }); });
     }
     /**
      * Returns the normalized URL path.
@@ -87,7 +84,7 @@ var Location = (function () {
     Location.prototype.subscribe = function (onNext, onThrow, onReturn) {
         if (onThrow === void 0) { onThrow = null; }
         if (onReturn === void 0) { onReturn = null; }
-        return async_1.ObservableWrapper.subscribe(this._subject, onNext, onThrow, onReturn);
+        return this._subject.subscribe({ next: onNext, error: onThrow, complete: onReturn });
     };
     /**
      * Given a string of url parameters, prepend with '?' if needed, otherwise return parameters as

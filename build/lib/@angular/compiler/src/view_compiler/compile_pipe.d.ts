@@ -13,9 +13,8 @@ export declare class CompilePipe {
     meta: CompilePipeMetadata;
     static call(view: CompileView, name: string, args: o.Expression[]): o.Expression;
     instance: o.ReadPropExpr;
-    private _purePipeProxies;
+    private _purePipeProxyCount;
     constructor(view: CompileView, meta: CompilePipeMetadata);
     pure: boolean;
-    create(): void;
     private _call(callingView, args);
 }

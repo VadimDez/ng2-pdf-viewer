@@ -7,7 +7,7 @@
  */
 import { OpaqueToken } from './di';
 /**
-   A token that can be provided when bootstrapping an application to make an array of directives
+  * A token that can be provided when bootstrapping an application to make an array of directives
   * available in every component of the application.
   *
   * ### Example
@@ -30,7 +30,9 @@ import { OpaqueToken } from './di';
   * bootstrap(MyComponent, [{provide: PLATFORM_DIRECTIVES, useValue: [OtherDirective],
   multi:true}]);
   * ```
-  * @stable
+  *
+  * @deprecated Providing platform directives via a provider is deprecated. Provide platform
+  * directives via an {@link NgModule} instead.
   */
 export declare const PLATFORM_DIRECTIVES: OpaqueToken;
 /**
@@ -55,6 +57,8 @@ export declare const PLATFORM_DIRECTIVES: OpaqueToken;
   *
   * bootstrap(MyComponent, [{provide: PLATFORM_PIPES, useValue: [OtherPipe], multi:true}]);
   * ```
-  * @stable
+  *
+  * @deprecated Providing platform pipes via a provider is deprecated. Provide platform pipes via an
+  * {@link NgModule} instead.
   */
 export declare const PLATFORM_PIPES: OpaqueToken;

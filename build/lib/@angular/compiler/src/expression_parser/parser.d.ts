@@ -1,5 +1,5 @@
-import { InterpolationConfig } from '../interpolation_config';
-import { AST, ASTWithSource, BindingPipe, LiteralMap, TemplateBinding } from './ast';
+import { InterpolationConfig } from '../ml_parser/interpolation_config';
+import { AST, ASTWithSource, BindingPipe, LiteralMap, ParseSpan, ParserError, TemplateBinding } from './ast';
 import { Lexer, Token } from './lexer';
 export declare class SplitInterpolation {
     strings: string[];
@@ -9,14 +9,17 @@ export declare class SplitInterpolation {
 export declare class TemplateBindingParseResult {
     templateBindings: TemplateBinding[];
     warnings: string[];
-    constructor(templateBindings: TemplateBinding[], warnings: string[]);
+    errors: ParserError[];
+    constructor(templateBindings: TemplateBinding[], warnings: string[], errors: ParserError[]);
 }
 export declare class Parser {
-    /** @internal */ _lexer: Lexer;
-    constructor(/** @internal */ _lexer: Lexer);
+    private _lexer;
+    private errors;
+    constructor(_lexer: Lexer);
     parseAction(input: string, location: any, interpolationConfig?: InterpolationConfig): ASTWithSource;
     parseBinding(input: string, location: any, interpolationConfig?: InterpolationConfig): ASTWithSource;
     parseSimpleBinding(input: string, location: string, interpolationConfig?: InterpolationConfig): ASTWithSource;
+    private _reportError(message, input, errLocation, ctxLocation?);
     private _parseBindingAst(input, location, interpolationConfig);
     private _parseQuote(input, location);
     parseTemplateBindings(input: string, location: any): TemplateBindingParseResult;
@@ -33,11 +36,16 @@ export declare class _ParseAST {
     location: any;
     tokens: any[];
     parseAction: boolean;
+    private errors;
+    private rparensExpected;
+    private rbracketsExpected;
+    private rbracesExpected;
     index: number;
-    constructor(input: string, location: any, tokens: any[], parseAction: boolean);
+    constructor(input: string, location: any, tokens: any[], parseAction: boolean, errors: ParserError[]);
     peek(offset: number): Token;
     next: Token;
     inputIndex: number;
+    span(start: number): ParseSpan;
     advance(): void;
     optionalCharacter(code: number): boolean;
     peekKeywordLet(): boolean;
@@ -71,4 +79,6 @@ export declare class _ParseAST {
     expectTemplateBindingKey(): string;
     parseTemplateBindings(): TemplateBindingParseResult;
     error(message: string, index?: number): void;
+    private locationText(index?);
+    private skip();
 }

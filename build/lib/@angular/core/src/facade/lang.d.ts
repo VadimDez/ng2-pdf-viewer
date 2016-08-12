@@ -27,7 +27,6 @@ export interface BrowserNodeGlobal {
     encodeURI: Function;
 }
 export declare function scheduleMicroTask(fn: Function): void;
-export declare const IS_DART: boolean;
 declare var _global: BrowserNodeGlobal;
 export { _global as global };
 /**
@@ -105,22 +104,6 @@ export declare class NumberWrapper {
     static isInteger(value: any): boolean;
 }
 export declare var RegExp: RegExpConstructor;
-export declare class RegExpWrapper {
-    static create(regExpStr: string, flags?: string): RegExp;
-    static firstMatch(regExp: RegExp, input: string): RegExpExecArray;
-    static test(regExp: RegExp, input: string): boolean;
-    static matcher(regExp: RegExp, input: string): {
-        re: RegExp;
-        input: string;
-    };
-    static replaceAll(regExp: RegExp, input: string, replace: Function): string;
-}
-export declare class RegExpMatcherWrapper {
-    static next(matcher: {
-        re: RegExp;
-        input: string;
-    }): RegExpExecArray;
-}
 export declare class FunctionWrapper {
     static apply(fn: Function, posArgs: any): any;
     static bind(fn: Function, scope: any): Function;

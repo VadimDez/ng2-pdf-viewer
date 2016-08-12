@@ -1,10 +1,3 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 export declare class ParseLocation {
     file: ParseSourceFile;
     offset: number;
@@ -21,7 +14,8 @@ export declare class ParseSourceFile {
 export declare class ParseSourceSpan {
     start: ParseLocation;
     end: ParseLocation;
-    constructor(start: ParseLocation, end: ParseLocation);
+    details: string;
+    constructor(start: ParseLocation, end: ParseLocation, details?: string);
     toString(): string;
 }
 export declare enum ParseErrorLevel {

@@ -20,6 +20,7 @@
     '@angular/common',
     '@angular/compiler',
     '@angular/core',
+    '@angular/forms',
     '@angular/platform-browser',
     '@angular/platform-browser-dynamic'
   ];

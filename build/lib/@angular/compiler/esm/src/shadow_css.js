@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../src/facade/collection';
-import { RegExpMatcherWrapper, RegExpWrapper, StringWrapper, isBlank, isPresent } from '../src/facade/lang';
+import { ListWrapper } from './facade/collection';
+import { StringWrapper, isBlank, isPresent } from './facade/lang';
 /**
  * This file is a port of shadowCSS from webcomponents.js to TypeScript.
  *
@@ -232,8 +232,8 @@ export class ShadowCss {
     _extractUnscopedRulesFromCssText(cssText) {
         // Difference with webcomponents.js: does not handle comments
         var r = '', m;
-        var matcher = RegExpWrapper.matcher(_cssContentUnscopedRuleRe, cssText);
-        while (isPresent(m = RegExpMatcherWrapper.next(matcher))) {
+        _cssContentUnscopedRuleRe.lastIndex = 0;
+        while ((m = _cssContentUnscopedRuleRe.exec(cssText)) !== null) {
             var rule = m[0];
             rule = StringWrapper.replace(rule, m[2], '');
             rule = StringWrapper.replace(rule, m[1], m[3]);
@@ -342,14 +342,14 @@ export class ShadowCss {
     }
     _selectorNeedsScoping(selector, scopeSelector) {
         var re = this._makeScopeMatcher(scopeSelector);
-        return !isPresent(RegExpWrapper.firstMatch(re, selector));
+        return !re.test(selector);
     }
     _makeScopeMatcher(scopeSelector) {
         var lre = /\[/g;
         var rre = /\]/g;
         scopeSelector = StringWrapper.replaceAll(scopeSelector, lre, '\\[');
         scopeSelector = StringWrapper.replaceAll(scopeSelector, rre, '\\]');
-        return RegExpWrapper.create('^(' + scopeSelector + ')' + _selectorReSuffix, 'm');
+        return new RegExp('^(' + scopeSelector + ')' + _selectorReSuffix, 'm');
     }
     _applySelectorScope(selector, scopeSelector, hostSelector) {
         // Difference from webcomponentsjs: scopeSelector could not be an array
@@ -357,7 +357,7 @@ export class ShadowCss {
     }
     // scope via name and [is=name]
     _applySimpleSelectorScope(selector, scopeSelector, hostSelector) {
-        if (isPresent(RegExpWrapper.firstMatch(_polyfillHostRe, selector))) {
+        if (_polyfillHostRe.test(selector)) {
             var replaceBy = this.strictStyling ? `[${hostSelector}]` : scopeSelector;
             selector = StringWrapper.replace(selector, _polyfillHostNoCombinator, replaceBy);
             return StringWrapper.replaceAll(selector, _polyfillHostRe, replaceBy + ' ');
@@ -382,9 +382,8 @@ export class ShadowCss {
                 var t = StringWrapper.replaceAll(p.trim(), _polyfillHostRe, '');
                 if (t.length > 0 && !ListWrapper.contains(splits, t) &&
                     !StringWrapper.contains(t, attrName)) {
-                    var re = /([^:]*)(:*)(.*)/g;
-                    var m = RegExpWrapper.firstMatch(re, t);
-                    if (isPresent(m)) {
+                    const m = t.match(/([^:]*)(:*)(.*)/);
+                    if (m !== null) {
                         p = m[1] + attrName + m[2] + m[3];
                     }
                 }
@@ -409,8 +408,8 @@ var _polyfillHostContext = '-shadowcsscontext';
 var _parenSuffix = ')(?:\\((' +
     '(?:\\([^)(]*\\)|[^)(]*)+?' +
     ')\\))?([^,{]*)';
-var _cssColonHostRe = RegExpWrapper.create('(' + _polyfillHost + _parenSuffix, 'im');
-var _cssColonHostContextRe = RegExpWrapper.create('(' + _polyfillHostContext + _parenSuffix, 'im');
+var _cssColonHostRe = new RegExp('(' + _polyfillHost + _parenSuffix, 'gim');
+var _cssColonHostContextRe = new RegExp('(' + _polyfillHostContext + _parenSuffix, 'gim');
 var _polyfillHostNoCombinator = _polyfillHost + '-no-combinator';
 var _shadowDOMSelectorsRe = [
     /::shadow/g, /::content/g,
@@ -422,7 +421,7 @@ var _shadowDOMSelectorsRe = [
 ];
 var _shadowDeepSelectors = /(?:>>>)|(?:\/deep\/)/g;
 var _selectorReSuffix = '([>\\s~+\[.,{:][\\s\\S]*)?$';
-var _polyfillHostRe = RegExpWrapper.create(_polyfillHost, 'im');
+var _polyfillHostRe = new RegExp(_polyfillHost, 'im');
 var _colonHostRe = /:host/gim;
 var _colonHostContextRe = /:host-context/gim;
 var _commentRe = /\/\*[\s\S]*?\*\//g;

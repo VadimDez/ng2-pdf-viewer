@@ -8,7 +8,7 @@
 import { AnimationEntryMetadata } from '../animation/metadata';
 import { Type } from '../facade/lang';
 /**
- * Defines template and style encapsulation options available for Component's {@link View}.
+ * Defines template and style encapsulation options available for Component's {@link Component}.
  *
  * See {@link ViewMetadata#encapsulation}.
  * @stable
@@ -64,9 +64,8 @@ export declare var VIEW_ENCAPSULATION_VALUES: ViewEncapsulation[];
  *   }
  * }
  * ```
- * @ts2dart_const
  *
- * @experimental You should most likely be using ComponentMetadata instead.
+ * @deprecated Use ComponentMetadata instead.
  */
 export declare class ViewMetadata {
     /**

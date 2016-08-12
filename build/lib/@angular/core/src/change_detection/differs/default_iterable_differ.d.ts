@@ -29,6 +29,7 @@ export declare class DefaultIterableDiffer implements IterableDiffer {
     collection: any;
     length: number;
     forEachItem(fn: Function): void;
+    forEachOperation(fn: (item: CollectionChangeRecord, previousIndex: number, currentIndex: number) => void): void;
     forEachPreviousItem(fn: Function): void;
     forEachAddedItem(fn: Function): void;
     forEachMovedItem(fn: Function): void;

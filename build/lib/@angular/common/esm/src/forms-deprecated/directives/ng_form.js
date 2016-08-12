@@ -6,16 +6,19 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, Inject, Optional, Self, forwardRef } from '@angular/core';
-import { EventEmitter, ObservableWrapper, PromiseWrapper } from '../../facade/async';
+import { EventEmitter } from '../../facade/async';
 import { ListWrapper } from '../../facade/collection';
 import { isPresent } from '../../facade/lang';
 import { Control, ControlGroup } from '../model';
 import { NG_ASYNC_VALIDATORS, NG_VALIDATORS } from '../validators';
 import { ControlContainer } from './control_container';
 import { composeAsyncValidators, composeValidators, setUpControl, setUpControlGroup } from './shared';
-export const formDirectiveProvider = 
-/*@ts2dart_const*/ { provide: ControlContainer, useExisting: forwardRef(() => NgForm) };
+export const formDirectiveProvider = {
+    provide: ControlContainer,
+    useExisting: forwardRef(() => NgForm)
+};
 let _formWarningDisplayed = false;
+const resolvedPromise = Promise.resolve(null);
 export class NgForm extends ControlContainer {
     constructor(validators, asyncValidators) {
         super();
@@ -31,7 +34,7 @@ export class NgForm extends ControlContainer {
             console.warn(`
       *It looks like you're using the old forms module. This will be opt-in in the next RC, and
       will eventually be removed in favor of the new forms module. For more information, see:
-      https://docs.google.com/document/u/1/d/1RIezQqE4aEhBRmArIAS1mRIZtWFf6JxN_7B4meyWK0Y/pub
+      https://docs.google.com/document/d/1RIezQqE4aEhBRmArIAS1mRIZtWFf6JxN_7B4meyWK0Y/preview
     `);
         }
     }
@@ -41,7 +44,7 @@ export class NgForm extends ControlContainer {
     get path() { return []; }
     get controls() { return this.form.controls; }
     addControl(dir) {
-        PromiseWrapper.scheduleMicrotask(() => {
+        resolvedPromise.then(() => {
             var container = this._findContainer(dir.path);
             var ctrl = new Control();
             setUpControl(ctrl, dir);
@@ -51,7 +54,7 @@ export class NgForm extends ControlContainer {
     }
     getControl(dir) { return this.form.find(dir.path); }
     removeControl(dir) {
-        PromiseWrapper.scheduleMicrotask(() => {
+        resolvedPromise.then(() => {
             var container = this._findContainer(dir.path);
             if (isPresent(container)) {
                 container.removeControl(dir.name);
@@ -59,7 +62,7 @@ export class NgForm extends ControlContainer {
         });
     }
     addControlGroup(dir) {
-        PromiseWrapper.scheduleMicrotask(() => {
+        resolvedPromise.then(() => {
             var container = this._findContainer(dir.path);
             var group = new ControlGroup({});
             setUpControlGroup(group, dir);
@@ -68,7 +71,7 @@ export class NgForm extends ControlContainer {
         });
     }
     removeControlGroup(dir) {
-        PromiseWrapper.scheduleMicrotask(() => {
+        resolvedPromise.then(() => {
             var container = this._findContainer(dir.path);
             if (isPresent(container)) {
                 container.removeControl(dir.name);
@@ -79,14 +82,14 @@ export class NgForm extends ControlContainer {
         return this.form.find(dir.path);
     }
     updateModel(dir, value) {
-        PromiseWrapper.scheduleMicrotask(() => {
+        resolvedPromise.then(() => {
             var ctrl = this.form.find(dir.path);
             ctrl.updateValue(value);
         });
     }
     onSubmit() {
         this._submitted = true;
-        ObservableWrapper.callEmit(this.ngSubmit, null);
+        this.ngSubmit.emit(null);
         return false;
     }
     /** @internal */

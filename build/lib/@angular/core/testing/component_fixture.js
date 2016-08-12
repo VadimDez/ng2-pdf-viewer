@@ -7,7 +7,6 @@
  */
 "use strict";
 var index_1 = require('../index');
-var async_1 = require('../src/facade/async');
 var exceptions_1 = require('../src/facade/exceptions');
 var lang_1 = require('../src/facade/lang');
 /**
@@ -19,7 +18,7 @@ var ComponentFixture = (function () {
     function ComponentFixture(componentRef, ngZone, autoDetect) {
         var _this = this;
         this._isStable = true;
-        this._completer = null;
+        this._promise = null;
         this._onUnstableSubscription = null;
         this._onStableSubscription = null;
         this._onMicrotaskEmptySubscription = null;
@@ -34,29 +33,38 @@ var ComponentFixture = (function () {
         this._autoDetect = autoDetect;
         if (ngZone != null) {
             this._onUnstableSubscription =
-                async_1.ObservableWrapper.subscribe(ngZone.onUnstable, function (_) { _this._isStable = false; });
-            this._onMicrotaskEmptySubscription =
-                async_1.ObservableWrapper.subscribe(ngZone.onMicrotaskEmpty, function (_) {
+                ngZone.onUnstable.subscribe({ next: function () { _this._isStable = false; } });
+            this._onMicrotaskEmptySubscription = ngZone.onMicrotaskEmpty.subscribe({
+                next: function () {
                     if (_this._autoDetect) {
                         // Do a change detection run with checkNoChanges set to true to check
                         // there are no changes on the second run.
                         _this.detectChanges(true);
                     }
-                });
-            this._onStableSubscription = async_1.ObservableWrapper.subscribe(ngZone.onStable, function (_) {
-                _this._isStable = true;
-                // Check whether there are no pending macrotasks in a microtask so that ngZone gets a chance
-                // to update the state of pending macrotasks.
-                lang_1.scheduleMicroTask(function () {
-                    if (!_this.ngZone.hasPendingMacrotasks) {
-                        if (_this._completer != null) {
-                            _this._completer.resolve(true);
-                            _this._completer = null;
-                        }
-                    }
-                });
+                }
             });
-            this._onErrorSubscription = async_1.ObservableWrapper.subscribe(ngZone.onError, function (error) { throw error.error; });
+            this._onStableSubscription = ngZone.onStable.subscribe({
+                next: function () {
+                    _this._isStable = true;
+                    // Check whether there is a pending whenStable() completer to resolve.
+                    if (_this._promise !== null) {
+                        // If so check whether there are no pending macrotasks before resolving.
+                        // Do this check in the next tick so that ngZone gets a chance to update the state of
+                        // pending macrotasks.
+                        lang_1.scheduleMicroTask(function () {
+                            if (!_this.ngZone.hasPendingMacrotasks) {
+                                if (_this._promise !== null) {
+                                    _this._resolve(true);
+                                    _this._resolve = null;
+                                    _this._promise = null;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+            this._onErrorSubscription =
+                ngZone.onError.subscribe({ next: function (error) { throw error.error; } });
         }
     }
     ComponentFixture.prototype._tick = function (checkNoChanges) {
@@ -110,15 +118,16 @@ var ComponentFixture = (function () {
      * asynchronous change detection.
      */
     ComponentFixture.prototype.whenStable = function () {
+        var _this = this;
         if (this.isStable()) {
-            return async_1.PromiseWrapper.resolve(false);
+            return Promise.resolve(false);
         }
-        else if (this._completer !== null) {
-            return this._completer.promise;
+        else if (this._promise !== null) {
+            return this._promise;
         }
         else {
-            this._completer = new async_1.PromiseCompleter();
-            return this._completer.promise;
+            this._promise = new Promise(function (res) { _this._resolve = res; });
+            return this._promise;
         }
     };
     /**
@@ -127,19 +136,19 @@ var ComponentFixture = (function () {
     ComponentFixture.prototype.destroy = function () {
         this.componentRef.destroy();
         if (this._onUnstableSubscription != null) {
-            async_1.ObservableWrapper.dispose(this._onUnstableSubscription);
+            this._onUnstableSubscription.unsubscribe();
             this._onUnstableSubscription = null;
         }
         if (this._onStableSubscription != null) {
-            async_1.ObservableWrapper.dispose(this._onStableSubscription);
+            this._onStableSubscription.unsubscribe();
             this._onStableSubscription = null;
         }
         if (this._onMicrotaskEmptySubscription != null) {
-            async_1.ObservableWrapper.dispose(this._onMicrotaskEmptySubscription);
+            this._onMicrotaskEmptySubscription.unsubscribe();
             this._onMicrotaskEmptySubscription = null;
         }
         if (this._onErrorSubscription != null) {
-            async_1.ObservableWrapper.dispose(this._onErrorSubscription);
+            this._onErrorSubscription.unsubscribe();
             this._onErrorSubscription = null;
         }
     };

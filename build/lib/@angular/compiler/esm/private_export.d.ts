@@ -8,19 +8,17 @@
 import * as directive_normalizer from './src/directive_normalizer';
 import * as lexer from './src/expression_parser/lexer';
 import * as parser from './src/expression_parser/parser';
-import * as html_parser from './src/html_parser';
-import * as i18n_html_parser from './src/i18n/i18n_html_parser';
-import * as i18n_message from './src/i18n/message';
-import * as i18n_extractor from './src/i18n/message_extractor';
-import * as xmb_serializer from './src/i18n/xmb_serializer';
 import * as metadata_resolver from './src/metadata_resolver';
+import * as html_parser from './src/ml_parser/html_parser';
+import * as interpolation_config from './src/ml_parser/interpolation_config';
+import * as ng_module_compiler from './src/ng_module_compiler';
 import * as path_util from './src/output/path_util';
 import * as ts_emitter from './src/output/ts_emitter';
 import * as parse_util from './src/parse_util';
 import * as dom_element_schema_registry from './src/schema/dom_element_schema_registry';
 import * as selector from './src/selector';
 import * as style_compiler from './src/style_compiler';
-import * as template_parser from './src/template_parser';
+import * as template_parser from './src/template_parser/template_parser';
 import * as view_compiler from './src/view_compiler/view_compiler';
 export declare namespace __compiler_private__ {
     type SelectorMatcher = selector.SelectorMatcher;
@@ -35,17 +33,8 @@ export declare namespace __compiler_private__ {
     var CompileMetadataResolver: typeof metadata_resolver.CompileMetadataResolver;
     type HtmlParser = html_parser.HtmlParser;
     var HtmlParser: typeof html_parser.HtmlParser;
-    type I18nHtmlParser = i18n_html_parser.I18nHtmlParser;
-    var I18nHtmlParser: typeof i18n_html_parser.I18nHtmlParser;
-    type ExtractionResult = i18n_extractor.ExtractionResult;
-    var ExtractionResult: typeof i18n_extractor.ExtractionResult;
-    type Message = i18n_message.Message;
-    var Message: typeof i18n_message.Message;
-    type MessageExtractor = i18n_extractor.MessageExtractor;
-    var MessageExtractor: typeof i18n_extractor.MessageExtractor;
-    var removeDuplicates: typeof i18n_extractor.removeDuplicates;
-    var serializeXmb: typeof xmb_serializer.serializeXmb;
-    var deserializeXmb: typeof xmb_serializer.deserializeXmb;
+    type InterpolationConfig = interpolation_config.InterpolationConfig;
+    var InterpolationConfig: typeof interpolation_config.InterpolationConfig;
     type DirectiveNormalizer = directive_normalizer.DirectiveNormalizer;
     var DirectiveNormalizer: typeof directive_normalizer.DirectiveNormalizer;
     type Lexer = lexer.Lexer;
@@ -71,6 +60,8 @@ export declare namespace __compiler_private__ {
     var StyleCompiler: typeof style_compiler.StyleCompiler;
     type ViewCompiler = view_compiler.ViewCompiler;
     var ViewCompiler: typeof view_compiler.ViewCompiler;
+    type NgModuleCompiler = ng_module_compiler.NgModuleCompiler;
+    var NgModuleCompiler: typeof ng_module_compiler.NgModuleCompiler;
     type TypeScriptEmitter = ts_emitter.TypeScriptEmitter;
     var TypeScriptEmitter: typeof ts_emitter.TypeScriptEmitter;
 }

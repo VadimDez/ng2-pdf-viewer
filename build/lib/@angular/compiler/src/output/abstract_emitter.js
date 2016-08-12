@@ -195,7 +195,6 @@ var AbstractEmitterVisitor = (function () {
             name = this.getBuiltinMethodName(expr.builtin);
             if (lang_1.isBlank(name)) {
                 // some builtins just mean to skip the call.
-                // e.g. `bind` in Dart.
                 return null;
             }
         }

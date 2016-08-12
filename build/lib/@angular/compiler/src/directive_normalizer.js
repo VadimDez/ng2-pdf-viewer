@@ -7,25 +7,19 @@
  */
 "use strict";
 var core_1 = require('@angular/core');
-var collection_1 = require('../src/facade/collection');
-var exceptions_1 = require('../src/facade/exceptions');
-var lang_1 = require('../src/facade/lang');
 var compile_metadata_1 = require('./compile_metadata');
 var config_1 = require('./config');
-var html_ast_1 = require('./html_ast');
-var html_parser_1 = require('./html_parser');
+var collection_1 = require('./facade/collection');
+var exceptions_1 = require('./facade/exceptions');
+var lang_1 = require('./facade/lang');
+var html = require('./ml_parser/ast');
+var html_parser_1 = require('./ml_parser/html_parser');
+var interpolation_config_1 = require('./ml_parser/interpolation_config');
 var style_url_resolver_1 = require('./style_url_resolver');
-var template_preparser_1 = require('./template_preparser');
+var template_preparser_1 = require('./template_parser/template_preparser');
 var url_resolver_1 = require('./url_resolver');
+var util_1 = require('./util');
 var xhr_1 = require('./xhr');
-var NormalizeDirectiveResult = (function () {
-    function NormalizeDirectiveResult(syncResult, asyncResult) {
-        this.syncResult = syncResult;
-        this.asyncResult = asyncResult;
-    }
-    return NormalizeDirectiveResult;
-}());
-exports.NormalizeDirectiveResult = NormalizeDirectiveResult;
 var DirectiveNormalizer = (function () {
     function DirectiveNormalizer(_xhr, _urlResolver, _htmlParser, _config) {
         this._xhr = _xhr;
@@ -55,7 +49,7 @@ var DirectiveNormalizer = (function () {
         var _this = this;
         if (!directive.isComponent) {
             // For non components there is nothing to be normalized yet.
-            return new NormalizeDirectiveResult(directive, Promise.resolve(directive));
+            return new util_1.SyncAsyncResult(directive, Promise.resolve(directive));
         }
         var normalizedTemplateSync = null;
         var normalizedTemplateAsync;
@@ -72,11 +66,11 @@ var DirectiveNormalizer = (function () {
         if (normalizedTemplateSync && normalizedTemplateSync.styleUrls.length === 0) {
             // sync case
             var normalizedDirective = _cloneDirectiveWithTemplate(directive, normalizedTemplateSync);
-            return new NormalizeDirectiveResult(normalizedDirective, Promise.resolve(normalizedDirective));
+            return new util_1.SyncAsyncResult(normalizedDirective, Promise.resolve(normalizedDirective));
         }
         else {
             // async case
-            return new NormalizeDirectiveResult(null, normalizedTemplateAsync
+            return new util_1.SyncAsyncResult(null, normalizedTemplateAsync
                 .then(function (normalizedTemplate) { return _this.normalizeExternalStylesheets(normalizedTemplate); })
                 .then(function (normalizedTemplate) {
                 return _cloneDirectiveWithTemplate(directive, normalizedTemplate);
@@ -93,7 +87,8 @@ var DirectiveNormalizer = (function () {
             .then(function (value) { return _this.normalizeLoadedTemplate(directiveType, template, value, templateUrl); });
     };
     DirectiveNormalizer.prototype.normalizeLoadedTemplate = function (directiveType, templateMeta, template, templateAbsUrl) {
-        var rootNodesAndErrors = this._htmlParser.parse(template, directiveType.name);
+        var interpolationConfig = interpolation_config_1.InterpolationConfig.fromArray(templateMeta.interpolation);
+        var rootNodesAndErrors = this._htmlParser.parse(template, directiveType.name, false, interpolationConfig);
         if (rootNodesAndErrors.errors.length > 0) {
             var errorString = rootNodesAndErrors.errors.join('\n');
             throw new exceptions_1.BaseException("Template parse errors:\n" + errorString);
@@ -104,7 +99,7 @@ var DirectiveNormalizer = (function () {
             moduleUrl: directiveType.moduleUrl
         }));
         var visitor = new TemplatePreparseVisitor();
-        html_ast_1.htmlVisitAll(visitor, rootNodesAndErrors.rootNodes);
+        html.visitAll(visitor, rootNodesAndErrors.rootNodes);
         var templateStyles = this.normalizeStylesheet(new compile_metadata_1.CompileStylesheetMetadata({ styles: visitor.styles, styleUrls: visitor.styleUrls, moduleUrl: templateAbsUrl }));
         var allStyles = templateMetadataStyles.styles.concat(templateStyles.styles);
         var allStyleUrls = templateMetadataStyles.styleUrls.concat(templateStyles.styleUrls);
@@ -197,7 +192,7 @@ var TemplatePreparseVisitor = (function () {
             case template_preparser_1.PreparsedElementType.STYLE:
                 var textContent = '';
                 ast.children.forEach(function (child) {
-                    if (child instanceof html_ast_1.HtmlTextAst) {
+                    if (child instanceof html.Text) {
                         textContent += child.value;
                     }
                 });
@@ -207,21 +202,19 @@ var TemplatePreparseVisitor = (function () {
                 this.styleUrls.push(preparsedElement.hrefAttr);
                 break;
             default:
-                // DDC reports this as error. See:
-                // https://github.com/dart-lang/dev_compiler/issues/428
                 break;
         }
         if (preparsedElement.nonBindable) {
             this.ngNonBindableStackCount++;
         }
-        html_ast_1.htmlVisitAll(this, ast.children);
+        html.visitAll(this, ast.children);
         if (preparsedElement.nonBindable) {
             this.ngNonBindableStackCount--;
         }
         return null;
     };
     TemplatePreparseVisitor.prototype.visitComment = function (ast, context) { return null; };
-    TemplatePreparseVisitor.prototype.visitAttr = function (ast, context) { return null; };
+    TemplatePreparseVisitor.prototype.visitAttribute = function (ast, context) { return null; };
     TemplatePreparseVisitor.prototype.visitText = function (ast, context) { return null; };
     TemplatePreparseVisitor.prototype.visitExpansion = function (ast, context) { return null; };
     TemplatePreparseVisitor.prototype.visitExpansionCase = function (ast, context) { return null; };
@@ -239,12 +232,11 @@ function _cloneDirectiveWithTemplate(directive, template) {
         hostListeners: directive.hostListeners,
         hostProperties: directive.hostProperties,
         hostAttributes: directive.hostAttributes,
-        lifecycleHooks: directive.lifecycleHooks,
         providers: directive.providers,
         viewProviders: directive.viewProviders,
         queries: directive.queries,
         viewQueries: directive.viewQueries,
-        precompile: directive.precompile,
+        entryComponents: directive.entryComponents,
         template: template
     });
 }

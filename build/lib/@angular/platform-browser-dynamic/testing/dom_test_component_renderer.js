@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var testing_1 = require('@angular/compiler/testing');
 var core_1 = require('@angular/core');
+var testing_1 = require('@angular/core/testing');
 var platform_browser_1 = require('@angular/platform-browser');
 var platform_browser_private_1 = require('../platform_browser_private');
 var DOMTestComponentRenderer = (function (_super) {

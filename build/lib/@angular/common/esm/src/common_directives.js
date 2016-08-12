@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { CORE_DIRECTIVES } from './directives';
-import { FORM_DIRECTIVES } from './forms-deprecated';
 /**
  * A collection of Angular core directives that are likely to be used in each and every Angular
  * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
@@ -52,5 +51,5 @@ import { FORM_DIRECTIVES } from './forms-deprecated';
  *
  * @experimental Contains forms which are experimental.
  */
-export const COMMON_DIRECTIVES = [CORE_DIRECTIVES, FORM_DIRECTIVES];
+export const COMMON_DIRECTIVES = [CORE_DIRECTIVES];
 //# sourceMappingURL=common_directives.js.map

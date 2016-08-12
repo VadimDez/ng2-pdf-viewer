@@ -84,6 +84,14 @@ export class ViewContainerRef_ {
         this._element.attachView(viewRef_.internalView, index);
         return wtfLeave(s, viewRef_);
     }
+    move(viewRef, currentIndex) {
+        var s = this._insertScope();
+        if (currentIndex == -1)
+            return;
+        var viewRef_ = viewRef;
+        this._element.moveView(viewRef_.internalView, currentIndex);
+        return wtfLeave(s, viewRef_);
+    }
     indexOf(viewRef) {
         return ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
     }

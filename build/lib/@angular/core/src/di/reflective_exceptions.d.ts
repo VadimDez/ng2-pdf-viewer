@@ -12,8 +12,8 @@ export declare class AbstractProviderError extends BaseException {
     context: any;
 }
 /**
- * Thrown when trying to retrieve a dependency by `Key` from {@link Injector}, but the
- * {@link Injector} does not have a {@link Provider} for {@link Key}.
+ * Thrown when trying to retrieve a dependency by key from {@link Injector}, but the
+ * {@link Injector} does not have a {@link Provider} for the given key.
  *
  * ### Example ([live demo](http://plnkr.co/edit/vq8D3FRB9aGbnWJqtEPE?p=preview))
  *

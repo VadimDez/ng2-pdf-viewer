@@ -9,7 +9,7 @@ import { DefaultIterableDifferFactory } from './differs/default_iterable_differ'
 import { DefaultKeyValueDifferFactory } from './differs/default_keyvalue_differ';
 import { IterableDiffers } from './differs/iterable_differs';
 import { KeyValueDiffers } from './differs/keyvalue_differs';
-export { SimpleChange, ValueUnwrapper, WrappedValue, devModeEqual, looseIdentical, uninitialized } from './change_detection_util';
+export { SimpleChange, UNINITIALIZED, ValueUnwrapper, WrappedValue, devModeEqual, looseIdentical } from './change_detection_util';
 export { ChangeDetectorRef } from './change_detector_ref';
 export { CHANGE_DETECTION_STRATEGY_VALUES, ChangeDetectionStrategy, ChangeDetectorStatus, isDefaultChangeDetectionStrategy } from './constants';
 export { CollectionChangeRecord, DefaultIterableDifferFactory } from './differs/default_iterable_differ';
@@ -20,13 +20,11 @@ export { KeyValueDiffers } from './differs/keyvalue_differs';
 /**
  * Structural diffing for `Object`s and `Map`s.
  */
-export const keyValDiff = 
-/*@ts2dart_const*/ [new DefaultKeyValueDifferFactory()];
+export const keyValDiff = [new DefaultKeyValueDifferFactory()];
 /**
  * Structural diffing for `Iterable` types such as `Array`s.
  */
-export const iterableDiff = 
-/*@ts2dart_const*/ [new DefaultIterableDifferFactory()];
+export const iterableDiff = [new DefaultIterableDifferFactory()];
 export const defaultIterableDiffers = new IterableDiffers(iterableDiff);
 export const defaultKeyValueDiffers = new KeyValueDiffers(keyValDiff);
 //# sourceMappingURL=change_detection.js.map

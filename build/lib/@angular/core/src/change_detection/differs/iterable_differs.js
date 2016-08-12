@@ -12,11 +12,9 @@ var exceptions_1 = require('../../facade/exceptions');
 var lang_1 = require('../../facade/lang');
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
- * @ts2dart_const
  * @stable
  */
 var IterableDiffers = (function () {
-    /*@ts2dart_const*/
     function IterableDiffers(factories) {
         this.factories = factories;
     }

@@ -7,7 +7,6 @@
  */
 "use strict";
 var directives_1 = require('./directives');
-var forms_deprecated_1 = require('./forms-deprecated');
 /**
  * A collection of Angular core directives that are likely to be used in each and every Angular
  * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
@@ -53,5 +52,5 @@ var forms_deprecated_1 = require('./forms-deprecated');
  *
  * @experimental Contains forms which are experimental.
  */
-exports.COMMON_DIRECTIVES = [directives_1.CORE_DIRECTIVES, forms_deprecated_1.FORM_DIRECTIVES];
+exports.COMMON_DIRECTIVES = [directives_1.CORE_DIRECTIVES];
 //# sourceMappingURL=common_directives.js.map

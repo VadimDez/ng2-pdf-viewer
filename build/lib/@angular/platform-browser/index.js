@@ -9,6 +9,13 @@
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
+var browser_1 = require('./src/browser');
+exports.BROWSER_APP_PROVIDERS = browser_1.BROWSER_APP_PROVIDERS;
+exports.BROWSER_PLATFORM_PROVIDERS = browser_1.BROWSER_PLATFORM_PROVIDERS;
+exports.BROWSER_SANITIZATION_PROVIDERS = browser_1.BROWSER_SANITIZATION_PROVIDERS;
+exports.BrowserModule = browser_1.BrowserModule;
+exports.browserPlatform = browser_1.browserPlatform;
+exports.platformBrowser = browser_1.platformBrowser;
 var browser_platform_location_1 = require('./src/browser/location/browser_platform_location');
 exports.BrowserPlatformLocation = browser_platform_location_1.BrowserPlatformLocation;
 var title_1 = require('./src/browser/title');
@@ -16,6 +23,8 @@ exports.Title = title_1.Title;
 var tools_1 = require('./src/browser/tools/tools');
 exports.disableDebugTools = tools_1.disableDebugTools;
 exports.enableDebugTools = tools_1.enableDebugTools;
+var animation_driver_1 = require('./src/dom/animation_driver');
+exports.AnimationDriver = animation_driver_1.AnimationDriver;
 var by_1 = require('./src/dom/debug/by');
 exports.By = by_1.By;
 var dom_tokens_1 = require('./src/dom/dom_tokens');
@@ -28,20 +37,18 @@ exports.HAMMER_GESTURE_CONFIG = hammer_gestures_1.HAMMER_GESTURE_CONFIG;
 exports.HammerGestureConfig = hammer_gestures_1.HammerGestureConfig;
 var dom_sanitization_service_1 = require('./src/security/dom_sanitization_service');
 exports.DomSanitizationService = dom_sanitization_service_1.DomSanitizationService;
-exports.SecurityContext = dom_sanitization_service_1.SecurityContext;
-__export(require('./src/browser'));
 // Web Workers
 var client_message_broker_1 = require('./src/web_workers/shared/client_message_broker');
 exports.ClientMessageBroker = client_message_broker_1.ClientMessageBroker;
 exports.ClientMessageBrokerFactory = client_message_broker_1.ClientMessageBrokerFactory;
 exports.FnArg = client_message_broker_1.FnArg;
 exports.UiArguments = client_message_broker_1.UiArguments;
+var serializer_1 = require('./src/web_workers/shared/serializer');
+exports.PRIMITIVE = serializer_1.PRIMITIVE;
 var service_message_broker_1 = require('./src/web_workers/shared/service_message_broker');
 exports.ReceivedMessage = service_message_broker_1.ReceivedMessage;
 exports.ServiceMessageBroker = service_message_broker_1.ServiceMessageBroker;
 exports.ServiceMessageBrokerFactory = service_message_broker_1.ServiceMessageBrokerFactory;
-var serializer_1 = require('./src/web_workers/shared/serializer');
-exports.PRIMITIVE = serializer_1.PRIMITIVE;
 __export(require('./src/web_workers/shared/message_bus'));
 var location_providers_1 = require('./src/web_workers/worker/location_providers');
 exports.WORKER_APP_LOCATION_PROVIDERS = location_providers_1.WORKER_APP_LOCATION_PROVIDERS;

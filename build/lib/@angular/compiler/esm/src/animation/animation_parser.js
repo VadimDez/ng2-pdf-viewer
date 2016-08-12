@@ -8,7 +8,7 @@
 import { ANY_STATE, FILL_STYLE_FLAG } from '../../core_private';
 import { CompileAnimationAnimateMetadata, CompileAnimationGroupMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationSequenceMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStyleMetadata, CompileAnimationWithStepsMetadata } from '../compile_metadata';
 import { ListWrapper, StringMapWrapper } from '../facade/collection';
-import { NumberWrapper, RegExpWrapper, isArray, isBlank, isPresent, isString, isStringMap } from '../facade/lang';
+import { NumberWrapper, isArray, isBlank, isPresent, isString, isStringMap } from '../facade/lang';
 import { Math } from '../facade/math';
 import { ParseError } from '../parse_util';
 import { AnimationEntryAst, AnimationGroupAst, AnimationKeyframeAst, AnimationSequenceAst, AnimationStateDeclarationAst, AnimationStateTransitionAst, AnimationStateTransitionExpression, AnimationStepAst, AnimationStylesAst, AnimationWithStepsAst } from './animation_ast';
@@ -268,7 +268,7 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
         ListWrapper.insert(rawKeyframes, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
     }
     var firstKeyframeStyles = firstKeyframe[1];
-    var limit = rawKeyframes.length - 1;
+    limit = rawKeyframes.length - 1;
     var lastKeyframe = rawKeyframes[limit];
     if (lastKeyframe[0] != _TERMINAL_KEYFRAME) {
         rawKeyframes.push(lastKeyframe = [_TERMINAL_KEYFRAME, {}]);
@@ -394,13 +394,13 @@ function _fillAnimationAstStartingKeyframes(ast, collectedStyles, errors) {
     }
 }
 function _parseTimeExpression(exp, errors) {
-    var regex = /^([\.\d]+)(m?s)(?:\s+([\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?/gi;
+    var regex = /^([\.\d]+)(m?s)(?:\s+([\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?/i;
     var duration;
     var delay = 0;
     var easing = null;
     if (isString(exp)) {
-        var matches = RegExpWrapper.firstMatch(regex, exp);
-        if (!isPresent(matches)) {
+        const matches = exp.match(regex);
+        if (matches === null) {
             errors.push(new AnimationParseError(`The provided timing value "${exp}" is invalid.`));
             return new _AnimationTimings(0, 0, null);
         }

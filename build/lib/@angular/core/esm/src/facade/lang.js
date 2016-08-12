@@ -21,7 +21,6 @@ else {
 export function scheduleMicroTask(fn) {
     Zone.current.scheduleMicroTask('scheduleMicrotask', fn);
 }
-export const IS_DART = false;
 // Need to declare a new variable for global here since TypeScript
 // exports the original value of the symbol.
 var _global = globalScope;
@@ -78,7 +77,9 @@ export function isStrictStringMap(obj) {
     return isStringMap(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
 }
 export function isPromise(obj) {
-    return obj instanceof _global.Promise;
+    // allow any Promise/A+ compliant thenable.
+    // It's up to the caller to ensure that obj.then conforms to the spec
+    return isPresent(obj) && isFunction(obj.then);
 }
 export function isArray(obj) {
     return Array.isArray(obj);
@@ -94,11 +95,11 @@ export function stringify(token) {
     if (token === undefined || token === null) {
         return '' + token;
     }
-    if (token.name) {
-        return token.name;
-    }
     if (token.overriddenName) {
         return token.overriddenName;
+    }
+    if (token.name) {
+        return token.name;
     }
     var res = token.toString();
     var newLineIndex = res.indexOf('\n');
@@ -225,48 +226,6 @@ export class NumberWrapper {
     static isInteger(value) { return Number.isInteger(value); }
 }
 export var RegExp = _global.RegExp;
-export class RegExpWrapper {
-    static create(regExpStr, flags = '') {
-        flags = flags.replace(/g/g, '');
-        return new _global.RegExp(regExpStr, flags + 'g');
-    }
-    static firstMatch(regExp, input) {
-        // Reset multimatch regex state
-        regExp.lastIndex = 0;
-        return regExp.exec(input);
-    }
-    static test(regExp, input) {
-        regExp.lastIndex = 0;
-        return regExp.test(input);
-    }
-    static matcher(regExp, input) {
-        // Reset regex state for the case
-        // someone did not loop over all matches
-        // last time.
-        regExp.lastIndex = 0;
-        return { re: regExp, input: input };
-    }
-    static replaceAll(regExp, input, replace) {
-        let c = regExp.exec(input);
-        let res = '';
-        regExp.lastIndex = 0;
-        let prev = 0;
-        while (c) {
-            res += input.substring(prev, c.index);
-            res += replace(c);
-            prev = c.index + c[0].length;
-            regExp.lastIndex = prev;
-            c = regExp.exec(input);
-        }
-        res += input.substring(prev);
-        return res;
-    }
-}
-export class RegExpMatcherWrapper {
-    static next(matcher) {
-        return matcher.re.exec(matcher.input);
-    }
-}
 export class FunctionWrapper {
     static apply(fn, posArgs) { return fn.apply(null, posArgs); }
     static bind(fn, scope) { return fn.bind(scope); }

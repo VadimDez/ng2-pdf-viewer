@@ -15,8 +15,7 @@ var core_1 = require('@angular/core');
 var validators_1 = require('../validators');
 var control_container_1 = require('./control_container');
 var shared_1 = require('./shared');
-exports.controlGroupProvider = 
-/*@ts2dart_const*/ /* @ts2dart_Provider */ {
+exports.controlGroupProvider = {
     provide: control_container_1.ControlContainer,
     useExisting: core_1.forwardRef(function () { return NgControlGroup; })
 };

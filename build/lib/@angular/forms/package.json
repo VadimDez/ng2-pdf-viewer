@@ -1,0 +1,79 @@
+{
+  "_args": [
+    [
+      "@angular/forms",
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
+  "_from": "@angular/forms@latest",
+  "_id": "@angular/forms@0.3.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/@angular/forms",
+  "_nodeVersion": "5.4.1",
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/forms-0.3.0.tgz_1470759636977_0.27336693881079555"
+  },
+  "_npmUser": {
+    "email": "angular-core+npm@google.com",
+    "name": "angular"
+  },
+  "_npmVersion": "3.9.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "@angular/forms",
+    "raw": "@angular/forms",
+    "rawSpec": "",
+    "scope": "@angular",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/forms/-/forms-0.3.0.tgz",
+  "_shasum": "d76218bb22b74d5ac3878915d377de0487c34069",
+  "_shrinkwrap": null,
+  "_spec": "@angular/forms",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "author": {
+    "name": "angular"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
+  "dependencies": {},
+  "description": "",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "d76218bb22b74d5ac3878915d377de0487c34069",
+    "tarball": "https://registry.npmjs.org/@angular/forms/-/forms-0.3.0.tgz"
+  },
+  "homepage": "https://github.com/angular/angular#readme",
+  "jsnext:main": "esm/index.js",
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "angular-core+npm@google.com",
+      "name": "angular"
+    }
+  ],
+  "name": "@angular/forms",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "@angular/common": "^2.0.0-rc.5",
+    "@angular/compiler": "^2.0.0-rc.5",
+    "@angular/core": "^2.0.0-rc.5"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
+  "scripts": {},
+  "typings": "index.d.ts",
+  "version": "0.3.0"
+}

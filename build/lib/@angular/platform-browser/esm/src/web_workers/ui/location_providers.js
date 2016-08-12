@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { APP_INITIALIZER, Injector, NgZone } from '@angular/core';
+import { Injector, NgZone, PLATFORM_INITIALIZER } from '@angular/core';
 import { BrowserPlatformLocation } from '../../browser/location/browser_platform_location';
 import { MessageBasedPlatformLocation } from './platform_location';
 /**
@@ -15,7 +15,7 @@ import { MessageBasedPlatformLocation } from './platform_location';
  */
 export const WORKER_UI_LOCATION_PROVIDERS = [
     MessageBasedPlatformLocation, BrowserPlatformLocation,
-    { provide: APP_INITIALIZER, useFactory: initUiLocation, multi: true, deps: [Injector] }
+    { provide: PLATFORM_INITIALIZER, useFactory: initUiLocation, multi: true, deps: [Injector] }
 ];
 function initUiLocation(injector) {
     return () => {

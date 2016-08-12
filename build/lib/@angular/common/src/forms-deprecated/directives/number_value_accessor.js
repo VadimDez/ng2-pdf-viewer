@@ -22,7 +22,9 @@ var NumberValueAccessor = (function () {
         this.onTouched = function () { };
     }
     NumberValueAccessor.prototype.writeValue = function (value) {
-        this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', value);
+        // The value needs to be normalized for IE9, otherwise it is set to 'null' when null
+        var normalizedValue = lang_1.isBlank(value) ? '' : value;
+        this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
     };
     NumberValueAccessor.prototype.registerOnChange = function (fn) {
         this.onChange = function (value) { fn(value == '' ? null : lang_1.NumberWrapper.parseFloat(value)); };

@@ -7,7 +7,6 @@
  */
 "use strict";
 var core_1 = require('@angular/core');
-var async_1 = require('../src/facade/async');
 var SpyLocation = (function () {
     function SpyLocation() {
         this.urlChanges = [];
@@ -31,14 +30,12 @@ var SpyLocation = (function () {
         var currPath = this.path().endsWith('/') ? this.path().substring(0, this.path().length - 1) : this.path();
         return currPath == givenPath + (query.length > 0 ? ('?' + query) : '');
     };
-    SpyLocation.prototype.simulateUrlPop = function (pathname) {
-        async_1.ObservableWrapper.callEmit(this._subject, { 'url': pathname, 'pop': true });
-    };
+    SpyLocation.prototype.simulateUrlPop = function (pathname) { this._subject.emit({ 'url': pathname, 'pop': true }); };
     SpyLocation.prototype.simulateHashChange = function (pathname) {
         // Because we don't prevent the native event, the browser will independently update the path
         this.setInitialPath(pathname);
         this.urlChanges.push('hash: ' + pathname);
-        async_1.ObservableWrapper.callEmit(this._subject, { 'url': pathname, 'pop': true, 'type': 'hashchange' });
+        this._subject.emit({ 'url': pathname, 'pop': true, 'type': 'hashchange' });
     };
     SpyLocation.prototype.prepareExternalUrl = function (url) {
         if (url.length > 0 && !url.startsWith('/')) {
@@ -76,19 +73,19 @@ var SpyLocation = (function () {
     SpyLocation.prototype.forward = function () {
         if (this._historyIndex < (this._history.length - 1)) {
             this._historyIndex++;
-            async_1.ObservableWrapper.callEmit(this._subject, { 'url': this.path(), 'pop': true });
+            this._subject.emit({ 'url': this.path(), 'pop': true });
         }
     };
     SpyLocation.prototype.back = function () {
         if (this._historyIndex > 0) {
             this._historyIndex--;
-            async_1.ObservableWrapper.callEmit(this._subject, { 'url': this.path(), 'pop': true });
+            this._subject.emit({ 'url': this.path(), 'pop': true });
         }
     };
     SpyLocation.prototype.subscribe = function (onNext, onThrow, onReturn) {
         if (onThrow === void 0) { onThrow = null; }
         if (onReturn === void 0) { onReturn = null; }
-        return async_1.ObservableWrapper.subscribe(this._subject, onNext, onThrow, onReturn);
+        return this._subject.subscribe({ next: onNext, error: onThrow, complete: onReturn });
     };
     SpyLocation.prototype.normalize = function (url) { return null; };
     /** @nocollapse */

@@ -19,9 +19,7 @@ var PostMessageBusSink = (function () {
     PostMessageBusSink.prototype.attachToZone = function (zone) {
         var _this = this;
         this._zone = zone;
-        this._zone.runOutsideAngular(function () {
-            async_1.ObservableWrapper.subscribe(_this._zone.onStable, function (_) { _this._handleOnEventDone(); });
-        });
+        this._zone.runOutsideAngular(function () { _this._zone.onStable.subscribe({ next: function () { _this._handleOnEventDone(); } }); });
     };
     PostMessageBusSink.prototype.initChannel = function (channel, runInZone) {
         var _this = this;

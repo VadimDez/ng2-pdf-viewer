@@ -24,15 +24,18 @@ export class BrowserDetection {
     get isFirefox() { return this._ua.indexOf('Firefox') > -1; }
     get isAndroid() {
         return this._ua.indexOf('Mozilla/5.0') > -1 && this._ua.indexOf('Android') > -1 &&
-            this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Chrome') == -1;
+            this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Chrome') == -1 &&
+            this._ua.indexOf('IEMobile') == -1;
     }
     get isEdge() { return this._ua.indexOf('Edge') > -1; }
     get isIE() { return this._ua.indexOf('Trident') > -1; }
     get isWebkit() {
-        return this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Edge') == -1;
+        return this._ua.indexOf('AppleWebKit') > -1 && this._ua.indexOf('Edge') == -1 &&
+            this._ua.indexOf('IEMobile') == -1;
     }
     get isIOS7() {
-        return this._ua.indexOf('iPhone OS 7') > -1 || this._ua.indexOf('iPad OS 7') > -1;
+        return (this._ua.indexOf('iPhone OS 7') > -1 || this._ua.indexOf('iPad OS 7') > -1) &&
+            this._ua.indexOf('IEMobile') == -1;
     }
     get isSlow() { return this.isAndroid || this.isIE || this.isIOS7; }
     // The Intl API is only properly supported in recent Chrome and Opera.

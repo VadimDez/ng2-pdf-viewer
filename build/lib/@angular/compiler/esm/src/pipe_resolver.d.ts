@@ -7,7 +7,7 @@
  */
 import { PipeMetadata } from '@angular/core';
 import { ReflectorReader } from '../core_private';
-import { Type } from '../src/facade/lang';
+import { Type } from './facade/lang';
 /**
  * Resolve a `Type` for {@link PipeMetadata}.
  *
@@ -21,5 +21,5 @@ export declare class PipeResolver {
     /**
      * Return {@link PipeMetadata} for a given `Type`.
      */
-    resolve(type: Type): PipeMetadata;
+    resolve(type: Type, throwIfNotFound?: boolean): PipeMetadata;
 }

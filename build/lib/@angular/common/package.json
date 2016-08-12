@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "@angular/common@2.0.0-rc.4",
+      "@angular/common@2.0.0-rc.5",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/common@2.0.0-rc.4",
-  "_id": "@angular/common@2.0.0-rc.4",
+  "_from": "@angular/common@2.0.0-rc.5",
+  "_id": "@angular/common@2.0.0-rc.5",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/common",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
     "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/common-2.0.0-rc.4.tgz_1467308843670_0.22182463691569865"
+    "tmp": "tmp/common-2.0.0-rc.5.tgz_1470759616039_0.6053975811228156"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
@@ -23,19 +23,19 @@
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/common",
-    "raw": "@angular/common@2.0.0-rc.4",
-    "rawSpec": "2.0.0-rc.4",
+    "raw": "@angular/common@2.0.0-rc.5",
+    "rawSpec": "2.0.0-rc.5",
     "scope": "@angular",
-    "spec": "2.0.0-rc.4",
+    "spec": "2.0.0-rc.5",
     "type": "version"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/common/-/common-2.0.0-rc.4.tgz",
-  "_shasum": "c3b0a87cd1e316be2a940bb80319e055898f89e6",
+  "_resolved": "https://registry.npmjs.org/@angular/common/-/common-2.0.0-rc.5.tgz",
+  "_shasum": "8aabd14ca6aa288b3eece0fff86cfc256c502d48",
   "_shrinkwrap": null,
-  "_spec": "@angular/common@2.0.0-rc.4",
+  "_spec": "@angular/common@2.0.0-rc.5",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -48,8 +48,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "c3b0a87cd1e316be2a940bb80319e055898f89e6",
-    "tarball": "https://registry.npmjs.org/@angular/common/-/common-2.0.0-rc.4.tgz"
+    "shasum": "8aabd14ca6aa288b3eece0fff86cfc256c502d48",
+    "tarball": "https://registry.npmjs.org/@angular/common/-/common-2.0.0-rc.5.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
   "jsnext:main": "esm/index.js",
@@ -64,7 +64,7 @@
   "name": "@angular/common",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/core": "^2.0.0-rc.4"
+    "@angular/core": "^2.0.0-rc.5"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -73,5 +73,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.0.0-rc.4"
+  "version": "2.0.0-rc.5"
 }

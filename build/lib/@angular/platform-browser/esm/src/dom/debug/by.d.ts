@@ -19,7 +19,7 @@ export declare class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_all'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_all'}
      */
     static all(): Predicate<DebugElement>;
     /**
@@ -27,7 +27,7 @@ export declare class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_css'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_css'}
      */
     static css(selector: string): Predicate<DebugElement>;
     /**
@@ -35,7 +35,7 @@ export declare class By {
      *
      * ## Example
      *
-     * {@example platform/dom/debug/ts/by/by.ts region='by_directive'}
+     * {@example platform-browser/dom/debug/ts/by/by.ts region='by_directive'}
      */
     static directive(type: Type): Predicate<DebugElement>;
 }

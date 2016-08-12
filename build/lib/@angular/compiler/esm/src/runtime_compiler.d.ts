@@ -5,14 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Compiler, ComponentFactory, ComponentResolver } from '@angular/core';
-import { ConcreteType, Type } from '../src/facade/lang';
-import { StyleCompiler } from './style_compiler';
-import { ViewCompiler } from './view_compiler/view_compiler';
-import { TemplateParser } from './template_parser';
-import { DirectiveNormalizer } from './directive_normalizer';
-import { CompileMetadataResolver } from './metadata_resolver';
+import { Compiler, ComponentFactory, Injector, ModuleWithComponentFactories, NgModuleFactory } from '@angular/core';
+import { Console } from '../core_private';
 import { CompilerConfig } from './config';
+import { DirectiveNormalizer } from './directive_normalizer';
+import { ConcreteType, Type } from './facade/lang';
+import { CompileMetadataResolver } from './metadata_resolver';
+import { NgModuleCompiler } from './ng_module_compiler';
+import { StyleCompiler } from './style_compiler';
+import { TemplateParser } from './template_parser/template_parser';
+import { ViewCompiler } from './view_compiler/view_compiler';
 /**
  * An internal module of the Angular compiler that begins with component types,
  * extracts templates, and eventually produces a compiled version of the component
@@ -22,24 +24,37 @@ import { CompilerConfig } from './config';
  * from a trusted source. Attacker-controlled data introduced by a template could expose your
  * application to XSS risks.  For more detail, see the [Security Guide](http://g.co/ng/security).
  */
-export declare class RuntimeCompiler implements ComponentResolver, Compiler {
+export declare class RuntimeCompiler implements Compiler {
+    private _injector;
     private _metadataResolver;
     private _templateNormalizer;
     private _templateParser;
     private _styleCompiler;
     private _viewCompiler;
-    private _genConfig;
+    private _ngModuleCompiler;
+    private _compilerConfig;
+    private _console;
     private _compiledTemplateCache;
     private _compiledHostTemplateCache;
-    constructor(_metadataResolver: CompileMetadataResolver, _templateNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _genConfig: CompilerConfig);
-    resolveComponent(component: Type | string): Promise<ComponentFactory<any>>;
-    compileComponentAsync<T>(compType: ConcreteType<T>): Promise<ComponentFactory<T>>;
-    compileComponentSync<T>(compType: ConcreteType<T>): ComponentFactory<T>;
-    clearCacheFor(compType: Type): void;
+    private _compiledNgModuleCache;
+    constructor(_injector: Injector, _metadataResolver: CompileMetadataResolver, _templateNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _compilerConfig: CompilerConfig, _console: Console);
+    readonly injector: Injector;
+    compileModuleSync<T>(moduleType: ConcreteType<T>): NgModuleFactory<T>;
+    compileModuleAsync<T>(moduleType: ConcreteType<T>): Promise<NgModuleFactory<T>>;
+    compileModuleAndAllComponentsSync<T>(moduleType: ConcreteType<T>): ModuleWithComponentFactories<T>;
+    compileModuleAndAllComponentsAsync<T>(moduleType: ConcreteType<T>): Promise<ModuleWithComponentFactories<T>>;
+    compileComponentAsync<T>(compType: ConcreteType<T>, ngModule?: ConcreteType<any>): Promise<ComponentFactory<T>>;
+    compileComponentSync<T>(compType: ConcreteType<T>, ngModule?: ConcreteType<any>): ComponentFactory<T>;
+    private _compileModuleAndComponents<T>(moduleType, isSync);
+    private _compileModuleAndAllComponents<T>(moduleType, isSync);
+    private _compileModule<T>(moduleType);
+    private _compileComponentInModule<T>(compType, isSync, moduleType);
+    clearCacheFor(type: Type): void;
     clearCache(): void;
-    private _getCompiledHostTemplate(type);
-    private _getCompiledTemplate(type);
-    private _getTransitiveCompiledTemplates(compType, isHost, target?);
+    private _createCompiledHostTemplate(compType);
+    private _createCompiledTemplate(compMeta, ngModule);
+    private _assertComponentKnown(compType, isHost);
+    private _assertComponentLoaded(compType, isHost);
     private _compileTemplate(template);
     private _resolveStylesCompileResult(result, externalStylesheetsByModuleUrl);
     private _resolveAndEvalStylesCompileResult(result, externalStylesheetsByModuleUrl);

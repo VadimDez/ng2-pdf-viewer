@@ -28,34 +28,26 @@ var PrintLogger = (function () {
     PrintLogger.prototype.logGroupEnd = function () { };
     return PrintLogger;
 }());
-var WORKER_APP_PLATFORM_MARKER = new core_1.OpaqueToken('WorkerAppPlatformMarker');
+/**
+ * @deprecated Use `platformWorkerApp()` or create a custom platform factory via
+ * `createPlatformFactory(platformWorkerApp, ...)`
+ */
+exports.WORKER_APP_PLATFORM_PROVIDERS = core_1.PLATFORM_COMMON_PROVIDERS;
+/**
+ * @deprecated Create a module that includes `WorkerAppModule` instead. This is empty for backwards
+ * compatibility,
+ * as all of our bootstrap methods add a module implicitly, i.e. keeping this filled would add the
+ * providers 2x.
+ */
+exports.WORKER_APP_APPLICATION_PROVIDERS = [];
 /**
  * @experimental
  */
-exports.WORKER_APP_PLATFORM_PROVIDERS = [core_1.PLATFORM_COMMON_PROVIDERS, { provide: WORKER_APP_PLATFORM_MARKER, useValue: true }];
+exports.platformWorkerApp = core_1.createPlatformFactory(core_1.platformCore, 'workerApp');
 /**
- * @experimental
+ * @deprecated Use {@link platformWorkerApp} instead
  */
-exports.WORKER_APP_APPLICATION_PROVIDERS = [
-    core_1.APPLICATION_COMMON_PROVIDERS, common_1.FORM_PROVIDERS, browser_1.BROWSER_SANITIZATION_PROVIDERS, serializer_1.Serializer,
-    { provide: client_message_broker_1.ClientMessageBrokerFactory, useClass: client_message_broker_1.ClientMessageBrokerFactory_ },
-    { provide: service_message_broker_1.ServiceMessageBrokerFactory, useClass: service_message_broker_1.ServiceMessageBrokerFactory_ },
-    renderer_1.WebWorkerRootRenderer, { provide: core_1.RootRenderer, useExisting: renderer_1.WebWorkerRootRenderer },
-    { provide: api_1.ON_WEB_WORKER, useValue: true }, render_store_1.RenderStore,
-    { provide: core_1.ExceptionHandler, useFactory: _exceptionHandler, deps: [] },
-    { provide: message_bus_1.MessageBus, useFactory: createMessageBus, deps: [core_1.NgZone] },
-    { provide: core_1.APP_INITIALIZER, useValue: setupWebWorker, multi: true }
-];
-/**
- * @experimental
- */
-function workerAppPlatform() {
-    if (lang_1.isBlank(core_1.getPlatform())) {
-        core_1.createPlatform(core_1.ReflectiveInjector.resolveAndCreate(exports.WORKER_APP_PLATFORM_PROVIDERS));
-    }
-    return core_1.assertPlatform(WORKER_APP_PLATFORM_MARKER);
-}
-exports.workerAppPlatform = workerAppPlatform;
+exports.workerAppPlatform = exports.platformWorkerApp;
 function _exceptionHandler() {
     return new core_1.ExceptionHandler(new PrintLogger());
 }
@@ -75,4 +67,26 @@ function createMessageBus(zone) {
 function setupWebWorker() {
     worker_adapter_1.WorkerDomAdapter.makeCurrent();
 }
+var WorkerAppModule = (function () {
+    function WorkerAppModule() {
+    }
+    /** @nocollapse */
+    WorkerAppModule.decorators = [
+        { type: core_1.NgModule, args: [{
+                    providers: [
+                        common_1.FORM_PROVIDERS, browser_1.BROWSER_SANITIZATION_PROVIDERS, serializer_1.Serializer,
+                        { provide: client_message_broker_1.ClientMessageBrokerFactory, useClass: client_message_broker_1.ClientMessageBrokerFactory_ },
+                        { provide: service_message_broker_1.ServiceMessageBrokerFactory, useClass: service_message_broker_1.ServiceMessageBrokerFactory_ },
+                        renderer_1.WebWorkerRootRenderer, { provide: core_1.RootRenderer, useExisting: renderer_1.WebWorkerRootRenderer },
+                        { provide: api_1.ON_WEB_WORKER, useValue: true }, render_store_1.RenderStore,
+                        { provide: core_1.ExceptionHandler, useFactory: _exceptionHandler, deps: [] },
+                        { provide: message_bus_1.MessageBus, useFactory: createMessageBus, deps: [core_1.NgZone] },
+                        { provide: core_1.APP_INITIALIZER, useValue: setupWebWorker, multi: true }
+                    ],
+                    exports: [common_1.CommonModule, core_1.ApplicationModule]
+                },] },
+    ];
+    return WorkerAppModule;
+}());
+exports.WorkerAppModule = WorkerAppModule;
 //# sourceMappingURL=worker_app.js.map

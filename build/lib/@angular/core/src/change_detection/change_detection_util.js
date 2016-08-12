@@ -10,7 +10,9 @@ var collection_1 = require('../facade/collection');
 var lang_1 = require('../facade/lang');
 var lang_2 = require('../facade/lang');
 exports.looseIdentical = lang_2.looseIdentical;
-exports.uninitialized = new Object();
+exports.UNINITIALIZED = {
+    toString: function () { return 'CD_INIT_VALUE'; }
+};
 function devModeEqual(a, b) {
     if (collection_1.isListLikeIterable(a) && collection_1.isListLikeIterable(b)) {
         return collection_1.areIterablesEqual(a, b, devModeEqual);
@@ -80,7 +82,7 @@ var SimpleChange = (function () {
     /**
      * Check whether the new value is the first value assigned.
      */
-    SimpleChange.prototype.isFirstChange = function () { return this.previousValue === exports.uninitialized; };
+    SimpleChange.prototype.isFirstChange = function () { return this.previousValue === exports.UNINITIALIZED; };
     return SimpleChange;
 }());
 exports.SimpleChange = SimpleChange;

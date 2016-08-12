@@ -6,20 +6,18 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { StringMapWrapper } from './facade/collection';
-import { IS_DART, StringWrapper, isArray, isBlank, isPrimitive, isStrictStringMap } from './facade/lang';
-export var MODULE_SUFFIX = IS_DART ? '.dart' : '';
+import { StringWrapper, isArray, isBlank, isPresent, isPrimitive, isStrictStringMap } from './facade/lang';
+import * as o from './output/output_ast';
+export const MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
 export function camelCaseToDashCase(input) {
     return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, (m) => { return '-' + m[1].toLowerCase(); });
 }
 export function splitAtColon(input, defaultValues) {
-    var parts = StringWrapper.split(input.trim(), /\s*:\s*/g);
-    if (parts.length > 1) {
-        return parts;
-    }
-    else {
+    const colonIndex = input.indexOf(':');
+    if (colonIndex == -1)
         return defaultValues;
-    }
+    return [input.slice(0, colonIndex).trim(), input.slice(colonIndex + 1).trim()];
 }
 export function sanitizeIdentifier(name) {
     return StringWrapper.replaceAll(name, /\W/g, '_');
@@ -53,20 +51,31 @@ export class ValueTransformer {
     visitOther(value, context) { return value; }
 }
 export function assetUrl(pkg, path = null, type = 'src') {
-    if (IS_DART) {
-        if (path == null) {
-            return `asset:angular2/${pkg}/${pkg}.dart`;
-        }
-        else {
-            return `asset:angular2/lib/${pkg}/src/${path}.dart`;
-        }
+    if (path == null) {
+        return `asset:@angular/lib/${pkg}/index`;
     }
     else {
-        if (path == null) {
-            return `asset:@angular/lib/${pkg}/index`;
-        }
-        else {
-            return `asset:@angular/lib/${pkg}/src/${path}`;
+        return `asset:@angular/lib/${pkg}/src/${path}`;
+    }
+}
+export function createDiTokenExpression(token) {
+    if (isPresent(token.value)) {
+        return o.literal(token.value);
+    }
+    else if (token.identifierIsInstance) {
+        return o.importExpr(token.identifier)
+            .instantiate([], o.importType(token.identifier, [], [o.TypeModifier.Const]));
+    }
+    else {
+        return o.importExpr(token.identifier);
+    }
+}
+export class SyncAsyncResult {
+    constructor(syncResult, asyncResult = null) {
+        this.syncResult = syncResult;
+        this.asyncResult = asyncResult;
+        if (!asyncResult) {
+            this.asyncResult = Promise.resolve(syncResult);
         }
     }
 }

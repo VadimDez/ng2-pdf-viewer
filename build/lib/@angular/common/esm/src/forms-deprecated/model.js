@@ -5,7 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { EventEmitter, ObservableWrapper } from '../facade/async';
+import { PromiseObservable } from 'rxjs/observable/PromiseObservable';
+import { EventEmitter } from '../facade/async';
 import { ListWrapper, StringMapWrapper } from '../facade/collection';
 import { isBlank, isPresent, isPromise, normalizeBool } from '../facade/lang';
 /**
@@ -46,7 +47,7 @@ function _find(control, path) {
     }, control);
 }
 function toObservable(r) {
-    return isPromise(r) ? ObservableWrapper.fromPromise(r) : r;
+    return isPromise(r) ? PromiseObservable.create(r) : r;
 }
 /**
  * @experimental
@@ -98,8 +99,8 @@ export class AbstractControl {
             this._runAsyncValidator(emitEvent);
         }
         if (emitEvent) {
-            ObservableWrapper.callEmit(this._valueChanges, this._value);
-            ObservableWrapper.callEmit(this._statusChanges, this._status);
+            this._valueChanges.emit(this._value);
+            this._statusChanges.emit(this._status);
         }
         if (isPresent(this._parent) && !onlySelf) {
             this._parent.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
@@ -113,12 +114,12 @@ export class AbstractControl {
             this._status = PENDING;
             this._cancelExistingSubscription();
             var obs = toObservable(this.asyncValidator(this));
-            this._asyncValidationSubscription = ObservableWrapper.subscribe(obs, (res) => this.setErrors(res, { emitEvent: emitEvent }));
+            this._asyncValidationSubscription = obs.subscribe({ next: (res) => this.setErrors(res, { emitEvent: emitEvent }) });
         }
     }
     _cancelExistingSubscription() {
         if (isPresent(this._asyncValidationSubscription)) {
-            ObservableWrapper.dispose(this._asyncValidationSubscription);
+            this._asyncValidationSubscription.unsubscribe();
         }
     }
     /**
@@ -149,7 +150,7 @@ export class AbstractControl {
         this._errors = errors;
         this._status = this._calculateStatus();
         if (emitEvent) {
-            ObservableWrapper.callEmit(this._statusChanges, this._status);
+            this._statusChanges.emit(this._status);
         }
         if (isPresent(this._parent)) {
             this._parent._updateControlsErrors();

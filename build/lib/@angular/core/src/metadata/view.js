@@ -7,7 +7,7 @@
  */
 "use strict";
 /**
- * Defines template and style encapsulation options available for Component's {@link View}.
+ * Defines template and style encapsulation options available for Component's {@link Component}.
  *
  * See {@link ViewMetadata#encapsulation}.
  * @stable
@@ -64,9 +64,8 @@ exports.VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsulati
  *   }
  * }
  * ```
- * @ts2dart_const
  *
- * @experimental You should most likely be using ComponentMetadata instead.
+ * @deprecated Use ComponentMetadata instead.
  */
 var ViewMetadata = (function () {
     function ViewMetadata(_a) {

@@ -6,30 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, Input, ViewContainerRef } from '@angular/core';
-import { isPresent } from '../facade/lang';
 export class NgTemplateOutlet {
     constructor(_viewContainerRef) {
         this._viewContainerRef = _viewContainerRef;
     }
-    set ngOutletContext(context) {
-        if (this._context !== context) {
-            this._context = context;
-            if (isPresent(this._viewRef)) {
-                this.createView();
-            }
-        }
-    }
-    set ngTemplateOutlet(templateRef) {
-        if (this._templateRef !== templateRef) {
-            this._templateRef = templateRef;
-            this.createView();
-        }
-    }
-    createView() {
-        if (isPresent(this._viewRef)) {
+    set ngOutletContext(context) { this._context = context; }
+    set ngTemplateOutlet(templateRef) { this._templateRef = templateRef; }
+    ngOnChanges() {
+        if (this._viewRef) {
             this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
         }
-        if (isPresent(this._templateRef)) {
+        if (this._templateRef) {
             this._viewRef = this._viewContainerRef.createEmbeddedView(this._templateRef, this._context);
         }
     }

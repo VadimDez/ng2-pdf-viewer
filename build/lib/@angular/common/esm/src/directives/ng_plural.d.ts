@@ -5,8 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { AfterContentInit, QueryList, TemplateRef, ViewContainerRef } from '@angular/core';
+import { TemplateRef, ViewContainerRef } from '@angular/core';
 import { NgLocalization } from '../localization';
+import { SwitchView } from './ng_switch';
 /**
  * `ngPlural` is an i18n directive that displays DOM sub-trees that match the switch expression
  * value, or failing that, DOM sub-trees that match the switch expression's pluralization category.
@@ -60,20 +61,19 @@ import { NgLocalization } from '../localization';
  * ```
  * @experimental
  */
-export declare class NgPluralCase {
-    value: string;
-    constructor(value: string, template: TemplateRef<Object>, viewContainer: ViewContainerRef);
-}
-/**
- * @experimental
- */
-export declare class NgPlural implements AfterContentInit {
+export declare class NgPlural {
     private _localization;
     private _switchValue;
     private _activeView;
     private _caseViews;
-    cases: QueryList<NgPluralCase>;
     constructor(_localization: NgLocalization);
     ngPlural: number;
-    ngAfterContentInit(): void;
+    addCase(value: string, switchView: SwitchView): void;
+}
+/**
+ * @experimental
+ */
+export declare class NgPluralCase {
+    value: string;
+    constructor(value: string, template: TemplateRef<Object>, viewContainer: ViewContainerRef, ngPlural: NgPlural);
 }

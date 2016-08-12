@@ -74,7 +74,7 @@ export declare abstract class EmbeddedViewRef<C> extends ViewRef {
     /**
      * Destroys the view and all of the data structures associated with it.
      */
-    abstract destroy(): any;
+    abstract destroy(): void;
 }
 export declare class ViewRef_<C> implements EmbeddedViewRef<C>, ChangeDetectorRef {
     private _view;

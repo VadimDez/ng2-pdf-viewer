@@ -1,3 +1,4 @@
+import { OpaqueToken } from './di';
 /**
  * A DI Token representing a unique string id assigned to the application by Angular and used
  * primarily for prefixing application attributes and CSS styles when
@@ -9,6 +10,7 @@
  * @experimental
  */
 export declare const APP_ID: any;
+export declare function _appIdRandomProviderFactory(): string;
 /**
  * Providers that will generate a random APP_ID_TOKEN.
  * @experimental
@@ -16,7 +18,7 @@ export declare const APP_ID: any;
 export declare const APP_ID_RANDOM_PROVIDER: {
     provide: any;
     useFactory: () => string;
-    deps: any;
+    deps: any[];
 };
 /**
  * A function that will be executed when a platform is initialized.
@@ -24,10 +26,14 @@ export declare const APP_ID_RANDOM_PROVIDER: {
  */
 export declare const PLATFORM_INITIALIZER: any;
 /**
- * A function that will be executed when an application is initialized.
+ * All callbacks provided via this token will be called for every component that is bootstrapped.
+ * Signature of the callback:
+ *
+ * `(componentRef: ComponentRef) => void`.
+ *
  * @experimental
  */
-export declare const APP_INITIALIZER: any;
+export declare const APP_BOOTSTRAP_LISTENER: OpaqueToken;
 /**
  * A token which indicates the root directory of the application
  * @experimental

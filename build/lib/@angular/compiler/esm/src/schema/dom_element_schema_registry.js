@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Injectable } from '@angular/core';
-import { SecurityContext } from '../../core_private';
+import { CUSTOM_ELEMENTS_SCHEMA, Injectable, SecurityContext } from '@angular/core';
 import { StringMapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { SECURITY_SCHEMA } from './dom_security_schema';
@@ -69,8 +68,7 @@ const OBJECT = 'object';
 // dom_security_schema.ts. Reach out to mprobst & rjamet for details.
 //
 // =================================================================================================
-const SCHEMA = 
-/*@ts2dart_const*/ ([
+const SCHEMA = ([
     '*|textContent,%classList,className,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*copy,*cut,*paste,*search,*selectstart,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerHTML,#scrollLeft,#scrollTop',
     '^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*autocomplete,*autocompleteerror,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
     'media|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,#volume',
@@ -259,22 +257,22 @@ export class DomElementSchemaRegistry extends ElementSchemaRegistry {
             });
         });
     }
-    hasProperty(tagName, propName) {
+    hasProperty(tagName, propName, schemaMetas) {
         if (tagName.indexOf('-') !== -1) {
             if (tagName === 'ng-container' || tagName === 'ng-content') {
                 return false;
             }
-            // Can't tell now as we don't know which properties a custom element will get
-            // once it is instantiated
-            return true;
-        }
-        else {
-            var elementProperties = this.schema[tagName.toLowerCase()];
-            if (!isPresent(elementProperties)) {
-                elementProperties = this.schema['unknown'];
+            if (schemaMetas.some((schema) => schema.name === CUSTOM_ELEMENTS_SCHEMA.name)) {
+                // Can't tell now as we don't know which properties a custom element will get
+                // once it is instantiated
+                return true;
             }
-            return isPresent(elementProperties[propName]);
         }
+        var elementProperties = this.schema[tagName.toLowerCase()];
+        if (!isPresent(elementProperties)) {
+            elementProperties = this.schema['unknown'];
+        }
+        return isPresent(elementProperties[propName]);
     }
     /**
      * securityContext returns the security context for the given property on the given DOM tag.
@@ -301,6 +299,7 @@ export class DomElementSchemaRegistry extends ElementSchemaRegistry {
         var mappedPropName = StringMapWrapper.get(attrToPropMap, propName);
         return isPresent(mappedPropName) ? mappedPropName : propName;
     }
+    getDefaultComponentElementName() { return 'ng-component'; }
 }
 /** @nocollapse */
 DomElementSchemaRegistry.decorators = [

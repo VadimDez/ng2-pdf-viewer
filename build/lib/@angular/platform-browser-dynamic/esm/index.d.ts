@@ -1,12 +1,22 @@
-import { ApplicationRef, ComponentRef, Type } from '@angular/core';
+import { ComponentRef, PlatformRef } from '@angular/core';
+import { ConcreteType } from './src/facade/lang';
 /**
- * @experimental
+ * @deprecated The compiler providers are already included in the {@link CompilerFactory} that is
+ * contained the {@link browserDynamicPlatform}()`.
  */
 export declare const BROWSER_APP_COMPILER_PROVIDERS: Array<any>;
 /**
  * @experimental
  */
 export declare const CACHED_TEMPLATE_PROVIDER: Array<any>;
+/**
+ * @experimental API related to bootstrapping are still under review.
+ */
+export declare const platformBrowserDynamic: (extraProviders?: any[]) => PlatformRef;
+/**
+ * @deprecated Use {@link platformBrowserDynamic} instead
+ */
+export declare const browserDynamicPlatform: (extraProviders?: any[]) => PlatformRef;
 /**
  * Bootstrapping for Angular applications.
  *
@@ -66,24 +76,43 @@ export declare const CACHED_TEMPLATE_PROVIDER: Array<any>;
  * applications on a page, Angular treats each application injector's services as private
  * to that application.
  *
- * ## API
+ * ## API (version 1)
  *
  * - `appComponentType`: The root component which should act as the application. This is
  *   a reference to a `Type` which is annotated with `@Component(...)`.
  * - `customProviders`: An additional set of providers that can be added to the
  *   app injector to override default injection behavior.
  *
+ * ## API (version 2)
+ * - `appComponentType`: The root component which should act as the application. This is
+ *   a reference to a `Type` which is annotated with `@Component(...)`.
+ * - `providers`, `declarations`, `imports`, `entryComponents`: Defines the properties
+ *   of the dynamically created module that is used to bootstrap the module.
+ * - to configure the compiler, use the `compilerOptions` parameter.
+ *
  * Returns a `Promise` of {@link ComponentRef}.
  *
- * @experimental This api cannot be used with the offline compiler and thus is still subject to
- * change.
+ * @deprecated This api cannot be used with the offline compiler. Use
+ * `PlatformRef.boostrapModule()` instead.
  */
-export declare function bootstrap(appComponentType: Type, customProviders?: Array<any>): Promise<ComponentRef<any>>;
+export declare function bootstrap<C>(appComponentType: ConcreteType<C>, customProviders?: Array<any>): Promise<ComponentRef<C>>;
 /**
+ * Bootstraps the worker ui.
+ *
  * @experimental
  */
-export declare function bootstrapWorkerUi(workerScriptUri: string, customProviders?: Array<any>): Promise<ApplicationRef>;
+export declare function bootstrapWorkerUi(workerScriptUri: string, customProviders?: Array<any>): Promise<PlatformRef>;
 /**
- * @experimental
+ * @experimental API related to bootstrapping are still under review.
  */
-export declare function bootstrapWorkerApp(appComponentType: Type, customProviders?: Array<any>): Promise<ComponentRef<any>>;
+export declare const platformWorkerAppDynamic: (extraProviders?: any[]) => PlatformRef;
+/**
+ * @deprecated Use {@link platformWorkerAppDynamic} instead
+ */
+export declare const workerAppDynamicPlatform: (extraProviders?: any[]) => PlatformRef;
+/**
+ * @deprecated Create an {@link NgModule} that includes the {@link WorkerAppModule} and use {@link
+ * bootstrapModule}
+ * with the {@link workerAppDynamicPlatform}() instead.
+ */
+export declare function bootstrapWorkerApp<T>(appComponentType: ConcreteType<T>, customProviders?: Array<any>): Promise<ComponentRef<T>>;

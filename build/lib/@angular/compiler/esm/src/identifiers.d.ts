@@ -1,5 +1,6 @@
 import { CompileIdentifierMetadata, CompileTokenMetadata } from './compile_metadata';
 export declare class Identifiers {
+    static ANALYZE_FOR_ENTRY_COMPONENTS: CompileIdentifierMetadata;
     static ViewUtils: CompileIdentifierMetadata;
     static AppView: CompileIdentifierMetadata;
     static DebugAppView: CompileIdentifierMetadata;
@@ -13,6 +14,9 @@ export declare class Identifiers {
     static TemplateRef_: CompileIdentifierMetadata;
     static CodegenComponentFactoryResolver: CompileIdentifierMetadata;
     static ComponentFactoryResolver: CompileIdentifierMetadata;
+    static ComponentFactory: CompileIdentifierMetadata;
+    static NgModuleFactory: CompileIdentifierMetadata;
+    static NgModuleInjector: CompileIdentifierMetadata;
     static ValueUnwrapper: CompileIdentifierMetadata;
     static Injector: CompileIdentifierMetadata;
     static ViewEncapsulation: CompileIdentifierMetadata;
@@ -22,7 +26,7 @@ export declare class Identifiers {
     static DebugContext: CompileIdentifierMetadata;
     static Renderer: CompileIdentifierMetadata;
     static SimpleChange: CompileIdentifierMetadata;
-    static uninitialized: CompileIdentifierMetadata;
+    static UNINITIALIZED: CompileIdentifierMetadata;
     static ChangeDetectorStatus: CompileIdentifierMetadata;
     static checkBinding: CompileIdentifierMetadata;
     static flattenNestedViewRenderNodes: CompileIdentifierMetadata;
