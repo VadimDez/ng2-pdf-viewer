@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Angular2 component for rendering PDF",
   "main": "dist/pdf-viewer.component.js",
   "typings": "./dist/pdf-viewer.component.min.d.ts",
