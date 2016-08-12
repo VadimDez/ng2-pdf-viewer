@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component, Input, ElementRef } from '@angular/core';
-import * as PDFJS from 'pdfjs-dist';
+import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
   selector: 'pdf-viewer',
@@ -54,7 +54,7 @@ export class PdfViewerComponent {
   }
 
   private fn() {
-    PDFJS.getDocument(this._src).then((pdf: any) => {
+    (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
 
       if (!this.isValidPageNumber(this._page)) {

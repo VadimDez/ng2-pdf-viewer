@@ -840,7 +840,6 @@ exports.binarySearchFirstItem = binarySearchFirstItem;
       var event = document.createEvent('UIEvents');
       event.initUIEvent('pagechange', true, true, window, 0);
       event.pageNumber = e.pageNumber;
-      event.previousPageNumber = e.previousPageNumber;
       e.source.container.dispatchEvent(event);
     });
     eventBus.on('pagesinit', function (e) {
@@ -1890,7 +1889,7 @@ var PDFLinkService = (function PDFLinkServiceClosure() {
      * @returns {number}
      */
     get pagesCount() {
-      return this.pdfDocument.numPages;
+      return this.pdfDocument ? this.pdfDocument.numPages : 0;
     },
 
     /**
@@ -1921,7 +1920,9 @@ var PDFLinkService = (function PDFLinkServiceClosure() {
           (destRef + 1);
         if (pageNumber) {
           if (pageNumber > self.pagesCount) {
-            pageNumber = self.pagesCount;
+            console.error('PDFLinkService_navigateTo: ' +
+                          'Trying to navigate to a non-existent page.');
+            return;
           }
           self.pdfViewer.scrollPageIntoView(pageNumber, dest);
 
@@ -2098,11 +2099,15 @@ var PDFLinkService = (function PDFLinkServiceClosure() {
           break;
 
         case 'NextPage':
-          this.page++;
+          if (this.page < this.pagesCount) {
+            this.page++;
+          }
           break;
 
         case 'PrevPage':
-          this.page--;
+          if (this.page > 1) {
+            this.page--;
+          }
           break;
 
         case 'LastPage':
@@ -2722,12 +2727,12 @@ var PDFPageView = (function PDFPageViewClosure() {
         function pdfPageRenderCallback() {
           pageViewDrawCallback(null);
           if (textLayer) {
-            self.pdfPage.getTextContent({ normalizeWhitespace: true }).then(
-              function textContentResolved(textContent) {
-                textLayer.setTextContent(textContent);
-                textLayer.render(TEXT_LAYER_RENDER_DELAY);
-              }
-            );
+            self.pdfPage.getTextContent({
+              normalizeWhitespace: true,
+            }).then(function textContentResolved(textContent) {
+              textLayer.setTextContent(textContent);
+              textLayer.render(TEXT_LAYER_RENDER_DELAY);
+            });
           }
         },
         function pdfPageRenderError(error) {
@@ -2800,7 +2805,7 @@ var PDFPageView = (function PDFPageViewClosure() {
         }, function(error) {
           console.error(error);
           // Tell the printEngine that rendering this canvas/page has failed.
-          // This will make the print proces stop.
+          // This will make the print process stop.
           if ('abort' in obj) {
             obj.abort();
           } else {
@@ -3416,44 +3421,57 @@ var PDFViewer = (function pdfViewer() {
       return this._pages[index];
     },
 
+    /**
+     * @returns {number}
+     */
     get currentPageNumber() {
       return this._currentPageNumber;
     },
 
+    /**
+     * @param {number} val - The page number.
+     */
     set currentPageNumber(val) {
+      if ((val | 0) !== val) { // Ensure that `val` is an integer.
+        throw new Error('Invalid page number.');
+      }
       if (!this.pdfDocument) {
         this._currentPageNumber = val;
         return;
       }
-      this._setCurrentPageNumber(val);
       // The intent can be to just reset a scroll position and/or scale.
-      this._resetCurrentPageView();
+      this._setCurrentPageNumber(val, /* resetCurrentPageView = */ true);
     },
 
-    _setCurrentPageNumber: function pdfViewer_setCurrentPageNumber(val) {
+    /**
+     * @private
+     */
+    _setCurrentPageNumber:
+        function PDFViewer_setCurrentPageNumber(val, resetCurrentPageView) {
       if (this._currentPageNumber === val) {
-        return;
-      }
-      var arg;
-      if (!(0 < val && val <= this.pagesCount)) {
-        arg = {
-          source: this,
-          pageNumber: this._currentPageNumber,
-          previousPageNumber: val
-        };
-        this.eventBus.dispatch('pagechanging', arg);
-        this.eventBus.dispatch('pagechange', arg);
+        if (resetCurrentPageView) {
+          this._resetCurrentPageView();
+        }
         return;
       }
 
-      arg = {
+      if (!(0 < val && val <= this.pagesCount)) {
+        console.error('PDFViewer_setCurrentPageNumber: "' + val +
+                      '" is out of bounds.');
+        return;
+      }
+
+      var arg = {
         source: this,
         pageNumber: val,
-        previousPageNumber: this._currentPageNumber
       };
       this._currentPageNumber = val;
       this.eventBus.dispatch('pagechanging', arg);
       this.eventBus.dispatch('pagechange', arg);
+
+      if (resetCurrentPageView) {
+        this._resetCurrentPageView();
+      }
     },
 
     /**
@@ -3468,7 +3486,7 @@ var PDFViewer = (function pdfViewer() {
      * @param {number} val - Scale of the pages in percents.
      */
     set currentScale(val) {
-      if (isNaN(val))  {
+      if (isNaN(val)) {
         throw new Error('Invalid numeric scale');
       }
       if (!this.pdfDocument) {
@@ -3509,8 +3527,14 @@ var PDFViewer = (function pdfViewer() {
      * @param {number} rotation - The rotation of the pages (0, 90, 180, 270).
      */
     set pagesRotation(rotation) {
+      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
+        throw new Error('Invalid pages rotation angle.');
+      }
       this._pagesRotation = rotation;
 
+      if (!this.pdfDocument) {
+        return;
+      }
       for (var i = 0, l = this._pages.length; i < l; i++) {
         var pageView = this._pages[i];
         pageView.update(pageView.scale, rotation);
@@ -3565,7 +3589,6 @@ var PDFViewer = (function pdfViewer() {
           // rendering.
           self._buffer.push(this);
         };
-        // when page is painted, using the image as thumbnail base
         pageView.onAfterDraw = function pdfViewLoadOnAfterDraw() {
           if (!isOnePageRenderedResolved) {
             isOnePageRenderedResolved = true;
@@ -3711,7 +3734,7 @@ var PDFViewer = (function pdfViewer() {
       }
     },
 
-    _setScale: function pdfViewer_setScale(value, noScroll) {
+    _setScale: function PDFViewer_setScale(value, noScroll) {
       var scale = parseFloat(value);
 
       if (scale > 0) {
@@ -3751,8 +3774,8 @@ var PDFViewer = (function pdfViewer() {
             scale = Math.min(MAX_AUTO_SCALE, horizontalScale);
             break;
           default:
-            console.error('pdfViewSetScale: \'' + value +
-              '\' is an unknown zoom value.');
+            console.error('PDFViewer_setScale: "' + value +
+                          '" is an unknown zoom value.');
             return;
         }
         this._setScaleUpdatePages(scale, value, noScroll, true);
@@ -3761,6 +3784,7 @@ var PDFViewer = (function pdfViewer() {
 
     /**
      * Refreshes page view: scrolls to the current page and updates the scale.
+     * @private
      */
     _resetCurrentPageView: function () {
       if (this.isInPresentationMode) {
@@ -3785,8 +3809,7 @@ var PDFViewer = (function pdfViewer() {
       }
 
       if (this.isInPresentationMode || !dest) {
-        this._setCurrentPageNumber(pageNumber);
-        this._resetCurrentPageView();
+        this._setCurrentPageNumber(pageNumber, /* resetCurrentPageView */ true);
         return;
       }
 
@@ -4029,7 +4052,9 @@ var PDFViewer = (function pdfViewer() {
 
     getPageTextContent: function (pageIndex) {
       return this.pdfDocument.getPage(pageIndex + 1).then(function (page) {
-        return page.getTextContent({ normalizeWhitespace: true });
+        return page.getTextContent({
+          normalizeWhitespace: true,
+        });
       });
     },
 

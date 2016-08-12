@@ -19,7 +19,8 @@ Append to ```map```
 ```js
 var map = {
     ...
-    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer'
+    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer',
+    'pdfjs-dist': 'node_modules/pdfjs-dist'
 }
 ```
 

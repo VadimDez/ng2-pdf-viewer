@@ -5,7 +5,7 @@
     'app': './build/',
     'rxjs': './build/lib/rxjs',
     '@angular': './build/lib/@angular',
-    'pdfjs-dist': './build/lib/pdfjs-dist/build',
+    'pdfjs-dist': './build/lib/pdfjs-dist',
     //'pdf-viewer': './dist/'
   };
 
@@ -13,7 +13,7 @@
   var packages = {
     'app': { main: 'main.js', defaultExtension: 'js' },
     'rxjs': { defaultExtension: 'js' },
-    'pdfjs-dist': { main: 'pdf.combined.js', defaultExtension: 'js' },
+    'pdfjs-dist': { main: '/build/pdf.js', defaultExtension: 'js' },
     // 'pdf-viewer': { main: 'pdf-viewer.component.js', defaultExtension: 'js' }
   };
 

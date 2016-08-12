@@ -30,8 +30,7 @@
     "type": "version"
   },
   "_requiredBy": [
-    "/",
-    "/ng2-pdf-viewer"
+    "/"
   ],
   "_resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.6.tgz",
   "_shasum": "cb6dc46d6ddfedfeefc9b15dafd09c34a4370d23",
