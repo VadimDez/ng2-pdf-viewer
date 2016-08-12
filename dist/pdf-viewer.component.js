@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var PDFJS = require('pdfjs-dist/build/pdf.combined');
+require('pdfjs-dist/build/pdf.combined');
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
@@ -58,7 +58,7 @@ var PdfViewerComponent = (function () {
     });
     PdfViewerComponent.prototype.fn = function () {
         var _this = this;
-        PDFJS.getDocument(this._src).then(function (pdf) {
+        window.PDFJS.getDocument(this._src).then(function (pdf) {
             _this._pdf = pdf;
             if (!_this.isValidPageNumber(_this._page)) {
                 _this._page = 1;
@@ -139,5 +139,4 @@ var PdfViewerComponent = (function () {
     return PdfViewerComponent;
 }());
 exports.PdfViewerComponent = PdfViewerComponent;
-
 //# sourceMappingURL=pdf-viewer.component.js.map
