@@ -1,8 +1,13 @@
 # Changelog
 
+## 0.0.8
+
+* [[#5](https://github.com/VadimDez/ng2-pdf-viewer/issues/5)] - Fixed web worker issue
+* [[#4](https://github.com/VadimDez/ng2-pdf-viewer/issues/4)] - Updated angular dependencies to RC.5
+
 ## 0.0.7
 
-* Added webpack compatibility - [#2](https://github.com/VadimDez/ng2-pdf-viewer/issues/2)
+* [#2](https://github.com/VadimDez/ng2-pdf-viewer/issues/2) - Added webpack compatibility
 * Changed default value for original size flag 
 
 ## 0.0.6
