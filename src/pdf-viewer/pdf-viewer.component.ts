@@ -1,7 +1,9 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, ElementRef } from '@angular/core';
+import {
+  Component, Input, Output, ElementRef, EventEmitter
+} from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
@@ -15,6 +17,7 @@ export class PdfViewerComponent {
   private _src: string;
   private _pdf: any;
   private _page: number = 1;
+  private wasInvalidPage: boolean = false;
 
   constructor(private element: ElementRef) {}
 
@@ -29,11 +32,23 @@ export class PdfViewerComponent {
   set page(_page) {
     _page = parseInt(_page, 10);
 
-    if (this._pdf && this.isValidPageNumber(_page)) {
+    if (!this._pdf) {
+      return;
+    }
+
+    if (this.isValidPageNumber(_page)) {
       this._page = _page;
       this.renderPage(_page);
+      this.wasInvalidPage = false;
+    } else if (isNaN(_page)) {
+      this.pageChange.emit(null);
+    } else if (!this.wasInvalidPage) {
+      this.wasInvalidPage = true;
+      this.pageChange.emit(this._page);
     }
   }
+
+  @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {

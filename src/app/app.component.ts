@@ -3,13 +3,12 @@
  */
 import { Component } from '@angular/core';
 import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
-import { MDL } from './mdl';
 
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app/app.component.html',
   styleUrls: ['./app/app.component.css'],
-  directives: [MDL, PdfViewerComponent]
+  directives: [PdfViewerComponent]
 })
 
 
