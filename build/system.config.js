@@ -13,6 +13,7 @@
   var packages = {
     'app': { main: 'main.js', defaultExtension: 'js' },
     'rxjs': { defaultExtension: 'js' },
+    'pdfjs-dist': { main: '/build/pdf.js', defaultExtension: 'js' },
     // 'pdf-viewer': { main: 'pdf-viewer.component.js', defaultExtension: 'js' }
   };
 

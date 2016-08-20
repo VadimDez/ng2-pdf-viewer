@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var pdf_viewer_component_1 = require('./../pdf-viewer/pdf-viewer.component');
-var mdl_1 = require('./mdl');
 var AppComponent = (function () {
     function AppComponent() {
         this.pdfSrc = './pdf-test.pdf';
@@ -26,7 +25,7 @@ var AppComponent = (function () {
             selector: 'pdf-viewer-app',
             templateUrl: './app/app.component.html',
             styleUrls: ['./app/app.component.css'],
-            directives: [mdl_1.MDL, pdf_viewer_component_1.PdfViewerComponent]
+            directives: [pdf_viewer_component_1.PdfViewerComponent]
         }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
