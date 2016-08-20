@@ -16,6 +16,8 @@ var PdfViewerComponent = (function () {
         this._showAll = false;
         this._originalSize = true;
         this._page = 1;
+        this.wasInvalidPage = false;
+        this.pageChange = new core_1.EventEmitter(true);
     }
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
         set: function (_src) {
@@ -28,9 +30,20 @@ var PdfViewerComponent = (function () {
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
         set: function (_page) {
             _page = parseInt(_page, 10);
-            if (this._pdf && this.isValidPageNumber(_page)) {
+            if (!this._pdf) {
+                return;
+            }
+            if (this.isValidPageNumber(_page)) {
                 this._page = _page;
                 this.renderPage(_page);
+                this.wasInvalidPage = false;
+            }
+            else if (isNaN(_page)) {
+                this.pageChange.emit(null);
+            }
+            else if (!this.wasInvalidPage) {
+                this.wasInvalidPage = true;
+                this.pageChange.emit(this._page);
             }
         },
         enumerable: true,
@@ -120,6 +133,10 @@ var PdfViewerComponent = (function () {
         __metadata('design:paramtypes', [Object])
     ], PdfViewerComponent.prototype, "page", null);
     __decorate([
+        core_1.Output(), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], PdfViewerComponent.prototype, "pageChange", void 0);
+    __decorate([
         core_1.Input('original-size'), 
         __metadata('design:type', Boolean), 
         __metadata('design:paramtypes', [Boolean])
@@ -139,4 +156,5 @@ var PdfViewerComponent = (function () {
     return PdfViewerComponent;
 }());
 exports.PdfViewerComponent = PdfViewerComponent;
+
 //# sourceMappingURL=pdf-viewer.component.js.map
