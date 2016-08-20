@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.9
+
+* [[#6](https://github.com/VadimDez/ng2-pdf-viewer/issues/6)] - Limit [page]
+* Updated dependencies
+* Minor changes
+
 ## 0.0.8
 
 * [[#5](https://github.com/VadimDez/ng2-pdf-viewer/issues/5)] - Fixed web worker issue
