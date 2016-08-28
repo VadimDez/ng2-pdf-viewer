@@ -15,6 +15,6 @@ and then add to ```packages```
 ```js
 var packages = {
     ...
-    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.min.js' }
+    'ng2-pdf-viewer': { main: 'dist/pdf-viewer.component.min.js', defaultExtension: 'js' }
 }
 ```
