@@ -9,31 +9,49 @@ var tryCatch_1 = require('../../util/tryCatch');
 var errorObject_1 = require('../../util/errorObject');
 var Observable_1 = require('../../Observable');
 var Subscriber_1 = require('../../Subscriber');
-function createXHRDefault() {
-    var xhr = new root_1.root.XMLHttpRequest();
-    if (this.crossDomain) {
+function getCORSRequest() {
+    if (root_1.root.XMLHttpRequest) {
+        var xhr = new root_1.root.XMLHttpRequest();
         if ('withCredentials' in xhr) {
-            xhr.withCredentials = true;
-            return xhr;
+            xhr.withCredentials = !!this.withCredentials;
         }
-        else if (!!root_1.root.XDomainRequest) {
-            return new root_1.root.XDomainRequest();
-        }
-        else {
-            throw new Error('CORS is not supported by your browser');
-        }
-    }
-    else {
         return xhr;
     }
+    else if (!!root_1.root.XDomainRequest) {
+        return new root_1.root.XDomainRequest();
+    }
+    else {
+        throw new Error('CORS is not supported by your browser');
+    }
 }
-function defaultGetResultSelector(response) {
-    return response.response;
+function getXMLHttpRequest() {
+    if (root_1.root.XMLHttpRequest) {
+        return new root_1.root.XMLHttpRequest();
+    }
+    else {
+        var progId = void 0;
+        try {
+            var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
+            for (var i = 0; i < 3; i++) {
+                try {
+                    progId = progIds[i];
+                    if (new root_1.root.ActiveXObject(progId)) {
+                        break;
+                    }
+                }
+                catch (e) {
+                }
+            }
+            return new root_1.root.ActiveXObject(progId);
+        }
+        catch (e) {
+            throw new Error('XMLHttpRequest is not supported by your browser');
+        }
+    }
 }
-function ajaxGet(url, resultSelector, headers) {
-    if (resultSelector === void 0) { resultSelector = defaultGetResultSelector; }
+function ajaxGet(url, headers) {
     if (headers === void 0) { headers = null; }
-    return new AjaxObservable({ method: 'GET', url: url, resultSelector: resultSelector, headers: headers });
+    return new AjaxObservable({ method: 'GET', url: url, headers: headers });
 }
 exports.ajaxGet = ajaxGet;
 ;
@@ -52,9 +70,8 @@ function ajaxPut(url, body, headers) {
 }
 exports.ajaxPut = ajaxPut;
 ;
-function ajaxGetJSON(url, resultSelector, headers) {
-    var finalResultSelector = resultSelector ? function (res) { return resultSelector(res.response); } : function (res) { return res.response; };
-    return new AjaxObservable({ method: 'GET', url: url, responseType: 'json', resultSelector: finalResultSelector, headers: headers });
+function ajaxGetJSON(url, headers) {
+    return new AjaxObservable({ method: 'GET', url: url, responseType: 'json', headers: headers }).map(function (x) { return x.response; });
 }
 exports.ajaxGetJSON = ajaxGetJSON;
 ;
@@ -69,8 +86,11 @@ var AjaxObservable = (function (_super) {
         _super.call(this);
         var request = {
             async: true,
-            createXHR: createXHRDefault,
+            createXHR: function () {
+                return this.crossDomain ? getCORSRequest.call(this) : getXMLHttpRequest();
+            },
             crossDomain: false,
+            withCredentials: false,
             headers: {},
             method: 'GET',
             responseType: 'json',
@@ -88,13 +108,16 @@ var AjaxObservable = (function (_super) {
         }
         this.request = request;
     }
+    AjaxObservable.prototype._subscribe = function (subscriber) {
+        return new AjaxSubscriber(subscriber, this.request);
+    };
     /**
      * Creates an observable for an Ajax request with either a request object with
      * url, headers, etc or a string for a URL.
      *
      * @example
      * source = Rx.Observable.ajax('/products');
-     * source = Rx.Observable.ajax( url: 'products', method: 'GET' });
+     * source = Rx.Observable.ajax({ url: 'products', method: 'GET' });
      *
      * @param {string|Object} request Can be one of the following:
      *   A string of the URL to make the Ajax call.
@@ -114,10 +137,6 @@ var AjaxObservable = (function (_super) {
      * @name ajax
      * @owner Observable
     */
-    AjaxObservable._create_stub = function () { return null; };
-    AjaxObservable.prototype._subscribe = function (subscriber) {
-        return new AjaxSubscriber(subscriber, this.request);
-    };
     AjaxObservable.create = (function () {
         var create = function (urlOrRequest) {
             return new AjaxObservable(urlOrRequest);
@@ -149,30 +168,18 @@ var AjaxSubscriber = (function (_super) {
             headers['X-Requested-With'] = 'XMLHttpRequest';
         }
         // ensure content type is set
-        if (!('Content-Type' in headers)) {
+        if (!('Content-Type' in headers) && !(root_1.root.FormData && request.body instanceof root_1.root.FormData) && typeof request.body !== 'undefined') {
             headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
         }
         // properly serialize body
         request.body = this.serializeBody(request.body, request.headers['Content-Type']);
-        this.resultSelector = request.resultSelector;
         this.send();
     }
     AjaxSubscriber.prototype.next = function (e) {
         this.done = true;
-        var _a = this, resultSelector = _a.resultSelector, xhr = _a.xhr, request = _a.request, destination = _a.destination;
+        var _a = this, xhr = _a.xhr, request = _a.request, destination = _a.destination;
         var response = new AjaxResponse(e, xhr, request);
-        if (resultSelector) {
-            var result = tryCatch_1.tryCatch(resultSelector)(response);
-            if (result === errorObject_1.errorObject) {
-                this.error(errorObject_1.errorObject.e);
-            }
-            else {
-                destination.next(result);
-            }
-        }
-        else {
-            destination.next(response);
-        }
+        destination.next(response);
     };
     AjaxSubscriber.prototype.send = function () {
         var _a = this, request = _a.request, _b = _a.request, user = _b.user, method = _b.method, url = _b.url, async = _b.async, password = _b.password, headers = _b.headers, body = _b.body;
@@ -193,7 +200,7 @@ var AjaxSubscriber = (function (_super) {
             }
             if (result === errorObject_1.errorObject) {
                 this.error(errorObject_1.errorObject.e);
-                return;
+                return null;
             }
             // timeout and responseType can be set once the XHR is open
             xhr.timeout = request.timeout;
@@ -210,6 +217,7 @@ var AjaxSubscriber = (function (_super) {
                 xhr.send();
             }
         }
+        return xhr;
     };
     AjaxSubscriber.prototype.serializeBody = function (body, contentType) {
         if (!body || typeof body === 'string') {
@@ -218,15 +226,19 @@ var AjaxSubscriber = (function (_super) {
         else if (root_1.root.FormData && body instanceof root_1.root.FormData) {
             return body;
         }
-        var splitIndex = contentType.indexOf(';');
-        if (splitIndex !== -1) {
-            contentType = contentType.substring(0, splitIndex);
+        if (contentType) {
+            var splitIndex = contentType.indexOf(';');
+            if (splitIndex !== -1) {
+                contentType = contentType.substring(0, splitIndex);
+            }
         }
         switch (contentType) {
             case 'application/x-www-form-urlencoded':
                 return Object.keys(body).map(function (key) { return (encodeURI(key) + "=" + encodeURI(body[key])); }).join('&');
             case 'application/json':
                 return JSON.stringify(body);
+            default:
+                return body;
         }
     };
     AjaxSubscriber.prototype.setHeaders = function (xhr, headers) {

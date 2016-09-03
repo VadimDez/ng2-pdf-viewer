@@ -6,9 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { OpaqueToken } from '../di';
-import { BaseException } from '../facade/exceptions';
-import { ConcreteType, Type } from '../facade/lang';
+import { BaseError } from '../facade/errors';
 import { ViewEncapsulation } from '../metadata';
+import { Type } from '../type';
 import { ComponentFactory } from './component_factory';
 import { NgModuleFactory } from './ng_module_factory';
 /**
@@ -16,9 +16,9 @@ import { NgModuleFactory } from './ng_module_factory';
  *
  * @stable
  */
-export declare class ComponentStillLoadingError extends BaseException {
-    compType: Type;
-    constructor(compType: Type);
+export declare class ComponentStillLoadingError extends BaseError {
+    compType: Type<any>;
+    constructor(compType: Type<any>);
 }
 /**
  * Combination of NgModuleFactory and ComponentFactorys.
@@ -31,7 +31,7 @@ export declare class ModuleWithComponentFactories<T> {
     constructor(ngModuleFactory: NgModuleFactory<T>, componentFactories: ComponentFactory<any>[]);
 }
 /**
- * Low-level service for running the angular compiler duirng runtime
+ * Low-level service for running the angular compiler during runtime
  * to create {@link ComponentFactory}s, which
  * can later be used to create and render a Component instance.
  *
@@ -42,32 +42,23 @@ export declare class ModuleWithComponentFactories<T> {
  */
 export declare class Compiler {
     /**
-     * Loads the template and styles of a component and returns the associated `ComponentFactory`.
-     */
-    compileComponentAsync<T>(component: ConcreteType<T>, ngModule?: Type): Promise<ComponentFactory<T>>;
-    /**
-     * Compiles the given component. All templates have to be either inline or compiled via
-     * `compileComponentAsync` before. Otherwise throws a {@link ComponentStillLoadingError}.
-     */
-    compileComponentSync<T>(component: ConcreteType<T>, ngModule?: Type): ComponentFactory<T>;
-    /**
      * Compiles the given NgModule and all of its components. All templates of the components listed
      * in `entryComponents`
      * have to be inlined. Otherwise throws a {@link ComponentStillLoadingError}.
      */
-    compileModuleSync<T>(moduleType: ConcreteType<T>): NgModuleFactory<T>;
+    compileModuleSync<T>(moduleType: Type<T>): NgModuleFactory<T>;
     /**
      * Compiles the given NgModule and all of its components
      */
-    compileModuleAsync<T>(moduleType: ConcreteType<T>): Promise<NgModuleFactory<T>>;
+    compileModuleAsync<T>(moduleType: Type<T>): Promise<NgModuleFactory<T>>;
     /**
      * Same as {@link compileModuleSync} put also creates ComponentFactories for all components.
      */
-    compileModuleAndAllComponentsSync<T>(moduleType: ConcreteType<T>): ModuleWithComponentFactories<T>;
+    compileModuleAndAllComponentsSync<T>(moduleType: Type<T>): ModuleWithComponentFactories<T>;
     /**
      * Same as {@link compileModuleAsync} put also creates ComponentFactories for all components.
      */
-    compileModuleAndAllComponentsAsync<T>(moduleType: ConcreteType<T>): Promise<ModuleWithComponentFactories<T>>;
+    compileModuleAndAllComponentsAsync<T>(moduleType: Type<T>): Promise<ModuleWithComponentFactories<T>>;
     /**
      * Clears all caches
      */
@@ -75,7 +66,7 @@ export declare class Compiler {
     /**
      * Clears the cache for the given component/ngModule.
      */
-    clearCacheFor(type: Type): void;
+    clearCacheFor(type: Type<any>): void;
 }
 /**
  * Options for creating a compiler

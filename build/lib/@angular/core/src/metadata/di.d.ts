@@ -1,6 +1,6 @@
 import { DependencyMetadata } from '../di/metadata';
 import { OpaqueToken } from '../di/opaque_token';
-import { Type } from '../facade/lang';
+import { Type } from '../type';
 /**
  * This token can be used to create a virtual provider that will populate the
  * `entryComponents` fields of components and ng modules based on its `useValue`.
@@ -97,10 +97,7 @@ export declare class AttributeMetadata extends DependencyMetadata {
  *  `
  * })
  * class Tabs {
- *   panes: QueryList<Pane>;
- *   constructor(@Query(Pane) panes:QueryList<Pane>) {
-  *    this.panes = panes;
-  *  }
+ *   @ContentChildren(Pane) panes: QueryList<Pane>;
  * }
  * ```
  *
@@ -114,7 +111,7 @@ export declare class AttributeMetadata extends DependencyMetadata {
  *
  * @Component({ selector: 'seeker' })
  * class Seeker {
- *   constructor(@Query('findme') elList: QueryList<ElementRef>) {...}
+ *   @ContentChildren('findme') elList;
  * }
  * ```
  *
@@ -133,7 +130,7 @@ export declare class AttributeMetadata extends DependencyMetadata {
  *   selector: 'seeker'
  * })
  * class Seeker {
- *   constructor(@Query('findMe, findMeToo') elList: QueryList<ElementRef>) {...}
+ *   @ContentChildren('findMe, findMeToo') elList: QueryList<ElementRef>;
  * }
  * ```
  *
@@ -153,20 +150,20 @@ export declare class AttributeMetadata extends DependencyMetadata {
  * ```
  *
  * When querying for items, the first container will see only `a` and `b` by default,
- * but with `Query(TextDirective, {descendants: true})` it will see `c` too.
+ * but with `ContentChildren(TextDirective, {descendants: true})` it will see `c` too.
  *
  * The queried directives are kept in a depth-first pre-order with respect to their
  * positions in the DOM.
  *
- * Query does not look deep into any subcomponent views.
+ * ContentChildren does not look deep into any subcomponent views.
  *
- * Query is updated as part of the change-detection cycle. Since change detection
+ * ContentChildren is updated as part of the change-detection cycle. Since change detection
  * happens after construction of a directive, QueryList will always be empty when observed in the
  * constructor.
  *
  * The injected object is an unmodifiable live list.
  * See {@link QueryList} for more details.
- * @deprecated
+ * @stable
  */
 export declare class QueryMetadata extends DependencyMetadata {
     private _selector;
@@ -180,7 +177,7 @@ export declare class QueryMetadata extends DependencyMetadata {
      * The DI token to read from an element that matches the selector.
      */
     read: any;
-    constructor(_selector: Type | string, {descendants, first, read}?: {
+    constructor(_selector: Type<any> | string, {descendants, first, read}?: {
         descendants?: boolean;
         first?: boolean;
         read?: any;
@@ -226,7 +223,7 @@ export declare class QueryMetadata extends DependencyMetadata {
  * @stable
  */
 export declare class ContentChildrenMetadata extends QueryMetadata {
-    constructor(_selector: Type | string, {descendants, read}?: {
+    constructor(_selector: Type<any> | string, {descendants, read}?: {
         descendants?: boolean;
         read?: any;
     });
@@ -253,13 +250,13 @@ export declare class ContentChildrenMetadata extends QueryMetadata {
  * @stable
  */
 export declare class ContentChildMetadata extends QueryMetadata {
-    constructor(_selector: Type | string, {read}?: {
+    constructor(_selector: Type<any> | string, {read}?: {
         read?: any;
     });
 }
 /**
- * Similar to {@link QueryMetadata}, but querying the component view, instead of
- * the content children.
+ * Similar to {@link ContentChildMetadata}, but querying the component view, instead
+ * of the content children.
  *
  * ### Example ([live demo](http://plnkr.co/edit/eNsFHDf7YjyM6IzKxM1j?p=preview))
  *
@@ -275,14 +272,11 @@ export declare class ContentChildMetadata extends QueryMetadata {
  * class MyComponent {
  *   shown: boolean;
  *
- *   constructor(private @ViewQuery(Item) items:QueryList<Item>) {
+ *   constructor(private @ViewChildren(Item) items:QueryList<Item>) {
  *     items.changes.subscribe(() => console.log(items.length));
  *   }
  * }
  * ```
- *
- * Supports the same querying parameters as {@link QueryMetadata}, except
- * `descendants`. This always queries the whole view.
  *
  * As `shown` is flipped between true and false, items will contain zero of one
  * items.
@@ -291,10 +285,10 @@ export declare class ContentChildMetadata extends QueryMetadata {
  *
  * The injected object is an iterable and observable live list.
  * See {@link QueryList} for more details.
- * @deprecated
+ * @stable
  */
 export declare class ViewQueryMetadata extends QueryMetadata {
-    constructor(_selector: Type | string, {descendants, first, read}?: {
+    constructor(_selector: Type<any> | string, {descendants, first, read}?: {
         descendants?: boolean;
         first?: boolean;
         read?: any;
@@ -303,7 +297,6 @@ export declare class ViewQueryMetadata extends QueryMetadata {
      * always `true` to differentiate it with {@link QueryMetadata}.
      */
     isViewQuery: boolean;
-    toString(): string;
 }
 /**
  * Declares a list of child element references.
@@ -384,9 +377,10 @@ export declare class ViewQueryMetadata extends QueryMetadata {
  * @stable
  */
 export declare class ViewChildrenMetadata extends ViewQueryMetadata {
-    constructor(_selector: Type | string, {read}?: {
+    constructor(_selector: Type<any> | string, {read}?: {
         read?: any;
     });
+    toString(): string;
 }
 /**
  *
@@ -460,7 +454,7 @@ export declare class ViewChildrenMetadata extends ViewQueryMetadata {
  * @stable
  */
 export declare class ViewChildMetadata extends ViewQueryMetadata {
-    constructor(_selector: Type | string, {read}?: {
+    constructor(_selector: Type<any> | string, {read}?: {
         read?: any;
     });
 }

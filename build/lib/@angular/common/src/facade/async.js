@@ -5,17 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Subject_1 = require('rxjs/Subject');
-var Observable_1 = require('rxjs/Observable');
-exports.Observable = Observable_1.Observable;
-var Subject_2 = require('rxjs/Subject');
-exports.Subject = Subject_2.Subject;
+import { Subject } from 'rxjs/Subject';
+export { Observable } from 'rxjs/Observable';
+export { Subject } from 'rxjs/Subject';
 /**
  * Use by directives and components to emit custom Events.
  *
@@ -63,7 +60,7 @@ exports.Subject = Subject_2.Subject;
  * Once a reference implementation of the spec is available, switch to it.
  * @stable
  */
-var EventEmitter = (function (_super) {
+export var EventEmitter = (function (_super) {
     __extends(EventEmitter, _super);
     /**
      * Creates an instance of [EventEmitter], which depending on [isAsync],
@@ -75,10 +72,6 @@ var EventEmitter = (function (_super) {
         this.__isAsync = isAsync;
     }
     EventEmitter.prototype.emit = function (value) { _super.prototype.next.call(this, value); };
-    /**
-     * @deprecated - use .emit(value) instead
-     */
-    EventEmitter.prototype.next = function (value) { _super.prototype.next.call(this, value); };
     EventEmitter.prototype.subscribe = function (generatorOrNext, error, complete) {
         var schedulerFn;
         var errorFn = function (err) { return null; };
@@ -112,6 +105,5 @@ var EventEmitter = (function (_super) {
         return _super.prototype.subscribe.call(this, schedulerFn, errorFn, completeFn);
     };
     return EventEmitter;
-}(Subject_1.Subject));
-exports.EventEmitter = EventEmitter;
+}(Subject));
 //# sourceMappingURL=async.js.map

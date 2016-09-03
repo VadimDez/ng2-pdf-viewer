@@ -13,7 +13,7 @@ import { PipeTransform } from '@angular/core';
  *
  * {@example core/pipes/ts/lowerupper_pipe/lowerupper_pipe_example.ts region='LowerUpperPipe'}
  *
- * @experimental
+ * @stable
  */
 export declare class LowerCasePipe implements PipeTransform {
     transform(value: string): string;

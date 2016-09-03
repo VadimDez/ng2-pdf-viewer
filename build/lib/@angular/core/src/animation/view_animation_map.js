@@ -5,12 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var ViewAnimationMap = (function () {
+import { ListWrapper, Map, StringMapWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+export var ViewAnimationMap = (function () {
     function ViewAnimationMap() {
-        this._map = new collection_1.Map();
+        this._map = new Map();
         this._allPlayers = [];
     }
     Object.defineProperty(ViewAnimationMap.prototype, "length", {
@@ -20,21 +19,21 @@ var ViewAnimationMap = (function () {
     });
     ViewAnimationMap.prototype.find = function (element, animationName) {
         var playersByAnimation = this._map.get(element);
-        if (lang_1.isPresent(playersByAnimation)) {
+        if (isPresent(playersByAnimation)) {
             return playersByAnimation[animationName];
         }
     };
     ViewAnimationMap.prototype.findAllPlayersByElement = function (element) {
         var el = this._map.get(element);
-        return el ? collection_1.StringMapWrapper.values(el) : [];
+        return el ? StringMapWrapper.values(el) : [];
     };
     ViewAnimationMap.prototype.set = function (element, animationName, player) {
         var playersByAnimation = this._map.get(element);
-        if (!lang_1.isPresent(playersByAnimation)) {
+        if (!isPresent(playersByAnimation)) {
             playersByAnimation = {};
         }
         var existingEntry = playersByAnimation[animationName];
-        if (lang_1.isPresent(existingEntry)) {
+        if (isPresent(existingEntry)) {
             this.remove(element, animationName);
         }
         playersByAnimation[animationName] = player;
@@ -44,17 +43,16 @@ var ViewAnimationMap = (function () {
     ViewAnimationMap.prototype.getAllPlayers = function () { return this._allPlayers; };
     ViewAnimationMap.prototype.remove = function (element, animationName) {
         var playersByAnimation = this._map.get(element);
-        if (lang_1.isPresent(playersByAnimation)) {
+        if (isPresent(playersByAnimation)) {
             var player = playersByAnimation[animationName];
             delete playersByAnimation[animationName];
             var index = this._allPlayers.indexOf(player);
-            collection_1.ListWrapper.removeAt(this._allPlayers, index);
-            if (collection_1.StringMapWrapper.isEmpty(playersByAnimation)) {
+            ListWrapper.removeAt(this._allPlayers, index);
+            if (StringMapWrapper.isEmpty(playersByAnimation)) {
                 this._map.delete(element);
             }
         }
     };
     return ViewAnimationMap;
 }());
-exports.ViewAnimationMap = ViewAnimationMap;
 //# sourceMappingURL=view_animation_map.js.map

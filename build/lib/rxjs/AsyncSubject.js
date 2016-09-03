@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subject_1 = require('./Subject');
+var Subscription_1 = require('./Subscription');
 /**
  * @class AsyncSubject<T>
  */
@@ -14,38 +15,32 @@ var AsyncSubject = (function (_super) {
         _super.apply(this, arguments);
         this.value = null;
         this.hasNext = false;
+        this.hasCompleted = false;
     }
     AsyncSubject.prototype._subscribe = function (subscriber) {
         if (this.hasCompleted && this.hasNext) {
             subscriber.next(this.value);
+            subscriber.complete();
+            return Subscription_1.Subscription.EMPTY;
+        }
+        else if (this.hasError) {
+            subscriber.error(this.thrownError);
+            return Subscription_1.Subscription.EMPTY;
         }
         return _super.prototype._subscribe.call(this, subscriber);
     };
-    AsyncSubject.prototype._next = function (value) {
-        this.value = value;
-        this.hasNext = true;
+    AsyncSubject.prototype.next = function (value) {
+        if (!this.hasCompleted) {
+            this.value = value;
+            this.hasNext = true;
+        }
     };
-    AsyncSubject.prototype._complete = function () {
-        var index = -1;
-        var observers = this.observers;
-        var len = observers.length;
-        // optimization to block our SubjectSubscriptions from
-        // splicing themselves out of the observers list one by one.
-        this.isUnsubscribed = true;
+    AsyncSubject.prototype.complete = function () {
+        this.hasCompleted = true;
         if (this.hasNext) {
-            while (++index < len) {
-                var o = observers[index];
-                o.next(this.value);
-                o.complete();
-            }
+            _super.prototype.next.call(this, this.value);
         }
-        else {
-            while (++index < len) {
-                observers[index].complete();
-            }
-        }
-        this.isUnsubscribed = false;
-        this.unsubscribe();
+        _super.prototype.complete.call(this);
     };
     return AsyncSubject;
 }(Subject_1.Subject));

@@ -27,7 +27,7 @@ var Subscription = (function () {
          * A flag to indicate whether this Subscription has already been unsubscribed.
          * @type {boolean}
          */
-        this.isUnsubscribed = false;
+        this.closed = false;
         if (unsubscribe) {
             this._unsubscribe = unsubscribe;
         }
@@ -41,10 +41,10 @@ var Subscription = (function () {
     Subscription.prototype.unsubscribe = function () {
         var hasErrors = false;
         var errors;
-        if (this.isUnsubscribed) {
+        if (this.closed) {
             return;
         }
-        this.isUnsubscribed = true;
+        this.closed = true;
         var _a = this, _unsubscribe = _a._unsubscribe, _subscriptions = _a._subscriptions;
         this._subscriptions = null;
         if (isFunction_1.isFunction(_unsubscribe)) {
@@ -87,7 +87,7 @@ var Subscription = (function () {
      * unsubscribed, is the same reference `add` is being called on, or is
      * `Subscription.EMPTY`, it will not be added.
      *
-     * If this subscription is already in an `isUnsubscribed` state, the passed
+     * If this subscription is already in an `closed` state, the passed
      * tear down logic will be executed immediately.
      *
      * @param {TeardownLogic} teardown The additional logic to execute on
@@ -98,18 +98,21 @@ var Subscription = (function () {
      * list.
      */
     Subscription.prototype.add = function (teardown) {
-        if (!teardown || (teardown === this) || (teardown === Subscription.EMPTY)) {
-            return;
+        if (!teardown || (teardown === Subscription.EMPTY)) {
+            return Subscription.EMPTY;
+        }
+        if (teardown === this) {
+            return this;
         }
         var sub = teardown;
         switch (typeof teardown) {
             case 'function':
                 sub = new Subscription(teardown);
             case 'object':
-                if (sub.isUnsubscribed || typeof sub.unsubscribe !== 'function') {
+                if (sub.closed || typeof sub.unsubscribe !== 'function') {
                     break;
                 }
-                else if (this.isUnsubscribed) {
+                else if (this.closed) {
                     sub.unsubscribe();
                 }
                 else {
@@ -117,7 +120,7 @@ var Subscription = (function () {
                 }
                 break;
             default:
-                throw new Error('Unrecognized teardown ' + teardown + ' added to Subscription.');
+                throw new Error('unrecognized teardown ' + teardown + ' added to Subscription.');
         }
         return sub;
     };
@@ -141,7 +144,7 @@ var Subscription = (function () {
         }
     };
     Subscription.EMPTY = (function (empty) {
-        empty.isUnsubscribed = true;
+        empty.closed = true;
         return empty;
     }(new Subscription()));
     return Subscription;

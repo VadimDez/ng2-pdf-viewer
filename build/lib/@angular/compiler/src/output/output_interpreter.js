@@ -5,27 +5,24 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var o = require('./output_ast');
-var ts_emitter_1 = require('./ts_emitter');
-function interpretStatements(statements, resultVar) {
+import { ListWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+import * as o from './output_ast';
+import { debugOutputAstAsTypeScript } from './ts_emitter';
+export function interpretStatements(statements, resultVar) {
     var stmtsWithReturn = statements.concat([new o.ReturnStatement(o.variable(resultVar))]);
     var ctx = new _ExecutionContext(null, null, null, new Map());
     var visitor = new StatementInterpreter();
     var result = visitor.visitAllStatements(stmtsWithReturn, ctx);
-    return lang_1.isPresent(result) ? result.value : null;
+    return isPresent(result) ? result.value : null;
 }
-exports.interpretStatements = interpretStatements;
 function _executeFunctionStatements(varNames, varValues, statements, ctx, visitor) {
     var childCtx = ctx.createChildWihtLocalVars();
     for (var i = 0; i < varNames.length; i++) {
         childCtx.vars.set(varNames[i], varValues[i]);
     }
     var result = visitor.visitAllStatements(statements, childCtx);
-    return lang_1.isPresent(result) ? result.value : null;
+    return isPresent(result) ? result.value : null;
 }
 var _ExecutionContext = (function () {
     function _ExecutionContext(parent, instance, className, vars) {
@@ -92,7 +89,7 @@ function createDynamicClass(_classStmt, _ctx, _visitor) {
 var StatementInterpreter = (function () {
     function StatementInterpreter() {
     }
-    StatementInterpreter.prototype.debugAst = function (ast) { return ts_emitter_1.debugOutputAstAsTypeScript(ast); };
+    StatementInterpreter.prototype.debugAst = function (ast) { return debugOutputAstAsTypeScript(ast); };
     StatementInterpreter.prototype.visitDeclareVarStmt = function (stmt, ctx) {
         ctx.vars.set(stmt.name, stmt.value.visitExpression(this, ctx));
         return null;
@@ -107,11 +104,11 @@ var StatementInterpreter = (function () {
             }
             currCtx = currCtx.parent;
         }
-        throw new exceptions_1.BaseException("Not declared variable " + expr.name);
+        throw new Error("Not declared variable " + expr.name);
     };
     StatementInterpreter.prototype.visitReadVarExpr = function (ast, ctx) {
         var varName = ast.name;
-        if (lang_1.isPresent(ast.builtin)) {
+        if (isPresent(ast.builtin)) {
             switch (ast.builtin) {
                 case o.BuiltinVar.Super:
                     return ctx.instance.__proto__;
@@ -124,7 +121,7 @@ var StatementInterpreter = (function () {
                     varName = CATCH_STACK_VAR;
                     break;
                 default:
-                    throw new exceptions_1.BaseException("Unknown builtin variable " + ast.builtin);
+                    throw new Error("Unknown builtin variable " + ast.builtin);
             }
         }
         var currCtx = ctx;
@@ -134,7 +131,7 @@ var StatementInterpreter = (function () {
             }
             currCtx = currCtx.parent;
         }
-        throw new exceptions_1.BaseException("Not declared variable " + varName);
+        throw new Error("Not declared variable " + varName);
     };
     StatementInterpreter.prototype.visitWriteKeyExpr = function (expr, ctx) {
         var receiver = expr.receiver.visitExpression(this, ctx);
@@ -153,19 +150,19 @@ var StatementInterpreter = (function () {
         var receiver = expr.receiver.visitExpression(this, ctx);
         var args = this.visitAllExpressions(expr.args, ctx);
         var result;
-        if (lang_1.isPresent(expr.builtin)) {
+        if (isPresent(expr.builtin)) {
             switch (expr.builtin) {
                 case o.BuiltinMethod.ConcatArray:
-                    result = collection_1.ListWrapper.concat(receiver, args[0]);
+                    result = ListWrapper.concat(receiver, args[0]);
                     break;
                 case o.BuiltinMethod.SubscribeObservable:
                     result = receiver.subscribe({ next: args[0] });
                     break;
-                case o.BuiltinMethod.bind:
+                case o.BuiltinMethod.Bind:
                     result = receiver.bind(args[0]);
                     break;
                 default:
-                    throw new exceptions_1.BaseException("Unknown builtin method " + expr.builtin);
+                    throw new Error("Unknown builtin method " + expr.builtin);
             }
         }
         else {
@@ -201,7 +198,7 @@ var StatementInterpreter = (function () {
         if (condition) {
             return this.visitAllStatements(stmt.trueCase, ctx);
         }
-        else if (lang_1.isPresent(stmt.falseCase)) {
+        else if (isPresent(stmt.falseCase)) {
             return this.visitAllStatements(stmt.falseCase, ctx);
         }
         return null;
@@ -227,12 +224,14 @@ var StatementInterpreter = (function () {
         return new (clazz.bind.apply(clazz, [void 0].concat(args)))();
     };
     StatementInterpreter.prototype.visitLiteralExpr = function (ast, ctx) { return ast.value; };
-    StatementInterpreter.prototype.visitExternalExpr = function (ast, ctx) { return ast.value.runtime; };
+    StatementInterpreter.prototype.visitExternalExpr = function (ast, ctx) {
+        return ast.value.reference;
+    };
     StatementInterpreter.prototype.visitConditionalExpr = function (ast, ctx) {
         if (ast.condition.visitExpression(this, ctx)) {
             return ast.trueCase.visitExpression(this, ctx);
         }
-        else if (lang_1.isPresent(ast.falseCase)) {
+        else if (isPresent(ast.falseCase)) {
             return ast.falseCase.visitExpression(this, ctx);
         }
         return null;
@@ -288,7 +287,7 @@ var StatementInterpreter = (function () {
             case o.BinaryOperator.BiggerEquals:
                 return lhs() >= rhs();
             default:
-                throw new exceptions_1.BaseException("Unknown operator " + ast.operator);
+                throw new Error("Unknown operator " + ast.operator);
         }
     };
     StatementInterpreter.prototype.visitReadPropExpr = function (ast, ctx) {

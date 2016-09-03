@@ -20,14 +20,6 @@ import { NgLocalization } from '../localization';
  *  ## Example
  *
  *  ```
- *  class MyLocalization extends NgLocalization {
- *    getPluralCategory(value: any) {
- *      if(value > 1) {
- *        return 'other';
- *      }
- *    }
- *  }
- *
  *  @Component({
  *    selector: 'app',
  *    template: `
@@ -35,7 +27,8 @@ import { NgLocalization } from '../localization';
  *        {{ messages.length | i18nPlural: messageMapping }}
  *      </div>
  *    `,
- *    providers: [{provide: NgLocalization, useClass: MyLocalization}]
+ *    // best practice is to define the locale at the application level
+ *    providers: [{provide: LOCALE_ID, useValue: 'en_US'}]
  *  })
  *
  *  class MyApp {

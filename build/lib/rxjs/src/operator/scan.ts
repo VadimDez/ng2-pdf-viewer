@@ -3,7 +3,7 @@ import {Observable} from '../Observable';
 import {Subscriber} from '../Subscriber';
 
 /**
- * Applies an accumulation function over the source Observable, and returns each
+ * Applies an accumulator function over the source Observable, and returns each
  * intermediate result, with an optional seed value.
  *
  * <span class="informal">It's like {@link reduce}, but emits the current
@@ -32,23 +32,19 @@ import {Subscriber} from '../Subscriber';
  * @see {@link mergeScan}
  * @see {@link reduce}
  *
- * @param {function(acc: R, value: T): R} accumulator The accumulator function
- * called on each source value.
+ * @param {function(acc: R, value: T, index: number): R} accumulator
+ * The accumulator function called on each source value.
  * @param {T|R} [seed] The initial accumulation value.
  * @return {Observable<R>} An observable of the accumulated values.
  * @method scan
  * @owner Observable
  */
-export function scan<T, R>(accumulator: (acc: R, value: T) => R, seed?: T | R): Observable<R> {
+export function scan<T, R>(accumulator: (acc: R, value: T, index: number) => R, seed?: T | R): Observable<R> {
   return this.lift(new ScanOperator(accumulator, seed));
 }
 
-export interface ScanSignature<T> {
-  <R>(accumulator: (acc: R, value: T) => R, seed?: T | R): Observable<R>;
-}
-
 class ScanOperator<T, R> implements Operator<T, R> {
-  constructor(private accumulator: (acc: R, value: T) => R, private seed?: T | R) {
+  constructor(private accumulator: (acc: R, value: T, index: number) => R, private seed?: T | R) {
   }
 
   call(subscriber: Subscriber<R>, source: any): any {
@@ -62,6 +58,8 @@ class ScanOperator<T, R> implements Operator<T, R> {
  * @extends {Ignored}
  */
 class ScanSubscriber<T, R> extends Subscriber<T> {
+  private index: number = 0;
+  private accumulatorSet: boolean = false;
   private _seed: T | R;
 
   get seed(): T | R {
@@ -73,12 +71,9 @@ class ScanSubscriber<T, R> extends Subscriber<T> {
     this._seed = value;
   }
 
-  private accumulatorSet: boolean = false;
-
-  constructor(destination: Subscriber<R>, private accumulator: (acc: R, value: T) => R, seed?: T|R) {
+  constructor(destination: Subscriber<R>, private accumulator: (acc: R, value: T, index: number) => R, seed?: T | R) {
     super(destination);
     this.seed = seed;
-    this.accumulator = accumulator;
     this.accumulatorSet = typeof seed !== 'undefined';
   }
 
@@ -92,9 +87,10 @@ class ScanSubscriber<T, R> extends Subscriber<T> {
   }
 
   private _tryNext(value: T): void {
+    const index = this.index++;
     let result: any;
     try {
-      result = this.accumulator(<R>this.seed, value);
+      result = this.accumulator(<R>this.seed, value, index);
     } catch (err) {
       this.destination.error(err);
     }

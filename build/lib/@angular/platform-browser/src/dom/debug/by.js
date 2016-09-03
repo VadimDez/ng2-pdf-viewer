@@ -5,15 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var dom_adapter_1 = require('../../dom/dom_adapter');
-var lang_1 = require('../../facade/lang');
+import { getDOM } from '../../dom/dom_adapter';
+import { isPresent } from '../../facade/lang';
 /**
  * Predicates for use with {@link DebugElement}'s query functions.
  *
  * @experimental All debugging apis are currently experimental.
  */
-var By = (function () {
+export var By = (function () {
     function By() {
     }
     /**
@@ -33,8 +32,8 @@ var By = (function () {
      */
     By.css = function (selector) {
         return function (debugElement) {
-            return lang_1.isPresent(debugElement.nativeElement) ?
-                dom_adapter_1.getDOM().elementMatches(debugElement.nativeElement, selector) :
+            return isPresent(debugElement.nativeElement) ?
+                getDOM().elementMatches(debugElement.nativeElement, selector) :
                 false;
         };
     };
@@ -50,5 +49,4 @@ var By = (function () {
     };
     return By;
 }());
-exports.By = By;
 //# sourceMappingURL=by.js.map

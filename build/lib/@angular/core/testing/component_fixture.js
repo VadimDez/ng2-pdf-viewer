@@ -5,19 +5,18 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var index_1 = require('../index');
-var exceptions_1 = require('../src/facade/exceptions');
-var lang_1 = require('../src/facade/lang');
+import { getDebugNode } from '@angular/core';
+import { scheduleMicroTask } from './facade/lang';
 /**
  * Fixture for debugging and testing a component.
  *
  * @stable
  */
-var ComponentFixture = (function () {
+export var ComponentFixture = (function () {
     function ComponentFixture(componentRef, ngZone, autoDetect) {
         var _this = this;
         this._isStable = true;
+        this._isDestroyed = false;
         this._promise = null;
         this._onUnstableSubscription = null;
         this._onStableSubscription = null;
@@ -25,7 +24,7 @@ var ComponentFixture = (function () {
         this._onErrorSubscription = null;
         this.changeDetectorRef = componentRef.changeDetectorRef;
         this.elementRef = componentRef.location;
-        this.debugElement = index_1.getDebugNode(this.elementRef.nativeElement);
+        this.debugElement = getDebugNode(this.elementRef.nativeElement);
         this.componentInstance = componentRef.instance;
         this.nativeElement = this.elementRef.nativeElement;
         this.componentRef = componentRef;
@@ -51,7 +50,7 @@ var ComponentFixture = (function () {
                         // If so check whether there are no pending macrotasks before resolving.
                         // Do this check in the next tick so that ngZone gets a chance to update the state of
                         // pending macrotasks.
-                        lang_1.scheduleMicroTask(function () {
+                        scheduleMicroTask(function () {
                             if (!_this.ngZone.hasPendingMacrotasks) {
                                 if (_this._promise !== null) {
                                     _this._resolve(true);
@@ -64,7 +63,7 @@ var ComponentFixture = (function () {
                 }
             });
             this._onErrorSubscription =
-                ngZone.onError.subscribe({ next: function (error) { throw error.error; } });
+                ngZone.onError.subscribe({ next: function (error) { throw error; } });
         }
     }
     ComponentFixture.prototype._tick = function (checkNoChanges) {
@@ -101,7 +100,7 @@ var ComponentFixture = (function () {
     ComponentFixture.prototype.autoDetectChanges = function (autoDetect) {
         if (autoDetect === void 0) { autoDetect = true; }
         if (this.ngZone == null) {
-            throw new exceptions_1.BaseException('Cannot call autoDetectChanges when ComponentFixtureNoNgZone is set');
+            throw new Error('Cannot call autoDetectChanges when ComponentFixtureNoNgZone is set');
         }
         this._autoDetect = autoDetect;
         this.detectChanges();
@@ -134,25 +133,27 @@ var ComponentFixture = (function () {
      * Trigger component destruction.
      */
     ComponentFixture.prototype.destroy = function () {
-        this.componentRef.destroy();
-        if (this._onUnstableSubscription != null) {
-            this._onUnstableSubscription.unsubscribe();
-            this._onUnstableSubscription = null;
-        }
-        if (this._onStableSubscription != null) {
-            this._onStableSubscription.unsubscribe();
-            this._onStableSubscription = null;
-        }
-        if (this._onMicrotaskEmptySubscription != null) {
-            this._onMicrotaskEmptySubscription.unsubscribe();
-            this._onMicrotaskEmptySubscription = null;
-        }
-        if (this._onErrorSubscription != null) {
-            this._onErrorSubscription.unsubscribe();
-            this._onErrorSubscription = null;
+        if (!this._isDestroyed) {
+            this.componentRef.destroy();
+            if (this._onUnstableSubscription != null) {
+                this._onUnstableSubscription.unsubscribe();
+                this._onUnstableSubscription = null;
+            }
+            if (this._onStableSubscription != null) {
+                this._onStableSubscription.unsubscribe();
+                this._onStableSubscription = null;
+            }
+            if (this._onMicrotaskEmptySubscription != null) {
+                this._onMicrotaskEmptySubscription.unsubscribe();
+                this._onMicrotaskEmptySubscription = null;
+            }
+            if (this._onErrorSubscription != null) {
+                this._onErrorSubscription.unsubscribe();
+                this._onErrorSubscription = null;
+            }
+            this._isDestroyed = true;
         }
     };
     return ComponentFixture;
 }());
-exports.ComponentFixture = ComponentFixture;
 //# sourceMappingURL=component_fixture.js.map

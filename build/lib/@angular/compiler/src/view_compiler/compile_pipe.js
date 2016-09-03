@@ -5,13 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var identifiers_1 = require('../identifiers');
-var o = require('../output/output_ast');
-var util_1 = require('./util');
-var CompilePipe = (function () {
+import { isBlank } from '../facade/lang';
+import { Identifiers, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
+import * as o from '../output/output_ast';
+import { createPureProxy, getPropertyInView, injectFromViewParentInjector } from './util';
+export var CompilePipe = (function () {
     function CompilePipe(view, meta) {
         var _this = this;
         this.view = view;
@@ -19,10 +17,11 @@ var CompilePipe = (function () {
         this._purePipeProxyCount = 0;
         this.instance = o.THIS_EXPR.prop("_pipe_" + meta.name + "_" + view.pipeCount++);
         var deps = this.meta.type.diDeps.map(function (diDep) {
-            if (diDep.token.equalsTo(identifiers_1.identifierToken(identifiers_1.Identifiers.ChangeDetectorRef))) {
-                return util_1.getPropertyInView(o.THIS_EXPR.prop('ref'), _this.view, _this.view.componentView);
+            if (diDep.token.reference ===
+                resolveIdentifierToken(Identifiers.ChangeDetectorRef).reference) {
+                return getPropertyInView(o.THIS_EXPR.prop('ref'), _this.view, _this.view.componentView);
             }
-            return util_1.injectFromViewParentInjector(diDep.token, false);
+            return injectFromViewParentInjector(diDep.token, false);
         });
         this.view.fields.push(new o.ClassField(this.instance.name, o.importType(this.meta.type)));
         this.view.createMethod.resetDebugInfo(null, null);
@@ -37,7 +36,7 @@ var CompilePipe = (function () {
         if (meta.pure) {
             // pure pipes live on the component view
             pipe = compView.purePipes.get(name);
-            if (lang_1.isBlank(pipe)) {
+            if (isBlank(pipe)) {
                 pipe = new CompilePipe(compView, meta);
                 compView.purePipes.set(name, pipe);
                 compView.pipes.push(pipe);
@@ -59,20 +58,19 @@ var CompilePipe = (function () {
         if (this.meta.pure) {
             // PurePipeProxies live on the view that called them.
             var purePipeProxyInstance = o.THIS_EXPR.prop(this.instance.name + "_" + this._purePipeProxyCount++);
-            var pipeInstanceSeenFromPureProxy = util_1.getPropertyInView(this.instance, callingView, this.view);
-            util_1.createPureProxy(pipeInstanceSeenFromPureProxy.prop('transform')
-                .callMethod(o.BuiltinMethod.bind, [pipeInstanceSeenFromPureProxy]), args.length, purePipeProxyInstance, callingView);
-            return o.importExpr(identifiers_1.Identifiers.castByValue)
+            var pipeInstanceSeenFromPureProxy = getPropertyInView(this.instance, callingView, this.view);
+            createPureProxy(pipeInstanceSeenFromPureProxy.prop('transform')
+                .callMethod(o.BuiltinMethod.Bind, [pipeInstanceSeenFromPureProxy]), args.length, purePipeProxyInstance, callingView);
+            return o.importExpr(resolveIdentifier(Identifiers.castByValue))
                 .callFn([purePipeProxyInstance, pipeInstanceSeenFromPureProxy.prop('transform')])
                 .callFn(args);
         }
         else {
-            return util_1.getPropertyInView(this.instance, callingView, this.view).callMethod('transform', args);
+            return getPropertyInView(this.instance, callingView, this.view).callMethod('transform', args);
         }
     };
     return CompilePipe;
 }());
-exports.CompilePipe = CompilePipe;
 function _findPipeMeta(view, name) {
     var pipeMeta = null;
     for (var i = view.pipeMetas.length - 1; i >= 0; i--) {
@@ -82,8 +80,8 @@ function _findPipeMeta(view, name) {
             break;
         }
     }
-    if (lang_1.isBlank(pipeMeta)) {
-        throw new exceptions_1.BaseException("Illegal state: Could not find pipe " + name + " although the parser should have detected this error!");
+    if (isBlank(pipeMeta)) {
+        throw new Error("Illegal state: Could not find pipe " + name + " although the parser should have detected this error!");
     }
     return pipeMeta;
 }

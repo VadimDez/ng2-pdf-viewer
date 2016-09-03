@@ -5,24 +5,22 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_private_1 = require('../../core_private');
+import { NoOpAnimationPlayer } from '../private_import_core';
 var _NoOpAnimationDriver = (function () {
     function _NoOpAnimationDriver() {
     }
     _NoOpAnimationDriver.prototype.animate = function (element, startingStyles, keyframes, duration, delay, easing) {
-        return new core_private_1.NoOpAnimationPlayer();
+        return new NoOpAnimationPlayer();
     };
     return _NoOpAnimationDriver;
 }());
 /**
  * @experimental
  */
-var AnimationDriver = (function () {
+export var AnimationDriver = (function () {
     function AnimationDriver() {
     }
     AnimationDriver.NOOP = new _NoOpAnimationDriver();
     return AnimationDriver;
 }());
-exports.AnimationDriver = AnimationDriver;
 //# sourceMappingURL=animation_driver.js.map

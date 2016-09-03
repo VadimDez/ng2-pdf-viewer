@@ -1,6 +1,6 @@
 import { Subject } from '../Subject';
 import { Subscriber } from '../Subscriber';
-import { TeardownLogic } from '../Subscription';
+import { Subscription } from '../Subscription';
 import { Scheduler } from '../Scheduler';
 import { TestMessage } from './TestMessage';
 import { SubscriptionLog } from './SubscriptionLog';
@@ -17,6 +17,6 @@ export declare class HotObservable<T> extends Subject<T> implements Subscription
     logSubscribedFrame: () => number;
     logUnsubscribedFrame: (index: number) => void;
     constructor(messages: TestMessage[], scheduler: Scheduler);
-    protected _subscribe(subscriber: Subscriber<any>): TeardownLogic;
+    protected _subscribe(subscriber: Subscriber<any>): Subscription;
     setup(): void;
 }

@@ -5,23 +5,21 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var lang_1 = require('../facade/lang');
-var util_1 = require('../util');
-var abstract_emitter_1 = require('./abstract_emitter');
-var abstract_js_emitter_1 = require('./abstract_js_emitter');
-function jitStatements(sourceUrl, statements, resultVar) {
+import { evalExpression, isPresent } from '../facade/lang';
+import { sanitizeIdentifier } from '../util';
+import { EmitterVisitorContext } from './abstract_emitter';
+import { AbstractJsEmitterVisitor } from './abstract_js_emitter';
+export function jitStatements(sourceUrl, statements, resultVar) {
     var converter = new JitEmitterVisitor();
-    var ctx = abstract_emitter_1.EmitterVisitorContext.createRoot([resultVar]);
+    var ctx = EmitterVisitorContext.createRoot([resultVar]);
     converter.visitAllStatements(statements, ctx);
-    return lang_1.evalExpression(sourceUrl, resultVar, ctx.toSource(), converter.getArgs());
+    return evalExpression(sourceUrl, resultVar, ctx.toSource(), converter.getArgs());
 }
-exports.jitStatements = jitStatements;
 var JitEmitterVisitor = (function (_super) {
     __extends(JitEmitterVisitor, _super);
     function JitEmitterVisitor() {
@@ -37,17 +35,17 @@ var JitEmitterVisitor = (function (_super) {
         return result;
     };
     JitEmitterVisitor.prototype.visitExternalExpr = function (ast, ctx) {
-        var value = ast.value.runtime;
+        var value = ast.value.reference;
         var id = this._evalArgValues.indexOf(value);
         if (id === -1) {
             id = this._evalArgValues.length;
             this._evalArgValues.push(value);
-            var name = lang_1.isPresent(ast.value.name) ? util_1.sanitizeIdentifier(ast.value.name) : 'val';
-            this._evalArgNames.push(util_1.sanitizeIdentifier("jit_" + name + id));
+            var name = isPresent(ast.value.name) ? sanitizeIdentifier(ast.value.name) : 'val';
+            this._evalArgNames.push(sanitizeIdentifier("jit_" + name + id));
         }
         ctx.print(this._evalArgNames[id]);
         return null;
     };
     return JitEmitterVisitor;
-}(abstract_js_emitter_1.AbstractJsEmitterVisitor));
+}(AbstractJsEmitterVisitor));
 //# sourceMappingURL=output_jit.js.map

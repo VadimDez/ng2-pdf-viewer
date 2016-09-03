@@ -10,6 +10,7 @@ export declare class CssSelector {
     notSelectors: CssSelector[];
     static parse(selector: string): CssSelector[];
     isElementSelector(): boolean;
+    hasElementSelector(): boolean;
     setElement(element?: string): void;
     /** Gets a template string for an element that matches the selector. */
     getMatchingElementTemplate(): string;

@@ -5,36 +5,33 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var html = require('../ml_parser/ast');
-var digest_1 = require('./digest');
-var i18n = require('./i18n_ast');
-var i18n_parser_1 = require('./i18n_parser');
-var parse_util_1 = require('./parse_util');
+import * as html from '../ml_parser/ast';
+import { ParseTreeResult } from '../ml_parser/parser';
+import { digestMessage } from './digest';
+import * as i18n from './i18n_ast';
+import { createI18nMessageFactory } from './i18n_parser';
+import { I18nError } from './parse_util';
 var _I18N_ATTR = 'i18n';
 var _I18N_ATTR_PREFIX = 'i18n-';
 var _I18N_COMMENT_PREFIX_REGEXP = /^i18n:?/;
 /**
  * Extract translatable messages from an html AST
  */
-function extractMessages(nodes, interpolationConfig, implicitTags, implicitAttrs) {
+export function extractMessages(nodes, interpolationConfig, implicitTags, implicitAttrs) {
     var visitor = new _Visitor(implicitTags, implicitAttrs);
     return visitor.extract(nodes, interpolationConfig);
 }
-exports.extractMessages = extractMessages;
-function mergeTranslations(nodes, translations, interpolationConfig, implicitTags, implicitAttrs) {
+export function mergeTranslations(nodes, translations, interpolationConfig, implicitTags, implicitAttrs) {
     var visitor = new _Visitor(implicitTags, implicitAttrs);
     return visitor.merge(nodes, translations, interpolationConfig);
 }
-exports.mergeTranslations = mergeTranslations;
-var ExtractionResult = (function () {
+export var ExtractionResult = (function () {
     function ExtractionResult(messages, errors) {
         this.messages = messages;
         this.errors = errors;
     }
     return ExtractionResult;
 }());
-exports.ExtractionResult = ExtractionResult;
 var _VisitorMode;
 (function (_VisitorMode) {
     _VisitorMode[_VisitorMode["Extract"] = 0] = "Extract";
@@ -51,11 +48,6 @@ var _Visitor = (function () {
     function _Visitor(_implicitTags, _implicitAttrs) {
         this._implicitTags = _implicitTags;
         this._implicitAttrs = _implicitAttrs;
-        // <el i18n>...</el>
-        this._inI18nNode = false;
-        this._depth = 0;
-        // {<icu message>}
-        this._inIcu = false;
     }
     /**
      * Extracts the messages from the tree
@@ -81,7 +73,7 @@ var _Visitor = (function () {
         if (this._inI18nBlock) {
             this._reportError(nodes[nodes.length - 1], 'Unclosed block');
         }
-        return translatedNode.children;
+        return new ParseTreeResult(translatedNode.children, this._errors);
     };
     _Visitor.prototype.visitExpansionCase = function (icuCase, context) {
         // Parse cases for translatable html attributes
@@ -134,7 +126,9 @@ var _Visitor = (function () {
                         this._closeTranslatableSection(comment, this._blockChildren);
                         this._inI18nBlock = false;
                         var message = this._addMessage(this._blockChildren, this._blockMeaningAndDesc);
-                        return this._translateMessage(comment, message);
+                        // merge attributes in sections
+                        var nodes = this._translateMessage(comment, message);
+                        return html.visitAll(this, nodes);
                     }
                     else {
                         this._reportError(comment, 'I18N blocks should not cross element boundaries');
@@ -155,11 +149,15 @@ var _Visitor = (function () {
         this._mayBeAddBlockChildren(el);
         this._depth++;
         var wasInI18nNode = this._inI18nNode;
+        var wasInImplicitNode = this._inImplicitNode;
         var childNodes;
         // Extract only top level nodes with the (implicit) "i18n" attribute if not in a block or an ICU
         // message
         var i18nAttr = _getI18nAttr(el);
-        var isImplicitI18n = this._implicitTags.some(function (tag) { return el.name === tag; });
+        var isImplicit = this._implicitTags.some(function (tag) { return el.name === tag; }) &&
+            !this._inIcu && !this._isInTranslatableSection;
+        var isTopLevelImplicit = !wasInImplicitNode && isImplicit;
+        this._inImplicitNode = this._inImplicitNode || isImplicit;
         if (!this._isInTranslatableSection && !this._inIcu) {
             if (i18nAttr) {
                 // explicit translation
@@ -167,14 +165,14 @@ var _Visitor = (function () {
                 var message = this._addMessage(el.children, i18nAttr.value);
                 childNodes = this._translateMessage(el, message);
             }
-            else if (isImplicitI18n) {
+            else if (isTopLevelImplicit) {
                 // implicit translation
                 this._inI18nNode = true;
                 var message = this._addMessage(el.children);
                 childNodes = this._translateMessage(el, message);
             }
             if (this._mode == _VisitorMode.Extract) {
-                var isTranslatable = i18nAttr || isImplicitI18n;
+                var isTranslatable = i18nAttr || isTopLevelImplicit;
                 if (isTranslatable) {
                     this._openTranslatableSection(el);
                 }
@@ -183,7 +181,7 @@ var _Visitor = (function () {
                     this._closeTranslatableSection(el, el.children);
                 }
             }
-            if (this._mode === _VisitorMode.Merge && !i18nAttr && !isImplicitI18n) {
+            if (this._mode === _VisitorMode.Merge && !i18nAttr && !isTopLevelImplicit) {
                 childNodes = [];
                 el.children.forEach(function (child) {
                     var visited = child.visit(_this, context);
@@ -196,8 +194,7 @@ var _Visitor = (function () {
             }
         }
         else {
-            if (i18nAttr || isImplicitI18n) {
-                // TODO(vicb): we should probably allow nested implicit element (ie <div>)
+            if (i18nAttr || isTopLevelImplicit) {
                 this._reportError(el, 'Could not mark an element as translatable inside a translatable section');
             }
             if (this._mode == _VisitorMode.Extract) {
@@ -220,6 +217,7 @@ var _Visitor = (function () {
         this._visitAttributesOf(el);
         this._depth--;
         this._inI18nNode = wasInI18nNode;
+        this._inImplicitNode = wasInImplicitNode;
         if (this._mode === _VisitorMode.Merge) {
             // There are no childNodes in translatable sections - those nodes will be replace anyway
             var translatedAttrs = this._translateAttributes(el);
@@ -238,7 +236,8 @@ var _Visitor = (function () {
         this._msgCountAtSectionStart = void 0;
         this._errors = [];
         this._messages = [];
-        this._createI18nMessage = i18n_parser_1.createI18nMessageFactory(interpolationConfig);
+        this._inImplicitNode = false;
+        this._createI18nMessage = createI18nMessageFactory(interpolationConfig);
     };
     // looks for translatable attributes
     _Visitor.prototype._visitAttributesOf = function (el) {
@@ -269,10 +268,11 @@ var _Visitor = (function () {
         this._messages.push(message);
         return message;
     };
-    // translate the given message given the `TranslationBundle`
+    // Translates the given message given the `TranslationBundle`
+    // no-op when called in extraction mode (returns [])
     _Visitor.prototype._translateMessage = function (el, message) {
         if (message && this._mode === _VisitorMode.Merge) {
-            var id = digest_1.digestMessage(message);
+            var id = digestMessage(message);
             var nodes = this._translations.get(id);
             if (nodes) {
                 return nodes;
@@ -298,10 +298,10 @@ var _Visitor = (function () {
                 // strip i18n specific attributes
                 return;
             }
-            if (i18nAttributeMeanings.hasOwnProperty(attr.name)) {
+            if (attr.value && attr.value != '' && i18nAttributeMeanings.hasOwnProperty(attr.name)) {
                 var meaning = i18nAttributeMeanings[attr.name];
                 var message = _this._createI18nMessage([attr], meaning, '');
-                var id = digest_1.digestMessage(message);
+                var id = digestMessage(message);
                 var nodes = _this._translations.get(id);
                 if (nodes) {
                     if (nodes[0] instanceof html.Text) {
@@ -391,7 +391,7 @@ var _Visitor = (function () {
         this._msgCountAtSectionStart = void 0;
     };
     _Visitor.prototype._reportError = function (node, msg) {
-        this._errors.push(new parse_util_1.I18nError(node.sourceSpan, msg));
+        this._errors.push(new I18nError(node.sourceSpan, msg));
     };
     return _Visitor;
 }());

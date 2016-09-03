@@ -5,14 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
+export var TagContentType;
 (function (TagContentType) {
     TagContentType[TagContentType["RAW_TEXT"] = 0] = "RAW_TEXT";
     TagContentType[TagContentType["ESCAPABLE_RAW_TEXT"] = 1] = "ESCAPABLE_RAW_TEXT";
     TagContentType[TagContentType["PARSABLE_DATA"] = 2] = "PARSABLE_DATA";
-})(exports.TagContentType || (exports.TagContentType = {}));
-var TagContentType = exports.TagContentType;
-function splitNsName(elementName) {
+})(TagContentType || (TagContentType = {}));
+export function splitNsName(elementName) {
     if (elementName[0] != ':') {
         return [null, elementName];
     }
@@ -22,20 +21,17 @@ function splitNsName(elementName) {
     }
     return [elementName.slice(1, colonIndex), elementName.slice(colonIndex + 1)];
 }
-exports.splitNsName = splitNsName;
-function getNsPrefix(fullName) {
+export function getNsPrefix(fullName) {
     return fullName === null ? null : splitNsName(fullName)[0];
 }
-exports.getNsPrefix = getNsPrefix;
-function mergeNsAndName(prefix, localName) {
+export function mergeNsAndName(prefix, localName) {
     return prefix ? ":" + prefix + ":" + localName : localName;
 }
-exports.mergeNsAndName = mergeNsAndName;
 // see http://www.w3.org/TR/html51/syntax.html#named-character-references
 // see https://html.spec.whatwg.org/multipage/entities.json
 // This list is not exhaustive to keep the compiler footprint low.
 // The `&#123;` / `&#x1ab;` syntax should be used when the named character reference does not exist.
-exports.NAMED_ENTITIES = {
+export var NAMED_ENTITIES = {
     'Aacute': '\u00C1',
     'aacute': '\u00E1',
     'Acirc': '\u00C2',

@@ -4,9 +4,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Subscriber_1 = require('../Subscriber');
 var Subject_1 = require('../Subject');
 var async_1 = require('../scheduler/async');
+var Subscriber_1 = require('../Subscriber');
 /**
  * Branch out the source Observable values as a nested Observable periodically
  * in time.
@@ -105,7 +105,7 @@ var WindowTimeSubscriber = (function (_super) {
         var len = windows.length;
         for (var i = 0; i < len; i++) {
             var window_3 = windows[i];
-            if (!window_3.isUnsubscribed) {
+            if (!window_3.closed) {
                 window_3.next(value);
             }
         }
@@ -121,7 +121,7 @@ var WindowTimeSubscriber = (function (_super) {
         var windows = this.windows;
         while (windows.length > 0) {
             var window_4 = windows.shift();
-            if (!window_4.isUnsubscribed) {
+            if (!window_4.closed) {
                 window_4.complete();
             }
         }
@@ -131,7 +131,6 @@ var WindowTimeSubscriber = (function (_super) {
         var window = new Subject_1.Subject();
         this.windows.push(window);
         var destination = this.destination;
-        destination.add(window);
         destination.next(window);
         return window;
     };

@@ -1,5 +1,5 @@
-import { Observable } from '../Observable';
 import { Scheduler } from '../Scheduler';
+import { Observable } from '../Observable';
 /**
  * Buffers the source Observable values for a specific time period.
  *
@@ -13,7 +13,9 @@ import { Scheduler } from '../Scheduler';
  * resets the buffer every `bufferTimeSpan` milliseconds. If
  * `bufferCreationInterval` is given, this operator opens the buffer every
  * `bufferCreationInterval` milliseconds and closes (emits and resets) the
- * buffer every `bufferTimeSpan` milliseconds.
+ * buffer every `bufferTimeSpan` milliseconds. When the optional argument
+ * `maxBufferSize` is specified, the buffer will be closed either after
+ * `bufferTimeSpan` milliseconds or when it contains `maxBufferSize` elements.
  *
  * @example <caption>Every second, emit an array of the recent click events</caption>
  * var clicks = Rx.Observable.fromEvent(document, 'click');
@@ -34,13 +36,16 @@ import { Scheduler } from '../Scheduler';
  * @param {number} bufferTimeSpan The amount of time to fill each buffer array.
  * @param {number} [bufferCreationInterval] The interval at which to start new
  * buffers.
+ * @param {number} [maxBufferSize] The maximum buffer size.
  * @param {Scheduler} [scheduler=async] The scheduler on which to schedule the
  * intervals that determine buffer boundaries.
  * @return {Observable<T[]>} An observable of arrays of buffered values.
  * @method bufferTime
  * @owner Observable
  */
-export declare function bufferTime<T>(bufferTimeSpan: number, bufferCreationInterval?: number, scheduler?: Scheduler): Observable<T[]>;
+export declare function bufferTime<T>(bufferTimeSpan: number): Observable<T[]>;
 export interface BufferTimeSignature<T> {
-    (bufferTimeSpan: number, bufferCreationInterval?: number, scheduler?: Scheduler): Observable<T[]>;
+    (bufferTimeSpan: number, scheduler?: Scheduler): Observable<T[]>;
+    (bufferTimeSpan: number, bufferCreationInterval: number, scheduler?: Scheduler): Observable<T[]>;
+    (bufferTimeSpan: number, bufferCreationInterval: number, maxBufferSize: number, scheduler?: Scheduler): Observable<T[]>;
 }

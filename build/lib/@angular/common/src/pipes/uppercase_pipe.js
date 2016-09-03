@@ -5,26 +5,34 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../facade/lang');
-var invalid_pipe_argument_exception_1 = require('./invalid_pipe_argument_exception');
-var UpperCasePipe = (function () {
+import { Pipe } from '@angular/core';
+import { isBlank, isString } from '../facade/lang';
+import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
+/**
+ * Implements uppercase transforms to text.
+ *
+ * ### Example
+ *
+ * {@example core/pipes/ts/lowerupper_pipe/lowerupper_pipe_example.ts region='LowerUpperPipe'}
+ *
+ * @stable
+ */
+export var UpperCasePipe = (function () {
     function UpperCasePipe() {
     }
     UpperCasePipe.prototype.transform = function (value) {
-        if (lang_1.isBlank(value))
+        if (isBlank(value))
             return value;
-        if (!lang_1.isString(value)) {
-            throw new invalid_pipe_argument_exception_1.InvalidPipeArgumentException(UpperCasePipe, value);
+        if (!isString(value)) {
+            throw new InvalidPipeArgumentError(UpperCasePipe, value);
         }
         return value.toUpperCase();
     };
-    /** @nocollapse */
     UpperCasePipe.decorators = [
-        { type: core_1.Pipe, args: [{ name: 'uppercase' },] },
+        { type: Pipe, args: [{ name: 'uppercase' },] },
     ];
+    /** @nocollapse */
+    UpperCasePipe.ctorParameters = [];
     return UpperCasePipe;
 }());
-exports.UpperCasePipe = UpperCasePipe;
 //# sourceMappingURL=uppercase_pipe.js.map

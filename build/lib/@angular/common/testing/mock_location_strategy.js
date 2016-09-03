@@ -5,16 +5,20 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var index_1 = require('../index');
-var async_1 = require('../src/facade/async');
-var MockLocationStrategy = (function (_super) {
+import { LocationStrategy } from '@angular/common';
+import { EventEmitter, Injectable } from '@angular/core';
+/**
+ * A mock implementation of {@link LocationStrategy} that allows tests to fire simulated
+ * location events.
+ *
+ * @stable
+ */
+export var MockLocationStrategy = (function (_super) {
     __extends(MockLocationStrategy, _super);
     function MockLocationStrategy() {
         _super.call(this);
@@ -23,7 +27,7 @@ var MockLocationStrategy = (function (_super) {
         this.internalTitle = '';
         this.urlChanges = [];
         /** @internal */
-        this._subject = new async_1.EventEmitter();
+        this._subject = new EventEmitter();
     }
     MockLocationStrategy.prototype.simulatePopState = function (url) {
         this.internalPath = url;
@@ -63,15 +67,13 @@ var MockLocationStrategy = (function (_super) {
         }
     };
     MockLocationStrategy.prototype.forward = function () { throw 'not implemented'; };
-    /** @nocollapse */
     MockLocationStrategy.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     MockLocationStrategy.ctorParameters = [];
     return MockLocationStrategy;
-}(index_1.LocationStrategy));
-exports.MockLocationStrategy = MockLocationStrategy;
+}(LocationStrategy));
 var _MockPopStateEvent = (function () {
     function _MockPopStateEvent(newUrl) {
         this.newUrl = newUrl;

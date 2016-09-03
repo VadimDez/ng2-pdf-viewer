@@ -5,15 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var EventListener = (function () {
+import { ListWrapper, MapWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+export var EventListener = (function () {
     function EventListener(name, callback) {
         this.name = name;
         this.callback = callback;
@@ -21,15 +20,14 @@ var EventListener = (function () {
     ;
     return EventListener;
 }());
-exports.EventListener = EventListener;
 /**
  * @experimental All debugging apis are currently experimental.
  */
-var DebugNode = (function () {
+export var DebugNode = (function () {
     function DebugNode(nativeNode, parent, _debugInfo) {
         this._debugInfo = _debugInfo;
         this.nativeNode = nativeNode;
-        if (lang_1.isPresent(parent) && parent instanceof DebugElement) {
+        if (isPresent(parent) && parent instanceof DebugElement) {
             parent.addChild(this);
         }
         else {
@@ -38,54 +36,47 @@ var DebugNode = (function () {
         this.listeners = [];
     }
     Object.defineProperty(DebugNode.prototype, "injector", {
-        get: function () { return lang_1.isPresent(this._debugInfo) ? this._debugInfo.injector : null; },
+        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.injector : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "componentInstance", {
         get: function () {
-            return lang_1.isPresent(this._debugInfo) ? this._debugInfo.component : null;
+            return isPresent(this._debugInfo) ? this._debugInfo.component : null;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "context", {
-        get: function () { return lang_1.isPresent(this._debugInfo) ? this._debugInfo.context : null; },
+        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.context : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "references", {
         get: function () {
-            return lang_1.isPresent(this._debugInfo) ? this._debugInfo.references : null;
+            return isPresent(this._debugInfo) ? this._debugInfo.references : null;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "providerTokens", {
         get: function () {
-            return lang_1.isPresent(this._debugInfo) ? this._debugInfo.providerTokens : null;
+            return isPresent(this._debugInfo) ? this._debugInfo.providerTokens : null;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "source", {
-        get: function () { return lang_1.isPresent(this._debugInfo) ? this._debugInfo.source : null; },
+        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.source : null; },
         enumerable: true,
         configurable: true
     });
-    /**
-     * Use injector.get(token) instead.
-     *
-     * @deprecated
-     */
-    DebugNode.prototype.inject = function (token) { return this.injector.get(token); };
     return DebugNode;
 }());
-exports.DebugNode = DebugNode;
 /**
  * @experimental All debugging apis are currently experimental.
  */
-var DebugElement = (function (_super) {
+export var DebugElement = (function (_super) {
     __extends(DebugElement, _super);
     function DebugElement(nativeNode, parent, _debugInfo) {
         _super.call(this, nativeNode, parent, _debugInfo);
@@ -97,7 +88,7 @@ var DebugElement = (function (_super) {
         this.nativeElement = nativeNode;
     }
     DebugElement.prototype.addChild = function (child) {
-        if (lang_1.isPresent(child)) {
+        if (isPresent(child)) {
             this.childNodes.push(child);
             child.parent = this;
         }
@@ -115,10 +106,10 @@ var DebugElement = (function (_super) {
             var previousChildren = this.childNodes.slice(0, siblingIndex + 1);
             var nextChildren = this.childNodes.slice(siblingIndex + 1);
             this.childNodes =
-                collection_1.ListWrapper.concat(collection_1.ListWrapper.concat(previousChildren, newChildren), nextChildren);
+                ListWrapper.concat(ListWrapper.concat(previousChildren, newChildren), nextChildren);
             for (var i = 0; i < newChildren.length; ++i) {
                 var newChild = newChildren[i];
-                if (lang_1.isPresent(newChild.parent)) {
+                if (isPresent(newChild.parent)) {
                     newChild.parent.removeChild(newChild);
                 }
                 newChild.parent = this;
@@ -161,14 +152,12 @@ var DebugElement = (function (_super) {
     };
     return DebugElement;
 }(DebugNode));
-exports.DebugElement = DebugElement;
 /**
  * @experimental
  */
-function asNativeElements(debugEls) {
+export function asNativeElements(debugEls) {
     return debugEls.map(function (el) { return el.nativeElement; });
 }
-exports.asNativeElements = asNativeElements;
 function _queryElementChildren(element, predicate, matches) {
     element.childNodes.forEach(function (node) {
         if (node instanceof DebugElement) {
@@ -196,20 +185,16 @@ var _nativeNodeToDebugNode = new Map();
 /**
  * @experimental
  */
-function getDebugNode(nativeNode) {
+export function getDebugNode(nativeNode) {
     return _nativeNodeToDebugNode.get(nativeNode);
 }
-exports.getDebugNode = getDebugNode;
-function getAllDebugNodes() {
-    return collection_1.MapWrapper.values(_nativeNodeToDebugNode);
+export function getAllDebugNodes() {
+    return MapWrapper.values(_nativeNodeToDebugNode);
 }
-exports.getAllDebugNodes = getAllDebugNodes;
-function indexDebugNode(node) {
+export function indexDebugNode(node) {
     _nativeNodeToDebugNode.set(node.nativeNode, node);
 }
-exports.indexDebugNode = indexDebugNode;
-function removeDebugNodeFromIndex(node) {
+export function removeDebugNodeFromIndex(node) {
     _nativeNodeToDebugNode.delete(node.nativeNode);
 }
-exports.removeDebugNodeFromIndex = removeDebugNodeFromIndex;
 //# sourceMappingURL=debug_node.js.map

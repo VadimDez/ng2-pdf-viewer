@@ -5,10 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 /**
  * @stable
  */
+export var LifecycleHooks;
 (function (LifecycleHooks) {
     LifecycleHooks[LifecycleHooks["OnInit"] = 0] = "OnInit";
     LifecycleHooks[LifecycleHooks["OnDestroy"] = 1] = "OnDestroy";
@@ -18,9 +18,8 @@
     LifecycleHooks[LifecycleHooks["AfterContentChecked"] = 5] = "AfterContentChecked";
     LifecycleHooks[LifecycleHooks["AfterViewInit"] = 6] = "AfterViewInit";
     LifecycleHooks[LifecycleHooks["AfterViewChecked"] = 7] = "AfterViewChecked";
-})(exports.LifecycleHooks || (exports.LifecycleHooks = {}));
-var LifecycleHooks = exports.LifecycleHooks;
-exports.LIFECYCLE_HOOKS_VALUES = [
+})(LifecycleHooks || (LifecycleHooks = {}));
+export var LIFECYCLE_HOOKS_VALUES = [
     LifecycleHooks.OnInit, LifecycleHooks.OnDestroy, LifecycleHooks.DoCheck, LifecycleHooks.OnChanges,
     LifecycleHooks.AfterContentInit, LifecycleHooks.AfterContentChecked, LifecycleHooks.AfterViewInit,
     LifecycleHooks.AfterViewChecked
@@ -70,17 +69,14 @@ exports.LIFECYCLE_HOOKS_VALUES = [
  * export class App {
  *   value = 0;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
-var OnChanges = (function () {
+export var OnChanges = (function () {
     function OnChanges() {
     }
     return OnChanges;
 }());
-exports.OnChanges = OnChanges;
 /**
  * Implement this interface to execute custom initialization logic after your directive's
  * data-bound properties have been initialized.
@@ -118,17 +114,14 @@ exports.OnChanges = OnChanges;
  * export class App {
  *   hasChild = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
- *  ```
+ * ```
  * @stable
  */
-var OnInit = (function () {
+export var OnInit = (function () {
     function OnInit() {
     }
     return OnInit;
 }());
-exports.OnInit = OnInit;
 /**
  * Implement this interface to supplement the default change detection algorithm in your directive.
  *
@@ -196,12 +189,11 @@ exports.OnInit = OnInit;
  * ```
  * @stable
  */
-var DoCheck = (function () {
+export var DoCheck = (function () {
     function DoCheck() {
     }
     return DoCheck;
 }());
-exports.DoCheck = DoCheck;
 /**
  * Implement this interface to get notified when your directive is destroyed.
  *
@@ -237,8 +229,6 @@ exports.DoCheck = DoCheck;
  * export class App {
  *   hasChild = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  *
  *
@@ -292,12 +282,11 @@ exports.DoCheck = DoCheck;
  *
  * @stable
  */
-var OnDestroy = (function () {
+export var OnDestroy = (function () {
     function OnDestroy() {
     }
     return OnDestroy;
 }());
-exports.OnDestroy = OnDestroy;
 /**
  * Implement this interface to get notified when your directive's content has been fully
  * initialized.
@@ -345,17 +334,14 @@ exports.OnDestroy = OnDestroy;
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
-var AfterContentInit = (function () {
+export var AfterContentInit = (function () {
     function AfterContentInit() {
     }
     return AfterContentInit;
 }());
-exports.AfterContentInit = AfterContentInit;
 /**
  * Implement this interface to get notified after every check of your directive's content.
  *
@@ -398,17 +384,14 @@ exports.AfterContentInit = AfterContentInit;
  * export class App {
  *   hasContent = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
-var AfterContentChecked = (function () {
+export var AfterContentChecked = (function () {
     function AfterContentChecked() {
     }
     return AfterContentChecked;
 }());
-exports.AfterContentChecked = AfterContentChecked;
 /**
  * Implement this interface to get notified when your component's view has been fully initialized.
  *
@@ -450,17 +433,14 @@ exports.AfterContentChecked = AfterContentChecked;
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
-var AfterViewInit = (function () {
+export var AfterViewInit = (function () {
     function AfterViewInit() {
     }
     return AfterViewInit;
 }());
-exports.AfterViewInit = AfterViewInit;
 /**
  * Implement this interface to get notified after every check of your component's view.
  *
@@ -505,15 +485,12 @@ exports.AfterViewInit = AfterViewInit;
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
-var AfterViewChecked = (function () {
+export var AfterViewChecked = (function () {
     function AfterViewChecked() {
     }
     return AfterViewChecked;
 }());
-exports.AfterViewChecked = AfterViewChecked;
 //# sourceMappingURL=lifecycle_hooks.js.map

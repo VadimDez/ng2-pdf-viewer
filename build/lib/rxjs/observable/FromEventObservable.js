@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Observable_1 = require('../Observable');
 var tryCatch_1 = require('../util/tryCatch');
+var isFunction_1 = require('../util/isFunction');
 var errorObject_1 = require('../util/errorObject');
 var Subscription_1 = require('../Subscription');
 function isNodeStyleEventEmmitter(sourceObj) {
@@ -30,48 +31,85 @@ function isEventTarget(sourceObj) {
  */
 var FromEventObservable = (function (_super) {
     __extends(FromEventObservable, _super);
-    function FromEventObservable(sourceObj, eventName, selector) {
+    function FromEventObservable(sourceObj, eventName, selector, options) {
         _super.call(this);
         this.sourceObj = sourceObj;
         this.eventName = eventName;
         this.selector = selector;
+        this.options = options;
     }
+    /* tslint:enable:max-line-length */
     /**
-     * @param sourceObj
-     * @param eventName
-     * @param selector
-     * @return {FromEventObservable}
+     * Creates an Observable that emits events of a specific type coming from the
+     * given event target.
+     *
+     * <span class="informal">Creates an Observable from DOM events, or Node
+     * EventEmitter events or others.</span>
+     *
+     * <img src="./img/fromEvent.png" width="100%">
+     *
+     * Creates an Observable by attaching an event listener to an "event target",
+     * which may be an object with `addEventListener` and `removeEventListener`,
+     * a Node.js EventEmitter, a jQuery style EventEmitter, a NodeList from the
+     * DOM, or an HTMLCollection from the DOM. The event handler is attached when
+     * the output Observable is subscribed, and removed when the Subscription is
+     * unsubscribed.
+     *
+     * @example <caption>Emits clicks happening on the DOM document</caption>
+     * var clicks = Rx.Observable.fromEvent(document, 'click');
+     * clicks.subscribe(x => console.log(x));
+     *
+     * @see {@link from}
+     * @see {@link fromEventPattern}
+     *
+     * @param {EventTargetLike} target The DOMElement, event target, Node.js
+     * EventEmitter, NodeList or HTMLCollection to attach the event handler to.
+     * @param {string} eventName The event name of interest, being emitted by the
+     * `target`.
+     * @parm {EventListenerOptions} [options] Options to pass through to addEventListener
+     * @param {SelectorMethodSignature<T>} [selector] An optional function to
+     * post-process results. It takes the arguments from the event handler and
+     * should return a single value.
+     * @return {Observable<T>}
      * @static true
      * @name fromEvent
      * @owner Observable
      */
-    FromEventObservable.create = function (sourceObj, eventName, selector) {
-        return new FromEventObservable(sourceObj, eventName, selector);
+    FromEventObservable.create = function (target, eventName, options, selector) {
+        if (isFunction_1.isFunction(options)) {
+            selector = options;
+            options = undefined;
+        }
+        return new FromEventObservable(target, eventName, selector, options);
     };
-    FromEventObservable.setupSubscription = function (sourceObj, eventName, handler, subscriber) {
+    FromEventObservable.setupSubscription = function (sourceObj, eventName, handler, subscriber, options) {
         var unsubscribe;
         if (isNodeList(sourceObj) || isHTMLCollection(sourceObj)) {
             for (var i = 0, len = sourceObj.length; i < len; i++) {
-                FromEventObservable.setupSubscription(sourceObj[i], eventName, handler, subscriber);
+                FromEventObservable.setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
             }
         }
         else if (isEventTarget(sourceObj)) {
-            sourceObj.addEventListener(eventName, handler);
-            unsubscribe = function () { return sourceObj.removeEventListener(eventName, handler); };
+            var source_1 = sourceObj;
+            sourceObj.addEventListener(eventName, handler, options);
+            unsubscribe = function () { return source_1.removeEventListener(eventName, handler); };
         }
         else if (isJQueryStyleEventEmitter(sourceObj)) {
+            var source_2 = sourceObj;
             sourceObj.on(eventName, handler);
-            unsubscribe = function () { return sourceObj.off(eventName, handler); };
+            unsubscribe = function () { return source_2.off(eventName, handler); };
         }
         else if (isNodeStyleEventEmmitter(sourceObj)) {
+            var source_3 = sourceObj;
             sourceObj.addListener(eventName, handler);
-            unsubscribe = function () { return sourceObj.removeListener(eventName, handler); };
+            unsubscribe = function () { return source_3.removeListener(eventName, handler); };
         }
         subscriber.add(new Subscription_1.Subscription(unsubscribe));
     };
     FromEventObservable.prototype._subscribe = function (subscriber) {
         var sourceObj = this.sourceObj;
         var eventName = this.eventName;
+        var options = this.options;
         var selector = this.selector;
         var handler = selector ? function () {
             var args = [];
@@ -86,7 +124,7 @@ var FromEventObservable = (function (_super) {
                 subscriber.next(result);
             }
         } : function (e) { return subscriber.next(e); };
-        FromEventObservable.setupSubscription(sourceObj, eventName, handler, subscriber);
+        FromEventObservable.setupSubscription(sourceObj, eventName, handler, subscriber, options);
     };
     return FromEventObservable;
 }(Observable_1.Observable));

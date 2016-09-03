@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var directives_1 = require('./directives');
+import { CORE_DIRECTIVES } from './directives/core_directives';
 /**
  * A collection of Angular core directives that are likely to be used in each and every Angular
  * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
@@ -20,14 +19,14 @@ var directives_1 = require('./directives');
  * Instead of writing:
  *
  * ```typescript
- * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm} from
+ * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm} from
  * '@angular/common';
  * import {OtherDirective} from './myDirectives';
  *
  * @Component({
  *   selector: 'my-component',
  *   templateUrl: 'myComponent.html',
- *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm,
+ *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm,
  * OtherDirective]
  * })
  * export class MyComponent {
@@ -52,5 +51,5 @@ var directives_1 = require('./directives');
  *
  * @experimental Contains forms which are experimental.
  */
-exports.COMMON_DIRECTIVES = [directives_1.CORE_DIRECTIVES];
+export var COMMON_DIRECTIVES = CORE_DIRECTIVES;
 //# sourceMappingURL=common_directives.js.map

@@ -5,12 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var lang_1 = require('../facade/lang');
+import { global } from '../facade/lang';
 var trace;
 var events;
-function detectWTF() {
-    var wtf = lang_1.global['wtf'];
+export function detectWTF() {
+    var wtf = global['wtf'];
     if (wtf) {
         trace = wtf['trace'];
         if (trace) {
@@ -20,23 +19,18 @@ function detectWTF() {
     }
     return false;
 }
-exports.detectWTF = detectWTF;
-function createScope(signature, flags) {
+export function createScope(signature, flags) {
     if (flags === void 0) { flags = null; }
     return events.createScope(signature, flags);
 }
-exports.createScope = createScope;
-function leave(scope, returnValue) {
+export function leave(scope, returnValue) {
     trace.leaveScope(scope, returnValue);
     return returnValue;
 }
-exports.leave = leave;
-function startTimeRange(rangeType, action) {
+export function startTimeRange(rangeType, action) {
     return trace.beginTimeRange(rangeType, action);
 }
-exports.startTimeRange = startTimeRange;
-function endTimeRange(range) {
+export function endTimeRange(range) {
     trace.endTimeRange(range);
 }
-exports.endTimeRange = endTimeRange;
 //# sourceMappingURL=wtf_impl.js.map

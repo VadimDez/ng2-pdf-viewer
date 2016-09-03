@@ -4,4 +4,5 @@ export declare class ReactiveErrors {
     static missingFormException(): void;
     static groupParentException(): void;
     static arrayParentException(): void;
+    static disabledAttrWarning(): void;
 }

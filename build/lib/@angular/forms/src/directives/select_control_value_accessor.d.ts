@@ -16,7 +16,7 @@ export declare const SELECT_VALUE_ACCESSOR: any;
  * https://bugzilla.mozilla.org/show_bug.cgi?id=1024350
  * https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/4660045/
  *
- * @experimental
+ * @stable
  */
 export declare class SelectControlValueAccessor implements ControlValueAccessor {
     private _renderer;
@@ -28,6 +28,7 @@ export declare class SelectControlValueAccessor implements ControlValueAccessor 
     writeValue(value: any): void;
     registerOnChange(fn: (value: any) => any): void;
     registerOnTouched(fn: () => any): void;
+    setDisabledState(isDisabled: boolean): void;
 }
 /**
  * Marks `<option>` as dynamic, so Angular can be notified when options change.
@@ -40,7 +41,7 @@ export declare class SelectControlValueAccessor implements ControlValueAccessor 
  * </select>
  * ```
  *
- * @experimental
+ * @stable
  */
 export declare class NgSelectOption implements OnDestroy {
     private _element;

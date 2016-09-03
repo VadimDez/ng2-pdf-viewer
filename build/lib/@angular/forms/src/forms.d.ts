@@ -18,7 +18,6 @@
  * Forms providers are not included in default providers; you must import these providers
  * explicitly.
  */
-export { FORM_DIRECTIVES, REACTIVE_FORM_DIRECTIVES } from './directives';
 export { AbstractControlDirective } from './directives/abstract_control_directive';
 export { AbstractFormGroupDirective } from './directives/abstract_form_group_directive';
 export { CheckboxControlValueAccessor } from './directives/checkbox_value_accessor';
@@ -27,7 +26,7 @@ export { ControlValueAccessor, NG_VALUE_ACCESSOR } from './directives/control_va
 export { DefaultValueAccessor } from './directives/default_value_accessor';
 export { Form } from './directives/form_interface';
 export { NgControl } from './directives/ng_control';
-export { NgControlStatus } from './directives/ng_control_status';
+export { NgControlStatus, NgControlStatusGroup } from './directives/ng_control_status';
 export { NgForm } from './directives/ng_form';
 export { NgModel } from './directives/ng_model';
 export { NgModelGroup } from './directives/ng_model_group';

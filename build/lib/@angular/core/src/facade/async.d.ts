@@ -63,9 +63,5 @@ export declare class EventEmitter<T> extends Subject<T> {
      */
     constructor(isAsync?: boolean);
     emit(value?: T): void;
-    /**
-     * @deprecated - use .emit(value) instead
-     */
-    next(value: any): void;
     subscribe(generatorOrNext?: any, error?: any, complete?: any): any;
 }

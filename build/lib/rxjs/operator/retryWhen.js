@@ -69,7 +69,7 @@ var RetryWhenSubscriber = (function (_super) {
                 this.retriesSubscription = null;
             }
             this.unsubscribe();
-            this.isUnsubscribed = false;
+            this.closed = false;
             this.errors = errors;
             this.retries = retries;
             this.retriesSubscription = retriesSubscription;
@@ -95,7 +95,7 @@ var RetryWhenSubscriber = (function (_super) {
         this.retriesSubscription = null;
         this.unsubscribe();
         this.isStopped = false;
-        this.isUnsubscribed = false;
+        this.closed = false;
         this.errors = errors;
         this.retries = retries;
         this.retriesSubscription = retriesSubscription;

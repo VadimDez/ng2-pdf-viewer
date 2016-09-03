@@ -5,14 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
+import { Directive, Host, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { ListWrapper } from '../facade/collection';
+import { isBlank, isPresent, normalizeBlank } from '../facade/lang';
 var _CASE_DEFAULT = new Object();
-// TODO: remove when fully deprecated
-var _warned = false;
-var SwitchView = (function () {
+export var SwitchView = (function () {
     function SwitchView(_viewContainerRef, _templateRef) {
         this._viewContainerRef = _viewContainerRef;
         this._templateRef = _templateRef;
@@ -21,8 +18,63 @@ var SwitchView = (function () {
     SwitchView.prototype.destroy = function () { this._viewContainerRef.clear(); };
     return SwitchView;
 }());
-exports.SwitchView = SwitchView;
-var NgSwitch = (function () {
+/**
+ * Adds or removes DOM sub-trees when their match expressions match the switch expression.
+ *
+ * Elements within `NgSwitch` but without `NgSwitchCase` or `NgSwitchDefault` directives will be
+ * preserved at the location as specified in the template.
+ *
+ * `NgSwitch` simply inserts nested elements based on which match expression matches the value
+ * obtained from the evaluated switch expression. In other words, you define a container element
+ * (where you place the directive with a switch expression on the
+ * `[ngSwitch]="..."` attribute), define any inner elements inside of the directive and
+ * place a `[ngSwitchCase]` attribute per element.
+ *
+ * The `ngSwitchCase` property is used to inform `NgSwitch` which element to display when the
+ * expression is evaluated. If a matching expression is not found via a `ngSwitchCase` property
+ * then an element with the `ngSwitchDefault` attribute is displayed.
+ *
+ * ### Example ([live demo](http://plnkr.co/edit/DQMTII95CbuqWrl3lYAs?p=preview))
+ *
+ * ```typescript
+ * @Component({
+ *   selector: 'app',
+ *   template: `
+ *     <p>Value = {{value}}</p>
+ *     <button (click)="inc()">Increment</button>
+ *
+ *     <div [ngSwitch]="value">
+ *       <p *ngSwitchCase="'init'">increment to start</p>
+ *       <p *ngSwitchCase="0">0, increment again</p>
+ *       <p *ngSwitchCase="1">1, increment again</p>
+ *       <p *ngSwitchCase="2">2, stop incrementing</p>
+ *       <p *ngSwitchDefault>&gt; 2, STOP!</p>
+ *     </div>
+ *
+ *     <!-- alternate syntax -->
+ *
+ *     <p [ngSwitch]="value">
+ *       <template ngSwitchCase="init">increment to start</template>
+ *       <template [ngSwitchCase]="0">0, increment again</template>
+ *       <template [ngSwitchCase]="1">1, increment again</template>
+ *       <template [ngSwitchCase]="2">2, stop incrementing</template>
+ *       <template ngSwitchDefault>&gt; 2, STOP!</template>
+ *     </p>
+ *   `,
+ *   directives: [NgSwitch, NgSwitchCase, NgSwitchDefault]
+ * })
+ * export class App {
+ *   value = 'init';
+ *
+ *   inc() {
+ *     this.value = this.value === 'init' ? 0 : this.value + 1;
+ *   }
+ * }
+ * ```
+ *
+ * @stable
+ */
+export var NgSwitch = (function () {
     function NgSwitch() {
         this._useDefault = false;
         this._valueViews = new Map();
@@ -35,9 +87,9 @@ var NgSwitch = (function () {
             // Add the ViewContainers matching the value (with a fallback to default)
             this._useDefault = false;
             var views = this._valueViews.get(value);
-            if (lang_1.isBlank(views)) {
+            if (isBlank(views)) {
                 this._useDefault = true;
-                views = lang_1.normalizeBlank(this._valueViews.get(_CASE_DEFAULT));
+                views = normalizeBlank(this._valueViews.get(_CASE_DEFAULT));
             }
             this._activateViews(views);
             this._switchValue = value;
@@ -51,7 +103,7 @@ var NgSwitch = (function () {
         this._registerView(newCase, view);
         if (oldCase === this._switchValue) {
             view.destroy();
-            collection_1.ListWrapper.remove(this._activeViews, view);
+            ListWrapper.remove(this._activeViews, view);
         }
         else if (newCase === this._switchValue) {
             if (this._useDefault) {
@@ -78,7 +130,7 @@ var NgSwitch = (function () {
     /** @internal */
     NgSwitch.prototype._activateViews = function (views) {
         // TODO(vicb): assert(this._activeViews.length === 0);
-        if (lang_1.isPresent(views)) {
+        if (isPresent(views)) {
             for (var i = 0; i < views.length; i++) {
                 views[i].create();
             }
@@ -88,7 +140,7 @@ var NgSwitch = (function () {
     /** @internal */
     NgSwitch.prototype._registerView = function (value, view) {
         var views = this._valueViews.get(value);
-        if (lang_1.isBlank(views)) {
+        if (isBlank(views)) {
             views = [];
             this._valueViews.set(value, views);
         }
@@ -104,21 +156,30 @@ var NgSwitch = (function () {
             this._valueViews.delete(value);
         }
         else {
-            collection_1.ListWrapper.remove(views, view);
+            ListWrapper.remove(views, view);
         }
     };
-    /** @nocollapse */
     NgSwitch.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngSwitch]' },] },
+        { type: Directive, args: [{ selector: '[ngSwitch]' },] },
     ];
     /** @nocollapse */
+    NgSwitch.ctorParameters = [];
     NgSwitch.propDecorators = {
-        'ngSwitch': [{ type: core_1.Input },],
+        'ngSwitch': [{ type: Input },],
     };
     return NgSwitch;
 }());
-exports.NgSwitch = NgSwitch;
-var NgSwitchCase = (function () {
+/**
+ * Insert the sub-tree when the `ngSwitchCase` expression evaluates to the same value as the
+ * enclosing switch expression.
+ *
+ * If multiple match expression match the switch expression value, all of them are displayed.
+ *
+ * See {@link NgSwitch} for more details and example.
+ *
+ * @stable
+ */
+export var NgSwitchCase = (function () {
     function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
         // `_CASE_DEFAULT` is used as a marker for a not yet initialized value
         /** @internal */
@@ -134,51 +195,41 @@ var NgSwitchCase = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(NgSwitchCase.prototype, "ngSwitchWhen", {
-        set: function (value) {
-            if (!_warned) {
-                _warned = true;
-                console.warn('*ngSwitchWhen is deprecated and will be removed. Use *ngSwitchCase instead');
-            }
-            this._switch._onCaseValueChanged(this._value, value, this._view);
-            this._value = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /** @nocollapse */
     NgSwitchCase.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngSwitchCase],[ngSwitchWhen]' },] },
+        { type: Directive, args: [{ selector: '[ngSwitchCase]' },] },
     ];
     /** @nocollapse */
     NgSwitchCase.ctorParameters = [
-        { type: core_1.ViewContainerRef, },
-        { type: core_1.TemplateRef, },
-        { type: NgSwitch, decorators: [{ type: core_1.Host },] },
+        { type: ViewContainerRef, },
+        { type: TemplateRef, },
+        { type: NgSwitch, decorators: [{ type: Host },] },
     ];
-    /** @nocollapse */
     NgSwitchCase.propDecorators = {
-        'ngSwitchCase': [{ type: core_1.Input },],
-        'ngSwitchWhen': [{ type: core_1.Input },],
+        'ngSwitchCase': [{ type: Input },],
     };
     return NgSwitchCase;
 }());
-exports.NgSwitchCase = NgSwitchCase;
-var NgSwitchDefault = (function () {
+/**
+ * Default case statements are displayed when no match expression matches the switch expression
+ * value.
+ *
+ * See {@link NgSwitch} for more details and example.
+ *
+ * @stable
+ */
+export var NgSwitchDefault = (function () {
     function NgSwitchDefault(viewContainer, templateRef, sswitch) {
         sswitch._registerView(_CASE_DEFAULT, new SwitchView(viewContainer, templateRef));
     }
-    /** @nocollapse */
     NgSwitchDefault.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngSwitchDefault]' },] },
+        { type: Directive, args: [{ selector: '[ngSwitchDefault]' },] },
     ];
     /** @nocollapse */
     NgSwitchDefault.ctorParameters = [
-        { type: core_1.ViewContainerRef, },
-        { type: core_1.TemplateRef, },
-        { type: NgSwitch, decorators: [{ type: core_1.Host },] },
+        { type: ViewContainerRef, },
+        { type: TemplateRef, },
+        { type: NgSwitch, decorators: [{ type: Host },] },
     ];
     return NgSwitchDefault;
 }());
-exports.NgSwitchDefault = NgSwitchDefault;
 //# sourceMappingURL=ng_switch.js.map

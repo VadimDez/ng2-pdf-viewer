@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Subject_1 = require('../Subject');
 var Observable_1 = require('../Observable');
 var Subscriber_1 = require('../Subscriber');
 var Subscription_1 = require('../Subscription');
@@ -16,131 +17,136 @@ var ConnectableObservable = (function (_super) {
         _super.call(this);
         this.source = source;
         this.subjectFactory = subjectFactory;
+        this._refCount = 0;
     }
     ConnectableObservable.prototype._subscribe = function (subscriber) {
         return this.getSubject().subscribe(subscriber);
     };
     ConnectableObservable.prototype.getSubject = function () {
-        var subject = this.subject;
-        if (subject && !subject.isUnsubscribed) {
-            return subject;
+        var subject = this._subject;
+        if (!subject || subject.isStopped) {
+            this._subject = this.subjectFactory();
         }
-        return (this.subject = this.subjectFactory());
+        return this._subject;
     };
     ConnectableObservable.prototype.connect = function () {
-        var source = this.source;
-        var subscription = this.subscription;
-        if (subscription && !subscription.isUnsubscribed) {
-            return subscription;
+        var connection = this._connection;
+        if (!connection) {
+            connection = this._connection = new Subscription_1.Subscription();
+            connection.add(this.source
+                .subscribe(new ConnectableSubscriber(this.getSubject(), this)));
+            if (connection.closed) {
+                this._connection = null;
+                connection = Subscription_1.Subscription.EMPTY;
+            }
+            else {
+                this._connection = connection;
+            }
         }
-        subscription = source.subscribe(this.getSubject());
-        subscription.add(new ConnectableSubscription(this));
-        return (this.subscription = subscription);
+        return connection;
     };
     ConnectableObservable.prototype.refCount = function () {
-        return new RefCountObservable(this);
-    };
-    /**
-     * This method is opened for `ConnectableSubscription`.
-     * Not to call from others.
-     */
-    ConnectableObservable.prototype._closeSubscription = function () {
-        this.subject = null;
-        this.subscription = null;
+        return this.lift(new RefCountOperator(this));
     };
     return ConnectableObservable;
 }(Observable_1.Observable));
 exports.ConnectableObservable = ConnectableObservable;
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @ignore
- * @extends {Ignored}
- */
-var ConnectableSubscription = (function (_super) {
-    __extends(ConnectableSubscription, _super);
-    function ConnectableSubscription(connectable) {
-        _super.call(this);
+var ConnectableSubscriber = (function (_super) {
+    __extends(ConnectableSubscriber, _super);
+    function ConnectableSubscriber(destination, connectable) {
+        _super.call(this, destination);
         this.connectable = connectable;
     }
-    ConnectableSubscription.prototype._unsubscribe = function () {
-        var connectable = this.connectable;
-        connectable._closeSubscription();
-        this.connectable = null;
+    ConnectableSubscriber.prototype._error = function (err) {
+        this._unsubscribe();
+        _super.prototype._error.call(this, err);
     };
-    return ConnectableSubscription;
-}(Subscription_1.Subscription));
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @ignore
- * @extends {Ignored}
- */
-var RefCountObservable = (function (_super) {
-    __extends(RefCountObservable, _super);
-    function RefCountObservable(connectable, refCount) {
-        if (refCount === void 0) { refCount = 0; }
-        _super.call(this);
-        this.connectable = connectable;
-        this.refCount = refCount;
-    }
-    RefCountObservable.prototype._subscribe = function (subscriber) {
+    ConnectableSubscriber.prototype._complete = function () {
+        this._unsubscribe();
+        _super.prototype._complete.call(this);
+    };
+    ConnectableSubscriber.prototype._unsubscribe = function () {
         var connectable = this.connectable;
-        var refCountSubscriber = new RefCountSubscriber(subscriber, this);
-        var subscription = connectable.subscribe(refCountSubscriber);
-        if (!subscription.isUnsubscribed && ++this.refCount === 1) {
-            refCountSubscriber.connection = this.connection = connectable.connect();
+        if (connectable) {
+            this.connectable = null;
+            var connection = connectable._connection;
+            connectable._refCount = 0;
+            connectable._subject = null;
+            connectable._connection = null;
+            if (connection) {
+                connection.unsubscribe();
+            }
+        }
+    };
+    return ConnectableSubscriber;
+}(Subject_1.SubjectSubscriber));
+var RefCountOperator = (function () {
+    function RefCountOperator(connectable) {
+        this.connectable = connectable;
+    }
+    RefCountOperator.prototype.call = function (subscriber, source) {
+        var connectable = this.connectable;
+        connectable._refCount++;
+        var refCounter = new RefCountSubscriber(subscriber, connectable);
+        var subscription = source._subscribe(refCounter);
+        if (!refCounter.closed) {
+            refCounter.connection = connectable.connect();
         }
         return subscription;
     };
-    return RefCountObservable;
-}(Observable_1.Observable));
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @ignore
- * @extends {Ignored}
- */
+    return RefCountOperator;
+}());
 var RefCountSubscriber = (function (_super) {
     __extends(RefCountSubscriber, _super);
-    function RefCountSubscriber(destination, refCountObservable) {
-        _super.call(this, null);
-        this.destination = destination;
-        this.refCountObservable = refCountObservable;
-        this.connection = refCountObservable.connection;
-        destination.add(this);
+    function RefCountSubscriber(destination, connectable) {
+        _super.call(this, destination);
+        this.connectable = connectable;
     }
-    RefCountSubscriber.prototype._next = function (value) {
-        this.destination.next(value);
-    };
-    RefCountSubscriber.prototype._error = function (err) {
-        this._resetConnectable();
-        this.destination.error(err);
-    };
-    RefCountSubscriber.prototype._complete = function () {
-        this._resetConnectable();
-        this.destination.complete();
-    };
-    RefCountSubscriber.prototype._resetConnectable = function () {
-        var observable = this.refCountObservable;
-        var obsConnection = observable.connection;
-        var subConnection = this.connection;
-        if (subConnection && subConnection === obsConnection) {
-            observable.refCount = 0;
-            obsConnection.unsubscribe();
-            observable.connection = null;
-            this.unsubscribe();
-        }
-    };
     RefCountSubscriber.prototype._unsubscribe = function () {
-        var observable = this.refCountObservable;
-        if (observable.refCount === 0) {
+        var connectable = this.connectable;
+        if (!connectable) {
+            this.connection = null;
             return;
         }
-        if (--observable.refCount === 0) {
-            var obsConnection = observable.connection;
-            var subConnection = this.connection;
-            if (subConnection && subConnection === obsConnection) {
-                obsConnection.unsubscribe();
-                observable.connection = null;
-            }
+        this.connectable = null;
+        var refCount = connectable._refCount;
+        if (refCount <= 0) {
+            this.connection = null;
+            return;
+        }
+        connectable._refCount = refCount - 1;
+        if (refCount > 1) {
+            this.connection = null;
+            return;
+        }
+        ///
+        // Compare the local RefCountSubscriber's connection Subscription to the
+        // connection Subscription on the shared ConnectableObservable. In cases
+        // where the ConnectableObservable source synchronously emits values, and
+        // the RefCountSubscriber's dowstream Observers synchronously unsubscribe,
+        // execution continues to here before the RefCountOperator has a chance to
+        // supply the RefCountSubscriber with the shared connection Subscription.
+        // For example:
+        // ```
+        // Observable.range(0, 10)
+        //   .publish()
+        //   .refCount()
+        //   .take(5)
+        //   .subscribe();
+        // ```
+        // In order to account for this case, RefCountSubscriber should only dispose
+        // the ConnectableObservable's shared connection Subscription if the
+        // connection Subscription exists, *and* either:
+        //   a. RefCountSubscriber doesn't have a reference to the shared connection
+        //      Subscription yet, or,
+        //   b. RefCountSubscriber's connection Subscription reference is identical
+        //      to the shared connection Subscription
+        ///
+        var connection = this.connection;
+        var sharedConnection = connectable._connection;
+        this.connection = null;
+        if (sharedConnection && (!connection || sharedConnection === connection)) {
+            sharedConnection.unsubscribe();
         }
     };
     return RefCountSubscriber;

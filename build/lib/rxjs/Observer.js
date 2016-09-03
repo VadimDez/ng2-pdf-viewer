@@ -1,6 +1,6 @@
 "use strict";
 exports.empty = {
-    isUnsubscribed: true,
+    closed: true,
     next: function (value) { },
     error: function (err) { throw err; },
     complete: function () { }

@@ -4,72 +4,42 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Subscription_1 = require('../Subscription');
-var VirtualTimeScheduler = (function () {
-    function VirtualTimeScheduler() {
-        this.actions = []; // XXX: use `any` to remove type param `T` from `VirtualTimeScheduler`.
-        this.active = false;
-        this.scheduledId = null;
-        this.index = 0;
-        this.sorted = false;
+var AsyncAction_1 = require('./AsyncAction');
+var AsyncScheduler_1 = require('./AsyncScheduler');
+var VirtualTimeScheduler = (function (_super) {
+    __extends(VirtualTimeScheduler, _super);
+    function VirtualTimeScheduler(SchedulerAction, maxFrames) {
+        var _this = this;
+        if (SchedulerAction === void 0) { SchedulerAction = VirtualAction; }
+        if (maxFrames === void 0) { maxFrames = 750; }
+        _super.call(this, SchedulerAction, function () { return _this.frame; });
+        this.maxFrames = maxFrames;
         this.frame = 0;
-        this.maxFrames = 750;
+        this.index = -1;
     }
-    VirtualTimeScheduler.prototype.now = function () {
-        return this.frame;
-    };
+    /**
+     * Prompt the Scheduler to execute all of its queued actions, therefore
+     * clearing its queue.
+     * @return {void}
+     */
     VirtualTimeScheduler.prototype.flush = function () {
-        var actions = this.actions;
-        var maxFrames = this.maxFrames;
-        while (actions.length > 0) {
-            var action = actions.shift();
-            this.frame = action.delay;
-            if (this.frame <= maxFrames) {
-                action.execute();
-                if (action.error) {
-                    actions.length = 0;
-                    this.frame = 0;
-                    throw action.error;
-                }
-            }
-            else {
+        var _a = this, actions = _a.actions, maxFrames = _a.maxFrames;
+        var error, action;
+        while ((action = actions.shift()) && (this.frame = action.delay) <= maxFrames) {
+            if (error = action.execute(action.state, action.delay)) {
                 break;
             }
         }
-        actions.length = 0;
-        this.frame = 0;
-    };
-    VirtualTimeScheduler.prototype.addAction = function (action) {
-        var actions = this.actions;
-        actions.push(action);
-        actions.sort(function (a, b) {
-            if (a.delay === b.delay) {
-                if (a.index === b.index) {
-                    return 0;
-                }
-                else if (a.index > b.index) {
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
+        if (error) {
+            while (action = actions.shift()) {
+                action.unsubscribe();
             }
-            else if (a.delay > b.delay) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
-        });
-    };
-    VirtualTimeScheduler.prototype.schedule = function (work, delay, state) {
-        if (delay === void 0) { delay = 0; }
-        this.sorted = false;
-        return new VirtualAction(this, work, this.index++).schedule(state, delay);
+            throw error;
+        }
     };
     VirtualTimeScheduler.frameTimeFactor = 10;
     return VirtualTimeScheduler;
-}());
+}(AsyncScheduler_1.AsyncScheduler));
 exports.VirtualTimeScheduler = VirtualTimeScheduler;
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -79,51 +49,50 @@ exports.VirtualTimeScheduler = VirtualTimeScheduler;
 var VirtualAction = (function (_super) {
     __extends(VirtualAction, _super);
     function VirtualAction(scheduler, work, index) {
-        _super.call(this);
+        if (index === void 0) { index = scheduler.index += 1; }
+        _super.call(this, scheduler, work);
         this.scheduler = scheduler;
         this.work = work;
         this.index = index;
-        this.calls = 0;
+        this.index = scheduler.index = index;
     }
     VirtualAction.prototype.schedule = function (state, delay) {
         if (delay === void 0) { delay = 0; }
-        if (this.isUnsubscribed) {
-            return this;
+        return !this.id ?
+            _super.prototype.schedule.call(this, state, delay) : this.add(new VirtualAction(this.scheduler, this.work)).schedule(state, delay);
+    };
+    VirtualAction.prototype.requestAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) { delay = 0; }
+        this.delay = scheduler.frame + delay;
+        var actions = scheduler.actions;
+        actions.push(this);
+        actions.sort(VirtualAction.sortActions);
+        return true;
+    };
+    VirtualAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) { delay = 0; }
+        return undefined;
+    };
+    VirtualAction.sortActions = function (a, b) {
+        if (a.delay === b.delay) {
+            if (a.index === b.index) {
+                return 0;
+            }
+            else if (a.index > b.index) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
         }
-        var scheduler = this.scheduler;
-        var action = null;
-        if (this.calls++ === 0) {
-            // the action is not being rescheduled.
-            action = this;
+        else if (a.delay > b.delay) {
+            return 1;
         }
         else {
-            // the action is being rescheduled, and we can't mutate the one in the actions list
-            // in the scheduler, so we'll create a new one.
-            action = new VirtualAction(scheduler, this.work, scheduler.index += 1);
-            this.add(action);
+            return -1;
         }
-        action.state = state;
-        action.delay = scheduler.frame + delay;
-        scheduler.addAction(action);
-        return this;
-    };
-    VirtualAction.prototype.execute = function () {
-        if (this.isUnsubscribed) {
-            throw new Error('How did did we execute a canceled Action?');
-        }
-        this.work(this.state);
-    };
-    VirtualAction.prototype.unsubscribe = function () {
-        var actions = this.scheduler.actions;
-        var index = actions.indexOf(this);
-        this.work = void 0;
-        this.state = void 0;
-        this.scheduler = void 0;
-        if (index !== -1) {
-            actions.splice(index, 1);
-        }
-        _super.prototype.unsubscribe.call(this);
     };
     return VirtualAction;
-}(Subscription_1.Subscription));
+}(AsyncAction_1.AsyncAction));
+exports.VirtualAction = VirtualAction;
 //# sourceMappingURL=VirtualTimeScheduler.js.map

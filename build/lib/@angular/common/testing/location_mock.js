@@ -5,9 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var SpyLocation = (function () {
+import { EventEmitter, Injectable } from '@angular/core';
+/**
+ * A spy for {@link Location} that allows tests to fire simulated location events.
+ *
+ * @experimental
+ */
+export var SpyLocation = (function () {
     function SpyLocation() {
         this.urlChanges = [];
         /** @internal */
@@ -15,7 +19,7 @@ var SpyLocation = (function () {
         /** @internal */
         this._historyIndex = 0;
         /** @internal */
-        this._subject = new core_1.EventEmitter();
+        this._subject = new EventEmitter();
         /** @internal */
         this._baseHref = '';
         /** @internal */
@@ -57,6 +61,7 @@ var SpyLocation = (function () {
         }
         var url = path + (query.length > 0 ? ('?' + query) : '');
         this.urlChanges.push(url);
+        this._subject.emit({ 'url': url, 'pop': false });
     };
     SpyLocation.prototype.replaceState = function (path, query) {
         if (query === void 0) { query = ''; }
@@ -88,13 +93,13 @@ var SpyLocation = (function () {
         return this._subject.subscribe({ next: onNext, error: onThrow, complete: onReturn });
     };
     SpyLocation.prototype.normalize = function (url) { return null; };
-    /** @nocollapse */
     SpyLocation.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
+    SpyLocation.ctorParameters = [];
     return SpyLocation;
 }());
-exports.SpyLocation = SpyLocation;
 var LocationState = (function () {
     function LocationState(path, query) {
         this.path = path;

@@ -44,7 +44,7 @@ export interface GroupBySignature<T> {
 export interface RefCountSubscription {
   count: number;
   unsubscribe: () => void;
-  isUnsubscribed: boolean;
+  closed: boolean;
   attemptedToUnsubscribe: boolean;
 }
 
@@ -76,9 +76,7 @@ class GroupBySubscriber<T, K, R> extends Subscriber<T> implements RefCountSubscr
               private keySelector: (value: T) => K,
               private elementSelector?: (value: T) => R,
               private durationSelector?: (grouped: GroupedObservable<K, R>) => Observable<any>) {
-    super();
-    this.destination = destination;
-    this.add(destination);
+    super(destination);
   }
 
   protected _next(value: T): void {
@@ -102,49 +100,35 @@ class GroupBySubscriber<T, K, R> extends Subscriber<T> implements RefCountSubscr
 
     let group = groups.get(key);
 
+    let element: R;
+    if (this.elementSelector) {
+      try {
+        element = this.elementSelector(value);
+      } catch (err) {
+        this.error(err);
+      }
+    } else {
+      element = <any>value;
+    }
+
     if (!group) {
       groups.set(key, group = new Subject<R>());
       const groupedObservable = new GroupedObservable(key, group, this);
-
-      if (this.durationSelector) {
-        this._selectDuration(key, group);
-      }
-
       this.destination.next(groupedObservable);
+      if (this.durationSelector) {
+        let duration: any;
+        try {
+          duration = this.durationSelector(new GroupedObservable<K, R>(key, <Subject<R>>group));
+        } catch (err) {
+          this.error(err);
+          return;
+        }
+        this.add(duration.subscribe(new GroupDurationSubscriber(key, group, this)));
+      }
     }
 
-    if (this.elementSelector) {
-      this._selectElement(value, group);
-    } else {
-      this.tryGroupNext(value, group);
-    }
-  }
-
-  private _selectElement(value: T, group: Subject<T | R>) {
-    let result: R;
-    try {
-      result = this.elementSelector(value);
-    } catch (err) {
-      this.error(err);
-      return;
-    }
-    this.tryGroupNext(result, group);
-  }
-
-  private _selectDuration(key: K, group: any) {
-    let duration: any;
-    try {
-      duration = this.durationSelector(new GroupedObservable<K, R>(key, group));
-    } catch (err) {
-      this.error(err);
-      return;
-    }
-    this.add(duration.subscribe(new GroupDurationSubscriber(key, group, this)));
-  }
-
-  private tryGroupNext(value: T|R, group: Subject<T | R>): void {
-    if (!group.isUnsubscribed) {
-      group.next(value);
+    if (!group.closed) {
+      group.next(element);
     }
   }
 
@@ -177,7 +161,7 @@ class GroupBySubscriber<T, K, R> extends Subscriber<T> implements RefCountSubscr
   }
 
   unsubscribe() {
-    if (!this.isUnsubscribed && !this.attemptedToUnsubscribe) {
+    if (!this.closed && !this.attemptedToUnsubscribe) {
       this.attemptedToUnsubscribe = true;
       if (this.count === 0) {
         super.unsubscribe();
@@ -199,28 +183,20 @@ class GroupDurationSubscriber<K, T> extends Subscriber<T> {
   }
 
   protected _next(value: T): void {
-    this.tryComplete();
+    this._complete();
   }
 
   protected _error(err: any): void {
-    this.tryError(err);
-  }
-
-  protected _complete(): void {
-    this.tryComplete();
-  }
-
-  private tryError(err: any): void {
     const group = this.group;
-    if (!group.isUnsubscribed) {
+    if (!group.closed) {
       group.error(err);
     }
     this.parent.removeGroup(this.key);
   }
 
-  private tryComplete(): void {
+  protected _complete(): void {
     const group = this.group;
-    if (!group.isUnsubscribed) {
+    if (!group.closed) {
       group.complete();
     }
     this.parent.removeGroup(this.key);
@@ -245,7 +221,7 @@ export class GroupedObservable<K, T> extends Observable<T> {
   protected _subscribe(subscriber: Subscriber<T>) {
     const subscription = new Subscription();
     const {refCountSubscription, groupSubject} = this;
-    if (refCountSubscription && !refCountSubscription.isUnsubscribed) {
+    if (refCountSubscription && !refCountSubscription.closed) {
       subscription.add(new InnerRefCountSubscription(refCountSubscription));
     }
     subscription.add(groupSubject.subscribe(subscriber));
@@ -266,7 +242,7 @@ class InnerRefCountSubscription extends Subscription {
 
   unsubscribe() {
     const parent = this.parent;
-    if (!parent.isUnsubscribed && !this.isUnsubscribed) {
+    if (!parent.closed && !this.closed) {
       super.unsubscribe();
       parent.count -= 1;
       if (parent.count === 0 && parent.attemptedToUnsubscribe) {

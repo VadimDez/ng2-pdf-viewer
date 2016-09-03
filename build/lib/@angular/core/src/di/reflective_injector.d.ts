@@ -1,4 +1,3 @@
-import { Type } from '../facade/lang';
 import { Injector } from './injector';
 import { Provider } from './provider';
 import { ResolvedReflectiveProvider } from './reflective_provider';
@@ -151,9 +150,7 @@ export declare abstract class ReflectiveInjector implements Injector {
      *
      * See {@link ReflectiveInjector#fromResolvedProviders} for more info.
      */
-    static resolve(providers: Array<Type | Provider | {
-        [k: string]: any;
-    } | any[]>): ResolvedReflectiveProvider[];
+    static resolve(providers: Provider[]): ResolvedReflectiveProvider[];
     /**
      * Resolves an array of providers and creates an injector from those providers.
      *
@@ -180,9 +177,7 @@ export declare abstract class ReflectiveInjector implements Injector {
      * because it needs to resolve the passed-in providers first.
      * See {@link Injector#resolve} and {@link Injector#fromResolvedProviders}.
      */
-    static resolveAndCreate(providers: Array<Type | Provider | {
-        [k: string]: any;
-    } | any[]>, parent?: Injector): ReflectiveInjector;
+    static resolveAndCreate(providers: Provider[], parent?: Injector): ReflectiveInjector;
     /**
      * Creates an injector from previously resolved providers.
      *
@@ -207,10 +202,6 @@ export declare abstract class ReflectiveInjector implements Injector {
      * @experimental
      */
     static fromResolvedProviders(providers: ResolvedReflectiveProvider[], parent?: Injector): ReflectiveInjector;
-    /**
-     * @deprecated
-     */
-    static fromResolvedBindings(providers: ResolvedReflectiveProvider[]): ReflectiveInjector;
     /**
      * Parent of this injector.
      *
@@ -253,9 +244,7 @@ export declare abstract class ReflectiveInjector implements Injector {
      * because it needs to resolve the passed-in providers first.
      * See {@link Injector#resolve} and {@link Injector#createChildFromResolved}.
      */
-    resolveAndCreateChild(providers: Array<Type | Provider | {
-        [k: string]: any;
-    } | any[]>): ReflectiveInjector;
+    resolveAndCreateChild(providers: Provider[]): ReflectiveInjector;
     /**
      * Creates a child injector from previously resolved providers.
      *
@@ -306,7 +295,7 @@ export declare abstract class ReflectiveInjector implements Injector {
      * expect(car).not.toBe(injector.resolveAndInstantiate(Car));
      * ```
      */
-    resolveAndInstantiate(provider: Type | Provider): any;
+    resolveAndInstantiate(provider: Provider): any;
     /**
      * Instantiates an object using a resolved provider in the context of the injector.
      *
@@ -335,18 +324,17 @@ export declare abstract class ReflectiveInjector implements Injector {
     abstract get(token: any, notFoundValue?: any): any;
 }
 export declare class ReflectiveInjector_ implements ReflectiveInjector {
-    private _debugContext;
     private _strategy;
     /**
      * Private
      */
-    constructor(_proto: any, _parent?: Injector, _debugContext?: Function);
+    constructor(_proto: any, _parent?: Injector);
     get(token: any, notFoundValue?: any): any;
     getAt(index: number): any;
     parent: Injector;
-    resolveAndCreateChild(providers: Array<Type | Provider | any[]>): ReflectiveInjector;
+    resolveAndCreateChild(providers: Provider[]): ReflectiveInjector;
     createChildFromResolved(providers: ResolvedReflectiveProvider[]): ReflectiveInjector;
-    resolveAndInstantiate(provider: Type | Provider): any;
+    resolveAndInstantiate(provider: Provider): any;
     instantiateResolved(provider: ResolvedReflectiveProvider): any;
     private _instantiateProvider(provider);
     private _instantiate(provider, ResolvedReflectiveFactory);

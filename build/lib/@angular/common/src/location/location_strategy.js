@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
+import { OpaqueToken } from '@angular/core';
 /**
  * `LocationStrategy` is responsible for representing and reading route state
  * from the browser's URL. Angular provides two strategies:
@@ -25,12 +24,11 @@ var core_1 = require('@angular/core');
  *
  * @stable
  */
-var LocationStrategy = (function () {
+export var LocationStrategy = (function () {
     function LocationStrategy() {
     }
     return LocationStrategy;
 }());
-exports.LocationStrategy = LocationStrategy;
 /**
  * The `APP_BASE_HREF` token represents the base href to be used with the
  * {@link PathLocationStrategy}.
@@ -41,25 +39,16 @@ exports.LocationStrategy = LocationStrategy;
  *
  * ### Example
  *
- * ```
- * import {Component} from '@angular/core';
- * import {ROUTER_DIRECTIVES, ROUTER_PROVIDERS, RouteConfig} from '@angular/router';
+ * import {Component, NgModule} from '@angular/core';
  * import {APP_BASE_HREF} from '@angular/common';
  *
- * @Component({directives: [ROUTER_DIRECTIVES]})
- * @RouteConfig([
- *  {...},
- * ])
- * class AppCmp {
- *   // ...
- * }
- *
- * bootstrap(AppCmp, [
- *   ROUTER_PROVIDERS,
- *   {provide: APP_BASE_HREF, useValue: '/my/app'}
- * ]);
+ * @NgModule({
+ *   providers: [{provide: APP_BASE_HREF, useValue: '/my/app'}]
+ * })
+ * class AppModule {}
  * ```
+ *
  * @stable
  */
-exports.APP_BASE_HREF = new core_1.OpaqueToken('appBaseHref');
+export var APP_BASE_HREF = new OpaqueToken('appBaseHref');
 //# sourceMappingURL=location_strategy.js.map

@@ -5,23 +5,21 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../src/facade/lang');
-function assertArrayOfStrings(identifier, value) {
-    if (!core_1.isDevMode() || lang_1.isBlank(value)) {
+import { isDevMode } from '@angular/core';
+import { isArray, isBlank, isPresent, isString } from '../src/facade/lang';
+export function assertArrayOfStrings(identifier, value) {
+    if (!isDevMode() || isBlank(value)) {
         return;
     }
-    if (!lang_1.isArray(value)) {
+    if (!isArray(value)) {
         throw new Error("Expected '" + identifier + "' to be an array of strings.");
     }
     for (var i = 0; i < value.length; i += 1) {
-        if (!lang_1.isString(value[i])) {
+        if (!isString(value[i])) {
             throw new Error("Expected '" + identifier + "' to be an array of strings.");
         }
     }
 }
-exports.assertArrayOfStrings = assertArrayOfStrings;
 var INTERPOLATION_BLACKLIST_REGEXPS = [
     /^\s*$/,
     /[<>]/,
@@ -29,11 +27,11 @@ var INTERPOLATION_BLACKLIST_REGEXPS = [
     /&(#|[a-z])/i,
     /^\/\//,
 ];
-function assertInterpolationSymbols(identifier, value) {
-    if (lang_1.isPresent(value) && !(lang_1.isArray(value) && value.length == 2)) {
+export function assertInterpolationSymbols(identifier, value) {
+    if (isPresent(value) && !(isArray(value) && value.length == 2)) {
         throw new Error("Expected '" + identifier + "' to be an array, [start, end].");
     }
-    else if (core_1.isDevMode() && !lang_1.isBlank(value)) {
+    else if (isDevMode() && !isBlank(value)) {
         var start_1 = value[0];
         var end_1 = value[1];
         // black list checking
@@ -44,5 +42,4 @@ function assertInterpolationSymbols(identifier, value) {
         });
     }
 }
-exports.assertInterpolationSymbols = assertInterpolationSymbols;
 //# sourceMappingURL=assertions.js.map

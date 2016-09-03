@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var StylesCollectionEntry = (function () {
+import { ListWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+export var StylesCollectionEntry = (function () {
     function StylesCollectionEntry(time, value) {
         this.time = time;
         this.value = value;
@@ -18,15 +17,14 @@ var StylesCollectionEntry = (function () {
     };
     return StylesCollectionEntry;
 }());
-exports.StylesCollectionEntry = StylesCollectionEntry;
-var StylesCollection = (function () {
+export var StylesCollection = (function () {
     function StylesCollection() {
         this.styles = {};
     }
     StylesCollection.prototype.insertAtTime = function (property, time, value) {
         var tuple = new StylesCollectionEntry(time, value);
         var entries = this.styles[property];
-        if (!lang_1.isPresent(entries)) {
+        if (!isPresent(entries)) {
             entries = this.styles[property] = [];
         }
         // insert this at the right stop in the array
@@ -38,18 +36,18 @@ var StylesCollection = (function () {
                 break;
             }
         }
-        collection_1.ListWrapper.insert(entries, insertionIndex, tuple);
+        ListWrapper.insert(entries, insertionIndex, tuple);
     };
     StylesCollection.prototype.getByIndex = function (property, index) {
         var items = this.styles[property];
-        if (lang_1.isPresent(items)) {
+        if (isPresent(items)) {
             return index >= items.length ? null : items[index];
         }
         return null;
     };
     StylesCollection.prototype.indexOfAtOrBeforeTime = function (property, time) {
         var entries = this.styles[property];
-        if (lang_1.isPresent(entries)) {
+        if (isPresent(entries)) {
             for (var i = entries.length - 1; i >= 0; i--) {
                 if (entries[i].time <= time)
                     return i;
@@ -59,5 +57,4 @@ var StylesCollection = (function () {
     };
     return StylesCollection;
 }());
-exports.StylesCollection = StylesCollection;
 //# sourceMappingURL=styles_collection.js.map

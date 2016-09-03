@@ -1,5 +1,5 @@
-import { Observable } from '../Observable';
 import { Scheduler } from '../Scheduler';
+import { Observable } from '../Observable';
 /**
  * Branch out the source Observable values as a nested Observable periodically
  * in time.

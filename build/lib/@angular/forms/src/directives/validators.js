@@ -5,29 +5,57 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../facade/lang');
-var validators_1 = require('../validators');
-exports.REQUIRED = validators_1.Validators.required;
-exports.REQUIRED_VALIDATOR = {
-    provide: validators_1.NG_VALIDATORS,
-    useValue: exports.REQUIRED,
+import { Directive, Input, forwardRef } from '@angular/core';
+import { isPresent } from '../facade/lang';
+import { NG_VALIDATORS, Validators } from '../validators';
+export var REQUIRED_VALIDATOR = {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(function () { return RequiredValidator; }),
     multi: true
 };
-var RequiredValidator = (function () {
+/**
+ * A Directive that adds the `required` validator to any controls marked with the
+ * `required` attribute, via the {@link NG_VALIDATORS} binding.
+ *
+ * ### Example
+ *
+ * ```
+ * <input name="fullName" ngModel required>
+ * ```
+ *
+ * @stable
+ */
+export var RequiredValidator = (function () {
     function RequiredValidator() {
     }
-    /** @nocollapse */
+    Object.defineProperty(RequiredValidator.prototype, "required", {
+        get: function () { return this._required; },
+        set: function (value) {
+            this._required = isPresent(value) && "" + value !== 'false';
+            if (this._onChange)
+                this._onChange();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    RequiredValidator.prototype.validate = function (c) {
+        return this.required ? Validators.required(c) : null;
+    };
+    RequiredValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
     RequiredValidator.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: '[required][formControlName],[required][formControl],[required][ngModel]',
-                    providers: [exports.REQUIRED_VALIDATOR]
+                    providers: [REQUIRED_VALIDATOR],
+                    host: { '[attr.required]': 'required? "" : null' }
                 },] },
     ];
+    /** @nocollapse */
+    RequiredValidator.ctorParameters = [];
+    RequiredValidator.propDecorators = {
+        'required': [{ type: Input },],
+    };
     return RequiredValidator;
 }());
-exports.RequiredValidator = RequiredValidator;
 /**
  * Provider which adds {@link MinLengthValidator} to {@link NG_VALIDATORS}.
  *
@@ -35,30 +63,48 @@ exports.RequiredValidator = RequiredValidator;
  *
  * {@example common/forms/ts/validators/validators.ts region='min'}
  */
-exports.MIN_LENGTH_VALIDATOR = {
-    provide: validators_1.NG_VALIDATORS,
-    useExisting: core_1.forwardRef(function () { return MinLengthValidator; }),
+export var MIN_LENGTH_VALIDATOR = {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(function () { return MinLengthValidator; }),
     multi: true
 };
-var MinLengthValidator = (function () {
-    function MinLengthValidator(minLength) {
-        this._validator = validators_1.Validators.minLength(lang_1.NumberWrapper.parseInt(minLength, 10));
+/**
+ * A directive which installs the {@link MinLengthValidator} for any `formControlName`,
+ * `formControl`, or control with `ngModel` that also has a `minlength` attribute.
+ *
+ * @stable
+ */
+export var MinLengthValidator = (function () {
+    function MinLengthValidator() {
     }
-    MinLengthValidator.prototype.validate = function (c) { return this._validator(c); };
-    /** @nocollapse */
+    MinLengthValidator.prototype._createValidator = function () {
+        this._validator = Validators.minLength(parseInt(this.minlength, 10));
+    };
+    MinLengthValidator.prototype.ngOnChanges = function (changes) {
+        if (changes['minlength']) {
+            this._createValidator();
+            if (this._onChange)
+                this._onChange();
+        }
+    };
+    MinLengthValidator.prototype.validate = function (c) {
+        return isPresent(this.minlength) ? this._validator(c) : null;
+    };
+    MinLengthValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
     MinLengthValidator.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: '[minlength][formControlName],[minlength][formControl],[minlength][ngModel]',
-                    providers: [exports.MIN_LENGTH_VALIDATOR]
+                    providers: [MIN_LENGTH_VALIDATOR],
+                    host: { '[attr.minlength]': 'minlength? minlength : null' }
                 },] },
     ];
     /** @nocollapse */
-    MinLengthValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Attribute, args: ['minlength',] },] },
-    ];
+    MinLengthValidator.ctorParameters = [];
+    MinLengthValidator.propDecorators = {
+        'minlength': [{ type: Input },],
+    };
     return MinLengthValidator;
 }());
-exports.MinLengthValidator = MinLengthValidator;
 /**
  * Provider which adds {@link MaxLengthValidator} to {@link NG_VALIDATORS}.
  *
@@ -66,52 +112,94 @@ exports.MinLengthValidator = MinLengthValidator;
  *
  * {@example common/forms/ts/validators/validators.ts region='max'}
  */
-exports.MAX_LENGTH_VALIDATOR = {
-    provide: validators_1.NG_VALIDATORS,
-    useExisting: core_1.forwardRef(function () { return MaxLengthValidator; }),
+export var MAX_LENGTH_VALIDATOR = {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(function () { return MaxLengthValidator; }),
     multi: true
 };
-var MaxLengthValidator = (function () {
-    function MaxLengthValidator(maxLength) {
-        this._validator = validators_1.Validators.maxLength(lang_1.NumberWrapper.parseInt(maxLength, 10));
+/**
+ * A directive which installs the {@link MaxLengthValidator} for any `formControlName,
+ * `formControl`,
+ * or control with `ngModel` that also has a `maxlength` attribute.
+ *
+ * @stable
+ */
+export var MaxLengthValidator = (function () {
+    function MaxLengthValidator() {
     }
-    MaxLengthValidator.prototype.validate = function (c) { return this._validator(c); };
-    /** @nocollapse */
+    MaxLengthValidator.prototype._createValidator = function () {
+        this._validator = Validators.maxLength(parseInt(this.maxlength, 10));
+    };
+    MaxLengthValidator.prototype.ngOnChanges = function (changes) {
+        if (changes['maxlength']) {
+            this._createValidator();
+            if (this._onChange)
+                this._onChange();
+        }
+    };
+    MaxLengthValidator.prototype.validate = function (c) {
+        return isPresent(this.maxlength) ? this._validator(c) : null;
+    };
+    MaxLengthValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
     MaxLengthValidator.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: '[maxlength][formControlName],[maxlength][formControl],[maxlength][ngModel]',
-                    providers: [exports.MAX_LENGTH_VALIDATOR]
+                    providers: [MAX_LENGTH_VALIDATOR],
+                    host: { '[attr.maxlength]': 'maxlength? maxlength : null' }
                 },] },
     ];
     /** @nocollapse */
-    MaxLengthValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Attribute, args: ['maxlength',] },] },
-    ];
+    MaxLengthValidator.ctorParameters = [];
+    MaxLengthValidator.propDecorators = {
+        'maxlength': [{ type: Input },],
+    };
     return MaxLengthValidator;
 }());
-exports.MaxLengthValidator = MaxLengthValidator;
-exports.PATTERN_VALIDATOR = {
-    provide: validators_1.NG_VALIDATORS,
-    useExisting: core_1.forwardRef(function () { return PatternValidator; }),
+export var PATTERN_VALIDATOR = {
+    provide: NG_VALIDATORS,
+    useExisting: forwardRef(function () { return PatternValidator; }),
     multi: true
 };
-var PatternValidator = (function () {
-    function PatternValidator(pattern) {
-        this._validator = validators_1.Validators.pattern(pattern);
+/**
+ * A Directive that adds the `pattern` validator to any controls marked with the
+ * `pattern` attribute, via the {@link NG_VALIDATORS} binding. Uses attribute value
+ * as the regex to validate Control value against.  Follows pattern attribute
+ * semantics; i.e. regex must match entire Control value.
+ *
+ * ### Example
+ *
+ * ```
+ * <input [name]="fullName" pattern="[a-zA-Z ]*" ngModel>
+ * ```
+ * @stable
+ */
+export var PatternValidator = (function () {
+    function PatternValidator() {
     }
-    PatternValidator.prototype.validate = function (c) { return this._validator(c); };
-    /** @nocollapse */
+    PatternValidator.prototype._createValidator = function () { this._validator = Validators.pattern(this.pattern); };
+    PatternValidator.prototype.ngOnChanges = function (changes) {
+        if (changes['pattern']) {
+            this._createValidator();
+            if (this._onChange)
+                this._onChange();
+        }
+    };
+    PatternValidator.prototype.validate = function (c) {
+        return isPresent(this.pattern) ? this._validator(c) : null;
+    };
+    PatternValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
     PatternValidator.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: '[pattern][formControlName],[pattern][formControl],[pattern][ngModel]',
-                    providers: [exports.PATTERN_VALIDATOR]
+                    providers: [PATTERN_VALIDATOR],
+                    host: { '[attr.pattern]': 'pattern? pattern : null' }
                 },] },
     ];
     /** @nocollapse */
-    PatternValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Attribute, args: ['pattern',] },] },
-    ];
+    PatternValidator.ctorParameters = [];
+    PatternValidator.propDecorators = {
+        'pattern': [{ type: Input },],
+    };
     return PatternValidator;
 }());
-exports.PatternValidator = PatternValidator;
 //# sourceMappingURL=validators.js.map

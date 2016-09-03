@@ -1,6 +1,6 @@
 import { Observable } from '../Observable';
 /**
- * Applies an accumulation function over the source Observable, and returns each
+ * Applies an accumulator function over the source Observable, and returns each
  * intermediate result, with an optional seed value.
  *
  * <span class="informal">It's like {@link reduce}, but emits the current
@@ -29,14 +29,11 @@ import { Observable } from '../Observable';
  * @see {@link mergeScan}
  * @see {@link reduce}
  *
- * @param {function(acc: R, value: T): R} accumulator The accumulator function
- * called on each source value.
+ * @param {function(acc: R, value: T, index: number): R} accumulator
+ * The accumulator function called on each source value.
  * @param {T|R} [seed] The initial accumulation value.
  * @return {Observable<R>} An observable of the accumulated values.
  * @method scan
  * @owner Observable
  */
-export declare function scan<T, R>(accumulator: (acc: R, value: T) => R, seed?: T | R): Observable<R>;
-export interface ScanSignature<T> {
-    <R>(accumulator: (acc: R, value: T) => R, seed?: T | R): Observable<R>;
-}
+export declare function scan<T, R>(accumulator: (acc: R, value: T, index: number) => R, seed?: T | R): Observable<R>;

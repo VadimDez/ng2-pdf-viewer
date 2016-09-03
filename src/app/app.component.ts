@@ -2,15 +2,12 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component } from '@angular/core';
-import { PdfViewerComponent } from './../pdf-viewer/pdf-viewer.component';
 
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app/app.component.html',
-  styleUrls: ['./app/app.component.css'],
-  directives: [PdfViewerComponent]
+  styleUrls: ['./app/app.component.css']
 })
-
 
 export class AppComponent {
   pdfSrc: string = './pdf-test.pdf';

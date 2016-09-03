@@ -12,7 +12,7 @@ import { AbstractControl } from '../model';
  *
  * Only used internally in the forms module.
  *
- * @experimental
+ * @stable
  */
 export declare abstract class AbstractControlDirective {
     control: AbstractControl;
@@ -27,6 +27,8 @@ export declare abstract class AbstractControlDirective {
     dirty: boolean;
     touched: boolean;
     untouched: boolean;
+    disabled: boolean;
+    enabled: boolean;
     statusChanges: Observable<any>;
     valueChanges: Observable<any>;
     path: string[];

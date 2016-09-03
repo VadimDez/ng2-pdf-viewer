@@ -5,12 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var tags_1 = require('./tags');
-var HtmlTagDefinition = (function () {
+import { TagContentType } from './tags';
+export var HtmlTagDefinition = (function () {
     function HtmlTagDefinition(_a) {
         var _this = this;
-        var _b = _a === void 0 ? {} : _a, closedByChildren = _b.closedByChildren, requiredParents = _b.requiredParents, implicitNamespacePrefix = _b.implicitNamespacePrefix, _c = _b.contentType, contentType = _c === void 0 ? tags_1.TagContentType.PARSABLE_DATA : _c, _d = _b.closedByParent, closedByParent = _d === void 0 ? false : _d, _e = _b.isVoid, isVoid = _e === void 0 ? false : _e, _f = _b.ignoreFirstLf, ignoreFirstLf = _f === void 0 ? false : _f;
+        var _b = _a === void 0 ? {} : _a, closedByChildren = _b.closedByChildren, requiredParents = _b.requiredParents, implicitNamespacePrefix = _b.implicitNamespacePrefix, _c = _b.contentType, contentType = _c === void 0 ? TagContentType.PARSABLE_DATA : _c, _d = _b.closedByParent, closedByParent = _d === void 0 ? false : _d, _e = _b.isVoid, isVoid = _e === void 0 ? false : _e, _f = _b.ignoreFirstLf, ignoreFirstLf = _f === void 0 ? false : _f;
         this.closedByChildren = {};
         this.closedByParent = false;
         this.canSelfClose = false;
@@ -44,7 +43,6 @@ var HtmlTagDefinition = (function () {
     };
     return HtmlTagDefinition;
 }());
-exports.HtmlTagDefinition = HtmlTagDefinition;
 // see http://www.w3.org/TR/html51/syntax.html#optional-tags
 // This implementation does not fully conform to the HTML5 spec.
 var TAG_DEFINITIONS = {
@@ -93,14 +91,13 @@ var TAG_DEFINITIONS = {
     'option': new HtmlTagDefinition({ closedByChildren: ['option', 'optgroup'], closedByParent: true }),
     'pre': new HtmlTagDefinition({ ignoreFirstLf: true }),
     'listing': new HtmlTagDefinition({ ignoreFirstLf: true }),
-    'style': new HtmlTagDefinition({ contentType: tags_1.TagContentType.RAW_TEXT }),
-    'script': new HtmlTagDefinition({ contentType: tags_1.TagContentType.RAW_TEXT }),
-    'title': new HtmlTagDefinition({ contentType: tags_1.TagContentType.ESCAPABLE_RAW_TEXT }),
-    'textarea': new HtmlTagDefinition({ contentType: tags_1.TagContentType.ESCAPABLE_RAW_TEXT, ignoreFirstLf: true }),
+    'style': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
+    'script': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
+    'title': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT }),
+    'textarea': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT, ignoreFirstLf: true }),
 };
 var _DEFAULT_TAG_DEFINITION = new HtmlTagDefinition();
-function getHtmlTagDefinition(tagName) {
+export function getHtmlTagDefinition(tagName) {
     return TAG_DEFINITIONS[tagName.toLowerCase()] || _DEFAULT_TAG_DEFINITION;
 }
-exports.getHtmlTagDefinition = getHtmlTagDefinition;
 //# sourceMappingURL=html_tags.js.map

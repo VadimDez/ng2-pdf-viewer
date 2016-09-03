@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { CompileIdentifierMap, CompileQueryMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { CompileQueryMetadata } from '../compile_metadata';
 import * as o from '../output/output_ast';
 import { CompileMethod } from './compile_method';
 import { CompileView } from './compile_view';
@@ -21,4 +21,4 @@ export declare class CompileQuery {
     afterChildren(targetStaticMethod: any, targetDynamicMethod: CompileMethod): void;
 }
 export declare function createQueryList(query: CompileQueryMetadata, directiveInstance: o.Expression, propertyName: string, compileView: CompileView): o.Expression;
-export declare function addQueryToTokenMap(map: CompileIdentifierMap<CompileTokenMetadata, CompileQuery[]>, query: CompileQuery): void;
+export declare function addQueryToTokenMap(map: Map<any, CompileQuery[]>, query: CompileQuery): void;

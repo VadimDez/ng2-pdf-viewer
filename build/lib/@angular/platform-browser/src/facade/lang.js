@@ -5,12 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var globalScope;
 if (typeof window === 'undefined') {
     if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
@@ -24,92 +18,68 @@ if (typeof window === 'undefined') {
 else {
     globalScope = window;
 }
-function scheduleMicroTask(fn) {
+export function scheduleMicroTask(fn) {
     Zone.current.scheduleMicroTask('scheduleMicrotask', fn);
 }
-exports.scheduleMicroTask = scheduleMicroTask;
 // Need to declare a new variable for global here since TypeScript
 // exports the original value of the symbol.
 var _global = globalScope;
-exports.global = _global;
-/**
- * Runtime representation a type that a Component or other object is instances of.
- *
- * An example of a `Type` is `MyCustomComponent` class, which in JavaScript is be represented by
- * the `MyCustomComponent` constructor function.
- *
- * @stable
- */
-exports.Type = Function;
-function getTypeNameForDebugging(type) {
+export { _global as global };
+export function getTypeNameForDebugging(type) {
     if (type['name']) {
         return type['name'];
     }
     return typeof type;
 }
-exports.getTypeNameForDebugging = getTypeNameForDebugging;
-exports.Math = _global.Math;
-exports.Date = _global.Date;
+export var Math = _global.Math;
+export var Date = _global.Date;
 // TODO: remove calls to assert in production environment
 // Note: Can't just export this and import in in other files
 // as `assert` is a reserved keyword in Dart
 _global.assert = function assert(condition) {
     // TODO: to be fixed properly via #2830, noop for now
 };
-function isPresent(obj) {
+export function isPresent(obj) {
     return obj !== undefined && obj !== null;
 }
-exports.isPresent = isPresent;
-function isBlank(obj) {
+export function isBlank(obj) {
     return obj === undefined || obj === null;
 }
-exports.isBlank = isBlank;
-function isBoolean(obj) {
+export function isBoolean(obj) {
     return typeof obj === 'boolean';
 }
-exports.isBoolean = isBoolean;
-function isNumber(obj) {
+export function isNumber(obj) {
     return typeof obj === 'number';
 }
-exports.isNumber = isNumber;
-function isString(obj) {
+export function isString(obj) {
     return typeof obj === 'string';
 }
-exports.isString = isString;
-function isFunction(obj) {
+export function isFunction(obj) {
     return typeof obj === 'function';
 }
-exports.isFunction = isFunction;
-function isType(obj) {
+export function isType(obj) {
     return isFunction(obj);
 }
-exports.isType = isType;
-function isStringMap(obj) {
+export function isStringMap(obj) {
     return typeof obj === 'object' && obj !== null;
 }
-exports.isStringMap = isStringMap;
 var STRING_MAP_PROTO = Object.getPrototypeOf({});
-function isStrictStringMap(obj) {
+export function isStrictStringMap(obj) {
     return isStringMap(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
 }
-exports.isStrictStringMap = isStrictStringMap;
-function isPromise(obj) {
+export function isPromise(obj) {
     // allow any Promise/A+ compliant thenable.
     // It's up to the caller to ensure that obj.then conforms to the spec
     return isPresent(obj) && isFunction(obj.then);
 }
-exports.isPromise = isPromise;
-function isArray(obj) {
+export function isArray(obj) {
     return Array.isArray(obj);
 }
-exports.isArray = isArray;
-function isDate(obj) {
-    return obj instanceof exports.Date && !isNaN(obj.valueOf());
+export function isDate(obj) {
+    return obj instanceof Date && !isNaN(obj.valueOf());
 }
-exports.isDate = isDate;
-function noop() { }
-exports.noop = noop;
-function stringify(token) {
+export function noop() { }
+export function stringify(token) {
     if (typeof token === 'string') {
         return token;
     }
@@ -126,22 +96,18 @@ function stringify(token) {
     var newLineIndex = res.indexOf('\n');
     return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
 }
-exports.stringify = stringify;
 // serialize / deserialize enum exist only for consistency with dart API
 // enums in typescript don't need to be serialized
-function serializeEnum(val) {
+export function serializeEnum(val) {
     return val;
 }
-exports.serializeEnum = serializeEnum;
-function deserializeEnum(val, values) {
+export function deserializeEnum(val, values) {
     return val;
 }
-exports.deserializeEnum = deserializeEnum;
-function resolveEnumToken(enumValue, val) {
+export function resolveEnumToken(enumValue, val) {
     return enumValue[val];
 }
-exports.resolveEnumToken = resolveEnumToken;
-var StringWrapper = (function () {
+export var StringWrapper = (function () {
     function StringWrapper() {
     }
     StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
@@ -209,8 +175,7 @@ var StringWrapper = (function () {
     };
     return StringWrapper;
 }());
-exports.StringWrapper = StringWrapper;
-var StringJoiner = (function () {
+export var StringJoiner = (function () {
     function StringJoiner(parts) {
         if (parts === void 0) { parts = []; }
         this.parts = parts;
@@ -219,18 +184,7 @@ var StringJoiner = (function () {
     StringJoiner.prototype.toString = function () { return this.parts.join(''); };
     return StringJoiner;
 }());
-exports.StringJoiner = StringJoiner;
-var NumberParseError = (function (_super) {
-    __extends(NumberParseError, _super);
-    function NumberParseError(message) {
-        _super.call(this);
-        this.message = message;
-    }
-    NumberParseError.prototype.toString = function () { return this.message; };
-    return NumberParseError;
-}(Error));
-exports.NumberParseError = NumberParseError;
-var NumberWrapper = (function () {
+export var NumberWrapper = (function () {
     function NumberWrapper() {
     }
     NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
@@ -238,7 +192,7 @@ var NumberWrapper = (function () {
     NumberWrapper.parseIntAutoRadix = function (text) {
         var result = parseInt(text);
         if (isNaN(result)) {
-            throw new NumberParseError('Invalid integer literal when parsing ' + text);
+            throw new Error('Invalid integer literal when parsing ' + text);
         }
         return result;
     };
@@ -259,7 +213,7 @@ var NumberWrapper = (function () {
                 return result;
             }
         }
-        throw new NumberParseError('Invalid integer literal when parsing ' + text + ' in base ' + radix);
+        throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
     };
     // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
     NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
@@ -273,49 +227,40 @@ var NumberWrapper = (function () {
     NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
     return NumberWrapper;
 }());
-exports.NumberWrapper = NumberWrapper;
-exports.RegExp = _global.RegExp;
-var FunctionWrapper = (function () {
+export var RegExp = _global.RegExp;
+export var FunctionWrapper = (function () {
     function FunctionWrapper() {
     }
     FunctionWrapper.apply = function (fn, posArgs) { return fn.apply(null, posArgs); };
     FunctionWrapper.bind = function (fn, scope) { return fn.bind(scope); };
     return FunctionWrapper;
 }());
-exports.FunctionWrapper = FunctionWrapper;
 // JS has NaN !== NaN
-function looseIdentical(a, b) {
+export function looseIdentical(a, b) {
     return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
 }
-exports.looseIdentical = looseIdentical;
 // JS considers NaN is the same as NaN for map Key (while NaN !== NaN otherwise)
 // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-function getMapKey(value) {
+export function getMapKey(value) {
     return value;
 }
-exports.getMapKey = getMapKey;
-function normalizeBlank(obj) {
+export function normalizeBlank(obj) {
     return isBlank(obj) ? null : obj;
 }
-exports.normalizeBlank = normalizeBlank;
-function normalizeBool(obj) {
+export function normalizeBool(obj) {
     return isBlank(obj) ? false : obj;
 }
-exports.normalizeBool = normalizeBool;
-function isJsObject(o) {
+export function isJsObject(o) {
     return o !== null && (typeof o === 'function' || typeof o === 'object');
 }
-exports.isJsObject = isJsObject;
-function print(obj) {
+export function print(obj) {
     console.log(obj);
 }
-exports.print = print;
-function warn(obj) {
+export function warn(obj) {
     console.warn(obj);
 }
-exports.warn = warn;
 // Can't be all uppercase as our transpiler would think it is a special directive...
-var Json = (function () {
+export var Json = (function () {
     function Json() {
     }
     Json.parse = function (s) { return _global.JSON.parse(s); };
@@ -325,8 +270,7 @@ var Json = (function () {
     };
     return Json;
 }());
-exports.Json = Json;
-var DateWrapper = (function () {
+export var DateWrapper = (function () {
     function DateWrapper() {
     }
     DateWrapper.create = function (year, month, day, hour, minutes, seconds, milliseconds) {
@@ -336,17 +280,16 @@ var DateWrapper = (function () {
         if (minutes === void 0) { minutes = 0; }
         if (seconds === void 0) { seconds = 0; }
         if (milliseconds === void 0) { milliseconds = 0; }
-        return new exports.Date(year, month - 1, day, hour, minutes, seconds, milliseconds);
+        return new Date(year, month - 1, day, hour, minutes, seconds, milliseconds);
     };
-    DateWrapper.fromISOString = function (str) { return new exports.Date(str); };
-    DateWrapper.fromMillis = function (ms) { return new exports.Date(ms); };
+    DateWrapper.fromISOString = function (str) { return new Date(str); };
+    DateWrapper.fromMillis = function (ms) { return new Date(ms); };
     DateWrapper.toMillis = function (date) { return date.getTime(); };
-    DateWrapper.now = function () { return new exports.Date(); };
+    DateWrapper.now = function () { return new Date(); };
     DateWrapper.toJson = function (date) { return date.toJSON(); };
     return DateWrapper;
 }());
-exports.DateWrapper = DateWrapper;
-function setValueOnPath(global, path, value) {
+export function setValueOnPath(global, path, value) {
     var parts = path.split('.');
     var obj = global;
     while (parts.length > 1) {
@@ -363,9 +306,8 @@ function setValueOnPath(global, path, value) {
     }
     obj[parts.shift()] = value;
 }
-exports.setValueOnPath = setValueOnPath;
 var _symbolIterator = null;
-function getSymbolIterator() {
+export function getSymbolIterator() {
     if (isBlank(_symbolIterator)) {
         if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
             _symbolIterator = Symbol.iterator;
@@ -384,8 +326,7 @@ function getSymbolIterator() {
     }
     return _symbolIterator;
 }
-exports.getSymbolIterator = getSymbolIterator;
-function evalExpression(sourceUrl, expr, declarations, vars) {
+export function evalExpression(sourceUrl, expr, declarations, vars) {
     var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
     var fnArgNames = [];
     var fnArgValues = [];
@@ -395,21 +336,16 @@ function evalExpression(sourceUrl, expr, declarations, vars) {
     }
     return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
 }
-exports.evalExpression = evalExpression;
-function isPrimitive(obj) {
+export function isPrimitive(obj) {
     return !isJsObject(obj);
 }
-exports.isPrimitive = isPrimitive;
-function hasConstructor(value, type) {
+export function hasConstructor(value, type) {
     return value.constructor === type;
 }
-exports.hasConstructor = hasConstructor;
-function escape(s) {
+export function escape(s) {
     return _global.encodeURI(s);
 }
-exports.escape = escape;
-function escapeRegExp(s) {
+export function escapeRegExp(s) {
     return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 }
-exports.escapeRegExp = escapeRegExp;
 //# sourceMappingURL=lang.js.map

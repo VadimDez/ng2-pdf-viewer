@@ -1,12 +1,12 @@
 import { ViewEncapsulation } from '../metadata/view';
 import { RenderComponentType, RootRenderer } from '../render/api';
-import { SanitizationService } from '../security';
+import { Sanitizer } from '../security';
 export declare class ViewUtils {
     private _renderer;
     private _appId;
-    sanitizer: SanitizationService;
+    sanitizer: Sanitizer;
     private _nextCompTypeId;
-    constructor(_renderer: RootRenderer, _appId: string, sanitizer: SanitizationService);
+    constructor(_renderer: RootRenderer, _appId: string, sanitizer: Sanitizer);
     /**
      * Used by the generated code
      */

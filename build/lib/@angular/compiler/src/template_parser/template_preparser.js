@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var tags_1 = require('../ml_parser/tags');
+import { splitNsName } from '../ml_parser/tags';
 var NG_CONTENT_SELECT_ATTR = 'select';
 var NG_CONTENT_ELEMENT = 'ng-content';
 var LINK_ELEMENT = 'link';
@@ -17,7 +16,7 @@ var STYLE_ELEMENT = 'style';
 var SCRIPT_ELEMENT = 'script';
 var NG_NON_BINDABLE_ATTR = 'ngNonBindable';
 var NG_PROJECT_AS = 'ngProjectAs';
-function preparseElement(ast) {
+export function preparseElement(ast) {
     var selectAttr = null;
     var hrefAttr = null;
     var relAttr = null;
@@ -46,7 +45,7 @@ function preparseElement(ast) {
     selectAttr = normalizeNgContentSelect(selectAttr);
     var nodeName = ast.name.toLowerCase();
     var type = PreparsedElementType.OTHER;
-    if (tags_1.splitNsName(nodeName)[1] == NG_CONTENT_ELEMENT) {
+    if (splitNsName(nodeName)[1] == NG_CONTENT_ELEMENT) {
         type = PreparsedElementType.NG_CONTENT;
     }
     else if (nodeName == STYLE_ELEMENT) {
@@ -60,16 +59,15 @@ function preparseElement(ast) {
     }
     return new PreparsedElement(type, selectAttr, hrefAttr, nonBindable, projectAs);
 }
-exports.preparseElement = preparseElement;
+export var PreparsedElementType;
 (function (PreparsedElementType) {
     PreparsedElementType[PreparsedElementType["NG_CONTENT"] = 0] = "NG_CONTENT";
     PreparsedElementType[PreparsedElementType["STYLE"] = 1] = "STYLE";
     PreparsedElementType[PreparsedElementType["STYLESHEET"] = 2] = "STYLESHEET";
     PreparsedElementType[PreparsedElementType["SCRIPT"] = 3] = "SCRIPT";
     PreparsedElementType[PreparsedElementType["OTHER"] = 4] = "OTHER";
-})(exports.PreparsedElementType || (exports.PreparsedElementType = {}));
-var PreparsedElementType = exports.PreparsedElementType;
-var PreparsedElement = (function () {
+})(PreparsedElementType || (PreparsedElementType = {}));
+export var PreparsedElement = (function () {
     function PreparsedElement(type, selectAttr, hrefAttr, nonBindable, projectAs) {
         this.type = type;
         this.selectAttr = selectAttr;
@@ -79,7 +77,6 @@ var PreparsedElement = (function () {
     }
     return PreparsedElement;
 }());
-exports.PreparsedElement = PreparsedElement;
 function normalizeNgContentSelect(selectAttr) {
     if (selectAttr === null || selectAttr.length === 0) {
         return '*';

@@ -11,15 +11,22 @@ import './add/observable/from';
 import './add/observable/fromEvent';
 import './add/observable/fromEventPattern';
 import './add/observable/fromPromise';
+import './add/observable/generate';
+import './add/observable/if';
 import './add/observable/interval';
 import './add/observable/merge';
 import './add/observable/race';
 import './add/observable/never';
 import './add/observable/of';
+import './add/observable/onErrorResumeNext';
+import './add/observable/pairs';
 import './add/observable/range';
+import './add/observable/using';
 import './add/observable/throw';
 import './add/observable/timer';
 import './add/observable/zip';
+import './add/observable/dom/ajax';
+import './add/observable/dom/webSocket';
 import './add/operator/buffer';
 import './add/operator/bufferCount';
 import './add/operator/bufferTime';
@@ -40,14 +47,23 @@ import './add/operator/debounceTime';
 import './add/operator/defaultIfEmpty';
 import './add/operator/delay';
 import './add/operator/delayWhen';
+import './add/operator/distinct';
+import './add/operator/distinctKey';
 import './add/operator/distinctUntilChanged';
+import './add/operator/distinctUntilKeyChanged';
 import './add/operator/do';
+import './add/operator/exhaust';
+import './add/operator/exhaustMap';
 import './add/operator/expand';
+import './add/operator/elementAt';
 import './add/operator/filter';
 import './add/operator/finally';
+import './add/operator/find';
+import './add/operator/findIndex';
 import './add/operator/first';
 import './add/operator/groupBy';
 import './add/operator/ignoreElements';
+import './add/operator/isEmpty';
 import './add/operator/audit';
 import './add/operator/auditTime';
 import './add/operator/last';
@@ -56,12 +72,17 @@ import './add/operator/every';
 import './add/operator/map';
 import './add/operator/mapTo';
 import './add/operator/materialize';
+import './add/operator/max';
 import './add/operator/merge';
 import './add/operator/mergeAll';
 import './add/operator/mergeMap';
 import './add/operator/mergeMapTo';
+import './add/operator/mergeScan';
+import './add/operator/min';
 import './add/operator/multicast';
 import './add/operator/observeOn';
+import './add/operator/onErrorResumeNext';
+import './add/operator/pairwise';
 import './add/operator/partition';
 import './add/operator/pluck';
 import './add/operator/publish';
@@ -92,8 +113,10 @@ import './add/operator/takeUntil';
 import './add/operator/takeWhile';
 import './add/operator/throttle';
 import './add/operator/throttleTime';
+import './add/operator/timeInterval';
 import './add/operator/timeout';
 import './add/operator/timeoutWith';
+import './add/operator/timestamp';
 import './add/operator/toArray';
 import './add/operator/toPromise';
 import './add/operator/window';
@@ -111,15 +134,22 @@ export { Subscriber } from './Subscriber';
 export { AsyncSubject } from './AsyncSubject';
 export { ReplaySubject } from './ReplaySubject';
 export { BehaviorSubject } from './BehaviorSubject';
+export { MulticastObservable } from './observable/MulticastObservable';
 export { ConnectableObservable } from './observable/ConnectableObservable';
 export { Notification } from './Notification';
 export { EmptyError } from './util/EmptyError';
 export { ArgumentOutOfRangeError } from './util/ArgumentOutOfRangeError';
 export { ObjectUnsubscribedError } from './util/ObjectUnsubscribedError';
 export { UnsubscriptionError } from './util/UnsubscriptionError';
+export { TimeInterval } from './operator/timeInterval';
+export { Timestamp } from './operator/timestamp';
+export { TestScheduler } from './testing/TestScheduler';
+export { VirtualTimeScheduler } from './scheduler/VirtualTimeScheduler';
+export { AjaxRequest, AjaxResponse, AjaxError, AjaxTimeoutError } from './observable/dom/AjaxObservable';
 import { AsapScheduler } from './scheduler/AsapScheduler';
 import { AsyncScheduler } from './scheduler/AsyncScheduler';
 import { QueueScheduler } from './scheduler/QueueScheduler';
+import { AnimationFrameScheduler } from './scheduler/AnimationFrameScheduler';
 /**
  * @typedef {Object} Rx.Scheduler
  * @property {Scheduler} queue Schedules on a queue in the current event frame
@@ -130,11 +160,14 @@ import { QueueScheduler } from './scheduler/QueueScheduler';
  * asynchronous conversions.
  * @property {Scheduler} async Schedules work with `setInterval`. Use this for
  * time-based operations.
+ * @property {Scheduler} animationFrame Schedules work with `requestAnimationFrame`.
+ * Use this for synchronizing with the platform's painting
  */
 declare let Scheduler: {
     asap: AsapScheduler;
-    async: AsyncScheduler;
     queue: QueueScheduler;
+    animationFrame: AnimationFrameScheduler;
+    async: AsyncScheduler;
 };
 /**
  * @typedef {Object} Rx.Symbol
@@ -151,7 +184,7 @@ declare let Scheduler: {
  */
 declare let Symbol: {
     rxSubscriber: any;
-    observable: symbol;
+    observable: any;
     iterator: any;
 };
 export { Scheduler, Symbol };

@@ -5,23 +5,59 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var validators_1 = require('../validators');
-var abstract_form_group_directive_1 = require('./abstract_form_group_directive');
-var control_container_1 = require('./control_container');
-var ng_form_1 = require('./ng_form');
-var template_driven_errors_1 = require('./template_driven_errors');
-exports.modelGroupProvider = {
-    provide: control_container_1.ControlContainer,
-    useExisting: core_1.forwardRef(function () { return NgModelGroup; })
+import { Directive, Host, Inject, Input, Optional, Self, SkipSelf, forwardRef } from '@angular/core';
+import { NG_ASYNC_VALIDATORS, NG_VALIDATORS } from '../validators';
+import { AbstractFormGroupDirective } from './abstract_form_group_directive';
+import { ControlContainer } from './control_container';
+import { NgForm } from './ng_form';
+import { TemplateDrivenErrors } from './template_driven_errors';
+export var modelGroupProvider = {
+    provide: ControlContainer,
+    useExisting: forwardRef(function () { return NgModelGroup; })
 };
-var NgModelGroup = (function (_super) {
+/**
+ * Creates and binds a model group to a DOM element.
+ *
+ * This directive can only be used as a child of {@link NgForm}.
+ *
+ * ```typescript
+ * @Component({
+ *   selector: 'my-app',
+ *   template: `
+ *     <div>
+ *       <h2>Angular forms Example</h2>
+ *       <form #f="ngForm">
+ *         <div ngModelGroup="name" #mgName="ngModelGroup">
+ *           <h3>Enter your name:</h3>
+ *           <p>First: <input name="first" ngModel required></p>
+ *           <p>Middle: <input name="middle" ngModel></p>
+ *           <p>Last: <input name="last" ngModel required></p>
+ *         </div>
+ *         <h3>Name value:</h3>
+ *         <pre>{{ mgName.value | json }}</pre>
+ *         <p>Name is {{mgName?.valid ? "valid" : "invalid"}}</p>
+ *         <h3>What's your favorite food?</h3>
+ *         <p><input name="food" ngModel></p>
+ *         <h3>Form value</h3>
+ *         <pre>{{ f.value | json }}</pre>
+ *       </form>
+ *     </div>
+ *   `
+ * })
+ * export class App {}
+ * ```
+ *
+ * This example declares a model group for a user's name. The value and validation state of
+ * this group can be accessed separately from the overall form.
+ *
+ * @stable
+ */
+export var NgModelGroup = (function (_super) {
     __extends(NgModelGroup, _super);
     function NgModelGroup(parent, validators, asyncValidators) {
         _super.call(this);
@@ -31,25 +67,22 @@ var NgModelGroup = (function (_super) {
     }
     /** @internal */
     NgModelGroup.prototype._checkParentType = function () {
-        if (!(this._parent instanceof NgModelGroup) && !(this._parent instanceof ng_form_1.NgForm)) {
-            template_driven_errors_1.TemplateDrivenErrors.modelGroupParentException();
+        if (!(this._parent instanceof NgModelGroup) && !(this._parent instanceof NgForm)) {
+            TemplateDrivenErrors.modelGroupParentException();
         }
     };
-    /** @nocollapse */
     NgModelGroup.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngModelGroup]', providers: [exports.modelGroupProvider], exportAs: 'ngModelGroup' },] },
+        { type: Directive, args: [{ selector: '[ngModelGroup]', providers: [modelGroupProvider], exportAs: 'ngModelGroup' },] },
     ];
     /** @nocollapse */
     NgModelGroup.ctorParameters = [
-        { type: control_container_1.ControlContainer, decorators: [{ type: core_1.Host }, { type: core_1.SkipSelf },] },
-        { type: Array, decorators: [{ type: core_1.Optional }, { type: core_1.Self }, { type: core_1.Inject, args: [validators_1.NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: core_1.Optional }, { type: core_1.Self }, { type: core_1.Inject, args: [validators_1.NG_ASYNC_VALIDATORS,] },] },
+        { type: ControlContainer, decorators: [{ type: Host }, { type: SkipSelf },] },
+        { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALIDATORS,] },] },
+        { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_ASYNC_VALIDATORS,] },] },
     ];
-    /** @nocollapse */
     NgModelGroup.propDecorators = {
-        'name': [{ type: core_1.Input, args: ['ngModelGroup',] },],
+        'name': [{ type: Input, args: ['ngModelGroup',] },],
     };
     return NgModelGroup;
-}(abstract_form_group_directive_1.AbstractFormGroupDirective));
-exports.NgModelGroup = NgModelGroup;
+}(AbstractFormGroupDirective));
 //# sourceMappingURL=ng_model_group.js.map

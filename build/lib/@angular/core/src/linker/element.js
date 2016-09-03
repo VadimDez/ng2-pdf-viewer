@@ -5,19 +5,17 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var element_ref_1 = require('./element_ref');
-var view_container_ref_1 = require('./view_container_ref');
-var view_type_1 = require('./view_type');
+import { ListWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+import { ElementRef } from './element_ref';
+import { ViewContainerRef_ } from './view_container_ref';
+import { ViewType } from './view_type';
 /**
  * An AppElement is created for elements that have a ViewContainerRef,
  * a nested component or a <template> element to keep data around
  * that is needed for later instantiations.
  */
-var AppElement = (function () {
+export var AppElement = (function () {
     function AppElement(index, parentIndex, parentView, nativeElement) {
         this.index = index;
         this.parentIndex = parentIndex;
@@ -27,12 +25,12 @@ var AppElement = (function () {
         this.componentView = null;
     }
     Object.defineProperty(AppElement.prototype, "elementRef", {
-        get: function () { return new element_ref_1.ElementRef(this.nativeElement); },
+        get: function () { return new ElementRef(this.nativeElement); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AppElement.prototype, "vcRef", {
-        get: function () { return new view_container_ref_1.ViewContainerRef_(this); },
+        get: function () { return new ViewContainerRef_(this); },
         enumerable: true,
         configurable: true
     });
@@ -53,7 +51,7 @@ var AppElement = (function () {
     });
     AppElement.prototype.mapNestedViews = function (nestedViewClass, callback) {
         var result = [];
-        if (lang_1.isPresent(this.nestedViews)) {
+        if (isPresent(this.nestedViews)) {
             this.nestedViews.forEach(function (nestedView) {
                 if (nestedView.clazz === nestedViewClass) {
                     result.push(callback(nestedView));
@@ -64,16 +62,16 @@ var AppElement = (function () {
     };
     AppElement.prototype.moveView = function (view, currentIndex) {
         var previousIndex = this.nestedViews.indexOf(view);
-        if (view.type === view_type_1.ViewType.COMPONENT) {
-            throw new exceptions_1.BaseException("Component views can't be moved!");
+        if (view.type === ViewType.COMPONENT) {
+            throw new Error("Component views can't be moved!");
         }
         var nestedViews = this.nestedViews;
         if (nestedViews == null) {
             nestedViews = [];
             this.nestedViews = nestedViews;
         }
-        collection_1.ListWrapper.removeAt(nestedViews, previousIndex);
-        collection_1.ListWrapper.insert(nestedViews, currentIndex, view);
+        ListWrapper.removeAt(nestedViews, previousIndex);
+        ListWrapper.insert(nestedViews, currentIndex, view);
         var refRenderNode;
         if (currentIndex > 0) {
             var prevView = nestedViews[currentIndex - 1];
@@ -82,21 +80,21 @@ var AppElement = (function () {
         else {
             refRenderNode = this.nativeElement;
         }
-        if (lang_1.isPresent(refRenderNode)) {
+        if (isPresent(refRenderNode)) {
             view.renderer.attachViewAfter(refRenderNode, view.flatRootNodes);
         }
         view.markContentChildAsMoved(this);
     };
     AppElement.prototype.attachView = function (view, viewIndex) {
-        if (view.type === view_type_1.ViewType.COMPONENT) {
-            throw new exceptions_1.BaseException("Component views can't be moved!");
+        if (view.type === ViewType.COMPONENT) {
+            throw new Error("Component views can't be moved!");
         }
         var nestedViews = this.nestedViews;
         if (nestedViews == null) {
             nestedViews = [];
             this.nestedViews = nestedViews;
         }
-        collection_1.ListWrapper.insert(nestedViews, viewIndex, view);
+        ListWrapper.insert(nestedViews, viewIndex, view);
         var refRenderNode;
         if (viewIndex > 0) {
             var prevView = nestedViews[viewIndex - 1];
@@ -105,15 +103,15 @@ var AppElement = (function () {
         else {
             refRenderNode = this.nativeElement;
         }
-        if (lang_1.isPresent(refRenderNode)) {
+        if (isPresent(refRenderNode)) {
             view.renderer.attachViewAfter(refRenderNode, view.flatRootNodes);
         }
         view.addToContentChildren(this);
     };
     AppElement.prototype.detachView = function (viewIndex) {
-        var view = collection_1.ListWrapper.removeAt(this.nestedViews, viewIndex);
-        if (view.type === view_type_1.ViewType.COMPONENT) {
-            throw new exceptions_1.BaseException("Component views can't be moved!");
+        var view = ListWrapper.removeAt(this.nestedViews, viewIndex);
+        if (view.type === ViewType.COMPONENT) {
+            throw new Error("Component views can't be moved!");
         }
         view.detach();
         view.removeFromContentChildren(this);
@@ -121,5 +119,4 @@ var AppElement = (function () {
     };
     return AppElement;
 }());
-exports.AppElement = AppElement;
 //# sourceMappingURL=element.js.map

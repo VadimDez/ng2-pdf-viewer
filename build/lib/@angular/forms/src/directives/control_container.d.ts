@@ -12,7 +12,7 @@ import { Form } from './form_interface';
  *
  * Only used by the forms module.
  *
- * @experimental
+ * @stable
  */
 export declare class ControlContainer extends AbstractControlDirective {
     name: string;

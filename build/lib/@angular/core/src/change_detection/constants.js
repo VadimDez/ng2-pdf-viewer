@@ -5,13 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var lang_1 = require('../facade/lang');
+import { isBlank } from '../facade/lang';
 /**
  * Describes within the change detector which strategy will be used the next time change
  * detection is triggered.
  * @stable
  */
+export var ChangeDetectionStrategy;
 (function (ChangeDetectionStrategy) {
     /**
      * `OnPush` means that the change detector's mode will be set to `CheckOnce` during hydration.
@@ -21,11 +21,11 @@ var lang_1 = require('../facade/lang');
      * `Default` means that the change detector's mode will be set to `CheckAlways` during hydration.
      */
     ChangeDetectionStrategy[ChangeDetectionStrategy["Default"] = 1] = "Default";
-})(exports.ChangeDetectionStrategy || (exports.ChangeDetectionStrategy = {}));
-var ChangeDetectionStrategy = exports.ChangeDetectionStrategy;
+})(ChangeDetectionStrategy || (ChangeDetectionStrategy = {}));
 /**
  * Describes the status of the detector.
  */
+export var ChangeDetectorStatus;
 (function (ChangeDetectorStatus) {
     /**
      * `CheckedOnce` means that after calling detectChanges the mode of the change detector
@@ -57,19 +57,18 @@ var ChangeDetectionStrategy = exports.ChangeDetectionStrategy;
      * `Destroyed` means that the change detector is destroyed.
      */
     ChangeDetectorStatus[ChangeDetectorStatus["Destroyed"] = 5] = "Destroyed";
-})(exports.ChangeDetectorStatus || (exports.ChangeDetectorStatus = {}));
-var ChangeDetectorStatus = exports.ChangeDetectorStatus;
+})(ChangeDetectorStatus || (ChangeDetectorStatus = {}));
 /**
  * List of possible {@link ChangeDetectionStrategy} values.
  */
-exports.CHANGE_DETECTION_STRATEGY_VALUES = [
+export var CHANGE_DETECTION_STRATEGY_VALUES = [
     ChangeDetectionStrategy.OnPush,
     ChangeDetectionStrategy.Default,
 ];
 /**
  * List of possible {@link ChangeDetectorStatus} values.
  */
-exports.CHANGE_DETECTOR_STATUS_VALUES = [
+export var CHANGE_DETECTOR_STATUS_VALUES = [
     ChangeDetectorStatus.CheckOnce,
     ChangeDetectorStatus.Checked,
     ChangeDetectorStatus.CheckAlways,
@@ -77,9 +76,8 @@ exports.CHANGE_DETECTOR_STATUS_VALUES = [
     ChangeDetectorStatus.Errored,
     ChangeDetectorStatus.Destroyed,
 ];
-function isDefaultChangeDetectionStrategy(changeDetectionStrategy) {
-    return lang_1.isBlank(changeDetectionStrategy) ||
+export function isDefaultChangeDetectionStrategy(changeDetectionStrategy) {
+    return isBlank(changeDetectionStrategy) ||
         changeDetectionStrategy === ChangeDetectionStrategy.Default;
 }
-exports.isDefaultChangeDetectionStrategy = isDefaultChangeDetectionStrategy;
 //# sourceMappingURL=constants.js.map

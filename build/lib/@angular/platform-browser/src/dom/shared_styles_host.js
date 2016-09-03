@@ -5,17 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
-var dom_adapter_1 = require('./dom_adapter');
-var dom_tokens_1 = require('./dom_tokens');
-var SharedStylesHost = (function () {
+import { Inject, Injectable } from '@angular/core';
+import { getDOM } from './dom_adapter';
+import { DOCUMENT } from './dom_tokens';
+export var SharedStylesHost = (function () {
     function SharedStylesHost() {
         /** @internal */
         this._styles = [];
@@ -26,7 +24,7 @@ var SharedStylesHost = (function () {
         var _this = this;
         var additions = [];
         styles.forEach(function (style) {
-            if (!collection_1.SetWrapper.has(_this._stylesSet, style)) {
+            if (!_this._stylesSet.has(style)) {
                 _this._stylesSet.add(style);
                 _this._styles.push(style);
                 additions.push(style);
@@ -36,16 +34,14 @@ var SharedStylesHost = (function () {
     };
     SharedStylesHost.prototype.onStylesAdded = function (additions) { };
     SharedStylesHost.prototype.getAllStyles = function () { return this._styles; };
-    /** @nocollapse */
     SharedStylesHost.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     SharedStylesHost.ctorParameters = [];
     return SharedStylesHost;
 }());
-exports.SharedStylesHost = SharedStylesHost;
-var DomSharedStylesHost = (function (_super) {
+export var DomSharedStylesHost = (function (_super) {
     __extends(DomSharedStylesHost, _super);
     function DomSharedStylesHost(doc) {
         _super.call(this);
@@ -56,27 +52,25 @@ var DomSharedStylesHost = (function (_super) {
     DomSharedStylesHost.prototype._addStylesToHost = function (styles, host) {
         for (var i = 0; i < styles.length; i++) {
             var style = styles[i];
-            dom_adapter_1.getDOM().appendChild(host, dom_adapter_1.getDOM().createStyleElement(style));
+            getDOM().appendChild(host, getDOM().createStyleElement(style));
         }
     };
     DomSharedStylesHost.prototype.addHost = function (hostNode) {
         this._addStylesToHost(this._styles, hostNode);
         this._hostNodes.add(hostNode);
     };
-    DomSharedStylesHost.prototype.removeHost = function (hostNode) { collection_1.SetWrapper.delete(this._hostNodes, hostNode); };
+    DomSharedStylesHost.prototype.removeHost = function (hostNode) { this._hostNodes.delete(hostNode); };
     DomSharedStylesHost.prototype.onStylesAdded = function (additions) {
         var _this = this;
         this._hostNodes.forEach(function (hostNode) { _this._addStylesToHost(additions, hostNode); });
     };
-    /** @nocollapse */
     DomSharedStylesHost.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     DomSharedStylesHost.ctorParameters = [
-        { type: undefined, decorators: [{ type: core_1.Inject, args: [dom_tokens_1.DOCUMENT,] },] },
+        { type: undefined, decorators: [{ type: Inject, args: [DOCUMENT,] },] },
     ];
     return DomSharedStylesHost;
 }(SharedStylesHost));
-exports.DomSharedStylesHost = DomSharedStylesHost;
 //# sourceMappingURL=shared_styles_host.js.map

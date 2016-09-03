@@ -5,10 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var forward_ref_1 = require('./forward_ref');
+import { isBlank, stringify } from '../facade/lang';
+import { resolveForwardRef } from './forward_ref';
 /**
  * A unique object used for retrieving items from the {@link ReflectiveInjector}.
  *
@@ -25,22 +23,22 @@ var forward_ref_1 = require('./forward_ref');
  * providers.
  * @experimental
  */
-var ReflectiveKey = (function () {
+export var ReflectiveKey = (function () {
     /**
      * Private
      */
     function ReflectiveKey(token, id) {
         this.token = token;
         this.id = id;
-        if (lang_1.isBlank(token)) {
-            throw new exceptions_1.BaseException('Token must be defined!');
+        if (isBlank(token)) {
+            throw new Error('Token must be defined!');
         }
     }
     Object.defineProperty(ReflectiveKey.prototype, "displayName", {
         /**
          * Returns a stringified token.
          */
-        get: function () { return lang_1.stringify(this.token); },
+        get: function () { return stringify(this.token); },
         enumerable: true,
         configurable: true
     });
@@ -48,7 +46,7 @@ var ReflectiveKey = (function () {
      * Retrieves a `Key` for a token.
      */
     ReflectiveKey.get = function (token) {
-        return _globalKeyRegistry.get(forward_ref_1.resolveForwardRef(token));
+        return _globalKeyRegistry.get(resolveForwardRef(token));
     };
     Object.defineProperty(ReflectiveKey, "numberOfKeys", {
         /**
@@ -60,11 +58,10 @@ var ReflectiveKey = (function () {
     });
     return ReflectiveKey;
 }());
-exports.ReflectiveKey = ReflectiveKey;
 /**
  * @internal
  */
-var KeyRegistry = (function () {
+export var KeyRegistry = (function () {
     function KeyRegistry() {
         this._allKeys = new Map();
     }
@@ -85,6 +82,5 @@ var KeyRegistry = (function () {
     });
     return KeyRegistry;
 }());
-exports.KeyRegistry = KeyRegistry;
 var _globalKeyRegistry = new KeyRegistry();
 //# sourceMappingURL=reflective_key.js.map

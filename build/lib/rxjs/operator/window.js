@@ -52,7 +52,12 @@ var WindowOperator = (function () {
         this.windowBoundaries = windowBoundaries;
     }
     WindowOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new WindowSubscriber(subscriber, this.windowBoundaries));
+        var windowSubscriber = new WindowSubscriber(subscriber);
+        var sourceSubscription = source._subscribe(windowSubscriber);
+        if (!sourceSubscription.closed) {
+            windowSubscriber.add(subscribeToResult_1.subscribeToResult(windowSubscriber, this.windowBoundaries));
+        }
+        return sourceSubscription;
     };
     return WindowOperator;
 }());
@@ -63,12 +68,10 @@ var WindowOperator = (function () {
  */
 var WindowSubscriber = (function (_super) {
     __extends(WindowSubscriber, _super);
-    function WindowSubscriber(destination, windowBoundaries) {
+    function WindowSubscriber(destination) {
         _super.call(this, destination);
-        this.destination = destination;
-        this.windowBoundaries = windowBoundaries;
-        this.add(subscribeToResult_1.subscribeToResult(this, windowBoundaries));
-        this.openWindow();
+        this.window = new Subject_1.Subject();
+        destination.next(this.window);
     }
     WindowSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
         this.openWindow();
@@ -90,6 +93,9 @@ var WindowSubscriber = (function (_super) {
         this.window.complete();
         this.destination.complete();
     };
+    WindowSubscriber.prototype._unsubscribe = function () {
+        this.window = null;
+    };
     WindowSubscriber.prototype.openWindow = function () {
         var prevWindow = this.window;
         if (prevWindow) {
@@ -97,7 +103,6 @@ var WindowSubscriber = (function (_super) {
         }
         var destination = this.destination;
         var newWindow = this.window = new Subject_1.Subject();
-        destination.add(newWindow);
         destination.next(newWindow);
     };
     return WindowSubscriber;

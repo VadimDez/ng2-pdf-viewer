@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
+import { SecurityContext } from '@angular/core';
 // =================================================================================================
 // =================================================================================================
 // =========== S T O P   -  S T O P   -  S T O P   -  S T O P   -  S T O P   -  S T O P  ===========
@@ -18,28 +17,28 @@ var core_1 = require('@angular/core');
 //
 // =================================================================================================
 /** Map from tagName|propertyName SecurityContext. Properties applying to all tags use '*'. */
-exports.SECURITY_SCHEMA = {};
+export var SECURITY_SCHEMA = {};
 function registerContext(ctx, specs) {
     for (var _i = 0, specs_1 = specs; _i < specs_1.length; _i++) {
         var spec = specs_1[_i];
-        exports.SECURITY_SCHEMA[spec.toLowerCase()] = ctx;
+        SECURITY_SCHEMA[spec.toLowerCase()] = ctx;
     }
 }
 // Case is insignificant below, all element and attribute names are lower-cased for lookup.
-registerContext(core_1.SecurityContext.HTML, [
+registerContext(SecurityContext.HTML, [
     'iframe|srcdoc',
     '*|innerHTML',
     '*|outerHTML',
 ]);
-registerContext(core_1.SecurityContext.STYLE, ['*|style']);
+registerContext(SecurityContext.STYLE, ['*|style']);
 // NB: no SCRIPT contexts here, they are never allowed due to the parser stripping them.
-registerContext(core_1.SecurityContext.URL, [
+registerContext(SecurityContext.URL, [
     '*|formAction', 'area|href', 'area|ping', 'audio|src', 'a|href',
     'a|ping', 'blockquote|cite', 'body|background', 'del|cite', 'form|action',
     'img|src', 'img|srcset', 'input|src', 'ins|cite', 'q|cite',
     'source|src', 'source|srcset', 'track|src', 'video|poster', 'video|src',
 ]);
-registerContext(core_1.SecurityContext.RESOURCE_URL, [
+registerContext(SecurityContext.RESOURCE_URL, [
     'applet|code',
     'applet|codebase',
     'base|href',

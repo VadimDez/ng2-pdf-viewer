@@ -12,24 +12,24 @@ export interface AjaxRequest {
     password?: string;
     hasContent?: boolean;
     crossDomain?: boolean;
+    withCredentials?: boolean;
     createXHR?: () => XMLHttpRequest;
     progressSubscriber?: Subscriber<any>;
-    resultSelector?: <T>(response: AjaxResponse) => T;
     responseType?: string;
 }
 export interface AjaxCreationMethod {
-    <T>(urlOrRequest: string | AjaxRequest): Observable<T>;
-    get<T>(url: string, resultSelector?: (response: AjaxResponse) => T, headers?: Object): Observable<T>;
-    post<T>(url: string, body?: any, headers?: Object): Observable<T>;
-    put<T>(url: string, body?: any, headers?: Object): Observable<T>;
-    delete<T>(url: string, headers?: Object): Observable<T>;
+    (urlOrRequest: string | AjaxRequest): Observable<AjaxResponse>;
+    get(url: string, headers?: Object): Observable<AjaxResponse>;
+    post(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+    put(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+    delete(url: string, headers?: Object): Observable<AjaxResponse>;
     getJSON<T, R>(url: string, resultSelector?: (data: T) => R, headers?: Object): Observable<R>;
 }
-export declare function ajaxGet<T>(url: string, resultSelector?: (response: AjaxResponse) => T, headers?: Object): AjaxObservable<T>;
-export declare function ajaxPost<T>(url: string, body?: any, headers?: Object): Observable<T>;
-export declare function ajaxDelete<T>(url: string, headers?: Object): Observable<T>;
-export declare function ajaxPut<T>(url: string, body?: any, headers?: Object): Observable<T>;
-export declare function ajaxGetJSON<T, R>(url: string, resultSelector?: (data: T) => R, headers?: Object): Observable<R>;
+export declare function ajaxGet(url: string, headers?: Object): AjaxObservable<AjaxResponse>;
+export declare function ajaxPost(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+export declare function ajaxDelete(url: string, headers?: Object): Observable<AjaxResponse>;
+export declare function ajaxPut(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+export declare function ajaxGetJSON<T>(url: string, headers?: Object): Observable<T>;
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -42,7 +42,7 @@ export declare class AjaxObservable<T> extends Observable<T> {
      *
      * @example
      * source = Rx.Observable.ajax('/products');
-     * source = Rx.Observable.ajax( url: 'products', method: 'GET' });
+     * source = Rx.Observable.ajax({ url: 'products', method: 'GET' });
      *
      * @param {string|Object} request Can be one of the following:
      *   A string of the URL to make the Ajax call.
@@ -62,7 +62,6 @@ export declare class AjaxObservable<T> extends Observable<T> {
      * @name ajax
      * @owner Observable
     */
-    static _create_stub(): void;
     static create: AjaxCreationMethod;
     private request;
     constructor(urlOrRequest: string | AjaxRequest);
@@ -76,12 +75,11 @@ export declare class AjaxObservable<T> extends Observable<T> {
 export declare class AjaxSubscriber<T> extends Subscriber<Event> {
     request: AjaxRequest;
     private xhr;
-    private resultSelector;
     private done;
     constructor(destination: Subscriber<T>, request: AjaxRequest);
     next(e: Event): void;
     private send();
-    private serializeBody(body, contentType);
+    private serializeBody(body, contentType?);
     private setHeaders(xhr, headers);
     private setupEvents(xhr, request);
     unsubscribe(): void;

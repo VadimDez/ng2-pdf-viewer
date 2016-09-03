@@ -1,1 +1,1 @@
-{"version":3,"file":"animationFrame.js","sourceRoot":"","sources":["../src/scheduler/animationFrame.ts"],"names":[],"mappings":";AAAA,wCAAsC,2BAA2B,CAAC,CAAA;AAErD,sBAAc,GAAG,IAAI,iDAAuB,EAAE,CAAC"}
+{"version":3,"file":"animationFrame.js","sourceRoot":"","sources":["../src/scheduler/animationFrame.ts"],"names":[],"mappings":";AAAA,qCAAmC,wBAAwB,CAAC,CAAA;AAC5D,wCAAsC,2BAA2B,CAAC,CAAA;AAErD,sBAAc,GAAG,IAAI,iDAAuB,CAAC,2CAAoB,CAAC,CAAC"}

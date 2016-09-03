@@ -1,20 +1,21 @@
 import {root} from '../util/root';
 
-const Symbol = root.Symbol;
+export function getSymbolObservable(context: any) {
+  let $$observable: any;
+  let Symbol = context.Symbol;
 
-export let $$observable: symbol;
-
-if (typeof Symbol === 'function') {
-  if (Symbol.observable) {
-    $$observable = Symbol.observable;
-  } else {
-    if (typeof Symbol.for === 'function') {
-      $$observable = Symbol.for('observable');
+  if (typeof Symbol === 'function') {
+    if (Symbol.observable) {
+      $$observable = Symbol.observable;
     } else {
-      $$observable = Symbol('observable');
+        $$observable = Symbol('observable');
+        Symbol.observable = $$observable;
     }
-    Symbol.observable = $$observable;
+  } else {
+    $$observable = '@@observable';
   }
-} else {
-  $$observable = <any>'@@observable';
+
+  return $$observable;
 }
+
+export const $$observable = getSymbolObservable(root);

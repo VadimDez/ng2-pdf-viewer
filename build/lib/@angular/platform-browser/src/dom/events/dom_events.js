@@ -5,16 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var dom_adapter_1 = require('../dom_adapter');
-var event_manager_1 = require('./event_manager');
-var DomEventsPlugin = (function (_super) {
+import { Injectable } from '@angular/core';
+import { getDOM } from '../dom_adapter';
+import { EventManagerPlugin } from './event_manager';
+export var DomEventsPlugin = (function (_super) {
     __extends(DomEventsPlugin, _super);
     function DomEventsPlugin() {
         _super.apply(this, arguments);
@@ -25,19 +24,19 @@ var DomEventsPlugin = (function (_super) {
     DomEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
         var zone = this.manager.getZone();
         var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-        return this.manager.getZone().runOutsideAngular(function () { return dom_adapter_1.getDOM().onAndCancel(element, eventName, outsideHandler); });
+        return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
     };
     DomEventsPlugin.prototype.addGlobalEventListener = function (target, eventName, handler) {
-        var element = dom_adapter_1.getDOM().getGlobalEventTarget(target);
+        var element = getDOM().getGlobalEventTarget(target);
         var zone = this.manager.getZone();
         var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-        return this.manager.getZone().runOutsideAngular(function () { return dom_adapter_1.getDOM().onAndCancel(element, eventName, outsideHandler); });
+        return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
     };
-    /** @nocollapse */
     DomEventsPlugin.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
+    DomEventsPlugin.ctorParameters = [];
     return DomEventsPlugin;
-}(event_manager_1.EventManagerPlugin));
-exports.DomEventsPlugin = DomEventsPlugin;
+}(EventManagerPlugin));
 //# sourceMappingURL=dom_events.js.map

@@ -4,9 +4,7 @@ export interface AnonymousSubscription {
 export declare type TeardownLogic = AnonymousSubscription | Function | void;
 export interface ISubscription extends AnonymousSubscription {
     unsubscribe(): void;
-    isUnsubscribed: boolean;
-    add(teardown: TeardownLogic): ISubscription;
-    remove(sub: ISubscription): void;
+    closed: boolean;
 }
 /**
  * Represents a disposable resource, such as the execution of an Observable. A
@@ -26,7 +24,7 @@ export declare class Subscription implements ISubscription {
      * A flag to indicate whether this Subscription has already been unsubscribed.
      * @type {boolean}
      */
-    isUnsubscribed: boolean;
+    closed: boolean;
     /**
      * @param {function(): void} [unsubscribe] A function describing how to
      * perform the disposal of resources when the `unsubscribe` method is called.
@@ -47,7 +45,7 @@ export declare class Subscription implements ISubscription {
      * unsubscribed, is the same reference `add` is being called on, or is
      * `Subscription.EMPTY`, it will not be added.
      *
-     * If this subscription is already in an `isUnsubscribed` state, the passed
+     * If this subscription is already in an `closed` state, the passed
      * tear down logic will be executed immediately.
      *
      * @param {TeardownLogic} teardown The additional logic to execute on

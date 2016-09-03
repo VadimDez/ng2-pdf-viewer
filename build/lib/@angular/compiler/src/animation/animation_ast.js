@@ -5,29 +5,26 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var AnimationAst = (function () {
+export var AnimationAst = (function () {
     function AnimationAst() {
         this.startTime = 0;
         this.playTime = 0;
     }
     return AnimationAst;
 }());
-exports.AnimationAst = AnimationAst;
-var AnimationStateAst = (function (_super) {
+export var AnimationStateAst = (function (_super) {
     __extends(AnimationStateAst, _super);
     function AnimationStateAst() {
         _super.apply(this, arguments);
     }
     return AnimationStateAst;
 }(AnimationAst));
-exports.AnimationStateAst = AnimationStateAst;
-var AnimationEntryAst = (function (_super) {
+export var AnimationEntryAst = (function (_super) {
     __extends(AnimationEntryAst, _super);
     function AnimationEntryAst(name, stateDeclarations, stateTransitions) {
         _super.call(this);
@@ -40,8 +37,7 @@ var AnimationEntryAst = (function (_super) {
     };
     return AnimationEntryAst;
 }(AnimationAst));
-exports.AnimationEntryAst = AnimationEntryAst;
-var AnimationStateDeclarationAst = (function (_super) {
+export var AnimationStateDeclarationAst = (function (_super) {
     __extends(AnimationStateDeclarationAst, _super);
     function AnimationStateDeclarationAst(stateName, styles) {
         _super.call(this);
@@ -53,16 +49,14 @@ var AnimationStateDeclarationAst = (function (_super) {
     };
     return AnimationStateDeclarationAst;
 }(AnimationStateAst));
-exports.AnimationStateDeclarationAst = AnimationStateDeclarationAst;
-var AnimationStateTransitionExpression = (function () {
+export var AnimationStateTransitionExpression = (function () {
     function AnimationStateTransitionExpression(fromState, toState) {
         this.fromState = fromState;
         this.toState = toState;
     }
     return AnimationStateTransitionExpression;
 }());
-exports.AnimationStateTransitionExpression = AnimationStateTransitionExpression;
-var AnimationStateTransitionAst = (function (_super) {
+export var AnimationStateTransitionAst = (function (_super) {
     __extends(AnimationStateTransitionAst, _super);
     function AnimationStateTransitionAst(stateChanges, animation) {
         _super.call(this);
@@ -74,8 +68,7 @@ var AnimationStateTransitionAst = (function (_super) {
     };
     return AnimationStateTransitionAst;
 }(AnimationStateAst));
-exports.AnimationStateTransitionAst = AnimationStateTransitionAst;
-var AnimationStepAst = (function (_super) {
+export var AnimationStepAst = (function (_super) {
     __extends(AnimationStepAst, _super);
     function AnimationStepAst(startingStyles, keyframes, duration, delay, easing) {
         _super.call(this);
@@ -90,8 +83,7 @@ var AnimationStepAst = (function (_super) {
     };
     return AnimationStepAst;
 }(AnimationAst));
-exports.AnimationStepAst = AnimationStepAst;
-var AnimationStylesAst = (function (_super) {
+export var AnimationStylesAst = (function (_super) {
     __extends(AnimationStylesAst, _super);
     function AnimationStylesAst(styles) {
         _super.call(this);
@@ -102,8 +94,7 @@ var AnimationStylesAst = (function (_super) {
     };
     return AnimationStylesAst;
 }(AnimationAst));
-exports.AnimationStylesAst = AnimationStylesAst;
-var AnimationKeyframeAst = (function (_super) {
+export var AnimationKeyframeAst = (function (_super) {
     __extends(AnimationKeyframeAst, _super);
     function AnimationKeyframeAst(offset, styles) {
         _super.call(this);
@@ -115,8 +106,7 @@ var AnimationKeyframeAst = (function (_super) {
     };
     return AnimationKeyframeAst;
 }(AnimationAst));
-exports.AnimationKeyframeAst = AnimationKeyframeAst;
-var AnimationWithStepsAst = (function (_super) {
+export var AnimationWithStepsAst = (function (_super) {
     __extends(AnimationWithStepsAst, _super);
     function AnimationWithStepsAst(steps) {
         _super.call(this);
@@ -124,8 +114,7 @@ var AnimationWithStepsAst = (function (_super) {
     }
     return AnimationWithStepsAst;
 }(AnimationAst));
-exports.AnimationWithStepsAst = AnimationWithStepsAst;
-var AnimationGroupAst = (function (_super) {
+export var AnimationGroupAst = (function (_super) {
     __extends(AnimationGroupAst, _super);
     function AnimationGroupAst(steps) {
         _super.call(this, steps);
@@ -135,8 +124,7 @@ var AnimationGroupAst = (function (_super) {
     };
     return AnimationGroupAst;
 }(AnimationWithStepsAst));
-exports.AnimationGroupAst = AnimationGroupAst;
-var AnimationSequenceAst = (function (_super) {
+export var AnimationSequenceAst = (function (_super) {
     __extends(AnimationSequenceAst, _super);
     function AnimationSequenceAst(steps) {
         _super.call(this, steps);
@@ -146,5 +134,4 @@ var AnimationSequenceAst = (function (_super) {
     };
     return AnimationSequenceAst;
 }(AnimationWithStepsAst));
-exports.AnimationSequenceAst = AnimationSequenceAst;
 //# sourceMappingURL=animation_ast.js.map

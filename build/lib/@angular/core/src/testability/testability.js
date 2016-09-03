@@ -5,13 +5,17 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var decorators_1 = require('../di/decorators');
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var ng_zone_1 = require('../zone/ng_zone');
-var Testability = (function () {
+import { Injectable } from '../di/decorators';
+import { Map, MapWrapper } from '../facade/collection';
+import { scheduleMicroTask } from '../facade/lang';
+import { NgZone } from '../zone/ng_zone';
+/**
+ * The Testability service provides testing hooks that can be accessed from
+ * the browser and by services such as Protractor. Each bootstrapped Angular
+ * application on the page will have an instance of Testability.
+ * @experimental
+ */
+export var Testability = (function () {
     function Testability(_ngZone) {
         this._ngZone = _ngZone;
         /** @internal */
@@ -41,8 +45,8 @@ var Testability = (function () {
         this._ngZone.runOutsideAngular(function () {
             _this._ngZone.onStable.subscribe({
                 next: function () {
-                    ng_zone_1.NgZone.assertNotInAngularZone();
-                    lang_1.scheduleMicroTask(function () {
+                    NgZone.assertNotInAngularZone();
+                    scheduleMicroTask(function () {
                         _this._isZoneStable = true;
                         _this._runCallbacksIfReady();
                     });
@@ -58,7 +62,7 @@ var Testability = (function () {
     Testability.prototype.decreasePendingRequestCount = function () {
         this._pendingCount -= 1;
         if (this._pendingCount < 0) {
-            throw new exceptions_1.BaseException('pending async requests below zero');
+            throw new Error('pending async requests below zero');
         }
         this._runCallbacksIfReady();
         return this._pendingCount;
@@ -71,7 +75,7 @@ var Testability = (function () {
         var _this = this;
         if (this.isStable()) {
             // Schedules the call backs in a new frame so that it is always async.
-            lang_1.scheduleMicroTask(function () {
+            scheduleMicroTask(function () {
                 while (_this._callbacks.length !== 0) {
                     (_this._callbacks.pop())(_this._didWork);
                 }
@@ -96,42 +100,42 @@ var Testability = (function () {
         // TODO(juliemr): implement.
         return [];
     };
-    /** @nocollapse */
     Testability.decorators = [
-        { type: decorators_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     Testability.ctorParameters = [
-        { type: ng_zone_1.NgZone, },
+        { type: NgZone, },
     ];
     return Testability;
 }());
-exports.Testability = Testability;
-var TestabilityRegistry = (function () {
+/**
+ * A global registry of {@link Testability} instances for specific elements.
+ * @experimental
+ */
+export var TestabilityRegistry = (function () {
     function TestabilityRegistry() {
         /** @internal */
-        this._applications = new collection_1.Map();
+        this._applications = new Map();
         _testabilityGetter.addToWindow(this);
     }
     TestabilityRegistry.prototype.registerApplication = function (token, testability) {
         this._applications.set(token, testability);
     };
     TestabilityRegistry.prototype.getTestability = function (elem) { return this._applications.get(elem); };
-    TestabilityRegistry.prototype.getAllTestabilities = function () { return collection_1.MapWrapper.values(this._applications); };
-    TestabilityRegistry.prototype.getAllRootElements = function () { return collection_1.MapWrapper.keys(this._applications); };
+    TestabilityRegistry.prototype.getAllTestabilities = function () { return MapWrapper.values(this._applications); };
+    TestabilityRegistry.prototype.getAllRootElements = function () { return MapWrapper.keys(this._applications); };
     TestabilityRegistry.prototype.findTestabilityInTree = function (elem, findInAncestors) {
         if (findInAncestors === void 0) { findInAncestors = true; }
         return _testabilityGetter.findTestabilityInTree(this, elem, findInAncestors);
     };
-    /** @nocollapse */
     TestabilityRegistry.decorators = [
-        { type: decorators_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     TestabilityRegistry.ctorParameters = [];
     return TestabilityRegistry;
 }());
-exports.TestabilityRegistry = TestabilityRegistry;
 var _NoopGetTestability = (function () {
     function _NoopGetTestability() {
     }
@@ -145,9 +149,8 @@ var _NoopGetTestability = (function () {
  * Set the {@link GetTestability} implementation used by the Angular testing framework.
  * @experimental
  */
-function setTestabilityGetter(getter) {
+export function setTestabilityGetter(getter) {
     _testabilityGetter = getter;
 }
-exports.setTestabilityGetter = setTestabilityGetter;
 var _testabilityGetter = new _NoopGetTestability();
 //# sourceMappingURL=testability.js.map

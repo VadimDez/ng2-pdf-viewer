@@ -8,6 +8,7 @@
 import { HtmlParser } from '../ml_parser/html_parser';
 import { InterpolationConfig } from '../ml_parser/interpolation_config';
 import { ParseError } from '../parse_util';
+import { Message } from './i18n_ast';
 import { Serializer } from './serializers/serializer';
 /**
  * A container for message extracted from the templates.
@@ -21,5 +22,8 @@ export declare class MessageBundle {
         [k: string]: string[];
     });
     updateFromTemplate(html: string, url: string, interpolationConfig: InterpolationConfig): ParseError[];
+    getMessageMap(): {
+        [id: string]: Message;
+    };
     write(serializer: Serializer): string;
 }

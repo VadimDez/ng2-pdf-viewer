@@ -5,15 +5,24 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var control_value_accessor_1 = require('./control_value_accessor');
-exports.CHECKBOX_VALUE_ACCESSOR = {
-    provide: control_value_accessor_1.NG_VALUE_ACCESSOR,
-    useExisting: core_1.forwardRef(function () { return CheckboxControlValueAccessor; }),
+import { Directive, ElementRef, Renderer, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from './control_value_accessor';
+export var CHECKBOX_VALUE_ACCESSOR = {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(function () { return CheckboxControlValueAccessor; }),
     multi: true
 };
-var CheckboxControlValueAccessor = (function () {
+/**
+ * The accessor for writing a value and listening to changes on a checkbox input element.
+ *
+ *  ### Example
+ *  ```
+ *  <input type="checkbox" name="rememberLogin" ngModel>
+ *  ```
+ *
+ *  @stable
+ */
+export var CheckboxControlValueAccessor = (function () {
     function CheckboxControlValueAccessor(_renderer, _elementRef) {
         this._renderer = _renderer;
         this._elementRef = _elementRef;
@@ -25,20 +34,21 @@ var CheckboxControlValueAccessor = (function () {
     };
     CheckboxControlValueAccessor.prototype.registerOnChange = function (fn) { this.onChange = fn; };
     CheckboxControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-    /** @nocollapse */
+    CheckboxControlValueAccessor.prototype.setDisabledState = function (isDisabled) {
+        this._renderer.setElementProperty(this._elementRef.nativeElement, 'disabled', isDisabled);
+    };
     CheckboxControlValueAccessor.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: 'input[type=checkbox][formControlName],input[type=checkbox][formControl],input[type=checkbox][ngModel]',
                     host: { '(change)': 'onChange($event.target.checked)', '(blur)': 'onTouched()' },
-                    providers: [exports.CHECKBOX_VALUE_ACCESSOR]
+                    providers: [CHECKBOX_VALUE_ACCESSOR]
                 },] },
     ];
     /** @nocollapse */
     CheckboxControlValueAccessor.ctorParameters = [
-        { type: core_1.Renderer, },
-        { type: core_1.ElementRef, },
+        { type: Renderer, },
+        { type: ElementRef, },
     ];
     return CheckboxControlValueAccessor;
 }());
-exports.CheckboxControlValueAccessor = CheckboxControlValueAccessor;
 //# sourceMappingURL=checkbox_value_accessor.js.map

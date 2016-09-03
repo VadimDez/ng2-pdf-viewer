@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import * as html from '../ml_parser/ast';
+import { MessageBundle } from './message_bundle';
 import { Serializer } from './serializers/serializer';
 /**
  * A container for translated messages
@@ -15,11 +16,7 @@ export declare class TranslationBundle {
     constructor(_messageMap?: {
         [id: string]: html.Node[];
     });
-    static load(content: string, url: string, placeholders: {
-        [id: string]: {
-            [name: string]: string;
-        };
-    }, serializer: Serializer): TranslationBundle;
+    static load(content: string, url: string, messageBundle: MessageBundle, serializer: Serializer): TranslationBundle;
     get(id: string): html.Node[];
     has(id: string): boolean;
 }

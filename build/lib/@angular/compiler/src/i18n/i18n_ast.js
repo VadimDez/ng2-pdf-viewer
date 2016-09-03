@@ -5,18 +5,25 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var Message = (function () {
-    function Message(nodes, placeholders, meaning, description) {
+export var Message = (function () {
+    /**
+     * @param nodes message AST
+     * @param placeholders maps placeholder names to static content
+     * @param placeholderToMsgIds maps placeholder names to translatable message IDs (used for ICU
+     *                            messages)
+     * @param meaning
+     * @param description
+     */
+    function Message(nodes, placeholders, placeholderToMsgIds, meaning, description) {
         this.nodes = nodes;
         this.placeholders = placeholders;
+        this.placeholderToMsgIds = placeholderToMsgIds;
         this.meaning = meaning;
         this.description = description;
     }
     return Message;
 }());
-exports.Message = Message;
-var Text = (function () {
+export var Text = (function () {
     function Text(value, sourceSpan) {
         this.value = value;
         this.sourceSpan = sourceSpan;
@@ -24,8 +31,7 @@ var Text = (function () {
     Text.prototype.visit = function (visitor, context) { return visitor.visitText(this, context); };
     return Text;
 }());
-exports.Text = Text;
-var Container = (function () {
+export var Container = (function () {
     function Container(children, sourceSpan) {
         this.children = children;
         this.sourceSpan = sourceSpan;
@@ -33,8 +39,7 @@ var Container = (function () {
     Container.prototype.visit = function (visitor, context) { return visitor.visitContainer(this, context); };
     return Container;
 }());
-exports.Container = Container;
-var Icu = (function () {
+export var Icu = (function () {
     function Icu(expression, type, cases, sourceSpan) {
         this.expression = expression;
         this.type = type;
@@ -44,8 +49,7 @@ var Icu = (function () {
     Icu.prototype.visit = function (visitor, context) { return visitor.visitIcu(this, context); };
     return Icu;
 }());
-exports.Icu = Icu;
-var TagPlaceholder = (function () {
+export var TagPlaceholder = (function () {
     function TagPlaceholder(tag, attrs, startName, closeName, children, isVoid, sourceSpan) {
         this.tag = tag;
         this.attrs = attrs;
@@ -58,8 +62,7 @@ var TagPlaceholder = (function () {
     TagPlaceholder.prototype.visit = function (visitor, context) { return visitor.visitTagPlaceholder(this, context); };
     return TagPlaceholder;
 }());
-exports.TagPlaceholder = TagPlaceholder;
-var Placeholder = (function () {
+export var Placeholder = (function () {
     function Placeholder(value, name, sourceSpan) {
         if (name === void 0) { name = ''; }
         this.value = value;
@@ -69,8 +72,7 @@ var Placeholder = (function () {
     Placeholder.prototype.visit = function (visitor, context) { return visitor.visitPlaceholder(this, context); };
     return Placeholder;
 }());
-exports.Placeholder = Placeholder;
-var IcuPlaceholder = (function () {
+export var IcuPlaceholder = (function () {
     function IcuPlaceholder(value, name, sourceSpan) {
         if (name === void 0) { name = ''; }
         this.value = value;
@@ -80,5 +82,4 @@ var IcuPlaceholder = (function () {
     IcuPlaceholder.prototype.visit = function (visitor, context) { return visitor.visitIcuPlaceholder(this, context); };
     return IcuPlaceholder;
 }());
-exports.IcuPlaceholder = IcuPlaceholder;
 //# sourceMappingURL=i18n_ast.js.map

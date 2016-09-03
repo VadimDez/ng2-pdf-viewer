@@ -5,15 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var constants_1 = require('../change_detection/constants');
-var metadata_1 = require('../di/metadata');
-var lang_1 = require('../facade/lang');
+import { ChangeDetectionStrategy } from '../change_detection/constants';
+import { InjectableMetadata } from '../di';
+import { isPresent } from '../facade/lang';
 /**
  * Directives allow you to attach behavior to elements in the DOM.
  *
@@ -395,16 +394,14 @@ var lang_1 = require('../facade/lang');
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
  * @stable
  */
-var DirectiveMetadata = (function (_super) {
+export var DirectiveMetadata = (function (_super) {
     __extends(DirectiveMetadata, _super);
     function DirectiveMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, properties = _b.properties, events = _b.events, host = _b.host, providers = _b.providers, exportAs = _b.exportAs, queries = _b.queries;
+        var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, host = _b.host, providers = _b.providers, exportAs = _b.exportAs, queries = _b.queries;
         _super.call(this);
         this.selector = selector;
         this._inputs = inputs;
-        this._properties = properties;
         this._outputs = outputs;
-        this._events = events;
         this.host = host;
         this.exportAs = exportAs;
         this.queries = queries;
@@ -449,29 +446,13 @@ var DirectiveMetadata = (function (_super) {
          *   selector: 'app',
          *   template: `
          *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
-         *   `,
-         *   directives: [BankAccount]
+         *   `
          * })
          * class App {}
-         *
-         * bootstrap(App);
          * ```
          *
          */
-        get: function () {
-            return lang_1.isPresent(this._properties) && this._properties.length > 0 ? this._properties :
-                this._inputs;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DirectiveMetadata.prototype, "properties", {
-        /**
-         * Use `inputs` instead
-         *
-         * @deprecated
-         */
-        get: function () { return this.inputs; },
+        get: function () { return this._inputs; },
         enumerable: true,
         configurable: true
     });
@@ -510,30 +491,16 @@ var DirectiveMetadata = (function (_super) {
          *   template: `
          *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
          *     </interval-dir>
-         *   `,
-         *   directives: [IntervalDir]
+         *   `
          * })
          * class App {
          *   everySecond() { console.log('second'); }
          *   everyFiveSeconds() { console.log('five seconds'); }
          * }
-         * bootstrap(App);
          * ```
          *
          */
-        get: function () {
-            return lang_1.isPresent(this._events) && this._events.length > 0 ? this._events : this._outputs;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DirectiveMetadata.prototype, "events", {
-        /**
-         * Use `outputs` instead
-         *
-         * @deprecated
-         */
-        get: function () { return this.outputs; },
+        get: function () { return this._outputs; },
         enumerable: true,
         configurable: true
     });
@@ -573,8 +540,7 @@ var DirectiveMetadata = (function (_super) {
         configurable: true
     });
     return DirectiveMetadata;
-}(metadata_1.InjectableMetadata));
-exports.DirectiveMetadata = DirectiveMetadata;
+}(InjectableMetadata));
 /**
  * Declare reusable UI building blocks for an application.
  *
@@ -601,16 +567,14 @@ exports.DirectiveMetadata = DirectiveMetadata;
  * {@example core/ts/metadata/metadata.ts region='component'}
  * @stable
  */
-var ComponentMetadata = (function (_super) {
+export var ComponentMetadata = (function (_super) {
     __extends(ComponentMetadata, _super);
     function ComponentMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, properties = _b.properties, events = _b.events, host = _b.host, exportAs = _b.exportAs, moduleId = _b.moduleId, providers = _b.providers, viewProviders = _b.viewProviders, _c = _b.changeDetection, changeDetection = _c === void 0 ? constants_1.ChangeDetectionStrategy.Default : _c, queries = _b.queries, templateUrl = _b.templateUrl, template = _b.template, styleUrls = _b.styleUrls, styles = _b.styles, animations = _b.animations, directives = _b.directives, pipes = _b.pipes, encapsulation = _b.encapsulation, interpolation = _b.interpolation, entryComponents = _b.entryComponents;
+        var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, host = _b.host, exportAs = _b.exportAs, moduleId = _b.moduleId, providers = _b.providers, viewProviders = _b.viewProviders, _c = _b.changeDetection, changeDetection = _c === void 0 ? ChangeDetectionStrategy.Default : _c, queries = _b.queries, templateUrl = _b.templateUrl, template = _b.template, styleUrls = _b.styleUrls, styles = _b.styles, animations = _b.animations, encapsulation = _b.encapsulation, interpolation = _b.interpolation, entryComponents = _b.entryComponents;
         _super.call(this, {
             selector: selector,
             inputs: inputs,
             outputs: outputs,
-            properties: properties,
-            events: events,
             host: host,
             exportAs: exportAs,
             providers: providers,
@@ -622,8 +586,6 @@ var ComponentMetadata = (function (_super) {
         this.template = template;
         this.styleUrls = styleUrls;
         this.styles = styles;
-        this.directives = directives;
-        this.pipes = pipes;
         this.encapsulation = encapsulation;
         this.moduleId = moduleId;
         this.animations = animations;
@@ -661,8 +623,7 @@ var ComponentMetadata = (function (_super) {
          *   viewProviders: [
          *     Greeter
          *   ],
-         *   template: `<needs-greeter></needs-greeter>`,
-         *   directives: [NeedsGreeter]
+         *   template: `<needs-greeter></needs-greeter>`
          * })
          * class HelloWorld {
          * }
@@ -675,7 +636,6 @@ var ComponentMetadata = (function (_super) {
     });
     return ComponentMetadata;
 }(DirectiveMetadata));
-exports.ComponentMetadata = ComponentMetadata;
 /**
  * Declare reusable pipe function.
  *
@@ -688,7 +648,7 @@ exports.ComponentMetadata = ComponentMetadata;
  * {@example core/ts/metadata/metadata.ts region='pipe'}
  * @stable
  */
-var PipeMetadata = (function (_super) {
+export var PipeMetadata = (function (_super) {
     __extends(PipeMetadata, _super);
     function PipeMetadata(_a) {
         var name = _a.name, pure = _a.pure;
@@ -697,13 +657,12 @@ var PipeMetadata = (function (_super) {
         this._pure = pure;
     }
     Object.defineProperty(PipeMetadata.prototype, "pure", {
-        get: function () { return lang_1.isPresent(this._pure) ? this._pure : true; },
+        get: function () { return isPresent(this._pure) ? this._pure : true; },
         enumerable: true,
         configurable: true
     });
     return PipeMetadata;
-}(metadata_1.InjectableMetadata));
-exports.PipeMetadata = PipeMetadata;
+}(InjectableMetadata));
 /**
  * Declares a data-bound input property.
  *
@@ -737,16 +696,14 @@ exports.PipeMetadata = PipeMetadata;
  *   selector: 'app',
  *   template: `
  *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
- *   `,
- *   directives: [BankAccount]
+ *   `
  * })
- * class App {}
  *
- * bootstrap(App);
+ * class App {}
  * ```
  * @stable
  */
-var InputMetadata = (function () {
+export var InputMetadata = (function () {
     function InputMetadata(
         /**
          * Name used when instantiating a component in the template.
@@ -756,7 +713,6 @@ var InputMetadata = (function () {
     }
     return InputMetadata;
 }());
-exports.InputMetadata = InputMetadata;
 /**
  * Declares an event-bound output property.
  *
@@ -788,24 +744,21 @@ exports.InputMetadata = InputMetadata;
  *   template: `
  *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
  *     </interval-dir>
- *   `,
- *   directives: [IntervalDir]
+ *   `
  * })
  * class App {
  *   everySecond() { console.log('second'); }
  *   everyFiveSeconds() { console.log('five seconds'); }
  * }
- * bootstrap(App);
  * ```
  * @stable
  */
-var OutputMetadata = (function () {
+export var OutputMetadata = (function () {
     function OutputMetadata(bindingPropertyName) {
         this.bindingPropertyName = bindingPropertyName;
     }
     return OutputMetadata;
 }());
-exports.OutputMetadata = OutputMetadata;
 /**
  * Declares a host property binding.
  *
@@ -831,24 +784,20 @@ exports.OutputMetadata = OutputMetadata;
  *
  * @Component({
  *   selector: 'app',
- *   template: `<input [(ngModel)]="prop">`,
- *   directives: [FORM_DIRECTIVES, NgModelStatus]
+ *   template: `<input [(ngModel)]="prop">`
  * })
  * class App {
  *   prop;
  * }
- *
- * bootstrap(App);
  * ```
  * @stable
  */
-var HostBindingMetadata = (function () {
+export var HostBindingMetadata = (function () {
     function HostBindingMetadata(hostPropertyName) {
         this.hostPropertyName = hostPropertyName;
     }
     return HostBindingMetadata;
 }());
-exports.HostBindingMetadata = HostBindingMetadata;
 /**
  * Declares a host listener.
  *
@@ -875,21 +824,17 @@ exports.HostBindingMetadata = HostBindingMetadata;
  *
  * @Component({
  *   selector: 'app',
- *   template: `<button counting>Increment</button>`,
- *   directives: [CountClicks]
+ *   template: `<button counting>Increment</button>`
  * })
  * class App {}
- *
- * bootstrap(App);
  * ```
  * @stable
  */
-var HostListenerMetadata = (function () {
+export var HostListenerMetadata = (function () {
     function HostListenerMetadata(eventName, args) {
         this.eventName = eventName;
         this.args = args;
     }
     return HostListenerMetadata;
 }());
-exports.HostListenerMetadata = HostListenerMetadata;
 //# sourceMappingURL=directives.js.map

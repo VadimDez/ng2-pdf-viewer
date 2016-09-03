@@ -1,4 +1,4 @@
-import { Type } from '../facade/lang';
+import { Type } from '../type';
 import { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
 import { ReflectorReader } from './reflector_reader';
 import { GetterFn, MethodFn, SetterFn } from './types';
@@ -40,7 +40,7 @@ export declare class Reflector extends ReflectorReader {
      */
     listUnusedKeys(): any[];
     registerFunction(func: Function, funcInfo: ReflectionInfo): void;
-    registerType(type: Type, typeInfo: ReflectionInfo): void;
+    registerType(type: Type<any>, typeInfo: ReflectionInfo): void;
     registerGetters(getters: {
         [key: string]: GetterFn;
     }): void;
@@ -50,16 +50,18 @@ export declare class Reflector extends ReflectorReader {
     registerMethods(methods: {
         [key: string]: MethodFn;
     }): void;
-    factory(type: Type): Function;
-    parameters(typeOrFunc: any): any[][];
-    annotations(typeOrFunc: any): any[];
-    propMetadata(typeOrFunc: any): {
+    factory(type: Type<any>): Function;
+    parameters(typeOrFunc: Type<any>): any[][];
+    annotations(typeOrFunc: Type<any>): any[];
+    propMetadata(typeOrFunc: Type<any>): {
         [key: string]: any[];
     };
-    interfaces(type: any): any[];
-    hasLifecycleHook(type: any, lcInterface: Type, lcProperty: string): boolean;
+    interfaces(type: Type<any>): any[];
+    hasLifecycleHook(type: any, lcInterface: Type<any>, lcProperty: string): boolean;
     getter(name: string): GetterFn;
     setter(name: string): SetterFn;
     method(name: string): MethodFn;
     importUri(type: any): string;
+    resolveIdentifier(name: string, moduleUrl: string, runtime: any): any;
+    resolveEnum(identifier: any, name: string): any;
 }

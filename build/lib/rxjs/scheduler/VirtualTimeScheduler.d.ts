@@ -1,17 +1,31 @@
-import { Scheduler } from '../Scheduler';
+import { AsyncAction } from './AsyncAction';
 import { Subscription } from '../Subscription';
-import { Action } from './Action';
-export declare class VirtualTimeScheduler implements Scheduler {
-    actions: Action<any>[];
-    active: boolean;
-    scheduledId: number;
-    index: number;
-    sorted: boolean;
-    frame: number;
+import { AsyncScheduler } from './AsyncScheduler';
+export declare class VirtualTimeScheduler extends AsyncScheduler {
     maxFrames: number;
     protected static frameTimeFactor: number;
-    now(): number;
+    frame: number;
+    index: number;
+    constructor(SchedulerAction?: typeof AsyncAction, maxFrames?: number);
+    /**
+     * Prompt the Scheduler to execute all of its queued actions, therefore
+     * clearing its queue.
+     * @return {void}
+     */
     flush(): void;
-    addAction<T>(action: Action<T>): void;
-    schedule<T>(work: (x?: T) => Subscription | void, delay?: number, state?: T): Subscription;
+}
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+export declare class VirtualAction<T> extends AsyncAction<T> {
+    protected scheduler: VirtualTimeScheduler;
+    protected work: (state?: T) => void;
+    protected index: number;
+    constructor(scheduler: VirtualTimeScheduler, work: (state?: T) => void, index?: number);
+    schedule(state?: T, delay?: number): Subscription;
+    protected requestAsyncId(scheduler: VirtualTimeScheduler, id?: any, delay?: number): any;
+    protected recycleAsyncId(scheduler: VirtualTimeScheduler, id?: any, delay?: number): any;
+    static sortActions<T>(a: VirtualAction<T>, b: VirtualAction<T>): number;
 }

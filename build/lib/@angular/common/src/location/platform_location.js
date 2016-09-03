@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 /**
  * This class should not be used directly by an application developer. Instead, use
  * {@link Location}.
@@ -32,7 +31,7 @@
  *
  * @stable
  */
-var PlatformLocation = (function () {
+export var PlatformLocation = (function () {
     function PlatformLocation() {
     }
     Object.defineProperty(PlatformLocation.prototype, "pathname", {
@@ -52,5 +51,4 @@ var PlatformLocation = (function () {
     });
     return PlatformLocation;
 }());
-exports.PlatformLocation = PlatformLocation;
 //# sourceMappingURL=platform_location.js.map

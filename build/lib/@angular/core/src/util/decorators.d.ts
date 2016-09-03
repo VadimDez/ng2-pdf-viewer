@@ -1,11 +1,4 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { ConcreteType, Type } from '../facade/lang';
+import { Type } from '../type';
 /**
  * Declares the interface to be used with {@link Class}.
  *
@@ -15,7 +8,7 @@ export interface ClassDefinition {
     /**
      * Optional argument for specifying the superclass.
      */
-    extends?: Type;
+    extends?: Type<any>;
     /**
      * Required constructor function for a class.
      *
@@ -30,7 +23,7 @@ export interface ClassDefinition {
      * Other methods on the class. Note that values should have type 'Function' but TS requires
      * all properties to have a narrower type than the index signature.
      */
-    [x: string]: Type | Function | any[];
+    [x: string]: Type<any> | Function | any[];
 }
 /**
  * An interface implemented by all Angular type decorators, which allows them to be used as ES7
@@ -59,7 +52,7 @@ export interface TypeDecorator {
     /**
      * Invoke as ES7 decorator.
      */
-    <T extends Type>(type: T): T;
+    <T extends Type<any>>(type: T): T;
     (target: Object, propertyKey?: string | symbol, parameterIndex?: number): void;
     /**
      * Storage for the accumulated annotations so far used by the DSL syntax.
@@ -70,7 +63,7 @@ export interface TypeDecorator {
     /**
      * Generate a class from the definition and annotate it with {@link TypeDecorator#annotations}.
      */
-    Class(obj: ClassDefinition): ConcreteType<any>;
+    Class(obj: ClassDefinition): Type<any>;
 }
 /**
  * Provides a way for expressing ES6 classes with parameter annotations in ES5.
@@ -154,7 +147,7 @@ export interface TypeDecorator {
  * ```
  * @stable
  */
-export declare function Class(clsDef: ClassDefinition): ConcreteType<any>;
+export declare function Class(clsDef: ClassDefinition): Type<any>;
 export declare function makeDecorator(annotationCls: any, chainFn?: (fn: Function) => void): (...args: any[]) => (cls: any) => any;
 export declare function makeParamDecorator(annotationCls: any): any;
 export declare function makePropDecorator(annotationCls: any): any;

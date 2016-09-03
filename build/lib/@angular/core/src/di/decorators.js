@@ -5,43 +5,42 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var decorators_1 = require('../util/decorators');
-var metadata_1 = require('./metadata');
+import { makeDecorator, makeParamDecorator } from '../util/decorators';
+import { HostMetadata, InjectMetadata, InjectableMetadata, OptionalMetadata, SelfMetadata, SkipSelfMetadata } from './metadata';
 /**
  * Factory for creating {@link InjectMetadata}.
  * @stable
  * @Annotation
  */
-exports.Inject = decorators_1.makeParamDecorator(metadata_1.InjectMetadata);
+export var Inject = makeParamDecorator(InjectMetadata);
 /**
  * Factory for creating {@link OptionalMetadata}.
  * @stable
  * @Annotation
  */
-exports.Optional = decorators_1.makeParamDecorator(metadata_1.OptionalMetadata);
+export var Optional = makeParamDecorator(OptionalMetadata);
 /**
  * Factory for creating {@link InjectableMetadata}.
  * @stable
  * @Annotation
  */
-exports.Injectable = decorators_1.makeDecorator(metadata_1.InjectableMetadata);
+export var Injectable = makeDecorator(InjectableMetadata);
 /**
  * Factory for creating {@link SelfMetadata}.
  * @stable
  * @Annotation
  */
-exports.Self = decorators_1.makeParamDecorator(metadata_1.SelfMetadata);
+export var Self = makeParamDecorator(SelfMetadata);
 /**
  * Factory for creating {@link HostMetadata}.
  * @stable
  * @Annotation
  */
-exports.Host = decorators_1.makeParamDecorator(metadata_1.HostMetadata);
+export var Host = makeParamDecorator(HostMetadata);
 /**
  * Factory for creating {@link SkipSelfMetadata}.
  * @stable
  * @Annotation
  */
-exports.SkipSelf = decorators_1.makeParamDecorator(metadata_1.SkipSelfMetadata);
+export var SkipSelf = makeParamDecorator(SkipSelfMetadata);
 //# sourceMappingURL=decorators.js.map

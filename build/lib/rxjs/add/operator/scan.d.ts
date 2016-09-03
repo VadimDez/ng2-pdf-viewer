@@ -1,6 +1,6 @@
-import { ScanSignature } from '../../operator/scan';
+import { ReduceSignature } from '../../operator/reduce';
 declare module '../../Observable' {
     interface Observable<T> {
-        scan: ScanSignature<T>;
+        scan: ReduceSignature<T>;
     }
 }

@@ -5,13 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
+import { unimplemented } from '../facade/errors';
 /**
  * @experimental
  */
 // TODO (matsko): add typing for the animation function
-var RenderComponentType = (function () {
+export var RenderComponentType = (function () {
     function RenderComponentType(id, templateUrl, slotCount, encapsulation, styles, animations) {
         this.id = id;
         this.templateUrl = templateUrl;
@@ -22,52 +21,49 @@ var RenderComponentType = (function () {
     }
     return RenderComponentType;
 }());
-exports.RenderComponentType = RenderComponentType;
-var RenderDebugInfo = (function () {
+export var RenderDebugInfo = (function () {
     function RenderDebugInfo() {
     }
     Object.defineProperty(RenderDebugInfo.prototype, "injector", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RenderDebugInfo.prototype, "component", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RenderDebugInfo.prototype, "providerTokens", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RenderDebugInfo.prototype, "references", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RenderDebugInfo.prototype, "context", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(RenderDebugInfo.prototype, "source", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     return RenderDebugInfo;
 }());
-exports.RenderDebugInfo = RenderDebugInfo;
 /**
  * @experimental
  */
-var Renderer = (function () {
+export var Renderer = (function () {
     function Renderer() {
     }
     return Renderer;
 }());
-exports.Renderer = Renderer;
 /**
  * Injectable service that provides a low-level interface for modifying the UI.
  *
@@ -81,10 +77,9 @@ exports.Renderer = Renderer;
  * The default Renderer implementation is `DomRenderer`. Also available is `WebWorkerRenderer`.
  * @experimental
  */
-var RootRenderer = (function () {
+export var RootRenderer = (function () {
     function RootRenderer() {
     }
     return RootRenderer;
 }());
-exports.RootRenderer = RootRenderer;
 //# sourceMappingURL=api.js.map

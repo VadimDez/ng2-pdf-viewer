@@ -5,52 +5,46 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var application_init_1 = require('./application_init');
-var application_ref_1 = require('./application_ref');
-var application_tokens_1 = require('./application_tokens');
-var change_detection_1 = require('./change_detection/change_detection');
-var compiler_1 = require('./linker/compiler');
-var component_resolver_1 = require('./linker/component_resolver');
-var dynamic_component_loader_1 = require('./linker/dynamic_component_loader');
-var view_utils_1 = require('./linker/view_utils');
-var metadata_1 = require('./metadata');
-function _iterableDiffersFactory() {
-    return change_detection_1.defaultIterableDiffers;
+import { ApplicationInitStatus } from './application_init';
+import { ApplicationRef, ApplicationRef_ } from './application_ref';
+import { APP_ID_RANDOM_PROVIDER } from './application_tokens';
+import { IterableDiffers, KeyValueDiffers, defaultIterableDiffers, defaultKeyValueDiffers } from './change_detection/change_detection';
+import { LOCALE_ID } from './i18n/tokens';
+import { Compiler } from './linker/compiler';
+import { ViewUtils } from './linker/view_utils';
+import { NgModule } from './metadata';
+export function _iterableDiffersFactory() {
+    return defaultIterableDiffers;
 }
-exports._iterableDiffersFactory = _iterableDiffersFactory;
-function _keyValueDiffersFactory() {
-    return change_detection_1.defaultKeyValueDiffers;
+export function _keyValueDiffersFactory() {
+    return defaultKeyValueDiffers;
 }
-exports._keyValueDiffersFactory = _keyValueDiffersFactory;
 /**
- * A default set of providers which should be included in any Angular
- * application, regardless of the platform it runs onto.
+ * This module includes the providers of @angular/core that are needed
+ * to bootstrap components via `ApplicationRef`.
  *
- * @deprecated Include `ApplicationModule` instead.
+ * @experimental
  */
-exports.APPLICATION_COMMON_PROVIDERS = [];
-var ApplicationModule = (function () {
+export var ApplicationModule = (function () {
     function ApplicationModule() {
     }
-    /** @nocollapse */
     ApplicationModule.decorators = [
-        { type: metadata_1.NgModule, args: [{
+        { type: NgModule, args: [{
                     providers: [
-                        application_ref_1.ApplicationRef_,
-                        { provide: application_ref_1.ApplicationRef, useExisting: application_ref_1.ApplicationRef_ },
-                        application_init_1.ApplicationInitStatus,
-                        compiler_1.Compiler,
-                        { provide: component_resolver_1.ComponentResolver, useExisting: compiler_1.Compiler },
-                        application_tokens_1.APP_ID_RANDOM_PROVIDER,
-                        view_utils_1.ViewUtils,
-                        { provide: change_detection_1.IterableDiffers, useFactory: _iterableDiffersFactory },
-                        { provide: change_detection_1.KeyValueDiffers, useFactory: _keyValueDiffersFactory },
-                        { provide: dynamic_component_loader_1.DynamicComponentLoader, useClass: dynamic_component_loader_1.DynamicComponentLoader_ },
+                        ApplicationRef_,
+                        { provide: ApplicationRef, useExisting: ApplicationRef_ },
+                        ApplicationInitStatus,
+                        Compiler,
+                        APP_ID_RANDOM_PROVIDER,
+                        ViewUtils,
+                        { provide: IterableDiffers, useFactory: _iterableDiffersFactory },
+                        { provide: KeyValueDiffers, useFactory: _keyValueDiffersFactory },
+                        { provide: LOCALE_ID, useValue: 'en-US' },
                     ]
                 },] },
     ];
+    /** @nocollapse */
+    ApplicationModule.ctorParameters = [];
     return ApplicationModule;
 }());
-exports.ApplicationModule = ApplicationModule;
 //# sourceMappingURL=application_module.js.map

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { AnimationPlayer } from '@angular/core';
-import { AnimationKeyframe, AnimationStyles } from '../../core_private';
+import { AnimationKeyframe, AnimationStyles } from '../private_import_core';
 /**
  * @experimental
  */

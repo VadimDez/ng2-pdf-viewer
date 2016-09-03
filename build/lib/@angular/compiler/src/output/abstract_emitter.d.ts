@@ -44,7 +44,7 @@ export declare abstract class AbstractEmitterVisitor implements o.StatementVisit
     visitInvokeFunctionExpr(expr: o.InvokeFunctionExpr, ctx: EmitterVisitorContext): any;
     visitReadVarExpr(ast: o.ReadVarExpr, ctx: EmitterVisitorContext): any;
     visitInstantiateExpr(ast: o.InstantiateExpr, ctx: EmitterVisitorContext): any;
-    visitLiteralExpr(ast: o.LiteralExpr, ctx: EmitterVisitorContext): any;
+    visitLiteralExpr(ast: o.LiteralExpr, ctx: EmitterVisitorContext, absentValue?: string): any;
     abstract visitExternalExpr(ast: o.ExternalExpr, ctx: EmitterVisitorContext): any;
     visitConditionalExpr(ast: o.ConditionalExpr, ctx: EmitterVisitorContext): any;
     visitNotExpr(ast: o.NotExpr, ctx: EmitterVisitorContext): any;
@@ -59,4 +59,4 @@ export declare abstract class AbstractEmitterVisitor implements o.StatementVisit
     visitAllObjects(handler: Function, expressions: any, ctx: EmitterVisitorContext, separator: string, newLine?: boolean): void;
     visitAllStatements(statements: o.Statement[], ctx: EmitterVisitorContext): void;
 }
-export declare function escapeSingleQuoteString(input: string, escapeDollar: boolean): any;
+export declare function escapeIdentifier(input: string, escapeDollar: boolean, alwaysQuote?: boolean): any;

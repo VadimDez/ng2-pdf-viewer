@@ -5,27 +5,36 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var metadata_1 = require('../di/metadata');
+import { InjectableMetadata } from '../di';
 /**
- * Defines a schema that will allow any property on elements with a `-` in their name,
- * which is the common rule for custom elements.
+ * Defines a schema that will allow:
+ * - any non-angular elements with a `-` in their name,
+ * - any properties on elements with a `-` in their name which is the common rule for custom
+ * elements.
  *
- * @experimental
+ * @stable
  */
-exports.CUSTOM_ELEMENTS_SCHEMA = {
+export var CUSTOM_ELEMENTS_SCHEMA = {
     name: 'custom-elements'
 };
 /**
- * Declares an Angular Module.
+ * Defines a schema that will allow any property on any element.
+ *
  * @experimental
  */
-var NgModuleMetadata = (function (_super) {
+export var NO_ERRORS_SCHEMA = {
+    name: 'no-errors-schema'
+};
+/**
+ * Declares an Angular Module.
+ * @stable
+ */
+export var NgModuleMetadata = (function (_super) {
     __extends(NgModuleMetadata, _super);
     function NgModuleMetadata(options) {
         if (options === void 0) { options = {}; }
@@ -75,6 +84,5 @@ var NgModuleMetadata = (function (_super) {
         configurable: true
     });
     return NgModuleMetadata;
-}(metadata_1.InjectableMetadata));
-exports.NgModuleMetadata = NgModuleMetadata;
+}(InjectableMetadata));
 //# sourceMappingURL=ng_module.js.map

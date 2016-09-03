@@ -101,7 +101,7 @@ var SwitchMapSubscriber = (function (_super) {
     };
     SwitchMapSubscriber.prototype._complete = function () {
         var innerSubscription = this.innerSubscription;
-        if (!innerSubscription || innerSubscription.isUnsubscribed) {
+        if (!innerSubscription || innerSubscription.closed) {
             _super.prototype._complete.call(this);
         }
     };

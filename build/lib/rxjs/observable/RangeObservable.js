@@ -60,7 +60,7 @@ var RangeObservable = (function (_super) {
             return;
         }
         subscriber.next(start);
-        if (subscriber.isUnsubscribed) {
+        if (subscriber.closed) {
             return;
         }
         state.index = index + 1;
@@ -84,7 +84,7 @@ var RangeObservable = (function (_super) {
                     break;
                 }
                 subscriber.next(start++);
-                if (subscriber.isUnsubscribed) {
+                if (subscriber.closed) {
                     break;
                 }
             } while (true);

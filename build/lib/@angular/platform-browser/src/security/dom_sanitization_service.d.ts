@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { SanitizationService, SecurityContext } from '@angular/core';
+import { Sanitizer, SecurityContext } from '@angular/core';
 export { SecurityContext };
 /**
  * Marker interface for a value that's safe to use in a particular context.
@@ -50,7 +50,7 @@ export interface SafeUrl extends SafeValue {
 export interface SafeResourceUrl extends SafeValue {
 }
 /**
- * DomSanitizationService helps preventing Cross Site Scripting Security bugs (XSS) by sanitizing
+ * DomSanitizer helps preventing Cross Site Scripting Security bugs (XSS) by sanitizing
  * values to be safe to use in the different DOM contexts.
  *
  * For example, when binding a URL in an `<a [href]="someValue">` hyperlink, `someValue` will be
@@ -80,7 +80,7 @@ export interface SafeResourceUrl extends SafeValue {
  *
  * @stable
  */
-export declare abstract class DomSanitizationService implements SanitizationService {
+export declare abstract class DomSanitizer implements Sanitizer {
     /**
      * Sanitizes a value for use in the given SecurityContext.
      *
@@ -130,7 +130,7 @@ export declare abstract class DomSanitizationService implements SanitizationServ
      */
     abstract bypassSecurityTrustResourceUrl(value: string): SafeResourceUrl;
 }
-export declare class DomSanitizationServiceImpl extends DomSanitizationService {
+export declare class DomSanitizerImpl extends DomSanitizer {
     sanitize(ctx: SecurityContext, value: any): string;
     private checkNotSafeValue(value, expectedType);
     bypassSecurityTrustHtml(value: string): SafeHtml;

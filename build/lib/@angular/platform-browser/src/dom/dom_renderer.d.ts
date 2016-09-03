@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { RenderComponentType, Renderer, RootRenderer } from '@angular/core';
-import { AnimationKeyframe, AnimationPlayer, AnimationStyles, RenderDebugInfo } from '../../core_private';
+import { AnimationKeyframe, AnimationPlayer, AnimationStyles, RenderDebugInfo } from '../private_import_core';
 import { AnimationDriver } from './animation_driver';
 import { EventManager } from './events/event_manager';
 import { DomSharedStylesHost } from './shared_styles_host';

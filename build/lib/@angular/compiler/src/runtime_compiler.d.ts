@@ -5,11 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Compiler, ComponentFactory, Injector, ModuleWithComponentFactories, NgModuleFactory } from '@angular/core';
-import { Console } from '../core_private';
+import { Compiler, Injector, ModuleWithComponentFactories, NgModuleFactory, Type } from '@angular/core';
 import { CompilerConfig } from './config';
 import { DirectiveNormalizer } from './directive_normalizer';
-import { ConcreteType, Type } from './facade/lang';
 import { CompileMetadataResolver } from './metadata_resolver';
 import { NgModuleCompiler } from './ng_module_compiler';
 import { StyleCompiler } from './style_compiler';
@@ -33,23 +31,19 @@ export declare class RuntimeCompiler implements Compiler {
     private _viewCompiler;
     private _ngModuleCompiler;
     private _compilerConfig;
-    private _console;
     private _compiledTemplateCache;
     private _compiledHostTemplateCache;
     private _compiledNgModuleCache;
-    constructor(_injector: Injector, _metadataResolver: CompileMetadataResolver, _templateNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _compilerConfig: CompilerConfig, _console: Console);
+    constructor(_injector: Injector, _metadataResolver: CompileMetadataResolver, _templateNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _compilerConfig: CompilerConfig);
     injector: Injector;
-    compileModuleSync<T>(moduleType: ConcreteType<T>): NgModuleFactory<T>;
-    compileModuleAsync<T>(moduleType: ConcreteType<T>): Promise<NgModuleFactory<T>>;
-    compileModuleAndAllComponentsSync<T>(moduleType: ConcreteType<T>): ModuleWithComponentFactories<T>;
-    compileModuleAndAllComponentsAsync<T>(moduleType: ConcreteType<T>): Promise<ModuleWithComponentFactories<T>>;
-    compileComponentAsync<T>(compType: ConcreteType<T>, ngModule?: ConcreteType<any>): Promise<ComponentFactory<T>>;
-    compileComponentSync<T>(compType: ConcreteType<T>, ngModule?: ConcreteType<any>): ComponentFactory<T>;
+    compileModuleSync<T>(moduleType: Type<T>): NgModuleFactory<T>;
+    compileModuleAsync<T>(moduleType: Type<T>): Promise<NgModuleFactory<T>>;
+    compileModuleAndAllComponentsSync<T>(moduleType: Type<T>): ModuleWithComponentFactories<T>;
+    compileModuleAndAllComponentsAsync<T>(moduleType: Type<T>): Promise<ModuleWithComponentFactories<T>>;
     private _compileModuleAndComponents<T>(moduleType, isSync);
     private _compileModuleAndAllComponents<T>(moduleType, isSync);
     private _compileModule<T>(moduleType);
-    private _compileComponentInModule<T>(compType, isSync, moduleType);
-    clearCacheFor(type: Type): void;
+    clearCacheFor(type: Type<any>): void;
     clearCache(): void;
     private _createCompiledHostTemplate(compType);
     private _createCompiledTemplate(compMeta, ngModule);

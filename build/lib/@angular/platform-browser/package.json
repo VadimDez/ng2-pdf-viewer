@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "@angular/platform-browser@2.0.0-rc.5",
+      "@angular/platform-browser@^2.0.0-rc.6",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/platform-browser@2.0.0-rc.5",
-  "_id": "@angular/platform-browser@2.0.0-rc.5",
+  "_from": "@angular/platform-browser@>=2.0.0-rc.6 <3.0.0",
+  "_id": "@angular/platform-browser@2.0.0-rc.6",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/platform-browser",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
-    "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/platform-browser-2.0.0-rc.5.tgz_1470759648464_0.3702989569865167"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/platform-browser-2.0.0-rc.6.tgz_1472686624669_0.24030304024927318"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
@@ -23,19 +23,19 @@
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/platform-browser",
-    "raw": "@angular/platform-browser@2.0.0-rc.5",
-    "rawSpec": "2.0.0-rc.5",
+    "raw": "@angular/platform-browser@^2.0.0-rc.6",
+    "rawSpec": "^2.0.0-rc.6",
     "scope": "@angular",
-    "spec": "2.0.0-rc.5",
-    "type": "version"
+    "spec": ">=2.0.0-rc.6 <3.0.0",
+    "type": "range"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/platform-browser/-/platform-browser-2.0.0-rc.5.tgz",
-  "_shasum": "2d7ad0bd43d5e148e60f7e10e6e92e1de3aa5ce4",
+  "_resolved": "https://registry.npmjs.org/@angular/platform-browser/-/platform-browser-2.0.0-rc.6.tgz",
+  "_shasum": "5dc7b05be6c74655bbfd45f6afbe2c9ecaeaceff",
   "_shrinkwrap": null,
-  "_spec": "@angular/platform-browser@2.0.0-rc.5",
+  "_spec": "@angular/platform-browser@^2.0.0-rc.6",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -44,29 +44,28 @@
     "url": "https://github.com/angular/angular/issues"
   },
   "dependencies": {},
-  "description": "",
+  "description": "Angular 2 platform-browser",
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "2d7ad0bd43d5e148e60f7e10e6e92e1de3aa5ce4",
-    "tarball": "https://registry.npmjs.org/@angular/platform-browser/-/platform-browser-2.0.0-rc.5.tgz"
+    "shasum": "5dc7b05be6c74655bbfd45f6afbe2c9ecaeaceff",
+    "tarball": "https://registry.npmjs.org/@angular/platform-browser/-/platform-browser-2.0.0-rc.6.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
-  "jsnext:main": "esm/index.js",
   "license": "MIT",
-  "main": "index.js",
+  "main": "bundles/platform-browser.umd.js",
   "maintainers": [
     {
       "email": "angular-core+npm@google.com",
       "name": "angular"
     }
   ],
+  "module": "index.js",
   "name": "@angular/platform-browser",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/common": "^2.0.0-rc.5",
-    "@angular/compiler": "^2.0.0-rc.5",
-    "@angular/core": "^2.0.0-rc.5"
+    "@angular/common": "^2.0.0-rc.6",
+    "@angular/core": "^2.0.0-rc.6"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -75,5 +74,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.0.0-rc.5"
+  "version": "2.0.0-rc.6"
 }

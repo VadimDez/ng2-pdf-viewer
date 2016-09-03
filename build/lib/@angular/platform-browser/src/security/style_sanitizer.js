@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var dom_adapter_1 = require('../dom/dom_adapter');
-var url_sanitizer_1 = require('./url_sanitizer');
+import { isDevMode } from '@angular/core';
+import { getDOM } from '../dom/dom_adapter';
+import { sanitizeUrl } from './url_sanitizer';
 /**
  * Regular expression for safe style values.
  *
@@ -73,21 +72,20 @@ function hasBalancedQuotes(value) {
  * Sanitizes the given untrusted CSS style property value (i.e. not an entire object, just a single
  * value) and returns a value that is safe to use in a browser environment.
  */
-function sanitizeStyle(value) {
+export function sanitizeStyle(value) {
     value = String(value).trim(); // Make sure it's actually a string.
     if (!value)
         return '';
     // Single url(...) values are supported, but only for URLs that sanitize cleanly. See above for
     // reasoning behind this.
     var urlMatch = value.match(URL_RE);
-    if ((urlMatch && url_sanitizer_1.sanitizeUrl(urlMatch[1]) === urlMatch[1]) ||
+    if ((urlMatch && sanitizeUrl(urlMatch[1]) === urlMatch[1]) ||
         value.match(SAFE_STYLE_VALUE) && hasBalancedQuotes(value)) {
         return value; // Safe style values.
     }
-    if (core_1.isDevMode()) {
-        dom_adapter_1.getDOM().log("WARNING: sanitizing unsafe style value " + value + " (see http://g.co/ng/security#xss).");
+    if (isDevMode()) {
+        getDOM().log("WARNING: sanitizing unsafe style value " + value + " (see http://g.co/ng/security#xss).");
     }
     return 'unsafe';
 }
-exports.sanitizeStyle = sanitizeStyle;
 //# sourceMappingURL=style_sanitizer.js.map
