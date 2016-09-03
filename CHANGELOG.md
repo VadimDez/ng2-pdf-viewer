@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.10
+
+* [[#11](https://github.com/VadimDez/ng2-pdf-viewer/issues/11)] - Update to Angular RC6
+* [[#12](https://github.com/VadimDez/ng2-pdf-viewer/issues/12)] - Update how-to documentation to RC6
+* Removed version lock from peer dependency
+
 ## 0.0.9
 
 * [[#6](https://github.com/VadimDez/ng2-pdf-viewer/issues/6)] - Limit [page]
