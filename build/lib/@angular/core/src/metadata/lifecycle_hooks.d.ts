@@ -73,8 +73,6 @@ export declare var LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
  * export class App {
  *   value = 0;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
@@ -118,9 +116,7 @@ export declare abstract class OnChanges {
  * export class App {
  *   hasChild = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
- *  ```
+ * ```
  * @stable
  */
 export declare abstract class OnInit {
@@ -231,8 +227,6 @@ export declare abstract class DoCheck {
  * export class App {
  *   hasChild = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  *
  *
@@ -336,8 +330,6 @@ export declare abstract class OnDestroy {
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
@@ -386,8 +378,6 @@ export declare abstract class AfterContentInit {
  * export class App {
  *   hasContent = true;
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
@@ -435,8 +425,6 @@ export declare abstract class AfterContentChecked {
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */
@@ -487,8 +475,6 @@ export declare abstract class AfterViewInit {
  * })
  * export class App {
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  * @stable
  */

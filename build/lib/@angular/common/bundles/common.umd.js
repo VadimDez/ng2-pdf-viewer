@@ -1,19 +1,14 @@
 /**
- * @license Angular v2.0.0-rc.5
+ * @license Angular v2.0.0-rc.6
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('rxjs/operator/toPromise'), require('rxjs/Subject'), require('rxjs/Observable'), require('rxjs/observable/PromiseObservable')) :
-        typeof define === 'function' && define.amd ? define(['exports', '@angular/core', 'rxjs/operator/toPromise', 'rxjs/Subject', 'rxjs/Observable', 'rxjs/observable/PromiseObservable'], factory) :
-            (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}), global.ng.core, global.Rx.Observable.prototype, global.Rx, global.Rx, global.Rx));
-}(this, function (exports, _angular_core, rxjs_operator_toPromise, rxjs_Subject, rxjs_Observable, rxjs_observable_PromiseObservable) {
-    'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@angular/core'], factory) :
+    (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}),global.ng.core));
+}(this, function (exports,_angular_core) { 'use strict';
+
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -36,18 +31,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     }
     // Need to declare a new variable for global here since TypeScript
     // exports the original value of the symbol.
-    var _global = globalScope;
+    var global$1 = globalScope;
     function getTypeNameForDebugging(type) {
         if (type['name']) {
             return type['name'];
         }
         return typeof type;
     }
-    var Date = _global.Date;
+    var Date = global$1.Date;
     // TODO: remove calls to assert in production environment
     // Note: Can't just export this and import in in other files
     // as `assert` is a reserved keyword in Dart
-    _global.assert = function assert(condition) {
+    global$1.assert = function assert(condition) {
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
@@ -164,15 +159,6 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return StringWrapper;
     }());
-    var NumberParseError = (function (_super) {
-        __extends(NumberParseError, _super);
-        function NumberParseError(message) {
-            _super.call(this);
-            this.message = message;
-        }
-        NumberParseError.prototype.toString = function () { return this.message; };
-        return NumberParseError;
-    }(Error));
     var NumberWrapper = (function () {
         function NumberWrapper() {
         }
@@ -181,7 +167,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         NumberWrapper.parseIntAutoRadix = function (text) {
             var result = parseInt(text);
             if (isNaN(result)) {
-                throw new NumberParseError('Invalid integer literal when parsing ' + text);
+                throw new Error('Invalid integer literal when parsing ' + text);
             }
             return result;
         };
@@ -202,7 +188,7 @@ var __extends = (this && this.__extends) || function (d, b) {
                     return result;
                 }
             }
-            throw new NumberParseError('Invalid integer literal when parsing ' + text + ' in base ' + radix);
+            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
         // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
         NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
@@ -216,15 +202,8 @@ var __extends = (this && this.__extends) || function (d, b) {
         NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
         return NumberWrapper;
     }());
-    // JS has NaN !== NaN
-    function looseIdentical(a, b) {
-        return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
-    }
     function normalizeBlank(obj) {
         return isBlank(obj) ? null : obj;
-    }
-    function normalizeBool(obj) {
-        return isBlank(obj) ? false : obj;
     }
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
@@ -233,10 +212,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     var Json = (function () {
         function Json() {
         }
-        Json.parse = function (s) { return _global.JSON.parse(s); };
+        Json.parse = function (s) { return global$1.JSON.parse(s); };
         Json.stringify = function (data) {
             // Dart doesn't take 3 arguments
-            return _global.JSON.stringify(data, null, 2);
+            return global$1.JSON.stringify(data, null, 2);
         };
         return Json;
     }());
@@ -279,14 +258,224 @@ var __extends = (this && this.__extends) || function (d, b) {
         }
         return _symbolIterator;
     }
-    function isPrimitive(obj) {
-        return !isJsObject(obj);
-    }
-    function hasConstructor(value, type) {
-        return value.constructor === type;
-    }
-    var Map$1 = _global.Map;
-    var Set$1 = _global.Set;
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends$1 = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    /**
+     * @stable
+     */
+    var BaseError = (function (_super) {
+        __extends$1(BaseError, _super);
+        function BaseError(message) {
+            // Errors don't use current this, instead they create a new instance.
+            // We have to do forward all of our api to the nativeInstance.
+            var nativeError = _super.call(this, message);
+            this._nativeError = nativeError;
+        }
+        Object.defineProperty(BaseError.prototype, "message", {
+            get: function () { return this._nativeError.message; },
+            set: function (message) { this._nativeError.message = message; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BaseError.prototype, "name", {
+            get: function () { return this._nativeError.name; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BaseError.prototype, "stack", {
+            get: function () { return this._nativeError.stack; },
+            set: function (value) { this._nativeError.stack = value; },
+            enumerable: true,
+            configurable: true
+        });
+        BaseError.prototype.toString = function () { return this._nativeError.toString(); };
+        return BaseError;
+    }(Error));
+    /**
+     * @stable
+     */
+    var WrappedError = (function (_super) {
+        __extends$1(WrappedError, _super);
+        function WrappedError(message, error) {
+            _super.call(this, message + " caused by: " + (error instanceof Error ? error.message : error));
+            this.originalError = error;
+        }
+        Object.defineProperty(WrappedError.prototype, "stack", {
+            get: function () {
+                return (this.originalError instanceof Error ? this.originalError : this._nativeError)
+                    .stack;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return WrappedError;
+    }(BaseError));
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    var InvalidPipeArgumentError = (function (_super) {
+        __extends(InvalidPipeArgumentError, _super);
+        function InvalidPipeArgumentError(type, value) {
+            _super.call(this, "Invalid argument '" + value + "' for pipe '" + stringify(type) + "'");
+        }
+        return InvalidPipeArgumentError;
+    }(BaseError));
+
+    var ObservableStrategy = (function () {
+        function ObservableStrategy() {
+        }
+        ObservableStrategy.prototype.createSubscription = function (async, updateLatestValue) {
+            return async.subscribe({ next: updateLatestValue, error: function (e) { throw e; } });
+        };
+        ObservableStrategy.prototype.dispose = function (subscription) { subscription.unsubscribe(); };
+        ObservableStrategy.prototype.onDestroy = function (subscription) { subscription.unsubscribe(); };
+        return ObservableStrategy;
+    }());
+    var PromiseStrategy = (function () {
+        function PromiseStrategy() {
+        }
+        PromiseStrategy.prototype.createSubscription = function (async, updateLatestValue) {
+            return async.then(updateLatestValue, function (e) { throw e; });
+        };
+        PromiseStrategy.prototype.dispose = function (subscription) { };
+        PromiseStrategy.prototype.onDestroy = function (subscription) { };
+        return PromiseStrategy;
+    }());
+    var _promiseStrategy = new PromiseStrategy();
+    var _observableStrategy = new ObservableStrategy();
+    // avoid unused import when Promise union types are erased
+    /**
+     * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
+     * emitted.
+     * When a new value is emitted, the `async` pipe marks the component to be checked for changes.
+     * When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
+     * potential memory leaks.
+     *
+     * ## Usage
+     *
+     *     object | async
+     *
+     * where `object` is of type `Observable` or of type `Promise`.
+     *
+     * ## Examples
+     *
+     * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
+     * promise.
+     *
+     * {@example core/pipes/ts/async_pipe/async_pipe_example.ts region='AsyncPipePromise'}
+     *
+     * It's also possible to use `async` with Observables. The example below binds the `time` Observable
+     * to the view. Every 500ms, the `time` Observable updates the view with the current time.
+     *
+     * {@example core/pipes/ts/async_pipe/async_pipe_example.ts region='AsyncPipeObservable'}
+     *
+     * @stable
+     */
+    var AsyncPipe = (function () {
+        function AsyncPipe(_ref) {
+            /** @internal */
+            this._latestValue = null;
+            /** @internal */
+            this._latestReturnedValue = null;
+            /** @internal */
+            this._subscription = null;
+            /** @internal */
+            this._obj = null;
+            this._strategy = null;
+            this._ref = _ref;
+        }
+        AsyncPipe.prototype.ngOnDestroy = function () {
+            if (isPresent(this._subscription)) {
+                this._dispose();
+            }
+        };
+        AsyncPipe.prototype.transform = function (obj) {
+            if (isBlank(this._obj)) {
+                if (isPresent(obj)) {
+                    this._subscribe(obj);
+                }
+                this._latestReturnedValue = this._latestValue;
+                return this._latestValue;
+            }
+            if (obj !== this._obj) {
+                this._dispose();
+                return this.transform(obj);
+            }
+            if (this._latestValue === this._latestReturnedValue) {
+                return this._latestReturnedValue;
+            }
+            else {
+                this._latestReturnedValue = this._latestValue;
+                return _angular_core.WrappedValue.wrap(this._latestValue);
+            }
+        };
+        /** @internal */
+        AsyncPipe.prototype._subscribe = function (obj) {
+            var _this = this;
+            this._obj = obj;
+            this._strategy = this._selectStrategy(obj);
+            this._subscription = this._strategy.createSubscription(obj, function (value) { return _this._updateLatestValue(obj, value); });
+        };
+        /** @internal */
+        AsyncPipe.prototype._selectStrategy = function (obj) {
+            if (isPromise(obj)) {
+                return _promiseStrategy;
+            }
+            else if (obj.subscribe) {
+                return _observableStrategy;
+            }
+            else {
+                throw new InvalidPipeArgumentError(AsyncPipe, obj);
+            }
+        };
+        /** @internal */
+        AsyncPipe.prototype._dispose = function () {
+            this._strategy.dispose(this._subscription);
+            this._latestValue = null;
+            this._latestReturnedValue = null;
+            this._subscription = null;
+            this._obj = null;
+        };
+        /** @internal */
+        AsyncPipe.prototype._updateLatestValue = function (async, value) {
+            if (async === this._obj) {
+                this._latestValue = value;
+                this._ref.markForCheck();
+            }
+        };
+        AsyncPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'async', pure: false },] },
+        ];
+        /** @nocollapse */
+        AsyncPipe.ctorParameters = [
+            { type: _angular_core.ChangeDetectorRef, },
+        ];
+        return AsyncPipe;
+    }());
+
+    var Map$1 = global$1.Map;
+    var Set$1 = global$1.Set;
     // Safari and Internet Explorer do not support the iterable parameter to the
     // Map constructor.  We work around that by manually adding the items.
     var createMapFromPairs = (function () {
@@ -357,29 +546,6 @@ var __extends = (this && this.__extends) || function (d, b) {
             return res;
         };
     })();
-    var MapWrapper = (function () {
-        function MapWrapper() {
-        }
-        MapWrapper.clone = function (m) { return createMapFromMap(m); };
-        MapWrapper.createFromStringMap = function (stringMap) {
-            var result = new Map$1();
-            for (var prop in stringMap) {
-                result.set(prop, stringMap[prop]);
-            }
-            return result;
-        };
-        MapWrapper.toStringMap = function (m) {
-            var r = {};
-            m.forEach(function (v, k) { return r[k] = v; });
-            return r;
-        };
-        MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-        MapWrapper.clearValues = function (m) { _clearValues(m); };
-        MapWrapper.iterable = function (m) { return m; };
-        MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
-        MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
-        return MapWrapper;
-    }());
     /**
      * Wraps Javascript Objects
      */
@@ -601,867 +767,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             };
         }
     })();
-    var NgClass = (function () {
-        function NgClass(_iterableDiffers, _keyValueDiffers, _ngEl, _renderer) {
-            this._iterableDiffers = _iterableDiffers;
-            this._keyValueDiffers = _keyValueDiffers;
-            this._ngEl = _ngEl;
-            this._renderer = _renderer;
-            this._initialClasses = [];
-        }
-        Object.defineProperty(NgClass.prototype, "initialClasses", {
-            set: function (v) {
-                this._applyInitialClasses(true);
-                this._initialClasses = isPresent(v) && isString(v) ? v.split(' ') : [];
-                this._applyInitialClasses(false);
-                this._applyClasses(this._rawClass, false);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgClass.prototype, "ngClass", {
-            set: function (v) {
-                this._cleanupClasses(this._rawClass);
-                if (isString(v)) {
-                    v = v.split(' ');
-                }
-                this._rawClass = v;
-                this._iterableDiffer = null;
-                this._keyValueDiffer = null;
-                if (isPresent(v)) {
-                    if (isListLikeIterable(v)) {
-                        this._iterableDiffer = this._iterableDiffers.find(v).create(null);
-                    }
-                    else {
-                        this._keyValueDiffer = this._keyValueDiffers.find(v).create(null);
-                    }
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        NgClass.prototype.ngDoCheck = function () {
-            if (isPresent(this._iterableDiffer)) {
-                var changes = this._iterableDiffer.diff(this._rawClass);
-                if (isPresent(changes)) {
-                    this._applyIterableChanges(changes);
-                }
-            }
-            if (isPresent(this._keyValueDiffer)) {
-                var changes = this._keyValueDiffer.diff(this._rawClass);
-                if (isPresent(changes)) {
-                    this._applyKeyValueChanges(changes);
-                }
-            }
-        };
-        NgClass.prototype._cleanupClasses = function (rawClassVal) {
-            this._applyClasses(rawClassVal, true);
-            this._applyInitialClasses(false);
-        };
-        NgClass.prototype._applyKeyValueChanges = function (changes) {
-            var _this = this;
-            changes.forEachAddedItem(function (record) { _this._toggleClass(record.key, record.currentValue); });
-            changes.forEachChangedItem(function (record) { _this._toggleClass(record.key, record.currentValue); });
-            changes.forEachRemovedItem(function (record) {
-                if (record.previousValue) {
-                    _this._toggleClass(record.key, false);
-                }
-            });
-        };
-        NgClass.prototype._applyIterableChanges = function (changes) {
-            var _this = this;
-            changes.forEachAddedItem(function (record) { _this._toggleClass(record.item, true); });
-            changes.forEachRemovedItem(function (record) { _this._toggleClass(record.item, false); });
-        };
-        NgClass.prototype._applyInitialClasses = function (isCleanup) {
-            var _this = this;
-            this._initialClasses.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
-        };
-        NgClass.prototype._applyClasses = function (rawClassVal, isCleanup) {
-            var _this = this;
-            if (isPresent(rawClassVal)) {
-                if (isArray(rawClassVal)) {
-                    rawClassVal.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
-                }
-                else if (rawClassVal instanceof Set) {
-                    rawClassVal.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
-                }
-                else {
-                    StringMapWrapper.forEach(rawClassVal, function (expVal, className) {
-                        if (isPresent(expVal))
-                            _this._toggleClass(className, !isCleanup);
-                    });
-                }
-            }
-        };
-        NgClass.prototype._toggleClass = function (className, enabled) {
-            className = className.trim();
-            if (className.length > 0) {
-                if (className.indexOf(' ') > -1) {
-                    var classes = className.split(/\s+/g);
-                    for (var i = 0, len = classes.length; i < len; i++) {
-                        this._renderer.setElementClass(this._ngEl.nativeElement, classes[i], enabled);
-                    }
-                }
-                else {
-                    this._renderer.setElementClass(this._ngEl.nativeElement, className, enabled);
-                }
-            }
-        };
-        return NgClass;
-    }());
-    /** @nocollapse */
-    NgClass.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngClass]' },] },
-    ];
-    /** @nocollapse */
-    NgClass.ctorParameters = [
-        { type: _angular_core.IterableDiffers, },
-        { type: _angular_core.KeyValueDiffers, },
-        { type: _angular_core.ElementRef, },
-        { type: _angular_core.Renderer, },
-    ];
-    /** @nocollapse */
-    NgClass.propDecorators = {
-        'initialClasses': [{ type: _angular_core.Input, args: ['class',] },],
-        'ngClass': [{ type: _angular_core.Input },],
-    };
-    /**
-     * @stable
-     */
-    var BaseException = (function (_super) {
-        __extends(BaseException, _super);
-        function BaseException(message) {
-            if (message === void 0) { message = '--'; }
-            _super.call(this, message);
-            this.message = message;
-            this.stack = (new Error(message)).stack;
-        }
-        BaseException.prototype.toString = function () { return this.message; };
-        return BaseException;
-    }(Error));
-    function unimplemented() {
-        throw new BaseException('unimplemented');
-    }
-    var NgForRow = (function () {
-        function NgForRow($implicit, index, count) {
-            this.$implicit = $implicit;
-            this.index = index;
-            this.count = count;
-        }
-        Object.defineProperty(NgForRow.prototype, "first", {
-            get: function () { return this.index === 0; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForRow.prototype, "last", {
-            get: function () { return this.index === this.count - 1; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForRow.prototype, "even", {
-            get: function () { return this.index % 2 === 0; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForRow.prototype, "odd", {
-            get: function () { return !this.even; },
-            enumerable: true,
-            configurable: true
-        });
-        return NgForRow;
-    }());
-    var NgFor = (function () {
-        function NgFor(_viewContainer, _templateRef, _iterableDiffers, _cdr) {
-            this._viewContainer = _viewContainer;
-            this._templateRef = _templateRef;
-            this._iterableDiffers = _iterableDiffers;
-            this._cdr = _cdr;
-        }
-        Object.defineProperty(NgFor.prototype, "ngForTemplate", {
-            set: function (value) {
-                if (isPresent(value)) {
-                    this._templateRef = value;
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        NgFor.prototype.ngOnChanges = function (changes) {
-            if ('ngForOf' in changes) {
-                // React on ngForOf changes only once all inputs have been initialized
-                var value = changes['ngForOf'].currentValue;
-                if (isBlank(this._differ) && isPresent(value)) {
-                    try {
-                        this._differ = this._iterableDiffers.find(value).create(this._cdr, this.ngForTrackBy);
-                    }
-                    catch (e) {
-                        throw new BaseException("Cannot find a differ supporting object '" + value + "' of type '" + getTypeNameForDebugging(value) + "'. NgFor only supports binding to Iterables such as Arrays.");
-                    }
-                }
-            }
-        };
-        NgFor.prototype.ngDoCheck = function () {
-            if (isPresent(this._differ)) {
-                var changes = this._differ.diff(this.ngForOf);
-                if (isPresent(changes))
-                    this._applyChanges(changes);
-            }
-        };
-        NgFor.prototype._applyChanges = function (changes) {
-            var _this = this;
-            var insertTuples = [];
-            changes.forEachOperation(function (item, adjustedPreviousIndex, currentIndex) {
-                if (item.previousIndex == null) {
-                    var view = _this._viewContainer.createEmbeddedView(_this._templateRef, new NgForRow(null, null, null), currentIndex);
-                    var tuple = new RecordViewTuple(item, view);
-                    insertTuples.push(tuple);
-                }
-                else if (currentIndex == null) {
-                    _this._viewContainer.remove(adjustedPreviousIndex);
-                }
-                else {
-                    var view = _this._viewContainer.get(adjustedPreviousIndex);
-                    _this._viewContainer.move(view, currentIndex);
-                    var tuple = new RecordViewTuple(item, view);
-                    insertTuples.push(tuple);
-                }
-            });
-            for (var i = 0; i < insertTuples.length; i++) {
-                this._perViewChange(insertTuples[i].view, insertTuples[i].record);
-            }
-            for (var i = 0, ilen = this._viewContainer.length; i < ilen; i++) {
-                var viewRef = this._viewContainer.get(i);
-                viewRef.context.index = i;
-                viewRef.context.count = ilen;
-            }
-            changes.forEachIdentityChange(function (record) {
-                var viewRef = _this._viewContainer.get(record.currentIndex);
-                viewRef.context.$implicit = record.item;
-            });
-        };
-        NgFor.prototype._perViewChange = function (view, record) {
-            view.context.$implicit = record.item;
-        };
-        return NgFor;
-    }());
-    /** @nocollapse */
-    NgFor.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngFor][ngForOf]' },] },
-    ];
-    /** @nocollapse */
-    NgFor.ctorParameters = [
-        { type: _angular_core.ViewContainerRef, },
-        { type: _angular_core.TemplateRef, },
-        { type: _angular_core.IterableDiffers, },
-        { type: _angular_core.ChangeDetectorRef, },
-    ];
-    /** @nocollapse */
-    NgFor.propDecorators = {
-        'ngForOf': [{ type: _angular_core.Input },],
-        'ngForTrackBy': [{ type: _angular_core.Input },],
-        'ngForTemplate': [{ type: _angular_core.Input },],
-    };
-    var RecordViewTuple = (function () {
-        function RecordViewTuple(record, view) {
-            this.record = record;
-            this.view = view;
-        }
-        return RecordViewTuple;
-    }());
-    var NgIf = (function () {
-        function NgIf(_viewContainer, _templateRef) {
-            this._viewContainer = _viewContainer;
-            this._templateRef = _templateRef;
-            this._prevCondition = null;
-        }
-        Object.defineProperty(NgIf.prototype, "ngIf", {
-            set: function (newCondition) {
-                if (newCondition && (isBlank(this._prevCondition) || !this._prevCondition)) {
-                    this._prevCondition = true;
-                    this._viewContainer.createEmbeddedView(this._templateRef);
-                }
-                else if (!newCondition && (isBlank(this._prevCondition) || this._prevCondition)) {
-                    this._prevCondition = false;
-                    this._viewContainer.clear();
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return NgIf;
-    }());
-    /** @nocollapse */
-    NgIf.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngIf]' },] },
-    ];
-    /** @nocollapse */
-    NgIf.ctorParameters = [
-        { type: _angular_core.ViewContainerRef, },
-        { type: _angular_core.TemplateRef, },
-    ];
-    /** @nocollapse */
-    NgIf.propDecorators = {
-        'ngIf': [{ type: _angular_core.Input },],
-    };
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    /**
-     * @experimental
-     */
-    var NgLocalization = (function () {
-        function NgLocalization() {
-        }
-        return NgLocalization;
-    }());
-    /**
-     * Returns the plural category for a given value.
-     * - "=value" when the case exists,
-     * - the plural category otherwise
-     *
-     * @internal
-     */
-    function getPluralCategory(value, cases, ngLocalization) {
-        var nbCase = "=" + value;
-        return cases.indexOf(nbCase) > -1 ? nbCase : ngLocalization.getPluralCategory(value);
-    }
-    var _CASE_DEFAULT = new Object();
-    // TODO: remove when fully deprecated
-    var _warned = false;
-    var SwitchView = (function () {
-        function SwitchView(_viewContainerRef, _templateRef) {
-            this._viewContainerRef = _viewContainerRef;
-            this._templateRef = _templateRef;
-        }
-        SwitchView.prototype.create = function () { this._viewContainerRef.createEmbeddedView(this._templateRef); };
-        SwitchView.prototype.destroy = function () { this._viewContainerRef.clear(); };
-        return SwitchView;
-    }());
-    var NgSwitch = (function () {
-        function NgSwitch() {
-            this._useDefault = false;
-            this._valueViews = new Map();
-            this._activeViews = [];
-        }
-        Object.defineProperty(NgSwitch.prototype, "ngSwitch", {
-            set: function (value) {
-                // Empty the currently active ViewContainers
-                this._emptyAllActiveViews();
-                // Add the ViewContainers matching the value (with a fallback to default)
-                this._useDefault = false;
-                var views = this._valueViews.get(value);
-                if (isBlank(views)) {
-                    this._useDefault = true;
-                    views = normalizeBlank(this._valueViews.get(_CASE_DEFAULT));
-                }
-                this._activateViews(views);
-                this._switchValue = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** @internal */
-        NgSwitch.prototype._onCaseValueChanged = function (oldCase, newCase, view) {
-            this._deregisterView(oldCase, view);
-            this._registerView(newCase, view);
-            if (oldCase === this._switchValue) {
-                view.destroy();
-                ListWrapper.remove(this._activeViews, view);
-            }
-            else if (newCase === this._switchValue) {
-                if (this._useDefault) {
-                    this._useDefault = false;
-                    this._emptyAllActiveViews();
-                }
-                view.create();
-                this._activeViews.push(view);
-            }
-            // Switch to default when there is no more active ViewContainers
-            if (this._activeViews.length === 0 && !this._useDefault) {
-                this._useDefault = true;
-                this._activateViews(this._valueViews.get(_CASE_DEFAULT));
-            }
-        };
-        /** @internal */
-        NgSwitch.prototype._emptyAllActiveViews = function () {
-            var activeContainers = this._activeViews;
-            for (var i = 0; i < activeContainers.length; i++) {
-                activeContainers[i].destroy();
-            }
-            this._activeViews = [];
-        };
-        /** @internal */
-        NgSwitch.prototype._activateViews = function (views) {
-            // TODO(vicb): assert(this._activeViews.length === 0);
-            if (isPresent(views)) {
-                for (var i = 0; i < views.length; i++) {
-                    views[i].create();
-                }
-                this._activeViews = views;
-            }
-        };
-        /** @internal */
-        NgSwitch.prototype._registerView = function (value, view) {
-            var views = this._valueViews.get(value);
-            if (isBlank(views)) {
-                views = [];
-                this._valueViews.set(value, views);
-            }
-            views.push(view);
-        };
-        /** @internal */
-        NgSwitch.prototype._deregisterView = function (value, view) {
-            // `_CASE_DEFAULT` is used a marker for non-registered cases
-            if (value === _CASE_DEFAULT)
-                return;
-            var views = this._valueViews.get(value);
-            if (views.length == 1) {
-                this._valueViews.delete(value);
-            }
-            else {
-                ListWrapper.remove(views, view);
-            }
-        };
-        return NgSwitch;
-    }());
-    /** @nocollapse */
-    NgSwitch.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngSwitch]' },] },
-    ];
-    /** @nocollapse */
-    NgSwitch.propDecorators = {
-        'ngSwitch': [{ type: _angular_core.Input },],
-    };
-    var NgSwitchCase = (function () {
-        function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
-            // `_CASE_DEFAULT` is used as a marker for a not yet initialized value
-            /** @internal */
-            this._value = _CASE_DEFAULT;
-            this._switch = ngSwitch;
-            this._view = new SwitchView(viewContainer, templateRef);
-        }
-        Object.defineProperty(NgSwitchCase.prototype, "ngSwitchCase", {
-            set: function (value) {
-                this._switch._onCaseValueChanged(this._value, value, this._view);
-                this._value = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgSwitchCase.prototype, "ngSwitchWhen", {
-            set: function (value) {
-                if (!_warned) {
-                    _warned = true;
-                    console.warn('*ngSwitchWhen is deprecated and will be removed. Use *ngSwitchCase instead');
-                }
-                this._switch._onCaseValueChanged(this._value, value, this._view);
-                this._value = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return NgSwitchCase;
-    }());
-    /** @nocollapse */
-    NgSwitchCase.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngSwitchCase],[ngSwitchWhen]' },] },
-    ];
-    /** @nocollapse */
-    NgSwitchCase.ctorParameters = [
-        { type: _angular_core.ViewContainerRef, },
-        { type: _angular_core.TemplateRef, },
-        { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
-    ];
-    /** @nocollapse */
-    NgSwitchCase.propDecorators = {
-        'ngSwitchCase': [{ type: _angular_core.Input },],
-        'ngSwitchWhen': [{ type: _angular_core.Input },],
-    };
-    var NgSwitchDefault = (function () {
-        function NgSwitchDefault(viewContainer, templateRef, sswitch) {
-            sswitch._registerView(_CASE_DEFAULT, new SwitchView(viewContainer, templateRef));
-        }
-        return NgSwitchDefault;
-    }());
-    /** @nocollapse */
-    NgSwitchDefault.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngSwitchDefault]' },] },
-    ];
-    /** @nocollapse */
-    NgSwitchDefault.ctorParameters = [
-        { type: _angular_core.ViewContainerRef, },
-        { type: _angular_core.TemplateRef, },
-        { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
-    ];
-    var NgPlural = (function () {
-        function NgPlural(_localization) {
-            this._localization = _localization;
-            this._caseViews = {};
-        }
-        Object.defineProperty(NgPlural.prototype, "ngPlural", {
-            set: function (value) {
-                this._switchValue = value;
-                this._updateView();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
-        /** @internal */
-        NgPlural.prototype._updateView = function () {
-            this._clearViews();
-            var key = getPluralCategory(this._switchValue, Object.keys(this._caseViews), this._localization);
-            this._activateView(this._caseViews[key]);
-        };
-        /** @internal */
-        NgPlural.prototype._clearViews = function () {
-            if (isPresent(this._activeView))
-                this._activeView.destroy();
-        };
-        /** @internal */
-        NgPlural.prototype._activateView = function (view) {
-            if (!isPresent(view))
-                return;
-            this._activeView = view;
-            this._activeView.create();
-        };
-        return NgPlural;
-    }());
-    /** @nocollapse */
-    NgPlural.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngPlural]' },] },
-    ];
-    /** @nocollapse */
-    NgPlural.ctorParameters = [
-        { type: NgLocalization, },
-    ];
-    /** @nocollapse */
-    NgPlural.propDecorators = {
-        'ngPlural': [{ type: _angular_core.Input },],
-    };
-    var NgPluralCase = (function () {
-        function NgPluralCase(value, template, viewContainer, ngPlural) {
-            this.value = value;
-            ngPlural.addCase(value, new SwitchView(viewContainer, template));
-        }
-        return NgPluralCase;
-    }());
-    /** @nocollapse */
-    NgPluralCase.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngPluralCase]' },] },
-    ];
-    /** @nocollapse */
-    NgPluralCase.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['ngPluralCase',] },] },
-        { type: _angular_core.TemplateRef, },
-        { type: _angular_core.ViewContainerRef, },
-        { type: NgPlural, decorators: [{ type: _angular_core.Host },] },
-    ];
-    var NgStyle = (function () {
-        function NgStyle(_differs, _ngEl, _renderer) {
-            this._differs = _differs;
-            this._ngEl = _ngEl;
-            this._renderer = _renderer;
-        }
-        Object.defineProperty(NgStyle.prototype, "ngStyle", {
-            set: function (v) {
-                this._ngStyle = v;
-                if (isBlank(this._differ) && isPresent(v)) {
-                    this._differ = this._differs.find(this._ngStyle).create(null);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        NgStyle.prototype.ngDoCheck = function () {
-            if (isPresent(this._differ)) {
-                var changes = this._differ.diff(this._ngStyle);
-                if (isPresent(changes)) {
-                    this._applyChanges(changes);
-                }
-            }
-        };
-        NgStyle.prototype._applyChanges = function (changes) {
-            var _this = this;
-            changes.forEachRemovedItem(function (record) { _this._setStyle(record.key, null); });
-            changes.forEachAddedItem(function (record) { _this._setStyle(record.key, record.currentValue); });
-            changes.forEachChangedItem(function (record) { _this._setStyle(record.key, record.currentValue); });
-        };
-        NgStyle.prototype._setStyle = function (name, val) {
-            var nameParts = name.split('.');
-            var nameToSet = nameParts[0];
-            var valToSet = isPresent(val) && nameParts.length === 2 ? "" + val + nameParts[1] : val;
-            this._renderer.setElementStyle(this._ngEl.nativeElement, nameToSet, valToSet);
-        };
-        return NgStyle;
-    }());
-    /** @nocollapse */
-    NgStyle.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngStyle]' },] },
-    ];
-    /** @nocollapse */
-    NgStyle.ctorParameters = [
-        { type: _angular_core.KeyValueDiffers, },
-        { type: _angular_core.ElementRef, },
-        { type: _angular_core.Renderer, },
-    ];
-    /** @nocollapse */
-    NgStyle.propDecorators = {
-        'ngStyle': [{ type: _angular_core.Input },],
-    };
-    var NgTemplateOutlet = (function () {
-        function NgTemplateOutlet(_viewContainerRef) {
-            this._viewContainerRef = _viewContainerRef;
-        }
-        Object.defineProperty(NgTemplateOutlet.prototype, "ngOutletContext", {
-            set: function (context) { this._context = context; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgTemplateOutlet.prototype, "ngTemplateOutlet", {
-            set: function (templateRef) { this._templateRef = templateRef; },
-            enumerable: true,
-            configurable: true
-        });
-        NgTemplateOutlet.prototype.ngOnChanges = function () {
-            if (this._viewRef) {
-                this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
-            }
-            if (this._templateRef) {
-                this._viewRef = this._viewContainerRef.createEmbeddedView(this._templateRef, this._context);
-            }
-        };
-        return NgTemplateOutlet;
-    }());
-    /** @nocollapse */
-    NgTemplateOutlet.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: '[ngTemplateOutlet]' },] },
-    ];
-    /** @nocollapse */
-    NgTemplateOutlet.ctorParameters = [
-        { type: _angular_core.ViewContainerRef, },
-    ];
-    /** @nocollapse */
-    NgTemplateOutlet.propDecorators = {
-        'ngOutletContext': [{ type: _angular_core.Input },],
-        'ngTemplateOutlet': [{ type: _angular_core.Input },],
-    };
-    /**
-     * A collection of Angular core directives that are likely to be used in each and every Angular
-     * application.
-     *
-     * This collection can be used to quickly enumerate all the built-in directives in the `directives`
-     * property of the `@Component` annotation.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/yakGwpCdUkg0qfzX5m8g?p=preview))
-     *
-     * Instead of writing:
-     *
-     * ```typescript
-     * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault} from '@angular/common';
-     * import {OtherDirective} from './myDirectives';
-     *
-     * @Component({
-     *   selector: 'my-component',
-     *   templateUrl: 'myComponent.html',
-     *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, OtherDirective]
-     * })
-     * export class MyComponent {
-     *   ...
-     * }
-     * ```
-     * one could import all the core directives at once:
-     *
-     * ```typescript
-     * import {CORE_DIRECTIVES} from '@angular/common';
-     * import {OtherDirective} from './myDirectives';
-     *
-     * @Component({
-     *   selector: 'my-component',
-     *   templateUrl: 'myComponent.html',
-     *   directives: [CORE_DIRECTIVES, OtherDirective]
-     * })
-     * export class MyComponent {
-     *   ...
-     * }
-     * ```
-     *
-     * @stable
-     */
-    var CORE_DIRECTIVES = [
-        NgClass,
-        NgFor,
-        NgIf,
-        NgTemplateOutlet,
-        NgStyle,
-        NgSwitch,
-        NgSwitchCase,
-        NgSwitchDefault,
-        NgPlural,
-        NgPluralCase,
-    ];
-    /**
-     * A collection of Angular core directives that are likely to be used in each and every Angular
-     * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
-     * NgModel).
-     *
-     * This collection can be used to quickly enumerate all the built-in directives in the `directives`
-     * property of the `@Component` decorator.
-     *
-     * ### Example
-     *
-     * Instead of writing:
-     *
-     * ```typescript
-     * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm} from
-     * '@angular/common';
-     * import {OtherDirective} from './myDirectives';
-     *
-     * @Component({
-     *   selector: 'my-component',
-     *   templateUrl: 'myComponent.html',
-     *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm,
-     * OtherDirective]
-     * })
-     * export class MyComponent {
-     *   ...
-     * }
-     * ```
-     * one could import all the common directives at once:
-     *
-     * ```typescript
-     * import {COMMON_DIRECTIVES} from '@angular/common';
-     * import {OtherDirective} from './myDirectives';
-     *
-     * @Component({
-     *   selector: 'my-component',
-     *   templateUrl: 'myComponent.html',
-     *   directives: [COMMON_DIRECTIVES, OtherDirective]
-     * })
-     * export class MyComponent {
-     *   ...
-     * }
-     * ```
-     *
-     * @experimental Contains forms which are experimental.
-     */
-    var COMMON_DIRECTIVES = [CORE_DIRECTIVES];
-    var InvalidPipeArgumentException = (function (_super) {
-        __extends(InvalidPipeArgumentException, _super);
-        function InvalidPipeArgumentException(type, value) {
-            _super.call(this, "Invalid argument '" + value + "' for pipe '" + stringify(type) + "'");
-        }
-        return InvalidPipeArgumentException;
-    }(BaseException));
-    var ObservableStrategy = (function () {
-        function ObservableStrategy() {
-        }
-        ObservableStrategy.prototype.createSubscription = function (async, updateLatestValue) {
-            return async.subscribe({ next: updateLatestValue, error: function (e) { throw e; } });
-        };
-        ObservableStrategy.prototype.dispose = function (subscription) { subscription.unsubscribe(); };
-        ObservableStrategy.prototype.onDestroy = function (subscription) { subscription.unsubscribe(); };
-        return ObservableStrategy;
-    }());
-    var PromiseStrategy = (function () {
-        function PromiseStrategy() {
-        }
-        PromiseStrategy.prototype.createSubscription = function (async, updateLatestValue) {
-            return async.then(updateLatestValue, function (e) { throw e; });
-        };
-        PromiseStrategy.prototype.dispose = function (subscription) { };
-        PromiseStrategy.prototype.onDestroy = function (subscription) { };
-        return PromiseStrategy;
-    }());
-    var _promiseStrategy = new PromiseStrategy();
-    var _observableStrategy = new ObservableStrategy();
-    var AsyncPipe = (function () {
-        function AsyncPipe(_ref) {
-            /** @internal */
-            this._latestValue = null;
-            /** @internal */
-            this._latestReturnedValue = null;
-            /** @internal */
-            this._subscription = null;
-            /** @internal */
-            this._obj = null;
-            this._strategy = null;
-            this._ref = _ref;
-        }
-        AsyncPipe.prototype.ngOnDestroy = function () {
-            if (isPresent(this._subscription)) {
-                this._dispose();
-            }
-        };
-        AsyncPipe.prototype.transform = function (obj) {
-            if (isBlank(this._obj)) {
-                if (isPresent(obj)) {
-                    this._subscribe(obj);
-                }
-                this._latestReturnedValue = this._latestValue;
-                return this._latestValue;
-            }
-            if (obj !== this._obj) {
-                this._dispose();
-                return this.transform(obj);
-            }
-            if (this._latestValue === this._latestReturnedValue) {
-                return this._latestReturnedValue;
-            }
-            else {
-                this._latestReturnedValue = this._latestValue;
-                return _angular_core.WrappedValue.wrap(this._latestValue);
-            }
-        };
-        /** @internal */
-        AsyncPipe.prototype._subscribe = function (obj) {
-            var _this = this;
-            this._obj = obj;
-            this._strategy = this._selectStrategy(obj);
-            this._subscription = this._strategy.createSubscription(obj, function (value) { return _this._updateLatestValue(obj, value); });
-        };
-        /** @internal */
-        AsyncPipe.prototype._selectStrategy = function (obj) {
-            if (isPromise(obj)) {
-                return _promiseStrategy;
-            }
-            else if (obj.subscribe) {
-                return _observableStrategy;
-            }
-            else {
-                throw new InvalidPipeArgumentException(AsyncPipe, obj);
-            }
-        };
-        /** @internal */
-        AsyncPipe.prototype._dispose = function () {
-            this._strategy.dispose(this._subscription);
-            this._latestValue = null;
-            this._latestReturnedValue = null;
-            this._subscription = null;
-            this._obj = null;
-        };
-        /** @internal */
-        AsyncPipe.prototype._updateLatestValue = function (async, value) {
-            if (async === this._obj) {
-                this._latestValue = value;
-                this._ref.markForCheck();
-            }
-        };
-        return AsyncPipe;
-    }());
-    /** @nocollapse */
-    AsyncPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'async', pure: false },] },
-    ];
-    /** @nocollapse */
-    AsyncPipe.ctorParameters = [
-        { type: _angular_core.ChangeDetectorRef, },
-    ];
+
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -1577,11 +883,14 @@ var __extends = (this && this.__extends) || function (d, b) {
             return result.split(' ')[0];
         };
     }
+    function intlDateFormat(date, locale, options) {
+        return new Intl.DateTimeFormat(locale, options).format(date).replace(/[\u200e\u200f]/g, '');
+    }
     function timeZoneGetter(timezone) {
         // To workaround `Intl` API restriction for single timezone let format with 24 hours
-        var format = { hour: '2-digit', hour12: false, timeZoneName: timezone };
+        var options = { hour: '2-digit', hour12: false, timeZoneName: timezone };
         return function (date, locale) {
-            var result = new Intl.DateTimeFormat(locale, format).format(date);
+            var result = intlDateFormat(date, locale, options);
             // Then extract first 3 letters that related to hours
             return result ? result.substring(3) : '';
         };
@@ -1606,9 +915,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         return result;
     }
     function datePartGetterFactory(ret) {
-        return function (date, locale) {
-            return new Intl.DateTimeFormat(locale, ret).format(date);
-        };
+        return function (date, locale) { return intlDateFormat(date, locale, ret); };
     }
     var datePartsFormatterCache = new Map();
     function dateFormatter(format, date, locale) {
@@ -1656,20 +963,87 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         return DateFormatter;
     }());
-    // TODO: move to a global configurable location along with other i18n components.
-    var defaultLocale = 'en-US';
+
+    /**
+     * Formats a date value to a string based on the requested format.
+     *
+     * WARNINGS:
+     * - this pipe is marked as pure hence it will not be re-evaluated when the input is mutated.
+     *   Instead users should treat the date as an immutable object and change the reference when the
+     *   pipe needs to re-run (this is to avoid reformatting the date on every change detection run
+     *   which would be an expensive operation).
+     * - this pipe uses the Internationalization API. Therefore it is only reliable in Chrome and Opera
+     *   browsers.
+     *
+     * ## Usage
+     *
+     *     expression | date[:format]
+     *
+     * where `expression` is a date object or a number (milliseconds since UTC epoch) or an ISO string
+     * (https://www.w3.org/TR/NOTE-datetime) and `format` indicates which date/time components to
+     * include:
+     *
+     *  | Component | Symbol | Short Form   | Long Form         | Numeric   | 2-digit   |
+     *  |-----------|:------:|--------------|-------------------|-----------|-----------|
+     *  | era       |   G    | G (AD)       | GGGG (Anno Domini)| -         | -         |
+     *  | year      |   y    | -            | -                 | y (2015)  | yy (15)   |
+     *  | month     |   M    | MMM (Sep)    | MMMM (September)  | M (9)     | MM (09)   |
+     *  | day       |   d    | -            | -                 | d (3)     | dd (03)   |
+     *  | weekday   |   E    | EEE (Sun)    | EEEE (Sunday)     | -         | -         |
+     *  | hour      |   j    | -            | -                 | j (13)    | jj (13)   |
+     *  | hour12    |   h    | -            | -                 | h (1 PM)  | hh (01 PM)|
+     *  | hour24    |   H    | -            | -                 | H (13)    | HH (13)   |
+     *  | minute    |   m    | -            | -                 | m (5)     | mm (05)   |
+     *  | second    |   s    | -            | -                 | s (9)     | ss (09)   |
+     *  | timezone  |   z    | -            | z (Pacific Standard Time)| -  | -         |
+     *  | timezone  |   Z    | Z (GMT-8:00) | -                 | -         | -         |
+     *  | timezone  |   a    | a (PM)       | -                 | -         | -         |
+     *
+     * In javascript, only the components specified will be respected (not the ordering,
+     * punctuations, ...) and details of the formatting will be dependent on the locale.
+     *
+     * `format` can also be one of the following predefined formats:
+     *
+     *  - `'medium'`: equivalent to `'yMMMdjms'` (e.g. Sep 3, 2010, 12:05:08 PM for en-US)
+     *  - `'short'`: equivalent to `'yMdjm'` (e.g. 9/3/2010, 12:05 PM for en-US)
+     *  - `'fullDate'`: equivalent to `'yMMMMEEEEd'` (e.g. Friday, September 3, 2010 for en-US)
+     *  - `'longDate'`: equivalent to `'yMMMMd'` (e.g. September 3, 2010)
+     *  - `'mediumDate'`: equivalent to `'yMMMd'` (e.g. Sep 3, 2010 for en-US)
+     *  - `'shortDate'`: equivalent to `'yMd'` (e.g. 9/3/2010 for en-US)
+     *  - `'mediumTime'`: equivalent to `'jms'` (e.g. 12:05:08 PM for en-US)
+     *  - `'shortTime'`: equivalent to `'jm'` (e.g. 12:05 PM for en-US)
+     *
+     * Timezone of the formatted text will be the local system timezone of the end-users machine.
+     *
+     * ### Examples
+     *
+     * Assuming `dateObj` is (year: 2015, month: 6, day: 15, hour: 21, minute: 43, second: 11)
+     * in the _local_ time and locale is 'en-US':
+     *
+     * ```
+     *     {{ dateObj | date }}               // output is 'Jun 15, 2015'
+     *     {{ dateObj | date:'medium' }}      // output is 'Jun 15, 2015, 9:43:11 PM'
+     *     {{ dateObj | date:'shortTime' }}   // output is '9:43 PM'
+     *     {{ dateObj | date:'mmss' }}        // output is '43:11'
+     * ```
+     *
+     * {@example core/pipes/ts/date_pipe/date_pipe_example.ts region='DatePipe'}
+     *
+     * @stable
+     */
     var DatePipe = (function () {
-        function DatePipe() {
+        function DatePipe(_locale) {
+            this._locale = _locale;
         }
         DatePipe.prototype.transform = function (value, pattern) {
             if (pattern === void 0) { pattern = 'mediumDate'; }
             if (isBlank(value))
                 return null;
             if (!this.supports(value)) {
-                throw new InvalidPipeArgumentException(DatePipe, value);
+                throw new InvalidPipeArgumentError(DatePipe, value);
             }
             if (NumberWrapper.isNumeric(value)) {
-                value = DateWrapper.fromMillis(NumberWrapper.parseInt(value, 10));
+                value = DateWrapper.fromMillis(parseFloat(value));
             }
             else if (isString(value)) {
                 value = DateWrapper.fromISOString(value);
@@ -1677,7 +1051,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (StringMapWrapper.contains(DatePipe._ALIASES, pattern)) {
                 pattern = StringMapWrapper.get(DatePipe._ALIASES, pattern);
             }
-            return DateFormatter.format(value, defaultLocale, pattern);
+            return DateFormatter.format(value, this._locale, pattern);
         };
         DatePipe.prototype.supports = function (obj) {
             if (isDate(obj) || NumberWrapper.isNumeric(obj)) {
@@ -1688,24 +1062,551 @@ var __extends = (this && this.__extends) || function (d, b) {
             }
             return false;
         };
+        /** @internal */
+        DatePipe._ALIASES = {
+            'medium': 'yMMMdjms',
+            'short': 'yMdjm',
+            'fullDate': 'yMMMMEEEEd',
+            'longDate': 'yMMMMd',
+            'mediumDate': 'yMMMd',
+            'shortDate': 'yMd',
+            'mediumTime': 'jms',
+            'shortTime': 'jm'
+        };
+        DatePipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'date', pure: true },] },
+        ];
+        /** @nocollapse */
+        DatePipe.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
+        ];
         return DatePipe;
     }());
-    /** @internal */
-    DatePipe._ALIASES = {
-        'medium': 'yMMMdjms',
-        'short': 'yMdjm',
-        'fullDate': 'yMMMMEEEEd',
-        'longDate': 'yMMMMd',
-        'mediumDate': 'yMMMd',
-        'shortDate': 'yMd',
-        'mediumTime': 'jms',
-        'shortTime': 'jm'
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends$2 = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    /** @nocollapse */
-    DatePipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'date', pure: true },] },
-    ];
+    /**
+     * @experimental
+     */
+    var NgLocalization = (function () {
+        function NgLocalization() {
+        }
+        return NgLocalization;
+    }());
+    /**
+     * Returns the plural category for a given value.
+     * - "=value" when the case exists,
+     * - the plural category otherwise
+     *
+     * @internal
+     */
+    function getPluralCategory(value, cases, ngLocalization) {
+        var nbCase = "=" + value;
+        return cases.indexOf(nbCase) > -1 ? nbCase : ngLocalization.getPluralCategory(value);
+    }
+    /**
+     * Returns the plural case based on the locale
+     *
+     * @experimental
+     */
+    var NgLocaleLocalization = (function (_super) {
+        __extends$2(NgLocaleLocalization, _super);
+        function NgLocaleLocalization(_locale) {
+            _super.call(this);
+            this._locale = _locale;
+        }
+        NgLocaleLocalization.prototype.getPluralCategory = function (value) {
+            var plural = getPluralCase(this._locale, value);
+            switch (plural) {
+                case Plural.Zero:
+                    return 'zero';
+                case Plural.One:
+                    return 'one';
+                case Plural.Two:
+                    return 'two';
+                case Plural.Few:
+                    return 'few';
+                case Plural.Many:
+                    return 'many';
+                default:
+                    return 'other';
+            }
+        };
+        NgLocaleLocalization.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        NgLocaleLocalization.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
+        ];
+        return NgLocaleLocalization;
+    }(NgLocalization));
+    // This is generated code DO NOT MODIFY
+    // see angular2/script/cldr/gen_plural_rules.js
+    /** @experimental */
+    var Plural;
+    (function (Plural) {
+        Plural[Plural["Zero"] = 0] = "Zero";
+        Plural[Plural["One"] = 1] = "One";
+        Plural[Plural["Two"] = 2] = "Two";
+        Plural[Plural["Few"] = 3] = "Few";
+        Plural[Plural["Many"] = 4] = "Many";
+        Plural[Plural["Other"] = 5] = "Other";
+    })(Plural || (Plural = {}));
+    /**
+     * Returns the plural case based on the locale
+     *
+     * @experimental
+     */
+    function getPluralCase(locale, nLike) {
+        // TODO(vicb): lazy compute
+        if (typeof nLike === 'string') {
+            nLike = parseInt(nLike, 10);
+        }
+        var n = nLike;
+        var nDecimal = n.toString().replace(/^[^.]*\.?/, '');
+        var i = Math.floor(Math.abs(n));
+        var v = nDecimal.length;
+        var f = parseInt(nDecimal, 10);
+        var t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
+        var lang = locale.split('_')[0].toLowerCase();
+        switch (lang) {
+            case 'af':
+            case 'asa':
+            case 'az':
+            case 'bem':
+            case 'bez':
+            case 'bg':
+            case 'brx':
+            case 'ce':
+            case 'cgg':
+            case 'chr':
+            case 'ckb':
+            case 'ee':
+            case 'el':
+            case 'eo':
+            case 'es':
+            case 'eu':
+            case 'fo':
+            case 'fur':
+            case 'gsw':
+            case 'ha':
+            case 'haw':
+            case 'hu':
+            case 'jgo':
+            case 'jmc':
+            case 'ka':
+            case 'kk':
+            case 'kkj':
+            case 'kl':
+            case 'ks':
+            case 'ksb':
+            case 'ky':
+            case 'lb':
+            case 'lg':
+            case 'mas':
+            case 'mgo':
+            case 'ml':
+            case 'mn':
+            case 'nb':
+            case 'nd':
+            case 'ne':
+            case 'nn':
+            case 'nnh':
+            case 'nyn':
+            case 'om':
+            case 'or':
+            case 'os':
+            case 'ps':
+            case 'rm':
+            case 'rof':
+            case 'rwk':
+            case 'saq':
+            case 'seh':
+            case 'sn':
+            case 'so':
+            case 'sq':
+            case 'ta':
+            case 'te':
+            case 'teo':
+            case 'tk':
+            case 'tr':
+            case 'ug':
+            case 'uz':
+            case 'vo':
+            case 'vun':
+            case 'wae':
+            case 'xog':
+                if (n === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'agq':
+            case 'bas':
+            case 'cu':
+            case 'dav':
+            case 'dje':
+            case 'dua':
+            case 'dyo':
+            case 'ebu':
+            case 'ewo':
+            case 'guz':
+            case 'kam':
+            case 'khq':
+            case 'ki':
+            case 'kln':
+            case 'kok':
+            case 'ksf':
+            case 'lrc':
+            case 'lu':
+            case 'luo':
+            case 'luy':
+            case 'mer':
+            case 'mfe':
+            case 'mgh':
+            case 'mua':
+            case 'mzn':
+            case 'nmg':
+            case 'nus':
+            case 'qu':
+            case 'rn':
+            case 'rw':
+            case 'sbp':
+            case 'twq':
+            case 'vai':
+            case 'yav':
+            case 'yue':
+            case 'zgh':
+            case 'ak':
+            case 'ln':
+            case 'mg':
+            case 'pa':
+            case 'ti':
+                if (n === Math.floor(n) && n >= 0 && n <= 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'am':
+            case 'as':
+            case 'bn':
+            case 'fa':
+            case 'gu':
+            case 'hi':
+            case 'kn':
+            case 'mr':
+            case 'zu':
+                if (i === 0 || n === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'ar':
+                if (n === 0)
+                    return Plural.Zero;
+                if (n === 1)
+                    return Plural.One;
+                if (n === 2)
+                    return Plural.Two;
+                if (n % 100 === Math.floor(n % 100) && n % 100 >= 3 && n % 100 <= 10)
+                    return Plural.Few;
+                if (n % 100 === Math.floor(n % 100) && n % 100 >= 11 && n % 100 <= 99)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'ast':
+            case 'ca':
+            case 'de':
+            case 'en':
+            case 'et':
+            case 'fi':
+            case 'fy':
+            case 'gl':
+            case 'it':
+            case 'nl':
+            case 'sv':
+            case 'sw':
+            case 'ur':
+            case 'yi':
+                if (i === 1 && v === 0)
+                    return Plural.One;
+                return Plural.Other;
+            case 'be':
+                if (n % 10 === 1 && !(n % 100 === 11))
+                    return Plural.One;
+                if (n % 10 === Math.floor(n % 10) && n % 10 >= 2 && n % 10 <= 4 &&
+                    !(n % 100 >= 12 && n % 100 <= 14))
+                    return Plural.Few;
+                if (n % 10 === 0 || n % 10 === Math.floor(n % 10) && n % 10 >= 5 && n % 10 <= 9 ||
+                    n % 100 === Math.floor(n % 100) && n % 100 >= 11 && n % 100 <= 14)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'br':
+                if (n % 10 === 1 && !(n % 100 === 11 || n % 100 === 71 || n % 100 === 91))
+                    return Plural.One;
+                if (n % 10 === 2 && !(n % 100 === 12 || n % 100 === 72 || n % 100 === 92))
+                    return Plural.Two;
+                if (n % 10 === Math.floor(n % 10) && (n % 10 >= 3 && n % 10 <= 4 || n % 10 === 9) &&
+                    !(n % 100 >= 10 && n % 100 <= 19 || n % 100 >= 70 && n % 100 <= 79 ||
+                        n % 100 >= 90 && n % 100 <= 99))
+                    return Plural.Few;
+                if (!(n === 0) && n % 1e6 === 0)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'bs':
+            case 'hr':
+            case 'sr':
+                if (v === 0 && i % 10 === 1 && !(i % 100 === 11) || f % 10 === 1 && !(f % 100 === 11))
+                    return Plural.One;
+                if (v === 0 && i % 10 === Math.floor(i % 10) && i % 10 >= 2 && i % 10 <= 4 &&
+                    !(i % 100 >= 12 && i % 100 <= 14) ||
+                    f % 10 === Math.floor(f % 10) && f % 10 >= 2 && f % 10 <= 4 &&
+                        !(f % 100 >= 12 && f % 100 <= 14))
+                    return Plural.Few;
+                return Plural.Other;
+            case 'cs':
+            case 'sk':
+                if (i === 1 && v === 0)
+                    return Plural.One;
+                if (i === Math.floor(i) && i >= 2 && i <= 4 && v === 0)
+                    return Plural.Few;
+                if (!(v === 0))
+                    return Plural.Many;
+                return Plural.Other;
+            case 'cy':
+                if (n === 0)
+                    return Plural.Zero;
+                if (n === 1)
+                    return Plural.One;
+                if (n === 2)
+                    return Plural.Two;
+                if (n === 3)
+                    return Plural.Few;
+                if (n === 6)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'da':
+                if (n === 1 || !(t === 0) && (i === 0 || i === 1))
+                    return Plural.One;
+                return Plural.Other;
+            case 'dsb':
+            case 'hsb':
+                if (v === 0 && i % 100 === 1 || f % 100 === 1)
+                    return Plural.One;
+                if (v === 0 && i % 100 === 2 || f % 100 === 2)
+                    return Plural.Two;
+                if (v === 0 && i % 100 === Math.floor(i % 100) && i % 100 >= 3 && i % 100 <= 4 ||
+                    f % 100 === Math.floor(f % 100) && f % 100 >= 3 && f % 100 <= 4)
+                    return Plural.Few;
+                return Plural.Other;
+            case 'ff':
+            case 'fr':
+            case 'hy':
+            case 'kab':
+                if (i === 0 || i === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'fil':
+                if (v === 0 && (i === 1 || i === 2 || i === 3) ||
+                    v === 0 && !(i % 10 === 4 || i % 10 === 6 || i % 10 === 9) ||
+                    !(v === 0) && !(f % 10 === 4 || f % 10 === 6 || f % 10 === 9))
+                    return Plural.One;
+                return Plural.Other;
+            case 'ga':
+                if (n === 1)
+                    return Plural.One;
+                if (n === 2)
+                    return Plural.Two;
+                if (n === Math.floor(n) && n >= 3 && n <= 6)
+                    return Plural.Few;
+                if (n === Math.floor(n) && n >= 7 && n <= 10)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'gd':
+                if (n === 1 || n === 11)
+                    return Plural.One;
+                if (n === 2 || n === 12)
+                    return Plural.Two;
+                if (n === Math.floor(n) && (n >= 3 && n <= 10 || n >= 13 && n <= 19))
+                    return Plural.Few;
+                return Plural.Other;
+            case 'gv':
+                if (v === 0 && i % 10 === 1)
+                    return Plural.One;
+                if (v === 0 && i % 10 === 2)
+                    return Plural.Two;
+                if (v === 0 &&
+                    (i % 100 === 0 || i % 100 === 20 || i % 100 === 40 || i % 100 === 60 || i % 100 === 80))
+                    return Plural.Few;
+                if (!(v === 0))
+                    return Plural.Many;
+                return Plural.Other;
+            case 'he':
+                if (i === 1 && v === 0)
+                    return Plural.One;
+                if (i === 2 && v === 0)
+                    return Plural.Two;
+                if (v === 0 && !(n >= 0 && n <= 10) && n % 10 === 0)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'is':
+                if (t === 0 && i % 10 === 1 && !(i % 100 === 11) || !(t === 0))
+                    return Plural.One;
+                return Plural.Other;
+            case 'ksh':
+                if (n === 0)
+                    return Plural.Zero;
+                if (n === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'kw':
+            case 'naq':
+            case 'se':
+            case 'smn':
+                if (n === 1)
+                    return Plural.One;
+                if (n === 2)
+                    return Plural.Two;
+                return Plural.Other;
+            case 'lag':
+                if (n === 0)
+                    return Plural.Zero;
+                if ((i === 0 || i === 1) && !(n === 0))
+                    return Plural.One;
+                return Plural.Other;
+            case 'lt':
+                if (n % 10 === 1 && !(n % 100 >= 11 && n % 100 <= 19))
+                    return Plural.One;
+                if (n % 10 === Math.floor(n % 10) && n % 10 >= 2 && n % 10 <= 9 &&
+                    !(n % 100 >= 11 && n % 100 <= 19))
+                    return Plural.Few;
+                if (!(f === 0))
+                    return Plural.Many;
+                return Plural.Other;
+            case 'lv':
+            case 'prg':
+                if (n % 10 === 0 || n % 100 === Math.floor(n % 100) && n % 100 >= 11 && n % 100 <= 19 ||
+                    v === 2 && f % 100 === Math.floor(f % 100) && f % 100 >= 11 && f % 100 <= 19)
+                    return Plural.Zero;
+                if (n % 10 === 1 && !(n % 100 === 11) || v === 2 && f % 10 === 1 && !(f % 100 === 11) ||
+                    !(v === 2) && f % 10 === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'mk':
+                if (v === 0 && i % 10 === 1 || f % 10 === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'mt':
+                if (n === 1)
+                    return Plural.One;
+                if (n === 0 || n % 100 === Math.floor(n % 100) && n % 100 >= 2 && n % 100 <= 10)
+                    return Plural.Few;
+                if (n % 100 === Math.floor(n % 100) && n % 100 >= 11 && n % 100 <= 19)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'pl':
+                if (i === 1 && v === 0)
+                    return Plural.One;
+                if (v === 0 && i % 10 === Math.floor(i % 10) && i % 10 >= 2 && i % 10 <= 4 &&
+                    !(i % 100 >= 12 && i % 100 <= 14))
+                    return Plural.Few;
+                if (v === 0 && !(i === 1) && i % 10 === Math.floor(i % 10) && i % 10 >= 0 && i % 10 <= 1 ||
+                    v === 0 && i % 10 === Math.floor(i % 10) && i % 10 >= 5 && i % 10 <= 9 ||
+                    v === 0 && i % 100 === Math.floor(i % 100) && i % 100 >= 12 && i % 100 <= 14)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'pt':
+                if (n === Math.floor(n) && n >= 0 && n <= 2 && !(n === 2))
+                    return Plural.One;
+                return Plural.Other;
+            case 'ro':
+                if (i === 1 && v === 0)
+                    return Plural.One;
+                if (!(v === 0) || n === 0 ||
+                    !(n === 1) && n % 100 === Math.floor(n % 100) && n % 100 >= 1 && n % 100 <= 19)
+                    return Plural.Few;
+                return Plural.Other;
+            case 'ru':
+            case 'uk':
+                if (v === 0 && i % 10 === 1 && !(i % 100 === 11))
+                    return Plural.One;
+                if (v === 0 && i % 10 === Math.floor(i % 10) && i % 10 >= 2 && i % 10 <= 4 &&
+                    !(i % 100 >= 12 && i % 100 <= 14))
+                    return Plural.Few;
+                if (v === 0 && i % 10 === 0 ||
+                    v === 0 && i % 10 === Math.floor(i % 10) && i % 10 >= 5 && i % 10 <= 9 ||
+                    v === 0 && i % 100 === Math.floor(i % 100) && i % 100 >= 11 && i % 100 <= 14)
+                    return Plural.Many;
+                return Plural.Other;
+            case 'shi':
+                if (i === 0 || n === 1)
+                    return Plural.One;
+                if (n === Math.floor(n) && n >= 2 && n <= 10)
+                    return Plural.Few;
+                return Plural.Other;
+            case 'si':
+                if (n === 0 || n === 1 || i === 0 && f === 1)
+                    return Plural.One;
+                return Plural.Other;
+            case 'sl':
+                if (v === 0 && i % 100 === 1)
+                    return Plural.One;
+                if (v === 0 && i % 100 === 2)
+                    return Plural.Two;
+                if (v === 0 && i % 100 === Math.floor(i % 100) && i % 100 >= 3 && i % 100 <= 4 || !(v === 0))
+                    return Plural.Few;
+                return Plural.Other;
+            case 'tzm':
+                if (n === Math.floor(n) && n >= 0 && n <= 1 || n === Math.floor(n) && n >= 11 && n <= 99)
+                    return Plural.One;
+                return Plural.Other;
+            default:
+                return Plural.Other;
+        }
+    }
+
     var _INTERPOLATION_REGEXP = /#/g;
+    /**
+     *  Maps a value to a string that pluralizes the value properly.
+     *
+     *  ## Usage
+     *
+     *  expression | i18nPlural:mapping
+     *
+     *  where `expression` is a number and `mapping` is an object that mimics the ICU format,
+     *  see http://userguide.icu-project.org/formatparse/messages
+     *
+     *  ## Example
+     *
+     *  ```
+     *  @Component({
+     *    selector: 'app',
+     *    template: `
+     *      <div>
+     *        {{ messages.length | i18nPlural: messageMapping }}
+     *      </div>
+     *    `,
+     *    // best practice is to define the locale at the application level
+     *    providers: [{provide: LOCALE_ID, useValue: 'en_US'}]
+     *  })
+     *
+     *  class MyApp {
+     *    messages: any[];
+     *    messageMapping: {[k:string]: string} = {
+     *      '=0': 'No messages.',
+     *      '=1': 'One message.',
+     *      'other': '# messages.'
+     *    }
+     *    ...
+     *  }
+     *  ```
+     *
+     * @experimental
+     */
     var I18nPluralPipe = (function () {
         function I18nPluralPipe(_localization) {
             this._localization = _localization;
@@ -1714,21 +1615,52 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (isBlank(value))
                 return '';
             if (!isStringMap(pluralMap)) {
-                throw new InvalidPipeArgumentException(I18nPluralPipe, pluralMap);
+                throw new InvalidPipeArgumentError(I18nPluralPipe, pluralMap);
             }
             var key = getPluralCategory(value, Object.keys(pluralMap), this._localization);
             return StringWrapper.replaceAll(pluralMap[key], _INTERPOLATION_REGEXP, value.toString());
         };
+        I18nPluralPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'i18nPlural', pure: true },] },
+        ];
+        /** @nocollapse */
+        I18nPluralPipe.ctorParameters = [
+            { type: NgLocalization, },
+        ];
         return I18nPluralPipe;
     }());
-    /** @nocollapse */
-    I18nPluralPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'i18nPlural', pure: true },] },
-    ];
-    /** @nocollapse */
-    I18nPluralPipe.ctorParameters = [
-        { type: NgLocalization, },
-    ];
+
+    /**
+     *
+     *  Generic selector that displays the string that matches the current value.
+     *
+     *  ## Usage
+     *
+     *  expression | i18nSelect:mapping
+     *
+     *  where `mapping` is an object that indicates the text that should be displayed
+     *  for different values of the provided `expression`.
+     *
+     *  ## Example
+     *
+     *  ```
+     *  <div>
+     *    {{ gender | i18nSelect: inviteMap }}
+     *  </div>
+     *
+     *  class MyApp {
+     *    gender: string = 'male';
+     *    inviteMap: any = {
+     *      'male': 'Invite him.',
+     *      'female': 'Invite her.',
+     *      'other': 'Invite them.'
+     *    }
+     *    ...
+     *  }
+     *  ```
+     *
+     *  @experimental
+     */
     var I18nSelectPipe = (function () {
         function I18nSelectPipe() {
         }
@@ -1736,26 +1668,47 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (isBlank(value))
                 return '';
             if (!isStringMap(mapping)) {
-                throw new InvalidPipeArgumentException(I18nSelectPipe, mapping);
+                throw new InvalidPipeArgumentError(I18nSelectPipe, mapping);
             }
             return mapping.hasOwnProperty(value) ? mapping[value] : '';
         };
+        I18nSelectPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'i18nSelect', pure: true },] },
+        ];
+        /** @nocollapse */
+        I18nSelectPipe.ctorParameters = [];
         return I18nSelectPipe;
     }());
-    /** @nocollapse */
-    I18nSelectPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'i18nSelect', pure: true },] },
-    ];
+
+    /**
+     * Transforms any input value using `JSON.stringify`. Useful for debugging.
+     *
+     * ### Example
+     * {@example core/pipes/ts/json_pipe/json_pipe_example.ts region='JsonPipe'}
+     *
+     * @stable
+     */
     var JsonPipe = (function () {
         function JsonPipe() {
         }
         JsonPipe.prototype.transform = function (value) { return Json.stringify(value); };
+        JsonPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'json', pure: false },] },
+        ];
+        /** @nocollapse */
+        JsonPipe.ctorParameters = [];
         return JsonPipe;
     }());
-    /** @nocollapse */
-    JsonPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'json', pure: false },] },
-    ];
+
+    /**
+     * Transforms text to lowercase.
+     *
+     * ### Example
+     *
+     * {@example core/pipes/ts/lowerupper_pipe/lowerupper_pipe_example.ts region='LowerUpperPipe'}
+     *
+     * @stable
+     */
     var LowerCasePipe = (function () {
         function LowerCasePipe() {
         }
@@ -1763,19 +1716,20 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (isBlank(value))
                 return value;
             if (!isString(value)) {
-                throw new InvalidPipeArgumentException(LowerCasePipe, value);
+                throw new InvalidPipeArgumentError(LowerCasePipe, value);
             }
             return value.toLowerCase();
         };
+        LowerCasePipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'lowercase' },] },
+        ];
+        /** @nocollapse */
+        LowerCasePipe.ctorParameters = [];
         return LowerCasePipe;
     }());
-    /** @nocollapse */
-    LowerCasePipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'lowercase' },] },
-    ];
-    var defaultLocale$1 = 'en-US';
+
     var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(\-(\d+))?)?$/;
-    function formatNumber(pipe, value, style, digits, currency, currencyAsSymbol) {
+    function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSymbol) {
         if (currency === void 0) { currency = null; }
         if (currencyAsSymbol === void 0) { currencyAsSymbol = false; }
         if (isBlank(value))
@@ -1783,7 +1737,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         // Convert strings to numbers
         value = isString(value) && NumberWrapper.isNumeric(value) ? +value : value;
         if (!isNumber(value)) {
-            throw new InvalidPipeArgumentException(pipe, value);
+            throw new InvalidPipeArgumentError(pipe, value);
         }
         var minInt;
         var minFraction;
@@ -1809,7 +1763,7 @@ var __extends = (this && this.__extends) || function (d, b) {
                 maxFraction = NumberWrapper.parseIntAutoRadix(parts[5]);
             }
         }
-        return NumberFormatter.format(value, defaultLocale$1, style, {
+        return NumberFormatter.format(value, locale, style, {
             minimumIntegerDigits: minInt,
             minimumFractionDigits: minFraction,
             maximumFractionDigits: maxFraction,
@@ -1817,87 +1771,187 @@ var __extends = (this && this.__extends) || function (d, b) {
             currencyAsSymbol: currencyAsSymbol
         });
     }
+    /**
+     * WARNING: this pipe uses the Internationalization API.
+     * Therefore it is only reliable in Chrome and Opera browsers. For other browsers please use an
+     * polyfill, for example: [https://github.com/andyearnshaw/Intl.js/].
+     *
+     * Formats a number as local text. i.e. group sizing and separator and other locale-specific
+     * configurations are based on the active locale.
+     *
+     * ### Usage
+     *
+     *     expression | number[:digitInfo]
+     *
+     * where `expression` is a number and `digitInfo` has the following format:
+     *
+     *     {minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}
+     *
+     * - minIntegerDigits is the minimum number of integer digits to use. Defaults to 1.
+     * - minFractionDigits is the minimum number of digits after fraction. Defaults to 0.
+     * - maxFractionDigits is the maximum number of digits after fraction. Defaults to 3.
+     *
+     * For more information on the acceptable range for each of these numbers and other
+     * details see your native internationalization library.
+     *
+     * ### Example
+     *
+     * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='NumberPipe'}
+     *
+     * @stable
+     */
     var DecimalPipe = (function () {
-        function DecimalPipe() {
+        function DecimalPipe(_locale) {
+            this._locale = _locale;
         }
         DecimalPipe.prototype.transform = function (value, digits) {
             if (digits === void 0) { digits = null; }
-            return formatNumber(DecimalPipe, value, NumberFormatStyle.Decimal, digits);
+            return formatNumber(DecimalPipe, this._locale, value, NumberFormatStyle.Decimal, digits);
         };
+        DecimalPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'number' },] },
+        ];
+        /** @nocollapse */
+        DecimalPipe.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
+        ];
         return DecimalPipe;
     }());
-    /** @nocollapse */
-    DecimalPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'number' },] },
-    ];
+    /**
+     * WARNING: this pipe uses the Internationalization API.
+     * Therefore it is only reliable in Chrome and Opera browsers. For other browsers please use an
+     * polyfill, for example: [https://github.com/andyearnshaw/Intl.js/].
+     *
+     * Formats a number as local percent.
+     *
+     * ### Usage
+     *
+     *     expression | percent[:digitInfo]
+     *
+     * For more information about `digitInfo` see {@link DecimalPipe}
+     *
+     * ### Example
+     *
+     * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='PercentPipe'}
+     *
+     * @stable
+     */
     var PercentPipe = (function () {
-        function PercentPipe() {
+        function PercentPipe(_locale) {
+            this._locale = _locale;
         }
         PercentPipe.prototype.transform = function (value, digits) {
             if (digits === void 0) { digits = null; }
-            return formatNumber(PercentPipe, value, NumberFormatStyle.Percent, digits);
+            return formatNumber(PercentPipe, this._locale, value, NumberFormatStyle.Percent, digits);
         };
+        PercentPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'percent' },] },
+        ];
+        /** @nocollapse */
+        PercentPipe.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
+        ];
         return PercentPipe;
     }());
-    /** @nocollapse */
-    PercentPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'percent' },] },
-    ];
+    /**
+     * WARNING: this pipe uses the Internationalization API.
+     * Therefore it is only reliable in Chrome and Opera browsers. For other browsers please use an
+     * polyfill, for example: [https://github.com/andyearnshaw/Intl.js/].
+     *
+     *
+     * Formats a number as local currency.
+     *
+     * ### Usage
+     *
+     *     expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]
+     *
+     * where `currencyCode` is the ISO 4217 currency code, such as "USD" for the US dollar and
+     * "EUR" for the euro. `symbolDisplay` is a boolean indicating whether to use the currency
+     * symbol (e.g. $) or the currency code (e.g. USD) in the output. The default for this value
+     * is `false`.
+     * For more information about `digitInfo` see {@link DecimalPipe}
+     *
+     * ### Example
+     *
+     * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='CurrencyPipe'}
+     *
+     * @stable
+     */
     var CurrencyPipe = (function () {
-        function CurrencyPipe() {
+        function CurrencyPipe(_locale) {
+            this._locale = _locale;
         }
         CurrencyPipe.prototype.transform = function (value, currencyCode, symbolDisplay, digits) {
             if (currencyCode === void 0) { currencyCode = 'USD'; }
             if (symbolDisplay === void 0) { symbolDisplay = false; }
             if (digits === void 0) { digits = null; }
-            return formatNumber(CurrencyPipe, value, NumberFormatStyle.Currency, digits, currencyCode, symbolDisplay);
+            return formatNumber(CurrencyPipe, this._locale, value, NumberFormatStyle.Currency, digits, currencyCode, symbolDisplay);
         };
+        CurrencyPipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'currency' },] },
+        ];
+        /** @nocollapse */
+        CurrencyPipe.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
+        ];
         return CurrencyPipe;
     }());
-    /** @nocollapse */
-    CurrencyPipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'currency' },] },
-    ];
-    var ReplacePipe = (function () {
-        function ReplacePipe() {
-        }
-        ReplacePipe.prototype.transform = function (value, pattern, replacement) {
-            if (isBlank(value)) {
-                return value;
-            }
-            if (!this._supportedInput(value)) {
-                throw new InvalidPipeArgumentException(ReplacePipe, value);
-            }
-            var input = value.toString();
-            if (!this._supportedPattern(pattern)) {
-                throw new InvalidPipeArgumentException(ReplacePipe, pattern);
-            }
-            if (!this._supportedReplacement(replacement)) {
-                throw new InvalidPipeArgumentException(ReplacePipe, replacement);
-            }
-            if (isFunction(replacement)) {
-                var rgxPattern = isString(pattern) ? new RegExp(pattern, 'g') : pattern;
-                return StringWrapper.replaceAllMapped(input, rgxPattern, replacement);
-            }
-            if (pattern instanceof RegExp) {
-                // use the replaceAll variant
-                return StringWrapper.replaceAll(input, pattern, replacement);
-            }
-            return StringWrapper.replace(input, pattern, replacement);
-        };
-        ReplacePipe.prototype._supportedInput = function (input) { return isString(input) || isNumber(input); };
-        ReplacePipe.prototype._supportedPattern = function (pattern) {
-            return isString(pattern) || pattern instanceof RegExp;
-        };
-        ReplacePipe.prototype._supportedReplacement = function (replacement) {
-            return isString(replacement) || isFunction(replacement);
-        };
-        return ReplacePipe;
-    }());
-    /** @nocollapse */
-    ReplacePipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'replace' },] },
-    ];
+
+    /**
+     * Creates a new List or String containing only a subset (slice) of the
+     * elements.
+     *
+     * The starting index of the subset to return is specified by the `start` parameter.
+     *
+     * The ending index of the subset to return is specified by the optional `end` parameter.
+     *
+     * ### Usage
+     *
+     *     expression | slice:start[:end]
+     *
+     * All behavior is based on the expected behavior of the JavaScript API
+     * Array.prototype.slice() and String.prototype.slice()
+     *
+     * Where the input expression is a [List] or [String], and `start` is:
+     *
+     * - **a positive integer**: return the item at _start_ index and all items after
+     * in the list or string expression.
+     * - **a negative integer**: return the item at _start_ index from the end and all items after
+     * in the list or string expression.
+     * - **`|start|` greater than the size of the expression**: return an empty list or string.
+     * - **`|start|` negative greater than the size of the expression**: return entire list or
+     * string expression.
+     *
+     * and where `end` is:
+     *
+     * - **omitted**: return all items until the end of the input
+     * - **a positive integer**: return all items before _end_ index of the list or string
+     * expression.
+     * - **a negative integer**: return all items before _end_ index from the end of the list
+     * or string expression.
+     *
+     * When operating on a [List], the returned list is always a copy even when all
+     * the elements are being returned.
+     *
+     * When operating on a blank value, returns it.
+     *
+     * ## List Example
+     *
+     * This `ngFor` example:
+     *
+     * {@example core/pipes/ts/slice_pipe/slice_pipe_example.ts region='SlicePipe_list'}
+     *
+     * produces the following:
+     *
+     *     <li>b</li>
+     *     <li>c</li>
+     *
+     * ## String Examples
+     *
+     * {@example core/pipes/ts/slice_pipe/slice_pipe_example.ts region='SlicePipe_string'}
+     *
+     * @stable
+     */
     var SlicePipe = (function () {
         function SlicePipe() {
         }
@@ -1906,7 +1960,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (isBlank(value))
                 return value;
             if (!this.supports(value)) {
-                throw new InvalidPipeArgumentException(SlicePipe, value);
+                throw new InvalidPipeArgumentError(SlicePipe, value);
             }
             if (isString(value)) {
                 return StringWrapper.slice(value, start, end);
@@ -1914,12 +1968,23 @@ var __extends = (this && this.__extends) || function (d, b) {
             return ListWrapper.slice(value, start, end);
         };
         SlicePipe.prototype.supports = function (obj) { return isString(obj) || isArray(obj); };
+        SlicePipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'slice', pure: false },] },
+        ];
+        /** @nocollapse */
+        SlicePipe.ctorParameters = [];
         return SlicePipe;
     }());
-    /** @nocollapse */
-    SlicePipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'slice', pure: false },] },
-    ];
+
+    /**
+     * Implements uppercase transforms to text.
+     *
+     * ### Example
+     *
+     * {@example core/pipes/ts/lowerupper_pipe/lowerupper_pipe_example.ts region='LowerUpperPipe'}
+     *
+     * @stable
+     */
     var UpperCasePipe = (function () {
         function UpperCasePipe() {
         }
@@ -1927,2324 +1992,944 @@ var __extends = (this && this.__extends) || function (d, b) {
             if (isBlank(value))
                 return value;
             if (!isString(value)) {
-                throw new InvalidPipeArgumentException(UpperCasePipe, value);
+                throw new InvalidPipeArgumentError(UpperCasePipe, value);
             }
             return value.toUpperCase();
         };
+        UpperCasePipe.decorators = [
+            { type: _angular_core.Pipe, args: [{ name: 'uppercase' },] },
+        ];
+        /** @nocollapse */
+        UpperCasePipe.ctorParameters = [];
         return UpperCasePipe;
     }());
-    /** @nocollapse */
-    UpperCasePipe.decorators = [
-        { type: _angular_core.Pipe, args: [{ name: 'uppercase' },] },
-    ];
+
     /**
-     * A collection of Angular core pipes that are likely to be used in each and every
-     * application.
+     * The `NgClass` directive conditionally adds and removes CSS classes on an HTML element based on
+     * an expression's evaluation result.
      *
-     * This collection can be used to quickly enumerate all the built-in pipes in the `pipes`
-     * property of the `@Component` decorator.
+     * The result of an expression evaluation is interpreted differently depending on type of
+     * the expression evaluation result:
+     * - `string` - all the CSS classes listed in a string (space delimited) are added
+     * - `Array` - all the CSS classes (Array elements) are added
+     * - `Object` - each key corresponds to a CSS class name while values are interpreted as expressions
+     * evaluating to `Boolean`. If a given expression evaluates to `true` a corresponding CSS class
+     * is added - otherwise it is removed.
      *
-     * @experimental Contains i18n pipes which are experimental
-     */
-    var COMMON_PIPES = [
-        AsyncPipe,
-        UpperCasePipe,
-        LowerCasePipe,
-        JsonPipe,
-        SlicePipe,
-        DecimalPipe,
-        PercentPipe,
-        CurrencyPipe,
-        DatePipe,
-        ReplacePipe,
-        I18nPluralPipe,
-        I18nSelectPipe,
-    ];
-    /**
-     * Used to provide a {@link ControlValueAccessor} for form controls.
+     * While the `NgClass` directive can interpret expressions evaluating to `string`, `Array`
+     * or `Object`, the `Object`-based version is the most often used and has an advantage of keeping
+     * all the CSS class names in a template.
      *
-     * See {@link DefaultValueAccessor} for how to implement one.
-     * @experimental
-     */
-    var NG_VALUE_ACCESSOR = new _angular_core.OpaqueToken('NgValueAccessor');
-    var CHECKBOX_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return CheckboxControlValueAccessor; }),
-        multi: true
-    };
-    var CheckboxControlValueAccessor = (function () {
-        function CheckboxControlValueAccessor(_renderer, _elementRef) {
-            this._renderer = _renderer;
-            this._elementRef = _elementRef;
-            this.onChange = function (_) { };
-            this.onTouched = function () { };
-        }
-        CheckboxControlValueAccessor.prototype.writeValue = function (value) {
-            this._renderer.setElementProperty(this._elementRef.nativeElement, 'checked', value);
-        };
-        CheckboxControlValueAccessor.prototype.registerOnChange = function (fn) { this.onChange = fn; };
-        CheckboxControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        return CheckboxControlValueAccessor;
-    }());
-    /** @nocollapse */
-    CheckboxControlValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'input[type=checkbox][ngControl],input[type=checkbox][ngFormControl],input[type=checkbox][ngModel]',
-                    host: { '(change)': 'onChange($event.target.checked)', '(blur)': 'onTouched()' },
-                    providers: [CHECKBOX_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    CheckboxControlValueAccessor.ctorParameters = [
-        { type: _angular_core.Renderer, },
-        { type: _angular_core.ElementRef, },
-    ];
-    var DEFAULT_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return DefaultValueAccessor; }),
-        multi: true
-    };
-    var DefaultValueAccessor = (function () {
-        function DefaultValueAccessor(_renderer, _elementRef) {
-            this._renderer = _renderer;
-            this._elementRef = _elementRef;
-            this.onChange = function (_) { };
-            this.onTouched = function () { };
-        }
-        DefaultValueAccessor.prototype.writeValue = function (value) {
-            var normalizedValue = isBlank(value) ? '' : value;
-            this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
-        };
-        DefaultValueAccessor.prototype.registerOnChange = function (fn) { this.onChange = fn; };
-        DefaultValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        return DefaultValueAccessor;
-    }());
-    /** @nocollapse */
-    DefaultValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'input:not([type=checkbox])[ngControl],textarea[ngControl],input:not([type=checkbox])[ngFormControl],textarea[ngFormControl],input:not([type=checkbox])[ngModel],textarea[ngModel],[ngDefaultControl]',
-                    // TODO: vsavkin replace the above selector with the one below it once
-                    // https://github.com/angular/angular/issues/3011 is implemented
-                    // selector: '[ngControl],[ngModel],[ngFormControl]',
-                    host: { '(input)': 'onChange($event.target.value)', '(blur)': 'onTouched()' },
-                    providers: [DEFAULT_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    DefaultValueAccessor.ctorParameters = [
-        { type: _angular_core.Renderer, },
-        { type: _angular_core.ElementRef, },
-    ];
-    /**
-     * Providers for validators to be used for {@link Control}s in a form.
-     *
-     * Provide this using `multi: true` to add validators.
-     *
-     * ### Example
-     *
-     * {@example core/forms/ts/ng_validators/ng_validators.ts region='ng_validators'}
-     * @experimental
-     */
-    var NG_VALIDATORS = new _angular_core.OpaqueToken('NgValidators');
-    /**
-     * Providers for asynchronous validators to be used for {@link Control}s
-     * in a form.
-     *
-     * Provide this using `multi: true` to add validators.
-     *
-     * See {@link NG_VALIDATORS} for more details.
-     *
-     * @experimental
-     */
-    var NG_ASYNC_VALIDATORS = new _angular_core.OpaqueToken('NgAsyncValidators');
-    /**
-     * Provides a set of validators used by form controls.
-     *
-     * A validator is a function that processes a {@link Control} or collection of
-     * controls and returns a map of errors. A null map means that validation has passed.
-     *
-     * ### Example
-     *
-     * ```typescript
-     * var loginControl = new Control("", Validators.required)
-     * ```
-     *
-     * @experimental
-     */
-    var Validators = (function () {
-        function Validators() {
-        }
-        /**
-         * Validator that requires controls to have a non-empty value.
-         */
-        Validators.required = function (control) {
-            return isBlank(control.value) || (isString(control.value) && control.value == '') ?
-                { 'required': true } :
-                null;
-        };
-        /**
-         * Validator that requires controls to have a value of a minimum length.
-         */
-        Validators.minLength = function (minLength) {
-            return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
-                var v = control.value;
-                return v.length < minLength ?
-                    { 'minlength': { 'requiredLength': minLength, 'actualLength': v.length } } :
-                    null;
-            };
-        };
-        /**
-         * Validator that requires controls to have a value of a maximum length.
-         */
-        Validators.maxLength = function (maxLength) {
-            return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
-                var v = control.value;
-                return v.length > maxLength ?
-                    { 'maxlength': { 'requiredLength': maxLength, 'actualLength': v.length } } :
-                    null;
-            };
-        };
-        /**
-         * Validator that requires a control to match a regex to its value.
-         */
-        Validators.pattern = function (pattern) {
-            return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
-                var regex = new RegExp("^" + pattern + "$");
-                var v = control.value;
-                return regex.test(v) ? null :
-                    { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': v } };
-            };
-        };
-        /**
-         * No-op validator.
-         */
-        Validators.nullValidator = function (c) { return null; };
-        /**
-         * Compose multiple validators into a single function that returns the union
-         * of the individual error maps.
-         */
-        Validators.compose = function (validators) {
-            if (isBlank(validators))
-                return null;
-            var presentValidators = validators.filter(isPresent);
-            if (presentValidators.length == 0)
-                return null;
-            return function (control) {
-                return _mergeErrors(_executeValidators(control, presentValidators));
-            };
-        };
-        Validators.composeAsync = function (validators) {
-            if (isBlank(validators))
-                return null;
-            var presentValidators = validators.filter(isPresent);
-            if (presentValidators.length == 0)
-                return null;
-            return function (control) {
-                var promises = _executeAsyncValidators(control, presentValidators).map(_convertToPromise);
-                return Promise.all(promises).then(_mergeErrors);
-            };
-        };
-        return Validators;
-    }());
-    function _convertToPromise(obj) {
-        return isPromise(obj) ? obj : rxjs_operator_toPromise.toPromise.call(obj);
-    }
-    function _executeValidators(control, validators) {
-        return validators.map(function (v) { return v(control); });
-    }
-    function _executeAsyncValidators(control, validators) {
-        return validators.map(function (v) { return v(control); });
-    }
-    function _mergeErrors(arrayOfErrors) {
-        var res = arrayOfErrors.reduce(function (res, errors) {
-            return isPresent(errors) ? StringMapWrapper.merge(res, errors) : res;
-        }, {});
-        return StringMapWrapper.isEmpty(res) ? null : res;
-    }
-    /**
-     * Base class for control directives.
-     *
-     * Only used internally in the forms module.
-     *
-     * @experimental
-     */
-    var AbstractControlDirective = (function () {
-        function AbstractControlDirective() {
-        }
-        Object.defineProperty(AbstractControlDirective.prototype, "control", {
-            get: function () { return unimplemented(); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "value", {
-            get: function () { return isPresent(this.control) ? this.control.value : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "valid", {
-            get: function () { return isPresent(this.control) ? this.control.valid : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "errors", {
-            get: function () {
-                return isPresent(this.control) ? this.control.errors : null;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "pristine", {
-            get: function () { return isPresent(this.control) ? this.control.pristine : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "dirty", {
-            get: function () { return isPresent(this.control) ? this.control.dirty : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "touched", {
-            get: function () { return isPresent(this.control) ? this.control.touched : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "untouched", {
-            get: function () { return isPresent(this.control) ? this.control.untouched : null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControlDirective.prototype, "path", {
-            get: function () { return null; },
-            enumerable: true,
-            configurable: true
-        });
-        return AbstractControlDirective;
-    }());
-    /**
-     * A directive that contains multiple {@link NgControl}s.
-     *
-     * Only used by the forms module.
-     *
-     * @experimental
-     */
-    var ControlContainer = (function (_super) {
-        __extends(ControlContainer, _super);
-        function ControlContainer() {
-            _super.apply(this, arguments);
-        }
-        Object.defineProperty(ControlContainer.prototype, "formDirective", {
-            /**
-             * Get the form to which this container belongs.
-             */
-            get: function () { return null; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ControlContainer.prototype, "path", {
-            /**
-             * Get the path to this container.
-             */
-            get: function () { return null; },
-            enumerable: true,
-            configurable: true
-        });
-        return ControlContainer;
-    }(AbstractControlDirective));
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    function normalizeValidator(validator) {
-        if (validator.validate !== undefined) {
-            return function (c) { return validator.validate(c); };
-        }
-        else {
-            return validator;
-        }
-    }
-    function normalizeAsyncValidator(validator) {
-        if (validator.validate !== undefined) {
-            return function (c) { return validator.validate(c); };
-        }
-        else {
-            return validator;
-        }
-    }
-    var NUMBER_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return NumberValueAccessor; }),
-        multi: true
-    };
-    var NumberValueAccessor = (function () {
-        function NumberValueAccessor(_renderer, _elementRef) {
-            this._renderer = _renderer;
-            this._elementRef = _elementRef;
-            this.onChange = function (_) { };
-            this.onTouched = function () { };
-        }
-        NumberValueAccessor.prototype.writeValue = function (value) {
-            // The value needs to be normalized for IE9, otherwise it is set to 'null' when null
-            var normalizedValue = isBlank(value) ? '' : value;
-            this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
-        };
-        NumberValueAccessor.prototype.registerOnChange = function (fn) {
-            this.onChange = function (value) { fn(value == '' ? null : NumberWrapper.parseFloat(value)); };
-        };
-        NumberValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        return NumberValueAccessor;
-    }());
-    /** @nocollapse */
-    NumberValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'input[type=number][ngControl],input[type=number][ngFormControl],input[type=number][ngModel]',
-                    host: {
-                        '(change)': 'onChange($event.target.value)',
-                        '(input)': 'onChange($event.target.value)',
-                        '(blur)': 'onTouched()'
-                    },
-                    providers: [NUMBER_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    NumberValueAccessor.ctorParameters = [
-        { type: _angular_core.Renderer, },
-        { type: _angular_core.ElementRef, },
-    ];
-    /**
-     * A base class that all control directive extend.
-     * It binds a {@link Control} object to a DOM element.
-     *
-     * Used internally by Angular forms.
-     *
-     * @experimental
-     */
-    var NgControl = (function (_super) {
-        __extends(NgControl, _super);
-        function NgControl() {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            _super.apply(this, args);
-            this.name = null;
-            this.valueAccessor = null;
-        }
-        Object.defineProperty(NgControl.prototype, "validator", {
-            get: function () { return unimplemented(); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControl.prototype, "asyncValidator", {
-            get: function () { return unimplemented(); },
-            enumerable: true,
-            configurable: true
-        });
-        return NgControl;
-    }(AbstractControlDirective));
-    var RADIO_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return RadioControlValueAccessor; }),
-        multi: true
-    };
-    var RadioControlRegistry = (function () {
-        function RadioControlRegistry() {
-            this._accessors = [];
-        }
-        RadioControlRegistry.prototype.add = function (control, accessor) {
-            this._accessors.push([control, accessor]);
-        };
-        RadioControlRegistry.prototype.remove = function (accessor) {
-            var indexToRemove = -1;
-            for (var i = 0; i < this._accessors.length; ++i) {
-                if (this._accessors[i][1] === accessor) {
-                    indexToRemove = i;
-                }
-            }
-            ListWrapper.removeAt(this._accessors, indexToRemove);
-        };
-        RadioControlRegistry.prototype.select = function (accessor) {
-            var _this = this;
-            this._accessors.forEach(function (c) {
-                if (_this._isSameGroup(c, accessor) && c[1] !== accessor) {
-                    c[1].fireUncheck();
-                }
-            });
-        };
-        RadioControlRegistry.prototype._isSameGroup = function (controlPair, accessor) {
-            return controlPair[0].control.root === accessor._control.control.root &&
-                controlPair[1].name === accessor.name;
-        };
-        return RadioControlRegistry;
-    }());
-    /** @nocollapse */
-    RadioControlRegistry.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /**
-     * The value provided by the forms API for radio buttons.
-     *
-     * @experimental
-     */
-    var RadioButtonState = (function () {
-        function RadioButtonState(checked, value) {
-            this.checked = checked;
-            this.value = value;
-        }
-        return RadioButtonState;
-    }());
-    var RadioControlValueAccessor = (function () {
-        function RadioControlValueAccessor(_renderer, _elementRef, _registry, _injector) {
-            this._renderer = _renderer;
-            this._elementRef = _elementRef;
-            this._registry = _registry;
-            this._injector = _injector;
-            this.onChange = function () { };
-            this.onTouched = function () { };
-        }
-        RadioControlValueAccessor.prototype.ngOnInit = function () {
-            this._control = this._injector.get(NgControl);
-            this._registry.add(this._control, this);
-        };
-        RadioControlValueAccessor.prototype.ngOnDestroy = function () { this._registry.remove(this); };
-        RadioControlValueAccessor.prototype.writeValue = function (value) {
-            this._state = value;
-            if (isPresent(value) && value.checked) {
-                this._renderer.setElementProperty(this._elementRef.nativeElement, 'checked', true);
-            }
-        };
-        RadioControlValueAccessor.prototype.registerOnChange = function (fn) {
-            var _this = this;
-            this._fn = fn;
-            this.onChange = function () {
-                fn(new RadioButtonState(true, _this._state.value));
-                _this._registry.select(_this);
-            };
-        };
-        RadioControlValueAccessor.prototype.fireUncheck = function () { this._fn(new RadioButtonState(false, this._state.value)); };
-        RadioControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        return RadioControlValueAccessor;
-    }());
-    /** @nocollapse */
-    RadioControlValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'input[type=radio][ngControl],input[type=radio][ngFormControl],input[type=radio][ngModel]',
-                    host: { '(change)': 'onChange()', '(blur)': 'onTouched()' },
-                    providers: [RADIO_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    RadioControlValueAccessor.ctorParameters = [
-        { type: _angular_core.Renderer, },
-        { type: _angular_core.ElementRef, },
-        { type: RadioControlRegistry, },
-        { type: _angular_core.Injector, },
-    ];
-    /** @nocollapse */
-    RadioControlValueAccessor.propDecorators = {
-        'name': [{ type: _angular_core.Input },],
-    };
-    var SELECT_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return SelectControlValueAccessor; }),
-        multi: true
-    };
-    function _buildValueString(id, value) {
-        if (isBlank(id))
-            return "" + value;
-        if (!isPrimitive(value))
-            value = 'Object';
-        return StringWrapper.slice(id + ": " + value, 0, 50);
-    }
-    function _extractId(valueString) {
-        return valueString.split(':')[0];
-    }
-    var SelectControlValueAccessor = (function () {
-        function SelectControlValueAccessor(_renderer, _elementRef) {
-            this._renderer = _renderer;
-            this._elementRef = _elementRef;
-            /** @internal */
-            this._optionMap = new Map();
-            /** @internal */
-            this._idCounter = 0;
-            this.onChange = function (_) { };
-            this.onTouched = function () { };
-        }
-        SelectControlValueAccessor.prototype.writeValue = function (value) {
-            this.value = value;
-            var valueString = _buildValueString(this._getOptionId(value), value);
-            this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', valueString);
-        };
-        SelectControlValueAccessor.prototype.registerOnChange = function (fn) {
-            var _this = this;
-            this.onChange = function (valueString) {
-                _this.value = valueString;
-                fn(_this._getOptionValue(valueString));
-            };
-        };
-        SelectControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        /** @internal */
-        SelectControlValueAccessor.prototype._registerOption = function () { return (this._idCounter++).toString(); };
-        /** @internal */
-        SelectControlValueAccessor.prototype._getOptionId = function (value) {
-            for (var _i = 0, _a = MapWrapper.keys(this._optionMap); _i < _a.length; _i++) {
-                var id = _a[_i];
-                if (looseIdentical(this._optionMap.get(id), value))
-                    return id;
-            }
-            return null;
-        };
-        /** @internal */
-        SelectControlValueAccessor.prototype._getOptionValue = function (valueString) {
-            var value = this._optionMap.get(_extractId(valueString));
-            return isPresent(value) ? value : valueString;
-        };
-        return SelectControlValueAccessor;
-    }());
-    /** @nocollapse */
-    SelectControlValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'select:not([multiple])[ngControl],select:not([multiple])[ngFormControl],select:not([multiple])[ngModel]',
-                    host: { '(change)': 'onChange($event.target.value)', '(blur)': 'onTouched()' },
-                    providers: [SELECT_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    SelectControlValueAccessor.ctorParameters = [
-        { type: _angular_core.Renderer, },
-        { type: _angular_core.ElementRef, },
-    ];
-    var NgSelectOption = (function () {
-        function NgSelectOption(_element, _renderer, _select) {
-            this._element = _element;
-            this._renderer = _renderer;
-            this._select = _select;
-            if (isPresent(this._select))
-                this.id = this._select._registerOption();
-        }
-        Object.defineProperty(NgSelectOption.prototype, "ngValue", {
-            set: function (value) {
-                if (this._select == null)
-                    return;
-                this._select._optionMap.set(this.id, value);
-                this._setElementValue(_buildValueString(this.id, value));
-                this._select.writeValue(this._select.value);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgSelectOption.prototype, "value", {
-            set: function (value) {
-                this._setElementValue(value);
-                if (isPresent(this._select))
-                    this._select.writeValue(this._select.value);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** @internal */
-        NgSelectOption.prototype._setElementValue = function (value) {
-            this._renderer.setElementProperty(this._element.nativeElement, 'value', value);
-        };
-        NgSelectOption.prototype.ngOnDestroy = function () {
-            if (isPresent(this._select)) {
-                this._select._optionMap.delete(this.id);
-                this._select.writeValue(this._select.value);
-            }
-        };
-        return NgSelectOption;
-    }());
-    /** @nocollapse */
-    NgSelectOption.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: 'option' },] },
-    ];
-    /** @nocollapse */
-    NgSelectOption.ctorParameters = [
-        { type: _angular_core.ElementRef, },
-        { type: _angular_core.Renderer, },
-        { type: SelectControlValueAccessor, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Host },] },
-    ];
-    /** @nocollapse */
-    NgSelectOption.propDecorators = {
-        'ngValue': [{ type: _angular_core.Input, args: ['ngValue',] },],
-        'value': [{ type: _angular_core.Input, args: ['value',] },],
-    };
-    var SELECT_MULTIPLE_VALUE_ACCESSOR = {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: _angular_core.forwardRef(function () { return SelectMultipleControlValueAccessor; }),
-        multi: true
-    };
-    function _buildValueString$1(id, value) {
-        if (isBlank(id))
-            return "" + value;
-        if (isString(value))
-            value = "'" + value + "'";
-        if (!isPrimitive(value))
-            value = 'Object';
-        return StringWrapper.slice(id + ": " + value, 0, 50);
-    }
-    function _extractId$1(valueString) {
-        return valueString.split(':')[0];
-    }
-    var SelectMultipleControlValueAccessor = (function () {
-        function SelectMultipleControlValueAccessor() {
-            /** @internal */
-            this._optionMap = new Map();
-            /** @internal */
-            this._idCounter = 0;
-            this.onChange = function (_) { };
-            this.onTouched = function () { };
-        }
-        SelectMultipleControlValueAccessor.prototype.writeValue = function (value) {
-            var _this = this;
-            this.value = value;
-            if (value == null)
-                return;
-            var values = value;
-            // convert values to ids
-            var ids = values.map(function (v) { return _this._getOptionId(v); });
-            this._optionMap.forEach(function (opt, o) { opt._setSelected(ids.indexOf(o.toString()) > -1); });
-        };
-        SelectMultipleControlValueAccessor.prototype.registerOnChange = function (fn) {
-            var _this = this;
-            this.onChange = function (_) {
-                var selected = [];
-                if (_.hasOwnProperty('selectedOptions')) {
-                    var options = _.selectedOptions;
-                    for (var i = 0; i < options.length; i++) {
-                        var opt = options.item(i);
-                        var val = _this._getOptionValue(opt.value);
-                        selected.push(val);
-                    }
-                }
-                else {
-                    var options = _.options;
-                    for (var i = 0; i < options.length; i++) {
-                        var opt = options.item(i);
-                        if (opt.selected) {
-                            var val = _this._getOptionValue(opt.value);
-                            selected.push(val);
-                        }
-                    }
-                }
-                fn(selected);
-            };
-        };
-        SelectMultipleControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
-        /** @internal */
-        SelectMultipleControlValueAccessor.prototype._registerOption = function (value) {
-            var id = (this._idCounter++).toString();
-            this._optionMap.set(id, value);
-            return id;
-        };
-        /** @internal */
-        SelectMultipleControlValueAccessor.prototype._getOptionId = function (value) {
-            for (var _i = 0, _a = MapWrapper.keys(this._optionMap); _i < _a.length; _i++) {
-                var id = _a[_i];
-                if (looseIdentical(this._optionMap.get(id)._value, value))
-                    return id;
-            }
-            return null;
-        };
-        /** @internal */
-        SelectMultipleControlValueAccessor.prototype._getOptionValue = function (valueString) {
-            var opt = this._optionMap.get(_extractId$1(valueString));
-            return isPresent(opt) ? opt._value : valueString;
-        };
-        return SelectMultipleControlValueAccessor;
-    }());
-    /** @nocollapse */
-    SelectMultipleControlValueAccessor.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'select[multiple][ngControl],select[multiple][ngFormControl],select[multiple][ngModel]',
-                    host: { '(change)': 'onChange($event.target)', '(blur)': 'onTouched()' },
-                    providers: [SELECT_MULTIPLE_VALUE_ACCESSOR]
-                },] },
-    ];
-    /** @nocollapse */
-    SelectMultipleControlValueAccessor.ctorParameters = [];
-    var NgSelectMultipleOption = (function () {
-        function NgSelectMultipleOption(_element, _renderer, _select) {
-            this._element = _element;
-            this._renderer = _renderer;
-            this._select = _select;
-            if (isPresent(this._select)) {
-                this.id = this._select._registerOption(this);
-            }
-        }
-        Object.defineProperty(NgSelectMultipleOption.prototype, "ngValue", {
-            set: function (value) {
-                if (this._select == null)
-                    return;
-                this._value = value;
-                this._setElementValue(_buildValueString$1(this.id, value));
-                this._select.writeValue(this._select.value);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgSelectMultipleOption.prototype, "value", {
-            set: function (value) {
-                if (isPresent(this._select)) {
-                    this._value = value;
-                    this._setElementValue(_buildValueString$1(this.id, value));
-                    this._select.writeValue(this._select.value);
-                }
-                else {
-                    this._setElementValue(value);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /** @internal */
-        NgSelectMultipleOption.prototype._setElementValue = function (value) {
-            this._renderer.setElementProperty(this._element.nativeElement, 'value', value);
-        };
-        /** @internal */
-        NgSelectMultipleOption.prototype._setSelected = function (selected) {
-            this._renderer.setElementProperty(this._element.nativeElement, 'selected', selected);
-        };
-        NgSelectMultipleOption.prototype.ngOnDestroy = function () {
-            if (isPresent(this._select)) {
-                this._select._optionMap.delete(this.id);
-                this._select.writeValue(this._select.value);
-            }
-        };
-        return NgSelectMultipleOption;
-    }());
-    /** @nocollapse */
-    NgSelectMultipleOption.decorators = [
-        { type: _angular_core.Directive, args: [{ selector: 'option' },] },
-    ];
-    /** @nocollapse */
-    NgSelectMultipleOption.ctorParameters = [
-        { type: _angular_core.ElementRef, },
-        { type: _angular_core.Renderer, },
-        { type: SelectMultipleControlValueAccessor, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Host },] },
-    ];
-    /** @nocollapse */
-    NgSelectMultipleOption.propDecorators = {
-        'ngValue': [{ type: _angular_core.Input, args: ['ngValue',] },],
-        'value': [{ type: _angular_core.Input, args: ['value',] },],
-    };
-    function controlPath(name, parent) {
-        var p = ListWrapper.clone(parent.path);
-        p.push(name);
-        return p;
-    }
-    function setUpControl(control, dir) {
-        if (isBlank(control))
-            _throwError(dir, 'Cannot find control with');
-        if (isBlank(dir.valueAccessor))
-            _throwError(dir, 'No value accessor for form control with');
-        control.validator = Validators.compose([control.validator, dir.validator]);
-        control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
-        dir.valueAccessor.writeValue(control.value);
-        // view -> model
-        dir.valueAccessor.registerOnChange(function (newValue) {
-            dir.viewToModelUpdate(newValue);
-            control.updateValue(newValue, { emitModelToViewChange: false });
-            control.markAsDirty();
-        });
-        // model -> view
-        control.registerOnChange(function (newValue) { return dir.valueAccessor.writeValue(newValue); });
-        // touched
-        dir.valueAccessor.registerOnTouched(function () { return control.markAsTouched(); });
-    }
-    function setUpControlGroup(control, dir) {
-        if (isBlank(control))
-            _throwError(dir, 'Cannot find control with');
-        control.validator = Validators.compose([control.validator, dir.validator]);
-        control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
-    }
-    function _throwError(dir, message) {
-        var messageEnd;
-        if (dir.path.length > 1) {
-            messageEnd = "path: '" + dir.path.join(' -> ') + "'";
-        }
-        else if (dir.path[0]) {
-            messageEnd = "name: '" + dir.path + "'";
-        }
-        else {
-            messageEnd = 'unspecified name';
-        }
-        throw new BaseException(message + " " + messageEnd);
-    }
-    function composeValidators(validators) {
-        return isPresent(validators) ? Validators.compose(validators.map(normalizeValidator)) : null;
-    }
-    function composeAsyncValidators(validators) {
-        return isPresent(validators) ? Validators.composeAsync(validators.map(normalizeAsyncValidator)) :
-            null;
-    }
-    function isPropertyUpdated(changes, viewModel) {
-        if (!StringMapWrapper.contains(changes, 'model'))
-            return false;
-        var change = changes['model'];
-        if (change.isFirstChange())
-            return true;
-        return !looseIdentical(viewModel, change.currentValue);
-    }
-    // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
-    function selectValueAccessor(dir, valueAccessors) {
-        if (isBlank(valueAccessors))
-            return null;
-        var defaultAccessor;
-        var builtinAccessor;
-        var customAccessor;
-        valueAccessors.forEach(function (v) {
-            if (hasConstructor(v, DefaultValueAccessor)) {
-                defaultAccessor = v;
-            }
-            else if (hasConstructor(v, CheckboxControlValueAccessor) || hasConstructor(v, NumberValueAccessor) ||
-                hasConstructor(v, SelectControlValueAccessor) ||
-                hasConstructor(v, SelectMultipleControlValueAccessor) ||
-                hasConstructor(v, RadioControlValueAccessor)) {
-                if (isPresent(builtinAccessor))
-                    _throwError(dir, 'More than one built-in value accessor matches form control with');
-                builtinAccessor = v;
-            }
-            else {
-                if (isPresent(customAccessor))
-                    _throwError(dir, 'More than one custom value accessor matches form control with');
-                customAccessor = v;
-            }
-        });
-        if (isPresent(customAccessor))
-            return customAccessor;
-        if (isPresent(builtinAccessor))
-            return builtinAccessor;
-        if (isPresent(defaultAccessor))
-            return defaultAccessor;
-        _throwError(dir, 'No valid value accessor for form control with');
-        return null;
-    }
-    var controlGroupProvider = {
-        provide: ControlContainer,
-        useExisting: _angular_core.forwardRef(function () { return NgControlGroup; })
-    };
-    var NgControlGroup = (function (_super) {
-        __extends(NgControlGroup, _super);
-        function NgControlGroup(parent, _validators, _asyncValidators) {
-            _super.call(this);
-            this._validators = _validators;
-            this._asyncValidators = _asyncValidators;
-            this._parent = parent;
-        }
-        NgControlGroup.prototype.ngOnInit = function () { this.formDirective.addControlGroup(this); };
-        NgControlGroup.prototype.ngOnDestroy = function () { this.formDirective.removeControlGroup(this); };
-        Object.defineProperty(NgControlGroup.prototype, "control", {
-            /**
-             * Get the {@link ControlGroup} backing this binding.
-             */
-            get: function () { return this.formDirective.getControlGroup(this); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlGroup.prototype, "path", {
-            /**
-             * Get the path to this control group.
-             */
-            get: function () { return controlPath(this.name, this._parent); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlGroup.prototype, "formDirective", {
-            /**
-             * Get the {@link Form} to which this group belongs.
-             */
-            get: function () { return this._parent.formDirective; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlGroup.prototype, "validator", {
-            get: function () { return composeValidators(this._validators); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlGroup.prototype, "asyncValidator", {
-            get: function () { return composeAsyncValidators(this._asyncValidators); },
-            enumerable: true,
-            configurable: true
-        });
-        return NgControlGroup;
-    }(ControlContainer));
-    /** @nocollapse */
-    NgControlGroup.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngControlGroup]',
-                    providers: [controlGroupProvider],
-                    inputs: ['name: ngControlGroup'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgControlGroup.ctorParameters = [
-        { type: ControlContainer, decorators: [{ type: _angular_core.Host }, { type: _angular_core.SkipSelf },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-    ];
-    /**
-     * Use by directives and components to emit custom Events.
-     *
-     * ### Examples
-     *
-     * In the following example, `Zippy` alternatively emits `open` and `close` events when its
-     * title gets clicked:
+     * ### Example ([live demo](http://plnkr.co/edit/a4YdtmWywhJ33uqfpPPn?p=preview)):
      *
      * ```
+     * import {Component} from '@angular/core';
+     * import {NgClass} from '@angular/common';
+     *
      * @Component({
-     *   selector: 'zippy',
+     *   selector: 'toggle-button',
+     *   inputs: ['isDisabled'],
      *   template: `
-     *   <div class="zippy">
-     *     <div (click)="toggle()">Toggle</div>
-     *     <div [hidden]="!visible">
-     *       <ng-content></ng-content>
-     *     </div>
-     *  </div>`})
-     * export class Zippy {
-     *   visible: boolean = true;
-     *   @Output() open: EventEmitter<any> = new EventEmitter();
-     *   @Output() close: EventEmitter<any> = new EventEmitter();
+     *      <div class="button" [ngClass]="{active: isOn, disabled: isDisabled}"
+     *          (click)="toggle(!isOn)">
+     *          Click me!
+     *      </div>`,
+     *   styles: [`
+     *     .button {
+     *       width: 120px;
+     *       border: medium solid black;
+     *     }
      *
-     *   toggle() {
-     *     this.visible = !this.visible;
-     *     if (this.visible) {
-     *       this.open.emit(null);
-     *     } else {
-     *       this.close.emit(null);
+     *     .active {
+     *       background-color: red;
+     *    }
+     *
+     *     .disabled {
+     *       color: gray;
+     *       border: medium solid gray;
+     *     }
+     *   `],
+     *   directives: [NgClass]
+     * })
+     * class ToggleButton {
+     *   isOn = false;
+     *   isDisabled = false;
+     *
+     *   toggle(newState) {
+     *     if (!this.isDisabled) {
+     *       this.isOn = newState;
      *     }
      *   }
      * }
      * ```
      *
-     * The events payload can be accessed by the parameter `$event` on the components output event
-     * handler:
-     *
-     * ```
-     * <zippy (open)="onOpen($event)" (close)="onClose($event)"></zippy>
-     * ```
-     *
-     * Uses Rx.Observable but provides an adapter to make it work as specified here:
-     * https://github.com/jhusain/observable-spec
-     *
-     * Once a reference implementation of the spec is available, switch to it.
      * @stable
      */
-    var EventEmitter$1 = (function (_super) {
-        __extends(EventEmitter$1, _super);
-        /**
-         * Creates an instance of [EventEmitter], which depending on [isAsync],
-         * delivers events synchronously or asynchronously.
-         */
-        function EventEmitter$1(isAsync) {
-            if (isAsync === void 0) { isAsync = false; }
-            _super.call(this);
-            this.__isAsync = isAsync;
+    var NgClass = (function () {
+        function NgClass(_iterableDiffers, _keyValueDiffers, _ngEl, _renderer) {
+            this._iterableDiffers = _iterableDiffers;
+            this._keyValueDiffers = _keyValueDiffers;
+            this._ngEl = _ngEl;
+            this._renderer = _renderer;
+            this._initialClasses = [];
         }
-        EventEmitter$1.prototype.emit = function (value) { _super.prototype.next.call(this, value); };
-        /**
-         * @deprecated - use .emit(value) instead
-         */
-        EventEmitter$1.prototype.next = function (value) { _super.prototype.next.call(this, value); };
-        EventEmitter$1.prototype.subscribe = function (generatorOrNext, error, complete) {
-            var schedulerFn;
-            var errorFn = function (err) { return null; };
-            var completeFn = function () { return null; };
-            if (generatorOrNext && typeof generatorOrNext === 'object') {
-                schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
-                    setTimeout(function () { return generatorOrNext.next(value); });
-                } : function (value /** TODO #9100 */) { generatorOrNext.next(value); };
-                if (generatorOrNext.error) {
-                    errorFn = this.__isAsync ? function (err) { setTimeout(function () { return generatorOrNext.error(err); }); } :
-                        function (err) { generatorOrNext.error(err); };
+        Object.defineProperty(NgClass.prototype, "initialClasses", {
+            set: function (v) {
+                this._applyInitialClasses(true);
+                this._initialClasses = isPresent(v) && isString(v) ? v.split(' ') : [];
+                this._applyInitialClasses(false);
+                this._applyClasses(this._rawClass, false);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NgClass.prototype, "ngClass", {
+            set: function (v) {
+                this._cleanupClasses(this._rawClass);
+                if (isString(v)) {
+                    v = v.split(' ');
                 }
-                if (generatorOrNext.complete) {
-                    completeFn = this.__isAsync ? function () { setTimeout(function () { return generatorOrNext.complete(); }); } :
-                        function () { generatorOrNext.complete(); };
-                }
-            }
-            else {
-                schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
-                    setTimeout(function () { return generatorOrNext(value); });
-                } : function (value /** TODO #9100 */) { generatorOrNext(value); };
-                if (error) {
-                    errorFn =
-                        this.__isAsync ? function (err) { setTimeout(function () { return error(err); }); } : function (err) { error(err); };
-                }
-                if (complete) {
-                    completeFn =
-                        this.__isAsync ? function () { setTimeout(function () { return complete(); }); } : function () { complete(); };
-                }
-            }
-            return _super.prototype.subscribe.call(this, schedulerFn, errorFn, completeFn);
-        };
-        return EventEmitter$1;
-    }(rxjs_Subject.Subject));
-    var controlNameBinding = {
-        provide: NgControl,
-        useExisting: _angular_core.forwardRef(function () { return NgControlName; })
-    };
-    var NgControlName = (function (_super) {
-        __extends(NgControlName, _super);
-        function NgControlName(_parent, _validators, _asyncValidators, valueAccessors) {
-            _super.call(this);
-            this._parent = _parent;
-            this._validators = _validators;
-            this._asyncValidators = _asyncValidators;
-            /** @internal */
-            this.update = new EventEmitter$1();
-            this._added = false;
-            this.valueAccessor = selectValueAccessor(this, valueAccessors);
-        }
-        NgControlName.prototype.ngOnChanges = function (changes) {
-            if (!this._added) {
-                this.formDirective.addControl(this);
-                this._added = true;
-            }
-            if (isPropertyUpdated(changes, this.viewModel)) {
-                this.viewModel = this.model;
-                this.formDirective.updateModel(this, this.model);
-            }
-        };
-        NgControlName.prototype.ngOnDestroy = function () { this.formDirective.removeControl(this); };
-        NgControlName.prototype.viewToModelUpdate = function (newValue) {
-            this.viewModel = newValue;
-            this.update.emit(newValue);
-        };
-        Object.defineProperty(NgControlName.prototype, "path", {
-            get: function () { return controlPath(this.name, this._parent); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlName.prototype, "formDirective", {
-            get: function () { return this._parent.formDirective; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlName.prototype, "validator", {
-            get: function () { return composeValidators(this._validators); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlName.prototype, "asyncValidator", {
-            get: function () {
-                return composeAsyncValidators(this._asyncValidators);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlName.prototype, "control", {
-            get: function () { return this.formDirective.getControl(this); },
-            enumerable: true,
-            configurable: true
-        });
-        return NgControlName;
-    }(NgControl));
-    /** @nocollapse */
-    NgControlName.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngControl]',
-                    providers: [controlNameBinding],
-                    inputs: ['name: ngControl', 'model: ngModel'],
-                    outputs: ['update: ngModelChange'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgControlName.ctorParameters = [
-        { type: ControlContainer, decorators: [{ type: _angular_core.Host }, { type: _angular_core.SkipSelf },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALUE_ACCESSOR,] },] },
-    ];
-    var NgControlStatus = (function () {
-        function NgControlStatus(cd) {
-            this._cd = cd;
-        }
-        Object.defineProperty(NgControlStatus.prototype, "ngClassUntouched", {
-            get: function () {
-                return isPresent(this._cd.control) ? this._cd.control.untouched : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlStatus.prototype, "ngClassTouched", {
-            get: function () {
-                return isPresent(this._cd.control) ? this._cd.control.touched : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlStatus.prototype, "ngClassPristine", {
-            get: function () {
-                return isPresent(this._cd.control) ? this._cd.control.pristine : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlStatus.prototype, "ngClassDirty", {
-            get: function () {
-                return isPresent(this._cd.control) ? this._cd.control.dirty : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlStatus.prototype, "ngClassValid", {
-            get: function () {
-                return isPresent(this._cd.control) ? this._cd.control.valid : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgControlStatus.prototype, "ngClassInvalid", {
-            get: function () {
-                return isPresent(this._cd.control) ? !this._cd.control.valid : false;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return NgControlStatus;
-    }());
-    /** @nocollapse */
-    NgControlStatus.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngControl],[ngModel],[ngFormControl]',
-                    host: {
-                        '[class.ng-untouched]': 'ngClassUntouched',
-                        '[class.ng-touched]': 'ngClassTouched',
-                        '[class.ng-pristine]': 'ngClassPristine',
-                        '[class.ng-dirty]': 'ngClassDirty',
-                        '[class.ng-valid]': 'ngClassValid',
-                        '[class.ng-invalid]': 'ngClassInvalid'
+                this._rawClass = v;
+                this._iterableDiffer = null;
+                this._keyValueDiffer = null;
+                if (isPresent(v)) {
+                    if (isListLikeIterable(v)) {
+                        this._iterableDiffer = this._iterableDiffers.find(v).create(null);
                     }
-                },] },
-    ];
-    /** @nocollapse */
-    NgControlStatus.ctorParameters = [
-        { type: NgControl, decorators: [{ type: _angular_core.Self },] },
-    ];
-    /**
-     * Indicates that a Control is valid, i.e. that no errors exist in the input value.
-     */
-    var VALID = 'VALID';
-    /**
-     * Indicates that a Control is invalid, i.e. that an error exists in the input value.
-     */
-    var INVALID = 'INVALID';
-    /**
-     * Indicates that a Control is pending, i.e. that async validation is occurring and
-     * errors are not yet available for the input value.
-     */
-    var PENDING = 'PENDING';
-    function _find(control, path) {
-        if (isBlank(path))
-            return null;
-        if (!(path instanceof Array)) {
-            path = path.split('/');
-        }
-        if (path instanceof Array && ListWrapper.isEmpty(path))
-            return null;
-        return path.reduce(function (v, name) {
-            if (v instanceof ControlGroup) {
-                return isPresent(v.controls[name]) ? v.controls[name] : null;
-            }
-            else if (v instanceof ControlArray) {
-                var index = name;
-                return isPresent(v.at(index)) ? v.at(index) : null;
-            }
-            else {
-                return null;
-            }
-        }, control);
-    }
-    function toObservable(r) {
-        return isPromise(r) ? rxjs_observable_PromiseObservable.PromiseObservable.create(r) : r;
-    }
-    /**
-     * @experimental
-     */
-    var AbstractControl = (function () {
-        function AbstractControl(validator, asyncValidator) {
-            this.validator = validator;
-            this.asyncValidator = asyncValidator;
-            this._pristine = true;
-            this._touched = false;
-        }
-        Object.defineProperty(AbstractControl.prototype, "value", {
-            get: function () { return this._value; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "status", {
-            get: function () { return this._status; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "valid", {
-            get: function () { return this._status === VALID; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "errors", {
-            /**
-             * Returns the errors of this control.
-             */
-            get: function () { return this._errors; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "pristine", {
-            get: function () { return this._pristine; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "dirty", {
-            get: function () { return !this.pristine; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "touched", {
-            get: function () { return this._touched; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "untouched", {
-            get: function () { return !this._touched; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "valueChanges", {
-            get: function () { return this._valueChanges; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "statusChanges", {
-            get: function () { return this._statusChanges; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(AbstractControl.prototype, "pending", {
-            get: function () { return this._status == PENDING; },
-            enumerable: true,
-            configurable: true
-        });
-        AbstractControl.prototype.markAsTouched = function () { this._touched = true; };
-        AbstractControl.prototype.markAsDirty = function (_a) {
-            var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            onlySelf = normalizeBool(onlySelf);
-            this._pristine = false;
-            if (isPresent(this._parent) && !onlySelf) {
-                this._parent.markAsDirty({ onlySelf: onlySelf });
-            }
-        };
-        AbstractControl.prototype.markAsPending = function (_a) {
-            var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            onlySelf = normalizeBool(onlySelf);
-            this._status = PENDING;
-            if (isPresent(this._parent) && !onlySelf) {
-                this._parent.markAsPending({ onlySelf: onlySelf });
-            }
-        };
-        AbstractControl.prototype.setParent = function (parent) { this._parent = parent; };
-        AbstractControl.prototype.updateValueAndValidity = function (_a) {
-            var _b = _a === void 0 ? {} : _a, onlySelf = _b.onlySelf, emitEvent = _b.emitEvent;
-            onlySelf = normalizeBool(onlySelf);
-            emitEvent = isPresent(emitEvent) ? emitEvent : true;
-            this._updateValue();
-            this._errors = this._runValidator();
-            this._status = this._calculateStatus();
-            if (this._status == VALID || this._status == PENDING) {
-                this._runAsyncValidator(emitEvent);
-            }
-            if (emitEvent) {
-                this._valueChanges.emit(this._value);
-                this._statusChanges.emit(this._status);
-            }
-            if (isPresent(this._parent) && !onlySelf) {
-                this._parent.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
-            }
-        };
-        AbstractControl.prototype._runValidator = function () {
-            return isPresent(this.validator) ? this.validator(this) : null;
-        };
-        AbstractControl.prototype._runAsyncValidator = function (emitEvent) {
-            var _this = this;
-            if (isPresent(this.asyncValidator)) {
-                this._status = PENDING;
-                this._cancelExistingSubscription();
-                var obs = toObservable(this.asyncValidator(this));
-                this._asyncValidationSubscription = obs.subscribe({ next: function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); } });
-            }
-        };
-        AbstractControl.prototype._cancelExistingSubscription = function () {
-            if (isPresent(this._asyncValidationSubscription)) {
-                this._asyncValidationSubscription.unsubscribe();
-            }
-        };
-        /**
-         * Sets errors on a control.
-         *
-         * This is used when validations are run not automatically, but manually by the user.
-         *
-         * Calling `setErrors` will also update the validity of the parent control.
-         *
-         * ## Usage
-         *
-         * ```
-         * var login = new Control("someLogin");
-         * login.setErrors({
-         *   "notUnique": true
-         * });
-         *
-         * expect(login.valid).toEqual(false);
-         * expect(login.errors).toEqual({"notUnique": true});
-         *
-         * login.updateValue("someOtherLogin");
-         *
-         * expect(login.valid).toEqual(true);
-         * ```
-         */
-        AbstractControl.prototype.setErrors = function (errors, _a) {
-            var emitEvent = (_a === void 0 ? {} : _a).emitEvent;
-            emitEvent = isPresent(emitEvent) ? emitEvent : true;
-            this._errors = errors;
-            this._status = this._calculateStatus();
-            if (emitEvent) {
-                this._statusChanges.emit(this._status);
-            }
-            if (isPresent(this._parent)) {
-                this._parent._updateControlsErrors();
-            }
-        };
-        AbstractControl.prototype.find = function (path) { return _find(this, path); };
-        AbstractControl.prototype.getError = function (errorCode, path) {
-            if (path === void 0) { path = null; }
-            var control = isPresent(path) && !ListWrapper.isEmpty(path) ? this.find(path) : this;
-            if (isPresent(control) && isPresent(control._errors)) {
-                return StringMapWrapper.get(control._errors, errorCode);
-            }
-            else {
-                return null;
-            }
-        };
-        AbstractControl.prototype.hasError = function (errorCode, path) {
-            if (path === void 0) { path = null; }
-            return isPresent(this.getError(errorCode, path));
-        };
-        Object.defineProperty(AbstractControl.prototype, "root", {
-            get: function () {
-                var x = this;
-                while (isPresent(x._parent)) {
-                    x = x._parent;
+                    else {
+                        this._keyValueDiffer = this._keyValueDiffers.find(v).create(null);
+                    }
                 }
-                return x;
             },
             enumerable: true,
             configurable: true
         });
-        /** @internal */
-        AbstractControl.prototype._updateControlsErrors = function () {
-            this._status = this._calculateStatus();
-            if (isPresent(this._parent)) {
-                this._parent._updateControlsErrors();
-            }
-        };
-        /** @internal */
-        AbstractControl.prototype._initObservables = function () {
-            this._valueChanges = new EventEmitter$1();
-            this._statusChanges = new EventEmitter$1();
-        };
-        AbstractControl.prototype._calculateStatus = function () {
-            if (isPresent(this._errors))
-                return INVALID;
-            if (this._anyControlsHaveStatus(PENDING))
-                return PENDING;
-            if (this._anyControlsHaveStatus(INVALID))
-                return INVALID;
-            return VALID;
-        };
-        return AbstractControl;
-    }());
-    /**
-     * Defines a part of a form that cannot be divided into other controls. `Control`s have values and
-     * validation state, which is determined by an optional validation function.
-     *
-     * `Control` is one of the three fundamental building blocks used to define forms in Angular, along
-     * with {@link ControlGroup} and {@link ControlArray}.
-     *
-     * ## Usage
-     *
-     * By default, a `Control` is created for every `<input>` or other form component.
-     * With {@link NgFormControl} or {@link NgFormModel} an existing {@link Control} can be
-     * bound to a DOM element instead. This `Control` can be configured with a custom
-     * validation function.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/23DESOpbNnBpBHZt1BR4?p=preview))
-     *
-     * @experimental
-     */
-    var Control = (function (_super) {
-        __extends(Control, _super);
-        function Control(value, validator, asyncValidator) {
-            if (value === void 0) { value = null; }
-            if (validator === void 0) { validator = null; }
-            if (asyncValidator === void 0) { asyncValidator = null; }
-            _super.call(this, validator, asyncValidator);
-            this._value = value;
-            this.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-            this._initObservables();
-        }
-        /**
-         * Set the value of the control to `value`.
-         *
-         * If `onlySelf` is `true`, this change will only affect the validation of this `Control`
-         * and not its parent component. If `emitEvent` is `true`, this change will cause a
-         * `valueChanges` event on the `Control` to be emitted. Both of these options default to
-         * `false`.
-         *
-         * If `emitModelToViewChange` is `true`, the view will be notified about the new value
-         * via an `onChange` event. This is the default behavior if `emitModelToViewChange` is not
-         * specified.
-         */
-        Control.prototype.updateValue = function (value, _a) {
-            var _b = _a === void 0 ? {} : _a, onlySelf = _b.onlySelf, emitEvent = _b.emitEvent, emitModelToViewChange = _b.emitModelToViewChange;
-            emitModelToViewChange = isPresent(emitModelToViewChange) ? emitModelToViewChange : true;
-            this._value = value;
-            if (isPresent(this._onChange) && emitModelToViewChange)
-                this._onChange(this._value);
-            this.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
-        };
-        /**
-         * @internal
-         */
-        Control.prototype._updateValue = function () { };
-        /**
-         * @internal
-         */
-        Control.prototype._anyControlsHaveStatus = function (status) { return false; };
-        /**
-         * Register a listener for change events.
-         */
-        Control.prototype.registerOnChange = function (fn) { this._onChange = fn; };
-        return Control;
-    }(AbstractControl));
-    /**
-     * Defines a part of a form, of fixed length, that can contain other controls.
-     *
-     * A `ControlGroup` aggregates the values of each {@link Control} in the group.
-     * The status of a `ControlGroup` depends on the status of its children.
-     * If one of the controls in a group is invalid, the entire group is invalid.
-     * Similarly, if a control changes its value, the entire group changes as well.
-     *
-     * `ControlGroup` is one of the three fundamental building blocks used to define forms in Angular,
-     * along with {@link Control} and {@link ControlArray}. {@link ControlArray} can also contain other
-     * controls, but is of variable length.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/23DESOpbNnBpBHZt1BR4?p=preview))
-     *
-     * @experimental
-     */
-    var ControlGroup = (function (_super) {
-        __extends(ControlGroup, _super);
-        function ControlGroup(controls, optionals, validator, asyncValidator) {
-            if (optionals === void 0) { optionals = null; }
-            if (validator === void 0) { validator = null; }
-            if (asyncValidator === void 0) { asyncValidator = null; }
-            _super.call(this, validator, asyncValidator);
-            this.controls = controls;
-            this._optionals = isPresent(optionals) ? optionals : {};
-            this._initObservables();
-            this._setParentForControls();
-            this.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-        }
-        /**
-         * Register a control with the group's list of controls.
-         */
-        ControlGroup.prototype.registerControl = function (name, control) {
-            this.controls[name] = control;
-            control.setParent(this);
-        };
-        /**
-         * Add a control to this group.
-         */
-        ControlGroup.prototype.addControl = function (name, control) {
-            this.registerControl(name, control);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Remove a control from this group.
-         */
-        ControlGroup.prototype.removeControl = function (name) {
-            StringMapWrapper.delete(this.controls, name);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Mark the named control as non-optional.
-         */
-        ControlGroup.prototype.include = function (controlName) {
-            StringMapWrapper.set(this._optionals, controlName, true);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Mark the named control as optional.
-         */
-        ControlGroup.prototype.exclude = function (controlName) {
-            StringMapWrapper.set(this._optionals, controlName, false);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Check whether there is a control with the given name in the group.
-         */
-        ControlGroup.prototype.contains = function (controlName) {
-            var c = StringMapWrapper.contains(this.controls, controlName);
-            return c && this._included(controlName);
-        };
-        /** @internal */
-        ControlGroup.prototype._setParentForControls = function () {
-            var _this = this;
-            StringMapWrapper.forEach(this.controls, function (control, name) { control.setParent(_this); });
-        };
-        /** @internal */
-        ControlGroup.prototype._updateValue = function () { this._value = this._reduceValue(); };
-        /** @internal */
-        ControlGroup.prototype._anyControlsHaveStatus = function (status) {
-            var _this = this;
-            var res = false;
-            StringMapWrapper.forEach(this.controls, function (control, name) {
-                res = res || (_this.contains(name) && control.status == status);
-            });
-            return res;
-        };
-        /** @internal */
-        ControlGroup.prototype._reduceValue = function () {
-            return this._reduceChildren({}, function (acc, control, name) {
-                acc[name] = control.value;
-                return acc;
-            });
-        };
-        /** @internal */
-        ControlGroup.prototype._reduceChildren = function (initValue, fn) {
-            var _this = this;
-            var res = initValue;
-            StringMapWrapper.forEach(this.controls, function (control, name) {
-                if (_this._included(name)) {
-                    res = fn(res, control, name);
+        NgClass.prototype.ngDoCheck = function () {
+            if (isPresent(this._iterableDiffer)) {
+                var changes = this._iterableDiffer.diff(this._rawClass);
+                if (isPresent(changes)) {
+                    this._applyIterableChanges(changes);
                 }
-            });
-            return res;
-        };
-        /** @internal */
-        ControlGroup.prototype._included = function (controlName) {
-            var isOptional = StringMapWrapper.contains(this._optionals, controlName);
-            return !isOptional || StringMapWrapper.get(this._optionals, controlName);
-        };
-        return ControlGroup;
-    }(AbstractControl));
-    /**
-     * Defines a part of a form, of variable length, that can contain other controls.
-     *
-     * A `ControlArray` aggregates the values of each {@link Control} in the group.
-     * The status of a `ControlArray` depends on the status of its children.
-     * If one of the controls in a group is invalid, the entire array is invalid.
-     * Similarly, if a control changes its value, the entire array changes as well.
-     *
-     * `ControlArray` is one of the three fundamental building blocks used to define forms in Angular,
-     * along with {@link Control} and {@link ControlGroup}. {@link ControlGroup} can also contain
-     * other controls, but is of fixed length.
-     *
-     * ## Adding or removing controls
-     *
-     * To change the controls in the array, use the `push`, `insert`, or `removeAt` methods
-     * in `ControlArray` itself. These methods ensure the controls are properly tracked in the
-     * form's hierarchy. Do not modify the array of `AbstractControl`s used to instantiate
-     * the `ControlArray` directly, as that will result in strange and unexpected behavior such
-     * as broken change detection.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/23DESOpbNnBpBHZt1BR4?p=preview))
-     *
-     * @experimental
-     */
-    var ControlArray = (function (_super) {
-        __extends(ControlArray, _super);
-        function ControlArray(controls, validator, asyncValidator) {
-            if (validator === void 0) { validator = null; }
-            if (asyncValidator === void 0) { asyncValidator = null; }
-            _super.call(this, validator, asyncValidator);
-            this.controls = controls;
-            this._initObservables();
-            this._setParentForControls();
-            this.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-        }
-        /**
-         * Get the {@link AbstractControl} at the given `index` in the array.
-         */
-        ControlArray.prototype.at = function (index) { return this.controls[index]; };
-        /**
-         * Insert a new {@link AbstractControl} at the end of the array.
-         */
-        ControlArray.prototype.push = function (control) {
-            this.controls.push(control);
-            control.setParent(this);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Insert a new {@link AbstractControl} at the given `index` in the array.
-         */
-        ControlArray.prototype.insert = function (index, control) {
-            ListWrapper.insert(this.controls, index, control);
-            control.setParent(this);
-            this.updateValueAndValidity();
-        };
-        /**
-         * Remove the control at the given `index` in the array.
-         */
-        ControlArray.prototype.removeAt = function (index) {
-            ListWrapper.removeAt(this.controls, index);
-            this.updateValueAndValidity();
-        };
-        Object.defineProperty(ControlArray.prototype, "length", {
-            /**
-             * Length of the control array.
-             */
-            get: function () { return this.controls.length; },
-            enumerable: true,
-            configurable: true
-        });
-        /** @internal */
-        ControlArray.prototype._updateValue = function () { this._value = this.controls.map(function (control) { return control.value; }); };
-        /** @internal */
-        ControlArray.prototype._anyControlsHaveStatus = function (status) {
-            return this.controls.some(function (c) { return c.status == status; });
-        };
-        /** @internal */
-        ControlArray.prototype._setParentForControls = function () {
-            var _this = this;
-            this.controls.forEach(function (control) { control.setParent(_this); });
-        };
-        return ControlArray;
-    }(AbstractControl));
-    var formDirectiveProvider = {
-        provide: ControlContainer,
-        useExisting: _angular_core.forwardRef(function () { return NgForm; })
-    };
-    var _formWarningDisplayed = false;
-    var resolvedPromise = Promise.resolve(null);
-    var NgForm = (function (_super) {
-        __extends(NgForm, _super);
-        function NgForm(validators, asyncValidators) {
-            _super.call(this);
-            this._submitted = false;
-            this.ngSubmit = new EventEmitter$1();
-            this._displayWarning();
-            this.form = new ControlGroup({}, null, composeValidators(validators), composeAsyncValidators(asyncValidators));
-        }
-        NgForm.prototype._displayWarning = function () {
-            // TODO(kara): Update this when the new forms module becomes the default
-            if (!_formWarningDisplayed) {
-                _formWarningDisplayed = true;
-                console.warn("\n      *It looks like you're using the old forms module. This will be opt-in in the next RC, and\n      will eventually be removed in favor of the new forms module. For more information, see:\n      https://docs.google.com/document/d/1RIezQqE4aEhBRmArIAS1mRIZtWFf6JxN_7B4meyWK0Y/preview\n    ");
+            }
+            if (isPresent(this._keyValueDiffer)) {
+                var changes = this._keyValueDiffer.diff(this._rawClass);
+                if (isPresent(changes)) {
+                    this._applyKeyValueChanges(changes);
+                }
             }
         };
-        Object.defineProperty(NgForm.prototype, "submitted", {
-            get: function () { return this._submitted; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForm.prototype, "formDirective", {
-            get: function () { return this; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForm.prototype, "control", {
-            get: function () { return this.form; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForm.prototype, "path", {
-            get: function () { return []; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgForm.prototype, "controls", {
-            get: function () { return this.form.controls; },
-            enumerable: true,
-            configurable: true
-        });
-        NgForm.prototype.addControl = function (dir) {
-            var _this = this;
-            resolvedPromise.then(function () {
-                var container = _this._findContainer(dir.path);
-                var ctrl = new Control();
-                setUpControl(ctrl, dir);
-                container.registerControl(dir.name, ctrl);
-                ctrl.updateValueAndValidity({ emitEvent: false });
-            });
+        NgClass.prototype._cleanupClasses = function (rawClassVal) {
+            this._applyClasses(rawClassVal, true);
+            this._applyInitialClasses(false);
         };
-        NgForm.prototype.getControl = function (dir) { return this.form.find(dir.path); };
-        NgForm.prototype.removeControl = function (dir) {
+        NgClass.prototype._applyKeyValueChanges = function (changes) {
             var _this = this;
-            resolvedPromise.then(function () {
-                var container = _this._findContainer(dir.path);
-                if (isPresent(container)) {
-                    container.removeControl(dir.name);
+            changes.forEachAddedItem(function (record) { _this._toggleClass(record.key, record.currentValue); });
+            changes.forEachChangedItem(function (record) { _this._toggleClass(record.key, record.currentValue); });
+            changes.forEachRemovedItem(function (record) {
+                if (record.previousValue) {
+                    _this._toggleClass(record.key, false);
                 }
             });
         };
-        NgForm.prototype.addControlGroup = function (dir) {
+        NgClass.prototype._applyIterableChanges = function (changes) {
             var _this = this;
-            resolvedPromise.then(function () {
-                var container = _this._findContainer(dir.path);
-                var group = new ControlGroup({});
-                setUpControlGroup(group, dir);
-                container.registerControl(dir.name, group);
-                group.updateValueAndValidity({ emitEvent: false });
-            });
+            changes.forEachAddedItem(function (record) { _this._toggleClass(record.item, true); });
+            changes.forEachRemovedItem(function (record) { _this._toggleClass(record.item, false); });
         };
-        NgForm.prototype.removeControlGroup = function (dir) {
+        NgClass.prototype._applyInitialClasses = function (isCleanup) {
             var _this = this;
-            resolvedPromise.then(function () {
-                var container = _this._findContainer(dir.path);
-                if (isPresent(container)) {
-                    container.removeControl(dir.name);
+            this._initialClasses.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
+        };
+        NgClass.prototype._applyClasses = function (rawClassVal, isCleanup) {
+            var _this = this;
+            if (isPresent(rawClassVal)) {
+                if (isArray(rawClassVal)) {
+                    rawClassVal.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
                 }
-            });
-        };
-        NgForm.prototype.getControlGroup = function (dir) {
-            return this.form.find(dir.path);
-        };
-        NgForm.prototype.updateModel = function (dir, value) {
-            var _this = this;
-            resolvedPromise.then(function () {
-                var ctrl = _this.form.find(dir.path);
-                ctrl.updateValue(value);
-            });
-        };
-        NgForm.prototype.onSubmit = function () {
-            this._submitted = true;
-            this.ngSubmit.emit(null);
-            return false;
-        };
-        /** @internal */
-        NgForm.prototype._findContainer = function (path) {
-            path.pop();
-            return ListWrapper.isEmpty(path) ? this.form : this.form.find(path);
-        };
-        return NgForm;
-    }(ControlContainer));
-    /** @nocollapse */
-    NgForm.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: 'form:not([ngNoForm]):not([ngFormModel]),ngForm,[ngForm]',
-                    providers: [formDirectiveProvider],
-                    host: {
-                        '(submit)': 'onSubmit()',
-                    },
-                    outputs: ['ngSubmit'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgForm.ctorParameters = [
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-    ];
-    var formControlBinding = {
-        provide: NgControl,
-        useExisting: _angular_core.forwardRef(function () { return NgFormControl; })
-    };
-    var NgFormControl = (function (_super) {
-        __extends(NgFormControl, _super);
-        function NgFormControl(_validators, _asyncValidators, valueAccessors) {
-            _super.call(this);
-            this._validators = _validators;
-            this._asyncValidators = _asyncValidators;
-            this.update = new EventEmitter$1();
-            this.valueAccessor = selectValueAccessor(this, valueAccessors);
-        }
-        NgFormControl.prototype.ngOnChanges = function (changes) {
-            if (this._isControlChanged(changes)) {
-                setUpControl(this.form, this);
-                this.form.updateValueAndValidity({ emitEvent: false });
-            }
-            if (isPropertyUpdated(changes, this.viewModel)) {
-                this.form.updateValue(this.model);
-                this.viewModel = this.model;
+                else if (rawClassVal instanceof Set) {
+                    rawClassVal.forEach(function (className) { return _this._toggleClass(className, !isCleanup); });
+                }
+                else {
+                    StringMapWrapper.forEach(rawClassVal, function (expVal, className) {
+                        if (isPresent(expVal))
+                            _this._toggleClass(className, !isCleanup);
+                    });
+                }
             }
         };
-        Object.defineProperty(NgFormControl.prototype, "path", {
-            get: function () { return []; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormControl.prototype, "validator", {
-            get: function () { return composeValidators(this._validators); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormControl.prototype, "asyncValidator", {
-            get: function () {
-                return composeAsyncValidators(this._asyncValidators);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormControl.prototype, "control", {
-            get: function () { return this.form; },
-            enumerable: true,
-            configurable: true
-        });
-        NgFormControl.prototype.viewToModelUpdate = function (newValue) {
-            this.viewModel = newValue;
-            this.update.emit(newValue);
-        };
-        NgFormControl.prototype._isControlChanged = function (changes) {
-            return StringMapWrapper.contains(changes, 'form');
-        };
-        return NgFormControl;
-    }(NgControl));
-    /** @nocollapse */
-    NgFormControl.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngFormControl]',
-                    providers: [formControlBinding],
-                    inputs: ['form: ngFormControl', 'model: ngModel'],
-                    outputs: ['update: ngModelChange'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgFormControl.ctorParameters = [
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALUE_ACCESSOR,] },] },
-    ];
-    var formDirectiveProvider$1 = {
-        provide: ControlContainer,
-        useExisting: _angular_core.forwardRef(function () { return NgFormModel; })
-    };
-    var _formModelWarningDisplayed = false;
-    var NgFormModel = (function (_super) {
-        __extends(NgFormModel, _super);
-        function NgFormModel(_validators, _asyncValidators) {
-            _super.call(this);
-            this._validators = _validators;
-            this._asyncValidators = _asyncValidators;
-            this._submitted = false;
-            this.form = null;
-            this.directives = [];
-            this.ngSubmit = new EventEmitter$1();
-            this._displayWarning();
-        }
-        NgFormModel.prototype._displayWarning = function () {
-            // TODO(kara): Update this when the new forms module becomes the default
-            if (!_formModelWarningDisplayed) {
-                _formModelWarningDisplayed = true;
-                console.warn("\n      *It looks like you're using the old forms module. This will be opt-in in the next RC, and\n      will eventually be removed in favor of the new forms module. For more information, see:\n      https://docs.google.com/document/d/1RIezQqE4aEhBRmArIAS1mRIZtWFf6JxN_7B4meyWK0Y/preview\n    ");
+        NgClass.prototype._toggleClass = function (className, enabled) {
+            className = className.trim();
+            if (className.length > 0) {
+                if (className.indexOf(' ') > -1) {
+                    var classes = className.split(/\s+/g);
+                    for (var i = 0, len = classes.length; i < len; i++) {
+                        this._renderer.setElementClass(this._ngEl.nativeElement, classes[i], enabled);
+                    }
+                }
+                else {
+                    this._renderer.setElementClass(this._ngEl.nativeElement, className, enabled);
+                }
             }
         };
-        NgFormModel.prototype.ngOnChanges = function (changes) {
-            this._checkFormPresent();
-            if (StringMapWrapper.contains(changes, 'form')) {
-                var sync = composeValidators(this._validators);
-                this.form.validator = Validators.compose([this.form.validator, sync]);
-                var async = composeAsyncValidators(this._asyncValidators);
-                this.form.asyncValidator = Validators.composeAsync([this.form.asyncValidator, async]);
-                this.form.updateValueAndValidity({ onlySelf: true, emitEvent: false });
-            }
-            this._updateDomValue();
+        NgClass.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngClass]' },] },
+        ];
+        /** @nocollapse */
+        NgClass.ctorParameters = [
+            { type: _angular_core.IterableDiffers, },
+            { type: _angular_core.KeyValueDiffers, },
+            { type: _angular_core.ElementRef, },
+            { type: _angular_core.Renderer, },
+        ];
+        NgClass.propDecorators = {
+            'initialClasses': [{ type: _angular_core.Input, args: ['class',] },],
+            'ngClass': [{ type: _angular_core.Input },],
         };
-        Object.defineProperty(NgFormModel.prototype, "submitted", {
-            get: function () { return this._submitted; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormModel.prototype, "formDirective", {
-            get: function () { return this; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormModel.prototype, "control", {
-            get: function () { return this.form; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgFormModel.prototype, "path", {
-            get: function () { return []; },
-            enumerable: true,
-            configurable: true
-        });
-        NgFormModel.prototype.addControl = function (dir) {
-            var ctrl = this.form.find(dir.path);
-            setUpControl(ctrl, dir);
-            ctrl.updateValueAndValidity({ emitEvent: false });
-            this.directives.push(dir);
-        };
-        NgFormModel.prototype.getControl = function (dir) { return this.form.find(dir.path); };
-        NgFormModel.prototype.removeControl = function (dir) { ListWrapper.remove(this.directives, dir); };
-        NgFormModel.prototype.addControlGroup = function (dir) {
-            var ctrl = this.form.find(dir.path);
-            setUpControlGroup(ctrl, dir);
-            ctrl.updateValueAndValidity({ emitEvent: false });
-        };
-        NgFormModel.prototype.removeControlGroup = function (dir) { };
-        NgFormModel.prototype.getControlGroup = function (dir) {
-            return this.form.find(dir.path);
-        };
-        NgFormModel.prototype.updateModel = function (dir, value) {
-            var ctrl = this.form.find(dir.path);
-            ctrl.updateValue(value);
-        };
-        NgFormModel.prototype.onSubmit = function () {
-            this._submitted = true;
-            this.ngSubmit.emit(null);
-            return false;
-        };
-        /** @internal */
-        NgFormModel.prototype._updateDomValue = function () {
-            var _this = this;
-            this.directives.forEach(function (dir) {
-                var ctrl = _this.form.find(dir.path);
-                dir.valueAccessor.writeValue(ctrl.value);
-            });
-        };
-        NgFormModel.prototype._checkFormPresent = function () {
-            if (isBlank(this.form)) {
-                throw new BaseException("ngFormModel expects a form. Please pass one in. Example: <form [ngFormModel]=\"myCoolForm\">");
-            }
-        };
-        return NgFormModel;
-    }(ControlContainer));
-    /** @nocollapse */
-    NgFormModel.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngFormModel]',
-                    providers: [formDirectiveProvider$1],
-                    inputs: ['form: ngFormModel'],
-                    host: { '(submit)': 'onSubmit()' },
-                    outputs: ['ngSubmit'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgFormModel.ctorParameters = [
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-    ];
-    var formControlBinding$1 = {
-        provide: NgControl,
-        useExisting: _angular_core.forwardRef(function () { return NgModel; })
-    };
-    var NgModel = (function (_super) {
-        __extends(NgModel, _super);
-        function NgModel(_validators, _asyncValidators, valueAccessors) {
-            _super.call(this);
-            this._validators = _validators;
-            this._asyncValidators = _asyncValidators;
-            /** @internal */
-            this._control = new Control();
-            /** @internal */
-            this._added = false;
-            this.update = new EventEmitter$1();
-            this.valueAccessor = selectValueAccessor(this, valueAccessors);
-        }
-        NgModel.prototype.ngOnChanges = function (changes) {
-            if (!this._added) {
-                setUpControl(this._control, this);
-                this._control.updateValueAndValidity({ emitEvent: false });
-                this._added = true;
-            }
-            if (isPropertyUpdated(changes, this.viewModel)) {
-                this._control.updateValue(this.model);
-                this.viewModel = this.model;
-            }
-        };
-        Object.defineProperty(NgModel.prototype, "control", {
-            get: function () { return this._control; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgModel.prototype, "path", {
-            get: function () { return []; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgModel.prototype, "validator", {
-            get: function () { return composeValidators(this._validators); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(NgModel.prototype, "asyncValidator", {
-            get: function () {
-                return composeAsyncValidators(this._asyncValidators);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        NgModel.prototype.viewToModelUpdate = function (newValue) {
-            this.viewModel = newValue;
-            this.update.emit(newValue);
-        };
-        return NgModel;
-    }(NgControl));
-    /** @nocollapse */
-    NgModel.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[ngModel]:not([ngControl]):not([ngFormControl])',
-                    providers: [formControlBinding$1],
-                    inputs: ['model: ngModel'],
-                    outputs: ['update: ngModelChange'],
-                    exportAs: 'ngForm'
-                },] },
-    ];
-    /** @nocollapse */
-    NgModel.ctorParameters = [
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Self }, { type: _angular_core.Inject, args: [NG_VALUE_ACCESSOR,] },] },
-    ];
-    var REQUIRED = Validators.required;
-    var REQUIRED_VALIDATOR = {
-        provide: NG_VALIDATORS,
-        useValue: REQUIRED,
-        multi: true
-    };
-    var RequiredValidator = (function () {
-        function RequiredValidator() {
-        }
-        return RequiredValidator;
+        return NgClass;
     }());
-    /** @nocollapse */
-    RequiredValidator.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[required][ngControl],[required][ngFormControl],[required][ngModel]',
-                    providers: [REQUIRED_VALIDATOR]
-                },] },
-    ];
+
+    var NgForRow = (function () {
+        function NgForRow($implicit, index, count) {
+            this.$implicit = $implicit;
+            this.index = index;
+            this.count = count;
+        }
+        Object.defineProperty(NgForRow.prototype, "first", {
+            get: function () { return this.index === 0; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NgForRow.prototype, "last", {
+            get: function () { return this.index === this.count - 1; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NgForRow.prototype, "even", {
+            get: function () { return this.index % 2 === 0; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NgForRow.prototype, "odd", {
+            get: function () { return !this.even; },
+            enumerable: true,
+            configurable: true
+        });
+        return NgForRow;
+    }());
     /**
-     * Provivder which adds {@link MinLengthValidator} to {@link NG_VALIDATORS}.
+     * The `NgFor` directive instantiates a template once per item from an iterable. The context for
+     * each instantiated template inherits from the outer context with the given loop variable set
+     * to the current item from the iterable.
      *
-     * ## Example:
+     * ### Local Variables
      *
-     * {@example common/forms/ts/validators/validators.ts region='min'}
-     */
-    var MIN_LENGTH_VALIDATOR = {
-        provide: NG_VALIDATORS,
-        useExisting: _angular_core.forwardRef(function () { return MinLengthValidator; }),
-        multi: true
-    };
-    var MinLengthValidator = (function () {
-        function MinLengthValidator(minLength) {
-            this._validator = Validators.minLength(NumberWrapper.parseInt(minLength, 10));
-        }
-        MinLengthValidator.prototype.validate = function (c) { return this._validator(c); };
-        return MinLengthValidator;
-    }());
-    /** @nocollapse */
-    MinLengthValidator.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[minlength][ngControl],[minlength][ngFormControl],[minlength][ngModel]',
-                    providers: [MIN_LENGTH_VALIDATOR]
-                },] },
-    ];
-    /** @nocollapse */
-    MinLengthValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['minlength',] },] },
-    ];
-    /**
-     * Provider which adds {@link MaxLengthValidator} to {@link NG_VALIDATORS}.
+     * `NgFor` provides several exported values that can be aliased to local variables:
      *
-     * ## Example:
+     * * `index` will be set to the current loop iteration for each template context.
+     * * `first` will be set to a boolean value indicating whether the item is the first one in the
+     *   iteration.
+     * * `last` will be set to a boolean value indicating whether the item is the last one in the
+     *   iteration.
+     * * `even` will be set to a boolean value indicating whether this item has an even index.
+     * * `odd` will be set to a boolean value indicating whether this item has an odd index.
      *
-     * {@example common/forms/ts/validators/validators.ts region='max'}
-     */
-    var MAX_LENGTH_VALIDATOR = {
-        provide: NG_VALIDATORS,
-        useExisting: _angular_core.forwardRef(function () { return MaxLengthValidator; }),
-        multi: true
-    };
-    var MaxLengthValidator = (function () {
-        function MaxLengthValidator(maxLength) {
-            this._validator = Validators.maxLength(NumberWrapper.parseInt(maxLength, 10));
-        }
-        MaxLengthValidator.prototype.validate = function (c) { return this._validator(c); };
-        return MaxLengthValidator;
-    }());
-    /** @nocollapse */
-    MaxLengthValidator.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[maxlength][ngControl],[maxlength][ngFormControl],[maxlength][ngModel]',
-                    providers: [MAX_LENGTH_VALIDATOR]
-                },] },
-    ];
-    /** @nocollapse */
-    MaxLengthValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['maxlength',] },] },
-    ];
-    var PATTERN_VALIDATOR = {
-        provide: NG_VALIDATORS,
-        useExisting: _angular_core.forwardRef(function () { return PatternValidator; }),
-        multi: true
-    };
-    var PatternValidator = (function () {
-        function PatternValidator(pattern) {
-            this._validator = Validators.pattern(pattern);
-        }
-        PatternValidator.prototype.validate = function (c) { return this._validator(c); };
-        return PatternValidator;
-    }());
-    /** @nocollapse */
-    PatternValidator.decorators = [
-        { type: _angular_core.Directive, args: [{
-                    selector: '[pattern][ngControl],[pattern][ngFormControl],[pattern][ngModel]',
-                    providers: [PATTERN_VALIDATOR]
-                },] },
-    ];
-    /** @nocollapse */
-    PatternValidator.ctorParameters = [
-        { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['pattern',] },] },
-    ];
-    /**
+     * ### Change Propagation
      *
-     * A list of all the form directives used as part of a `@Component` annotation.
+     * When the contents of the iterator changes, `NgFor` makes the corresponding changes to the DOM:
      *
-     *  This is a shorthand for importing them each individually.
+     * * When an item is added, a new instance of the template is added to the DOM.
+     * * When an item is removed, its template instance is removed from the DOM.
+     * * When items are reordered, their respective templates are reordered in the DOM.
+     * * Otherwise, the DOM element for that item will remain the same.
+     *
+     * Angular uses object identity to track insertions and deletions within the iterator and reproduce
+     * those changes in the DOM. This has important implications for animations and any stateful
+     * controls
+     * (such as `<input>` elements which accept user input) that are present. Inserted rows can be
+     * animated in, deleted rows can be animated out, and unchanged rows retain any unsaved state such
+     * as user input.
+     *
+     * It is possible for the identities of elements in the iterator to change while the data does not.
+     * This can happen, for example, if the iterator produced from an RPC to the server, and that
+     * RPC is re-run. Even if the data hasn't changed, the second response will produce objects with
+     * different identities, and Angular will tear down the entire DOM and rebuild it (as if all old
+     * elements were deleted and all new elements inserted). This is an expensive operation and should
+     * be avoided if possible.
+     *
+     * To customize the default tracking algorithm, `NgFor` supports `trackBy` option.
+     * `trackBy` takes a function which has two arguments: `index` and `item`.
+     * If `trackBy` is given, Angular tracks changes by the return value of the function.
+     *
+     * ### Syntax
+     *
+     * - `<li *ngFor="let item of items; let i = index; trackBy: trackByFn">...</li>`
+     * - `<li template="ngFor let item of items; let i = index; trackBy: trackByFn">...</li>`
+     *
+     * With `<template>` element:
+     *
+     * ```
+     * <template ngFor let-item [ngForOf]="items" let-i="index" [ngForTrackBy]="trackByFn">
+     *   <li>...</li>
+     * </template>
+     * ```
      *
      * ### Example
+     *
+     * See a [live demo](http://plnkr.co/edit/KVuXxDp0qinGDyo307QW?p=preview) for a more detailed
+     * example.
+     *
+     * @stable
+     */
+    var NgFor = (function () {
+        function NgFor(_viewContainer, _templateRef, _iterableDiffers, _cdr) {
+            this._viewContainer = _viewContainer;
+            this._templateRef = _templateRef;
+            this._iterableDiffers = _iterableDiffers;
+            this._cdr = _cdr;
+        }
+        Object.defineProperty(NgFor.prototype, "ngForTemplate", {
+            set: function (value) {
+                if (isPresent(value)) {
+                    this._templateRef = value;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NgFor.prototype.ngOnChanges = function (changes) {
+            if ('ngForOf' in changes) {
+                // React on ngForOf changes only once all inputs have been initialized
+                var value = changes['ngForOf'].currentValue;
+                if (isBlank(this._differ) && isPresent(value)) {
+                    try {
+                        this._differ = this._iterableDiffers.find(value).create(this._cdr, this.ngForTrackBy);
+                    }
+                    catch (e) {
+                        throw new Error("Cannot find a differ supporting object '" + value + "' of type '" + getTypeNameForDebugging(value) + "'. NgFor only supports binding to Iterables such as Arrays.");
+                    }
+                }
+            }
+        };
+        NgFor.prototype.ngDoCheck = function () {
+            if (isPresent(this._differ)) {
+                var changes = this._differ.diff(this.ngForOf);
+                if (isPresent(changes))
+                    this._applyChanges(changes);
+            }
+        };
+        NgFor.prototype._applyChanges = function (changes) {
+            var _this = this;
+            var insertTuples = [];
+            changes.forEachOperation(function (item, adjustedPreviousIndex, currentIndex) {
+                if (item.previousIndex == null) {
+                    var view = _this._viewContainer.createEmbeddedView(_this._templateRef, new NgForRow(null, null, null), currentIndex);
+                    var tuple = new RecordViewTuple(item, view);
+                    insertTuples.push(tuple);
+                }
+                else if (currentIndex == null) {
+                    _this._viewContainer.remove(adjustedPreviousIndex);
+                }
+                else {
+                    var view = _this._viewContainer.get(adjustedPreviousIndex);
+                    _this._viewContainer.move(view, currentIndex);
+                    var tuple = new RecordViewTuple(item, view);
+                    insertTuples.push(tuple);
+                }
+            });
+            for (var i = 0; i < insertTuples.length; i++) {
+                this._perViewChange(insertTuples[i].view, insertTuples[i].record);
+            }
+            for (var i = 0, ilen = this._viewContainer.length; i < ilen; i++) {
+                var viewRef = this._viewContainer.get(i);
+                viewRef.context.index = i;
+                viewRef.context.count = ilen;
+            }
+            changes.forEachIdentityChange(function (record) {
+                var viewRef = _this._viewContainer.get(record.currentIndex);
+                viewRef.context.$implicit = record.item;
+            });
+        };
+        NgFor.prototype._perViewChange = function (view, record) {
+            view.context.$implicit = record.item;
+        };
+        NgFor.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngFor][ngForOf]' },] },
+        ];
+        /** @nocollapse */
+        NgFor.ctorParameters = [
+            { type: _angular_core.ViewContainerRef, },
+            { type: _angular_core.TemplateRef, },
+            { type: _angular_core.IterableDiffers, },
+            { type: _angular_core.ChangeDetectorRef, },
+        ];
+        NgFor.propDecorators = {
+            'ngForOf': [{ type: _angular_core.Input },],
+            'ngForTrackBy': [{ type: _angular_core.Input },],
+            'ngForTemplate': [{ type: _angular_core.Input },],
+        };
+        return NgFor;
+    }());
+    var RecordViewTuple = (function () {
+        function RecordViewTuple(record, view) {
+            this.record = record;
+            this.view = view;
+        }
+        return RecordViewTuple;
+    }());
+
+    /**
+     * Removes or recreates a portion of the DOM tree based on an {expression}.
+     *
+     * If the expression assigned to `ngIf` evaluates to a false value then the element
+     * is removed from the DOM, otherwise a clone of the element is reinserted into the DOM.
+     *
+     * ### Example ([live demo](http://plnkr.co/edit/fe0kgemFBtmQOY31b4tw?p=preview)):
+     *
+     * ```
+     * <div *ngIf="errorCount > 0" class="error">
+     *   <!-- Error message displayed when the errorCount property on the current context is greater
+     * than 0. -->
+     *   {{errorCount}} errors detected
+     * </div>
+     * ```
+     *
+     * ### Syntax
+     *
+     * - `<div *ngIf="condition">...</div>`
+     * - `<div template="ngIf condition">...</div>`
+     * - `<template [ngIf]="condition"><div>...</div></template>`
+     *
+     * @stable
+     */
+    var NgIf = (function () {
+        function NgIf(_viewContainer, _templateRef) {
+            this._viewContainer = _viewContainer;
+            this._templateRef = _templateRef;
+            this._prevCondition = null;
+        }
+        Object.defineProperty(NgIf.prototype, "ngIf", {
+            set: function (newCondition) {
+                if (newCondition && (isBlank(this._prevCondition) || !this._prevCondition)) {
+                    this._prevCondition = true;
+                    this._viewContainer.createEmbeddedView(this._templateRef);
+                }
+                else if (!newCondition && (isBlank(this._prevCondition) || this._prevCondition)) {
+                    this._prevCondition = false;
+                    this._viewContainer.clear();
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NgIf.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngIf]' },] },
+        ];
+        /** @nocollapse */
+        NgIf.ctorParameters = [
+            { type: _angular_core.ViewContainerRef, },
+            { type: _angular_core.TemplateRef, },
+        ];
+        NgIf.propDecorators = {
+            'ngIf': [{ type: _angular_core.Input },],
+        };
+        return NgIf;
+    }());
+
+    var _CASE_DEFAULT = new Object();
+    var SwitchView = (function () {
+        function SwitchView(_viewContainerRef, _templateRef) {
+            this._viewContainerRef = _viewContainerRef;
+            this._templateRef = _templateRef;
+        }
+        SwitchView.prototype.create = function () { this._viewContainerRef.createEmbeddedView(this._templateRef); };
+        SwitchView.prototype.destroy = function () { this._viewContainerRef.clear(); };
+        return SwitchView;
+    }());
+    /**
+     * Adds or removes DOM sub-trees when their match expressions match the switch expression.
+     *
+     * Elements within `NgSwitch` but without `NgSwitchCase` or `NgSwitchDefault` directives will be
+     * preserved at the location as specified in the template.
+     *
+     * `NgSwitch` simply inserts nested elements based on which match expression matches the value
+     * obtained from the evaluated switch expression. In other words, you define a container element
+     * (where you place the directive with a switch expression on the
+     * `[ngSwitch]="..."` attribute), define any inner elements inside of the directive and
+     * place a `[ngSwitchCase]` attribute per element.
+     *
+     * The `ngSwitchCase` property is used to inform `NgSwitch` which element to display when the
+     * expression is evaluated. If a matching expression is not found via a `ngSwitchCase` property
+     * then an element with the `ngSwitchDefault` attribute is displayed.
+     *
+     * ### Example ([live demo](http://plnkr.co/edit/DQMTII95CbuqWrl3lYAs?p=preview))
      *
      * ```typescript
      * @Component({
-     *   selector: 'my-app',
-     *   directives: [FORM_DIRECTIVES]
+     *   selector: 'app',
+     *   template: `
+     *     <p>Value = {{value}}</p>
+     *     <button (click)="inc()">Increment</button>
+     *
+     *     <div [ngSwitch]="value">
+     *       <p *ngSwitchCase="'init'">increment to start</p>
+     *       <p *ngSwitchCase="0">0, increment again</p>
+     *       <p *ngSwitchCase="1">1, increment again</p>
+     *       <p *ngSwitchCase="2">2, stop incrementing</p>
+     *       <p *ngSwitchDefault>&gt; 2, STOP!</p>
+     *     </div>
+     *
+     *     <!-- alternate syntax -->
+     *
+     *     <p [ngSwitch]="value">
+     *       <template ngSwitchCase="init">increment to start</template>
+     *       <template [ngSwitchCase]="0">0, increment again</template>
+     *       <template [ngSwitchCase]="1">1, increment again</template>
+     *       <template [ngSwitchCase]="2">2, stop incrementing</template>
+     *       <template ngSwitchDefault>&gt; 2, STOP!</template>
+     *     </p>
+     *   `,
+     *   directives: [NgSwitch, NgSwitchCase, NgSwitchDefault]
      * })
-     * class MyApp {}
+     * export class App {
+     *   value = 'init';
+     *
+     *   inc() {
+     *     this.value = this.value === 'init' ? 0 : this.value + 1;
+     *   }
+     * }
      * ```
-     * @experimental
+     *
+     * @stable
      */
-    var FORM_DIRECTIVES = [
-        NgControlName,
-        NgControlGroup,
-        NgFormControl,
-        NgModel,
-        NgFormModel,
-        NgForm,
-        NgSelectOption,
-        NgSelectMultipleOption,
-        DefaultValueAccessor,
-        NumberValueAccessor,
-        CheckboxControlValueAccessor,
-        SelectControlValueAccessor,
-        SelectMultipleControlValueAccessor,
-        RadioControlValueAccessor,
-        NgControlStatus,
-        RequiredValidator,
-        MinLengthValidator,
-        MaxLengthValidator,
-        PatternValidator,
-    ];
-    var FormBuilder = (function () {
-        function FormBuilder() {
+    var NgSwitch = (function () {
+        function NgSwitch() {
+            this._useDefault = false;
+            this._valueViews = new Map();
+            this._activeViews = [];
         }
-        /**
-         * Construct a new {@link ControlGroup} with the given map of configuration.
-         * Valid keys for the `extra` parameter map are `optionals` and `validator`.
-         *
-         * See the {@link ControlGroup} constructor for more details.
-         */
-        FormBuilder.prototype.group = function (controlsConfig, extra) {
-            if (extra === void 0) { extra = null; }
-            var controls = this._reduceControls(controlsConfig);
-            var optionals = (isPresent(extra) ? StringMapWrapper.get(extra, 'optionals') : null);
-            var validator = isPresent(extra) ? StringMapWrapper.get(extra, 'validator') : null;
-            var asyncValidator = isPresent(extra) ? StringMapWrapper.get(extra, 'asyncValidator') : null;
-            return new ControlGroup(controls, optionals, validator, asyncValidator);
-        };
-        /**
-         * Construct a new {@link Control} with the given `value`,`validator`, and `asyncValidator`.
-         */
-        FormBuilder.prototype.control = function (value, validator, asyncValidator) {
-            if (validator === void 0) { validator = null; }
-            if (asyncValidator === void 0) { asyncValidator = null; }
-            return new Control(value, validator, asyncValidator);
-        };
-        /**
-         * Construct an array of {@link Control}s from the given `controlsConfig` array of
-         * configuration, with the given optional `validator` and `asyncValidator`.
-         */
-        FormBuilder.prototype.array = function (controlsConfig, validator, asyncValidator) {
-            var _this = this;
-            if (validator === void 0) { validator = null; }
-            if (asyncValidator === void 0) { asyncValidator = null; }
-            var controls = controlsConfig.map(function (c) { return _this._createControl(c); });
-            return new ControlArray(controls, validator, asyncValidator);
-        };
+        Object.defineProperty(NgSwitch.prototype, "ngSwitch", {
+            set: function (value) {
+                // Empty the currently active ViewContainers
+                this._emptyAllActiveViews();
+                // Add the ViewContainers matching the value (with a fallback to default)
+                this._useDefault = false;
+                var views = this._valueViews.get(value);
+                if (isBlank(views)) {
+                    this._useDefault = true;
+                    views = normalizeBlank(this._valueViews.get(_CASE_DEFAULT));
+                }
+                this._activateViews(views);
+                this._switchValue = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /** @internal */
-        FormBuilder.prototype._reduceControls = function (controlsConfig) {
-            var _this = this;
-            var controls = {};
-            StringMapWrapper.forEach(controlsConfig, function (controlConfig, controlName) {
-                controls[controlName] = _this._createControl(controlConfig);
-            });
-            return controls;
-        };
-        /** @internal */
-        FormBuilder.prototype._createControl = function (controlConfig) {
-            if (controlConfig instanceof Control || controlConfig instanceof ControlGroup ||
-                controlConfig instanceof ControlArray) {
-                return controlConfig;
+        NgSwitch.prototype._onCaseValueChanged = function (oldCase, newCase, view) {
+            this._deregisterView(oldCase, view);
+            this._registerView(newCase, view);
+            if (oldCase === this._switchValue) {
+                view.destroy();
+                ListWrapper.remove(this._activeViews, view);
             }
-            else if (isArray(controlConfig)) {
-                var value = controlConfig[0];
-                var validator = controlConfig.length > 1 ? controlConfig[1] : null;
-                var asyncValidator = controlConfig.length > 2 ? controlConfig[2] : null;
-                return this.control(value, validator, asyncValidator);
+            else if (newCase === this._switchValue) {
+                if (this._useDefault) {
+                    this._useDefault = false;
+                    this._emptyAllActiveViews();
+                }
+                view.create();
+                this._activeViews.push(view);
+            }
+            // Switch to default when there is no more active ViewContainers
+            if (this._activeViews.length === 0 && !this._useDefault) {
+                this._useDefault = true;
+                this._activateViews(this._valueViews.get(_CASE_DEFAULT));
+            }
+        };
+        /** @internal */
+        NgSwitch.prototype._emptyAllActiveViews = function () {
+            var activeContainers = this._activeViews;
+            for (var i = 0; i < activeContainers.length; i++) {
+                activeContainers[i].destroy();
+            }
+            this._activeViews = [];
+        };
+        /** @internal */
+        NgSwitch.prototype._activateViews = function (views) {
+            // TODO(vicb): assert(this._activeViews.length === 0);
+            if (isPresent(views)) {
+                for (var i = 0; i < views.length; i++) {
+                    views[i].create();
+                }
+                this._activeViews = views;
+            }
+        };
+        /** @internal */
+        NgSwitch.prototype._registerView = function (value, view) {
+            var views = this._valueViews.get(value);
+            if (isBlank(views)) {
+                views = [];
+                this._valueViews.set(value, views);
+            }
+            views.push(view);
+        };
+        /** @internal */
+        NgSwitch.prototype._deregisterView = function (value, view) {
+            // `_CASE_DEFAULT` is used a marker for non-registered cases
+            if (value === _CASE_DEFAULT)
+                return;
+            var views = this._valueViews.get(value);
+            if (views.length == 1) {
+                this._valueViews.delete(value);
             }
             else {
-                return this.control(controlConfig);
+                ListWrapper.remove(views, view);
             }
         };
-        return FormBuilder;
+        NgSwitch.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngSwitch]' },] },
+        ];
+        /** @nocollapse */
+        NgSwitch.ctorParameters = [];
+        NgSwitch.propDecorators = {
+            'ngSwitch': [{ type: _angular_core.Input },],
+        };
+        return NgSwitch;
     }());
-    /** @nocollapse */
-    FormBuilder.decorators = [
-        { type: _angular_core.Injectable },
-    ];
     /**
-     * Shorthand set of providers used for building Angular forms.
+     * Insert the sub-tree when the `ngSwitchCase` expression evaluates to the same value as the
+     * enclosing switch expression.
      *
-     * ### Example
+     * If multiple match expression match the switch expression value, all of them are displayed.
+     *
+     * See {@link NgSwitch} for more details and example.
+     *
+     * @stable
+     */
+    var NgSwitchCase = (function () {
+        function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
+            // `_CASE_DEFAULT` is used as a marker for a not yet initialized value
+            /** @internal */
+            this._value = _CASE_DEFAULT;
+            this._switch = ngSwitch;
+            this._view = new SwitchView(viewContainer, templateRef);
+        }
+        Object.defineProperty(NgSwitchCase.prototype, "ngSwitchCase", {
+            set: function (value) {
+                this._switch._onCaseValueChanged(this._value, value, this._view);
+                this._value = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NgSwitchCase.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngSwitchCase]' },] },
+        ];
+        /** @nocollapse */
+        NgSwitchCase.ctorParameters = [
+            { type: _angular_core.ViewContainerRef, },
+            { type: _angular_core.TemplateRef, },
+            { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
+        ];
+        NgSwitchCase.propDecorators = {
+            'ngSwitchCase': [{ type: _angular_core.Input },],
+        };
+        return NgSwitchCase;
+    }());
+    /**
+     * Default case statements are displayed when no match expression matches the switch expression
+     * value.
+     *
+     * See {@link NgSwitch} for more details and example.
+     *
+     * @stable
+     */
+    var NgSwitchDefault = (function () {
+        function NgSwitchDefault(viewContainer, templateRef, sswitch) {
+            sswitch._registerView(_CASE_DEFAULT, new SwitchView(viewContainer, templateRef));
+        }
+        NgSwitchDefault.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngSwitchDefault]' },] },
+        ];
+        /** @nocollapse */
+        NgSwitchDefault.ctorParameters = [
+            { type: _angular_core.ViewContainerRef, },
+            { type: _angular_core.TemplateRef, },
+            { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
+        ];
+        return NgSwitchDefault;
+    }());
+
+    /**
+     * `ngPlural` is an i18n directive that displays DOM sub-trees that match the switch expression
+     * value, or failing that, DOM sub-trees that match the switch expression's pluralization category.
+     *
+     * To use this directive you must provide a container element that sets the `[ngPlural]` attribute
+     * to a
+     * switch expression.
+     *    - Inner elements defined with an `[ngPluralCase]` attribute will display based on their
+     * expression.
+     *    - If `[ngPluralCase]` is set to a value starting with `=`, it will only display if the value
+     * matches the switch expression exactly.
+     *    - Otherwise, the view will be treated as a "category match", and will only display if exact
+     * value matches aren't found and the value maps to its category for the defined locale.
      *
      * ```typescript
-     * bootstrap(MyApp, [FORM_PROVIDERS]);
+     * @Component({
+     *    selector: 'app',
+     *    // best practice is to define the locale at the application level
+     *    providers: [{provide: LOCALE_ID, useValue: 'en_US'}]
+     * })
+     * @View({
+     *   template: `
+     *     <p>Value = {{value}}</p>
+     *     <button (click)="inc()">Increment</button>
+     *
+     *     <div [ngPlural]="value">
+     *       <template ngPluralCase="=0">there is nothing</template>
+     *       <template ngPluralCase="=1">there is one</template>
+     *       <template ngPluralCase="few">there are a few</template>
+     *       <template ngPluralCase="other">there is some number</template>
+     *     </div>
+     *   `,
+     *   directives: [NgPlural, NgPluralCase]
+     * })
+     * export class App {
+     *   value = 'init';
+     *
+     *   inc() {
+     *     this.value = this.value === 'init' ? 0 : this.value + 1;
+     *   }
+     * }
+     *
+     * ```
+     * @experimental
+     */
+    var NgPlural = (function () {
+        function NgPlural(_localization) {
+            this._localization = _localization;
+            this._caseViews = {};
+        }
+        Object.defineProperty(NgPlural.prototype, "ngPlural", {
+            set: function (value) {
+                this._switchValue = value;
+                this._updateView();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
+        /** @internal */
+        NgPlural.prototype._updateView = function () {
+            this._clearViews();
+            var key = getPluralCategory(this._switchValue, Object.keys(this._caseViews), this._localization);
+            this._activateView(this._caseViews[key]);
+        };
+        /** @internal */
+        NgPlural.prototype._clearViews = function () {
+            if (isPresent(this._activeView))
+                this._activeView.destroy();
+        };
+        /** @internal */
+        NgPlural.prototype._activateView = function (view) {
+            if (!isPresent(view))
+                return;
+            this._activeView = view;
+            this._activeView.create();
+        };
+        NgPlural.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngPlural]' },] },
+        ];
+        /** @nocollapse */
+        NgPlural.ctorParameters = [
+            { type: NgLocalization, },
+        ];
+        NgPlural.propDecorators = {
+            'ngPlural': [{ type: _angular_core.Input },],
+        };
+        return NgPlural;
+    }());
+    /**
+     * @experimental
+     */
+    var NgPluralCase = (function () {
+        function NgPluralCase(value, template, viewContainer, ngPlural) {
+            this.value = value;
+            ngPlural.addCase(value, new SwitchView(viewContainer, template));
+        }
+        NgPluralCase.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngPluralCase]' },] },
+        ];
+        /** @nocollapse */
+        NgPluralCase.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['ngPluralCase',] },] },
+            { type: _angular_core.TemplateRef, },
+            { type: _angular_core.ViewContainerRef, },
+            { type: NgPlural, decorators: [{ type: _angular_core.Host },] },
+        ];
+        return NgPluralCase;
+    }());
+
+    /**
+     * The `NgStyle` directive changes styles based on a result of expression evaluation.
+     *
+     * An expression assigned to the `ngStyle` property must evaluate to an object and the
+     * corresponding element styles are updated based on changes to this object. Style names to update
+     * are taken from the object's keys, and values - from the corresponding object's values.
+     *
+     * ### Syntax
+     *
+     * - `<div [ngStyle]="{'font-style': styleExp}"></div>`
+     * - `<div [ngStyle]="{'max-width.px': widthExp}"></div>`
+     * - `<div [ngStyle]="styleExp"></div>` - here the `styleExp` must evaluate to an object
+     *
+     * ### Example ([live demo](http://plnkr.co/edit/YamGS6GkUh9GqWNQhCyM?p=preview)):
+     *
+     * ```
+     * import {Component} from '@angular/core';
+     * import {NgStyle} from '@angular/common';
+     *
+     * @Component({
+     *  selector: 'ngStyle-example',
+     *  template: `
+     *    <h1 [ngStyle]="{'font-style': style, 'font-size': size, 'font-weight': weight}">
+     *      Change style of this text!
+     *    </h1>
+     *
+     *    <hr>
+     *
+     *    <label>Italic: <input type="checkbox" (change)="changeStyle($event)"></label>
+     *    <label>Bold: <input type="checkbox" (change)="changeWeight($event)"></label>
+     *    <label>Size: <input type="text" [value]="size" (change)="size = $event.target.value"></label>
+     *  `,
+     *  directives: [NgStyle]
+     * })
+     * export class NgStyleExample {
+     *    style = 'normal';
+     *    weight = 'normal';
+     *    size = '20px';
+     *
+     *    changeStyle($event: any) {
+     *      this.style = $event.target.checked ? 'italic' : 'normal';
+     *    }
+     *
+     *    changeWeight($event: any) {
+     *      this.weight = $event.target.checked ? 'bold' : 'normal';
+     *    }
+     * }
+     * ```
+     *
+     * In this example the `font-style`, `font-size` and `font-weight` styles will be updated
+     * based on the `style` property's value changes.
+     *
+     * @stable
+     */
+    var NgStyle = (function () {
+        function NgStyle(_differs, _ngEl, _renderer) {
+            this._differs = _differs;
+            this._ngEl = _ngEl;
+            this._renderer = _renderer;
+        }
+        Object.defineProperty(NgStyle.prototype, "ngStyle", {
+            set: function (v) {
+                this._ngStyle = v;
+                if (isBlank(this._differ) && isPresent(v)) {
+                    this._differ = this._differs.find(this._ngStyle).create(null);
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NgStyle.prototype.ngDoCheck = function () {
+            if (isPresent(this._differ)) {
+                var changes = this._differ.diff(this._ngStyle);
+                if (isPresent(changes)) {
+                    this._applyChanges(changes);
+                }
+            }
+        };
+        NgStyle.prototype._applyChanges = function (changes) {
+            var _this = this;
+            changes.forEachRemovedItem(function (record) { _this._setStyle(record.key, null); });
+            changes.forEachAddedItem(function (record) { _this._setStyle(record.key, record.currentValue); });
+            changes.forEachChangedItem(function (record) { _this._setStyle(record.key, record.currentValue); });
+        };
+        NgStyle.prototype._setStyle = function (name, val) {
+            var nameParts = name.split('.');
+            var nameToSet = nameParts[0];
+            var valToSet = isPresent(val) && nameParts.length === 2 ? "" + val + nameParts[1] : val;
+            this._renderer.setElementStyle(this._ngEl.nativeElement, nameToSet, valToSet);
+        };
+        NgStyle.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngStyle]' },] },
+        ];
+        /** @nocollapse */
+        NgStyle.ctorParameters = [
+            { type: _angular_core.KeyValueDiffers, },
+            { type: _angular_core.ElementRef, },
+            { type: _angular_core.Renderer, },
+        ];
+        NgStyle.propDecorators = {
+            'ngStyle': [{ type: _angular_core.Input },],
+        };
+        return NgStyle;
+    }());
+
+    /**
+     * Creates and inserts an embedded view based on a prepared `TemplateRef`.
+     * You can attach a context object to the `EmbeddedViewRef` by setting `[ngOutletContext]`.
+     * `[ngOutletContext]` should be an object, the object's keys will be the local template variables
+     * available within the `TemplateRef`.
+     *
+     * Note: using the key `$implicit` in the context object will set it's value as default.
+     *
+     * ### Syntax
+     *
+     * ```
+     * <template [ngTemplateOutlet]="templateRefExpression"
+     *           [ngOutletContext]="objectExpression">
+     * </template>
      * ```
      *
      * @experimental
      */
-    var FORM_PROVIDERS = [FormBuilder, RadioControlRegistry];
-    var DeprecatedFormsModule = (function () {
-        function DeprecatedFormsModule() {
+    var NgTemplateOutlet = (function () {
+        function NgTemplateOutlet(_viewContainerRef) {
+            this._viewContainerRef = _viewContainerRef;
         }
-        return DeprecatedFormsModule;
+        Object.defineProperty(NgTemplateOutlet.prototype, "ngOutletContext", {
+            set: function (context) { this._context = context; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(NgTemplateOutlet.prototype, "ngTemplateOutlet", {
+            set: function (templateRef) { this._templateRef = templateRef; },
+            enumerable: true,
+            configurable: true
+        });
+        NgTemplateOutlet.prototype.ngOnChanges = function () {
+            if (this._viewRef) {
+                this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
+            }
+            if (this._templateRef) {
+                this._viewRef = this._viewContainerRef.createEmbeddedView(this._templateRef, this._context);
+            }
+        };
+        NgTemplateOutlet.decorators = [
+            { type: _angular_core.Directive, args: [{ selector: '[ngTemplateOutlet]' },] },
+        ];
+        /** @nocollapse */
+        NgTemplateOutlet.ctorParameters = [
+            { type: _angular_core.ViewContainerRef, },
+        ];
+        NgTemplateOutlet.propDecorators = {
+            'ngOutletContext': [{ type: _angular_core.Input },],
+            'ngTemplateOutlet': [{ type: _angular_core.Input },],
+        };
+        return NgTemplateOutlet;
     }());
-    /** @nocollapse */
-    DeprecatedFormsModule.decorators = [
-        { type: _angular_core.NgModule, args: [{
-                    providers: [
-                        FORM_PROVIDERS,
-                    ],
-                    declarations: FORM_DIRECTIVES,
-                    exports: FORM_DIRECTIVES
-                },] },
-    ];
+
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -4298,6 +2983,7 @@ var __extends = (this && this.__extends) || function (d, b) {
         });
         return PlatformLocation;
     }());
+
     /**
      * `LocationStrategy` is responsible for representing and reading route state
      * from the browser's URL. Angular provides two strategies:
@@ -4331,27 +3017,51 @@ var __extends = (this && this.__extends) || function (d, b) {
      *
      * ### Example
      *
-     * ```
-     * import {Component} from '@angular/core';
-     * import {ROUTER_DIRECTIVES, ROUTER_PROVIDERS, RouteConfig} from '@angular/router';
+     * import {Component, NgModule} from '@angular/core';
      * import {APP_BASE_HREF} from '@angular/common';
      *
-     * @Component({directives: [ROUTER_DIRECTIVES]})
-     * @RouteConfig([
-     *  {...},
-     * ])
-     * class AppCmp {
-     *   // ...
-     * }
-     *
-     * bootstrap(AppCmp, [
-     *   ROUTER_PROVIDERS,
-     *   {provide: APP_BASE_HREF, useValue: '/my/app'}
-     * ]);
+     * @NgModule({
+     *   providers: [{provide: APP_BASE_HREF, useValue: '/my/app'}]
+     * })
+     * class AppModule {}
      * ```
+     *
      * @stable
      */
     var APP_BASE_HREF = new _angular_core.OpaqueToken('appBaseHref');
+
+    /**
+     * `Location` is a service that applications can use to interact with a browser's URL.
+     * Depending on which {@link LocationStrategy} is used, `Location` will either persist
+     * to the URL's path or the URL's hash segment.
+     *
+     * Note: it's better to use {@link Router#navigate} service to trigger route changes. Use
+     * `Location` only if you need to interact with or create normalized URLs outside of
+     * routing.
+     *
+     * `Location` is responsible for normalizing the URL against the application's base href.
+     * A normalized URL is absolute from the URL host, includes the application's base href, and has no
+     * trailing slash:
+     * - `/my/app/user/123` is normalized
+     * - `my/app/user/123` **is not** normalized
+     * - `/my/app/user/123/` **is not** normalized
+     *
+     * ### Example
+     *
+     * ```
+     * import {Component} from '@angular/core';
+     * import {Location} from '@angular/common';
+     *
+     * @Component({selector: 'app-component'})
+     * class AppCmp {
+     *   constructor(location: Location) {
+     *     location.go('/foo');
+     *   }
+     * }
+     * ```
+     *
+     * @stable
+     */
     var Location = (function () {
         function Location(platformStrategy) {
             var _this = this;
@@ -4471,16 +3181,15 @@ var __extends = (this && this.__extends) || function (d, b) {
             }
             return url;
         };
+        Location.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        Location.ctorParameters = [
+            { type: LocationStrategy, },
+        ];
         return Location;
     }());
-    /** @nocollapse */
-    Location.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    Location.ctorParameters = [
-        { type: LocationStrategy, },
-    ];
     function _stripBaseHref(baseHref, url) {
         if (baseHref.length > 0 && url.startsWith(baseHref)) {
             return url.substring(baseHref.length);
@@ -4494,8 +3203,47 @@ var __extends = (this && this.__extends) || function (d, b) {
         }
         return url;
     }
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends$3 = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    /**
+     * `HashLocationStrategy` is a {@link LocationStrategy} used to configure the
+     * {@link Location} service to represent its state in the
+     * [hash fragment](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax)
+     * of the browser's URL.
+     *
+     * For instance, if you call `location.go('/foo')`, the browser's URL will become
+     * `example.com#/foo`.
+     *
+     * ### Example
+     *
+     * ```
+     * import {Component, NgModule} from '@angular/core';
+     * import {
+     *   LocationStrategy,
+     *   HashLocationStrategy
+     * } from '@angular/common';
+     *
+     * @NgModule({
+     *   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
+     * })
+     * class AppModule {}
+     * ```
+     *
+     * @stable
+     */
     var HashLocationStrategy = (function (_super) {
-        __extends(HashLocationStrategy, _super);
+        __extends$3(HashLocationStrategy, _super);
         function HashLocationStrategy(_platformLocation, _baseHref) {
             _super.call(this);
             this._platformLocation = _platformLocation;
@@ -4538,19 +3286,54 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         HashLocationStrategy.prototype.forward = function () { this._platformLocation.forward(); };
         HashLocationStrategy.prototype.back = function () { this._platformLocation.back(); };
+        HashLocationStrategy.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        HashLocationStrategy.ctorParameters = [
+            { type: PlatformLocation, },
+            { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
+        ];
         return HashLocationStrategy;
     }(LocationStrategy));
-    /** @nocollapse */
-    HashLocationStrategy.decorators = [
-        { type: _angular_core.Injectable },
-    ];
-    /** @nocollapse */
-    HashLocationStrategy.ctorParameters = [
-        { type: PlatformLocation, },
-        { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
-    ];
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends$4 = (this && this.__extends) || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    /**
+     * `PathLocationStrategy` is a {@link LocationStrategy} used to configure the
+     * {@link Location} service to represent its state in the
+     * [path](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax) of the
+     * browser's URL.
+     *
+     * `PathLocationStrategy` is the default binding for {@link LocationStrategy}
+     * provided in {@link ROUTER_PROVIDERS}.
+     *
+     * If you're using `PathLocationStrategy`, you must provide a {@link APP_BASE_HREF}
+     * or add a base element to the document. This URL prefix that will be preserved
+     * when generating and recognizing URLs.
+     *
+     * For instance, if you provide an `APP_BASE_HREF` of `'/my/app'` and call
+     * `location.go('/foo')`, the browser's URL will become
+     * `example.com/my/app/foo`.
+     *
+     * Similarly, if you add `<base href='/my/app'/>` to the document and call
+     * `location.go('/foo')`, the browser's URL will become
+     * `example.com/my/app/foo`.
+     *
+     * @stable
+     */
     var PathLocationStrategy = (function (_super) {
-        __extends(PathLocationStrategy, _super);
+        __extends$4(PathLocationStrategy, _super);
         function PathLocationStrategy(_platformLocation, href) {
             _super.call(this);
             this._platformLocation = _platformLocation;
@@ -4558,7 +3341,7 @@ var __extends = (this && this.__extends) || function (d, b) {
                 href = this._platformLocation.getBaseHrefFromDOM();
             }
             if (isBlank(href)) {
-                throw new BaseException("No base href set. Please provide a value for the APP_BASE_HREF token or add a base element to the document.");
+                throw new Error("No base href set. Please provide a value for the APP_BASE_HREF token or add a base element to the document.");
             }
             this._baseHref = href;
         }
@@ -4587,30 +3370,169 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         PathLocationStrategy.prototype.forward = function () { this._platformLocation.forward(); };
         PathLocationStrategy.prototype.back = function () { this._platformLocation.back(); };
+        PathLocationStrategy.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        PathLocationStrategy.ctorParameters = [
+            { type: PlatformLocation, },
+            { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
+        ];
         return PathLocationStrategy;
     }(LocationStrategy));
-    /** @nocollapse */
-    PathLocationStrategy.decorators = [
-        { type: _angular_core.Injectable },
+
+    /**
+     * A collection of Angular core directives that are likely to be used in each and every Angular
+     * application.
+     *
+     * This collection can be used to quickly enumerate all the built-in directives in the `directives`
+     * property of the `@Component` annotation.
+     *
+     * ### Example ([live demo](http://plnkr.co/edit/yakGwpCdUkg0qfzX5m8g?p=preview))
+     *
+     * Instead of writing:
+     *
+     * ```typescript
+     * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
+     * import {OtherDirective} from './myDirectives';
+     *
+     * @Component({
+     *   selector: 'my-component',
+     *   templateUrl: 'myComponent.html',
+     *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, OtherDirective]
+     * })
+     * export class MyComponent {
+     *   ...
+     * }
+     * ```
+     * one could import all the core directives at once:
+     *
+     * ```typescript
+     * import {CORE_DIRECTIVES} from '@angular/common';
+     * import {OtherDirective} from './myDirectives';
+     *
+     * @Component({
+     *   selector: 'my-component',
+     *   templateUrl: 'myComponent.html',
+     *   directives: [CORE_DIRECTIVES, OtherDirective]
+     * })
+     * export class MyComponent {
+     *   ...
+     * }
+     * ```
+     *
+     * @stable
+     */
+    var CORE_DIRECTIVES = [
+        NgClass,
+        NgFor,
+        NgIf,
+        NgTemplateOutlet,
+        NgStyle,
+        NgSwitch,
+        NgSwitchCase,
+        NgSwitchDefault,
+        NgPlural,
+        NgPluralCase,
     ];
-    /** @nocollapse */
-    PathLocationStrategy.ctorParameters = [
-        { type: PlatformLocation, },
-        { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
+
+    /**
+     * A collection of Angular core directives that are likely to be used in each and every Angular
+     * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
+     * NgModel).
+     *
+     * This collection can be used to quickly enumerate all the built-in directives in the `directives`
+     * property of the `@Component` decorator.
+     *
+     * ### Example
+     *
+     * Instead of writing:
+     *
+     * ```typescript
+     * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm} from
+     * '@angular/common';
+     * import {OtherDirective} from './myDirectives';
+     *
+     * @Component({
+     *   selector: 'my-component',
+     *   templateUrl: 'myComponent.html',
+     *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm,
+     * OtherDirective]
+     * })
+     * export class MyComponent {
+     *   ...
+     * }
+     * ```
+     * one could import all the common directives at once:
+     *
+     * ```typescript
+     * import {COMMON_DIRECTIVES} from '@angular/common';
+     * import {OtherDirective} from './myDirectives';
+     *
+     * @Component({
+     *   selector: 'my-component',
+     *   templateUrl: 'myComponent.html',
+     *   directives: [COMMON_DIRECTIVES, OtherDirective]
+     * })
+     * export class MyComponent {
+     *   ...
+     * }
+     * ```
+     *
+     * @experimental Contains forms which are experimental.
+     */
+    var COMMON_DIRECTIVES = CORE_DIRECTIVES;
+
+    /**
+     * A collection of Angular core pipes that are likely to be used in each and every
+     * application.
+     *
+     * This collection can be used to quickly enumerate all the built-in pipes in the `pipes`
+     * property of the `@Component` decorator.
+     *
+     * @experimental Contains i18n pipes which are experimental
+     */
+    var COMMON_PIPES = [
+        AsyncPipe,
+        UpperCasePipe,
+        LowerCasePipe,
+        JsonPipe,
+        SlicePipe,
+        DecimalPipe,
+        PercentPipe,
+        CurrencyPipe,
+        DatePipe,
+        I18nPluralPipe,
+        I18nSelectPipe,
     ];
+
+    // Note: This does not contain the location providers,
+    // as they need some platform specific implementations to work.
+    /**
+     * The module that includes all the basic Angular directives like {@link NgIf}, ${link NgFor}, ...
+     *
+     * @stable
+     */
     var CommonModule = (function () {
         function CommonModule() {
         }
+        CommonModule.decorators = [
+            { type: _angular_core.NgModule, args: [{
+                        declarations: [COMMON_DIRECTIVES, COMMON_PIPES],
+                        exports: [COMMON_DIRECTIVES, COMMON_PIPES],
+                        providers: [
+                            { provide: NgLocalization, useClass: NgLocaleLocalization },
+                        ],
+                    },] },
+        ];
+        /** @nocollapse */
+        CommonModule.ctorParameters = [];
         return CommonModule;
     }());
-    /** @nocollapse */
-    CommonModule.decorators = [
-        { type: _angular_core.NgModule, args: [{ declarations: [COMMON_DIRECTIVES, COMMON_PIPES], exports: [COMMON_DIRECTIVES, COMMON_PIPES] },] },
-    ];
-    exports.CommonModule = CommonModule;
+
     exports.NgLocalization = NgLocalization;
+    exports.CommonModule = CommonModule;
     exports.AsyncPipe = AsyncPipe;
-    exports.COMMON_PIPES = COMMON_PIPES;
     exports.DatePipe = DatePipe;
     exports.I18nPluralPipe = I18nPluralPipe;
     exports.I18nSelectPipe = I18nSelectPipe;
@@ -4619,10 +3541,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.CurrencyPipe = CurrencyPipe;
     exports.DecimalPipe = DecimalPipe;
     exports.PercentPipe = PercentPipe;
-    exports.ReplacePipe = ReplacePipe;
     exports.SlicePipe = SlicePipe;
     exports.UpperCasePipe = UpperCasePipe;
-    exports.CORE_DIRECTIVES = CORE_DIRECTIVES;
     exports.NgClass = NgClass;
     exports.NgFor = NgFor;
     exports.NgIf = NgIf;
@@ -4633,42 +3553,11 @@ var __extends = (this && this.__extends) || function (d, b) {
     exports.NgSwitchCase = NgSwitchCase;
     exports.NgSwitchDefault = NgSwitchDefault;
     exports.NgTemplateOutlet = NgTemplateOutlet;
-    exports.FORM_PROVIDERS = FORM_PROVIDERS;
-    exports.DeprecatedFormsModule = DeprecatedFormsModule;
-    exports.FORM_DIRECTIVES = FORM_DIRECTIVES;
-    exports.RadioButtonState = RadioButtonState;
-    exports.AbstractControlDirective = AbstractControlDirective;
-    exports.CheckboxControlValueAccessor = CheckboxControlValueAccessor;
-    exports.ControlContainer = ControlContainer;
-    exports.NG_VALUE_ACCESSOR = NG_VALUE_ACCESSOR;
-    exports.DefaultValueAccessor = DefaultValueAccessor;
-    exports.NgControl = NgControl;
-    exports.NgControlGroup = NgControlGroup;
-    exports.NgControlName = NgControlName;
-    exports.NgControlStatus = NgControlStatus;
-    exports.NgForm = NgForm;
-    exports.NgFormControl = NgFormControl;
-    exports.NgFormModel = NgFormModel;
-    exports.NgModel = NgModel;
-    exports.NgSelectOption = NgSelectOption;
-    exports.SelectControlValueAccessor = SelectControlValueAccessor;
-    exports.MaxLengthValidator = MaxLengthValidator;
-    exports.MinLengthValidator = MinLengthValidator;
-    exports.PatternValidator = PatternValidator;
-    exports.RequiredValidator = RequiredValidator;
-    exports.FormBuilder = FormBuilder;
-    exports.AbstractControl = AbstractControl;
-    exports.Control = Control;
-    exports.ControlArray = ControlArray;
-    exports.ControlGroup = ControlGroup;
-    exports.NG_ASYNC_VALIDATORS = NG_ASYNC_VALIDATORS;
-    exports.NG_VALIDATORS = NG_VALIDATORS;
-    exports.Validators = Validators;
-    exports.COMMON_DIRECTIVES = COMMON_DIRECTIVES;
     exports.PlatformLocation = PlatformLocation;
     exports.LocationStrategy = LocationStrategy;
     exports.APP_BASE_HREF = APP_BASE_HREF;
     exports.HashLocationStrategy = HashLocationStrategy;
     exports.PathLocationStrategy = PathLocationStrategy;
     exports.Location = Location;
+
 }));

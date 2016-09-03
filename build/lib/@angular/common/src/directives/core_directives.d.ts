@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Type } from '../facade/lang';
+import { Type } from '@angular/core';
 /**
  * A collection of Angular core directives that are likely to be used in each and every Angular
  * application.
@@ -18,13 +18,13 @@ import { Type } from '../facade/lang';
  * Instead of writing:
  *
  * ```typescript
- * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault} from '@angular/common';
+ * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
  * import {OtherDirective} from './myDirectives';
  *
  * @Component({
  *   selector: 'my-component',
  *   templateUrl: 'myComponent.html',
- *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, OtherDirective]
+ *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, OtherDirective]
  * })
  * export class MyComponent {
  *   ...
@@ -48,4 +48,4 @@ import { Type } from '../facade/lang';
  *
  * @stable
  */
-export declare const CORE_DIRECTIVES: Type[];
+export declare const CORE_DIRECTIVES: Type<any>[];

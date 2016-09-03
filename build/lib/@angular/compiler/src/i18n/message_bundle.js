@@ -5,13 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var digest_1 = require('./digest');
-var extractor_merger_1 = require('./extractor_merger');
+import { digestMessage } from './digest';
+import { extractMessages } from './extractor_merger';
 /**
  * A container for message extracted from the templates.
  */
-var MessageBundle = (function () {
+export var MessageBundle = (function () {
     function MessageBundle(_htmlParser, _implicitTags, _implicitAttrs) {
         this._htmlParser = _htmlParser;
         this._implicitTags = _implicitTags;
@@ -24,14 +23,14 @@ var MessageBundle = (function () {
         if (htmlParserResult.errors.length) {
             return htmlParserResult.errors;
         }
-        var i18nParserResult = extractor_merger_1.extractMessages(htmlParserResult.rootNodes, interpolationConfig, this._implicitTags, this._implicitAttrs);
+        var i18nParserResult = extractMessages(htmlParserResult.rootNodes, interpolationConfig, this._implicitTags, this._implicitAttrs);
         if (i18nParserResult.errors.length) {
             return i18nParserResult.errors;
         }
-        i18nParserResult.messages.forEach(function (message) { _this._messageMap[digest_1.digestMessage(message)] = message; });
+        i18nParserResult.messages.forEach(function (message) { _this._messageMap[digestMessage(message)] = message; });
     };
+    MessageBundle.prototype.getMessageMap = function () { return this._messageMap; };
     MessageBundle.prototype.write = function (serializer) { return serializer.write(this._messageMap); };
     return MessageBundle;
 }());
-exports.MessageBundle = MessageBundle;
 //# sourceMappingURL=message_bundle.js.map

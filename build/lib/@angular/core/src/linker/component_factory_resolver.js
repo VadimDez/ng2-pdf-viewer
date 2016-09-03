@@ -5,26 +5,24 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
+import { BaseError } from '../facade/errors';
+import { stringify } from '../facade/lang';
 /**
  * @stable
  */
-var NoComponentFactoryError = (function (_super) {
+export var NoComponentFactoryError = (function (_super) {
     __extends(NoComponentFactoryError, _super);
     function NoComponentFactoryError(component) {
-        _super.call(this, "No component factory found for " + lang_1.stringify(component));
+        _super.call(this, "No component factory found for " + stringify(component));
         this.component = component;
     }
     return NoComponentFactoryError;
-}(exceptions_1.BaseException));
-exports.NoComponentFactoryError = NoComponentFactoryError;
+}(BaseError));
 var _NullComponentFactoryResolver = (function () {
     function _NullComponentFactoryResolver() {
     }
@@ -36,14 +34,13 @@ var _NullComponentFactoryResolver = (function () {
 /**
  * @stable
  */
-var ComponentFactoryResolver = (function () {
+export var ComponentFactoryResolver = (function () {
     function ComponentFactoryResolver() {
     }
     ComponentFactoryResolver.NULL = new _NullComponentFactoryResolver();
     return ComponentFactoryResolver;
 }());
-exports.ComponentFactoryResolver = ComponentFactoryResolver;
-var CodegenComponentFactoryResolver = (function () {
+export var CodegenComponentFactoryResolver = (function () {
     function CodegenComponentFactoryResolver(factories, _parent) {
         this._parent = _parent;
         this._factories = new Map();
@@ -61,5 +58,4 @@ var CodegenComponentFactoryResolver = (function () {
     };
     return CodegenComponentFactoryResolver;
 }());
-exports.CodegenComponentFactoryResolver = CodegenComponentFactoryResolver;
 //# sourceMappingURL=component_factory_resolver.js.map

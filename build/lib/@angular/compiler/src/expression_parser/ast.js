@@ -5,15 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var ParserError = (function () {
+import { ListWrapper } from '../facade/collection';
+import { isBlank } from '../facade/lang';
+export var ParserError = (function () {
     function ParserError(message, input, errLocation, ctxLocation) {
         this.input = input;
         this.errLocation = errLocation;
@@ -22,16 +21,14 @@ var ParserError = (function () {
     }
     return ParserError;
 }());
-exports.ParserError = ParserError;
-var ParseSpan = (function () {
+export var ParseSpan = (function () {
     function ParseSpan(start, end) {
         this.start = start;
         this.end = end;
     }
     return ParseSpan;
 }());
-exports.ParseSpan = ParseSpan;
-var AST = (function () {
+export var AST = (function () {
     function AST(span) {
         this.span = span;
     }
@@ -42,7 +39,6 @@ var AST = (function () {
     AST.prototype.toString = function () { return 'AST'; };
     return AST;
 }());
-exports.AST = AST;
 /**
  * Represents a quoted expression of the form:
  *
@@ -56,7 +52,7 @@ exports.AST = AST;
  * expression language. The `uninterpretedExpression` part of the quote is
  * therefore not interpreted by the Angular's own expression parser.
  */
-var Quote = (function (_super) {
+export var Quote = (function (_super) {
     __extends(Quote, _super);
     function Quote(span, prefix, uninterpretedExpression, location) {
         _super.call(this, span);
@@ -71,8 +67,7 @@ var Quote = (function (_super) {
     Quote.prototype.toString = function () { return 'Quote'; };
     return Quote;
 }(AST));
-exports.Quote = Quote;
-var EmptyExpr = (function (_super) {
+export var EmptyExpr = (function (_super) {
     __extends(EmptyExpr, _super);
     function EmptyExpr() {
         _super.apply(this, arguments);
@@ -83,8 +78,7 @@ var EmptyExpr = (function (_super) {
     };
     return EmptyExpr;
 }(AST));
-exports.EmptyExpr = EmptyExpr;
-var ImplicitReceiver = (function (_super) {
+export var ImplicitReceiver = (function (_super) {
     __extends(ImplicitReceiver, _super);
     function ImplicitReceiver() {
         _super.apply(this, arguments);
@@ -95,11 +89,10 @@ var ImplicitReceiver = (function (_super) {
     };
     return ImplicitReceiver;
 }(AST));
-exports.ImplicitReceiver = ImplicitReceiver;
 /**
  * Multiple expressions separated by a semicolon.
  */
-var Chain = (function (_super) {
+export var Chain = (function (_super) {
     __extends(Chain, _super);
     function Chain(span, expressions) {
         _super.call(this, span);
@@ -111,8 +104,7 @@ var Chain = (function (_super) {
     };
     return Chain;
 }(AST));
-exports.Chain = Chain;
-var Conditional = (function (_super) {
+export var Conditional = (function (_super) {
     __extends(Conditional, _super);
     function Conditional(span, condition, trueExp, falseExp) {
         _super.call(this, span);
@@ -126,8 +118,7 @@ var Conditional = (function (_super) {
     };
     return Conditional;
 }(AST));
-exports.Conditional = Conditional;
-var PropertyRead = (function (_super) {
+export var PropertyRead = (function (_super) {
     __extends(PropertyRead, _super);
     function PropertyRead(span, receiver, name) {
         _super.call(this, span);
@@ -140,8 +131,7 @@ var PropertyRead = (function (_super) {
     };
     return PropertyRead;
 }(AST));
-exports.PropertyRead = PropertyRead;
-var PropertyWrite = (function (_super) {
+export var PropertyWrite = (function (_super) {
     __extends(PropertyWrite, _super);
     function PropertyWrite(span, receiver, name, value) {
         _super.call(this, span);
@@ -155,8 +145,7 @@ var PropertyWrite = (function (_super) {
     };
     return PropertyWrite;
 }(AST));
-exports.PropertyWrite = PropertyWrite;
-var SafePropertyRead = (function (_super) {
+export var SafePropertyRead = (function (_super) {
     __extends(SafePropertyRead, _super);
     function SafePropertyRead(span, receiver, name) {
         _super.call(this, span);
@@ -169,8 +158,7 @@ var SafePropertyRead = (function (_super) {
     };
     return SafePropertyRead;
 }(AST));
-exports.SafePropertyRead = SafePropertyRead;
-var KeyedRead = (function (_super) {
+export var KeyedRead = (function (_super) {
     __extends(KeyedRead, _super);
     function KeyedRead(span, obj, key) {
         _super.call(this, span);
@@ -183,8 +171,7 @@ var KeyedRead = (function (_super) {
     };
     return KeyedRead;
 }(AST));
-exports.KeyedRead = KeyedRead;
-var KeyedWrite = (function (_super) {
+export var KeyedWrite = (function (_super) {
     __extends(KeyedWrite, _super);
     function KeyedWrite(span, obj, key, value) {
         _super.call(this, span);
@@ -198,8 +185,7 @@ var KeyedWrite = (function (_super) {
     };
     return KeyedWrite;
 }(AST));
-exports.KeyedWrite = KeyedWrite;
-var BindingPipe = (function (_super) {
+export var BindingPipe = (function (_super) {
     __extends(BindingPipe, _super);
     function BindingPipe(span, exp, name, args) {
         _super.call(this, span);
@@ -213,8 +199,7 @@ var BindingPipe = (function (_super) {
     };
     return BindingPipe;
 }(AST));
-exports.BindingPipe = BindingPipe;
-var LiteralPrimitive = (function (_super) {
+export var LiteralPrimitive = (function (_super) {
     __extends(LiteralPrimitive, _super);
     function LiteralPrimitive(span, value) {
         _super.call(this, span);
@@ -226,8 +211,7 @@ var LiteralPrimitive = (function (_super) {
     };
     return LiteralPrimitive;
 }(AST));
-exports.LiteralPrimitive = LiteralPrimitive;
-var LiteralArray = (function (_super) {
+export var LiteralArray = (function (_super) {
     __extends(LiteralArray, _super);
     function LiteralArray(span, expressions) {
         _super.call(this, span);
@@ -239,8 +223,7 @@ var LiteralArray = (function (_super) {
     };
     return LiteralArray;
 }(AST));
-exports.LiteralArray = LiteralArray;
-var LiteralMap = (function (_super) {
+export var LiteralMap = (function (_super) {
     __extends(LiteralMap, _super);
     function LiteralMap(span, keys, values) {
         _super.call(this, span);
@@ -253,8 +236,7 @@ var LiteralMap = (function (_super) {
     };
     return LiteralMap;
 }(AST));
-exports.LiteralMap = LiteralMap;
-var Interpolation = (function (_super) {
+export var Interpolation = (function (_super) {
     __extends(Interpolation, _super);
     function Interpolation(span, strings, expressions) {
         _super.call(this, span);
@@ -267,8 +249,7 @@ var Interpolation = (function (_super) {
     };
     return Interpolation;
 }(AST));
-exports.Interpolation = Interpolation;
-var Binary = (function (_super) {
+export var Binary = (function (_super) {
     __extends(Binary, _super);
     function Binary(span, operation, left, right) {
         _super.call(this, span);
@@ -282,8 +263,7 @@ var Binary = (function (_super) {
     };
     return Binary;
 }(AST));
-exports.Binary = Binary;
-var PrefixNot = (function (_super) {
+export var PrefixNot = (function (_super) {
     __extends(PrefixNot, _super);
     function PrefixNot(span, expression) {
         _super.call(this, span);
@@ -295,8 +275,7 @@ var PrefixNot = (function (_super) {
     };
     return PrefixNot;
 }(AST));
-exports.PrefixNot = PrefixNot;
-var MethodCall = (function (_super) {
+export var MethodCall = (function (_super) {
     __extends(MethodCall, _super);
     function MethodCall(span, receiver, name, args) {
         _super.call(this, span);
@@ -310,8 +289,7 @@ var MethodCall = (function (_super) {
     };
     return MethodCall;
 }(AST));
-exports.MethodCall = MethodCall;
-var SafeMethodCall = (function (_super) {
+export var SafeMethodCall = (function (_super) {
     __extends(SafeMethodCall, _super);
     function SafeMethodCall(span, receiver, name, args) {
         _super.call(this, span);
@@ -325,8 +303,7 @@ var SafeMethodCall = (function (_super) {
     };
     return SafeMethodCall;
 }(AST));
-exports.SafeMethodCall = SafeMethodCall;
-var FunctionCall = (function (_super) {
+export var FunctionCall = (function (_super) {
     __extends(FunctionCall, _super);
     function FunctionCall(span, target, args) {
         _super.call(this, span);
@@ -339,11 +316,10 @@ var FunctionCall = (function (_super) {
     };
     return FunctionCall;
 }(AST));
-exports.FunctionCall = FunctionCall;
-var ASTWithSource = (function (_super) {
+export var ASTWithSource = (function (_super) {
     __extends(ASTWithSource, _super);
     function ASTWithSource(ast, source, location, errors) {
-        _super.call(this, new ParseSpan(0, lang_1.isBlank(source) ? 0 : source.length));
+        _super.call(this, new ParseSpan(0, isBlank(source) ? 0 : source.length));
         this.ast = ast;
         this.source = source;
         this.location = location;
@@ -356,8 +332,7 @@ var ASTWithSource = (function (_super) {
     ASTWithSource.prototype.toString = function () { return this.source + " in " + this.location; };
     return ASTWithSource;
 }(AST));
-exports.ASTWithSource = ASTWithSource;
-var TemplateBinding = (function () {
+export var TemplateBinding = (function () {
     function TemplateBinding(key, keyIsVar, name, expression) {
         this.key = key;
         this.keyIsVar = keyIsVar;
@@ -366,8 +341,7 @@ var TemplateBinding = (function () {
     }
     return TemplateBinding;
 }());
-exports.TemplateBinding = TemplateBinding;
-var RecursiveAstVisitor = (function () {
+export var RecursiveAstVisitor = (function () {
     function RecursiveAstVisitor() {
     }
     RecursiveAstVisitor.prototype.visitBinary = function (ast, context) {
@@ -445,8 +419,7 @@ var RecursiveAstVisitor = (function () {
     RecursiveAstVisitor.prototype.visitQuote = function (ast, context) { return null; };
     return RecursiveAstVisitor;
 }());
-exports.RecursiveAstVisitor = RecursiveAstVisitor;
-var AstTransformer = (function () {
+export var AstTransformer = (function () {
     function AstTransformer() {
     }
     AstTransformer.prototype.visitImplicitReceiver = function (ast, context) { return ast; };
@@ -499,7 +472,7 @@ var AstTransformer = (function () {
         return new KeyedWrite(ast.span, ast.obj.visit(this), ast.key.visit(this), ast.value.visit(this));
     };
     AstTransformer.prototype.visitAll = function (asts) {
-        var res = collection_1.ListWrapper.createFixedSize(asts.length);
+        var res = ListWrapper.createFixedSize(asts.length);
         for (var i = 0; i < asts.length; ++i) {
             res[i] = asts[i].visit(this);
         }
@@ -513,5 +486,4 @@ var AstTransformer = (function () {
     };
     return AstTransformer;
 }());
-exports.AstTransformer = AstTransformer;
 //# sourceMappingURL=ast.js.map

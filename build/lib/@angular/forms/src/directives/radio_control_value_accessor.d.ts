@@ -53,6 +53,7 @@ export declare class RadioControlValueAccessor implements ControlValueAccessor, 
     registerOnChange(fn: (_: any) => {}): void;
     fireUncheck(value: any): void;
     registerOnTouched(fn: () => {}): void;
+    setDisabledState(isDisabled: boolean): void;
     private _checkName();
     private _throwNameError();
 }

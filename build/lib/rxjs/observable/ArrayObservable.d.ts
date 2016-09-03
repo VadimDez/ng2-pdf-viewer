@@ -8,8 +8,8 @@ import { TeardownLogic } from '../Subscription';
  * @hide true
  */
 export declare class ArrayObservable<T> extends Observable<T> {
-    array: T[];
-    scheduler: Scheduler;
+    private array;
+    private scheduler;
     static create<T>(array: T[], scheduler?: Scheduler): Observable<T>;
     static of<T>(item1: T, scheduler?: Scheduler): Observable<T>;
     static of<T>(item1: T, item2: T, scheduler?: Scheduler): Observable<T>;

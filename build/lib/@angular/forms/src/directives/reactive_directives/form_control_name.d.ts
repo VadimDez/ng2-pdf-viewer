@@ -11,12 +11,13 @@ import { FormControl } from '../../model';
 import { ControlContainer } from '../control_container';
 import { ControlValueAccessor } from '../control_value_accessor';
 import { NgControl } from '../ng_control';
-import { AsyncValidatorFn, ValidatorFn } from '../validators';
+import { AsyncValidatorFn, Validator, ValidatorFn } from '../validators';
 export declare const controlNameBinding: any;
 /**
  * Syncs an existing form control with the specified name to a DOM element.
  *
- * This directive can only be used as a child of {@link FormGroupDirective}.
+ * This directive can only be used as a child of {@link FormGroupDirective}.  It also requires
+ * importing the {@link ReactiveFormsModule}.
 
  * ### Example
  *
@@ -27,7 +28,6 @@ export declare const controlNameBinding: any;
  *  ```
  * @Component({
  *      selector: "login-comp",
- *      directives: [REACTIVE_FORM_DIRECTIVES],
  *      template: `
  *        <form [formGroup]="myForm" (submit)="onLogIn()">
  *          Login <input type="text" formControlName="login">
@@ -37,8 +37,8 @@ export declare const controlNameBinding: any;
  *        </form>
  *      `})
  * class LoginComp {
- *  loginCtrl = new Control();
- *  passwordCtrl = new Control();
+ *  loginCtrl = new FormControl();
+ *  passwordCtrl = new FormControl();
  *  myForm = new FormGroup({
  *     login: loginCtrl,
  *     password: passwordCtrl
@@ -49,28 +49,27 @@ export declare const controlNameBinding: any;
  * }
  *  ```
  *
- * TODO(kara): Remove ngModel example with reactive paradigm
- * We can also use ngModel to bind a domain model to the form, if you don't want to provide
- * individual init values to each control.
+ * We can also set the value of the form programmatically using setValue().
  *
  *  ```
  * @Component({
  *      selector: "login-comp",
- *      directives: [REACTIVE_FORM_DIRECTIVES],
  *      template: `
  *        <form [formGroup]="myForm" (submit)='onLogIn()'>
- *          Login <input type='text' formControlName='login' [(ngModel)]="credentials.login">
- *          Password <input type='password' formControlName='password'
- *                          [(ngModel)]="credentials.password">
+ *          Login <input type='text' formControlName='login'>
+ *          Password <input type='password' formControlName='password'>
  *          <button type='submit'>Log in!</button>
  *        </form>
  *      `})
  * class LoginComp {
- *  credentials: {login:string, password:string};
  *  myForm = new FormGroup({
- *    login: new Control(this.credentials.login),
- *    password: new Control(this.credentials.password)
+ *    login: new FormControl(),
+ *    password: new FormControl()
  *  });
+ *
+ *  populate() {
+ *     this.myForm.setValue({login: 'some login', password: 'some password'});
+ *  }
  *
  *  onLogIn(): void {
  *    // this.credentials.login === "some login"
@@ -79,17 +78,15 @@ export declare const controlNameBinding: any;
  * }
  *  ```
  *
- *  @experimental
+ *  @stable
  */
 export declare class FormControlName extends NgControl implements OnChanges, OnDestroy {
-    private _parent;
-    private _validators;
-    private _asyncValidators;
     private _added;
     name: string;
     model: any;
     update: EventEmitter<{}>;
-    constructor(_parent: ControlContainer, _validators: any[], _asyncValidators: any[], valueAccessors: ControlValueAccessor[]);
+    isDisabled: boolean;
+    constructor(parent: ControlContainer, validators: Array<Validator | ValidatorFn>, asyncValidators: Array<Validator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
     ngOnChanges(changes: SimpleChanges): void;
     ngOnDestroy(): void;
     viewToModelUpdate(newValue: any): void;

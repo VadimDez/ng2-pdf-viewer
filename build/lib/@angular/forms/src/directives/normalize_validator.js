@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-function normalizeValidator(validator) {
+export function normalizeValidator(validator) {
     if (validator.validate !== undefined) {
         return function (c) { return validator.validate(c); };
     }
@@ -14,8 +13,7 @@ function normalizeValidator(validator) {
         return validator;
     }
 }
-exports.normalizeValidator = normalizeValidator;
-function normalizeAsyncValidator(validator) {
+export function normalizeAsyncValidator(validator) {
     if (validator.validate !== undefined) {
         return function (c) { return validator.validate(c); };
     }
@@ -23,5 +21,4 @@ function normalizeAsyncValidator(validator) {
         return validator;
     }
 }
-exports.normalizeAsyncValidator = normalizeAsyncValidator;
 //# sourceMappingURL=normalize_validator.js.map

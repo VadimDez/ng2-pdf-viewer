@@ -32,7 +32,7 @@ export interface GroupBySignature<T> {
 export interface RefCountSubscription {
     count: number;
     unsubscribe: () => void;
-    isUnsubscribed: boolean;
+    closed: boolean;
     attemptedToUnsubscribe: boolean;
 }
 /**

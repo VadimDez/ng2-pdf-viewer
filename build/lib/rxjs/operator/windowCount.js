@@ -83,9 +83,7 @@ var WindowCountSubscriber = (function (_super) {
         this.startWindowEvery = startWindowEvery;
         this.windows = [new Subject_1.Subject()];
         this.count = 0;
-        var firstWindow = this.windows[0];
-        destination.add(firstWindow);
-        destination.next(firstWindow);
+        destination.next(this.windows[0]);
     }
     WindowCountSubscriber.prototype._next = function (value) {
         var startWindowEvery = (this.startWindowEvery > 0) ? this.startWindowEvery : this.windowSize;
@@ -93,33 +91,40 @@ var WindowCountSubscriber = (function (_super) {
         var windowSize = this.windowSize;
         var windows = this.windows;
         var len = windows.length;
-        for (var i = 0; i < len; i++) {
+        for (var i = 0; i < len && !this.closed; i++) {
             windows[i].next(value);
         }
         var c = this.count - windowSize + 1;
-        if (c >= 0 && c % startWindowEvery === 0) {
+        if (c >= 0 && c % startWindowEvery === 0 && !this.closed) {
             windows.shift().complete();
         }
-        if (++this.count % startWindowEvery === 0) {
+        if (++this.count % startWindowEvery === 0 && !this.closed) {
             var window_1 = new Subject_1.Subject();
             windows.push(window_1);
-            destination.add(window_1);
             destination.next(window_1);
         }
     };
     WindowCountSubscriber.prototype._error = function (err) {
         var windows = this.windows;
-        while (windows.length > 0) {
-            windows.shift().error(err);
+        if (windows) {
+            while (windows.length > 0 && !this.closed) {
+                windows.shift().error(err);
+            }
         }
         this.destination.error(err);
     };
     WindowCountSubscriber.prototype._complete = function () {
         var windows = this.windows;
-        while (windows.length > 0) {
-            windows.shift().complete();
+        if (windows) {
+            while (windows.length > 0 && !this.closed) {
+                windows.shift().complete();
+            }
         }
         this.destination.complete();
+    };
+    WindowCountSubscriber.prototype._unsubscribe = function () {
+        this.count = 0;
+        this.windows = null;
     };
     return WindowCountSubscriber;
 }(Subscriber_1.Subscriber));

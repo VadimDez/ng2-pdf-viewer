@@ -6,34 +6,61 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Subscriber_1 = require('../Subscriber');
 /**
- * Returns an Observable that applies a specified accumulator function to the first item emitted by a source Observable,
- * then feeds the result of that function along with the second item emitted by the source Observable into the same
- * function, and so on until all items have been emitted by the source Observable, and emits the final result from
- * the final call to your function as its sole item.
- * This technique, which is called "reduce" here, is sometimes called "aggregate," "fold," "accumulate," "compress," or
- * "inject" in other programming contexts.
+ * Applies an accumulator function over the source Observable, and returns the
+ * accumulated result when the source completes, given an optional seed value.
+ *
+ * <span class="informal">Combines together all values emitted on the source,
+ * using an accumulator function that knows how to join a new source value into
+ * the accumulation from the past.</span>
  *
  * <img src="./img/reduce.png" width="100%">
  *
- * @param {initialValue} the initial (seed) accumulator value
- * @param {accumulator} an accumulator function to be invoked on each item emitted by the source Observable, the
- * result of which will be used in the next accumulator call.
- * @return {Observable} an Observable that emits a single item that is the result of accumulating the output from the
- * items emitted by the source Observable.
+ * Like
+ * [Array.prototype.reduce()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce),
+ * `reduce` applies an `accumulator` function against an accumulation and each
+ * value of the source Observable (from the past) to reduce it to a single
+ * value, emitted on the output Observable. Note that `reduce` will only emit
+ * one value, only when the source Observable completes. It is equivalent to
+ * applying operator {@link scan} followed by operator {@link last}.
+ *
+ * Returns an Observable that applies a specified `accumulator` function to each
+ * item emitted by the source Observable. If a `seed` value is specified, then
+ * that value will be used as the initial value for the accumulator. If no seed
+ * value is specified, the first item of the source is used as the seed.
+ *
+ * @example <caption>Count the number of click events that happened in 5 seconds</caption>
+ * var clicksInFiveSeconds = Rx.Observable.fromEvent(document, 'click')
+ *   .takeUntil(Rx.Observable.interval(5000));
+ * var ones = clicksInFiveSeconds.mapTo(1);
+ * var seed = 0;
+ * var count = ones.reduce((acc, one) => acc + one, seed);
+ * count.subscribe(x => console.log(x));
+ *
+ * @see {@link count}
+ * @see {@link expand}
+ * @see {@link mergeScan}
+ * @see {@link scan}
+ *
+ * @param {function(acc: R, value: T): R} accumulator The accumulator function
+ * called on each source value.
+ * @param {R} [seed] The initial accumulation value.
+ * @return {Observable<R>} An observable of the accumulated values.
+ * @return {Observable<R>} An Observable that emits a single value that is the
+ * result of accumulating the values emitted by the source Observable.
  * @method reduce
  * @owner Observable
  */
-function reduce(project, seed) {
-    return this.lift(new ReduceOperator(project, seed));
+function reduce(accumulator, seed) {
+    return this.lift(new ReduceOperator(accumulator, seed));
 }
 exports.reduce = reduce;
 var ReduceOperator = (function () {
-    function ReduceOperator(project, seed) {
-        this.project = project;
+    function ReduceOperator(accumulator, seed) {
+        this.accumulator = accumulator;
         this.seed = seed;
     }
     ReduceOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ReduceSubscriber(subscriber, this.project, this.seed));
+        return source._subscribe(new ReduceSubscriber(subscriber, this.accumulator, this.seed));
     };
     return ReduceOperator;
 }());
@@ -45,11 +72,12 @@ exports.ReduceOperator = ReduceOperator;
  */
 var ReduceSubscriber = (function (_super) {
     __extends(ReduceSubscriber, _super);
-    function ReduceSubscriber(destination, project, seed) {
+    function ReduceSubscriber(destination, accumulator, seed) {
         _super.call(this, destination);
+        this.accumulator = accumulator;
         this.hasValue = false;
         this.acc = seed;
-        this.project = project;
+        this.accumulator = accumulator;
         this.hasSeed = typeof seed !== 'undefined';
     }
     ReduceSubscriber.prototype._next = function (value) {
@@ -64,7 +92,7 @@ var ReduceSubscriber = (function (_super) {
     ReduceSubscriber.prototype._tryReduce = function (value) {
         var result;
         try {
-            result = this.project(this.acc, value);
+            result = this.accumulator(this.acc, value);
         }
         catch (err) {
             this.destination.error(err);

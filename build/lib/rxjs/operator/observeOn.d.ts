@@ -4,6 +4,7 @@ import { Operator } from '../Operator';
 import { PartialObserver } from '../Observer';
 import { Subscriber } from '../Subscriber';
 import { Notification } from '../Notification';
+import { TeardownLogic } from '../Subscription';
 /**
  * @see {@link Notification}
  *
@@ -21,7 +22,7 @@ export declare class ObserveOnOperator<T> implements Operator<T, T> {
     private scheduler;
     private delay;
     constructor(scheduler: Scheduler, delay?: number);
-    call(subscriber: Subscriber<T>, source: any): any;
+    call(subscriber: Subscriber<T>, source: any): TeardownLogic;
 }
 /**
  * We need this JSDoc comment for affecting ESDoc.

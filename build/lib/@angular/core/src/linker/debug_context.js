@@ -5,11 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var view_type_1 = require('./view_type');
-var StaticNodeDebugInfo = (function () {
+import { StringMapWrapper } from '../facade/collection';
+import { isBlank, isPresent } from '../facade/lang';
+import { ViewType } from './view_type';
+export var StaticNodeDebugInfo = (function () {
     function StaticNodeDebugInfo(providerTokens, componentToken, refTokens) {
         this.providerTokens = providerTokens;
         this.componentToken = componentToken;
@@ -17,8 +16,7 @@ var StaticNodeDebugInfo = (function () {
     }
     return StaticNodeDebugInfo;
 }());
-exports.StaticNodeDebugInfo = StaticNodeDebugInfo;
-var DebugContext = (function () {
+export var DebugContext = (function () {
     function DebugContext(_view, _nodeIndex, _tplRow, _tplCol) {
         this._view = _view;
         this._nodeIndex = _nodeIndex;
@@ -27,7 +25,7 @@ var DebugContext = (function () {
     }
     Object.defineProperty(DebugContext.prototype, "_staticNodeInfo", {
         get: function () {
-            return lang_1.isPresent(this._nodeIndex) ? this._view.staticNodeDebugInfos[this._nodeIndex] : null;
+            return isPresent(this._nodeIndex) ? this._view.staticNodeDebugInfos[this._nodeIndex] : null;
         },
         enumerable: true,
         configurable: true
@@ -40,7 +38,7 @@ var DebugContext = (function () {
     Object.defineProperty(DebugContext.prototype, "component", {
         get: function () {
             var staticNodeInfo = this._staticNodeInfo;
-            if (lang_1.isPresent(staticNodeInfo) && lang_1.isPresent(staticNodeInfo.componentToken)) {
+            if (isPresent(staticNodeInfo) && isPresent(staticNodeInfo.componentToken)) {
                 return this.injector.get(staticNodeInfo.componentToken);
             }
             return null;
@@ -51,11 +49,11 @@ var DebugContext = (function () {
     Object.defineProperty(DebugContext.prototype, "componentRenderElement", {
         get: function () {
             var componentView = this._view;
-            while (lang_1.isPresent(componentView.declarationAppElement) &&
-                componentView.type !== view_type_1.ViewType.COMPONENT) {
+            while (isPresent(componentView.declarationAppElement) &&
+                componentView.type !== ViewType.COMPONENT) {
                 componentView = componentView.declarationAppElement.parentView;
             }
-            return lang_1.isPresent(componentView.declarationAppElement) ?
+            return isPresent(componentView.declarationAppElement) ?
                 componentView.declarationAppElement.nativeElement :
                 null;
         },
@@ -69,7 +67,7 @@ var DebugContext = (function () {
     });
     Object.defineProperty(DebugContext.prototype, "renderNode", {
         get: function () {
-            if (lang_1.isPresent(this._nodeIndex) && this._view.allNodes) {
+            if (isPresent(this._nodeIndex) && this._view.allNodes) {
                 return this._view.allNodes[this._nodeIndex];
             }
             else {
@@ -82,7 +80,7 @@ var DebugContext = (function () {
     Object.defineProperty(DebugContext.prototype, "providerTokens", {
         get: function () {
             var staticNodeInfo = this._staticNodeInfo;
-            return lang_1.isPresent(staticNodeInfo) ? staticNodeInfo.providerTokens : null;
+            return isPresent(staticNodeInfo) ? staticNodeInfo.providerTokens : null;
         },
         enumerable: true,
         configurable: true
@@ -99,11 +97,11 @@ var DebugContext = (function () {
             var _this = this;
             var varValues = {};
             var staticNodeInfo = this._staticNodeInfo;
-            if (lang_1.isPresent(staticNodeInfo)) {
+            if (isPresent(staticNodeInfo)) {
                 var refs = staticNodeInfo.refTokens;
-                collection_1.StringMapWrapper.forEach(refs, function (refToken, refName) {
+                StringMapWrapper.forEach(refs, function (refToken, refName) {
                     var varValue;
-                    if (lang_1.isBlank(refToken)) {
+                    if (isBlank(refToken)) {
                         varValue = _this._view.allNodes ? _this._view.allNodes[_this._nodeIndex] : null;
                     }
                     else {
@@ -119,5 +117,4 @@ var DebugContext = (function () {
     });
     return DebugContext;
 }());
-exports.DebugContext = DebugContext;
 //# sourceMappingURL=debug_context.js.map

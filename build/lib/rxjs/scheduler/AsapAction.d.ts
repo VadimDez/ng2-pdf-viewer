@@ -1,11 +1,14 @@
-import { Action } from './Action';
-import { FutureAction } from './FutureAction';
+import { AsyncAction } from './AsyncAction';
+import { AsapScheduler } from './AsapScheduler';
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore
  * @extends {Ignored}
  */
-export declare class AsapAction<T> extends FutureAction<T> {
-    protected _schedule(state?: T, delay?: number): Action<T>;
-    protected _unsubscribe(): void;
+export declare class AsapAction<T> extends AsyncAction<T> {
+    protected scheduler: AsapScheduler;
+    protected work: (state?: T) => void;
+    constructor(scheduler: AsapScheduler, work: (state?: T) => void);
+    protected requestAsyncId(scheduler: AsapScheduler, id?: any, delay?: number): any;
+    protected recycleAsyncId(scheduler: AsapScheduler, id?: any, delay?: number): any;
 }

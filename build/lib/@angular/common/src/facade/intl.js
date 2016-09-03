@@ -5,14 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
+export var NumberFormatStyle;
 (function (NumberFormatStyle) {
     NumberFormatStyle[NumberFormatStyle["Decimal"] = 0] = "Decimal";
     NumberFormatStyle[NumberFormatStyle["Percent"] = 1] = "Percent";
     NumberFormatStyle[NumberFormatStyle["Currency"] = 2] = "Currency";
-})(exports.NumberFormatStyle || (exports.NumberFormatStyle = {}));
-var NumberFormatStyle = exports.NumberFormatStyle;
-var NumberFormatter = (function () {
+})(NumberFormatStyle || (NumberFormatStyle = {}));
+export var NumberFormatter = (function () {
     function NumberFormatter() {
     }
     NumberFormatter.format = function (num, locale, style, _a) {
@@ -31,7 +30,6 @@ var NumberFormatter = (function () {
     };
     return NumberFormatter;
 }());
-exports.NumberFormatter = NumberFormatter;
 var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsazZEwGjJ']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|J+|j+|m+|s+|a|z|Z|G+|w+))(.*)/;
 var PATTERN_ALIASES = {
     yMMMdjms: datePartGetterFactory(combine([
@@ -115,11 +113,14 @@ function hourExtracter(inner) {
         return result.split(' ')[0];
     };
 }
+function intlDateFormat(date, locale, options) {
+    return new Intl.DateTimeFormat(locale, options).format(date).replace(/[\u200e\u200f]/g, '');
+}
 function timeZoneGetter(timezone) {
     // To workaround `Intl` API restriction for single timezone let format with 24 hours
-    var format = { hour: '2-digit', hour12: false, timeZoneName: timezone };
+    var options = { hour: '2-digit', hour12: false, timeZoneName: timezone };
     return function (date, locale) {
-        var result = new Intl.DateTimeFormat(locale, format).format(date);
+        var result = intlDateFormat(date, locale, options);
         // Then extract first 3 letters that related to hours
         return result ? result.substring(3) : '';
     };
@@ -144,9 +145,7 @@ function combine(options) {
     return result;
 }
 function datePartGetterFactory(ret) {
-    return function (date, locale) {
-        return new Intl.DateTimeFormat(locale, ret).format(date);
-    };
+    return function (date, locale) { return intlDateFormat(date, locale, ret); };
 }
 var datePartsFormatterCache = new Map();
 function dateFormatter(format, date, locale) {
@@ -186,7 +185,7 @@ var slice = [].slice;
 function concat(array1 /** TODO #9100 */, array2 /** TODO #9100 */, index /** TODO #9100 */) {
     return array1.concat(slice.call(array2, index));
 }
-var DateFormatter = (function () {
+export var DateFormatter = (function () {
     function DateFormatter() {
     }
     DateFormatter.format = function (date, locale, pattern) {
@@ -194,5 +193,4 @@ var DateFormatter = (function () {
     };
     return DateFormatter;
 }());
-exports.DateFormatter = DateFormatter;
 //# sourceMappingURL=intl.js.map

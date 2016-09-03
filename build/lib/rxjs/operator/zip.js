@@ -187,7 +187,7 @@ var StaticArrayIterator = (function () {
     StaticArrayIterator.prototype.next = function (value) {
         var i = this.index++;
         var array = this.array;
-        return i < this.length ? { value: array[i], done: false } : { done: true };
+        return i < this.length ? { value: array[i], done: false } : { value: null, done: true };
     };
     StaticArrayIterator.prototype.hasValue = function () {
         return this.array.length > this.index;
@@ -221,7 +221,7 @@ var ZipBufferIterator = (function (_super) {
     ZipBufferIterator.prototype.next = function () {
         var buffer = this.buffer;
         if (buffer.length === 0 && this.isComplete) {
-            return { done: true };
+            return { value: null, done: true };
         }
         else {
             return { value: buffer.shift(), done: false };

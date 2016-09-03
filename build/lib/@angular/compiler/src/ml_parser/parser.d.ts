@@ -13,7 +13,7 @@ export declare class ParseTreeResult {
     constructor(rootNodes: html.Node[], errors: ParseError[]);
 }
 export declare class Parser {
-    private _getTagDefinition;
-    constructor(_getTagDefinition: (tagName: string) => TagDefinition);
+    getTagDefinition: (tagName: string) => TagDefinition;
+    constructor(getTagDefinition: (tagName: string) => TagDefinition);
     parse(source: string, url: string, parseExpansionForms?: boolean, interpolationConfig?: InterpolationConfig): ParseTreeResult;
 }

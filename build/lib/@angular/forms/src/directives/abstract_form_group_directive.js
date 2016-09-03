@@ -5,20 +5,19 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var control_container_1 = require('./control_container');
-var shared_1 = require('./shared');
+import { ControlContainer } from './control_container';
+import { composeAsyncValidators, composeValidators, controlPath } from './shared';
 /**
  * This is a base class for code shared between {@link NgModelGroup} and {@link FormGroupName}.
  *
- * @experimental
+ * @stable
  */
-var AbstractFormGroupDirective = (function (_super) {
+export var AbstractFormGroupDirective = (function (_super) {
     __extends(AbstractFormGroupDirective, _super);
     function AbstractFormGroupDirective() {
         _super.apply(this, arguments);
@@ -27,7 +26,11 @@ var AbstractFormGroupDirective = (function (_super) {
         this._checkParentType();
         this.formDirective.addFormGroup(this);
     };
-    AbstractFormGroupDirective.prototype.ngOnDestroy = function () { this.formDirective.removeFormGroup(this); };
+    AbstractFormGroupDirective.prototype.ngOnDestroy = function () {
+        if (this.formDirective) {
+            this.formDirective.removeFormGroup(this);
+        }
+    };
     Object.defineProperty(AbstractFormGroupDirective.prototype, "control", {
         /**
          * Get the {@link FormGroup} backing this binding.
@@ -40,7 +43,7 @@ var AbstractFormGroupDirective = (function (_super) {
         /**
          * Get the path to this control group.
          */
-        get: function () { return shared_1.controlPath(this.name, this._parent); },
+        get: function () { return controlPath(this.name, this._parent); },
         enumerable: true,
         configurable: true
     });
@@ -48,23 +51,22 @@ var AbstractFormGroupDirective = (function (_super) {
         /**
          * Get the {@link Form} to which this group belongs.
          */
-        get: function () { return this._parent.formDirective; },
+        get: function () { return this._parent ? this._parent.formDirective : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AbstractFormGroupDirective.prototype, "validator", {
-        get: function () { return shared_1.composeValidators(this._validators); },
+        get: function () { return composeValidators(this._validators); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AbstractFormGroupDirective.prototype, "asyncValidator", {
-        get: function () { return shared_1.composeAsyncValidators(this._asyncValidators); },
+        get: function () { return composeAsyncValidators(this._asyncValidators); },
         enumerable: true,
         configurable: true
     });
     /** @internal */
     AbstractFormGroupDirective.prototype._checkParentType = function () { };
     return AbstractFormGroupDirective;
-}(control_container_1.ControlContainer));
-exports.AbstractFormGroupDirective = AbstractFormGroupDirective;
+}(ControlContainer));
 //# sourceMappingURL=abstract_form_group_directive.js.map

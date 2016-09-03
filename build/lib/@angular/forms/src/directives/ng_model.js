@@ -5,48 +5,72 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var async_1 = require('../facade/async');
-var model_1 = require('../model');
-var validators_1 = require('../validators');
-var abstract_form_group_directive_1 = require('./abstract_form_group_directive');
-var control_container_1 = require('./control_container');
-var control_value_accessor_1 = require('./control_value_accessor');
-var ng_control_1 = require('./ng_control');
-var ng_form_1 = require('./ng_form');
-var ng_model_group_1 = require('./ng_model_group');
-var shared_1 = require('./shared');
-var template_driven_errors_1 = require('./template_driven_errors');
-exports.formControlBinding = {
-    provide: ng_control_1.NgControl,
-    useExisting: core_1.forwardRef(function () { return NgModel; })
+import { Directive, Host, Inject, Input, Optional, Output, Self, forwardRef } from '@angular/core';
+import { EventEmitter } from '../facade/async';
+import { FormControl } from '../model';
+import { NG_ASYNC_VALIDATORS, NG_VALIDATORS } from '../validators';
+import { AbstractFormGroupDirective } from './abstract_form_group_directive';
+import { ControlContainer } from './control_container';
+import { NG_VALUE_ACCESSOR } from './control_value_accessor';
+import { NgControl } from './ng_control';
+import { NgForm } from './ng_form';
+import { NgModelGroup } from './ng_model_group';
+import { composeAsyncValidators, composeValidators, controlPath, isPropertyUpdated, selectValueAccessor, setUpControl } from './shared';
+import { TemplateDrivenErrors } from './template_driven_errors';
+export var formControlBinding = {
+    provide: NgControl,
+    useExisting: forwardRef(function () { return NgModel; })
 };
 var resolvedPromise = Promise.resolve(null);
-var NgModel = (function (_super) {
+/**
+ * Binds a domain model to a form control.
+ *
+ * ### Usage
+ *
+ * `ngModel` binds an existing domain model to a form control. For a
+ * two-way binding, use `[(ngModel)]` to ensure the model updates in
+ * both directions.
+ *
+ *  ```typescript
+ * @Component({
+ *      selector: "search-comp",
+ *      directives: [],
+ *      template: `<input type='text' [(ngModel)]="searchQuery">`
+ *      })
+ * class SearchComp {
+ *  searchQuery: string;
+ * }
+ *  ```
+ *
+ *  @stable
+ */
+export var NgModel = (function (_super) {
     __extends(NgModel, _super);
-    function NgModel(_parent, _validators, _asyncValidators, valueAccessors) {
+    function NgModel(parent, validators, asyncValidators, valueAccessors) {
         _super.call(this);
-        this._parent = _parent;
-        this._validators = _validators;
-        this._asyncValidators = _asyncValidators;
         /** @internal */
-        this._control = new model_1.FormControl();
+        this._control = new FormControl();
         /** @internal */
         this._registered = false;
-        this.update = new async_1.EventEmitter();
-        this.valueAccessor = shared_1.selectValueAccessor(this, valueAccessors);
+        this.update = new EventEmitter();
+        this._parent = parent;
+        this._rawValidators = validators || [];
+        this._rawAsyncValidators = asyncValidators || [];
+        this.valueAccessor = selectValueAccessor(this, valueAccessors);
     }
     NgModel.prototype.ngOnChanges = function (changes) {
         this._checkForErrors();
         if (!this._registered)
             this._setUpControl();
-        if (shared_1.isPropertyUpdated(changes, this.viewModel)) {
+        if ('isDisabled' in changes) {
+            this._updateDisabled(changes);
+        }
+        if (isPropertyUpdated(changes, this.viewModel)) {
             this._updateValue(this.model);
             this.viewModel = this.model;
         }
@@ -59,7 +83,7 @@ var NgModel = (function (_super) {
     });
     Object.defineProperty(NgModel.prototype, "path", {
         get: function () {
-            return this._parent ? shared_1.controlPath(this.name, this._parent) : [this.name];
+            return this._parent ? controlPath(this.name, this._parent) : [this.name];
         },
         enumerable: true,
         configurable: true
@@ -70,13 +94,13 @@ var NgModel = (function (_super) {
         configurable: true
     });
     Object.defineProperty(NgModel.prototype, "validator", {
-        get: function () { return shared_1.composeValidators(this._validators); },
+        get: function () { return composeValidators(this._rawValidators); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgModel.prototype, "asyncValidator", {
         get: function () {
-            return shared_1.composeAsyncValidators(this._asyncValidators);
+            return composeAsyncValidators(this._rawAsyncValidators);
         },
         enumerable: true,
         configurable: true
@@ -94,7 +118,7 @@ var NgModel = (function (_super) {
         return !this._parent || (this.options && this.options.standalone);
     };
     NgModel.prototype._setUpStandalone = function () {
-        shared_1.setUpControl(this._control, this);
+        setUpControl(this._control, this);
         this._control.updateValueAndValidity({ emitEvent: false });
     };
     NgModel.prototype._checkForErrors = function () {
@@ -104,48 +128,59 @@ var NgModel = (function (_super) {
         this._checkName();
     };
     NgModel.prototype._checkParentType = function () {
-        if (!(this._parent instanceof ng_model_group_1.NgModelGroup) &&
-            this._parent instanceof abstract_form_group_directive_1.AbstractFormGroupDirective) {
-            template_driven_errors_1.TemplateDrivenErrors.formGroupNameException();
+        if (!(this._parent instanceof NgModelGroup) &&
+            this._parent instanceof AbstractFormGroupDirective) {
+            TemplateDrivenErrors.formGroupNameException();
         }
-        else if (!(this._parent instanceof ng_model_group_1.NgModelGroup) && !(this._parent instanceof ng_form_1.NgForm)) {
-            template_driven_errors_1.TemplateDrivenErrors.modelParentException();
+        else if (!(this._parent instanceof NgModelGroup) && !(this._parent instanceof NgForm)) {
+            TemplateDrivenErrors.modelParentException();
         }
     };
     NgModel.prototype._checkName = function () {
         if (this.options && this.options.name)
             this.name = this.options.name;
         if (!this._isStandalone() && !this.name) {
-            template_driven_errors_1.TemplateDrivenErrors.missingNameException();
+            TemplateDrivenErrors.missingNameException();
         }
     };
     NgModel.prototype._updateValue = function (value) {
         var _this = this;
         resolvedPromise.then(function () { _this.control.setValue(value, { emitViewToModelChange: false }); });
     };
-    /** @nocollapse */
+    NgModel.prototype._updateDisabled = function (changes) {
+        var _this = this;
+        var disabledValue = changes['isDisabled'].currentValue;
+        var isDisabled = disabledValue != null && disabledValue != false;
+        resolvedPromise.then(function () {
+            if (isDisabled && !_this.control.disabled) {
+                _this.control.disable();
+            }
+            else if (!isDisabled && _this.control.disabled) {
+                _this.control.enable();
+            }
+        });
+    };
     NgModel.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: '[ngModel]:not([formControlName]):not([formControl])',
-                    providers: [exports.formControlBinding],
+                    providers: [formControlBinding],
                     exportAs: 'ngModel'
                 },] },
     ];
     /** @nocollapse */
     NgModel.ctorParameters = [
-        { type: control_container_1.ControlContainer, decorators: [{ type: core_1.Optional }, { type: core_1.Host },] },
-        { type: Array, decorators: [{ type: core_1.Optional }, { type: core_1.Self }, { type: core_1.Inject, args: [validators_1.NG_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: core_1.Optional }, { type: core_1.Self }, { type: core_1.Inject, args: [validators_1.NG_ASYNC_VALIDATORS,] },] },
-        { type: Array, decorators: [{ type: core_1.Optional }, { type: core_1.Self }, { type: core_1.Inject, args: [control_value_accessor_1.NG_VALUE_ACCESSOR,] },] },
+        { type: ControlContainer, decorators: [{ type: Optional }, { type: Host },] },
+        { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALIDATORS,] },] },
+        { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_ASYNC_VALIDATORS,] },] },
+        { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALUE_ACCESSOR,] },] },
     ];
-    /** @nocollapse */
     NgModel.propDecorators = {
-        'model': [{ type: core_1.Input, args: ['ngModel',] },],
-        'name': [{ type: core_1.Input },],
-        'options': [{ type: core_1.Input, args: ['ngModelOptions',] },],
-        'update': [{ type: core_1.Output, args: ['ngModelChange',] },],
+        'name': [{ type: Input },],
+        'isDisabled': [{ type: Input, args: ['disabled',] },],
+        'model': [{ type: Input, args: ['ngModel',] },],
+        'options': [{ type: Input, args: ['ngModelOptions',] },],
+        'update': [{ type: Output, args: ['ngModelChange',] },],
     };
     return NgModel;
-}(ng_control_1.NgControl));
-exports.NgModel = NgModel;
+}(NgControl));
 //# sourceMappingURL=ng_model.js.map

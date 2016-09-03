@@ -28,6 +28,7 @@ import { Observable } from '../Observable';
  * @see {@link bufferTime}
  * @see {@link bufferToggle}
  * @see {@link bufferWhen}
+ * @see {@link pairwise}
  * @see {@link windowCount}
  *
  * @param {number} bufferSize The maximum size of the buffer emitted.

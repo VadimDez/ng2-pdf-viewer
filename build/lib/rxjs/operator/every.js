@@ -14,8 +14,7 @@ var Subscriber_1 = require('../Subscriber');
  * @owner Observable
  */
 function every(predicate, thisArg) {
-    var source = this;
-    return source.lift(new EveryOperator(predicate, thisArg, source));
+    return this.lift(new EveryOperator(predicate, thisArg, this));
 }
 exports.every = every;
 var EveryOperator = (function () {

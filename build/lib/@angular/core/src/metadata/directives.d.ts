@@ -7,18 +7,16 @@
  */
 import { AnimationEntryMetadata } from '../animation/metadata';
 import { ChangeDetectionStrategy } from '../change_detection/constants';
-import { InjectableMetadata } from '../di/metadata';
-import { Type } from '../facade/lang';
+import { InjectableMetadata, Provider } from '../di';
+import { Type } from '../type';
 import { ViewEncapsulation } from './view';
 /**
  * Interface for creating {@link DirectiveMetadata}
- * @experimental
+ * @stable
  */
 export interface DirectiveMetadataType {
     selector?: string;
-    properties?: string[];
     inputs?: string[];
-    events?: string[];
     outputs?: string[];
     host?: {
         [key: string]: string;
@@ -482,24 +480,14 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *   selector: 'app',
      *   template: `
      *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
-     *   `,
-     *   directives: [BankAccount]
+     *   `
      * })
      * class App {}
-     *
-     * bootstrap(App);
      * ```
      *
      */
     inputs: string[];
-    /**
-     * Use `inputs` instead
-     *
-     * @deprecated
-     */
-    properties: string[];
     private _inputs;
-    private _properties;
     /**
      * Enumerates the set of event-bound output properties.
      *
@@ -534,26 +522,17 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *   template: `
      *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
      *     </interval-dir>
-     *   `,
-     *   directives: [IntervalDir]
+     *   `
      * })
      * class App {
      *   everySecond() { console.log('second'); }
      *   everyFiveSeconds() { console.log('five seconds'); }
      * }
-     * bootstrap(App);
      * ```
      *
      */
     outputs: string[];
-    /**
-     * Use `outputs` instead
-     *
-     * @deprecated
-     */
-    events: string[];
     private _outputs;
-    private _events;
     /**
      * Specify the events, actions, properties and attributes related to the host element.
      *
@@ -594,12 +573,9 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *
      * @Component({
      *   selector: 'app',
-     *   template: `<button counting>Increment</button>`,
-     *   directives: [CountClicks]
+     *   template: `<button counting>Increment</button>`
      * })
      * class App {}
-     *
-     * bootstrap(App);
      * ```
      *
      * ## Host Property Bindings
@@ -630,14 +606,11 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *
      * @Component({
      *   selector: 'app',
-     *   template: `<input [(ngModel)]="prop">`,
-     *   directives: [FORM_DIRECTIVES, NgModelStatus]
+     *   template: `<input [(ngModel)]="prop">`
      * })
      * class App {
      *   prop;
      * }
-     *
-     * bootstrap(App);
      * ```
      *
      * ## Attributes
@@ -693,7 +666,7 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      * }
      * ```
      */
-    providers: any[];
+    providers: Provider[];
     private _providers;
     /**
      * Defines the name that can be used in the template to assign this directive to a variable.
@@ -710,8 +683,7 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *
      * @Component({
      *   selector: 'main',
-     *   template: `<child-dir #c="child"></child-dir>`,
-     *   directives: [ChildDir]
+     *   template: `<child-dir #c="child"></child-dir>`
      * })
      * class MainComponent {
      * }
@@ -734,8 +706,7 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
      *     contentChildren: new ContentChildren(ChildDirective),
      *     viewChildren: new ViewChildren(ChildDirective)
      *   },
-     *   template: '<child-directive></child-directive>',
-     *   directives: [ChildDirective]
+     *   template: '<child-directive></child-directive>'
      * })
      * class SomeDir {
      *   contentChildren: QueryList<ChildDirective>,
@@ -754,11 +725,11 @@ export declare class DirectiveMetadata extends InjectableMetadata implements Dir
     queries: {
         [key: string]: any;
     };
-    constructor({selector, inputs, outputs, properties, events, host, providers, exportAs, queries}?: DirectiveMetadataType);
+    constructor({selector, inputs, outputs, host, providers, exportAs, queries}?: DirectiveMetadataType);
 }
 /**
  * Interface for creating {@link ComponentMetadataType}
- * @experimental
+ * @stable
  */
 export interface ComponentMetadataType extends DirectiveMetadataType {
     changeDetection?: ChangeDetectionStrategy;
@@ -769,11 +740,9 @@ export interface ComponentMetadataType extends DirectiveMetadataType {
     styleUrls?: string[];
     styles?: string[];
     animations?: AnimationEntryMetadata[];
-    directives?: Array<Type | any[]>;
-    pipes?: Array<Type | any[]>;
     encapsulation?: ViewEncapsulation;
     interpolation?: [string, string];
-    entryComponents?: Array<Type | any[]>;
+    entryComponents?: Array<Type<any> | any[]>;
 }
 /**
  * Declare reusable UI building blocks for an application.
@@ -842,15 +811,14 @@ export declare class ComponentMetadata extends DirectiveMetadata implements Comp
      *   viewProviders: [
      *     Greeter
      *   ],
-     *   template: `<needs-greeter></needs-greeter>`,
-     *   directives: [NeedsGreeter]
+     *   template: `<needs-greeter></needs-greeter>`
      * })
      * class HelloWorld {
      * }
      *
      * ```
      */
-    viewProviders: any[];
+    viewProviders: Provider[];
     private _viewProviders;
     /**
      * The module id of the module that contains the component.
@@ -968,8 +936,6 @@ export declare class ComponentMetadata extends DirectiveMetadata implements Comp
      * - {@link keyframes keyframes()}
      */
     animations: AnimationEntryMetadata[];
-    directives: Array<Type | any[]>;
-    pipes: Array<Type | any[]>;
     /**
      * Specify how the template and the styles should be encapsulated.
      * The default is {@link ViewEncapsulation#Emulated `ViewEncapsulation.Emulated`} if the view
@@ -984,12 +950,12 @@ export declare class ComponentMetadata extends DirectiveMetadata implements Comp
      * Angular will create a {@link ComponentFactory ComponentFactory} and store it in the
      * {@link ComponentFactoryResolver ComponentFactoryResolver}.
      */
-    entryComponents: Array<Type | any[]>;
-    constructor({selector, inputs, outputs, properties, events, host, exportAs, moduleId, providers, viewProviders, changeDetection, queries, templateUrl, template, styleUrls, styles, animations, directives, pipes, encapsulation, interpolation, entryComponents}?: ComponentMetadataType);
+    entryComponents: Array<Type<any> | any[]>;
+    constructor({selector, inputs, outputs, host, exportAs, moduleId, providers, viewProviders, changeDetection, queries, templateUrl, template, styleUrls, styles, animations, encapsulation, interpolation, entryComponents}?: ComponentMetadataType);
 }
 /**
  * Interface for creating {@link PipeMetadata}
- * @experimental
+ * @stable
  */
 export interface PipeMetadataType {
     name: string;
@@ -1045,12 +1011,10 @@ export declare class PipeMetadata extends InjectableMetadata implements PipeMeta
  *   selector: 'app',
  *   template: `
  *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
- *   `,
- *   directives: [BankAccount]
+ *   `
  * })
- * class App {}
  *
- * bootstrap(App);
+ * class App {}
  * ```
  * @stable
  */
@@ -1096,14 +1060,12 @@ export declare class InputMetadata {
  *   template: `
  *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
  *     </interval-dir>
- *   `,
- *   directives: [IntervalDir]
+ *   `
  * })
  * class App {
  *   everySecond() { console.log('second'); }
  *   everyFiveSeconds() { console.log('five seconds'); }
  * }
- * bootstrap(App);
  * ```
  * @stable
  */
@@ -1136,14 +1098,11 @@ export declare class OutputMetadata {
  *
  * @Component({
  *   selector: 'app',
- *   template: `<input [(ngModel)]="prop">`,
- *   directives: [FORM_DIRECTIVES, NgModelStatus]
+ *   template: `<input [(ngModel)]="prop">`
  * })
  * class App {
  *   prop;
  * }
- *
- * bootstrap(App);
  * ```
  * @stable
  */
@@ -1177,12 +1136,9 @@ export declare class HostBindingMetadata {
  *
  * @Component({
  *   selector: 'app',
- *   template: `<button counting>Increment</button>`,
- *   directives: [CountClicks]
+ *   template: `<button counting>Increment</button>`
  * })
  * class App {}
- *
- * bootstrap(App);
  * ```
  * @stable
  */

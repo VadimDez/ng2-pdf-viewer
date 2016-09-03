@@ -5,5 +5,4 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 //# sourceMappingURL=dom_animate_player.js.map

@@ -5,24 +5,23 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var index_1 = require('../index');
-var collection_1 = require('../src/facade/collection');
-var MockPipeResolver = (function (_super) {
+import { PipeResolver } from '@angular/compiler';
+import { Compiler, Injectable, Injector } from '@angular/core';
+import { Map } from './facade/collection';
+export var MockPipeResolver = (function (_super) {
     __extends(MockPipeResolver, _super);
     function MockPipeResolver(_injector) {
         _super.call(this);
         this._injector = _injector;
-        this._pipes = new collection_1.Map();
+        this._pipes = new Map();
     }
     Object.defineProperty(MockPipeResolver.prototype, "_compiler", {
-        get: function () { return this._injector.get(core_1.Compiler); },
+        get: function () { return this._injector.get(Compiler); },
         enumerable: true,
         configurable: true
     });
@@ -48,15 +47,13 @@ var MockPipeResolver = (function (_super) {
         }
         return metadata;
     };
-    /** @nocollapse */
     MockPipeResolver.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     MockPipeResolver.ctorParameters = [
-        { type: core_1.Injector, },
+        { type: Injector, },
     ];
     return MockPipeResolver;
-}(index_1.PipeResolver));
-exports.MockPipeResolver = MockPipeResolver;
+}(PipeResolver));
 //# sourceMappingURL=pipe_resolver_mock.js.map

@@ -7,30 +7,30 @@ import {Subscription} from './Subscription';
  * @ignore
  * @extends {Ignored}
  */
-export class SubjectSubscription extends Subscription {
-  isUnsubscribed: boolean = false;
+export class SubjectSubscription<T> extends Subscription {
+  closed: boolean = false;
 
-  constructor(public subject: Subject<any>, public observer: Observer<any>) {
+  constructor(public subject: Subject<T>, public subscriber: Observer<T>) {
     super();
   }
 
   unsubscribe() {
-    if (this.isUnsubscribed) {
+    if (this.closed) {
       return;
     }
 
-    this.isUnsubscribed = true;
+    this.closed = true;
 
     const subject = this.subject;
     const observers = subject.observers;
 
     this.subject = null;
 
-    if (!observers || observers.length === 0 || subject.isUnsubscribed) {
+    if (!observers || observers.length === 0 || subject.isStopped || subject.closed) {
       return;
     }
 
-    const subscriberIndex = observers.indexOf(this.observer);
+    const subscriberIndex = observers.indexOf(this.subscriber);
 
     if (subscriberIndex !== -1) {
       observers.splice(subscriberIndex, 1);

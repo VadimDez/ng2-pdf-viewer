@@ -5,20 +5,18 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var reflector_reader_1 = require('./reflector_reader');
+import { Map, MapWrapper, Set, SetWrapper, StringMapWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+import { ReflectorReader } from './reflector_reader';
 /**
  * Reflective information about a symbol, including annotations, interfaces, and other metadata.
  */
-var ReflectionInfo = (function () {
+export var ReflectionInfo = (function () {
     function ReflectionInfo(annotations, parameters, factory, interfaces, propMetadata) {
         this.annotations = annotations;
         this.parameters = parameters;
@@ -28,23 +26,22 @@ var ReflectionInfo = (function () {
     }
     return ReflectionInfo;
 }());
-exports.ReflectionInfo = ReflectionInfo;
 /**
  * Provides access to reflection data about symbols. Used internally by Angular
  * to power dependency injection and compilation.
  */
-var Reflector = (function (_super) {
+export var Reflector = (function (_super) {
     __extends(Reflector, _super);
     function Reflector(reflectionCapabilities) {
         _super.call(this);
         /** @internal */
-        this._injectableInfo = new collection_1.Map();
+        this._injectableInfo = new Map();
         /** @internal */
-        this._getters = new collection_1.Map();
+        this._getters = new Map();
         /** @internal */
-        this._setters = new collection_1.Map();
+        this._setters = new Map();
         /** @internal */
-        this._methods = new collection_1.Map();
+        this._methods = new Map();
         this._usedKeys = null;
         this.reflectionCapabilities = reflectionCapabilities;
     }
@@ -54,7 +51,7 @@ var Reflector = (function (_super) {
      * Causes `this` reflector to track keys used to access
      * {@link ReflectionInfo} objects.
      */
-    Reflector.prototype.trackUsage = function () { this._usedKeys = new collection_1.Set(); };
+    Reflector.prototype.trackUsage = function () { this._usedKeys = new Set(); };
     /**
      * Lists types for which reflection information was not requested since
      * {@link #trackUsage} was called. This list could later be audited as
@@ -63,10 +60,10 @@ var Reflector = (function (_super) {
     Reflector.prototype.listUnusedKeys = function () {
         var _this = this;
         if (this._usedKeys == null) {
-            throw new exceptions_1.BaseException('Usage tracking is disabled');
+            throw new Error('Usage tracking is disabled');
         }
-        var allTypes = collection_1.MapWrapper.keys(this._injectableInfo);
-        return allTypes.filter(function (key) { return !collection_1.SetWrapper.has(_this._usedKeys, key); });
+        var allTypes = MapWrapper.keys(this._injectableInfo);
+        return allTypes.filter(function (key) { return !SetWrapper.has(_this._usedKeys, key); });
     };
     Reflector.prototype.registerFunction = function (func, funcInfo) {
         this._injectableInfo.set(func, funcInfo);
@@ -80,7 +77,7 @@ var Reflector = (function (_super) {
     Reflector.prototype.factory = function (type) {
         if (this._containsReflectionInfo(type)) {
             var res = this._getReflectionInfo(type).factory;
-            return lang_1.isPresent(res) ? res : null;
+            return isPresent(res) ? res : null;
         }
         else {
             return this.reflectionCapabilities.factory(type);
@@ -89,7 +86,7 @@ var Reflector = (function (_super) {
     Reflector.prototype.parameters = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
             var res = this._getReflectionInfo(typeOrFunc).parameters;
-            return lang_1.isPresent(res) ? res : [];
+            return isPresent(res) ? res : [];
         }
         else {
             return this.reflectionCapabilities.parameters(typeOrFunc);
@@ -98,7 +95,7 @@ var Reflector = (function (_super) {
     Reflector.prototype.annotations = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
             var res = this._getReflectionInfo(typeOrFunc).annotations;
-            return lang_1.isPresent(res) ? res : [];
+            return isPresent(res) ? res : [];
         }
         else {
             return this.reflectionCapabilities.annotations(typeOrFunc);
@@ -107,7 +104,7 @@ var Reflector = (function (_super) {
     Reflector.prototype.propMetadata = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
             var res = this._getReflectionInfo(typeOrFunc).propMetadata;
-            return lang_1.isPresent(res) ? res : {};
+            return isPresent(res) ? res : {};
         }
         else {
             return this.reflectionCapabilities.propMetadata(typeOrFunc);
@@ -116,7 +113,7 @@ var Reflector = (function (_super) {
     Reflector.prototype.interfaces = function (type) {
         if (this._injectableInfo.has(type)) {
             var res = this._getReflectionInfo(type).interfaces;
-            return lang_1.isPresent(res) ? res : [];
+            return isPresent(res) ? res : [];
         }
         else {
             return this.reflectionCapabilities.interfaces(type);
@@ -157,7 +154,7 @@ var Reflector = (function (_super) {
     };
     /** @internal */
     Reflector.prototype._getReflectionInfo = function (typeOrFunc) {
-        if (lang_1.isPresent(this._usedKeys)) {
+        if (isPresent(this._usedKeys)) {
             this._usedKeys.add(typeOrFunc);
         }
         return this._injectableInfo.get(typeOrFunc);
@@ -165,10 +162,15 @@ var Reflector = (function (_super) {
     /** @internal */
     Reflector.prototype._containsReflectionInfo = function (typeOrFunc) { return this._injectableInfo.has(typeOrFunc); };
     Reflector.prototype.importUri = function (type) { return this.reflectionCapabilities.importUri(type); };
+    Reflector.prototype.resolveIdentifier = function (name, moduleUrl, runtime) {
+        return this.reflectionCapabilities.resolveIdentifier(name, moduleUrl, runtime);
+    };
+    Reflector.prototype.resolveEnum = function (identifier, name) {
+        return this.reflectionCapabilities.resolveEnum(identifier, name);
+    };
     return Reflector;
-}(reflector_reader_1.ReflectorReader));
-exports.Reflector = Reflector;
+}(ReflectorReader));
 function _mergeMaps(target, config) {
-    collection_1.StringMapWrapper.forEach(config, function (v, k) { return target.set(k, v); });
+    StringMapWrapper.forEach(config, function (v, k) { return target.set(k, v); });
 }
 //# sourceMappingURL=reflector.js.map

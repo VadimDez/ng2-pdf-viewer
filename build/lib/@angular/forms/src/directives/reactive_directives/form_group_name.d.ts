@@ -15,7 +15,8 @@ export declare const formGroupNameProvider: any;
 /**
  * Syncs an existing form group to a DOM element.
  *
- * This directive can only be used as a child of {@link FormGroupDirective}.
+ * This directive can only be used as a child of {@link FormGroupDirective}.  It also requires
+ * importing the {@link ReactiveFormsModule}.
  *
  * ```typescript
  * @Component({
@@ -31,8 +32,8 @@ export declare const formGroupNameProvider: any;
  *           <p>Last: <input formControlName="last"></p>
  *         </div>
  *         <h3>Name value:</h3>
- *         <pre>{{ nameGroup | json }}</pre>
- *         <p>Name is {{nameGroup?.valid ? "valid" : "invalid"}}</p>
+ *         <pre>{{ myForm.get('name') | json }}</pre>
+ *         <p>Name is {{myForm.get('name')?.valid ? "valid" : "invalid"}}</p>
  *         <h3>What's your favorite food?</h3>
  *         <p><input formControlName="food"></p>
  *         <h3>Form value</h3>
@@ -42,14 +43,12 @@ export declare const formGroupNameProvider: any;
  *   `
  * })
  * export class App {
- *   nameGroup = new FormGroup({
+ *   myForm = new FormGroup({
+ *     name: new FormGroup({
  *       first: new FormControl('', Validators.required),
  *       middle: new FormControl(''),
  *       last: new FormControl('', Validators.required)
- *   });
- *
- *   myForm = new FormGroup({
- *     name: this.nameGroup,
+ *     }),
  *     food: new FormControl()
  *   });
  * }
@@ -58,7 +57,7 @@ export declare const formGroupNameProvider: any;
  * This example syncs the form group for the user's name. The value and validation state of
  * this group can be accessed separately from the overall form.
  *
- * @experimental
+ * @stable
  */
 export declare class FormGroupName extends AbstractFormGroupDirective implements OnInit, OnDestroy {
     name: string;
@@ -68,7 +67,8 @@ export declare const formArrayNameProvider: any;
 /**
  * Syncs an existing form array to a DOM element.
  *
- * This directive can only be used as a child of {@link FormGroupDirective}.
+ * This directive can only be used as a child of {@link FormGroupDirective}.  It also requires
+ * importing the {@link ReactiveFormsModule}.
  *
  * ```typescript
  * @Component({
@@ -98,7 +98,7 @@ export declare const formArrayNameProvider: any;
  * }
  * ```
  *
- * @experimental
+ * @stable
  */
 export declare class FormArrayName extends ControlContainer implements OnInit, OnDestroy {
     name: string;

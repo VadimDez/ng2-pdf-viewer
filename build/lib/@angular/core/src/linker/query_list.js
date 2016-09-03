@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var async_1 = require('../facade/async');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
+import { EventEmitter } from '../facade/async';
+import { ListWrapper } from '../facade/collection';
+import { getSymbolIterator } from '../facade/lang';
 /**
  * An unmodifiable list of items that Angular keeps up to date when the state
  * of the application changes.
@@ -32,11 +31,11 @@ var lang_1 = require('../facade/lang');
  * ```
  * @stable
  */
-var QueryList = (function () {
+export var QueryList = (function () {
     function QueryList() {
         this._dirty = true;
         this._results = [];
-        this._emitter = new async_1.EventEmitter();
+        this._emitter = new EventEmitter();
     }
     Object.defineProperty(QueryList.prototype, "changes", {
         get: function () { return this._emitter; },
@@ -90,10 +89,10 @@ var QueryList = (function () {
         return this._results.some(fn);
     };
     QueryList.prototype.toArray = function () { return this._results.slice(); };
-    QueryList.prototype[lang_1.getSymbolIterator()] = function () { return this._results[lang_1.getSymbolIterator()](); };
+    QueryList.prototype[getSymbolIterator()] = function () { return this._results[getSymbolIterator()](); };
     QueryList.prototype.toString = function () { return this._results.toString(); };
     QueryList.prototype.reset = function (res) {
-        this._results = collection_1.ListWrapper.flatten(res);
+        this._results = ListWrapper.flatten(res);
         this._dirty = false;
     };
     QueryList.prototype.notifyOnChanges = function () { this._emitter.emit(this); };
@@ -107,5 +106,4 @@ var QueryList = (function () {
     });
     return QueryList;
 }());
-exports.QueryList = QueryList;
 //# sourceMappingURL=query_list.js.map

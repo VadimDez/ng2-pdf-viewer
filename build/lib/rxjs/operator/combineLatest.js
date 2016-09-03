@@ -6,9 +6,9 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var ArrayObservable_1 = require('../observable/ArrayObservable');
 var isArray_1 = require('../util/isArray');
-var isScheduler_1 = require('../util/isScheduler');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
+var none = {};
 /**
  * Combines multiple Observables to create an Observable whose values are
  * calculated from the latest values of each of its input Observables.
@@ -66,40 +66,6 @@ function combineLatest() {
 }
 exports.combineLatest = combineLatest;
 /* tslint:enable:max-line-length */
-/**
- * Combines the values from observables passed as arguments. This is done by subscribing
- * to each observable, in order, and collecting an array of each of the most recent values any time any of the observables
- * emits, then either taking that array and passing it as arguments to an option `project` function and emitting the return
- * value of that, or just emitting the array of recent values directly if there is no `project` function.
- * @param {...Observable} observables the observables to combine
- * @param {function} [project] an optional function to project the values from the combined recent values into a new value for emission.
- * @return {Observable} an observable of other projected values from the most recent values from each observable, or an array of each of
- * the most recent values from each observable.
- * @static true
- * @name combineLatest
- * @owner Observable
- */
-function combineLatestStatic() {
-    var observables = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        observables[_i - 0] = arguments[_i];
-    }
-    var project = null;
-    var scheduler = null;
-    if (isScheduler_1.isScheduler(observables[observables.length - 1])) {
-        scheduler = observables.pop();
-    }
-    if (typeof observables[observables.length - 1] === 'function') {
-        project = observables.pop();
-    }
-    // if the first and only other argument besides the resultSelector is an array
-    // assume it's been called with `combineLatest([obs1, obs2, obs3], project)`
-    if (observables.length === 1 && isArray_1.isArray(observables[0])) {
-        observables = observables[0];
-    }
-    return new ArrayObservable_1.ArrayObservable(observables, scheduler).lift(new CombineLatestOperator(project));
-}
-exports.combineLatestStatic = combineLatestStatic;
 var CombineLatestOperator = (function () {
     function CombineLatestOperator(project) {
         this.project = project;
@@ -123,11 +89,9 @@ var CombineLatestSubscriber = (function (_super) {
         this.active = 0;
         this.values = [];
         this.observables = [];
-        this.toRespond = [];
     }
     CombineLatestSubscriber.prototype._next = function (observable) {
-        var toRespond = this.toRespond;
-        toRespond.push(toRespond.length);
+        this.values.push(none);
         this.observables.push(observable);
     };
     CombineLatestSubscriber.prototype._complete = function () {
@@ -138,6 +102,7 @@ var CombineLatestSubscriber = (function (_super) {
         }
         else {
             this.active = len;
+            this.toRespond = len;
             for (var i = 0; i < len; i++) {
                 var observable = observables[i];
                 this.add(subscribeToResult_1.subscribeToResult(this, observable, observable, i));
@@ -151,20 +116,17 @@ var CombineLatestSubscriber = (function (_super) {
     };
     CombineLatestSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
         var values = this.values;
+        var oldVal = values[outerIndex];
+        var toRespond = !this.toRespond
+            ? 0
+            : oldVal === none ? --this.toRespond : this.toRespond;
         values[outerIndex] = innerValue;
-        var toRespond = this.toRespond;
-        if (toRespond.length > 0) {
-            var found = toRespond.indexOf(outerIndex);
-            if (found !== -1) {
-                toRespond.splice(found, 1);
-            }
-        }
-        if (toRespond.length === 0) {
+        if (toRespond === 0) {
             if (this.project) {
                 this._tryProject(values);
             }
             else {
-                this.destination.next(values);
+                this.destination.next(values.slice());
             }
         }
     };

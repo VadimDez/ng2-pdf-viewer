@@ -5,30 +5,29 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var lang_1 = require('../facade/lang');
+import { isBlank, isPresent, isString } from '../facade/lang';
 //// Types
+export var TypeModifier;
 (function (TypeModifier) {
     TypeModifier[TypeModifier["Const"] = 0] = "Const";
-})(exports.TypeModifier || (exports.TypeModifier = {}));
-var TypeModifier = exports.TypeModifier;
-var Type = (function () {
+})(TypeModifier || (TypeModifier = {}));
+export var Type = (function () {
     function Type(modifiers) {
         if (modifiers === void 0) { modifiers = null; }
         this.modifiers = modifiers;
-        if (lang_1.isBlank(modifiers)) {
+        if (isBlank(modifiers)) {
             this.modifiers = [];
         }
     }
     Type.prototype.hasModifier = function (modifier) { return this.modifiers.indexOf(modifier) !== -1; };
     return Type;
 }());
-exports.Type = Type;
+export var BuiltinTypeName;
 (function (BuiltinTypeName) {
     BuiltinTypeName[BuiltinTypeName["Dynamic"] = 0] = "Dynamic";
     BuiltinTypeName[BuiltinTypeName["Bool"] = 1] = "Bool";
@@ -36,9 +35,8 @@ exports.Type = Type;
     BuiltinTypeName[BuiltinTypeName["Int"] = 3] = "Int";
     BuiltinTypeName[BuiltinTypeName["Number"] = 4] = "Number";
     BuiltinTypeName[BuiltinTypeName["Function"] = 5] = "Function";
-})(exports.BuiltinTypeName || (exports.BuiltinTypeName = {}));
-var BuiltinTypeName = exports.BuiltinTypeName;
-var BuiltinType = (function (_super) {
+})(BuiltinTypeName || (BuiltinTypeName = {}));
+export var BuiltinType = (function (_super) {
     __extends(BuiltinType, _super);
     function BuiltinType(name, modifiers) {
         if (modifiers === void 0) { modifiers = null; }
@@ -50,8 +48,7 @@ var BuiltinType = (function (_super) {
     };
     return BuiltinType;
 }(Type));
-exports.BuiltinType = BuiltinType;
-var ExternalType = (function (_super) {
+export var ExternalType = (function (_super) {
     __extends(ExternalType, _super);
     function ExternalType(value, typeParams, modifiers) {
         if (typeParams === void 0) { typeParams = null; }
@@ -65,8 +62,7 @@ var ExternalType = (function (_super) {
     };
     return ExternalType;
 }(Type));
-exports.ExternalType = ExternalType;
-var ArrayType = (function (_super) {
+export var ArrayType = (function (_super) {
     __extends(ArrayType, _super);
     function ArrayType(of, modifiers) {
         if (modifiers === void 0) { modifiers = null; }
@@ -78,8 +74,7 @@ var ArrayType = (function (_super) {
     };
     return ArrayType;
 }(Type));
-exports.ArrayType = ArrayType;
-var MapType = (function (_super) {
+export var MapType = (function (_super) {
     __extends(MapType, _super);
     function MapType(valueType, modifiers) {
         if (modifiers === void 0) { modifiers = null; }
@@ -89,14 +84,14 @@ var MapType = (function (_super) {
     MapType.prototype.visitType = function (visitor, context) { return visitor.visitMapType(this, context); };
     return MapType;
 }(Type));
-exports.MapType = MapType;
-exports.DYNAMIC_TYPE = new BuiltinType(BuiltinTypeName.Dynamic);
-exports.BOOL_TYPE = new BuiltinType(BuiltinTypeName.Bool);
-exports.INT_TYPE = new BuiltinType(BuiltinTypeName.Int);
-exports.NUMBER_TYPE = new BuiltinType(BuiltinTypeName.Number);
-exports.STRING_TYPE = new BuiltinType(BuiltinTypeName.String);
-exports.FUNCTION_TYPE = new BuiltinType(BuiltinTypeName.Function);
+export var DYNAMIC_TYPE = new BuiltinType(BuiltinTypeName.Dynamic);
+export var BOOL_TYPE = new BuiltinType(BuiltinTypeName.Bool);
+export var INT_TYPE = new BuiltinType(BuiltinTypeName.Int);
+export var NUMBER_TYPE = new BuiltinType(BuiltinTypeName.Number);
+export var STRING_TYPE = new BuiltinType(BuiltinTypeName.String);
+export var FUNCTION_TYPE = new BuiltinType(BuiltinTypeName.Function);
 ///// Expressions
+export var BinaryOperator;
 (function (BinaryOperator) {
     BinaryOperator[BinaryOperator["Equals"] = 0] = "Equals";
     BinaryOperator[BinaryOperator["NotEquals"] = 1] = "NotEquals";
@@ -113,9 +108,8 @@ exports.FUNCTION_TYPE = new BuiltinType(BuiltinTypeName.Function);
     BinaryOperator[BinaryOperator["LowerEquals"] = 12] = "LowerEquals";
     BinaryOperator[BinaryOperator["Bigger"] = 13] = "Bigger";
     BinaryOperator[BinaryOperator["BiggerEquals"] = 14] = "BiggerEquals";
-})(exports.BinaryOperator || (exports.BinaryOperator = {}));
-var BinaryOperator = exports.BinaryOperator;
-var Expression = (function () {
+})(BinaryOperator || (BinaryOperator = {}));
+export var Expression = (function () {
     function Expression(type) {
         this.type = type;
     }
@@ -183,26 +177,25 @@ var Expression = (function () {
     };
     Expression.prototype.isBlank = function () {
         // Note: We use equals by purpose here to compare to null and undefined in JS.
-        return this.equals(exports.NULL_EXPR);
+        return this.equals(NULL_EXPR);
     };
     Expression.prototype.cast = function (type) { return new CastExpr(this, type); };
     Expression.prototype.toStmt = function () { return new ExpressionStatement(this); };
     return Expression;
 }());
-exports.Expression = Expression;
+export var BuiltinVar;
 (function (BuiltinVar) {
     BuiltinVar[BuiltinVar["This"] = 0] = "This";
     BuiltinVar[BuiltinVar["Super"] = 1] = "Super";
     BuiltinVar[BuiltinVar["CatchError"] = 2] = "CatchError";
     BuiltinVar[BuiltinVar["CatchStack"] = 3] = "CatchStack";
-})(exports.BuiltinVar || (exports.BuiltinVar = {}));
-var BuiltinVar = exports.BuiltinVar;
-var ReadVarExpr = (function (_super) {
+})(BuiltinVar || (BuiltinVar = {}));
+export var ReadVarExpr = (function (_super) {
     __extends(ReadVarExpr, _super);
     function ReadVarExpr(name, type) {
         if (type === void 0) { type = null; }
         _super.call(this, type);
-        if (lang_1.isString(name)) {
+        if (isString(name)) {
             this.name = name;
             this.builtin = null;
         }
@@ -217,12 +210,11 @@ var ReadVarExpr = (function (_super) {
     ReadVarExpr.prototype.set = function (value) { return new WriteVarExpr(this.name, value); };
     return ReadVarExpr;
 }(Expression));
-exports.ReadVarExpr = ReadVarExpr;
-var WriteVarExpr = (function (_super) {
+export var WriteVarExpr = (function (_super) {
     __extends(WriteVarExpr, _super);
     function WriteVarExpr(name, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, lang_1.isPresent(type) ? type : value.type);
+        _super.call(this, isPresent(type) ? type : value.type);
         this.name = name;
         this.value = value;
     }
@@ -236,12 +228,11 @@ var WriteVarExpr = (function (_super) {
     };
     return WriteVarExpr;
 }(Expression));
-exports.WriteVarExpr = WriteVarExpr;
-var WriteKeyExpr = (function (_super) {
+export var WriteKeyExpr = (function (_super) {
     __extends(WriteKeyExpr, _super);
     function WriteKeyExpr(receiver, index, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, lang_1.isPresent(type) ? type : value.type);
+        _super.call(this, isPresent(type) ? type : value.type);
         this.receiver = receiver;
         this.index = index;
         this.value = value;
@@ -251,12 +242,11 @@ var WriteKeyExpr = (function (_super) {
     };
     return WriteKeyExpr;
 }(Expression));
-exports.WriteKeyExpr = WriteKeyExpr;
-var WritePropExpr = (function (_super) {
+export var WritePropExpr = (function (_super) {
     __extends(WritePropExpr, _super);
     function WritePropExpr(receiver, name, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, lang_1.isPresent(type) ? type : value.type);
+        _super.call(this, isPresent(type) ? type : value.type);
         this.receiver = receiver;
         this.name = name;
         this.value = value;
@@ -266,21 +256,20 @@ var WritePropExpr = (function (_super) {
     };
     return WritePropExpr;
 }(Expression));
-exports.WritePropExpr = WritePropExpr;
+export var BuiltinMethod;
 (function (BuiltinMethod) {
     BuiltinMethod[BuiltinMethod["ConcatArray"] = 0] = "ConcatArray";
     BuiltinMethod[BuiltinMethod["SubscribeObservable"] = 1] = "SubscribeObservable";
-    BuiltinMethod[BuiltinMethod["bind"] = 2] = "bind";
-})(exports.BuiltinMethod || (exports.BuiltinMethod = {}));
-var BuiltinMethod = exports.BuiltinMethod;
-var InvokeMethodExpr = (function (_super) {
+    BuiltinMethod[BuiltinMethod["Bind"] = 2] = "Bind";
+})(BuiltinMethod || (BuiltinMethod = {}));
+export var InvokeMethodExpr = (function (_super) {
     __extends(InvokeMethodExpr, _super);
     function InvokeMethodExpr(receiver, method, args, type) {
         if (type === void 0) { type = null; }
         _super.call(this, type);
         this.receiver = receiver;
         this.args = args;
-        if (lang_1.isString(method)) {
+        if (isString(method)) {
             this.name = method;
             this.builtin = null;
         }
@@ -294,8 +283,7 @@ var InvokeMethodExpr = (function (_super) {
     };
     return InvokeMethodExpr;
 }(Expression));
-exports.InvokeMethodExpr = InvokeMethodExpr;
-var InvokeFunctionExpr = (function (_super) {
+export var InvokeFunctionExpr = (function (_super) {
     __extends(InvokeFunctionExpr, _super);
     function InvokeFunctionExpr(fn, args, type) {
         if (type === void 0) { type = null; }
@@ -308,8 +296,7 @@ var InvokeFunctionExpr = (function (_super) {
     };
     return InvokeFunctionExpr;
 }(Expression));
-exports.InvokeFunctionExpr = InvokeFunctionExpr;
-var InstantiateExpr = (function (_super) {
+export var InstantiateExpr = (function (_super) {
     __extends(InstantiateExpr, _super);
     function InstantiateExpr(classExpr, args, type) {
         _super.call(this, type);
@@ -321,8 +308,7 @@ var InstantiateExpr = (function (_super) {
     };
     return InstantiateExpr;
 }(Expression));
-exports.InstantiateExpr = InstantiateExpr;
-var LiteralExpr = (function (_super) {
+export var LiteralExpr = (function (_super) {
     __extends(LiteralExpr, _super);
     function LiteralExpr(value, type) {
         if (type === void 0) { type = null; }
@@ -334,8 +320,7 @@ var LiteralExpr = (function (_super) {
     };
     return LiteralExpr;
 }(Expression));
-exports.LiteralExpr = LiteralExpr;
-var ExternalExpr = (function (_super) {
+export var ExternalExpr = (function (_super) {
     __extends(ExternalExpr, _super);
     function ExternalExpr(value, type, typeParams) {
         if (type === void 0) { type = null; }
@@ -349,13 +334,12 @@ var ExternalExpr = (function (_super) {
     };
     return ExternalExpr;
 }(Expression));
-exports.ExternalExpr = ExternalExpr;
-var ConditionalExpr = (function (_super) {
+export var ConditionalExpr = (function (_super) {
     __extends(ConditionalExpr, _super);
     function ConditionalExpr(condition, trueCase, falseCase, type) {
         if (falseCase === void 0) { falseCase = null; }
         if (type === void 0) { type = null; }
-        _super.call(this, lang_1.isPresent(type) ? type : trueCase.type);
+        _super.call(this, isPresent(type) ? type : trueCase.type);
         this.condition = condition;
         this.falseCase = falseCase;
         this.trueCase = trueCase;
@@ -365,11 +349,10 @@ var ConditionalExpr = (function (_super) {
     };
     return ConditionalExpr;
 }(Expression));
-exports.ConditionalExpr = ConditionalExpr;
-var NotExpr = (function (_super) {
+export var NotExpr = (function (_super) {
     __extends(NotExpr, _super);
     function NotExpr(condition) {
-        _super.call(this, exports.BOOL_TYPE);
+        _super.call(this, BOOL_TYPE);
         this.condition = condition;
     }
     NotExpr.prototype.visitExpression = function (visitor, context) {
@@ -377,8 +360,7 @@ var NotExpr = (function (_super) {
     };
     return NotExpr;
 }(Expression));
-exports.NotExpr = NotExpr;
-var CastExpr = (function (_super) {
+export var CastExpr = (function (_super) {
     __extends(CastExpr, _super);
     function CastExpr(value, type) {
         _super.call(this, type);
@@ -389,8 +371,7 @@ var CastExpr = (function (_super) {
     };
     return CastExpr;
 }(Expression));
-exports.CastExpr = CastExpr;
-var FnParam = (function () {
+export var FnParam = (function () {
     function FnParam(name, type) {
         if (type === void 0) { type = null; }
         this.name = name;
@@ -398,8 +379,7 @@ var FnParam = (function () {
     }
     return FnParam;
 }());
-exports.FnParam = FnParam;
-var FunctionExpr = (function (_super) {
+export var FunctionExpr = (function (_super) {
     __extends(FunctionExpr, _super);
     function FunctionExpr(params, statements, type) {
         if (type === void 0) { type = null; }
@@ -416,12 +396,11 @@ var FunctionExpr = (function (_super) {
     };
     return FunctionExpr;
 }(Expression));
-exports.FunctionExpr = FunctionExpr;
-var BinaryOperatorExpr = (function (_super) {
+export var BinaryOperatorExpr = (function (_super) {
     __extends(BinaryOperatorExpr, _super);
     function BinaryOperatorExpr(operator, lhs, rhs, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, lang_1.isPresent(type) ? type : lhs.type);
+        _super.call(this, isPresent(type) ? type : lhs.type);
         this.operator = operator;
         this.rhs = rhs;
         this.lhs = lhs;
@@ -431,8 +410,7 @@ var BinaryOperatorExpr = (function (_super) {
     };
     return BinaryOperatorExpr;
 }(Expression));
-exports.BinaryOperatorExpr = BinaryOperatorExpr;
-var ReadPropExpr = (function (_super) {
+export var ReadPropExpr = (function (_super) {
     __extends(ReadPropExpr, _super);
     function ReadPropExpr(receiver, name, type) {
         if (type === void 0) { type = null; }
@@ -448,8 +426,7 @@ var ReadPropExpr = (function (_super) {
     };
     return ReadPropExpr;
 }(Expression));
-exports.ReadPropExpr = ReadPropExpr;
-var ReadKeyExpr = (function (_super) {
+export var ReadKeyExpr = (function (_super) {
     __extends(ReadKeyExpr, _super);
     function ReadKeyExpr(receiver, index, type) {
         if (type === void 0) { type = null; }
@@ -465,8 +442,7 @@ var ReadKeyExpr = (function (_super) {
     };
     return ReadKeyExpr;
 }(Expression));
-exports.ReadKeyExpr = ReadKeyExpr;
-var LiteralArrayExpr = (function (_super) {
+export var LiteralArrayExpr = (function (_super) {
     __extends(LiteralArrayExpr, _super);
     function LiteralArrayExpr(entries, type) {
         if (type === void 0) { type = null; }
@@ -478,15 +454,14 @@ var LiteralArrayExpr = (function (_super) {
     };
     return LiteralArrayExpr;
 }(Expression));
-exports.LiteralArrayExpr = LiteralArrayExpr;
-var LiteralMapExpr = (function (_super) {
+export var LiteralMapExpr = (function (_super) {
     __extends(LiteralMapExpr, _super);
     function LiteralMapExpr(entries, type) {
         if (type === void 0) { type = null; }
         _super.call(this, type);
         this.entries = entries;
         this.valueType = null;
-        if (lang_1.isPresent(type)) {
+        if (isPresent(type)) {
             this.valueType = type.valueType;
         }
     }
@@ -495,31 +470,29 @@ var LiteralMapExpr = (function (_super) {
     };
     return LiteralMapExpr;
 }(Expression));
-exports.LiteralMapExpr = LiteralMapExpr;
-exports.THIS_EXPR = new ReadVarExpr(BuiltinVar.This);
-exports.SUPER_EXPR = new ReadVarExpr(BuiltinVar.Super);
-exports.CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar.CatchError);
-exports.CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar.CatchStack);
-exports.NULL_EXPR = new LiteralExpr(null, null);
+export var THIS_EXPR = new ReadVarExpr(BuiltinVar.This);
+export var SUPER_EXPR = new ReadVarExpr(BuiltinVar.Super);
+export var CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar.CatchError);
+export var CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar.CatchStack);
+export var NULL_EXPR = new LiteralExpr(null, null);
 //// Statements
+export var StmtModifier;
 (function (StmtModifier) {
     StmtModifier[StmtModifier["Final"] = 0] = "Final";
     StmtModifier[StmtModifier["Private"] = 1] = "Private";
-})(exports.StmtModifier || (exports.StmtModifier = {}));
-var StmtModifier = exports.StmtModifier;
-var Statement = (function () {
+})(StmtModifier || (StmtModifier = {}));
+export var Statement = (function () {
     function Statement(modifiers) {
         if (modifiers === void 0) { modifiers = null; }
         this.modifiers = modifiers;
-        if (lang_1.isBlank(modifiers)) {
+        if (isBlank(modifiers)) {
             this.modifiers = [];
         }
     }
     Statement.prototype.hasModifier = function (modifier) { return this.modifiers.indexOf(modifier) !== -1; };
     return Statement;
 }());
-exports.Statement = Statement;
-var DeclareVarStmt = (function (_super) {
+export var DeclareVarStmt = (function (_super) {
     __extends(DeclareVarStmt, _super);
     function DeclareVarStmt(name, value, type, modifiers) {
         if (type === void 0) { type = null; }
@@ -527,15 +500,14 @@ var DeclareVarStmt = (function (_super) {
         _super.call(this, modifiers);
         this.name = name;
         this.value = value;
-        this.type = lang_1.isPresent(type) ? type : value.type;
+        this.type = isPresent(type) ? type : value.type;
     }
     DeclareVarStmt.prototype.visitStatement = function (visitor, context) {
         return visitor.visitDeclareVarStmt(this, context);
     };
     return DeclareVarStmt;
 }(Statement));
-exports.DeclareVarStmt = DeclareVarStmt;
-var DeclareFunctionStmt = (function (_super) {
+export var DeclareFunctionStmt = (function (_super) {
     __extends(DeclareFunctionStmt, _super);
     function DeclareFunctionStmt(name, params, statements, type, modifiers) {
         if (type === void 0) { type = null; }
@@ -551,8 +523,7 @@ var DeclareFunctionStmt = (function (_super) {
     };
     return DeclareFunctionStmt;
 }(Statement));
-exports.DeclareFunctionStmt = DeclareFunctionStmt;
-var ExpressionStatement = (function (_super) {
+export var ExpressionStatement = (function (_super) {
     __extends(ExpressionStatement, _super);
     function ExpressionStatement(expr) {
         _super.call(this);
@@ -563,8 +534,7 @@ var ExpressionStatement = (function (_super) {
     };
     return ExpressionStatement;
 }(Statement));
-exports.ExpressionStatement = ExpressionStatement;
-var ReturnStatement = (function (_super) {
+export var ReturnStatement = (function (_super) {
     __extends(ReturnStatement, _super);
     function ReturnStatement(value) {
         _super.call(this);
@@ -575,21 +545,19 @@ var ReturnStatement = (function (_super) {
     };
     return ReturnStatement;
 }(Statement));
-exports.ReturnStatement = ReturnStatement;
-var AbstractClassPart = (function () {
+export var AbstractClassPart = (function () {
     function AbstractClassPart(type, modifiers) {
         if (type === void 0) { type = null; }
         this.type = type;
         this.modifiers = modifiers;
-        if (lang_1.isBlank(modifiers)) {
+        if (isBlank(modifiers)) {
             this.modifiers = [];
         }
     }
     AbstractClassPart.prototype.hasModifier = function (modifier) { return this.modifiers.indexOf(modifier) !== -1; };
     return AbstractClassPart;
 }());
-exports.AbstractClassPart = AbstractClassPart;
-var ClassField = (function (_super) {
+export var ClassField = (function (_super) {
     __extends(ClassField, _super);
     function ClassField(name, type, modifiers) {
         if (type === void 0) { type = null; }
@@ -599,8 +567,7 @@ var ClassField = (function (_super) {
     }
     return ClassField;
 }(AbstractClassPart));
-exports.ClassField = ClassField;
-var ClassMethod = (function (_super) {
+export var ClassMethod = (function (_super) {
     __extends(ClassMethod, _super);
     function ClassMethod(name, params, body, type, modifiers) {
         if (type === void 0) { type = null; }
@@ -612,8 +579,7 @@ var ClassMethod = (function (_super) {
     }
     return ClassMethod;
 }(AbstractClassPart));
-exports.ClassMethod = ClassMethod;
-var ClassGetter = (function (_super) {
+export var ClassGetter = (function (_super) {
     __extends(ClassGetter, _super);
     function ClassGetter(name, body, type, modifiers) {
         if (type === void 0) { type = null; }
@@ -624,8 +590,7 @@ var ClassGetter = (function (_super) {
     }
     return ClassGetter;
 }(AbstractClassPart));
-exports.ClassGetter = ClassGetter;
-var ClassStmt = (function (_super) {
+export var ClassStmt = (function (_super) {
     __extends(ClassStmt, _super);
     function ClassStmt(name, parent, fields, getters, constructorMethod, methods, modifiers) {
         if (modifiers === void 0) { modifiers = null; }
@@ -642,8 +607,7 @@ var ClassStmt = (function (_super) {
     };
     return ClassStmt;
 }(Statement));
-exports.ClassStmt = ClassStmt;
-var IfStmt = (function (_super) {
+export var IfStmt = (function (_super) {
     __extends(IfStmt, _super);
     function IfStmt(condition, trueCase, falseCase) {
         if (falseCase === void 0) { falseCase = []; }
@@ -657,8 +621,7 @@ var IfStmt = (function (_super) {
     };
     return IfStmt;
 }(Statement));
-exports.IfStmt = IfStmt;
-var CommentStmt = (function (_super) {
+export var CommentStmt = (function (_super) {
     __extends(CommentStmt, _super);
     function CommentStmt(comment) {
         _super.call(this);
@@ -669,8 +632,7 @@ var CommentStmt = (function (_super) {
     };
     return CommentStmt;
 }(Statement));
-exports.CommentStmt = CommentStmt;
-var TryCatchStmt = (function (_super) {
+export var TryCatchStmt = (function (_super) {
     __extends(TryCatchStmt, _super);
     function TryCatchStmt(bodyStmts, catchStmts) {
         _super.call(this);
@@ -682,8 +644,7 @@ var TryCatchStmt = (function (_super) {
     };
     return TryCatchStmt;
 }(Statement));
-exports.TryCatchStmt = TryCatchStmt;
-var ThrowStmt = (function (_super) {
+export var ThrowStmt = (function (_super) {
     __extends(ThrowStmt, _super);
     function ThrowStmt(error) {
         _super.call(this);
@@ -694,8 +655,7 @@ var ThrowStmt = (function (_super) {
     };
     return ThrowStmt;
 }(Statement));
-exports.ThrowStmt = ThrowStmt;
-var ExpressionTransformer = (function () {
+export var ExpressionTransformer = (function () {
     function ExpressionTransformer() {
     }
     ExpressionTransformer.prototype.visitReadVarExpr = function (ast, context) { return ast; };
@@ -709,7 +669,7 @@ var ExpressionTransformer = (function () {
         return new WritePropExpr(expr.receiver.visitExpression(this, context), expr.name, expr.value.visitExpression(this, context));
     };
     ExpressionTransformer.prototype.visitInvokeMethodExpr = function (ast, context) {
-        var method = lang_1.isPresent(ast.builtin) ? ast.builtin : ast.name;
+        var method = isPresent(ast.builtin) ? ast.builtin : ast.name;
         return new InvokeMethodExpr(ast.receiver.visitExpression(this, context), method, this.visitAllExpressions(ast.args, context), ast.type);
     };
     ExpressionTransformer.prototype.visitInvokeFunctionExpr = function (ast, context) {
@@ -786,8 +746,7 @@ var ExpressionTransformer = (function () {
     };
     return ExpressionTransformer;
 }());
-exports.ExpressionTransformer = ExpressionTransformer;
-var RecursiveExpressionVisitor = (function () {
+export var RecursiveExpressionVisitor = (function () {
     function RecursiveExpressionVisitor() {
     }
     RecursiveExpressionVisitor.prototype.visitReadVarExpr = function (ast, context) { return ast; };
@@ -907,12 +866,10 @@ var RecursiveExpressionVisitor = (function () {
     };
     return RecursiveExpressionVisitor;
 }());
-exports.RecursiveExpressionVisitor = RecursiveExpressionVisitor;
-function replaceVarInExpression(varName, newValue, expression) {
+export function replaceVarInExpression(varName, newValue, expression) {
     var transformer = new _ReplaceVariableTransformer(varName, newValue);
     return expression.visitExpression(transformer, null);
 }
-exports.replaceVarInExpression = replaceVarInExpression;
 var _ReplaceVariableTransformer = (function (_super) {
     __extends(_ReplaceVariableTransformer, _super);
     function _ReplaceVariableTransformer(_varName, _newValue) {
@@ -925,12 +882,11 @@ var _ReplaceVariableTransformer = (function (_super) {
     };
     return _ReplaceVariableTransformer;
 }(ExpressionTransformer));
-function findReadVarNames(stmts) {
+export function findReadVarNames(stmts) {
     var finder = new _VariableFinder();
     finder.visitAllStatements(stmts, null);
     return finder.varNames;
 }
-exports.findReadVarNames = findReadVarNames;
 var _VariableFinder = (function (_super) {
     __extends(_VariableFinder, _super);
     function _VariableFinder() {
@@ -943,44 +899,36 @@ var _VariableFinder = (function (_super) {
     };
     return _VariableFinder;
 }(RecursiveExpressionVisitor));
-function variable(name, type) {
+export function variable(name, type) {
     if (type === void 0) { type = null; }
     return new ReadVarExpr(name, type);
 }
-exports.variable = variable;
-function importExpr(id, typeParams) {
+export function importExpr(id, typeParams) {
     if (typeParams === void 0) { typeParams = null; }
     return new ExternalExpr(id, null, typeParams);
 }
-exports.importExpr = importExpr;
-function importType(id, typeParams, typeModifiers) {
+export function importType(id, typeParams, typeModifiers) {
     if (typeParams === void 0) { typeParams = null; }
     if (typeModifiers === void 0) { typeModifiers = null; }
-    return lang_1.isPresent(id) ? new ExternalType(id, typeParams, typeModifiers) : null;
+    return isPresent(id) ? new ExternalType(id, typeParams, typeModifiers) : null;
 }
-exports.importType = importType;
-function literalArr(values, type) {
+export function literalArr(values, type) {
     if (type === void 0) { type = null; }
     return new LiteralArrayExpr(values, type);
 }
-exports.literalArr = literalArr;
-function literalMap(values, type) {
+export function literalMap(values, type) {
     if (type === void 0) { type = null; }
     return new LiteralMapExpr(values, type);
 }
-exports.literalMap = literalMap;
-function not(expr) {
+export function not(expr) {
     return new NotExpr(expr);
 }
-exports.not = not;
-function fn(params, body, type) {
+export function fn(params, body, type) {
     if (type === void 0) { type = null; }
     return new FunctionExpr(params, body, type);
 }
-exports.fn = fn;
-function literal(value, type) {
+export function literal(value, type) {
     if (type === void 0) { type = null; }
     return new LiteralExpr(value, type);
 }
-exports.literal = literal;
 //# sourceMappingURL=output_ast.js.map

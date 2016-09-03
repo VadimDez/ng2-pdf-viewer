@@ -43,7 +43,6 @@ export declare class ProviderElementContext {
 export declare class NgModuleProviderAnalyzer {
     private _transformedProviders;
     private _seenProviders;
-    private _unparsedProviders;
     private _allProviders;
     private _errors;
     constructor(ngModule: CompileNgModuleMetadata, extraProviders: CompileProviderMetadata[], sourceSpan: ParseSourceSpan);

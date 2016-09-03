@@ -1,13 +1,14 @@
 import { Subject } from './Subject';
 import { Subscriber } from './Subscriber';
-import { TeardownLogic } from './Subscription';
+import { Subscription } from './Subscription';
 /**
  * @class AsyncSubject<T>
  */
 export declare class AsyncSubject<T> extends Subject<T> {
-    value: T;
-    hasNext: boolean;
-    protected _subscribe(subscriber: Subscriber<any>): TeardownLogic;
-    protected _next(value: T): void;
-    protected _complete(): void;
+    private value;
+    private hasNext;
+    private hasCompleted;
+    protected _subscribe(subscriber: Subscriber<any>): Subscription;
+    next(value: T): void;
+    complete(): void;
 }

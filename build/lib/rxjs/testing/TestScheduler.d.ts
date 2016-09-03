@@ -1,8 +1,8 @@
 import { Observable } from '../Observable';
-import { VirtualTimeScheduler } from '../scheduler/VirtualTimeScheduler';
 import { Subject } from '../Subject';
 import { TestMessage } from './TestMessage';
 import { SubscriptionLog } from './SubscriptionLog';
+import { VirtualTimeScheduler } from '../scheduler/VirtualTimeScheduler';
 export declare type observableToBeFn = (marbles: string, values?: any, errorValue?: any) => void;
 export declare type subscriptionLogsToBeFn = (marbles: string | string[]) => void;
 export declare class TestScheduler extends VirtualTimeScheduler {

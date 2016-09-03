@@ -1,13 +1,5 @@
-"use strict";
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-var lang_1 = require('./facade/lang');
-var ParseLocation = (function () {
+import { isPresent } from './facade/lang';
+export var ParseLocation = (function () {
     function ParseLocation(file, offset, line, col) {
         this.file = file;
         this.offset = offset;
@@ -15,20 +7,18 @@ var ParseLocation = (function () {
         this.col = col;
     }
     ParseLocation.prototype.toString = function () {
-        return lang_1.isPresent(this.offset) ? this.file.url + "@" + this.line + ":" + this.col : this.file.url;
+        return isPresent(this.offset) ? this.file.url + "@" + this.line + ":" + this.col : this.file.url;
     };
     return ParseLocation;
 }());
-exports.ParseLocation = ParseLocation;
-var ParseSourceFile = (function () {
+export var ParseSourceFile = (function () {
     function ParseSourceFile(content, url) {
         this.content = content;
         this.url = url;
     }
     return ParseSourceFile;
 }());
-exports.ParseSourceFile = ParseSourceFile;
-var ParseSourceSpan = (function () {
+export var ParseSourceSpan = (function () {
     function ParseSourceSpan(start, end, details) {
         if (details === void 0) { details = null; }
         this.start = start;
@@ -40,13 +30,12 @@ var ParseSourceSpan = (function () {
     };
     return ParseSourceSpan;
 }());
-exports.ParseSourceSpan = ParseSourceSpan;
+export var ParseErrorLevel;
 (function (ParseErrorLevel) {
     ParseErrorLevel[ParseErrorLevel["WARNING"] = 0] = "WARNING";
     ParseErrorLevel[ParseErrorLevel["FATAL"] = 1] = "FATAL";
-})(exports.ParseErrorLevel || (exports.ParseErrorLevel = {}));
-var ParseErrorLevel = exports.ParseErrorLevel;
-var ParseError = (function () {
+})(ParseErrorLevel || (ParseErrorLevel = {}));
+export var ParseError = (function () {
     function ParseError(span, msg, level) {
         if (level === void 0) { level = ParseErrorLevel.FATAL; }
         this.span = span;
@@ -58,7 +47,7 @@ var ParseError = (function () {
         var ctxStart = this.span.start.offset;
         var contextStr = '';
         var details = '';
-        if (lang_1.isPresent(ctxStart)) {
+        if (isPresent(ctxStart)) {
             if (ctxStart > source.length - 1) {
                 ctxStart = source.length - 1;
             }
@@ -96,5 +85,4 @@ var ParseError = (function () {
     };
     return ParseError;
 }());
-exports.ParseError = ParseError;
 //# sourceMappingURL=parse_util.js.map

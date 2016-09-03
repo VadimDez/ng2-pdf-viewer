@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { EventEmitter } from '../facade/async';
-export { NgZoneError } from './ng_zone_impl';
 /**
  * An injectable service for executing work inside or outside of the Angular zone.
  *

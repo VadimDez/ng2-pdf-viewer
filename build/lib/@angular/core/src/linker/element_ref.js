@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 /**
  * A wrapper around a native element inside of a View.
  *
@@ -21,11 +20,10 @@
 // Note: We don't expose things like `Injector`, `ViewContainer`, ... here,
 // i.e. users have to ask for what they need. With that, we can build better analysis tools
 // and could do better codegen in the future.
-var ElementRef = (function () {
+export var ElementRef = (function () {
     function ElementRef(nativeElement) {
         this.nativeElement = nativeElement;
     }
     return ElementRef;
 }());
-exports.ElementRef = ElementRef;
 //# sourceMappingURL=element_ref.js.map

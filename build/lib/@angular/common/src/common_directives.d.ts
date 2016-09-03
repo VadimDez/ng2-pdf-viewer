@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Type } from '@angular/core';
+import { Provider } from '@angular/core';
 /**
  * A collection of Angular core directives that are likely to be used in each and every Angular
  * application. This includes core directives (e.g., NgIf and NgFor), and forms directives (e.g.,
@@ -19,14 +19,14 @@ import { Type } from '@angular/core';
  * Instead of writing:
  *
  * ```typescript
- * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm} from
+ * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm} from
  * '@angular/common';
  * import {OtherDirective} from './myDirectives';
  *
  * @Component({
  *   selector: 'my-component',
  *   templateUrl: 'myComponent.html',
- *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm,
+ *   directives: [NgClass, NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, NgModel, NgForm,
  * OtherDirective]
  * })
  * export class MyComponent {
@@ -51,4 +51,4 @@ import { Type } from '@angular/core';
  *
  * @experimental Contains forms which are experimental.
  */
-export declare const COMMON_DIRECTIVES: Type[][];
+export declare const COMMON_DIRECTIVES: Provider[];

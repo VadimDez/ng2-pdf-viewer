@@ -1,338 +1,333 @@
-import { Type } from '../facade/lang';
 /**
- * Describes how the {@link Injector} should instantiate a given token.
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
  *
- * See {@link provide}.
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { Type } from '../type';
+/**
+ * Configures the {@link Injector} to return an instance of `Type` when `Type' is used as token.
  *
- * ### Example ([live demo](http://plnkr.co/edit/GNAyj6K6PfYg2NBzgwZ5?p%3Dpreview&p=preview))
+ * Create an instance by invoking the `new` operator and supplying additional arguments.
+ * This form is a short form of `TypeProvider`;
  *
+ * ### Example
  * ```javascript
- * var injector = Injector.resolveAndCreate([
- *   new Provider("message", { useValue: 'Hello' })
+ * @Injectable()
+ * class Greeting {
+ *   text: 'Hello';
+ * }
+ *
+ * @Injectable()
+ * class MyClass {
+ *   greeting:string;
+ *   constructor(greeting: Greeting) {
+ *     this.greeting = greeting.text;
+ *   }
+ * }
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   Greeting, // Shorthand for { provide: Greeting, useClass: Greeting }
+ *   MyClass   // Shorthand for { provide: MyClass,  useClass: MyClass }
  * ]);
  *
- * expect(injector.get("message")).toEqual('Hello');
+ * const myClass: MyClass = injector.get(MyClass);
+ * expect(myClass.greeting).toEqual('Hello');
  * ```
- * @deprecated
+ *
+ * @stable
  */
-export declare class Provider {
+export interface TypeProvider extends Type<any> {
+}
+/**
+ * Configures the {@link Injector} to return a value for a token.
+ *
+ * ### Example
+ * const injector = Injector.resolveAndCreate([
+ *   {provide: String, useValue: 'Hello'}
+ * ]);
+ *
+ * expect(injector.get(String)).toEqual('Hello');
+ * ```
+ * @stable
+ */
+export interface ValueProvider {
     /**
-     * Token used when retrieving this provider. Usually, it is a type {@link Type}.
+     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
      */
-    token: any;
+    provide: any;
     /**
-     * Binds a DI token to an implementation class.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/RSTG86qgmoxCyj9SWPwY?p=preview))
-     *
-     * Because `useExisting` and `useClass` are often confused, the example contains
-     * both use cases for easy comparison.
-     *
-     * ```typescript
-     * class Vehicle {}
-     *
-     * class Car extends Vehicle {}
-     *
-     * var injectorClass = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle,  useClass: Car }
-     * ]);
-     * var injectorAlias = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle,  useExisting: Car }
-     * ]);
-     *
-     * expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
-     * expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
-     *
-     * expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
-     * expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
-     * ```
-     */
-    useClass: Type;
-    /**
-     * Binds a DI token to a value.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/UFVsMVQIDe7l4waWziES?p=preview))
-     *
-     * ```javascript
-     * var injector = Injector.resolveAndCreate([
-     *   new Provider("message", { useValue: 'Hello' })
-     * ]);
-     *
-     * expect(injector.get("message")).toEqual('Hello');
-     * ```
+     * The value to inject.
      */
     useValue: any;
     /**
-     * Binds a DI token to an existing token.
+     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * providers spread across many files to provide configuration information to a common token.
      *
-     * {@link Injector} returns the same instance as if the provided token was used.
-     * This is in contrast to `useClass` where a separate instance of `useClass` is returned.
+     * ### Example
+     * ```javascript
+     * var locale = new OpaqueToken('local');
      *
-     * ### Example ([live demo](http://plnkr.co/edit/QsatsOJJ6P8T2fMe9gr8?p=preview))
-     *
-     * Because `useExisting` and `useClass` are often confused the example contains
-     * both use cases for easy comparison.
-     *
-     * ```typescript
-     * class Vehicle {}
-     *
-     * class Car extends Vehicle {}
-     *
-     * var injectorAlias = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle,  useExisting: Car }
-     * ]);
-     * var injectorClass = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle,  useClass: Car }
+     * const injector = Injector.resolveAndCreate([
+     *   { provide: locale, useValue: 'en' },
+     *   { provide: locale, useValue: 'sk' },
      * ]);
      *
-     * expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
-     * expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
-     *
-     * expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
-     * expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
+     * const locales: string[] = injector.get(locale);
+     * expect(locales).toEqual(['en', 'sk']);
      * ```
+     */
+    multi?: boolean;
+}
+/**
+ * Configures the {@link Injector} to return an instance of `useClass` for a token.
+ *
+ * ### Example
+ * ```javascript
+ * abstract class Shape {
+ *   name: string;
+ * }
+ *
+ * class Square extends Shape {
+ *   name = 'square';
+ * }
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   {provide: Shape, useClass: Square}
+ * ]);
+ *
+ * const shape: Shape = injector.get(Shape);
+ * expect(shape.name).toEqual('square');
+ * expect(shape instanceof Square).toBe(true);
+ * ```
+ *
+ * Note that following is not equal:
+ * ```javascript
+ * class Greeting {
+ *   salutation = 'Hello';
+ * }
+ *
+ * class FormalGreeting extends Greeting {
+ *   salutation = 'Greetings';
+ * }
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   FormalGreeting,
+ *   {provide: Greeting, useClass: FormalGreeting}
+ * ]);
+ *
+ * // The injector returns different instances.
+ * // See: {provide: ?, useExisting: ?} if you want the same instance.
+ * expect(injector.get(FormalGreeting)).not.toBe(injector.get(Greeting));
+ * ```
+ *
+ * @stable
+ */
+export interface ClassProvider {
+    /**
+     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     */
+    provide: any;
+    /**
+     * Class to instantiate for the `token`.
+     */
+    useClass: Type<any>;
+    /**
+     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * providers spread across many files to provide configuration information to a common token.
+     *
+     * ### Example
+     * ```javascript
+     * abstract class Locale {
+     *   name: string;
+     * };
+     *
+     * @Injectable()
+     * class EnLocale extends Locale {
+     *   name: 'en';
+     * };
+     *
+     * @Injectable()
+     * class SkLocale extends Locale {
+     *   name: 'sk';
+     * };
+     *
+     * const injector = Injector.resolveAndCreate([
+     *   { provide: Locale, useValue: EnLocale, multi: true },
+     *   { provide: Locale, useValue: SkLocale, multi: true },
+     * ]);
+     *
+     * const locales: Locale[] = injector.get(Locale);
+     * const localeNames: string[] = locals.map((l) => l.name);
+     * expect(localeNames).toEqual(['en', 'sk']);
+     * ```
+     */
+    multi?: boolean;
+}
+/**
+ * Configures the {@link Injector} to return a value of another `useExisting` token.
+ *
+ * ### Example
+ * ```javascript
+ * class Greeting {
+ *   salutation = 'Hello';
+ * }
+ *
+ * class FormalGreeting extends Greeting {
+ *   salutation = 'Greetings';
+ * }
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   FormalGreeting,
+ *   {provide: Greeting, useExisting: FormalGreeting}
+ * ]);
+ *
+ * expect(injector.get(Greeting).name).toEqual('Hello');
+ * expect(injector.get(FormalGreeting).name).toEqual('Hello');
+ * expect(injector.get(Salutation).name).toBe(injector.get(Greeting));
+ * ```
+ * @stable
+ */
+export interface ExistingProvider {
+    /**
+     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     */
+    provide: any;
+    /**
+     * Existing `token` to return. (equivalent to `injector.get(useExisting)`)
      */
     useExisting: any;
     /**
-     * Binds a DI token to a function which computes the value.
+     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * providers spread across many files to provide configuration information to a common token.
      *
-     * ### Example ([live demo](http://plnkr.co/edit/Scoxy0pJNqKGAPZY1VVC?p=preview))
+     * ### Example
+     * ```javascript
+     * abstract class Locale {
+     *   name: string;
+     * };
      *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   {provide: Number,  useFactory: () => { return 1+2; }},
-     *   new Provider(String, { useFactory: (value) => { return "Value: " + value; },
-     *                       deps: [Number] })
+     * @Injectable()
+     * class EnLocale extends Locale {
+     *   name: 'en';
+     * };
+     *
+     * @Injectable()
+     * class SkLocale extends Locale {
+     *   name: 'sk';
+     * };
+     *
+     * const injector = Injector.resolveAndCreate([
+     *   EnLocale,
+     *   SkLocale
+     *   { provide: Locale, useExisting: EnLocale, multi: true },
+     *   { provide: Locale, useExisting: SkLocale, multi: true },
      * ]);
      *
-     * expect(injector.get(Number)).toEqual(3);
-     * expect(injector.get(String)).toEqual('Value: 3');
+     * const locales: Locale[] = injector.get(Locale);
+     * const localeNames: string[] = locals.map((l) => l.name);
+     * expect(localeNames).toEqual(['en', 'sk']);
      * ```
-     *
-     * Used in conjunction with dependencies.
+     */
+    multi?: boolean;
+}
+/**
+ * Configures the {@link Injector} to return a value by invoking a `useFactory` function.
+ *
+ * ### Example
+ * ```javascript
+ * const HASH = new OpaqueToken('hash');
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   {provide: Location, useValue: window.location},
+ *   {provide: HASH, useFactory: (location: Location) => location.hash, deps: [Location]}
+ * ]);
+ *
+ *
+ * // Assume location is: http://angular.io/#someLocation
+ * expect(injector.get(HASH)).toEqual('someLocation');
+ * ``
+ * @stable
+ */
+export interface FactoryProvider {
+    /**
+     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     */
+    provide: any;
+    /**
+     * A function to invoke to create a value for this `token`. The function is invoked with
+     * resolved values of `token`s in the `deps` field.
      */
     useFactory: Function;
     /**
-     * Specifies a set of dependencies
-     * (as `token`s) which should be injected into the factory function.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/Scoxy0pJNqKGAPZY1VVC?p=preview))
-     *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   {provide: Number,  useFactory: () => { return 1+2; }},
-     *   new Provider(String, { useFactory: (value) => { return "Value: " + value; },
-     *                       deps: [Number] })
-     * ]);
-     *
-     * expect(injector.get(Number)).toEqual(3);
-     * expect(injector.get(String)).toEqual('Value: 3');
-     * ```
-     *
-     * Used in conjunction with `useFactory`.
+     * A list of `token`s which need to be resolved by the injector. The list of values is than
+     * used as arguments to the `useFactory` function.
      */
-    dependencies: Object[];
-    constructor(token: any, {useClass, useValue, useExisting, useFactory, deps, multi}: {
-        useClass?: Type;
-        useValue?: any;
-        useExisting?: any;
-        useFactory?: Function;
-        deps?: Object[];
-        multi?: boolean;
-    });
+    deps?: any[];
     /**
-     * Creates multiple providers matching the same token (a multi-provider).
-     *
-     * Multi-providers are used for creating pluggable service, where the system comes
-     * with some default providers, and the user can register additional providers.
-     * The combination of the default providers and the additional providers will be
-     * used to drive the behavior of the system.
+     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * providers spread across many files to provide configuration information to a common token.
      *
      * ### Example
+     * ```javascript
+     * class Locale {
+     *   constructor(public name: string) {}
+     * };
+     * const PRIMARY = new OpequeToken('primary');
+     * const SECONDARY = new OpequeToken('secondary');
      *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   new Provider("Strings", { useValue: "String1", multi: true}),
-     *   new Provider("Strings", { useValue: "String2", multi: true})
+     * const injector = Injector.resolveAndCreate([
+     *   { provide: PRIMARY: useValue: 'en'},
+     *   { provide: SECONDARY: useValue: 'sk'},
+     *   { provide: Locale, useFactory: (n) => new Locale(n), deps: [PRIMARY], multi: true},
+     *   { provide: Locale, useFactory: (n) => new Locale(n), deps: [SECONDARY], multi: true},
      * ]);
      *
-     * expect(injector.get("Strings")).toEqual(["String1", "String2"]);
-     * ```
-     *
-     * Multi-providers and regular providers cannot be mixed. The following
-     * will throw an exception:
-     *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   new Provider("Strings", { useValue: "String1", multi: true }),
-     *   new Provider("Strings", { useValue: "String2"})
-     * ]);
-     * ```
-     */
-    multi: boolean;
-}
-/**
- * See {@link Provider} instead.
- *
- * @deprecated
- */
-export declare class Binding extends Provider {
-    constructor(token: any, {toClass, toValue, toAlias, toFactory, deps, multi}: {
-        toClass?: Type;
-        toValue?: any;
-        toAlias?: any;
-        toFactory: Function;
-        deps?: Object[];
-        multi?: boolean;
-    });
-    /**
-     * @deprecated
-     */
-    toClass: Type;
-    /**
-     * @deprecated
-     */
-    toAlias: any;
-    /**
-     * @deprecated
-     */
-    toFactory: Function;
-    /**
-     * @deprecated
-     */
-    toValue: any;
-}
-/**
- * Creates a {@link Provider}.
- *
- * To construct a {@link Provider}, bind a `token` to either a class, a value, a factory function,
- * or
- * to an existing `token`.
- * See {@link ProviderBuilder} for more details.
- *
- * The `token` is most commonly a class or {@link OpaqueToken}.
- *
- * @deprecated
- */
-export declare function bind(token: any): ProviderBuilder;
-/**
- * Helper class for the {@link bind} function.
- * @deprecated
- */
-export declare class ProviderBuilder {
-    token: any;
-    constructor(token: any);
-    /**
-     * Binds a DI token to a class.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/ZpBCSYqv6e2ud5KXLdxQ?p=preview))
-     *
-     * Because `toAlias` and `toClass` are often confused, the example contains
-     * both use cases for easy comparison.
-     *
-     * ```typescript
-     * class Vehicle {}
-     *
-     * class Car extends Vehicle {}
-     *
-     * var injectorClass = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle, useClass: Car}
-     * ]);
-     * var injectorAlias = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle, useExisting: Car}
-     * ]);
-     *
-     * expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
-     * expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
-     *
-     * expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
-     * expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
+     * const locales: Locale[] = injector.get(Locale);
+     * const localeNames: string[] = locals.map((l) => l.name);
+     * expect(localeNames).toEqual(['en', 'sk']);
      * ```
      */
-    toClass(type: Type): Provider;
-    /**
-     * Binds a DI token to a value.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/G024PFHmDL0cJFgfZK8O?p=preview))
-     *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   {provide: 'message', useValue: 'Hello'}
-     * ]);
-     *
-     * expect(injector.get('message')).toEqual('Hello');
-     * ```
-     */
-    toValue(value: any): Provider;
-    /**
-     * Binds a DI token to an existing token.
-     *
-     * Angular will return the same instance as if the provided token was used. (This is
-     * in contrast to `useClass` where a separate instance of `useClass` will be returned.)
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/uBaoF2pN5cfc5AfZapNw?p=preview))
-     *
-     * Because `toAlias` and `toClass` are often confused, the example contains
-     * both use cases for easy comparison.
-     *
-     * ```typescript
-     * class Vehicle {}
-     *
-     * class Car extends Vehicle {}
-     *
-     * var injectorAlias = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle, useExisting: Car}
-     * ]);
-     * var injectorClass = Injector.resolveAndCreate([
-     *   Car,
-     *   {provide: Vehicle, useClass: Car})
-     * ]);
-     *
-     * expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
-     * expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
-     *
-     * expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
-     * expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
-     * ```
-     */
-    toAlias(aliasToken: any): Provider;
-    /**
-     * Binds a DI token to a function which computes the value.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/OejNIfTT3zb1iBxaIYOb?p=preview))
-     *
-     * ```typescript
-     * var injector = Injector.resolveAndCreate([
-     *   {provide: Number, useFactory: () => { return 1+2; }},
-     *   {provide: String, useFactory: (v) => { return "Value: " + v; }, deps: [Number]}
-     * ]);
-     *
-     * expect(injector.get(Number)).toEqual(3);
-     * expect(injector.get(String)).toEqual('Value: 3');
-     * ```
-     */
-    toFactory(factory: Function, dependencies?: any[]): Provider;
-}
-/**
- * Creates a {@link Provider}.
- *
- * See {@link Provider} for more details.
- *
- * <!-- TODO: improve the docs -->
- * @deprecated
- */
-export declare function provide(token: any, {useClass, useValue, useExisting, useFactory, deps, multi}: {
-    useClass?: Type;
-    useValue?: any;
-    useExisting?: any;
-    useFactory?: Function;
-    deps?: Object[];
     multi?: boolean;
-}): Provider;
+}
+/**
+ * Describes how the {@link Injector} should be configured.
+ *
+ * See {@link TypeProvider}, {@link ValueProvider}, {@link ClassProvider}, {@link ExistingProvider},
+ * {@link FactoryProvider}.
+ *
+ * ```javascript
+ * class Greeting {
+ *   salutation = 'Hello';
+ * }
+ *
+ * class FormalGreeting extends Greeting {
+ *   salutation = 'Greetings';
+ * }
+ *
+ * abstract class Operation {
+ *   apply(a,b): any;
+ * }
+ *
+ * class AddOperation extends Operation {
+ *   apply(a,b) { return a+b; }
+ * }
+ *
+ *
+ * const injector = Injector.resolveAndCreate([
+ *   FormalGreeting,
+ *   {provide: String, useValue: 'Hello World!'},
+ *   {provide: Greeting, useExisting: FormalGreeting},
+ *   {provide: Operation, useClass: AddOperation},
+ *   {provide: Number, useFactory: (op) =>op.apply(1,2), deps: [Operation] }
+ * ]);
+ *
+ * expect(injector.get(FormalGreeting).name).toEqual('Greetings');
+ * expect(injector.get(String).name).toEqual('Hello World!');
+ * expect(injector.get(Greeting).name).toBe(injector.get(FormalGreeting));
+ * expect(injector.get(Number).toEqual(3);
+ * ```
+ * @stable
+ */
+export declare type Provider = TypeProvider | ValueProvider | ClassProvider | ExistingProvider | FactoryProvider | any[];

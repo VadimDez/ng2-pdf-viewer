@@ -65,11 +65,9 @@ export declare class SwitchView {
  *     this.value = this.value === 'init' ? 0 : this.value + 1;
  *   }
  * }
- *
- * bootstrap(App).catch(err => console.error(err));
  * ```
  *
- * @experimental
+ * @stable
  */
 export declare class NgSwitch {
     private _switchValue;
@@ -86,13 +84,12 @@ export declare class NgSwitch {
  *
  * See {@link NgSwitch} for more details and example.
  *
- * @experimental
+ * @stable
  */
 export declare class NgSwitchCase {
     private _switch;
     constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef<Object>, ngSwitch: NgSwitch);
     ngSwitchCase: any;
-    ngSwitchWhen: any;
 }
 /**
  * Default case statements are displayed when no match expression matches the switch expression
@@ -100,7 +97,7 @@ export declare class NgSwitchCase {
  *
  * See {@link NgSwitch} for more details and example.
  *
- * @experimental
+ * @stable
  */
 export declare class NgSwitchDefault {
     constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef<Object>, sswitch: NgSwitch);

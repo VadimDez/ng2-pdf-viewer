@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var lang_1 = require('../../facade/lang');
-var common_tools_1 = require('./common_tools');
-var context = lang_1.global;
+import { global } from '../../facade/lang';
+import { AngularTools } from './common_tools';
+var context = global;
 /**
  * Enabled Angular 2 debug tools that are accessible via your browser's
  * developer console.
@@ -22,18 +21,16 @@ var context = lang_1.global;
  *
  * @experimental All debugging apis are currently experimental.
  */
-function enableDebugTools(ref) {
-    context.ng = new common_tools_1.AngularTools(ref);
+export function enableDebugTools(ref) {
+    context.ng = new AngularTools(ref);
     return ref;
 }
-exports.enableDebugTools = enableDebugTools;
 /**
  * Disables Angular 2 tools.
  *
  * @experimental All debugging apis are currently experimental.
  */
-function disableDebugTools() {
+export function disableDebugTools() {
     delete context.ng;
 }
-exports.disableDebugTools = disableDebugTools;
 //# sourceMappingURL=tools.js.map

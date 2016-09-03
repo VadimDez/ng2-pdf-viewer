@@ -5,16 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var compiler_1 = require('@angular/compiler');
-var core_1 = require('@angular/core');
-var platform_browser_private_1 = require('../platform_browser_private');
-var xhr_impl_1 = require('./xhr/xhr_impl');
-exports.INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
-    platform_browser_private_1.INTERNAL_BROWSER_PLATFORM_PROVIDERS,
+import { ResourceLoader } from '@angular/compiler';
+import { COMPILER_OPTIONS } from '@angular/core';
+import { INTERNAL_BROWSER_PLATFORM_PROVIDERS } from './private_import_platform-browser';
+import { ResourceLoaderImpl } from './resource_loader/resource_loader_impl';
+export var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
+    INTERNAL_BROWSER_PLATFORM_PROVIDERS,
     {
-        provide: core_1.COMPILER_OPTIONS,
-        useValue: { providers: [{ provide: compiler_1.XHR, useClass: xhr_impl_1.XHRImpl }] },
+        provide: COMPILER_OPTIONS,
+        useValue: { providers: [{ provide: ResourceLoader, useClass: ResourceLoaderImpl }] },
         multi: true
     },
 ];

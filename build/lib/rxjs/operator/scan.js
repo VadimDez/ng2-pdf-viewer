@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Subscriber_1 = require('../Subscriber');
 /**
- * Applies an accumulation function over the source Observable, and returns each
+ * Applies an accumulator function over the source Observable, and returns each
  * intermediate result, with an optional seed value.
  *
  * <span class="informal">It's like {@link reduce}, but emits the current
@@ -35,8 +35,8 @@ var Subscriber_1 = require('../Subscriber');
  * @see {@link mergeScan}
  * @see {@link reduce}
  *
- * @param {function(acc: R, value: T): R} accumulator The accumulator function
- * called on each source value.
+ * @param {function(acc: R, value: T, index: number): R} accumulator
+ * The accumulator function called on each source value.
  * @param {T|R} [seed] The initial accumulation value.
  * @return {Observable<R>} An observable of the accumulated values.
  * @method scan
@@ -66,9 +66,9 @@ var ScanSubscriber = (function (_super) {
     function ScanSubscriber(destination, accumulator, seed) {
         _super.call(this, destination);
         this.accumulator = accumulator;
+        this.index = 0;
         this.accumulatorSet = false;
         this.seed = seed;
-        this.accumulator = accumulator;
         this.accumulatorSet = typeof seed !== 'undefined';
     }
     Object.defineProperty(ScanSubscriber.prototype, "seed", {
@@ -92,9 +92,10 @@ var ScanSubscriber = (function (_super) {
         }
     };
     ScanSubscriber.prototype._tryNext = function (value) {
+        var index = this.index++;
         var result;
         try {
-            result = this.accumulator(this.seed, value);
+            result = this.accumulator(this.seed, value, index);
         }
         catch (err) {
             this.destination.error(err);

@@ -6,10 +6,10 @@ import { Subscription } from './Subscription';
  * @ignore
  * @extends {Ignored}
  */
-export declare class SubjectSubscription extends Subscription {
-    subject: Subject<any>;
-    observer: Observer<any>;
-    isUnsubscribed: boolean;
-    constructor(subject: Subject<any>, observer: Observer<any>);
+export declare class SubjectSubscription<T> extends Subscription {
+    subject: Subject<T>;
+    subscriber: Observer<T>;
+    closed: boolean;
+    constructor(subject: Subject<T>, subscriber: Observer<T>);
     unsubscribe(): void;
 }

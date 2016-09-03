@@ -5,14 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var parse_util_1 = require('../parse_util');
-var html = require('./ast');
+import { ParseError } from '../parse_util';
+import * as html from './ast';
 // http://cldr.unicode.org/index/cldr-spec/plural-rules
 var PLURAL_CASES = ['zero', 'one', 'two', 'few', 'many', 'other'];
 /**
@@ -38,12 +37,11 @@ var PLURAL_CASES = ['zero', 'one', 'two', 'few', 'many', 'other'];
  * </ng-container>
  * ```
  */
-function expandNodes(nodes) {
+export function expandNodes(nodes) {
     var expander = new _Expander();
     return new ExpansionResult(html.visitAll(expander, nodes), expander.isExpanded, expander.errors);
 }
-exports.expandNodes = expandNodes;
-var ExpansionResult = (function () {
+export var ExpansionResult = (function () {
     function ExpansionResult(nodes, expanded, errors) {
         this.nodes = nodes;
         this.expanded = expanded;
@@ -51,15 +49,13 @@ var ExpansionResult = (function () {
     }
     return ExpansionResult;
 }());
-exports.ExpansionResult = ExpansionResult;
-var ExpansionError = (function (_super) {
+export var ExpansionError = (function (_super) {
     __extends(ExpansionError, _super);
     function ExpansionError(span, errorMsg) {
         _super.call(this, span, errorMsg);
     }
     return ExpansionError;
-}(parse_util_1.ParseError));
-exports.ExpansionError = ExpansionError;
+}(ParseError));
 /**
  * Expand expansion forms (plural, select) to directives
  *

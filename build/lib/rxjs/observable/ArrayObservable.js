@@ -93,7 +93,7 @@ var ArrayObservable = (function (_super) {
             return;
         }
         subscriber.next(array[index]);
-        if (subscriber.isUnsubscribed) {
+        if (subscriber.closed) {
             return;
         }
         state.index = index + 1;
@@ -110,7 +110,7 @@ var ArrayObservable = (function (_super) {
             });
         }
         else {
-            for (var i = 0; i < count && !subscriber.isUnsubscribed; i++) {
+            for (var i = 0; i < count && !subscriber.closed; i++) {
                 subscriber.next(array[i]);
             }
             subscriber.complete();

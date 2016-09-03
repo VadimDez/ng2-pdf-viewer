@@ -5,25 +5,22 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../../facade/collection');
-var exceptions_1 = require('../../facade/exceptions');
-var lang_1 = require('../../facade/lang');
-var DefaultIterableDifferFactory = (function () {
+import { isListLikeIterable, iterateListLike } from '../../facade/collection';
+import { getMapKey, isArray, isBlank, isPresent, looseIdentical, stringify } from '../../facade/lang';
+export var DefaultIterableDifferFactory = (function () {
     function DefaultIterableDifferFactory() {
     }
-    DefaultIterableDifferFactory.prototype.supports = function (obj) { return collection_1.isListLikeIterable(obj); };
+    DefaultIterableDifferFactory.prototype.supports = function (obj) { return isListLikeIterable(obj); };
     DefaultIterableDifferFactory.prototype.create = function (cdRef, trackByFn) {
         return new DefaultIterableDiffer(trackByFn);
     };
     return DefaultIterableDifferFactory;
 }());
-exports.DefaultIterableDifferFactory = DefaultIterableDifferFactory;
 var trackByIdentity = function (index, item) { return item; };
 /**
  * @stable
  */
-var DefaultIterableDiffer = (function () {
+export var DefaultIterableDiffer = (function () {
     function DefaultIterableDiffer(_trackByFn) {
         this._trackByFn = _trackByFn;
         this._length = null;
@@ -44,7 +41,7 @@ var DefaultIterableDiffer = (function () {
         // Keeps track of records where custom track by is the same, but item identity has changed
         this._identityChangesHead = null;
         this._identityChangesTail = null;
-        this._trackByFn = lang_1.isPresent(this._trackByFn) ? this._trackByFn : trackByIdentity;
+        this._trackByFn = isPresent(this._trackByFn) ? this._trackByFn : trackByIdentity;
     }
     Object.defineProperty(DefaultIterableDiffer.prototype, "collection", {
         get: function () { return this._collection; },
@@ -142,10 +139,10 @@ var DefaultIterableDiffer = (function () {
         }
     };
     DefaultIterableDiffer.prototype.diff = function (collection) {
-        if (lang_1.isBlank(collection))
+        if (isBlank(collection))
             collection = [];
-        if (!collection_1.isListLikeIterable(collection)) {
-            throw new exceptions_1.BaseException("Error trying to diff '" + collection + "'");
+        if (!isListLikeIterable(collection)) {
+            throw new Error("Error trying to diff '" + collection + "'");
         }
         if (this.check(collection)) {
             return this;
@@ -164,13 +161,13 @@ var DefaultIterableDiffer = (function () {
         var index;
         var item;
         var itemTrackBy;
-        if (lang_1.isArray(collection)) {
+        if (isArray(collection)) {
             var list = collection;
             this._length = collection.length;
             for (index = 0; index < this._length; index++) {
                 item = list[index];
                 itemTrackBy = this._trackByFn(index, item);
-                if (record === null || !lang_1.looseIdentical(record.trackById, itemTrackBy)) {
+                if (record === null || !looseIdentical(record.trackById, itemTrackBy)) {
                     record = this._mismatch(record, item, itemTrackBy, index);
                     mayBeDirty = true;
                 }
@@ -179,7 +176,7 @@ var DefaultIterableDiffer = (function () {
                         // TODO(misko): can we limit this to duplicates only?
                         record = this._verifyReinsertion(record, item, itemTrackBy, index);
                     }
-                    if (!lang_1.looseIdentical(record.item, item))
+                    if (!looseIdentical(record.item, item))
                         this._addIdentityChange(record, item);
                 }
                 record = record._next;
@@ -187,9 +184,9 @@ var DefaultIterableDiffer = (function () {
         }
         else {
             index = 0;
-            collection_1.iterateListLike(collection, function (item /** TODO #9100 */) {
+            iterateListLike(collection, function (item /** TODO #9100 */) {
                 itemTrackBy = _this._trackByFn(index, item);
-                if (record === null || !lang_1.looseIdentical(record.trackById, itemTrackBy)) {
+                if (record === null || !looseIdentical(record.trackById, itemTrackBy)) {
                     record = _this._mismatch(record, item, itemTrackBy, index);
                     mayBeDirty = true;
                 }
@@ -198,7 +195,7 @@ var DefaultIterableDiffer = (function () {
                         // TODO(misko): can we limit this to duplicates only?
                         record = _this._verifyReinsertion(record, item, itemTrackBy, index);
                     }
-                    if (!lang_1.looseIdentical(record.item, item))
+                    if (!looseIdentical(record.item, item))
                         _this._addIdentityChange(record, item);
                 }
                 record = record._next;
@@ -275,7 +272,7 @@ var DefaultIterableDiffer = (function () {
         if (record !== null) {
             // We have seen this before, we need to move it forward in the collection.
             // But first we need to check if identity changed, so we can update in view if necessary
-            if (!lang_1.looseIdentical(record.item, item))
+            if (!looseIdentical(record.item, item))
                 this._addIdentityChange(record, item);
             this._moveAfter(record, previousRecord, index);
         }
@@ -285,7 +282,7 @@ var DefaultIterableDiffer = (function () {
             if (record !== null) {
                 // It is an item which we have evicted earlier: reinsert it back into the list.
                 // But first we need to check if identity changed, so we can update in view if necessary
-                if (!lang_1.looseIdentical(record.item, item))
+                if (!looseIdentical(record.item, item))
                     this._addIdentityChange(record, item);
                 this._reinsertAfter(record, previousRecord, index);
             }
@@ -548,11 +545,10 @@ var DefaultIterableDiffer = (function () {
     };
     return DefaultIterableDiffer;
 }());
-exports.DefaultIterableDiffer = DefaultIterableDiffer;
 /**
  * @stable
  */
-var CollectionChangeRecord = (function () {
+export var CollectionChangeRecord = (function () {
     function CollectionChangeRecord(item, trackById) {
         this.item = item;
         this.trackById = trackById;
@@ -580,13 +576,12 @@ var CollectionChangeRecord = (function () {
         this._nextIdentityChange = null;
     }
     CollectionChangeRecord.prototype.toString = function () {
-        return this.previousIndex === this.currentIndex ? lang_1.stringify(this.item) :
-            lang_1.stringify(this.item) + '[' +
-                lang_1.stringify(this.previousIndex) + '->' + lang_1.stringify(this.currentIndex) + ']';
+        return this.previousIndex === this.currentIndex ? stringify(this.item) :
+            stringify(this.item) + '[' +
+                stringify(this.previousIndex) + '->' + stringify(this.currentIndex) + ']';
     };
     return CollectionChangeRecord;
 }());
-exports.CollectionChangeRecord = CollectionChangeRecord;
 // A linked list of CollectionChangeRecords with the same CollectionChangeRecord.item
 var _DuplicateItemRecordList = (function () {
     function _DuplicateItemRecordList() {
@@ -622,7 +617,7 @@ var _DuplicateItemRecordList = (function () {
         var record;
         for (record = this._head; record !== null; record = record._nextDup) {
             if ((afterIndex === null || afterIndex < record.currentIndex) &&
-                lang_1.looseIdentical(record.trackById, trackById)) {
+                looseIdentical(record.trackById, trackById)) {
                 return record;
             }
         }
@@ -666,9 +661,9 @@ var _DuplicateMap = (function () {
     }
     _DuplicateMap.prototype.put = function (record) {
         // todo(vicb) handle corner cases
-        var key = lang_1.getMapKey(record.trackById);
+        var key = getMapKey(record.trackById);
         var duplicates = this.map.get(key);
-        if (!lang_1.isPresent(duplicates)) {
+        if (!isPresent(duplicates)) {
             duplicates = new _DuplicateItemRecordList();
             this.map.set(key, duplicates);
         }
@@ -683,9 +678,9 @@ var _DuplicateMap = (function () {
      */
     _DuplicateMap.prototype.get = function (trackById, afterIndex) {
         if (afterIndex === void 0) { afterIndex = null; }
-        var key = lang_1.getMapKey(trackById);
+        var key = getMapKey(trackById);
         var recordList = this.map.get(key);
-        return lang_1.isBlank(recordList) ? null : recordList.get(trackById, afterIndex);
+        return isBlank(recordList) ? null : recordList.get(trackById, afterIndex);
     };
     /**
      * Removes a {@link CollectionChangeRecord} from the list of duplicates.
@@ -693,7 +688,7 @@ var _DuplicateMap = (function () {
      * The list of duplicates also is removed from the map if it gets empty.
      */
     _DuplicateMap.prototype.remove = function (record) {
-        var key = lang_1.getMapKey(record.trackById);
+        var key = getMapKey(record.trackById);
         // todo(vicb)
         // assert(this.map.containsKey(key));
         var recordList = this.map.get(key);
@@ -709,7 +704,7 @@ var _DuplicateMap = (function () {
         configurable: true
     });
     _DuplicateMap.prototype.clear = function () { this.map.clear(); };
-    _DuplicateMap.prototype.toString = function () { return '_DuplicateMap(' + lang_1.stringify(this.map) + ')'; };
+    _DuplicateMap.prototype.toString = function () { return '_DuplicateMap(' + stringify(this.map) + ')'; };
     return _DuplicateMap;
 }());
 function getPreviousIndex(item, addRemoveOffset, moveOffsets) {

@@ -9,22 +9,25 @@ import { ElementRef, OnDestroy, OpaqueToken, Renderer, Type } from '@angular/cor
 import { ControlValueAccessor } from './control_value_accessor';
 export declare const SELECT_MULTIPLE_VALUE_ACCESSOR: {
     provide: OpaqueToken;
-    useExisting: Type;
+    useExisting: Type<any>;
     multi: boolean;
 };
 /**
  * The accessor for writing a value and listening to changes on a select element.
  *
- * @experimental
+ * @stable
  */
 export declare class SelectMultipleControlValueAccessor implements ControlValueAccessor {
+    private _renderer;
+    private _elementRef;
     value: any;
     onChange: (_: any) => void;
     onTouched: () => void;
-    constructor();
+    constructor(_renderer: Renderer, _elementRef: ElementRef);
     writeValue(value: any): void;
     registerOnChange(fn: (value: any) => any): void;
     registerOnTouched(fn: () => any): void;
+    setDisabledState(isDisabled: boolean): void;
 }
 /**
  * Marks `<option>` as dynamic, so Angular can be notified when options change.

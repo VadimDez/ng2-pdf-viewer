@@ -5,16 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var dom_adapter_1 = require('../dom/dom_adapter');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var generic_browser_adapter_1 = require('./generic_browser_adapter');
+import { setRootDomAdapter } from '../dom/dom_adapter';
+import { ListWrapper } from '../facade/collection';
+import { DateWrapper, global, isBlank, isFunction, isPresent, setValueOnPath } from '../facade/lang';
+import { GenericBrowserDomAdapter } from './generic_browser_adapter';
 var _attrToPropMap = {
     'class': 'className',
     'innerHtml': 'innerHTML',
@@ -63,15 +62,18 @@ var _chromeNumKeyPadMap = {
 };
 /**
  * A `DomAdapter` powered by full browser DOM APIs.
+ *
+ * @security Tread carefully! Interacting with the DOM directly is dangerous and
+ * can introduce XSS risks.
  */
 /* tslint:disable:requireParameterType */
-var BrowserDomAdapter = (function (_super) {
+export var BrowserDomAdapter = (function (_super) {
     __extends(BrowserDomAdapter, _super);
     function BrowserDomAdapter() {
         _super.apply(this, arguments);
     }
     BrowserDomAdapter.prototype.parse = function (templateHtml) { throw new Error('parse not implemented'); };
-    BrowserDomAdapter.makeCurrent = function () { dom_adapter_1.setRootDomAdapter(new BrowserDomAdapter()); };
+    BrowserDomAdapter.makeCurrent = function () { setRootDomAdapter(new BrowserDomAdapter()); };
     BrowserDomAdapter.prototype.hasProperty = function (element /** TODO #9100 */, name) { return name in element; };
     BrowserDomAdapter.prototype.setProperty = function (el, name, value) { el[name] = value; };
     BrowserDomAdapter.prototype.getProperty = function (el, name) { return el[name]; };
@@ -139,7 +141,7 @@ var BrowserDomAdapter = (function (_super) {
         evt.returnValue = false;
     };
     BrowserDomAdapter.prototype.isPrevented = function (evt) {
-        return evt.defaultPrevented || lang_1.isPresent(evt.returnValue) && !evt.returnValue;
+        return evt.defaultPrevented || isPresent(evt.returnValue) && !evt.returnValue;
     };
     BrowserDomAdapter.prototype.getInnerHTML = function (el /** TODO #9100 */) { return el.innerHTML; };
     BrowserDomAdapter.prototype.getTemplateContent = function (el /** TODO #9100 */) {
@@ -163,7 +165,7 @@ var BrowserDomAdapter = (function (_super) {
     BrowserDomAdapter.prototype.childNodes = function (el /** TODO #9100 */) { return el.childNodes; };
     BrowserDomAdapter.prototype.childNodesAsList = function (el /** TODO #9100 */) {
         var childNodes = el.childNodes;
-        var res = collection_1.ListWrapper.createFixedSize(childNodes.length);
+        var res = ListWrapper.createFixedSize(childNodes.length);
         for (var i = 0; i < childNodes.length; i++) {
             res[i] = childNodes[i];
         }
@@ -339,7 +341,7 @@ var BrowserDomAdapter = (function (_super) {
     BrowserDomAdapter.prototype.isCommentNode = function (node) { return node.nodeType === Node.COMMENT_NODE; };
     BrowserDomAdapter.prototype.isElementNode = function (node) { return node.nodeType === Node.ELEMENT_NODE; };
     BrowserDomAdapter.prototype.hasShadowRoot = function (node /** TODO #9100 */) {
-        return node instanceof HTMLElement && lang_1.isPresent(node.shadowRoot);
+        return isPresent(node.shadowRoot) && node instanceof HTMLElement;
     };
     BrowserDomAdapter.prototype.isShadowRoot = function (node /** TODO #9100 */) { return node instanceof DocumentFragment; };
     BrowserDomAdapter.prototype.importIntoDoc = function (node) {
@@ -353,13 +355,13 @@ var BrowserDomAdapter = (function (_super) {
     BrowserDomAdapter.prototype.getHref = function (el) { return el.href; };
     BrowserDomAdapter.prototype.getEventKey = function (event /** TODO #9100 */) {
         var key = event.key;
-        if (lang_1.isBlank(key)) {
+        if (isBlank(key)) {
             key = event.keyIdentifier;
             // keyIdentifier is defined in the old draft of DOM Level 3 Events implemented by Chrome and
             // Safari
             // cf
             // http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/events.html#Events-KeyboardEvents-Interfaces
-            if (lang_1.isBlank(key)) {
+            if (isBlank(key)) {
                 return 'Unidentified';
             }
             if (key.startsWith('U+')) {
@@ -392,7 +394,7 @@ var BrowserDomAdapter = (function (_super) {
     BrowserDomAdapter.prototype.getLocation = function () { return window.location; };
     BrowserDomAdapter.prototype.getBaseHref = function () {
         var href = getBaseElementHref();
-        if (lang_1.isBlank(href)) {
+        if (isBlank(href)) {
             return null;
         }
         return relativePath(href);
@@ -407,20 +409,16 @@ var BrowserDomAdapter = (function (_super) {
     };
     BrowserDomAdapter.prototype.getComputedStyle = function (element /** TODO #9100 */) { return getComputedStyle(element); };
     // TODO(tbosch): move this into a separate environment class once we have it
-    BrowserDomAdapter.prototype.setGlobalVar = function (path, value) { lang_1.setValueOnPath(lang_1.global, path, value); };
-    BrowserDomAdapter.prototype.requestAnimationFrame = function (callback /** TODO #9100 */) {
-        return window.requestAnimationFrame(callback);
-    };
-    BrowserDomAdapter.prototype.cancelAnimationFrame = function (id) { window.cancelAnimationFrame(id); };
-    BrowserDomAdapter.prototype.supportsWebAnimation = function () { return lang_1.isFunction(Element.prototype['animate']); };
+    BrowserDomAdapter.prototype.setGlobalVar = function (path, value) { setValueOnPath(global, path, value); };
+    BrowserDomAdapter.prototype.supportsWebAnimation = function () { return isFunction(Element.prototype['animate']); };
     BrowserDomAdapter.prototype.performanceNow = function () {
         // performance.now() is not available in all browsers, see
         // http://caniuse.com/#search=performance.now
-        if (lang_1.isPresent(window.performance) && lang_1.isPresent(window.performance.now)) {
+        if (isPresent(window.performance) && isPresent(window.performance.now)) {
             return window.performance.now();
         }
         else {
-            return lang_1.DateWrapper.toMillis(lang_1.DateWrapper.now());
+            return DateWrapper.toMillis(DateWrapper.now());
         }
     };
     BrowserDomAdapter.prototype.supportsCookies = function () { return true; };
@@ -431,13 +429,12 @@ var BrowserDomAdapter = (function (_super) {
         document.cookie = encodeURIComponent(name) + '=' + encodeURIComponent(value);
     };
     return BrowserDomAdapter;
-}(generic_browser_adapter_1.GenericBrowserDomAdapter));
-exports.BrowserDomAdapter = BrowserDomAdapter;
+}(GenericBrowserDomAdapter));
 var baseElement = null;
 function getBaseElementHref() {
-    if (lang_1.isBlank(baseElement)) {
+    if (isBlank(baseElement)) {
         baseElement = document.querySelector('base');
-        if (lang_1.isBlank(baseElement)) {
+        if (isBlank(baseElement)) {
             return null;
         }
     }
@@ -446,14 +443,14 @@ function getBaseElementHref() {
 // based on urlUtils.js in AngularJS 1
 var urlParsingNode = null;
 function relativePath(url /** TODO #9100 */) {
-    if (lang_1.isBlank(urlParsingNode)) {
+    if (isBlank(urlParsingNode)) {
         urlParsingNode = document.createElement('a');
     }
     urlParsingNode.setAttribute('href', url);
     return (urlParsingNode.pathname.charAt(0) === '/') ? urlParsingNode.pathname :
         '/' + urlParsingNode.pathname;
 }
-function parseCookieValue(cookieStr, name) {
+export function parseCookieValue(cookieStr, name) {
     name = encodeURIComponent(name);
     for (var _i = 0, _a = cookieStr.split(';'); _i < _a.length; _i++) {
         var cookie = _a[_i];
@@ -465,5 +462,4 @@ function parseCookieValue(cookieStr, name) {
     }
     return null;
 }
-exports.parseCookieValue = parseCookieValue;
 //# sourceMappingURL=browser_adapter.js.map

@@ -5,27 +5,27 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var dom_adapter_1 = require('../src/dom/dom_adapter');
-var collection_1 = require('../src/facade/collection');
-var lang_1 = require('../src/facade/lang');
-var BrowserDetection = (function () {
+import { NgZone } from '@angular/core';
+import { ListWrapper } from './facade/collection';
+import { StringWrapper, global, isPresent, isString } from './facade/lang';
+import { getDOM } from './private_import_platform-browser';
+export var BrowserDetection = (function () {
     function BrowserDetection(ua) {
         this._overrideUa = ua;
     }
     Object.defineProperty(BrowserDetection.prototype, "_ua", {
         get: function () {
-            if (lang_1.isPresent(this._overrideUa)) {
+            if (isPresent(this._overrideUa)) {
                 return this._overrideUa;
             }
             else {
-                return lang_1.isPresent(dom_adapter_1.getDOM()) ? dom_adapter_1.getDOM().getUserAgent() : '';
+                return isPresent(getDOM()) ? getDOM().getUserAgent() : '';
             }
         },
         enumerable: true,
         configurable: true
     });
-    BrowserDetection.setup = function () { exports.browserDetection = new BrowserDetection(null); };
+    BrowserDetection.setup = function () { browserDetection = new BrowserDetection(null); };
     Object.defineProperty(BrowserDetection.prototype, "isFirefox", {
         get: function () { return this._ua.indexOf('Firefox') > -1; },
         enumerable: true,
@@ -75,7 +75,7 @@ var BrowserDetection = (function () {
         // The Intl API is only properly supported in recent Chrome and Opera.
         // Note: Edge is disguised as Chrome 42, so checking the "Edge" part is needed,
         // see https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-        get: function () { return !!lang_1.global.Intl; },
+        get: function () { return !!global.Intl; },
         enumerable: true,
         configurable: true
     });
@@ -89,42 +89,38 @@ var BrowserDetection = (function () {
     });
     return BrowserDetection;
 }());
-exports.BrowserDetection = BrowserDetection;
 BrowserDetection.setup();
-function dispatchEvent(element /** TODO #9100 */, eventType /** TODO #9100 */) {
-    dom_adapter_1.getDOM().dispatchEvent(element, dom_adapter_1.getDOM().createEvent(eventType));
+export function dispatchEvent(element /** TODO #9100 */, eventType /** TODO #9100 */) {
+    getDOM().dispatchEvent(element, getDOM().createEvent(eventType));
 }
-exports.dispatchEvent = dispatchEvent;
-function el(html) {
-    return dom_adapter_1.getDOM().firstChild(dom_adapter_1.getDOM().content(dom_adapter_1.getDOM().createTemplate(html)));
+export function el(html) {
+    return getDOM().firstChild(getDOM().content(getDOM().createTemplate(html)));
 }
-exports.el = el;
-function normalizeCSS(css) {
-    css = lang_1.StringWrapper.replaceAll(css, /\s+/g, ' ');
-    css = lang_1.StringWrapper.replaceAll(css, /:\s/g, ':');
-    css = lang_1.StringWrapper.replaceAll(css, /'/g, '"');
-    css = lang_1.StringWrapper.replaceAll(css, / }/g, '}');
-    css = lang_1.StringWrapper.replaceAllMapped(css, /url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function (match /** TODO #9100 */) { return ("url(\"" + match[2] + "\")"); });
-    css = lang_1.StringWrapper.replaceAllMapped(css, /\[(.+)=([^"\]]+)\]/g, function (match /** TODO #9100 */) { return ("[" + match[1] + "=\"" + match[2] + "\"]"); });
+export function normalizeCSS(css) {
+    css = StringWrapper.replaceAll(css, /\s+/g, ' ');
+    css = StringWrapper.replaceAll(css, /:\s/g, ':');
+    css = StringWrapper.replaceAll(css, /'/g, '"');
+    css = StringWrapper.replaceAll(css, / }/g, '}');
+    css = StringWrapper.replaceAllMapped(css, /url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function (match /** TODO #9100 */) { return ("url(\"" + match[2] + "\")"); });
+    css = StringWrapper.replaceAllMapped(css, /\[(.+)=([^"\]]+)\]/g, function (match /** TODO #9100 */) { return ("[" + match[1] + "=\"" + match[2] + "\"]"); });
     return css;
 }
-exports.normalizeCSS = normalizeCSS;
 var _singleTagWhitelist = ['br', 'hr', 'input'];
-function stringifyElement(el /** TODO #9100 */) {
+export function stringifyElement(el /** TODO #9100 */) {
     var result = '';
-    if (dom_adapter_1.getDOM().isElementNode(el)) {
-        var tagName = dom_adapter_1.getDOM().tagName(el).toLowerCase();
+    if (getDOM().isElementNode(el)) {
+        var tagName = getDOM().tagName(el).toLowerCase();
         // Opening tag
         result += "<" + tagName;
         // Attributes in an ordered way
-        var attributeMap = dom_adapter_1.getDOM().attributeMap(el);
+        var attributeMap = getDOM().attributeMap(el);
         var keys = [];
         attributeMap.forEach(function (v, k) { return keys.push(k); });
-        collection_1.ListWrapper.sort(keys);
+        ListWrapper.sort(keys);
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             var attValue = attributeMap.get(key);
-            if (!lang_1.isString(attValue)) {
+            if (!isString(attValue)) {
                 result += " " + key;
             }
             else {
@@ -133,24 +129,26 @@ function stringifyElement(el /** TODO #9100 */) {
         }
         result += '>';
         // Children
-        var childrenRoot = dom_adapter_1.getDOM().templateAwareRoot(el);
-        var children = lang_1.isPresent(childrenRoot) ? dom_adapter_1.getDOM().childNodes(childrenRoot) : [];
+        var childrenRoot = getDOM().templateAwareRoot(el);
+        var children = isPresent(childrenRoot) ? getDOM().childNodes(childrenRoot) : [];
         for (var j = 0; j < children.length; j++) {
             result += stringifyElement(children[j]);
         }
         // Closing tag
-        if (!collection_1.ListWrapper.contains(_singleTagWhitelist, tagName)) {
+        if (!ListWrapper.contains(_singleTagWhitelist, tagName)) {
             result += "</" + tagName + ">";
         }
     }
-    else if (dom_adapter_1.getDOM().isCommentNode(el)) {
-        result += "<!--" + dom_adapter_1.getDOM().nodeValue(el) + "-->";
+    else if (getDOM().isCommentNode(el)) {
+        result += "<!--" + getDOM().nodeValue(el) + "-->";
     }
     else {
-        result += dom_adapter_1.getDOM().getText(el);
+        result += getDOM().getText(el);
     }
     return result;
 }
-exports.stringifyElement = stringifyElement;
-exports.browserDetection = new BrowserDetection(null);
+export var browserDetection = new BrowserDetection(null);
+export function createNgZone() {
+    return new NgZone({ enableLongStackTrace: true });
+}
 //# sourceMappingURL=browser_util.js.map

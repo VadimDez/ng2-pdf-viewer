@@ -5,19 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../../facade/collection');
-var exceptions_1 = require('../../facade/exceptions');
-var lang_1 = require('../../facade/lang');
-var DefaultKeyValueDifferFactory = (function () {
+import { StringMapWrapper } from '../../facade/collection';
+import { isJsObject, looseIdentical, stringify } from '../../facade/lang';
+export var DefaultKeyValueDifferFactory = (function () {
     function DefaultKeyValueDifferFactory() {
     }
-    DefaultKeyValueDifferFactory.prototype.supports = function (obj) { return obj instanceof Map || lang_1.isJsObject(obj); };
+    DefaultKeyValueDifferFactory.prototype.supports = function (obj) { return obj instanceof Map || isJsObject(obj); };
     DefaultKeyValueDifferFactory.prototype.create = function (cdRef) { return new DefaultKeyValueDiffer(); };
     return DefaultKeyValueDifferFactory;
 }());
-exports.DefaultKeyValueDifferFactory = DefaultKeyValueDifferFactory;
-var DefaultKeyValueDiffer = (function () {
+export var DefaultKeyValueDiffer = (function () {
     function DefaultKeyValueDiffer() {
         this._records = new Map();
         this._mapHead = null;
@@ -71,8 +68,8 @@ var DefaultKeyValueDiffer = (function () {
         if (!map) {
             map = new Map();
         }
-        else if (!(map instanceof Map || lang_1.isJsObject(map))) {
-            throw new exceptions_1.BaseException("Error trying to diff '" + map + "'");
+        else if (!(map instanceof Map || isJsObject(map))) {
+            throw new Error("Error trying to diff '" + map + "'");
         }
         return this.check(map) ? this : null;
     };
@@ -166,7 +163,7 @@ var DefaultKeyValueDiffer = (function () {
         }
     };
     DefaultKeyValueDiffer.prototype._maybeAddToChanges = function (record, newValue) {
-        if (!lang_1.looseIdentical(newValue, record.currentValue)) {
+        if (!looseIdentical(newValue, record.currentValue)) {
             record.previousValue = record.currentValue;
             record.currentValue = newValue;
             this._addToChanges(record);
@@ -245,19 +242,19 @@ var DefaultKeyValueDiffer = (function () {
         var removals = [];
         var record;
         for (record = this._mapHead; record !== null; record = record._next) {
-            items.push(lang_1.stringify(record));
+            items.push(stringify(record));
         }
         for (record = this._previousMapHead; record !== null; record = record._nextPrevious) {
-            previous.push(lang_1.stringify(record));
+            previous.push(stringify(record));
         }
         for (record = this._changesHead; record !== null; record = record._nextChanged) {
-            changes.push(lang_1.stringify(record));
+            changes.push(stringify(record));
         }
         for (record = this._additionsHead; record !== null; record = record._nextAdded) {
-            additions.push(lang_1.stringify(record));
+            additions.push(stringify(record));
         }
         for (record = this._removalsHead; record !== null; record = record._nextRemoved) {
-            removals.push(lang_1.stringify(record));
+            removals.push(stringify(record));
         }
         return 'map: ' + items.join(', ') + '\n' +
             'previous: ' + previous.join(', ') + '\n' +
@@ -271,16 +268,15 @@ var DefaultKeyValueDiffer = (function () {
             obj.forEach(fn);
         }
         else {
-            collection_1.StringMapWrapper.forEach(obj, fn);
+            StringMapWrapper.forEach(obj, fn);
         }
     };
     return DefaultKeyValueDiffer;
 }());
-exports.DefaultKeyValueDiffer = DefaultKeyValueDiffer;
 /**
  * @stable
  */
-var KeyValueChangeRecord = (function () {
+export var KeyValueChangeRecord = (function () {
     function KeyValueChangeRecord(key) {
         this.key = key;
         this.previousValue = null;
@@ -299,12 +295,11 @@ var KeyValueChangeRecord = (function () {
         this._nextChanged = null;
     }
     KeyValueChangeRecord.prototype.toString = function () {
-        return lang_1.looseIdentical(this.previousValue, this.currentValue) ?
-            lang_1.stringify(this.key) :
-            (lang_1.stringify(this.key) + '[' + lang_1.stringify(this.previousValue) + '->' +
-                lang_1.stringify(this.currentValue) + ']');
+        return looseIdentical(this.previousValue, this.currentValue) ?
+            stringify(this.key) :
+            (stringify(this.key) + '[' + stringify(this.previousValue) + '->' +
+                stringify(this.currentValue) + ']');
     };
     return KeyValueChangeRecord;
 }());
-exports.KeyValueChangeRecord = KeyValueChangeRecord;
 //# sourceMappingURL=default_keyvalue_differ.js.map

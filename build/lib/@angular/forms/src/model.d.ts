@@ -13,9 +13,14 @@ export declare const INVALID: string;
  * errors are not yet available for the input value.
  */
 export declare const PENDING: string;
+/**
+ * Indicates that a FormControl is disabled, i.e. that the control is exempt from ancestor
+ * calculations of validity or value.
+ */
+export declare const DISABLED: string;
 export declare function isControl(control: Object): boolean;
 /**
- * @experimental
+ * @stable
  */
 export declare abstract class AbstractControl {
     validator: ValidatorFn;
@@ -46,6 +51,8 @@ export declare abstract class AbstractControl {
     valueChanges: Observable<any>;
     statusChanges: Observable<any>;
     pending: boolean;
+    disabled: boolean;
+    enabled: boolean;
     setAsyncValidators(newValidator: AsyncValidatorFn | AsyncValidatorFn[]): void;
     clearAsyncValidators(): void;
     setValidators(newValidator: ValidatorFn | ValidatorFn[]): void;
@@ -65,6 +72,15 @@ export declare abstract class AbstractControl {
     markAsPending({onlySelf}?: {
         onlySelf?: boolean;
     }): void;
+    disable({onlySelf, emitEvent}?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+    enable({onlySelf, emitEvent}?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }): void;
+    private _updateAncestors(onlySelf);
     setParent(parent: FormGroup | FormArray): void;
     abstract setValue(value: any, options?: Object): void;
     abstract patchValue(value: any, options?: Object): void;
@@ -76,6 +92,7 @@ export declare abstract class AbstractControl {
     private _runValidator();
     private _runAsyncValidator(emitEvent);
     private _cancelExistingSubscription();
+    private _disabledChanged(originalStatus);
     /**
      * Sets errors on a form control.
      *
@@ -104,10 +121,6 @@ export declare abstract class AbstractControl {
     }, {emitEvent}?: {
         emitEvent?: boolean;
     }): void;
-    /**
-     * @deprecated - use get() instead
-     */
-    find(path: Array<string | number> | string): AbstractControl;
     get(path: Array<string | number> | string): AbstractControl;
     getError(errorCode: string, path?: string[]): any;
     hasError(errorCode: string, path?: string[]): boolean;
@@ -130,10 +143,10 @@ export declare abstract class AbstractControl {
  * can be bound to a DOM element instead. This `FormControl` can be configured with a custom
  * validation function.
  *
- * @experimental
+ * @stable
  */
 export declare class FormControl extends AbstractControl {
-    constructor(value?: any, validator?: ValidatorFn | ValidatorFn[], asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[]);
+    constructor(formState?: any, validator?: ValidatorFn | ValidatorFn[], asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[]);
     /**
      * Set the value of the form control to `value`.
      *
@@ -165,22 +178,18 @@ export declare class FormControl extends AbstractControl {
         emitModelToViewChange?: boolean;
         emitViewToModelChange?: boolean;
     }): void;
-    /**
-     * @deprecated Please use setValue() instead.
-     */
-    updateValue(value: any, options?: {
-        onlySelf?: boolean;
-        emitEvent?: boolean;
-        emitModelToViewChange?: boolean;
-        emitViewToModelChange?: boolean;
-    }): void;
-    reset(value?: any, {onlySelf}?: {
+    reset(formState?: any, {onlySelf}?: {
         onlySelf?: boolean;
     }): void;
     /**
      * Register a listener for change events.
      */
     registerOnChange(fn: Function): void;
+    /**
+     * Register a listener for disabled events.
+     */
+    registerOnDisabledChange(fn: (isDisabled: boolean) => void): void;
+    private _applyFormState(formState);
 }
 /**
  * Defines a part of a form, of fixed length, that can contain other controls.
@@ -194,19 +203,15 @@ export declare class FormControl extends AbstractControl {
  * along with {@link FormControl} and {@link FormArray}. {@link FormArray} can also contain other
  * controls, but is of variable length.
  *
- * ### Example ([live demo](http://plnkr.co/edit/23DESOpbNnBpBHZt1BR4?p=preview))
  *
- * @experimental
+ * @stable
  */
 export declare class FormGroup extends AbstractControl {
     controls: {
         [key: string]: AbstractControl;
     };
-    private _optionals;
     constructor(controls: {
         [key: string]: AbstractControl;
-    }, optionals?: {
-        [key: string]: boolean;
     }, validator?: ValidatorFn, asyncValidator?: AsyncValidatorFn);
     /**
      * Register a control with the group's list of controls.
@@ -220,14 +225,6 @@ export declare class FormGroup extends AbstractControl {
      * Remove a control from this group.
      */
     removeControl(name: string): void;
-    /**
-     * Mark the named control as non-optional.
-     */
-    include(controlName: string): void;
-    /**
-     * Mark the named control as optional.
-     */
-    exclude(controlName: string): void;
     /**
      * Check whether there is a control with the given name in the group.
      */
@@ -245,6 +242,7 @@ export declare class FormGroup extends AbstractControl {
     reset(value?: any, {onlySelf}?: {
         onlySelf?: boolean;
     }): void;
+    getRawValue(): Object;
 }
 /**
  * Defines a part of a form, of variable length, that can contain other controls.
@@ -266,9 +264,8 @@ export declare class FormGroup extends AbstractControl {
  * the `FormArray` directly, as that will result in strange and unexpected behavior such
  * as broken change detection.
  *
- * ### Example ([live demo](http://plnkr.co/edit/23DESOpbNnBpBHZt1BR4?p=preview))
  *
- * @experimental
+ * @stable
  */
 export declare class FormArray extends AbstractControl {
     controls: AbstractControl[];
@@ -302,4 +299,5 @@ export declare class FormArray extends AbstractControl {
     reset(value?: any, {onlySelf}?: {
         onlySelf?: boolean;
     }): void;
+    getRawValue(): any[];
 }

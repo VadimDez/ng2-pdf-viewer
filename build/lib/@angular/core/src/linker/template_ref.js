@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -24,7 +23,7 @@ var __extends = (this && this.__extends) || function (d, b) {
  * View Container.
  * @stable
  */
-var TemplateRef = (function () {
+export var TemplateRef = (function () {
     function TemplateRef() {
     }
     Object.defineProperty(TemplateRef.prototype, "elementRef", {
@@ -46,8 +45,7 @@ var TemplateRef = (function () {
     });
     return TemplateRef;
 }());
-exports.TemplateRef = TemplateRef;
-var TemplateRef_ = (function (_super) {
+export var TemplateRef_ = (function (_super) {
     __extends(TemplateRef_, _super);
     function TemplateRef_(_appElement, _viewFactory) {
         _super.call(this);
@@ -66,5 +64,4 @@ var TemplateRef_ = (function (_super) {
     });
     return TemplateRef_;
 }(TemplateRef));
-exports.TemplateRef_ = TemplateRef_;
 //# sourceMappingURL=template_ref.js.map

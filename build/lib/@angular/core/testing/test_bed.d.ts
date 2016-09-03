@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ComponentMetadataType, DirectiveMetadataType, Injector, NgModuleMetadataType, OpaqueToken, PipeMetadataType, PlatformRef, Provider, SchemaMetadata, Type } from '../index';
-import { ConcreteType } from '../src/facade/lang';
+import { ComponentMetadataType, DirectiveMetadataType, Injector, NgModuleMetadataType, OpaqueToken, PipeMetadataType, PlatformRef, SchemaMetadata, Type } from '@angular/core';
 import { ComponentFixture } from './component_fixture';
 import { MetadataOverride } from './metadata_override';
 /**
@@ -51,7 +50,7 @@ export declare class TestBed implements Injector {
      *
      * @experimental
      */
-    static initTestEnvironment(ngModule: Type, platform: PlatformRef): TestBed;
+    static initTestEnvironment(ngModule: Type<any>, platform: PlatformRef): TestBed;
     /**
      * Reset the providers for the test injector.
      *
@@ -78,11 +77,12 @@ export declare class TestBed implements Injector {
      * as fetching urls is asynchronous.
      */
     static compileComponents(): Promise<any>;
-    static overrideModule(ngModule: ConcreteType<any>, override: MetadataOverride<NgModuleMetadataType>): typeof TestBed;
-    static overrideComponent(component: ConcreteType<any>, override: MetadataOverride<ComponentMetadataType>): typeof TestBed;
-    static overrideDirective(directive: ConcreteType<any>, override: MetadataOverride<DirectiveMetadataType>): typeof TestBed;
-    static overridePipe(pipe: ConcreteType<any>, override: MetadataOverride<PipeMetadataType>): typeof TestBed;
-    static createComponent<T>(component: ConcreteType<T>): ComponentFixture<T>;
+    static overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModuleMetadataType>): typeof TestBed;
+    static overrideComponent(component: Type<any>, override: MetadataOverride<ComponentMetadataType>): typeof TestBed;
+    static overrideDirective(directive: Type<any>, override: MetadataOverride<DirectiveMetadataType>): typeof TestBed;
+    static overridePipe(pipe: Type<any>, override: MetadataOverride<PipeMetadataType>): typeof TestBed;
+    static get(token: any, notFoundValue?: any): any;
+    static createComponent<T>(component: Type<T>): ComponentFixture<T>;
     private _instantiated;
     private _compiler;
     private _moduleRef;
@@ -96,6 +96,7 @@ export declare class TestBed implements Injector {
     private _declarations;
     private _imports;
     private _schemas;
+    private _activeFixtures;
     /**
      * Initialize the environment for testing with a compiler factory, a PlatformRef, and an
      * angular module. These are common to every test in the suite.
@@ -109,20 +110,16 @@ export declare class TestBed implements Injector {
      *
      * @experimental
      */
-    initTestEnvironment(ngModule: Type, platform: PlatformRef): void;
+    initTestEnvironment(ngModule: Type<any>, platform: PlatformRef): void;
     /**
      * Reset the providers for the test injector.
      *
      * @experimental
      */
     resetTestEnvironment(): void;
-    /**
-     * @deprecated use `resetTestingModule` instead
-     */
-    reset(): void;
     resetTestingModule(): void;
     platform: PlatformRef;
-    ngModule: Type;
+    ngModule: Type<any>;
     configureCompiler(config: {
         providers?: any[];
         useJit?: boolean;
@@ -134,40 +131,16 @@ export declare class TestBed implements Injector {
     private _assertNotInstantiated(methodName, methodDescription);
     get(token: any, notFoundValue?: any): any;
     execute(tokens: any[], fn: Function): any;
-    overrideModule(ngModule: ConcreteType<any>, override: MetadataOverride<NgModuleMetadataType>): void;
-    overrideComponent(component: ConcreteType<any>, override: MetadataOverride<ComponentMetadataType>): void;
-    overrideDirective(directive: ConcreteType<any>, override: MetadataOverride<DirectiveMetadataType>): void;
-    overridePipe(pipe: ConcreteType<any>, override: MetadataOverride<PipeMetadataType>): void;
-    createComponent<T>(component: ConcreteType<T>): ComponentFixture<T>;
+    overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModuleMetadataType>): void;
+    overrideComponent(component: Type<any>, override: MetadataOverride<ComponentMetadataType>): void;
+    overrideDirective(directive: Type<any>, override: MetadataOverride<DirectiveMetadataType>): void;
+    overridePipe(pipe: Type<any>, override: MetadataOverride<PipeMetadataType>): void;
+    createComponent<T>(component: Type<T>): ComponentFixture<T>;
 }
 /**
  * @experimental
  */
 export declare function getTestBed(): TestBed;
-/**
- * @deprecated use getTestBed instead.
- */
-export declare function getTestInjector(): TestBed;
-/**
- * Set the providers that the test injector should use. These should be providers
- * common to every test in the suite.
- *
- * This may only be called once, to set up the common providers for the current test
- * suite on the current platform. If you absolutely need to change the providers,
- * first use `resetBaseTestProviders`.
- *
- * Test modules and platforms for individual platforms are available from
- * 'angular2/platform/testing/<platform_name>'.
- *
- * @deprecated Use TestBed.initTestEnvironment instead
- */
-export declare function setBaseTestProviders(platformProviders: Array<Type | Provider | any[]>, applicationProviders: Array<Type | Provider | any[]>): void;
-/**
- * Reset the providers for the test injector.
- *
- * @deprecated Use TestBed.resetTestEnvironment instead.
- */
-export declare function resetBaseTestProviders(): void;
 /**
  * Allows injecting dependencies in `beforeEach()` and `it()`.
  *
@@ -202,10 +175,6 @@ export declare class InjectSetupWrapper {
     private _addModule();
     inject(tokens: any[], fn: Function): () => any;
 }
-/**
- * @deprecated Use `TestBed.configureTestingModule instead.
- */
-export declare function withProviders(providers: () => any): InjectSetupWrapper;
 /**
  * @experimental
  */

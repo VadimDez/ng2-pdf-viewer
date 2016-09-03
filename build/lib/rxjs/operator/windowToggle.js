@@ -142,7 +142,7 @@ var WindowToggleSubscriber = (function (_super) {
                 var context = { window: window_1, subscription: subscription };
                 this.contexts.push(context);
                 var innerSubscription = subscribeToResult_1.subscribeToResult(this, closingNotifier, context);
-                if (innerSubscription.isUnsubscribed) {
+                if (innerSubscription.closed) {
                     this.closeWindow(this.contexts.length - 1);
                 }
                 else {

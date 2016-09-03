@@ -5,22 +5,20 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var abstract_emitter_1 = require('./abstract_emitter');
-var o = require('./output_ast');
+import { isArray, isBlank, isPresent } from '../facade/lang';
+import { AbstractEmitterVisitor, CATCH_ERROR_VAR, CATCH_STACK_VAR, EmitterVisitorContext } from './abstract_emitter';
+import * as o from './output_ast';
 var _debugModuleUrl = 'asset://debug/lib';
-function debugOutputAstAsTypeScript(ast) {
+export function debugOutputAstAsTypeScript(ast) {
     var converter = new _TsEmitterVisitor(_debugModuleUrl);
-    var ctx = abstract_emitter_1.EmitterVisitorContext.createRoot([]);
+    var ctx = EmitterVisitorContext.createRoot([]);
     var asts;
-    if (lang_1.isArray(ast)) {
+    if (isArray(ast)) {
         asts = ast;
     }
     else {
@@ -37,20 +35,19 @@ function debugOutputAstAsTypeScript(ast) {
             ast.visitType(converter, ctx);
         }
         else {
-            throw new exceptions_1.BaseException("Don't know how to print debug info for " + ast);
+            throw new Error("Don't know how to print debug info for " + ast);
         }
     });
     return ctx.toSource();
 }
-exports.debugOutputAstAsTypeScript = debugOutputAstAsTypeScript;
-var TypeScriptEmitter = (function () {
+export var TypeScriptEmitter = (function () {
     function TypeScriptEmitter(_importGenerator) {
         this._importGenerator = _importGenerator;
     }
     TypeScriptEmitter.prototype.emitStatements = function (moduleUrl, stmts, exportedVars) {
         var _this = this;
         var converter = new _TsEmitterVisitor(moduleUrl);
-        var ctx = abstract_emitter_1.EmitterVisitorContext.createRoot(exportedVars);
+        var ctx = EmitterVisitorContext.createRoot(exportedVars);
         converter.visitAllStatements(stmts, ctx);
         var srcParts = [];
         converter.importsWithPrefixes.forEach(function (prefix, importedModuleUrl) {
@@ -63,7 +60,6 @@ var TypeScriptEmitter = (function () {
     };
     return TypeScriptEmitter;
 }());
-exports.TypeScriptEmitter = TypeScriptEmitter;
 var _TsEmitterVisitor = (function (_super) {
     __extends(_TsEmitterVisitor, _super);
     function _TsEmitterVisitor(_moduleUrl) {
@@ -73,12 +69,15 @@ var _TsEmitterVisitor = (function (_super) {
     }
     _TsEmitterVisitor.prototype.visitType = function (t, ctx, defaultType) {
         if (defaultType === void 0) { defaultType = 'any'; }
-        if (lang_1.isPresent(t)) {
+        if (isPresent(t)) {
             t.visitType(this, ctx);
         }
         else {
             ctx.print(defaultType);
         }
+    };
+    _TsEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
+        _super.prototype.visitLiteralExpr.call(this, ast, ctx, '(null as any)');
     };
     _TsEmitterVisitor.prototype.visitExternalExpr = function (ast, ctx) {
         this._visitIdentifier(ast.value, ast.typeParams, ctx);
@@ -116,14 +115,14 @@ var _TsEmitterVisitor = (function (_super) {
             ctx.print("export ");
         }
         ctx.print("class " + stmt.name);
-        if (lang_1.isPresent(stmt.parent)) {
+        if (isPresent(stmt.parent)) {
             ctx.print(" extends ");
             stmt.parent.visitExpression(this, ctx);
         }
         ctx.println(" {");
         ctx.incIndent();
         stmt.fields.forEach(function (field) { return _this._visitClassField(field, ctx); });
-        if (lang_1.isPresent(stmt.constructorMethod)) {
+        if (isPresent(stmt.constructorMethod)) {
             this._visitClassConstructor(stmt, ctx);
         }
         stmt.getters.forEach(function (getter) { return _this._visitClassGetter(getter, ctx); });
@@ -135,7 +134,8 @@ var _TsEmitterVisitor = (function (_super) {
     };
     _TsEmitterVisitor.prototype._visitClassField = function (field, ctx) {
         if (field.hasModifier(o.StmtModifier.Private)) {
-            ctx.print("private ");
+            // comment out as a workaround for #10967
+            ctx.print("/*private*/ ");
         }
         ctx.print(field.name);
         ctx.print(':');
@@ -210,9 +210,9 @@ var _TsEmitterVisitor = (function (_super) {
         ctx.incIndent();
         this.visitAllStatements(stmt.bodyStmts, ctx);
         ctx.decIndent();
-        ctx.println("} catch (" + abstract_emitter_1.CATCH_ERROR_VAR.name + ") {");
+        ctx.println("} catch (" + CATCH_ERROR_VAR.name + ") {");
         ctx.incIndent();
-        var catchStmts = [abstract_emitter_1.CATCH_STACK_VAR.set(abstract_emitter_1.CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
+        var catchStmts = [CATCH_STACK_VAR.set(CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
                 o.StmtModifier.Final
             ])].concat(stmt.catchStmts);
         this.visitAllStatements(catchStmts, ctx);
@@ -242,7 +242,7 @@ var _TsEmitterVisitor = (function (_super) {
                 typeStr = 'string';
                 break;
             default:
-                throw new exceptions_1.BaseException("Unsupported builtin type " + type.name);
+                throw new Error("Unsupported builtin type " + type.name);
         }
         ctx.print(typeStr);
         return null;
@@ -271,11 +271,11 @@ var _TsEmitterVisitor = (function (_super) {
             case o.BuiltinMethod.SubscribeObservable:
                 name = 'subscribe';
                 break;
-            case o.BuiltinMethod.bind:
+            case o.BuiltinMethod.Bind:
                 name = 'bind';
                 break;
             default:
-                throw new exceptions_1.BaseException("Unknown builtin method: " + method);
+                throw new Error("Unknown builtin method: " + method);
         }
         return name;
     };
@@ -289,24 +289,31 @@ var _TsEmitterVisitor = (function (_super) {
     };
     _TsEmitterVisitor.prototype._visitIdentifier = function (value, typeParams, ctx) {
         var _this = this;
-        if (lang_1.isBlank(value.name)) {
-            throw new exceptions_1.BaseException("Internal error: unknown identifier " + value);
+        if (isBlank(value.name)) {
+            throw new Error("Internal error: unknown identifier " + value);
         }
-        if (lang_1.isPresent(value.moduleUrl) && value.moduleUrl != this._moduleUrl) {
+        if (isPresent(value.moduleUrl) && value.moduleUrl != this._moduleUrl) {
             var prefix = this.importsWithPrefixes.get(value.moduleUrl);
-            if (lang_1.isBlank(prefix)) {
+            if (isBlank(prefix)) {
                 prefix = "import" + this.importsWithPrefixes.size;
                 this.importsWithPrefixes.set(value.moduleUrl, prefix);
             }
             ctx.print(prefix + ".");
         }
-        ctx.print(value.name);
-        if (lang_1.isPresent(typeParams) && typeParams.length > 0) {
+        if (value.reference && value.reference.members) {
+            ctx.print(value.reference.name);
+            ctx.print('.');
+            ctx.print(value.reference.members.join('.'));
+        }
+        else {
+            ctx.print(value.name);
+        }
+        if (isPresent(typeParams) && typeParams.length > 0) {
             ctx.print("<");
             this.visitAllObjects(function (type /** TODO #9100 */) { return type.visitType(_this, ctx); }, typeParams, ctx, ',');
             ctx.print(">");
         }
     };
     return _TsEmitterVisitor;
-}(abstract_emitter_1.AbstractEmitterVisitor));
+}(AbstractEmitterVisitor));
 //# sourceMappingURL=ts_emitter.js.map

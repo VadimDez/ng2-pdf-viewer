@@ -5,24 +5,23 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var control_value_accessor_1 = require('./control_value_accessor');
-exports.SELECT_MULTIPLE_VALUE_ACCESSOR = {
-    provide: control_value_accessor_1.NG_VALUE_ACCESSOR,
-    useExisting: core_1.forwardRef(function () { return SelectMultipleControlValueAccessor; }),
+import { Directive, ElementRef, Host, Input, Optional, Renderer, forwardRef } from '@angular/core';
+import { MapWrapper } from '../facade/collection';
+import { StringWrapper, isBlank, isPresent, isPrimitive, isString, looseIdentical } from '../facade/lang';
+import { NG_VALUE_ACCESSOR } from './control_value_accessor';
+export var SELECT_MULTIPLE_VALUE_ACCESSOR = {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(function () { return SelectMultipleControlValueAccessor; }),
     multi: true
 };
 function _buildValueString(id, value) {
-    if (lang_1.isBlank(id))
+    if (isBlank(id))
         return "" + value;
-    if (lang_1.isString(value))
+    if (isString(value))
         value = "'" + value + "'";
-    if (!lang_1.isPrimitive(value))
+    if (!isPrimitive(value))
         value = 'Object';
-    return lang_1.StringWrapper.slice(id + ": " + value, 0, 50);
+    return StringWrapper.slice(id + ": " + value, 0, 50);
 }
 function _extractId(valueString) {
     return valueString.split(':')[0];
@@ -33,8 +32,15 @@ var HTMLCollection = (function () {
     }
     return HTMLCollection;
 }());
-var SelectMultipleControlValueAccessor = (function () {
-    function SelectMultipleControlValueAccessor() {
+/**
+ * The accessor for writing a value and listening to changes on a select element.
+ *
+ * @stable
+ */
+export var SelectMultipleControlValueAccessor = (function () {
+    function SelectMultipleControlValueAccessor(_renderer, _elementRef) {
+        this._renderer = _renderer;
+        this._elementRef = _elementRef;
         /** @internal */
         this._optionMap = new Map();
         /** @internal */
@@ -78,6 +84,9 @@ var SelectMultipleControlValueAccessor = (function () {
         };
     };
     SelectMultipleControlValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
+    SelectMultipleControlValueAccessor.prototype.setDisabledState = function (isDisabled) {
+        this._renderer.setElementProperty(this._elementRef.nativeElement, 'disabled', isDisabled);
+    };
     /** @internal */
     SelectMultipleControlValueAccessor.prototype._registerOption = function (value) {
         var id = (this._idCounter++).toString();
@@ -86,9 +95,9 @@ var SelectMultipleControlValueAccessor = (function () {
     };
     /** @internal */
     SelectMultipleControlValueAccessor.prototype._getOptionId = function (value) {
-        for (var _i = 0, _a = collection_1.MapWrapper.keys(this._optionMap); _i < _a.length; _i++) {
+        for (var _i = 0, _a = MapWrapper.keys(this._optionMap); _i < _a.length; _i++) {
             var id = _a[_i];
-            if (lang_1.looseIdentical(this._optionMap.get(id)._value, value))
+            if (looseIdentical(this._optionMap.get(id)._value, value))
                 return id;
         }
         return null;
@@ -96,27 +105,39 @@ var SelectMultipleControlValueAccessor = (function () {
     /** @internal */
     SelectMultipleControlValueAccessor.prototype._getOptionValue = function (valueString) {
         var opt = this._optionMap.get(_extractId(valueString));
-        return lang_1.isPresent(opt) ? opt._value : valueString;
+        return isPresent(opt) ? opt._value : valueString;
     };
-    /** @nocollapse */
     SelectMultipleControlValueAccessor.decorators = [
-        { type: core_1.Directive, args: [{
+        { type: Directive, args: [{
                     selector: 'select[multiple][formControlName],select[multiple][formControl],select[multiple][ngModel]',
                     host: { '(change)': 'onChange($event.target)', '(blur)': 'onTouched()' },
-                    providers: [exports.SELECT_MULTIPLE_VALUE_ACCESSOR]
+                    providers: [SELECT_MULTIPLE_VALUE_ACCESSOR]
                 },] },
     ];
     /** @nocollapse */
-    SelectMultipleControlValueAccessor.ctorParameters = [];
+    SelectMultipleControlValueAccessor.ctorParameters = [
+        { type: Renderer, },
+        { type: ElementRef, },
+    ];
     return SelectMultipleControlValueAccessor;
 }());
-exports.SelectMultipleControlValueAccessor = SelectMultipleControlValueAccessor;
-var NgSelectMultipleOption = (function () {
+/**
+ * Marks `<option>` as dynamic, so Angular can be notified when options change.
+ *
+ * ### Example
+ *
+ * ```
+ * <select multiple name="city" ngModel>
+ *   <option *ngFor="let c of cities" [value]="c"></option>
+ * </select>
+ * ```
+ */
+export var NgSelectMultipleOption = (function () {
     function NgSelectMultipleOption(_element, _renderer, _select) {
         this._element = _element;
         this._renderer = _renderer;
         this._select = _select;
-        if (lang_1.isPresent(this._select)) {
+        if (isPresent(this._select)) {
             this.id = this._select._registerOption(this);
         }
     }
@@ -133,7 +154,7 @@ var NgSelectMultipleOption = (function () {
     });
     Object.defineProperty(NgSelectMultipleOption.prototype, "value", {
         set: function (value) {
-            if (lang_1.isPresent(this._select)) {
+            if (isPresent(this._select)) {
                 this._value = value;
                 this._setElementValue(_buildValueString(this.id, value));
                 this._select.writeValue(this._select.value);
@@ -154,28 +175,25 @@ var NgSelectMultipleOption = (function () {
         this._renderer.setElementProperty(this._element.nativeElement, 'selected', selected);
     };
     NgSelectMultipleOption.prototype.ngOnDestroy = function () {
-        if (lang_1.isPresent(this._select)) {
+        if (isPresent(this._select)) {
             this._select._optionMap.delete(this.id);
             this._select.writeValue(this._select.value);
         }
     };
-    /** @nocollapse */
     NgSelectMultipleOption.decorators = [
-        { type: core_1.Directive, args: [{ selector: 'option' },] },
+        { type: Directive, args: [{ selector: 'option' },] },
     ];
     /** @nocollapse */
     NgSelectMultipleOption.ctorParameters = [
-        { type: core_1.ElementRef, },
-        { type: core_1.Renderer, },
-        { type: SelectMultipleControlValueAccessor, decorators: [{ type: core_1.Optional }, { type: core_1.Host },] },
+        { type: ElementRef, },
+        { type: Renderer, },
+        { type: SelectMultipleControlValueAccessor, decorators: [{ type: Optional }, { type: Host },] },
     ];
-    /** @nocollapse */
     NgSelectMultipleOption.propDecorators = {
-        'ngValue': [{ type: core_1.Input, args: ['ngValue',] },],
-        'value': [{ type: core_1.Input, args: ['value',] },],
+        'ngValue': [{ type: Input, args: ['ngValue',] },],
+        'value': [{ type: Input, args: ['value',] },],
     };
     return NgSelectMultipleOption;
 }());
-exports.NgSelectMultipleOption = NgSelectMultipleOption;
-exports.SELECT_DIRECTIVES = [SelectMultipleControlValueAccessor, NgSelectMultipleOption];
+export var SELECT_DIRECTIVES = [SelectMultipleControlValueAccessor, NgSelectMultipleOption];
 //# sourceMappingURL=select_multiple_control_value_accessor.js.map

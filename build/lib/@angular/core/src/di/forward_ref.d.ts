@@ -1,17 +1,10 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { Type } from '../facade/lang';
+import { Type } from '../type';
 /**
  * An interface that a function passed into {@link forwardRef} has to implement.
  *
  * ### Example
  *
- * {@example core/di/ts/forward_ref/forward_ref.ts region='forward_ref_fn'}
+ * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref_fn'}
  * @experimental
  */
 export interface ForwardRefFn {
@@ -26,10 +19,10 @@ export interface ForwardRefFn {
  * yet defined.
  *
  * ### Example
- * {@example core/di/ts/forward_ref/forward_ref.ts region='forward_ref'}
+ * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref'}
  * @experimental
  */
-export declare function forwardRef(forwardRefFn: ForwardRefFn): Type;
+export declare function forwardRef(forwardRefFn: ForwardRefFn): Type<any>;
 /**
  * Lazily retrieves the reference value from a forwardRef.
  *
@@ -37,11 +30,7 @@ export declare function forwardRef(forwardRefFn: ForwardRefFn): Type;
  *
  * ### Example ([live demo](http://plnkr.co/edit/GU72mJrk1fiodChcmiDR?p=preview))
  *
- * ```typescript
- * var ref = forwardRef(() => "refValue");
- * expect(resolveForwardRef(ref)).toEqual("refValue");
- * expect(resolveForwardRef("regularValue")).toEqual("regularValue");
- * ```
+ * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='resolve_forward_ref'}
  *
  * See: {@link forwardRef}
  * @experimental

@@ -4,17 +4,34 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var QueueScheduler_1 = require('./QueueScheduler');
-var AnimationFrameAction_1 = require('./AnimationFrameAction');
+var AsyncScheduler_1 = require('./AsyncScheduler');
 var AnimationFrameScheduler = (function (_super) {
     __extends(AnimationFrameScheduler, _super);
     function AnimationFrameScheduler() {
         _super.apply(this, arguments);
     }
-    AnimationFrameScheduler.prototype.scheduleNow = function (work, state) {
-        return new AnimationFrameAction_1.AnimationFrameAction(this, work).schedule(state);
+    AnimationFrameScheduler.prototype.flush = function () {
+        this.active = true;
+        this.scheduled = undefined;
+        var actions = this.actions;
+        var error;
+        var index = -1;
+        var count = actions.length;
+        var action = actions.shift();
+        do {
+            if (error = action.execute(action.state, action.delay)) {
+                break;
+            }
+        } while (++index < count && (action = actions.shift()));
+        this.active = false;
+        if (error) {
+            while (++index < count && (action = actions.shift())) {
+                action.unsubscribe();
+            }
+            throw error;
+        }
     };
     return AnimationFrameScheduler;
-}(QueueScheduler_1.QueueScheduler));
+}(AsyncScheduler_1.AsyncScheduler));
 exports.AnimationFrameScheduler = AnimationFrameScheduler;
 //# sourceMappingURL=AnimationFrameScheduler.js.map

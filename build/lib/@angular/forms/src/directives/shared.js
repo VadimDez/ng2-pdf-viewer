@@ -5,31 +5,28 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var validators_1 = require('../validators');
-var checkbox_value_accessor_1 = require('./checkbox_value_accessor');
-var default_value_accessor_1 = require('./default_value_accessor');
-var normalize_validator_1 = require('./normalize_validator');
-var number_value_accessor_1 = require('./number_value_accessor');
-var radio_control_value_accessor_1 = require('./radio_control_value_accessor');
-var select_control_value_accessor_1 = require('./select_control_value_accessor');
-var select_multiple_control_value_accessor_1 = require('./select_multiple_control_value_accessor');
-function controlPath(name, parent) {
-    var p = collection_1.ListWrapper.clone(parent.path);
+import { ListWrapper, StringMapWrapper } from '../facade/collection';
+import { hasConstructor, isBlank, isPresent, looseIdentical } from '../facade/lang';
+import { Validators } from '../validators';
+import { CheckboxControlValueAccessor } from './checkbox_value_accessor';
+import { DefaultValueAccessor } from './default_value_accessor';
+import { normalizeAsyncValidator, normalizeValidator } from './normalize_validator';
+import { NumberValueAccessor } from './number_value_accessor';
+import { RadioControlValueAccessor } from './radio_control_value_accessor';
+import { SelectControlValueAccessor } from './select_control_value_accessor';
+import { SelectMultipleControlValueAccessor } from './select_multiple_control_value_accessor';
+export function controlPath(name, parent) {
+    var p = ListWrapper.clone(parent.path);
     p.push(name);
     return p;
 }
-exports.controlPath = controlPath;
-function setUpControl(control, dir) {
-    if (lang_1.isBlank(control))
+export function setUpControl(control, dir) {
+    if (isBlank(control))
         _throwError(dir, 'Cannot find control with');
-    if (lang_1.isBlank(dir.valueAccessor))
+    if (isBlank(dir.valueAccessor))
         _throwError(dir, 'No value accessor for form control with');
-    control.validator = validators_1.Validators.compose([control.validator, dir.validator]);
-    control.asyncValidator = validators_1.Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
+    control.validator = Validators.compose([control.validator, dir.validator]);
+    control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
     dir.valueAccessor.writeValue(control.value);
     // view -> model
     dir.valueAccessor.registerOnChange(function (newValue) {
@@ -37,6 +34,8 @@ function setUpControl(control, dir) {
         control.markAsDirty();
         control.setValue(newValue, { emitModelToViewChange: false });
     });
+    // touched
+    dir.valueAccessor.registerOnTouched(function () { return control.markAsTouched(); });
     control.registerOnChange(function (newValue, emitModelEvent) {
         // control -> view
         dir.valueAccessor.writeValue(newValue);
@@ -44,17 +43,36 @@ function setUpControl(control, dir) {
         if (emitModelEvent)
             dir.viewToModelUpdate(newValue);
     });
-    // touched
-    dir.valueAccessor.registerOnTouched(function () { return control.markAsTouched(); });
+    if (dir.valueAccessor.setDisabledState) {
+        control.registerOnDisabledChange(function (isDisabled) { dir.valueAccessor.setDisabledState(isDisabled); });
+    }
+    // re-run validation when validator binding changes, e.g. minlength=3 -> minlength=4
+    dir._rawValidators.forEach(function (validator) {
+        if (validator.registerOnChange)
+            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+    });
+    dir._rawAsyncValidators.forEach(function (validator) {
+        if (validator.registerOnChange)
+            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+    });
 }
-exports.setUpControl = setUpControl;
-function setUpFormContainer(control, dir) {
-    if (lang_1.isBlank(control))
+export function cleanUpControl(control, dir) {
+    dir.valueAccessor.registerOnChange(function () { return _noControlError(dir); });
+    dir.valueAccessor.registerOnTouched(function () { return _noControlError(dir); });
+    dir._rawValidators.forEach(function (validator) { return validator.registerOnChange(null); });
+    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnChange(null); });
+    if (control)
+        control._clearChangeFns();
+}
+export function setUpFormContainer(control, dir) {
+    if (isBlank(control))
         _throwError(dir, 'Cannot find control with');
-    control.validator = validators_1.Validators.compose([control.validator, dir.validator]);
-    control.asyncValidator = validators_1.Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
+    control.validator = Validators.compose([control.validator, dir.validator]);
+    control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
 }
-exports.setUpFormContainer = setUpFormContainer;
+function _noControlError(dir) {
+    return _throwError(dir, 'There is no FormControl instance attached to form control element with');
+}
 function _throwError(dir, message) {
     var messageEnd;
     if (dir.path.length > 1) {
@@ -66,59 +84,59 @@ function _throwError(dir, message) {
     else {
         messageEnd = 'unspecified name attribute';
     }
-    throw new exceptions_1.BaseException(message + " " + messageEnd);
+    throw new Error(message + " " + messageEnd);
 }
-function composeValidators(validators) {
-    return lang_1.isPresent(validators) ? validators_1.Validators.compose(validators.map(normalize_validator_1.normalizeValidator)) : null;
+export function composeValidators(validators) {
+    return isPresent(validators) ? Validators.compose(validators.map(normalizeValidator)) : null;
 }
-exports.composeValidators = composeValidators;
-function composeAsyncValidators(validators) {
-    return lang_1.isPresent(validators) ? validators_1.Validators.composeAsync(validators.map(normalize_validator_1.normalizeAsyncValidator)) :
+export function composeAsyncValidators(validators) {
+    return isPresent(validators) ? Validators.composeAsync(validators.map(normalizeAsyncValidator)) :
         null;
 }
-exports.composeAsyncValidators = composeAsyncValidators;
-function isPropertyUpdated(changes, viewModel) {
-    if (!collection_1.StringMapWrapper.contains(changes, 'model'))
+export function isPropertyUpdated(changes, viewModel) {
+    if (!StringMapWrapper.contains(changes, 'model'))
         return false;
     var change = changes['model'];
     if (change.isFirstChange())
         return true;
-    return !lang_1.looseIdentical(viewModel, change.currentValue);
+    return !looseIdentical(viewModel, change.currentValue);
 }
-exports.isPropertyUpdated = isPropertyUpdated;
+export function isBuiltInAccessor(valueAccessor) {
+    return (hasConstructor(valueAccessor, CheckboxControlValueAccessor) ||
+        hasConstructor(valueAccessor, NumberValueAccessor) ||
+        hasConstructor(valueAccessor, SelectControlValueAccessor) ||
+        hasConstructor(valueAccessor, SelectMultipleControlValueAccessor) ||
+        hasConstructor(valueAccessor, RadioControlValueAccessor));
+}
 // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
-function selectValueAccessor(dir, valueAccessors) {
-    if (lang_1.isBlank(valueAccessors))
+export function selectValueAccessor(dir, valueAccessors) {
+    if (isBlank(valueAccessors))
         return null;
     var defaultAccessor;
     var builtinAccessor;
     var customAccessor;
     valueAccessors.forEach(function (v) {
-        if (lang_1.hasConstructor(v, default_value_accessor_1.DefaultValueAccessor)) {
+        if (hasConstructor(v, DefaultValueAccessor)) {
             defaultAccessor = v;
         }
-        else if (lang_1.hasConstructor(v, checkbox_value_accessor_1.CheckboxControlValueAccessor) || lang_1.hasConstructor(v, number_value_accessor_1.NumberValueAccessor) ||
-            lang_1.hasConstructor(v, select_control_value_accessor_1.SelectControlValueAccessor) ||
-            lang_1.hasConstructor(v, select_multiple_control_value_accessor_1.SelectMultipleControlValueAccessor) ||
-            lang_1.hasConstructor(v, radio_control_value_accessor_1.RadioControlValueAccessor)) {
-            if (lang_1.isPresent(builtinAccessor))
+        else if (isBuiltInAccessor(v)) {
+            if (isPresent(builtinAccessor))
                 _throwError(dir, 'More than one built-in value accessor matches form control with');
             builtinAccessor = v;
         }
         else {
-            if (lang_1.isPresent(customAccessor))
+            if (isPresent(customAccessor))
                 _throwError(dir, 'More than one custom value accessor matches form control with');
             customAccessor = v;
         }
     });
-    if (lang_1.isPresent(customAccessor))
+    if (isPresent(customAccessor))
         return customAccessor;
-    if (lang_1.isPresent(builtinAccessor))
+    if (isPresent(builtinAccessor))
         return builtinAccessor;
-    if (lang_1.isPresent(defaultAccessor))
+    if (isPresent(defaultAccessor))
         return defaultAccessor;
     _throwError(dir, 'No valid value accessor for form control with');
     return null;
 }
-exports.selectValueAccessor = selectValueAccessor;
 //# sourceMappingURL=shared.js.map

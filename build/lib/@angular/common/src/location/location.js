@@ -5,14 +5,45 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var location_strategy_1 = require('./location_strategy');
-var Location = (function () {
+import { EventEmitter, Injectable } from '@angular/core';
+import { LocationStrategy } from './location_strategy';
+/**
+ * `Location` is a service that applications can use to interact with a browser's URL.
+ * Depending on which {@link LocationStrategy} is used, `Location` will either persist
+ * to the URL's path or the URL's hash segment.
+ *
+ * Note: it's better to use {@link Router#navigate} service to trigger route changes. Use
+ * `Location` only if you need to interact with or create normalized URLs outside of
+ * routing.
+ *
+ * `Location` is responsible for normalizing the URL against the application's base href.
+ * A normalized URL is absolute from the URL host, includes the application's base href, and has no
+ * trailing slash:
+ * - `/my/app/user/123` is normalized
+ * - `my/app/user/123` **is not** normalized
+ * - `/my/app/user/123/` **is not** normalized
+ *
+ * ### Example
+ *
+ * ```
+ * import {Component} from '@angular/core';
+ * import {Location} from '@angular/common';
+ *
+ * @Component({selector: 'app-component'})
+ * class AppCmp {
+ *   constructor(location: Location) {
+ *     location.go('/foo');
+ *   }
+ * }
+ * ```
+ *
+ * @stable
+ */
+export var Location = (function () {
     function Location(platformStrategy) {
         var _this = this;
         /** @internal */
-        this._subject = new core_1.EventEmitter();
+        this._subject = new EventEmitter();
         this._platformStrategy = platformStrategy;
         var browserBaseHref = this._platformStrategy.getBaseHref();
         this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
@@ -127,17 +158,15 @@ var Location = (function () {
         }
         return url;
     };
-    /** @nocollapse */
     Location.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     Location.ctorParameters = [
-        { type: location_strategy_1.LocationStrategy, },
+        { type: LocationStrategy, },
     ];
     return Location;
 }());
-exports.Location = Location;
 function _stripBaseHref(baseHref, url) {
     if (baseHref.length > 0 && url.startsWith(baseHref)) {
         return url.substring(baseHref.length);

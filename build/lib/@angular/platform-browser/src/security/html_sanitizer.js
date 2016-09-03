@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var dom_adapter_1 = require('../dom/dom_adapter');
-var url_sanitizer_1 = require('./url_sanitizer');
+import { isDevMode } from '@angular/core';
+import { getDOM } from '../dom/dom_adapter';
+import { sanitizeSrcset, sanitizeUrl } from './url_sanitizer';
 /** A <body> element that can be safely used to parse untrusted HTML. Lazily initialized below. */
 var inertElement = null;
 /** Lazily initialized to make sure the DOM adapter gets set before use. */
@@ -17,7 +16,7 @@ var DOM = null;
 function getInertElement() {
     if (inertElement)
         return inertElement;
-    DOM = dom_adapter_1.getDOM();
+    DOM = getDOM();
     // Prefer using <template> element if supported.
     var templateEl = DOM.createElement('template');
     if ('content' in templateEl)
@@ -155,9 +154,9 @@ var SanitizingHtmlSerializer = (function () {
             }
             // TODO(martinprobst): Special case image URIs for data:image/...
             if (URI_ATTRS[lower])
-                value = url_sanitizer_1.sanitizeUrl(value);
+                value = sanitizeUrl(value);
             if (SRCSET_ATTRS[lower])
-                value = url_sanitizer_1.sanitizeSrcset(value);
+                value = sanitizeSrcset(value);
             _this.buf.push(' ');
             _this.buf.push(attrName);
             _this.buf.push('="');
@@ -222,7 +221,7 @@ function stripCustomNsAttrs(el) {
  * Sanitizes the given unsafe, untrusted HTML fragment, and returns HTML text that is safe to add to
  * the DOM in a browser environment.
  */
-function sanitizeHtml(unsafeHtmlInput) {
+export function sanitizeHtml(unsafeHtmlInput) {
     try {
         var containerEl = getInertElement();
         // Make sure unsafeHtml is actually a string (TypeScript types are not enforced at runtime).
@@ -252,7 +251,7 @@ function sanitizeHtml(unsafeHtmlInput) {
             var child = _a[_i];
             DOM.removeChild(parent_1, child);
         }
-        if (core_1.isDevMode() && sanitizer.sanitizedSomething) {
+        if (isDevMode() && sanitizer.sanitizedSomething) {
             DOM.log('WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).');
         }
         return safeHtml;
@@ -263,5 +262,4 @@ function sanitizeHtml(unsafeHtmlInput) {
         throw e;
     }
 }
-exports.sanitizeHtml = sanitizeHtml;
 //# sourceMappingURL=html_sanitizer.js.map

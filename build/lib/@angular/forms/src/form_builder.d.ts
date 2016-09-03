@@ -38,7 +38,7 @@ import { FormArray, FormControl, FormGroup } from './model';
  * }
  * ```
  *
- * @experimental
+ * @stable
  */
 export declare class FormBuilder {
     /**
@@ -53,9 +53,10 @@ export declare class FormBuilder {
         [key: string]: any;
     }): FormGroup;
     /**
-     * Construct a new {@link FormControl} with the given `value`,`validator`, and `asyncValidator`.
+     * Construct a new {@link FormControl} with the given `formState`,`validator`, and
+     * `asyncValidator`.
      */
-    control(value: Object, validator?: ValidatorFn | ValidatorFn[], asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[]): FormControl;
+    control(formState: Object, validator?: ValidatorFn | ValidatorFn[], asyncValidator?: AsyncValidatorFn | AsyncValidatorFn[]): FormControl;
     /**
      * Construct an array of {@link FormControl}s from the given `controlsConfig` array of
      * configuration, with the given optional `validator` and `asyncValidator`.

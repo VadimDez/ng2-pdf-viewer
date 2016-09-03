@@ -9,7 +9,7 @@ if (typeof Object.assign != 'function') {
                 sources[_i - 1] = arguments[_i];
             }
             if (target === undefined || target === null) {
-                throw new TypeError('Cannot convert undefined or null to object');
+                throw new TypeError('cannot convert undefined or null to object');
             }
             var output = Object(target);
             var len = sources.length;

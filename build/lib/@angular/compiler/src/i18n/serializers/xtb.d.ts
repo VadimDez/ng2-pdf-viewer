@@ -9,6 +9,7 @@ import * as ml from '../../ml_parser/ast';
 import { HtmlParser } from '../../ml_parser/html_parser';
 import { InterpolationConfig } from '../../ml_parser/interpolation_config';
 import * as i18n from '../i18n_ast';
+import { MessageBundle } from '../message_bundle';
 import { Serializer } from './serializer';
 export declare class Xtb implements Serializer {
     private _htmlParser;
@@ -17,11 +18,7 @@ export declare class Xtb implements Serializer {
     write(messageMap: {
         [id: string]: i18n.Message;
     }): string;
-    load(content: string, url: string, placeholders: {
-        [id: string]: {
-            [name: string]: string;
-        };
-    }): {
+    load(content: string, url: string, messageBundle: MessageBundle): {
         [id: string]: ml.Node[];
     };
 }

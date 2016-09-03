@@ -5,18 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var dom_security_schema_1 = require('./dom_security_schema');
-var element_schema_registry_1 = require('./element_schema_registry');
-var EVENT = 'event';
+import { CUSTOM_ELEMENTS_SCHEMA, Injectable, NO_ERRORS_SCHEMA, SecurityContext } from '@angular/core';
+import { SECURITY_SCHEMA } from './dom_security_schema';
+import { ElementSchemaRegistry } from './element_schema_registry';
 var BOOLEAN = 'boolean';
 var NUMBER = 'number';
 var STRING = 'string';
@@ -27,7 +23,7 @@ var OBJECT = 'object';
  * ## Overview
  *
  * Each line represents one kind of element. The `element_inheritance` and properties are joined
- * using `element_inheritance|preperties` syntax.
+ * using `element_inheritance|properties` syntax.
  *
  * ## Element Inheritance
  *
@@ -55,7 +51,7 @@ var OBJECT = 'object';
  *
  * ## Query
  *
- * The class creates an internal squas representaino which allows to easily answer the query of
+ * The class creates an internal squas representation which allows to easily answer the query of
  * if a given property exist on a given element.
  *
  * NOTE: We don't yet support querying for types or events.
@@ -76,9 +72,9 @@ var OBJECT = 'object';
 // =================================================================================================
 var SCHEMA = ([
     '*|textContent,%classList,className,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*copy,*cut,*paste,*search,*selectstart,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerHTML,#scrollLeft,#scrollTop',
-    '^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*autocomplete,*autocompleteerror,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
-    'media|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,#volume',
-    ':svg:^*|*abort,*autocomplete,*autocompleteerror,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*cuechange,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*seeked,*seeking,*select,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,%style,#tabIndex',
+    'abbr,address,article,aside,b,bdi,bdo,cite,code,dd,dfn,dt,em,figcaption,figure,footer,header,i,kbd,main,mark,nav,noscript,rb,rp,rt,rtc,ruby,s,samp,section,small,strong,sub,sup,u,var,wbr^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
+    'media^abbr|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,%srcObject,#volume',
+    ':svg:^abbr|*abort,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*cuechange,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*seeked,*seeking,*select,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,%style,#tabIndex',
     ':svg:graphics^:svg:|',
     ':svg:animation^:svg:|*begin,*end,*repeat',
     ':svg:geometry^:svg:|',
@@ -86,74 +82,75 @@ var SCHEMA = ([
     ':svg:gradient^:svg:|',
     ':svg:textContent^:svg:graphics|',
     ':svg:textPositioning^:svg:textContent|',
-    'a|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerpolicy,rel,rev,search,shape,target,text,type,username',
-    'area|alt,coords,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerpolicy,search,shape,target,username',
+    'abbr^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
+    'a^abbr|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerPolicy,rel,rev,search,shape,target,text,type,username',
+    'area^abbr|alt,coords,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerPolicy,search,shape,target,username',
     'audio^media|',
-    'br|clear',
-    'base|href,target',
-    'body|aLink,background,bgColor,link,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink',
-    'button|!autofocus,!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value',
-    'canvas|#height,#width',
-    'content|select',
-    'dl|!compact',
-    'datalist|',
-    'details|!open',
-    'dialog|!open,returnValue',
-    'dir|!compact',
-    'div|align',
-    'embed|align,height,name,src,type,width',
-    'fieldset|!disabled,name',
-    'font|color,face,size',
-    'form|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target',
-    'frame|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src',
-    'frameset|cols,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows',
-    'hr|align,color,!noShade,size,width',
-    'head|',
-    'h1,h2,h3,h4,h5,h6|align',
-    'html|version',
-    'iframe|align,!allowFullscreen,frameBorder,height,longDesc,marginHeight,marginWidth,name,referrerpolicy,%sandbox,scrolling,src,srcdoc,width',
-    'img|align,alt,border,%crossOrigin,#height,#hspace,!isMap,longDesc,lowsrc,name,referrerpolicy,sizes,src,srcset,useMap,#vspace,#width',
-    'input|accept,align,alt,autocapitalize,autocomplete,!autofocus,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width',
-    'keygen|!autofocus,challenge,!disabled,keytype,name',
-    'li|type,#value',
-    'label|htmlFor',
-    'legend|align',
-    'link|as,charset,%crossOrigin,!disabled,href,hreflang,integrity,media,rel,%relList,rev,%sizes,target,type',
-    'map|name',
-    'marquee|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width',
-    'menu|!compact',
-    'meta|content,httpEquiv,name,scheme',
-    'meter|#high,#low,#max,#min,#optimum,#value',
-    'ins,del|cite,dateTime',
-    'ol|!compact,!reversed,#start,type',
-    'object|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width',
-    'optgroup|!disabled,label',
-    'option|!defaultSelected,!disabled,label,!selected,text,value',
-    'output|defaultValue,%htmlFor,name,value',
-    'p|align',
-    'param|name,type,value,valueType',
-    'picture|',
-    'pre|#width',
-    'progress|#max,#value',
-    'q,blockquote,cite|',
-    'script|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,src,text,type',
-    'select|!autofocus,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value',
-    'shadow|',
-    'source|media,sizes,src,srcset,type',
-    'span|',
-    'style|!disabled,media,type',
-    'caption|align',
-    'th,td|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width',
-    'col,colgroup|align,ch,chOff,#span,vAlign,width',
-    'table|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width',
-    'tr|align,bgColor,ch,chOff,vAlign',
-    'tfoot,thead,tbody|align,ch,chOff,vAlign',
-    'template|',
-    'textarea|autocapitalize,!autofocus,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap',
-    'title|text',
-    'track|!default,kind,label,src,srclang',
-    'ul|!compact,type',
-    'unknown|',
+    'br^abbr|clear',
+    'base^abbr|href,target',
+    'body^abbr|aLink,background,bgColor,link,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink',
+    'button^abbr|!autofocus,!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value',
+    'canvas^abbr|#height,#width',
+    'content^abbr|select',
+    'dl^abbr|!compact',
+    'datalist^abbr|',
+    'details^abbr|!open',
+    'dialog^abbr|!open,returnValue',
+    'dir^abbr|!compact',
+    'div^abbr|align',
+    'embed^abbr|align,height,name,src,type,width',
+    'fieldset^abbr|!disabled,name',
+    'font^abbr|color,face,size',
+    'form^abbr|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target',
+    'frame^abbr|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src',
+    'frameset^abbr|cols,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows',
+    'hr^abbr|align,color,!noShade,size,width',
+    'head^abbr|',
+    'h1,h2,h3,h4,h5,h6^abbr|align',
+    'html^abbr|version',
+    'iframe^abbr|align,!allowFullscreen,frameBorder,height,longDesc,marginHeight,marginWidth,name,referrerPolicy,%sandbox,scrolling,src,srcdoc,width',
+    'img^abbr|align,alt,border,%crossOrigin,#height,#hspace,!isMap,longDesc,lowsrc,name,referrerPolicy,sizes,src,srcset,useMap,#vspace,#width',
+    'input^abbr|accept,align,alt,autocapitalize,autocomplete,!autofocus,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width',
+    'keygen^abbr|!autofocus,challenge,!disabled,keytype,name',
+    'li^abbr|type,#value',
+    'label^abbr|htmlFor',
+    'legend^abbr|align',
+    'link^abbr|as,charset,%crossOrigin,!disabled,href,hreflang,integrity,media,rel,%relList,rev,%sizes,target,type',
+    'map^abbr|name',
+    'marquee^abbr|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width',
+    'menu^abbr|!compact',
+    'meta^abbr|content,httpEquiv,name,scheme',
+    'meter^abbr|#high,#low,#max,#min,#optimum,#value',
+    'ins,del^abbr|cite,dateTime',
+    'ol^abbr|!compact,!reversed,#start,type',
+    'object^abbr|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width',
+    'optgroup^abbr|!disabled,label',
+    'option^abbr|!defaultSelected,!disabled,label,!selected,text,value',
+    'output^abbr|defaultValue,%htmlFor,name,value',
+    'p^abbr|align',
+    'param^abbr|name,type,value,valueType',
+    'picture^abbr|',
+    'pre^abbr|#width',
+    'progress^abbr|#max,#value',
+    'q,blockquote,cite^abbr|',
+    'script^abbr|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,src,text,type',
+    'select^abbr|!autofocus,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value',
+    'shadow^abbr|',
+    'source^abbr|media,sizes,src,srcset,type',
+    'span^abbr|',
+    'style^abbr|!disabled,media,type',
+    'caption^abbr|align',
+    'th,td^abbr|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width',
+    'col,colgroup^abbr|align,ch,chOff,#span,vAlign,width',
+    'table^abbr|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width',
+    'tr^abbr|align,bgColor,ch,chOff,vAlign',
+    'tfoot,thead,tbody^abbr|align,ch,chOff,vAlign',
+    'template^abbr|',
+    'textarea^abbr|autocapitalize,!autofocus,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap',
+    'title^abbr|text',
+    'track^abbr|!default,kind,label,src,srclang',
+    'ul^abbr|!compact,type',
+    'unknown^abbr|',
     'video^media|#height,poster,#width',
     ':svg:a^:svg:graphics|',
     ':svg:animate^:svg:animation|',
@@ -221,66 +218,86 @@ var SCHEMA = ([
     ':svg:use^:svg:graphics|',
     ':svg:view^:svg:|#zoomAndPan',
 ]);
-var attrToPropMap = {
+var _ATTR_TO_PROP = {
     'class': 'className',
     'formaction': 'formAction',
     'innerHtml': 'innerHTML',
     'readonly': 'readOnly',
     'tabindex': 'tabIndex'
 };
-var DomElementSchemaRegistry = (function (_super) {
+export var DomElementSchemaRegistry = (function (_super) {
     __extends(DomElementSchemaRegistry, _super);
     function DomElementSchemaRegistry() {
         var _this = this;
         _super.call(this);
-        this.schema = {};
+        this._schema = {};
         SCHEMA.forEach(function (encodedType) {
-            var parts = encodedType.split('|');
-            var properties = parts[1].split(',');
-            var typeParts = (parts[0] + '^').split('^');
-            var typeName = typeParts[0];
+            var _a = encodedType.split('|'), strType = _a[0], strProperties = _a[1];
+            var properties = strProperties.split(',');
+            var _b = strType.split('^'), typeNames = _b[0], superName = _b[1];
             var type = {};
-            typeName.split(',').forEach(function (tag) { return _this.schema[tag] = type; });
-            var superType = _this.schema[typeParts[1]];
-            if (lang_1.isPresent(superType)) {
-                collection_1.StringMapWrapper.forEach(superType, function (v /** TODO #9100 */, k /** TODO #9100 */) { return type[k] = v; });
+            typeNames.split(',').forEach(function (tag) { return _this._schema[tag.toLowerCase()] = type; });
+            var superType = _this._schema[superName];
+            if (superType) {
+                Object.keys(superType).forEach(function (prop) { type[prop] = superType[prop]; });
             }
             properties.forEach(function (property) {
-                if (property == '') {
-                }
-                else if (property.startsWith('*')) {
-                }
-                else if (property.startsWith('!')) {
-                    type[property.substring(1)] = BOOLEAN;
-                }
-                else if (property.startsWith('#')) {
-                    type[property.substring(1)] = NUMBER;
-                }
-                else if (property.startsWith('%')) {
-                    type[property.substring(1)] = OBJECT;
-                }
-                else {
-                    type[property] = STRING;
+                if (property.length > 0) {
+                    switch (property[0]) {
+                        case '*':
+                            // We don't yet support events.
+                            // If ever allowing to bind to events, GO THROUGH A SECURITY REVIEW, allowing events
+                            // will
+                            // almost certainly introduce bad XSS vulnerabilities.
+                            // type[property.substring(1)] = EVENT;
+                            break;
+                        case '!':
+                            type[property.substring(1)] = BOOLEAN;
+                            break;
+                        case '#':
+                            type[property.substring(1)] = NUMBER;
+                            break;
+                        case '%':
+                            type[property.substring(1)] = OBJECT;
+                            break;
+                        default:
+                            type[property] = STRING;
+                    }
                 }
             });
         });
     }
     DomElementSchemaRegistry.prototype.hasProperty = function (tagName, propName, schemaMetas) {
-        if (tagName.indexOf('-') !== -1) {
+        if (schemaMetas.some(function (schema) { return schema.name === NO_ERRORS_SCHEMA.name; })) {
+            return true;
+        }
+        if (tagName.indexOf('-') > -1) {
             if (tagName === 'ng-container' || tagName === 'ng-content') {
                 return false;
             }
-            if (schemaMetas.some(function (schema) { return schema.name === core_1.CUSTOM_ELEMENTS_SCHEMA.name; })) {
+            if (schemaMetas.some(function (schema) { return schema.name === CUSTOM_ELEMENTS_SCHEMA.name; })) {
                 // Can't tell now as we don't know which properties a custom element will get
                 // once it is instantiated
                 return true;
             }
         }
-        var elementProperties = this.schema[tagName.toLowerCase()];
-        if (!lang_1.isPresent(elementProperties)) {
-            elementProperties = this.schema['unknown'];
+        var elementProperties = this._schema[tagName.toLowerCase()] || this._schema['unknown'];
+        return !!elementProperties[propName];
+    };
+    DomElementSchemaRegistry.prototype.hasElement = function (tagName, schemaMetas) {
+        if (schemaMetas.some(function (schema) { return schema.name === NO_ERRORS_SCHEMA.name; })) {
+            return true;
         }
-        return lang_1.isPresent(elementProperties[propName]);
+        if (tagName.indexOf('-') > -1) {
+            if (tagName === 'ng-container' || tagName === 'ng-content') {
+                return true;
+            }
+            if (schemaMetas.some(function (schema) { return schema.name === CUSTOM_ELEMENTS_SCHEMA.name; })) {
+                // Allow any custom elements
+                return true;
+            }
+        }
+        return !!this._schema[tagName.toLowerCase()];
     };
     /**
      * securityContext returns the security context for the given property on the given DOM tag.
@@ -297,24 +314,20 @@ var DomElementSchemaRegistry = (function (_super) {
         // property names do not have a security impact.
         tagName = tagName.toLowerCase();
         propName = propName.toLowerCase();
-        var ctx = dom_security_schema_1.SECURITY_SCHEMA[tagName + '|' + propName];
-        if (ctx !== undefined)
+        var ctx = SECURITY_SCHEMA[tagName + '|' + propName];
+        if (ctx) {
             return ctx;
-        ctx = dom_security_schema_1.SECURITY_SCHEMA['*|' + propName];
-        return ctx !== undefined ? ctx : core_1.SecurityContext.NONE;
+        }
+        ctx = SECURITY_SCHEMA['*|' + propName];
+        return ctx ? ctx : SecurityContext.NONE;
     };
-    DomElementSchemaRegistry.prototype.getMappedPropName = function (propName) {
-        var mappedPropName = collection_1.StringMapWrapper.get(attrToPropMap, propName);
-        return lang_1.isPresent(mappedPropName) ? mappedPropName : propName;
-    };
+    DomElementSchemaRegistry.prototype.getMappedPropName = function (propName) { return _ATTR_TO_PROP[propName] || propName; };
     DomElementSchemaRegistry.prototype.getDefaultComponentElementName = function () { return 'ng-component'; };
-    /** @nocollapse */
     DomElementSchemaRegistry.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     DomElementSchemaRegistry.ctorParameters = [];
     return DomElementSchemaRegistry;
-}(element_schema_registry_1.ElementSchemaRegistry));
-exports.DomElementSchemaRegistry = DomElementSchemaRegistry;
+}(ElementSchemaRegistry));
 //# sourceMappingURL=dom_element_schema_registry.js.map

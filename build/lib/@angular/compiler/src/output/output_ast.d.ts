@@ -139,7 +139,7 @@ export declare class WritePropExpr extends Expression {
 export declare enum BuiltinMethod {
     ConcatArray = 0,
     SubscribeObservable = 1,
-    bind = 2,
+    Bind = 2,
 }
 export declare class InvokeMethodExpr extends Expression {
     receiver: Expression;

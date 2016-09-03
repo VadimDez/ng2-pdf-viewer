@@ -1,5 +1,6 @@
 import {Observable} from '../Observable';
 import {tryCatch} from '../util/tryCatch';
+import {isFunction} from '../util/isFunction';
 import {errorObject} from '../util/errorObject';
 import {Subscription} from '../Subscription';
 import {Subscriber} from '../Subscriber';
@@ -34,6 +35,14 @@ function isEventTarget(sourceObj: any): sourceObj is EventTarget {
 
 export type EventTargetLike = EventTarget | NodeStyleEventEmmitter | JQueryStyleEventEmitter | NodeList | HTMLCollection;
 
+export type EventListenerOptions = {
+  capture?: boolean;
+  passive?: boolean;
+  once?: boolean;
+} | boolean;
+
+export type SelectorMethodSignature<T> = (...args: Array<any>) => T;
+
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -41,38 +50,89 @@ export type EventTargetLike = EventTarget | NodeStyleEventEmmitter | JQueryStyle
  */
 export class FromEventObservable<T, R> extends Observable<T> {
 
+  /* tslint:disable:max-line-length */
+  static create<T>(target: EventTargetLike, eventName: string): Observable<T>;
+  static create<T>(target: EventTargetLike, eventName: string, selector: SelectorMethodSignature<T>): Observable<T>;
+  static create<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions): Observable<T>;
+  static create<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions, selector: SelectorMethodSignature<T>): Observable<T>;
+  /* tslint:enable:max-line-length */
+
   /**
-   * @param sourceObj
-   * @param eventName
-   * @param selector
-   * @return {FromEventObservable}
+   * Creates an Observable that emits events of a specific type coming from the
+   * given event target.
+   *
+   * <span class="informal">Creates an Observable from DOM events, or Node
+   * EventEmitter events or others.</span>
+   *
+   * <img src="./img/fromEvent.png" width="100%">
+   *
+   * Creates an Observable by attaching an event listener to an "event target",
+   * which may be an object with `addEventListener` and `removeEventListener`,
+   * a Node.js EventEmitter, a jQuery style EventEmitter, a NodeList from the
+   * DOM, or an HTMLCollection from the DOM. The event handler is attached when
+   * the output Observable is subscribed, and removed when the Subscription is
+   * unsubscribed.
+   *
+   * @example <caption>Emits clicks happening on the DOM document</caption>
+   * var clicks = Rx.Observable.fromEvent(document, 'click');
+   * clicks.subscribe(x => console.log(x));
+   *
+   * @see {@link from}
+   * @see {@link fromEventPattern}
+   *
+   * @param {EventTargetLike} target The DOMElement, event target, Node.js
+   * EventEmitter, NodeList or HTMLCollection to attach the event handler to.
+   * @param {string} eventName The event name of interest, being emitted by the
+   * `target`.
+   * @parm {EventListenerOptions} [options] Options to pass through to addEventListener
+   * @param {SelectorMethodSignature<T>} [selector] An optional function to
+   * post-process results. It takes the arguments from the event handler and
+   * should return a single value.
+   * @return {Observable<T>}
    * @static true
    * @name fromEvent
    * @owner Observable
    */
-  static create<T>(sourceObj: EventTargetLike, eventName: string, selector?: (...args: Array<any>) => T): Observable<T> {
-    return new FromEventObservable(sourceObj, eventName, selector);
+  static create<T>(target: EventTargetLike,
+                   eventName: string,
+                   options?: EventListenerOptions,
+                   selector?: SelectorMethodSignature<T>): Observable<T> {
+    if (isFunction(options)) {
+      selector = <any>options;
+      options = undefined;
+    }
+    return new FromEventObservable(target, eventName, selector, options);
   }
 
-  constructor(private sourceObj: EventTargetLike, private eventName: string, private selector?: (...args: Array<any>) => T) {
+  constructor(private sourceObj: EventTargetLike,
+              private eventName: string,
+              private selector?: SelectorMethodSignature<T>,
+              private options?: EventListenerOptions) {
     super();
   }
 
-  private static setupSubscription<T>(sourceObj: EventTargetLike, eventName: string, handler: Function, subscriber: Subscriber<T>) {
+  private static setupSubscription<T>(sourceObj: EventTargetLike,
+                                      eventName: string,
+                                      handler: Function,
+                                      subscriber: Subscriber<T>,
+                                      options?: EventListenerOptions) {
     let unsubscribe: () => void;
     if (isNodeList(sourceObj) || isHTMLCollection(sourceObj)) {
       for (let i = 0, len = sourceObj.length; i < len; i++) {
-        FromEventObservable.setupSubscription(sourceObj[i], eventName, handler, subscriber);
+        FromEventObservable.setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
       }
     } else if (isEventTarget(sourceObj)) {
-      sourceObj.addEventListener(eventName, <EventListener>handler);
-      unsubscribe = () => sourceObj.removeEventListener(eventName, <EventListener>handler);
+      const source = sourceObj;
+      sourceObj.addEventListener(eventName, <EventListener>handler, <boolean>options);
+      unsubscribe = () => source.removeEventListener(eventName, <EventListener>handler);
     } else if (isJQueryStyleEventEmitter(sourceObj)) {
+      const source = sourceObj;
       sourceObj.on(eventName, handler);
-      unsubscribe = () => sourceObj.off(eventName, handler);
+      unsubscribe = () => source.off(eventName, handler);
     } else if (isNodeStyleEventEmmitter(sourceObj)) {
+      const source = sourceObj;
       sourceObj.addListener(eventName, handler);
-      unsubscribe = () => sourceObj.removeListener(eventName, handler);
+      unsubscribe = () => source.removeListener(eventName, handler);
     }
 
     subscriber.add(new Subscription(unsubscribe));
@@ -81,6 +141,7 @@ export class FromEventObservable<T, R> extends Observable<T> {
   protected _subscribe(subscriber: Subscriber<T>) {
     const sourceObj = this.sourceObj;
     const eventName = this.eventName;
+    const options = this.options;
     const selector = this.selector;
     let handler = selector ? (...args: any[]) => {
       let result = tryCatch(selector)(...args);
@@ -91,6 +152,6 @@ export class FromEventObservable<T, R> extends Observable<T> {
       }
     } : (e: any) => subscriber.next(e);
 
-    FromEventObservable.setupSubscription(sourceObj, eventName, handler, subscriber);
+    FromEventObservable.setupSubscription(sourceObj, eventName, handler, subscriber, options);
   }
 }

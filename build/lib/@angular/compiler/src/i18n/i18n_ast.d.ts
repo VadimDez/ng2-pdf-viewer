@@ -11,9 +11,22 @@ export declare class Message {
     placeholders: {
         [name: string]: string;
     };
+    placeholderToMsgIds: {
+        [name: string]: string;
+    };
     meaning: string;
     description: string;
+    /**
+     * @param nodes message AST
+     * @param placeholders maps placeholder names to static content
+     * @param placeholderToMsgIds maps placeholder names to translatable message IDs (used for ICU
+     *                            messages)
+     * @param meaning
+     * @param description
+     */
     constructor(nodes: Node[], placeholders: {
+        [name: string]: string;
+    }, placeholderToMsgIds: {
         [name: string]: string;
     }, meaning: string, description: string);
 }

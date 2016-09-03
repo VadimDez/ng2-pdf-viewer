@@ -7,8 +7,8 @@
  */
 import { NgModuleFactory } from './ng_module_factory';
 /**
- * Used to load ng moduled factories.
- * @experimental
+ * Used to load ng module factories.
+ * @stable
  */
 export declare abstract class NgModuleFactoryLoader {
     abstract load(path: string): Promise<NgModuleFactory<any>>;

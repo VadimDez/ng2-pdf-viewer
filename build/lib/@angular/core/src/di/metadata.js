@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var lang_1 = require('../facade/lang');
+import { stringify } from '../facade/lang';
 /**
  * A parameter metadata that specifies a dependency.
  *
@@ -48,14 +47,13 @@ var lang_1 = require('../facade/lang');
  * ```
  * @stable
  */
-var InjectMetadata = (function () {
+export var InjectMetadata = (function () {
     function InjectMetadata(token) {
         this.token = token;
     }
-    InjectMetadata.prototype.toString = function () { return "@Inject(" + lang_1.stringify(this.token) + ")"; };
+    InjectMetadata.prototype.toString = function () { return "@Inject(" + stringify(this.token) + ")"; };
     return InjectMetadata;
 }());
-exports.InjectMetadata = InjectMetadata;
 /**
  * A parameter metadata that marks a dependency as optional. {@link Injector} provides `null` if
  * the dependency is not found.
@@ -78,19 +76,18 @@ exports.InjectMetadata = InjectMetadata;
  * ```
  * @stable
  */
-var OptionalMetadata = (function () {
+export var OptionalMetadata = (function () {
     function OptionalMetadata() {
     }
     OptionalMetadata.prototype.toString = function () { return "@Optional()"; };
     return OptionalMetadata;
 }());
-exports.OptionalMetadata = OptionalMetadata;
 /**
  * `DependencyMetadata` is used by the framework to extend DI.
  * This is internal to Angular and should not be used directly.
  * @stable
  */
-var DependencyMetadata = (function () {
+export var DependencyMetadata = (function () {
     function DependencyMetadata() {
     }
     Object.defineProperty(DependencyMetadata.prototype, "token", {
@@ -100,7 +97,6 @@ var DependencyMetadata = (function () {
     });
     return DependencyMetadata;
 }());
-exports.DependencyMetadata = DependencyMetadata;
 /**
  * A marker metadata that marks a class as available to {@link Injector} for creation.
  *
@@ -133,12 +129,11 @@ exports.DependencyMetadata = DependencyMetadata;
  * ```
  * @stable
  */
-var InjectableMetadata = (function () {
+export var InjectableMetadata = (function () {
     function InjectableMetadata() {
     }
     return InjectableMetadata;
 }());
-exports.InjectableMetadata = InjectableMetadata;
 /**
  * Specifies that an {@link Injector} should retrieve a dependency only from itself.
  *
@@ -167,13 +162,12 @@ exports.InjectableMetadata = InjectableMetadata;
  * ```
  * @stable
  */
-var SelfMetadata = (function () {
+export var SelfMetadata = (function () {
     function SelfMetadata() {
     }
     SelfMetadata.prototype.toString = function () { return "@Self()"; };
     return SelfMetadata;
 }());
-exports.SelfMetadata = SelfMetadata;
 /**
  * Specifies that the dependency resolution should start from the parent injector.
  *
@@ -200,13 +194,12 @@ exports.SelfMetadata = SelfMetadata;
  * ```
  * @stable
  */
-var SkipSelfMetadata = (function () {
+export var SkipSelfMetadata = (function () {
     function SkipSelfMetadata() {
     }
     SkipSelfMetadata.prototype.toString = function () { return "@SkipSelf()"; };
     return SkipSelfMetadata;
 }());
-exports.SkipSelfMetadata = SkipSelfMetadata;
 /**
  * Specifies that an injector should retrieve a dependency from any injector until reaching the
  * closest host.
@@ -257,16 +250,13 @@ exports.SkipSelfMetadata = SkipSelfMetadata;
  * })
  * class App {
  * }
- *
- * bootstrap(App);
  *```
  * @stable
  */
-var HostMetadata = (function () {
+export var HostMetadata = (function () {
     function HostMetadata() {
     }
     HostMetadata.prototype.toString = function () { return "@Host()"; };
     return HostMetadata;
 }());
-exports.HostMetadata = HostMetadata;
 //# sourceMappingURL=metadata.js.map

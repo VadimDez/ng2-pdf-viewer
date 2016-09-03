@@ -5,18 +5,17 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
+import { unimplemented } from '../facade/errors';
+import { stringify } from '../facade/lang';
 var _THROW_IF_NOT_FOUND = new Object();
-exports.THROW_IF_NOT_FOUND = _THROW_IF_NOT_FOUND;
+export var THROW_IF_NOT_FOUND = _THROW_IF_NOT_FOUND;
 var _NullInjector = (function () {
     function _NullInjector() {
     }
     _NullInjector.prototype.get = function (token, notFoundValue) {
         if (notFoundValue === void 0) { notFoundValue = _THROW_IF_NOT_FOUND; }
         if (notFoundValue === _THROW_IF_NOT_FOUND) {
-            throw new exceptions_1.BaseException("No provider for " + lang_1.stringify(token) + "!");
+            throw new Error("No provider for " + stringify(token) + "!");
         }
         return notFoundValue;
     };
@@ -25,7 +24,7 @@ var _NullInjector = (function () {
 /**
  * @stable
  */
-var Injector = (function () {
+export var Injector = (function () {
     function Injector() {
     }
     /**
@@ -52,10 +51,9 @@ var Injector = (function () {
      * expect(injector.get(Injector)).toBe(injector);
      * ```
      */
-    Injector.prototype.get = function (token, notFoundValue) { return exceptions_1.unimplemented(); };
+    Injector.prototype.get = function (token, notFoundValue) { return unimplemented(); };
     Injector.THROW_IF_NOT_FOUND = _THROW_IF_NOT_FOUND;
     Injector.NULL = new _NullInjector();
     return Injector;
 }());
-exports.Injector = Injector;
 //# sourceMappingURL=injector.js.map

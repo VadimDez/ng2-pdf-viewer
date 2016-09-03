@@ -9,6 +9,12 @@ export declare type JQueryStyleEventEmitter = {
     off: (eventName: string, handler: Function) => void;
 };
 export declare type EventTargetLike = EventTarget | NodeStyleEventEmmitter | JQueryStyleEventEmitter | NodeList | HTMLCollection;
+export declare type EventListenerOptions = {
+    capture?: boolean;
+    passive?: boolean;
+    once?: boolean;
+} | boolean;
+export declare type SelectorMethodSignature<T> = (...args: Array<any>) => T;
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -18,17 +24,12 @@ export declare class FromEventObservable<T, R> extends Observable<T> {
     private sourceObj;
     private eventName;
     private selector;
-    /**
-     * @param sourceObj
-     * @param eventName
-     * @param selector
-     * @return {FromEventObservable}
-     * @static true
-     * @name fromEvent
-     * @owner Observable
-     */
-    static create<T>(sourceObj: EventTargetLike, eventName: string, selector?: (...args: Array<any>) => T): Observable<T>;
-    constructor(sourceObj: EventTargetLike, eventName: string, selector?: (...args: Array<any>) => T);
-    private static setupSubscription<T>(sourceObj, eventName, handler, subscriber);
+    private options;
+    static create<T>(target: EventTargetLike, eventName: string): Observable<T>;
+    static create<T>(target: EventTargetLike, eventName: string, selector: SelectorMethodSignature<T>): Observable<T>;
+    static create<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions): Observable<T>;
+    static create<T>(target: EventTargetLike, eventName: string, options: EventListenerOptions, selector: SelectorMethodSignature<T>): Observable<T>;
+    constructor(sourceObj: EventTargetLike, eventName: string, selector?: SelectorMethodSignature<T>, options?: EventListenerOptions);
+    private static setupSubscription<T>(sourceObj, eventName, handler, subscriber, options?);
     protected _subscribe(subscriber: Subscriber<T>): void;
 }

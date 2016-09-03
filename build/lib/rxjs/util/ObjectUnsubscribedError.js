@@ -16,8 +16,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 var ObjectUnsubscribedError = (function (_super) {
     __extends(ObjectUnsubscribedError, _super);
     function ObjectUnsubscribedError() {
-        _super.call(this, 'object unsubscribed');
-        this.name = 'ObjectUnsubscribedError';
+        var err = _super.call(this, 'object unsubscribed');
+        this.name = err.name = 'ObjectUnsubscribedError';
+        this.stack = err.stack;
+        this.message = err.message;
     }
     return ObjectUnsubscribedError;
 }(Error));

@@ -7,15 +7,22 @@
  */
 import * as html from '../../ml_parser/ast';
 import * as i18n from '../i18n_ast';
+import { MessageBundle } from '../message_bundle';
 export interface Serializer {
     write(messageMap: {
         [id: string]: i18n.Message;
     }): string;
-    load(content: string, url: string, placeholders: {
-        [id: string]: {
-            [name: string]: string;
-        };
-    }): {
+    load(content: string, url: string, messageBundle: MessageBundle): {
         [id: string]: html.Node[];
     };
 }
+export declare function extractPlaceholders(messageBundle: MessageBundle): {
+    [id: string]: {
+        [name: string]: string;
+    };
+};
+export declare function extractPlaceholderToIds(messageBundle: MessageBundle): {
+    [id: string]: {
+        [name: string]: string;
+    };
+};

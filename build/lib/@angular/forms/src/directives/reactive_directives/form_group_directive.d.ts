@@ -14,9 +14,8 @@ import { NgControl } from '../ng_control';
 import { FormArrayName, FormGroupName } from './form_group_name';
 export declare const formDirectiveProvider: any;
 /**
- * Binds an existing form group to a DOM element.
- *
- * ### Example ([live demo](http://plnkr.co/edit/jqrVirudY8anJxTMUjTP?p=preview))
+ * Binds an existing form group to a DOM element.  It requires importing the {@link
+ * ReactiveFormsModule}.
  *
  * In this example, we bind the form group to the form element, and we bind the login and
  * password controls to the login and password elements.
@@ -32,10 +31,9 @@ export declare const formDirectiveProvider: any;
  *         <p>Password: <input type="password" formControlName="password"></p>
  *       </form>
  *       <p>Value:</p>
- *       <pre>{{value}}</pre>
+ *       <pre>{{ loginForm.value | json}}</pre>
  *     </div>
- *   `,
- *   directives: [REACTIVE_FORM_DIRECTIVES]
+ *   `
  * })
  * export class App {
  *   loginForm: FormGroup;
@@ -47,35 +45,33 @@ export declare const formDirectiveProvider: any;
  *     });
  *   }
  *
- *   get value(): string {
- *     return JSON.stringify(this.loginForm.value, null, 2);
- *   }
  * }
  *  ```
  *
- * We can also use ngModel to bind a domain model to the form.
+ * We can also use setValue() to populate the form programmatically.
  *
  *  ```typescript
  * @Component({
  *      selector: "login-comp",
- *      directives: [REACTIVE_FORM_DIRECTIVES],
  *      template: `
  *        <form [formGroup]='loginForm'>
- *          Login <input type='text' formControlName='login' [(ngModel)]='credentials.login'>
- *          Password <input type='password' formControlName='password'
- *                          [(ngModel)]='credentials.password'>
+ *          Login <input type='text' formControlName='login'>
+ *          Password <input type='password' formControlName='password'>
  *          <button (click)="onLogin()">Login</button>
  *        </form>`
  *      })
  * class LoginComp {
- *  credentials: {login: string, password: string};
  *  loginForm: FormGroup;
  *
  *  constructor() {
  *    this.loginForm = new FormGroup({
- *      login: new FormControl(""),
- *      password: new FormControl("")
+ *      login: new FormControl(''),
+ *      password: new FormControl('')
  *    });
+ *  }
+ *
+ *  populate() {
+ *    this.loginForm.setValue({ login: 'some login', password: 'some password'});
  *  }
  *
  *  onLogin(): void {
@@ -85,7 +81,7 @@ export declare const formDirectiveProvider: any;
  * }
  *  ```
  *
- *  @experimental
+ *  @stable
  */
 export declare class FormGroupDirective extends ControlContainer implements Form, OnChanges {
     private _validators;
@@ -112,5 +108,6 @@ export declare class FormGroupDirective extends ControlContainer implements Form
     updateModel(dir: NgControl, value: any): void;
     onSubmit(): boolean;
     onReset(): void;
+    resetForm(value?: any): void;
     private _checkFormPresent();
 }

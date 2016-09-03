@@ -5,19 +5,17 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var o = require('./output_ast');
+import { StringWrapper, isBlank, isPresent, isString } from '../facade/lang';
+import * as o from './output_ast';
 var _SINGLE_QUOTE_ESCAPE_STRING_RE = /'|\\|\n|\r|\$/g;
-exports.CATCH_ERROR_VAR = o.variable('error');
-exports.CATCH_STACK_VAR = o.variable('stack');
-var OutputEmitter = (function () {
+var _LEGAL_IDENTIFIER_RE = /^[$A-Z_][0-9A-Z_$]*$/i;
+export var CATCH_ERROR_VAR = o.variable('error');
+export var CATCH_STACK_VAR = o.variable('stack');
+export var OutputEmitter = (function () {
     function OutputEmitter() {
     }
     return OutputEmitter;
 }());
-exports.OutputEmitter = OutputEmitter;
 var _EmittedLine = (function () {
     function _EmittedLine(indent) {
         this.indent = indent;
@@ -25,7 +23,7 @@ var _EmittedLine = (function () {
     }
     return _EmittedLine;
 }());
-var EmitterVisitorContext = (function () {
+export var EmitterVisitorContext = (function () {
     function EmitterVisitorContext(_exportedVars, _indent) {
         this._exportedVars = _exportedVars;
         this._indent = _indent;
@@ -95,8 +93,7 @@ var EmitterVisitorContext = (function () {
     };
     return EmitterVisitorContext;
 }());
-exports.EmitterVisitorContext = EmitterVisitorContext;
-var AbstractEmitterVisitor = (function () {
+export var AbstractEmitterVisitor = (function () {
     function AbstractEmitterVisitor(_escapeDollarInStrings) {
         this._escapeDollarInStrings = _escapeDollarInStrings;
     }
@@ -115,7 +112,7 @@ var AbstractEmitterVisitor = (function () {
         ctx.print("if (");
         stmt.condition.visitExpression(this, ctx);
         ctx.print(") {");
-        var hasElseCase = lang_1.isPresent(stmt.falseCase) && stmt.falseCase.length > 0;
+        var hasElseCase = isPresent(stmt.falseCase) && stmt.falseCase.length > 0;
         if (stmt.trueCase.length <= 1 && !hasElseCase) {
             ctx.print(" ");
             this.visitAllStatements(stmt.trueCase, ctx);
@@ -191,9 +188,9 @@ var AbstractEmitterVisitor = (function () {
     AbstractEmitterVisitor.prototype.visitInvokeMethodExpr = function (expr, ctx) {
         expr.receiver.visitExpression(this, ctx);
         var name = expr.name;
-        if (lang_1.isPresent(expr.builtin)) {
+        if (isPresent(expr.builtin)) {
             name = this.getBuiltinMethodName(expr.builtin);
-            if (lang_1.isBlank(name)) {
+            if (isBlank(name)) {
                 // some builtins just mean to skip the call.
                 return null;
             }
@@ -212,7 +209,7 @@ var AbstractEmitterVisitor = (function () {
     };
     AbstractEmitterVisitor.prototype.visitReadVarExpr = function (ast, ctx) {
         var varName = ast.name;
-        if (lang_1.isPresent(ast.builtin)) {
+        if (isPresent(ast.builtin)) {
             switch (ast.builtin) {
                 case o.BuiltinVar.Super:
                     varName = 'super';
@@ -221,13 +218,13 @@ var AbstractEmitterVisitor = (function () {
                     varName = 'this';
                     break;
                 case o.BuiltinVar.CatchError:
-                    varName = exports.CATCH_ERROR_VAR.name;
+                    varName = CATCH_ERROR_VAR.name;
                     break;
                 case o.BuiltinVar.CatchStack:
-                    varName = exports.CATCH_STACK_VAR.name;
+                    varName = CATCH_STACK_VAR.name;
                     break;
                 default:
-                    throw new exceptions_1.BaseException("Unknown builtin variable " + ast.builtin);
+                    throw new Error("Unknown builtin variable " + ast.builtin);
             }
         }
         ctx.print(varName);
@@ -241,13 +238,14 @@ var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
-    AbstractEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
+    AbstractEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx, absentValue) {
+        if (absentValue === void 0) { absentValue = 'null'; }
         var value = ast.value;
-        if (lang_1.isString(value)) {
-            ctx.print(escapeSingleQuoteString(value, this._escapeDollarInStrings));
+        if (isString(value)) {
+            ctx.print(escapeIdentifier(value, this._escapeDollarInStrings));
         }
-        else if (lang_1.isBlank(value)) {
-            ctx.print('null');
+        else if (isBlank(value)) {
+            ctx.print(absentValue);
         }
         else {
             ctx.print("" + value);
@@ -318,7 +316,7 @@ var AbstractEmitterVisitor = (function () {
                 opStr = '>=';
                 break;
             default:
-                throw new exceptions_1.BaseException("Unknown operator " + ast.operator);
+                throw new Error("Unknown operator " + ast.operator);
         }
         ctx.print("(");
         ast.lhs.visitExpression(this, ctx);
@@ -355,7 +353,7 @@ var AbstractEmitterVisitor = (function () {
         ctx.print("{", useNewLine);
         ctx.incIndent();
         this.visitAllObjects(function (entry /** TODO #9100 */) {
-            ctx.print(escapeSingleQuoteString(entry[0], _this._escapeDollarInStrings) + ": ");
+            ctx.print(escapeIdentifier(entry[0], _this._escapeDollarInStrings, false) + ": ");
             entry[1].visitExpression(_this, ctx);
         }, ast.entries, ctx, ',', useNewLine);
         ctx.decIndent();
@@ -385,12 +383,12 @@ var AbstractEmitterVisitor = (function () {
     };
     return AbstractEmitterVisitor;
 }());
-exports.AbstractEmitterVisitor = AbstractEmitterVisitor;
-function escapeSingleQuoteString(input, escapeDollar) {
-    if (lang_1.isBlank(input)) {
+export function escapeIdentifier(input, escapeDollar, alwaysQuote) {
+    if (alwaysQuote === void 0) { alwaysQuote = true; }
+    if (isBlank(input)) {
         return null;
     }
-    var body = lang_1.StringWrapper.replaceAllMapped(input, _SINGLE_QUOTE_ESCAPE_STRING_RE, function (match /** TODO #9100 */) {
+    var body = StringWrapper.replaceAllMapped(input, _SINGLE_QUOTE_ESCAPE_STRING_RE, function (match /** TODO #9100 */) {
         if (match[0] == '$') {
             return escapeDollar ? '\\$' : '$';
         }
@@ -404,9 +402,9 @@ function escapeSingleQuoteString(input, escapeDollar) {
             return "\\" + match[0];
         }
     });
-    return "'" + body + "'";
+    var requiresQuotes = alwaysQuote || !_LEGAL_IDENTIFIER_RE.test(body);
+    return requiresQuotes ? "'" + body + "'" : body;
 }
-exports.escapeSingleQuoteString = escapeSingleQuoteString;
 function _createIndent(count) {
     var res = '';
     for (var i = 0; i < count; i++) {

@@ -1,6 +1,7 @@
 import {Operator} from '../Operator';
 import {Subscriber} from '../Subscriber';
 import {Observable} from '../Observable';
+import {TeardownLogic} from '../Subscription';
 
 /**
  * Returns an Observable that mirrors the source Observable, resubscribing to it if it calls `error` and the
@@ -32,7 +33,7 @@ class RetryOperator<T> implements Operator<T, T> {
               private source: Observable<T>) {
   }
 
-  call(subscriber: Subscriber<T>, source: any): any {
+  call(subscriber: Subscriber<T>, source: any): TeardownLogic {
     return source._subscribe(new RetrySubscriber(subscriber, this.count, this.source));
   }
 }
@@ -58,7 +59,7 @@ class RetrySubscriber<T> extends Subscriber<T> {
       }
       this.unsubscribe();
       this.isStopped = false;
-      this.isUnsubscribed = false;
+      this.closed = false;
       source.subscribe(this);
     }
   }

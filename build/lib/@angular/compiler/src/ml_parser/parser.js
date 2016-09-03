@@ -5,20 +5,19 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var parse_util_1 = require('../parse_util');
-var html = require('./ast');
-var interpolation_config_1 = require('./interpolation_config');
-var lex = require('./lexer');
-var tags_1 = require('./tags');
-var TreeError = (function (_super) {
+import { ListWrapper } from '../facade/collection';
+import { isBlank, isPresent } from '../facade/lang';
+import { ParseError, ParseSourceSpan } from '../parse_util';
+import * as html from './ast';
+import { DEFAULT_INTERPOLATION_CONFIG } from './interpolation_config';
+import * as lex from './lexer';
+import { getNsPrefix, mergeNsAndName } from './tags';
+export var TreeError = (function (_super) {
     __extends(TreeError, _super);
     function TreeError(elementName, span, msg) {
         _super.call(this, span, msg);
@@ -28,30 +27,27 @@ var TreeError = (function (_super) {
         return new TreeError(elementName, span, msg);
     };
     return TreeError;
-}(parse_util_1.ParseError));
-exports.TreeError = TreeError;
-var ParseTreeResult = (function () {
+}(ParseError));
+export var ParseTreeResult = (function () {
     function ParseTreeResult(rootNodes, errors) {
         this.rootNodes = rootNodes;
         this.errors = errors;
     }
     return ParseTreeResult;
 }());
-exports.ParseTreeResult = ParseTreeResult;
-var Parser = (function () {
-    function Parser(_getTagDefinition) {
-        this._getTagDefinition = _getTagDefinition;
+export var Parser = (function () {
+    function Parser(getTagDefinition) {
+        this.getTagDefinition = getTagDefinition;
     }
     Parser.prototype.parse = function (source, url, parseExpansionForms, interpolationConfig) {
         if (parseExpansionForms === void 0) { parseExpansionForms = false; }
-        if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
-        var tokensAndErrors = lex.tokenize(source, url, this._getTagDefinition, parseExpansionForms, interpolationConfig);
-        var treeAndErrors = new _TreeBuilder(tokensAndErrors.tokens, this._getTagDefinition).build();
+        if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
+        var tokensAndErrors = lex.tokenize(source, url, this.getTagDefinition, parseExpansionForms, interpolationConfig);
+        var treeAndErrors = new _TreeBuilder(tokensAndErrors.tokens, this.getTagDefinition).build();
         return new ParseTreeResult(treeAndErrors.rootNodes, tokensAndErrors.errors.concat(treeAndErrors.errors));
     };
     return Parser;
 }());
-exports.Parser = Parser;
 var _TreeBuilder = (function () {
     function _TreeBuilder(tokens, getTagDefinition) {
         this.tokens = tokens;
@@ -115,7 +111,7 @@ var _TreeBuilder = (function () {
     _TreeBuilder.prototype._consumeComment = function (token) {
         var text = this._advanceIf(lex.TokenType.RAW_TEXT);
         this._advanceIf(lex.TokenType.COMMENT_END);
-        var value = lang_1.isPresent(text) ? text.parts[0].trim() : null;
+        var value = isPresent(text) ? text.parts[0].trim() : null;
         this._addToParent(new html.Comment(value, token.sourceSpan));
     };
     _TreeBuilder.prototype._consumeExpansion = function (token) {
@@ -125,7 +121,7 @@ var _TreeBuilder = (function () {
         // read =
         while (this._peek.type === lex.TokenType.EXPANSION_CASE_VALUE) {
             var expCase = this._parseExpansionCase();
-            if (lang_1.isBlank(expCase))
+            if (isBlank(expCase))
                 return; // error
             cases.push(expCase);
         }
@@ -134,7 +130,7 @@ var _TreeBuilder = (function () {
             this._errors.push(TreeError.create(null, this._peek.sourceSpan, "Invalid ICU message. Missing '}'."));
             return;
         }
-        var sourceSpan = new parse_util_1.ParseSourceSpan(token.sourceSpan.start, this._peek.sourceSpan.end);
+        var sourceSpan = new ParseSourceSpan(token.sourceSpan.start, this._peek.sourceSpan.end);
         this._addToParent(new html.Expansion(switchValue.parts[0], type.parts[0], cases, sourceSpan, switchValue.sourceSpan));
         this._advance();
     };
@@ -148,7 +144,7 @@ var _TreeBuilder = (function () {
         // read until }
         var start = this._advance();
         var exp = this._collectExpansionExpTokens(start);
-        if (lang_1.isBlank(exp))
+        if (isBlank(exp))
             return null;
         var end = this._advance();
         exp.push(new lex.Token(lex.TokenType.EOF, [], end.sourceSpan));
@@ -158,8 +154,8 @@ var _TreeBuilder = (function () {
             this._errors = this._errors.concat(parsedExp.errors);
             return null;
         }
-        var sourceSpan = new parse_util_1.ParseSourceSpan(value.sourceSpan.start, end.sourceSpan.end);
-        var expSourceSpan = new parse_util_1.ParseSourceSpan(start.sourceSpan.start, end.sourceSpan.end);
+        var sourceSpan = new ParseSourceSpan(value.sourceSpan.start, end.sourceSpan.end);
+        var expSourceSpan = new ParseSourceSpan(start.sourceSpan.start, end.sourceSpan.end);
         return new html.ExpansionCase(value.parts[0], parsedExp.rootNodes, sourceSpan, value.sourceSpan, expSourceSpan);
     };
     _TreeBuilder.prototype._collectExpansionExpTokens = function (start) {
@@ -201,7 +197,7 @@ var _TreeBuilder = (function () {
         var text = token.parts[0];
         if (text.length > 0 && text[0] == '\n') {
             var parent_1 = this._getParentElement();
-            if (lang_1.isPresent(parent_1) && parent_1.children.length == 0 &&
+            if (isPresent(parent_1) && parent_1.children.length == 0 &&
                 this.getTagDefinition(parent_1.name).ignoreFirstLf) {
                 text = text.substring(1);
             }
@@ -212,7 +208,7 @@ var _TreeBuilder = (function () {
     };
     _TreeBuilder.prototype._closeVoidElement = function () {
         if (this._elementStack.length > 0) {
-            var el = collection_1.ListWrapper.last(this._elementStack);
+            var el = ListWrapper.last(this._elementStack);
             if (this.getTagDefinition(el.name).isVoid) {
                 this._elementStack.pop();
             }
@@ -233,7 +229,7 @@ var _TreeBuilder = (function () {
             this._advance();
             selfClosing = true;
             var tagDef = this.getTagDefinition(fullName);
-            if (!(tagDef.canSelfClose || tags_1.getNsPrefix(fullName) !== null || tagDef.isVoid)) {
+            if (!(tagDef.canSelfClose || getNsPrefix(fullName) !== null || tagDef.isVoid)) {
                 this._errors.push(TreeError.create(fullName, startTagToken.sourceSpan, "Only void and foreign elements can be self closed \"" + startTagToken.parts[1] + "\""));
             }
         }
@@ -242,7 +238,7 @@ var _TreeBuilder = (function () {
             selfClosing = false;
         }
         var end = this._peek.sourceSpan.start;
-        var span = new parse_util_1.ParseSourceSpan(startTagToken.sourceSpan.start, end);
+        var span = new ParseSourceSpan(startTagToken.sourceSpan.start, end);
         var el = new html.Element(fullName, attrs, [], span, span, null);
         this._pushElement(el);
         if (selfClosing) {
@@ -252,14 +248,14 @@ var _TreeBuilder = (function () {
     };
     _TreeBuilder.prototype._pushElement = function (el) {
         if (this._elementStack.length > 0) {
-            var parentEl = collection_1.ListWrapper.last(this._elementStack);
+            var parentEl = ListWrapper.last(this._elementStack);
             if (this.getTagDefinition(parentEl.name).isClosedByChild(el.name)) {
                 this._elementStack.pop();
             }
         }
         var tagDef = this.getTagDefinition(el.name);
         var _a = this._getParentElementSkippingContainers(), parent = _a.parent, container = _a.container;
-        if (lang_1.isPresent(parent) && tagDef.requireExtraParent(parent.name)) {
+        if (isPresent(parent) && tagDef.requireExtraParent(parent.name)) {
             var newParent = new html.Element(tagDef.parentToAdd, [], [], el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
             this._insertBeforeContainer(parent, container, newParent);
         }
@@ -282,7 +278,7 @@ var _TreeBuilder = (function () {
         for (var stackIndex = this._elementStack.length - 1; stackIndex >= 0; stackIndex--) {
             var el = this._elementStack[stackIndex];
             if (el.name == fullName) {
-                collection_1.ListWrapper.splice(this._elementStack, stackIndex, this._elementStack.length - stackIndex);
+                ListWrapper.splice(this._elementStack, stackIndex, this._elementStack.length - stackIndex);
                 return true;
             }
             if (!this.getTagDefinition(el.name).closedByParent) {
@@ -292,7 +288,7 @@ var _TreeBuilder = (function () {
         return false;
     };
     _TreeBuilder.prototype._consumeAttr = function (attrName) {
-        var fullName = tags_1.mergeNsAndName(attrName.parts[0], attrName.parts[1]);
+        var fullName = mergeNsAndName(attrName.parts[0], attrName.parts[1]);
         var end = attrName.sourceSpan.end;
         var value = '';
         if (this._peek.type === lex.TokenType.ATTR_VALUE) {
@@ -300,10 +296,10 @@ var _TreeBuilder = (function () {
             value = valueToken.parts[0];
             end = valueToken.sourceSpan.end;
         }
-        return new html.Attribute(fullName, value, new parse_util_1.ParseSourceSpan(attrName.sourceSpan.start, end));
+        return new html.Attribute(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
     };
     _TreeBuilder.prototype._getParentElement = function () {
-        return this._elementStack.length > 0 ? collection_1.ListWrapper.last(this._elementStack) : null;
+        return this._elementStack.length > 0 ? ListWrapper.last(this._elementStack) : null;
     };
     /**
      * Returns the parent in the DOM and the container.
@@ -318,11 +314,11 @@ var _TreeBuilder = (function () {
             }
             container = this._elementStack[i];
         }
-        return { parent: collection_1.ListWrapper.last(this._elementStack), container: container };
+        return { parent: ListWrapper.last(this._elementStack), container: container };
     };
     _TreeBuilder.prototype._addToParent = function (node) {
         var parent = this._getParentElement();
-        if (lang_1.isPresent(parent)) {
+        if (isPresent(parent)) {
             parent.children.push(node);
         }
         else {
@@ -355,13 +351,13 @@ var _TreeBuilder = (function () {
         }
     };
     _TreeBuilder.prototype._getElementFullName = function (prefix, localName, parentElement) {
-        if (lang_1.isBlank(prefix)) {
+        if (isBlank(prefix)) {
             prefix = this.getTagDefinition(localName).implicitNamespacePrefix;
-            if (lang_1.isBlank(prefix) && lang_1.isPresent(parentElement)) {
-                prefix = tags_1.getNsPrefix(parentElement.name);
+            if (isBlank(prefix) && isPresent(parentElement)) {
+                prefix = getNsPrefix(parentElement.name);
             }
         }
-        return tags_1.mergeNsAndName(prefix, localName);
+        return mergeNsAndName(prefix, localName);
     };
     return _TreeBuilder;
 }());

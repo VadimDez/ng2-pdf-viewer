@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var o = require('../output/output_ast');
+import { ListWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
+import * as o from '../output/output_ast';
 var _DebugState = (function () {
     function _DebugState(nodeIndex, sourceAst) {
         this.nodeIndex = nodeIndex;
@@ -17,7 +16,7 @@ var _DebugState = (function () {
     return _DebugState;
 }());
 var NULL_DEBUG_STATE = new _DebugState(null, null);
-var CompileMethod = (function () {
+export var CompileMethod = (function () {
     function CompileMethod(_view) {
         this._view = _view;
         this._newState = NULL_DEBUG_STATE;
@@ -29,7 +28,7 @@ var CompileMethod = (function () {
         if (this._newState.nodeIndex !== this._currState.nodeIndex ||
             this._newState.sourceAst !== this._currState.sourceAst) {
             var expr = this._updateDebugContext(this._newState);
-            if (lang_1.isPresent(expr)) {
+            if (isPresent(expr)) {
                 this._bodyStatements.push(expr.toStmt());
             }
         }
@@ -37,11 +36,11 @@ var CompileMethod = (function () {
     CompileMethod.prototype._updateDebugContext = function (newState) {
         this._currState = this._newState = newState;
         if (this._debugEnabled) {
-            var sourceLocation = lang_1.isPresent(newState.sourceAst) ? newState.sourceAst.sourceSpan.start : null;
+            var sourceLocation = isPresent(newState.sourceAst) ? newState.sourceAst.sourceSpan.start : null;
             return o.THIS_EXPR.callMethod('debug', [
                 o.literal(newState.nodeIndex),
-                lang_1.isPresent(sourceLocation) ? o.literal(sourceLocation.line) : o.NULL_EXPR,
-                lang_1.isPresent(sourceLocation) ? o.literal(sourceLocation.col) : o.NULL_EXPR
+                isPresent(sourceLocation) ? o.literal(sourceLocation.line) : o.NULL_EXPR,
+                isPresent(sourceLocation) ? o.literal(sourceLocation.col) : o.NULL_EXPR
             ]);
         }
         else {
@@ -50,7 +49,7 @@ var CompileMethod = (function () {
     };
     CompileMethod.prototype.resetDebugInfoExpr = function (nodeIndex, templateAst) {
         var res = this._updateDebugContext(new _DebugState(nodeIndex, templateAst));
-        return lang_1.isPresent(res) ? res : o.NULL_EXPR;
+        return isPresent(res) ? res : o.NULL_EXPR;
     };
     CompileMethod.prototype.resetDebugInfo = function (nodeIndex, templateAst) {
         this._newState = new _DebugState(nodeIndex, templateAst);
@@ -61,11 +60,10 @@ var CompileMethod = (function () {
     };
     CompileMethod.prototype.addStmts = function (stmts) {
         this._updateDebugContextIfNeeded();
-        collection_1.ListWrapper.addAll(this._bodyStatements, stmts);
+        ListWrapper.addAll(this._bodyStatements, stmts);
     };
     CompileMethod.prototype.finish = function () { return this._bodyStatements; };
     CompileMethod.prototype.isEmpty = function () { return this._bodyStatements.length === 0; };
     return CompileMethod;
 }());
-exports.CompileMethod = CompileMethod;
 //# sourceMappingURL=compile_method.js.map

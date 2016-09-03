@@ -5,25 +5,23 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var identifiers_1 = require('../identifiers');
-var o = require('../output/output_ast');
-var util_1 = require('../util');
-function getPropertyInView(property, callingView, definedView) {
+import { isBlank, isPresent } from '../facade/lang';
+import { Identifiers, resolveIdentifier } from '../identifiers';
+import * as o from '../output/output_ast';
+import { createDiTokenExpression } from '../util';
+export function getPropertyInView(property, callingView, definedView) {
     if (callingView === definedView) {
         return property;
     }
     else {
         var viewProp = o.THIS_EXPR;
         var currView = callingView;
-        while (currView !== definedView && lang_1.isPresent(currView.declarationElement.view)) {
+        while (currView !== definedView && isPresent(currView.declarationElement.view)) {
             currView = currView.declarationElement.view;
             viewProp = viewProp.prop('parent');
         }
         if (currView !== definedView) {
-            throw new exceptions_1.BaseException("Internal error: Could not calculate a property in a parent view: " + property);
+            throw new Error("Internal error: Could not calculate a property in a parent view: " + property);
         }
         if (property instanceof o.ReadPropExpr) {
             var readPropExpr_1 = property;
@@ -36,20 +34,17 @@ function getPropertyInView(property, callingView, definedView) {
         return o.replaceVarInExpression(o.THIS_EXPR.name, viewProp, property);
     }
 }
-exports.getPropertyInView = getPropertyInView;
-function injectFromViewParentInjector(token, optional) {
-    var args = [util_1.createDiTokenExpression(token)];
+export function injectFromViewParentInjector(token, optional) {
+    var args = [createDiTokenExpression(token)];
     if (optional) {
         args.push(o.NULL_EXPR);
     }
     return o.THIS_EXPR.prop('parentInjector').callMethod('get', args);
 }
-exports.injectFromViewParentInjector = injectFromViewParentInjector;
-function getViewFactoryName(component, embeddedTemplateIndex) {
+export function getViewFactoryName(component, embeddedTemplateIndex) {
     return "viewFactory_" + component.type.name + embeddedTemplateIndex;
 }
-exports.getViewFactoryName = getViewFactoryName;
-function createFlatArray(expressions) {
+export function createFlatArray(expressions) {
     var lastNonArrayExpressions = [];
     var result = o.literalArr([]);
     for (var i = 0; i < expressions.length; i++) {
@@ -72,14 +67,14 @@ function createFlatArray(expressions) {
     }
     return result;
 }
-exports.createFlatArray = createFlatArray;
-function createPureProxy(fn, argCount, pureProxyProp, view) {
+export function createPureProxy(fn, argCount, pureProxyProp, view) {
     view.fields.push(new o.ClassField(pureProxyProp.name, null));
-    var pureProxyId = argCount < identifiers_1.Identifiers.pureProxies.length ? identifiers_1.Identifiers.pureProxies[argCount] : null;
-    if (lang_1.isBlank(pureProxyId)) {
-        throw new exceptions_1.BaseException("Unsupported number of argument for pure functions: " + argCount);
+    var pureProxyId = argCount < Identifiers.pureProxies.length ? Identifiers.pureProxies[argCount] : null;
+    if (isBlank(pureProxyId)) {
+        throw new Error("Unsupported number of argument for pure functions: " + argCount);
     }
-    view.createMethod.addStmt(o.THIS_EXPR.prop(pureProxyProp.name).set(o.importExpr(pureProxyId).callFn([fn])).toStmt());
+    view.createMethod.addStmt(o.THIS_EXPR.prop(pureProxyProp.name)
+        .set(o.importExpr(resolveIdentifier(pureProxyId)).callFn([fn]))
+        .toStmt());
 }
-exports.createPureProxy = createPureProxy;
 //# sourceMappingURL=util.js.map

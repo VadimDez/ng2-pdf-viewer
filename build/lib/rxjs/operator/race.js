@@ -83,8 +83,10 @@ var RaceSubscriber = (function (_super) {
             for (var i = 0; i < len; i++) {
                 var observable = observables[i];
                 var subscription = subscribeToResult_1.subscribeToResult(this, observable, observable, i);
-                this.subscriptions.push(subscription);
-                this.add(subscription);
+                if (this.subscriptions) {
+                    this.subscriptions.push(subscription);
+                    this.add(subscription);
+                }
             }
             this.observables = null;
         }

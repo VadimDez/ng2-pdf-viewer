@@ -89,7 +89,7 @@ export class ArrayObservable<T> extends Observable<T> {
 
     subscriber.next(array[index]);
 
-    if (subscriber.isUnsubscribed) {
+    if (subscriber.closed) {
       return;
     }
 
@@ -101,7 +101,7 @@ export class ArrayObservable<T> extends Observable<T> {
   // value used if Array has one value and _isScalar
   value: any;
 
-  constructor(public array: T[], public scheduler?: Scheduler) {
+  constructor(private array: T[], private scheduler?: Scheduler) {
     super();
     if (!scheduler && array.length === 1) {
       this._isScalar = true;
@@ -120,7 +120,7 @@ export class ArrayObservable<T> extends Observable<T> {
         array, index, count, subscriber
       });
     } else {
-      for (let i = 0; i < count && !subscriber.isUnsubscribed; i++) {
+      for (let i = 0; i < count && !subscriber.closed; i++) {
         subscriber.next(array[i]);
       }
       subscriber.complete();

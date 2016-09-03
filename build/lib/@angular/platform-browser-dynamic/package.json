@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "@angular/platform-browser-dynamic@2.0.0-rc.5",
+      "@angular/platform-browser-dynamic@^2.0.0-rc.6",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/platform-browser-dynamic@2.0.0-rc.5",
-  "_id": "@angular/platform-browser-dynamic@2.0.0-rc.5",
+  "_from": "@angular/platform-browser-dynamic@>=2.0.0-rc.6 <3.0.0",
+  "_id": "@angular/platform-browser-dynamic@2.0.0-rc.6",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/platform-browser-dynamic",
   "_nodeVersion": "5.4.1",
   "_npmOperationalInternal": {
-    "host": "packages-16-east.internal.npmjs.com",
-    "tmp": "tmp/platform-browser-dynamic-2.0.0-rc.5.tgz_1470759653256_0.1995631034951657"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/platform-browser-dynamic-2.0.0-rc.6.tgz_1472686629007_0.46484073251485825"
   },
   "_npmUser": {
     "email": "angular-core+npm@google.com",
@@ -23,19 +23,19 @@
   "_phantomChildren": {},
   "_requested": {
     "name": "@angular/platform-browser-dynamic",
-    "raw": "@angular/platform-browser-dynamic@2.0.0-rc.5",
-    "rawSpec": "2.0.0-rc.5",
+    "raw": "@angular/platform-browser-dynamic@^2.0.0-rc.6",
+    "rawSpec": "^2.0.0-rc.6",
     "scope": "@angular",
-    "spec": "2.0.0-rc.5",
-    "type": "version"
+    "spec": ">=2.0.0-rc.6 <3.0.0",
+    "type": "range"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.0.0-rc.5.tgz",
-  "_shasum": "4a5362679a9378600a1cc012030f2bc51555f530",
+  "_resolved": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.0.0-rc.6.tgz",
+  "_shasum": "f37605fe2e666c6782267a1d7fe268f9ef1ada17",
   "_shrinkwrap": null,
-  "_spec": "@angular/platform-browser-dynamic@2.0.0-rc.5",
+  "_spec": "@angular/platform-browser-dynamic@^2.0.0-rc.6",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -44,30 +44,30 @@
     "url": "https://github.com/angular/angular/issues"
   },
   "dependencies": {},
-  "description": "",
+  "description": "Angular 2 platform-browser-dynamic",
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "4a5362679a9378600a1cc012030f2bc51555f530",
-    "tarball": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.0.0-rc.5.tgz"
+    "shasum": "f37605fe2e666c6782267a1d7fe268f9ef1ada17",
+    "tarball": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.0.0-rc.6.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
-  "jsnext:main": "esm/index.js",
   "license": "MIT",
-  "main": "index.js",
+  "main": "bundles/platform-browser-dynamic.umd.js",
   "maintainers": [
     {
       "email": "angular-core+npm@google.com",
       "name": "angular"
     }
   ],
+  "module": "index.js",
   "name": "@angular/platform-browser-dynamic",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/common": "^2.0.0-rc.5",
-    "@angular/compiler": "^2.0.0-rc.5",
-    "@angular/core": "^2.0.0-rc.5",
-    "@angular/platform-browser": "^2.0.0-rc.5"
+    "@angular/common": "^2.0.0-rc.6",
+    "@angular/compiler": "^2.0.0-rc.6",
+    "@angular/core": "^2.0.0-rc.6",
+    "@angular/platform-browser": "^2.0.0-rc.6"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -76,5 +76,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.0.0-rc.5"
+  "version": "2.0.0-rc.6"
 }

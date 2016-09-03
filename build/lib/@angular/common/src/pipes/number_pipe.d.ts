@@ -33,9 +33,11 @@ import { PipeTransform } from '@angular/core';
  *
  * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='NumberPipe'}
  *
- * @experimental
+ * @stable
  */
 export declare class DecimalPipe implements PipeTransform {
+    private _locale;
+    constructor(_locale: string);
     transform(value: any, digits?: string): string;
 }
 /**
@@ -55,9 +57,11 @@ export declare class DecimalPipe implements PipeTransform {
  *
  * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='PercentPipe'}
  *
- * @experimental
+ * @stable
  */
 export declare class PercentPipe implements PipeTransform {
+    private _locale;
+    constructor(_locale: string);
     transform(value: any, digits?: string): string;
 }
 /**
@@ -82,8 +86,10 @@ export declare class PercentPipe implements PipeTransform {
  *
  * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='CurrencyPipe'}
  *
- * @experimental
+ * @stable
  */
 export declare class CurrencyPipe implements PipeTransform {
+    private _locale;
+    constructor(_locale: string);
     transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string;
 }

@@ -7,10 +7,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppComponent } from './app/app.component';
 import { MDL } from './app/mdl';
+import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 @NgModule({
   imports: [BrowserModule, FormsModule],
-  declarations: [MDL, AppComponent],
+  declarations: [MDL, AppComponent, PdfViewerComponent],
   bootstrap: [AppComponent]
 })
 

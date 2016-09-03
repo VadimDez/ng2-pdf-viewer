@@ -14,57 +14,52 @@ var EmptyObservable_1 = require('./EmptyObservable');
  */
 var ArrayLikeObservable = (function (_super) {
     __extends(ArrayLikeObservable, _super);
-    function ArrayLikeObservable(arrayLike, mapFn, thisArg, scheduler) {
+    function ArrayLikeObservable(arrayLike, scheduler) {
         _super.call(this);
         this.arrayLike = arrayLike;
         this.scheduler = scheduler;
-        if (!mapFn && !scheduler && arrayLike.length === 1) {
+        if (!scheduler && arrayLike.length === 1) {
             this._isScalar = true;
             this.value = arrayLike[0];
         }
-        if (mapFn) {
-            this.mapFn = mapFn.bind(thisArg);
-        }
     }
-    ArrayLikeObservable.create = function (arrayLike, mapFn, thisArg, scheduler) {
+    ArrayLikeObservable.create = function (arrayLike, scheduler) {
         var length = arrayLike.length;
         if (length === 0) {
             return new EmptyObservable_1.EmptyObservable();
         }
-        else if (length === 1 && !mapFn) {
+        else if (length === 1) {
             return new ScalarObservable_1.ScalarObservable(arrayLike[0], scheduler);
         }
         else {
-            return new ArrayLikeObservable(arrayLike, mapFn, thisArg, scheduler);
+            return new ArrayLikeObservable(arrayLike, scheduler);
         }
     };
     ArrayLikeObservable.dispatch = function (state) {
-        var arrayLike = state.arrayLike, index = state.index, length = state.length, mapFn = state.mapFn, subscriber = state.subscriber;
-        if (subscriber.isUnsubscribed) {
+        var arrayLike = state.arrayLike, index = state.index, length = state.length, subscriber = state.subscriber;
+        if (subscriber.closed) {
             return;
         }
         if (index >= length) {
             subscriber.complete();
             return;
         }
-        var result = mapFn ? mapFn(arrayLike[index], index) : arrayLike[index];
-        subscriber.next(result);
+        subscriber.next(arrayLike[index]);
         state.index = index + 1;
         this.schedule(state);
     };
     ArrayLikeObservable.prototype._subscribe = function (subscriber) {
         var index = 0;
-        var _a = this, arrayLike = _a.arrayLike, mapFn = _a.mapFn, scheduler = _a.scheduler;
+        var _a = this, arrayLike = _a.arrayLike, scheduler = _a.scheduler;
         var length = arrayLike.length;
         if (scheduler) {
             return scheduler.schedule(ArrayLikeObservable.dispatch, 0, {
-                arrayLike: arrayLike, index: index, length: length, mapFn: mapFn, subscriber: subscriber
+                arrayLike: arrayLike, index: index, length: length, subscriber: subscriber
             });
         }
         else {
-            for (var i = 0; i < length && !subscriber.isUnsubscribed; i++) {
-                var result = mapFn ? mapFn(arrayLike[i], i) : arrayLike[i];
-                subscriber.next(result);
+            for (var i = 0; i < length && !subscriber.closed; i++) {
+                subscriber.next(arrayLike[i]);
             }
             subscriber.complete();
         }

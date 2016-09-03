@@ -5,11 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var collection_1 = require('../facade/collection');
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var profile_1 = require('../profile/profile');
+import { ListWrapper } from '../facade/collection';
+import { unimplemented } from '../facade/errors';
+import { isPresent } from '../facade/lang';
+import { wtfCreateScope, wtfLeave } from '../profile/profile';
 /**
  * Represents a container where one or more Views can be attached.
  *
@@ -28,7 +27,7 @@ var profile_1 = require('../profile/profile');
  * with `ViewContainerRef` on the Element, or you obtain it via a {@link ViewChild} query.
  * @stable
  */
-var ViewContainerRef = (function () {
+export var ViewContainerRef = (function () {
     function ViewContainerRef() {
     }
     Object.defineProperty(ViewContainerRef.prototype, "element", {
@@ -36,17 +35,17 @@ var ViewContainerRef = (function () {
          * Anchor element that specifies the location of this container in the containing View.
          * <!-- TODO: rename to anchorElement -->
          */
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ViewContainerRef.prototype, "injector", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ViewContainerRef.prototype, "parentInjector", {
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
@@ -54,31 +53,30 @@ var ViewContainerRef = (function () {
         /**
          * Returns the number of Views currently attached to this container.
          */
-        get: function () { return exceptions_1.unimplemented(); },
+        get: function () { return unimplemented(); },
         enumerable: true,
         configurable: true
     });
     ;
     return ViewContainerRef;
 }());
-exports.ViewContainerRef = ViewContainerRef;
-var ViewContainerRef_ = (function () {
+export var ViewContainerRef_ = (function () {
     function ViewContainerRef_(_element) {
         this._element = _element;
         /** @internal */
-        this._createComponentInContainerScope = profile_1.wtfCreateScope('ViewContainerRef#createComponent()');
+        this._createComponentInContainerScope = wtfCreateScope('ViewContainerRef#createComponent()');
         /** @internal */
-        this._insertScope = profile_1.wtfCreateScope('ViewContainerRef#insert()');
+        this._insertScope = wtfCreateScope('ViewContainerRef#insert()');
         /** @internal */
-        this._removeScope = profile_1.wtfCreateScope('ViewContainerRef#remove()');
+        this._removeScope = wtfCreateScope('ViewContainerRef#remove()');
         /** @internal */
-        this._detachScope = profile_1.wtfCreateScope('ViewContainerRef#detach()');
+        this._detachScope = wtfCreateScope('ViewContainerRef#detach()');
     }
     ViewContainerRef_.prototype.get = function (index) { return this._element.nestedViews[index].ref; };
     Object.defineProperty(ViewContainerRef_.prototype, "length", {
         get: function () {
             var views = this._element.nestedViews;
-            return lang_1.isPresent(views) ? views.length : 0;
+            return isPresent(views) ? views.length : 0;
         },
         enumerable: true,
         configurable: true
@@ -112,10 +110,10 @@ var ViewContainerRef_ = (function () {
         if (injector === void 0) { injector = null; }
         if (projectableNodes === void 0) { projectableNodes = null; }
         var s = this._createComponentInContainerScope();
-        var contextInjector = lang_1.isPresent(injector) ? injector : this._element.parentInjector;
+        var contextInjector = isPresent(injector) ? injector : this._element.parentInjector;
         var componentRef = componentFactory.create(contextInjector, projectableNodes);
         this.insert(componentRef.hostView, index);
-        return profile_1.wtfLeave(s, componentRef);
+        return wtfLeave(s, componentRef);
     };
     // TODO(i): refactor insert+remove into move
     ViewContainerRef_.prototype.insert = function (viewRef, index) {
@@ -125,7 +123,7 @@ var ViewContainerRef_ = (function () {
             index = this.length;
         var viewRef_ = viewRef;
         this._element.attachView(viewRef_.internalView, index);
-        return profile_1.wtfLeave(s, viewRef_);
+        return wtfLeave(s, viewRef_);
     };
     ViewContainerRef_.prototype.move = function (viewRef, currentIndex) {
         var s = this._insertScope();
@@ -133,10 +131,10 @@ var ViewContainerRef_ = (function () {
             return;
         var viewRef_ = viewRef;
         this._element.moveView(viewRef_.internalView, currentIndex);
-        return profile_1.wtfLeave(s, viewRef_);
+        return wtfLeave(s, viewRef_);
     };
     ViewContainerRef_.prototype.indexOf = function (viewRef) {
-        return collection_1.ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
+        return ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
     };
     // TODO(i): rename to destroy
     ViewContainerRef_.prototype.remove = function (index) {
@@ -147,7 +145,7 @@ var ViewContainerRef_ = (function () {
         var view = this._element.detachView(index);
         view.destroy();
         // view is intentionally not returned to the client.
-        profile_1.wtfLeave(s);
+        wtfLeave(s);
     };
     // TODO(i): refactor insert+remove into move
     ViewContainerRef_.prototype.detach = function (index) {
@@ -156,7 +154,7 @@ var ViewContainerRef_ = (function () {
         if (index == -1)
             index = this.length - 1;
         var view = this._element.detachView(index);
-        return profile_1.wtfLeave(s, view.ref);
+        return wtfLeave(s, view.ref);
     };
     ViewContainerRef_.prototype.clear = function () {
         for (var i = this.length - 1; i >= 0; i--) {
@@ -165,5 +163,4 @@ var ViewContainerRef_ = (function () {
     };
     return ViewContainerRef_;
 }());
-exports.ViewContainerRef_ = ViewContainerRef_;
 //# sourceMappingURL=view_container_ref.js.map

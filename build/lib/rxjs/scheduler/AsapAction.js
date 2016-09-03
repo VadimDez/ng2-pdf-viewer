@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Immediate_1 = require('../util/Immediate');
-var FutureAction_1 = require('./FutureAction');
+var AsyncAction_1 = require('./AsyncAction');
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore
@@ -13,39 +13,41 @@ var FutureAction_1 = require('./FutureAction');
  */
 var AsapAction = (function (_super) {
     __extends(AsapAction, _super);
-    function AsapAction() {
-        _super.apply(this, arguments);
+    function AsapAction(scheduler, work) {
+        _super.call(this, scheduler, work);
+        this.scheduler = scheduler;
+        this.work = work;
     }
-    AsapAction.prototype._schedule = function (state, delay) {
+    AsapAction.prototype.requestAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
-        if (delay > 0) {
-            return _super.prototype._schedule.call(this, state, delay);
+        // If delay is greater than 0, request as an async action.
+        if (delay !== null && delay > 0) {
+            return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
-        this.delay = delay;
-        this.state = state;
-        var scheduler = this.scheduler;
+        // Push the action to the end of the scheduler queue.
         scheduler.actions.push(this);
-        if (!scheduler.scheduledId) {
-            scheduler.scheduledId = Immediate_1.Immediate.setImmediate(function () {
-                scheduler.scheduledId = null;
-                scheduler.flush();
-            });
-        }
-        return this;
+        // If a microtask has already been scheduled, don't schedule another
+        // one. If a microtask hasn't been scheduled yet, schedule one now. Return
+        // the current scheduled microtask id.
+        return scheduler.scheduled || (scheduler.scheduled = Immediate_1.Immediate.setImmediate(scheduler.flush.bind(scheduler, null)));
     };
-    AsapAction.prototype._unsubscribe = function () {
-        var scheduler = this.scheduler;
-        var scheduledId = scheduler.scheduledId, actions = scheduler.actions;
-        _super.prototype._unsubscribe.call(this);
-        if (actions.length === 0) {
-            scheduler.active = false;
-            if (scheduledId != null) {
-                scheduler.scheduledId = null;
-                Immediate_1.Immediate.clearImmediate(scheduledId);
-            }
+    AsapAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
+        if (delay === void 0) { delay = 0; }
+        // If delay exists and is greater than 0, recycle as an async action.
+        if (delay !== null && delay > 0) {
+            return _super.prototype.recycleAsyncId.call(this, scheduler, id, delay);
         }
+        // If the scheduler queue is empty, cancel the requested microtask and
+        // set the scheduled flag to undefined so the next AsapAction will schedule
+        // its own.
+        if (scheduler.actions.length === 0) {
+            Immediate_1.Immediate.clearImmediate(id);
+            scheduler.scheduled = undefined;
+        }
+        // Return undefined so the action knows to request a new async id if it's rescheduled.
+        return undefined;
     };
     return AsapAction;
-}(FutureAction_1.FutureAction));
+}(AsyncAction_1.AsyncAction));
 exports.AsapAction = AsapAction;
 //# sourceMappingURL=AsapAction.js.map

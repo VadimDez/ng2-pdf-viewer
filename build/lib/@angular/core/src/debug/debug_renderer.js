@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var lang_1 = require('../facade/lang');
-var debug_node_1 = require('./debug_node');
-var DebugDomRootRenderer = (function () {
+import { isPresent } from '../facade/lang';
+import { DebugElement, DebugNode, EventListener, getDebugNode, indexDebugNode, removeDebugNodeFromIndex } from './debug_node';
+export var DebugDomRootRenderer = (function () {
     function DebugDomRootRenderer(_delegate) {
         this._delegate = _delegate;
     }
@@ -17,52 +16,51 @@ var DebugDomRootRenderer = (function () {
     };
     return DebugDomRootRenderer;
 }());
-exports.DebugDomRootRenderer = DebugDomRootRenderer;
-var DebugDomRenderer = (function () {
+export var DebugDomRenderer = (function () {
     function DebugDomRenderer(_delegate) {
         this._delegate = _delegate;
     }
     DebugDomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
         var nativeEl = this._delegate.selectRootElement(selectorOrNode, debugInfo);
-        var debugEl = new debug_node_1.DebugElement(nativeEl, null, debugInfo);
-        debug_node_1.indexDebugNode(debugEl);
+        var debugEl = new DebugElement(nativeEl, null, debugInfo);
+        indexDebugNode(debugEl);
         return nativeEl;
     };
     DebugDomRenderer.prototype.createElement = function (parentElement, name, debugInfo) {
         var nativeEl = this._delegate.createElement(parentElement, name, debugInfo);
-        var debugEl = new debug_node_1.DebugElement(nativeEl, debug_node_1.getDebugNode(parentElement), debugInfo);
+        var debugEl = new DebugElement(nativeEl, getDebugNode(parentElement), debugInfo);
         debugEl.name = name;
-        debug_node_1.indexDebugNode(debugEl);
+        indexDebugNode(debugEl);
         return nativeEl;
     };
     DebugDomRenderer.prototype.createViewRoot = function (hostElement) { return this._delegate.createViewRoot(hostElement); };
     DebugDomRenderer.prototype.createTemplateAnchor = function (parentElement, debugInfo) {
         var comment = this._delegate.createTemplateAnchor(parentElement, debugInfo);
-        var debugEl = new debug_node_1.DebugNode(comment, debug_node_1.getDebugNode(parentElement), debugInfo);
-        debug_node_1.indexDebugNode(debugEl);
+        var debugEl = new DebugNode(comment, getDebugNode(parentElement), debugInfo);
+        indexDebugNode(debugEl);
         return comment;
     };
     DebugDomRenderer.prototype.createText = function (parentElement, value, debugInfo) {
         var text = this._delegate.createText(parentElement, value, debugInfo);
-        var debugEl = new debug_node_1.DebugNode(text, debug_node_1.getDebugNode(parentElement), debugInfo);
-        debug_node_1.indexDebugNode(debugEl);
+        var debugEl = new DebugNode(text, getDebugNode(parentElement), debugInfo);
+        indexDebugNode(debugEl);
         return text;
     };
     DebugDomRenderer.prototype.projectNodes = function (parentElement, nodes) {
-        var debugParent = debug_node_1.getDebugNode(parentElement);
-        if (lang_1.isPresent(debugParent) && debugParent instanceof debug_node_1.DebugElement) {
+        var debugParent = getDebugNode(parentElement);
+        if (isPresent(debugParent) && debugParent instanceof DebugElement) {
             var debugElement_1 = debugParent;
-            nodes.forEach(function (node) { debugElement_1.addChild(debug_node_1.getDebugNode(node)); });
+            nodes.forEach(function (node) { debugElement_1.addChild(getDebugNode(node)); });
         }
         this._delegate.projectNodes(parentElement, nodes);
     };
     DebugDomRenderer.prototype.attachViewAfter = function (node, viewRootNodes) {
-        var debugNode = debug_node_1.getDebugNode(node);
-        if (lang_1.isPresent(debugNode)) {
+        var debugNode = getDebugNode(node);
+        if (isPresent(debugNode)) {
             var debugParent = debugNode.parent;
-            if (viewRootNodes.length > 0 && lang_1.isPresent(debugParent)) {
+            if (viewRootNodes.length > 0 && isPresent(debugParent)) {
                 var debugViewRootNodes = [];
-                viewRootNodes.forEach(function (rootNode) { return debugViewRootNodes.push(debug_node_1.getDebugNode(rootNode)); });
+                viewRootNodes.forEach(function (rootNode) { return debugViewRootNodes.push(getDebugNode(rootNode)); });
                 debugParent.insertChildrenAfter(debugNode, debugViewRootNodes);
             }
         }
@@ -70,21 +68,21 @@ var DebugDomRenderer = (function () {
     };
     DebugDomRenderer.prototype.detachView = function (viewRootNodes) {
         viewRootNodes.forEach(function (node) {
-            var debugNode = debug_node_1.getDebugNode(node);
-            if (lang_1.isPresent(debugNode) && lang_1.isPresent(debugNode.parent)) {
+            var debugNode = getDebugNode(node);
+            if (isPresent(debugNode) && isPresent(debugNode.parent)) {
                 debugNode.parent.removeChild(debugNode);
             }
         });
         this._delegate.detachView(viewRootNodes);
     };
     DebugDomRenderer.prototype.destroyView = function (hostElement, viewAllNodes) {
-        viewAllNodes.forEach(function (node) { debug_node_1.removeDebugNodeFromIndex(debug_node_1.getDebugNode(node)); });
+        viewAllNodes.forEach(function (node) { removeDebugNodeFromIndex(getDebugNode(node)); });
         this._delegate.destroyView(hostElement, viewAllNodes);
     };
     DebugDomRenderer.prototype.listen = function (renderElement, name, callback) {
-        var debugEl = debug_node_1.getDebugNode(renderElement);
-        if (lang_1.isPresent(debugEl)) {
-            debugEl.listeners.push(new debug_node_1.EventListener(name, callback));
+        var debugEl = getDebugNode(renderElement);
+        if (isPresent(debugEl)) {
+            debugEl.listeners.push(new EventListener(name, callback));
         }
         return this._delegate.listen(renderElement, name, callback);
     };
@@ -92,15 +90,15 @@ var DebugDomRenderer = (function () {
         return this._delegate.listenGlobal(target, name, callback);
     };
     DebugDomRenderer.prototype.setElementProperty = function (renderElement, propertyName, propertyValue) {
-        var debugEl = debug_node_1.getDebugNode(renderElement);
-        if (lang_1.isPresent(debugEl) && debugEl instanceof debug_node_1.DebugElement) {
+        var debugEl = getDebugNode(renderElement);
+        if (isPresent(debugEl) && debugEl instanceof DebugElement) {
             debugEl.properties[propertyName] = propertyValue;
         }
         this._delegate.setElementProperty(renderElement, propertyName, propertyValue);
     };
     DebugDomRenderer.prototype.setElementAttribute = function (renderElement, attributeName, attributeValue) {
-        var debugEl = debug_node_1.getDebugNode(renderElement);
-        if (lang_1.isPresent(debugEl) && debugEl instanceof debug_node_1.DebugElement) {
+        var debugEl = getDebugNode(renderElement);
+        if (isPresent(debugEl) && debugEl instanceof DebugElement) {
             debugEl.attributes[attributeName] = attributeValue;
         }
         this._delegate.setElementAttribute(renderElement, attributeName, attributeValue);
@@ -109,15 +107,15 @@ var DebugDomRenderer = (function () {
         this._delegate.setBindingDebugInfo(renderElement, propertyName, propertyValue);
     };
     DebugDomRenderer.prototype.setElementClass = function (renderElement, className, isAdd) {
-        var debugEl = debug_node_1.getDebugNode(renderElement);
-        if (lang_1.isPresent(debugEl) && debugEl instanceof debug_node_1.DebugElement) {
+        var debugEl = getDebugNode(renderElement);
+        if (isPresent(debugEl) && debugEl instanceof DebugElement) {
             debugEl.classes[className] = isAdd;
         }
         this._delegate.setElementClass(renderElement, className, isAdd);
     };
     DebugDomRenderer.prototype.setElementStyle = function (renderElement, styleName, styleValue) {
-        var debugEl = debug_node_1.getDebugNode(renderElement);
-        if (lang_1.isPresent(debugEl) && debugEl instanceof debug_node_1.DebugElement) {
+        var debugEl = getDebugNode(renderElement);
+        if (isPresent(debugEl) && debugEl instanceof DebugElement) {
             debugEl.styles[styleName] = styleValue;
         }
         this._delegate.setElementStyle(renderElement, styleName, styleValue);
@@ -131,5 +129,4 @@ var DebugDomRenderer = (function () {
     };
     return DebugDomRenderer;
 }());
-exports.DebugDomRenderer = DebugDomRenderer;
 //# sourceMappingURL=debug_renderer.js.map

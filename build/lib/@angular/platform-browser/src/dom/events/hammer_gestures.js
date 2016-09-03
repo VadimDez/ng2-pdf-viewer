@@ -5,24 +5,25 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var exceptions_1 = require('../../facade/exceptions');
-var lang_1 = require('../../facade/lang');
-var hammer_common_1 = require('./hammer_common');
+import { Inject, Injectable, OpaqueToken } from '@angular/core';
+import { isPresent } from '../../facade/lang';
+import { HammerGesturesPluginCommon } from './hammer_common';
 /**
  * A DI token that you can use to provide{@link HammerGestureConfig} to Angular. Use it to configure
  * Hammer gestures.
  *
  * @experimental
  */
-exports.HAMMER_GESTURE_CONFIG = new core_1.OpaqueToken('HammerGestureConfig');
-var HammerGestureConfig = (function () {
+export var HAMMER_GESTURE_CONFIG = new OpaqueToken('HammerGestureConfig');
+/**
+ * @experimental
+ */
+export var HammerGestureConfig = (function () {
     function HammerGestureConfig() {
         this.events = [];
         this.overrides = {};
@@ -36,14 +37,14 @@ var HammerGestureConfig = (function () {
         }
         return mc;
     };
-    /** @nocollapse */
     HammerGestureConfig.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
+    /** @nocollapse */
+    HammerGestureConfig.ctorParameters = [];
     return HammerGestureConfig;
 }());
-exports.HammerGestureConfig = HammerGestureConfig;
-var HammerGesturesPlugin = (function (_super) {
+export var HammerGesturesPlugin = (function (_super) {
     __extends(HammerGesturesPlugin, _super);
     function HammerGesturesPlugin(_config) {
         _super.call(this);
@@ -52,8 +53,8 @@ var HammerGesturesPlugin = (function (_super) {
     HammerGesturesPlugin.prototype.supports = function (eventName) {
         if (!_super.prototype.supports.call(this, eventName) && !this.isCustomEvent(eventName))
             return false;
-        if (!lang_1.isPresent(window['Hammer'])) {
-            throw new exceptions_1.BaseException("Hammer.js is not loaded, can not bind " + eventName + " event");
+        if (!isPresent(window['Hammer'])) {
+            throw new Error("Hammer.js is not loaded, can not bind " + eventName + " event");
         }
         return true;
     };
@@ -72,15 +73,13 @@ var HammerGesturesPlugin = (function (_super) {
         });
     };
     HammerGesturesPlugin.prototype.isCustomEvent = function (eventName) { return this._config.events.indexOf(eventName) > -1; };
-    /** @nocollapse */
     HammerGesturesPlugin.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     HammerGesturesPlugin.ctorParameters = [
-        { type: HammerGestureConfig, decorators: [{ type: core_1.Inject, args: [exports.HAMMER_GESTURE_CONFIG,] },] },
+        { type: HammerGestureConfig, decorators: [{ type: Inject, args: [HAMMER_GESTURE_CONFIG,] },] },
     ];
     return HammerGesturesPlugin;
-}(hammer_common_1.HammerGesturesPluginCommon));
-exports.HammerGesturesPlugin = HammerGesturesPlugin;
+}(HammerGesturesPluginCommon));
 //# sourceMappingURL=hammer_gestures.js.map

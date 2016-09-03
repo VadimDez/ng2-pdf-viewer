@@ -17,7 +17,7 @@ export declare const DEFAULT_VALUE_ACCESSOR: any;
  *  <input type="text" name="searchQuery" ngModel>
  *  ```
  *
- *  @experimental
+ *  @stable
  */
 export declare class DefaultValueAccessor implements ControlValueAccessor {
     private _renderer;
@@ -28,4 +28,5 @@ export declare class DefaultValueAccessor implements ControlValueAccessor {
     writeValue(value: any): void;
     registerOnChange(fn: (_: any) => void): void;
     registerOnTouched(fn: () => void): void;
+    setDisabledState(isDisabled: boolean): void;
 }

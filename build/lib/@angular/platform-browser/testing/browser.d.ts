@@ -1,32 +1,21 @@
-import { PlatformRef } from '@angular/core';
 /**
- * Providers for the browser test platform
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
  *
- * @deprecated Use `platformBrowserTesting()` or create a custom platform factory via
- * `createPlatformFactory(platformBrowserTesting, ...)`
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
  */
-export declare const TEST_BROWSER_PLATFORM_PROVIDERS: Array<any>;
-/**
- * @deprecated Use initTestEnvironment with BrowserTestModule instead. This is empty for backwards
- * compatibility,
- * as all of our bootstrap methods add a module implicitly, i.e. keeping this filled would add the
- * providers 2x.
- */
-export declare const TEST_BROWSER_APPLICATION_PROVIDERS: Array<any>;
+import { PlatformRef, Provider } from '@angular/core';
 /**
  * Platform for testing
  *
- * @experimental API related to bootstrapping are still under review.
+ * @stable
  */
-export declare const platformBrowserTesting: (extraProviders?: any[]) => PlatformRef;
-/**
- * @deprecated Use {@link platformBrowserTesting} instead
- */
-export declare const browserTestingPlatform: (extraProviders?: any[]) => PlatformRef;
+export declare const platformBrowserTesting: (extraProviders?: Provider[]) => PlatformRef;
 /**
  * NgModule for testing.
  *
- * @experimental
+ * @stable
  */
 export declare class BrowserTestingModule {
 }

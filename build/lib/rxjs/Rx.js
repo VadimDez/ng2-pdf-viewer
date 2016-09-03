@@ -21,15 +21,23 @@ require('./add/observable/from');
 require('./add/observable/fromEvent');
 require('./add/observable/fromEventPattern');
 require('./add/observable/fromPromise');
+require('./add/observable/generate');
+require('./add/observable/if');
 require('./add/observable/interval');
 require('./add/observable/merge');
 require('./add/observable/race');
 require('./add/observable/never');
 require('./add/observable/of');
+require('./add/observable/onErrorResumeNext');
+require('./add/observable/pairs');
 require('./add/observable/range');
+require('./add/observable/using');
 require('./add/observable/throw');
 require('./add/observable/timer');
 require('./add/observable/zip');
+//dom
+require('./add/observable/dom/ajax');
+require('./add/observable/dom/webSocket');
 //operators
 require('./add/operator/buffer');
 require('./add/operator/bufferCount');
@@ -51,14 +59,23 @@ require('./add/operator/debounceTime');
 require('./add/operator/defaultIfEmpty');
 require('./add/operator/delay');
 require('./add/operator/delayWhen');
+require('./add/operator/distinct');
+require('./add/operator/distinctKey');
 require('./add/operator/distinctUntilChanged');
+require('./add/operator/distinctUntilKeyChanged');
 require('./add/operator/do');
+require('./add/operator/exhaust');
+require('./add/operator/exhaustMap');
 require('./add/operator/expand');
+require('./add/operator/elementAt');
 require('./add/operator/filter');
 require('./add/operator/finally');
+require('./add/operator/find');
+require('./add/operator/findIndex');
 require('./add/operator/first');
 require('./add/operator/groupBy');
 require('./add/operator/ignoreElements');
+require('./add/operator/isEmpty');
 require('./add/operator/audit');
 require('./add/operator/auditTime');
 require('./add/operator/last');
@@ -67,12 +84,17 @@ require('./add/operator/every');
 require('./add/operator/map');
 require('./add/operator/mapTo');
 require('./add/operator/materialize');
+require('./add/operator/max');
 require('./add/operator/merge');
 require('./add/operator/mergeAll');
 require('./add/operator/mergeMap');
 require('./add/operator/mergeMapTo');
+require('./add/operator/mergeScan');
+require('./add/operator/min');
 require('./add/operator/multicast');
 require('./add/operator/observeOn');
+require('./add/operator/onErrorResumeNext');
+require('./add/operator/pairwise');
 require('./add/operator/partition');
 require('./add/operator/pluck');
 require('./add/operator/publish');
@@ -103,8 +125,10 @@ require('./add/operator/takeUntil');
 require('./add/operator/takeWhile');
 require('./add/operator/throttle');
 require('./add/operator/throttleTime');
+require('./add/operator/timeInterval');
 require('./add/operator/timeout');
 require('./add/operator/timeoutWith');
+require('./add/operator/timestamp');
 require('./add/operator/toArray');
 require('./add/operator/toPromise');
 require('./add/operator/window');
@@ -116,8 +140,6 @@ require('./add/operator/withLatestFrom');
 require('./add/operator/zip');
 require('./add/operator/zipAll');
 /* tslint:disable:no-unused-variable */
-var Operator_1 = require('./Operator');
-exports.Operator = Operator_1.Operator;
 var Subscription_1 = require('./Subscription');
 exports.Subscription = Subscription_1.Subscription;
 var Subscriber_1 = require('./Subscriber');
@@ -128,6 +150,8 @@ var ReplaySubject_1 = require('./ReplaySubject');
 exports.ReplaySubject = ReplaySubject_1.ReplaySubject;
 var BehaviorSubject_1 = require('./BehaviorSubject');
 exports.BehaviorSubject = BehaviorSubject_1.BehaviorSubject;
+var MulticastObservable_1 = require('./observable/MulticastObservable');
+exports.MulticastObservable = MulticastObservable_1.MulticastObservable;
 var ConnectableObservable_1 = require('./observable/ConnectableObservable');
 exports.ConnectableObservable = ConnectableObservable_1.ConnectableObservable;
 var Notification_1 = require('./Notification');
@@ -140,12 +164,25 @@ var ObjectUnsubscribedError_1 = require('./util/ObjectUnsubscribedError');
 exports.ObjectUnsubscribedError = ObjectUnsubscribedError_1.ObjectUnsubscribedError;
 var UnsubscriptionError_1 = require('./util/UnsubscriptionError');
 exports.UnsubscriptionError = UnsubscriptionError_1.UnsubscriptionError;
+var timeInterval_1 = require('./operator/timeInterval');
+exports.TimeInterval = timeInterval_1.TimeInterval;
+var timestamp_1 = require('./operator/timestamp');
+exports.Timestamp = timestamp_1.Timestamp;
+var TestScheduler_1 = require('./testing/TestScheduler');
+exports.TestScheduler = TestScheduler_1.TestScheduler;
+var VirtualTimeScheduler_1 = require('./scheduler/VirtualTimeScheduler');
+exports.VirtualTimeScheduler = VirtualTimeScheduler_1.VirtualTimeScheduler;
+var AjaxObservable_1 = require('./observable/dom/AjaxObservable');
+exports.AjaxResponse = AjaxObservable_1.AjaxResponse;
+exports.AjaxError = AjaxObservable_1.AjaxError;
+exports.AjaxTimeoutError = AjaxObservable_1.AjaxTimeoutError;
 var asap_1 = require('./scheduler/asap');
 var async_1 = require('./scheduler/async');
 var queue_1 = require('./scheduler/queue');
+var animationFrame_1 = require('./scheduler/animationFrame');
 var rxSubscriber_1 = require('./symbol/rxSubscriber');
-var observable_1 = require('./symbol/observable');
 var iterator_1 = require('./symbol/iterator');
+var observable_1 = require('./symbol/observable');
 /* tslint:enable:no-unused-variable */
 /**
  * @typedef {Object} Rx.Scheduler
@@ -157,11 +194,14 @@ var iterator_1 = require('./symbol/iterator');
  * asynchronous conversions.
  * @property {Scheduler} async Schedules work with `setInterval`. Use this for
  * time-based operations.
+ * @property {Scheduler} animationFrame Schedules work with `requestAnimationFrame`.
+ * Use this for synchronizing with the platform's painting
  */
 var Scheduler = {
     asap: asap_1.asap,
-    async: async_1.async,
-    queue: queue_1.queue
+    queue: queue_1.queue,
+    animationFrame: animationFrame_1.animationFrame,
+    async: async_1.async
 };
 exports.Scheduler = Scheduler;
 /**

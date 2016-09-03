@@ -12,7 +12,7 @@ export declare class BoundCallbackObservable<T> extends Observable<T> {
     private callbackFunc;
     private selector;
     private args;
-    scheduler: Scheduler;
+    private scheduler;
     subject: AsyncSubject<T>;
     static create<R>(callbackFunc: (callback: (result: R) => any) => any, selector?: void, scheduler?: Scheduler): () => Observable<R>;
     static create<T, R>(callbackFunc: (v1: T, callback: (result: R) => any) => any, selector?: void, scheduler?: Scheduler): (v1: T) => Observable<R>;
@@ -32,4 +32,8 @@ export declare class BoundCallbackObservable<T> extends Observable<T> {
     static create<T>(callbackFunc: Function, selector?: (...args: any[]) => T, scheduler?: Scheduler): (...args: any[]) => Observable<T>;
     constructor(callbackFunc: Function, selector: Function, args: any[], scheduler: Scheduler);
     protected _subscribe(subscriber: Subscriber<T | T[]>): Subscription;
+    static dispatch<T>(state: {
+        source: BoundCallbackObservable<T>;
+        subscriber: Subscriber<T>;
+    }): void;
 }

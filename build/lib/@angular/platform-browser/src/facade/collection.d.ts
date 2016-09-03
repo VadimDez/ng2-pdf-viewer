@@ -1,3 +1,4 @@
+
 export declare var Map: MapConstructor;
 export declare var Set: SetConstructor;
 export declare class MapWrapper {

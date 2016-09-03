@@ -5,24 +5,23 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var core_1 = require('@angular/core');
-var index_1 = require('../index');
-var collection_1 = require('../src/facade/collection');
-var MockNgModuleResolver = (function (_super) {
+import { NgModuleResolver } from '@angular/compiler';
+import { Compiler, Injectable, Injector } from '@angular/core';
+import { Map } from './facade/collection';
+export var MockNgModuleResolver = (function (_super) {
     __extends(MockNgModuleResolver, _super);
     function MockNgModuleResolver(_injector) {
         _super.call(this);
         this._injector = _injector;
-        this._ngModules = new collection_1.Map();
+        this._ngModules = new Map();
     }
     Object.defineProperty(MockNgModuleResolver.prototype, "_compiler", {
-        get: function () { return this._injector.get(core_1.Compiler); },
+        get: function () { return this._injector.get(Compiler); },
         enumerable: true,
         configurable: true
     });
@@ -48,15 +47,13 @@ var MockNgModuleResolver = (function (_super) {
         }
         return metadata;
     };
-    /** @nocollapse */
     MockNgModuleResolver.decorators = [
-        { type: core_1.Injectable },
+        { type: Injectable },
     ];
     /** @nocollapse */
     MockNgModuleResolver.ctorParameters = [
-        { type: core_1.Injector, },
+        { type: Injector, },
     ];
     return MockNgModuleResolver;
-}(index_1.NgModuleResolver));
-exports.MockNgModuleResolver = MockNgModuleResolver;
+}(NgModuleResolver));
 //# sourceMappingURL=ng_module_resolver_mock.js.map

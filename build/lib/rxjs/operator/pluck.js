@@ -34,7 +34,7 @@ function pluck() {
     }
     var length = properties.length;
     if (length === 0) {
-        throw new Error('List of properties cannot be empty.');
+        throw new Error('list of properties cannot be empty.');
     }
     return map_1.map.call(this, plucker(properties, length));
 }

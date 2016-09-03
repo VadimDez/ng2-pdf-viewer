@@ -87,6 +87,7 @@ var Notification = (function () {
             case 'C':
                 return Observable_1.Observable.empty();
         }
+        throw new Error('unexpected notification kind value');
     };
     /**
      * A shortcut to create a Notification instance of the type `next` from a

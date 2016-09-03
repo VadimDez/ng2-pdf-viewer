@@ -2,7 +2,8 @@
  * @experimental Animation support is experimental.
  */
 export declare abstract class AnimationPlayer {
-    abstract onDone(fn: Function): void;
+    abstract onDone(fn: () => void): void;
+    abstract onStart(fn: () => void): void;
     abstract init(): void;
     abstract hasStarted(): boolean;
     abstract play(): void;
@@ -16,11 +17,13 @@ export declare abstract class AnimationPlayer {
     parentPlayer: AnimationPlayer;
 }
 export declare class NoOpAnimationPlayer implements AnimationPlayer {
-    private _subscriptions;
+    private _onDoneFns;
+    private _onStartFns;
     private _started;
     parentPlayer: AnimationPlayer;
     constructor();
-    onDone(fn: Function): void;
+    onStart(fn: () => void): void;
+    onDone(fn: () => void): void;
     hasStarted(): boolean;
     init(): void;
     play(): void;

@@ -14,13 +14,14 @@ var platform_browser_1 = require('@angular/platform-browser');
 var platform_browser_dynamic_1 = require('@angular/platform-browser-dynamic');
 var app_component_1 = require('./app/app.component');
 var mdl_1 = require('./app/mdl');
+var pdf_viewer_component_1 = require('./pdf-viewer/pdf-viewer.component');
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
             imports: [platform_browser_1.BrowserModule, forms_1.FormsModule],
-            declarations: [mdl_1.MDL, app_component_1.AppComponent],
+            declarations: [mdl_1.MDL, app_component_1.AppComponent, pdf_viewer_component_1.PdfViewerComponent],
             bootstrap: [app_component_1.AppComponent]
         }), 
         __metadata('design:paramtypes', [])

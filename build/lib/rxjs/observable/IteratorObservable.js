@@ -5,12 +5,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var root_1 = require('../util/root');
-var isObject_1 = require('../util/isObject');
-var tryCatch_1 = require('../util/tryCatch');
 var Observable_1 = require('../Observable');
-var isFunction_1 = require('../util/isFunction');
 var iterator_1 = require('../symbol/iterator');
-var errorObject_1 = require('../util/errorObject');
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -18,30 +14,19 @@ var errorObject_1 = require('../util/errorObject');
  */
 var IteratorObservable = (function (_super) {
     __extends(IteratorObservable, _super);
-    function IteratorObservable(iterator, project, thisArg, scheduler) {
+    function IteratorObservable(iterator, scheduler) {
         _super.call(this);
+        this.scheduler = scheduler;
         if (iterator == null) {
             throw new Error('iterator cannot be null.');
         }
-        if (isObject_1.isObject(project)) {
-            this.thisArg = project;
-            this.scheduler = thisArg;
-        }
-        else if (isFunction_1.isFunction(project)) {
-            this.project = project;
-            this.thisArg = thisArg;
-            this.scheduler = scheduler;
-        }
-        else if (project != null) {
-            throw new Error('When provided, `project` must be a function.');
-        }
         this.iterator = getIterator(iterator);
     }
-    IteratorObservable.create = function (iterator, project, thisArg, scheduler) {
-        return new IteratorObservable(iterator, project, thisArg, scheduler);
+    IteratorObservable.create = function (iterator, scheduler) {
+        return new IteratorObservable(iterator, scheduler);
     };
     IteratorObservable.dispatch = function (state) {
-        var index = state.index, hasError = state.hasError, thisArg = state.thisArg, project = state.project, iterator = state.iterator, subscriber = state.subscriber;
+        var index = state.index, hasError = state.hasError, iterator = state.iterator, subscriber = state.subscriber;
         if (hasError) {
             subscriber.error(state.error);
             return;
@@ -51,32 +36,19 @@ var IteratorObservable = (function (_super) {
             subscriber.complete();
             return;
         }
-        if (project) {
-            result = tryCatch_1.tryCatch(project).call(thisArg, result.value, index);
-            if (result === errorObject_1.errorObject) {
-                state.error = errorObject_1.errorObject.e;
-                state.hasError = true;
-            }
-            else {
-                subscriber.next(result);
-                state.index = index + 1;
-            }
-        }
-        else {
-            subscriber.next(result.value);
-            state.index = index + 1;
-        }
-        if (subscriber.isUnsubscribed) {
+        subscriber.next(result.value);
+        state.index = index + 1;
+        if (subscriber.closed) {
             return;
         }
         this.schedule(state);
     };
     IteratorObservable.prototype._subscribe = function (subscriber) {
         var index = 0;
-        var _a = this, iterator = _a.iterator, project = _a.project, thisArg = _a.thisArg, scheduler = _a.scheduler;
+        var _a = this, iterator = _a.iterator, scheduler = _a.scheduler;
         if (scheduler) {
             return scheduler.schedule(IteratorObservable.dispatch, 0, {
-                index: index, thisArg: thisArg, project: project, iterator: iterator, subscriber: subscriber
+                index: index, iterator: iterator, subscriber: subscriber
             });
         }
         else {
@@ -86,18 +58,10 @@ var IteratorObservable = (function (_super) {
                     subscriber.complete();
                     break;
                 }
-                else if (project) {
-                    result = tryCatch_1.tryCatch(project).call(thisArg, result.value, index++);
-                    if (result === errorObject_1.errorObject) {
-                        subscriber.error(errorObject_1.errorObject.e);
-                        break;
-                    }
-                    subscriber.next(result);
-                }
                 else {
                     subscriber.next(result.value);
                 }
-                if (subscriber.isUnsubscribed) {
+                if (subscriber.closed) {
                     break;
                 }
             } while (true);
@@ -155,7 +119,7 @@ function getIterator(obj) {
         return new ArrayIterator(obj);
     }
     if (!i) {
-        throw new TypeError('Object is not iterable');
+        throw new TypeError('object is not iterable');
     }
     return obj[iterator_1.$$iterator]();
 }

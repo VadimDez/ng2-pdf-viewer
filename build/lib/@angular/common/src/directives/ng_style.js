@@ -5,10 +5,63 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../facade/lang');
-var NgStyle = (function () {
+import { Directive, ElementRef, Input, KeyValueDiffers, Renderer } from '@angular/core';
+import { isBlank, isPresent } from '../facade/lang';
+/**
+ * The `NgStyle` directive changes styles based on a result of expression evaluation.
+ *
+ * An expression assigned to the `ngStyle` property must evaluate to an object and the
+ * corresponding element styles are updated based on changes to this object. Style names to update
+ * are taken from the object's keys, and values - from the corresponding object's values.
+ *
+ * ### Syntax
+ *
+ * - `<div [ngStyle]="{'font-style': styleExp}"></div>`
+ * - `<div [ngStyle]="{'max-width.px': widthExp}"></div>`
+ * - `<div [ngStyle]="styleExp"></div>` - here the `styleExp` must evaluate to an object
+ *
+ * ### Example ([live demo](http://plnkr.co/edit/YamGS6GkUh9GqWNQhCyM?p=preview)):
+ *
+ * ```
+ * import {Component} from '@angular/core';
+ * import {NgStyle} from '@angular/common';
+ *
+ * @Component({
+ *  selector: 'ngStyle-example',
+ *  template: `
+ *    <h1 [ngStyle]="{'font-style': style, 'font-size': size, 'font-weight': weight}">
+ *      Change style of this text!
+ *    </h1>
+ *
+ *    <hr>
+ *
+ *    <label>Italic: <input type="checkbox" (change)="changeStyle($event)"></label>
+ *    <label>Bold: <input type="checkbox" (change)="changeWeight($event)"></label>
+ *    <label>Size: <input type="text" [value]="size" (change)="size = $event.target.value"></label>
+ *  `,
+ *  directives: [NgStyle]
+ * })
+ * export class NgStyleExample {
+ *    style = 'normal';
+ *    weight = 'normal';
+ *    size = '20px';
+ *
+ *    changeStyle($event: any) {
+ *      this.style = $event.target.checked ? 'italic' : 'normal';
+ *    }
+ *
+ *    changeWeight($event: any) {
+ *      this.weight = $event.target.checked ? 'bold' : 'normal';
+ *    }
+ * }
+ * ```
+ *
+ * In this example the `font-style`, `font-size` and `font-weight` styles will be updated
+ * based on the `style` property's value changes.
+ *
+ * @stable
+ */
+export var NgStyle = (function () {
     function NgStyle(_differs, _ngEl, _renderer) {
         this._differs = _differs;
         this._ngEl = _ngEl;
@@ -17,7 +70,7 @@ var NgStyle = (function () {
     Object.defineProperty(NgStyle.prototype, "ngStyle", {
         set: function (v) {
             this._ngStyle = v;
-            if (lang_1.isBlank(this._differ) && lang_1.isPresent(v)) {
+            if (isBlank(this._differ) && isPresent(v)) {
                 this._differ = this._differs.find(this._ngStyle).create(null);
             }
         },
@@ -25,9 +78,9 @@ var NgStyle = (function () {
         configurable: true
     });
     NgStyle.prototype.ngDoCheck = function () {
-        if (lang_1.isPresent(this._differ)) {
+        if (isPresent(this._differ)) {
             var changes = this._differ.diff(this._ngStyle);
-            if (lang_1.isPresent(changes)) {
+            if (isPresent(changes)) {
                 this._applyChanges(changes);
             }
         }
@@ -41,24 +94,21 @@ var NgStyle = (function () {
     NgStyle.prototype._setStyle = function (name, val) {
         var nameParts = name.split('.');
         var nameToSet = nameParts[0];
-        var valToSet = lang_1.isPresent(val) && nameParts.length === 2 ? "" + val + nameParts[1] : val;
+        var valToSet = isPresent(val) && nameParts.length === 2 ? "" + val + nameParts[1] : val;
         this._renderer.setElementStyle(this._ngEl.nativeElement, nameToSet, valToSet);
     };
-    /** @nocollapse */
     NgStyle.decorators = [
-        { type: core_1.Directive, args: [{ selector: '[ngStyle]' },] },
+        { type: Directive, args: [{ selector: '[ngStyle]' },] },
     ];
     /** @nocollapse */
     NgStyle.ctorParameters = [
-        { type: core_1.KeyValueDiffers, },
-        { type: core_1.ElementRef, },
-        { type: core_1.Renderer, },
+        { type: KeyValueDiffers, },
+        { type: ElementRef, },
+        { type: Renderer, },
     ];
-    /** @nocollapse */
     NgStyle.propDecorators = {
-        'ngStyle': [{ type: core_1.Input },],
+        'ngStyle': [{ type: Input },],
     };
     return NgStyle;
 }());
-exports.NgStyle = NgStyle;
 //# sourceMappingURL=ng_style.js.map

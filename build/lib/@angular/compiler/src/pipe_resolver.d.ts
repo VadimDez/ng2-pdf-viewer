@@ -5,9 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { PipeMetadata } from '@angular/core';
-import { ReflectorReader } from '../core_private';
-import { Type } from './facade/lang';
+import { PipeMetadata, Type } from '@angular/core';
+import { ReflectorReader } from './private_import_core';
 /**
  * Resolve a `Type` for {@link PipeMetadata}.
  *
@@ -21,5 +20,5 @@ export declare class PipeResolver {
     /**
      * Return {@link PipeMetadata} for a given `Type`.
      */
-    resolve(type: Type, throwIfNotFound?: boolean): PipeMetadata;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): PipeMetadata;
 }

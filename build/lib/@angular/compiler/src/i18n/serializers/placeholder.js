@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var TAG_TO_PLACEHOLDER_NAMES = {
     'A': 'LINK',
     'B': 'BOLD_TEXT',
@@ -43,7 +42,7 @@ var TAG_TO_PLACEHOLDER_NAMES = {
  *
  * @internal
  */
-var PlaceholderRegistry = (function () {
+export var PlaceholderRegistry = (function () {
     function PlaceholderRegistry() {
         // Count the occurrence of the base name top generate a unique name
         this._placeHolderNameCounts = {};
@@ -105,5 +104,4 @@ var PlaceholderRegistry = (function () {
     };
     return PlaceholderRegistry;
 }());
-exports.PlaceholderRegistry = PlaceholderRegistry;
 //# sourceMappingURL=placeholder.js.map

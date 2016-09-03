@@ -1,6 +1,7 @@
 import { Observable } from '../Observable';
 import { Operator } from '../Operator';
 import { Subscriber } from '../Subscriber';
+import { TeardownLogic } from '../Subscription';
 import { OuterSubscriber } from '../OuterSubscriber';
 import { InnerSubscriber } from '../InnerSubscriber';
 /**
@@ -26,7 +27,7 @@ export interface RaceSignature<T> {
  */
 export declare function raceStatic<T>(...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
 export declare class RaceOperator<T> implements Operator<T, T> {
-    call(subscriber: Subscriber<T>, source: any): any;
+    call(subscriber: Subscriber<T>, source: any): TeardownLogic;
 }
 /**
  * We need this JSDoc comment for affecting ESDoc.

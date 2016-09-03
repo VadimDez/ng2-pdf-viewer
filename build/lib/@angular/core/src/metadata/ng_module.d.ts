@@ -5,16 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { InjectableMetadata } from '../di/metadata';
-import { Type } from '../facade/lang';
+import { InjectableMetadata, Provider } from '../di';
+import { Type } from '../type';
 /**
  * A wrapper around a module that also includes the providers.
  *
- * @experimental
+ * @stable
  */
 export interface ModuleWithProviders {
-    ngModule: Type;
-    providers?: any[];
+    ngModule: Type<any>;
+    providers?: Provider[];
 }
 /**
  * Interface for schema definitions in @NgModules.
@@ -25,28 +25,36 @@ export interface SchemaMetadata {
     name: string;
 }
 /**
- * Defines a schema that will allow any property on elements with a `-` in their name,
- * which is the common rule for custom elements.
+ * Defines a schema that will allow:
+ * - any non-angular elements with a `-` in their name,
+ * - any properties on elements with a `-` in their name which is the common rule for custom
+ * elements.
  *
- * @experimental
+ * @stable
  */
 export declare const CUSTOM_ELEMENTS_SCHEMA: SchemaMetadata;
 /**
- * Interface for creating {@link NgModuleMetadata}
+ * Defines a schema that will allow any property on any element.
+ *
  * @experimental
  */
+export declare const NO_ERRORS_SCHEMA: SchemaMetadata;
+/**
+ * Interface for creating {@link NgModuleMetadata}
+ * @stable
+ */
 export interface NgModuleMetadataType {
-    providers?: any[];
-    declarations?: Array<Type | any[]>;
-    imports?: Array<Type | ModuleWithProviders | any[]>;
-    exports?: Array<Type | any[]>;
-    entryComponents?: Array<Type | any[]>;
-    bootstrap?: Array<Type | any[]>;
+    providers?: Provider[];
+    declarations?: Array<Type<any> | any[]>;
+    imports?: Array<Type<any> | ModuleWithProviders | any[]>;
+    exports?: Array<Type<any> | any[]>;
+    entryComponents?: Array<Type<any> | any[]>;
+    bootstrap?: Array<Type<any> | any[]>;
     schemas?: Array<SchemaMetadata | any[]>;
 }
 /**
  * Declares an Angular Module.
- * @experimental
+ * @stable
  */
 export declare class NgModuleMetadata extends InjectableMetadata implements NgModuleMetadataType {
     /**
@@ -78,7 +86,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    providers: any[];
+    providers: Provider[];
     private _providers;
     /**
      * Specifies a list of directives/pipes that belong to this module.
@@ -93,7 +101,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    declarations: Array<Type | any[]>;
+    declarations: Array<Type<any> | any[]>;
     /**
      * Specifies a list of modules whose exported directives/pipes
      * should be available to templates in this module.
@@ -109,7 +117,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    imports: Array<Type | ModuleWithProviders | any[]>;
+    imports: Array<Type<any> | ModuleWithProviders | any[]>;
     /**
      * Specifies a list of directives/pipes/module that can be used within the template
      * of any component that is part of an angular module
@@ -125,20 +133,32 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    exports: Array<Type | any[]>;
+    exports: Array<Type<any> | any[]>;
     /**
      * Defines the components that should be compiled as well when
      * this component is defined. For each components listed here,
      * Angular will create a {@link ComponentFactory ComponentFactory} and store it in the
      * {@link ComponentFactoryResolver ComponentFactoryResolver}.
      */
-    entryComponents: Array<Type | any[]>;
+    entryComponents: Array<Type<any> | any[]>;
     /**
      * Defines the components that should be bootstrapped when
      * this module is bootstrapped. The components listed here
      * will automatically be added to `entryComponents`.
      */
-    bootstrap: Array<Type | any[]>;
+    bootstrap: Array<Type<any> | any[]>;
+    /**
+     * Elements and properties that are not angular Components nor Directives have to be declared in
+     * the schema.
+     *
+     * Available schemas:
+     * - `NO_ERRORS_SCHEMA`: any elements and properties are allowed,
+     * - `CUSTOM_ELEMENTS_SCHEMA`: any custom elements (tag name has "-") with any properties are
+     *   allowed.
+     *
+     * @security When using one of `NO_ERRORS_SCHEMA` or `CUSTOM_ELEMENTS_SCHEMA` we're trusting that
+     * allowed elements (and its properties) securely escape inputs.
+     */
     schemas: Array<SchemaMetadata | any[]>;
     constructor(options?: NgModuleMetadataType);
 }

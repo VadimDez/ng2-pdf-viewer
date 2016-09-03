@@ -5,14 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var collection_1 = require('../../facade/collection');
-var event_manager_1 = require('./event_manager');
+import { StringMapWrapper } from '../../facade/collection';
+import { EventManagerPlugin } from './event_manager';
 var _eventNames = {
     // pan
     'pan': true,
@@ -50,16 +49,15 @@ var _eventNames = {
     // tap
     'tap': true,
 };
-var HammerGesturesPluginCommon = (function (_super) {
+export var HammerGesturesPluginCommon = (function (_super) {
     __extends(HammerGesturesPluginCommon, _super);
     function HammerGesturesPluginCommon() {
         _super.call(this);
     }
     HammerGesturesPluginCommon.prototype.supports = function (eventName) {
         eventName = eventName.toLowerCase();
-        return collection_1.StringMapWrapper.contains(_eventNames, eventName);
+        return StringMapWrapper.contains(_eventNames, eventName);
     };
     return HammerGesturesPluginCommon;
-}(event_manager_1.EventManagerPlugin));
-exports.HammerGesturesPluginCommon = HammerGesturesPluginCommon;
+}(EventManagerPlugin));
 //# sourceMappingURL=hammer_common.js.map

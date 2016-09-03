@@ -8,13 +8,10 @@
 import { SchemaMetadata, SecurityContext } from '@angular/core';
 import { ElementSchemaRegistry } from './element_schema_registry';
 export declare class DomElementSchemaRegistry extends ElementSchemaRegistry {
-    schema: {
-        [element: string]: {
-            [property: string]: string;
-        };
-    };
+    private _schema;
     constructor();
     hasProperty(tagName: string, propName: string, schemaMetas: SchemaMetadata[]): boolean;
+    hasElement(tagName: string, schemaMetas: SchemaMetadata[]): boolean;
     /**
      * securityContext returns the security context for the given property on the given DOM tag.
      *

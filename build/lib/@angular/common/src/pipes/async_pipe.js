@@ -5,10 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var lang_1 = require('../facade/lang');
-var invalid_pipe_argument_exception_1 = require('./invalid_pipe_argument_exception');
+import { ChangeDetectorRef, Pipe, WrappedValue } from '@angular/core';
+import { isBlank, isPresent, isPromise } from '../facade/lang';
+import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
 var ObservableStrategy = (function () {
     function ObservableStrategy() {
     }
@@ -31,8 +30,35 @@ var PromiseStrategy = (function () {
 }());
 var _promiseStrategy = new PromiseStrategy();
 var _observableStrategy = new ObservableStrategy();
-var __unused;
-var AsyncPipe = (function () {
+var __unused; // avoid unused import when Promise union types are erased
+/**
+ * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
+ * emitted.
+ * When a new value is emitted, the `async` pipe marks the component to be checked for changes.
+ * When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
+ * potential memory leaks.
+ *
+ * ## Usage
+ *
+ *     object | async
+ *
+ * where `object` is of type `Observable` or of type `Promise`.
+ *
+ * ## Examples
+ *
+ * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
+ * promise.
+ *
+ * {@example core/pipes/ts/async_pipe/async_pipe_example.ts region='AsyncPipePromise'}
+ *
+ * It's also possible to use `async` with Observables. The example below binds the `time` Observable
+ * to the view. Every 500ms, the `time` Observable updates the view with the current time.
+ *
+ * {@example core/pipes/ts/async_pipe/async_pipe_example.ts region='AsyncPipeObservable'}
+ *
+ * @stable
+ */
+export var AsyncPipe = (function () {
     function AsyncPipe(_ref) {
         /** @internal */
         this._latestValue = null;
@@ -46,13 +72,13 @@ var AsyncPipe = (function () {
         this._ref = _ref;
     }
     AsyncPipe.prototype.ngOnDestroy = function () {
-        if (lang_1.isPresent(this._subscription)) {
+        if (isPresent(this._subscription)) {
             this._dispose();
         }
     };
     AsyncPipe.prototype.transform = function (obj) {
-        if (lang_1.isBlank(this._obj)) {
-            if (lang_1.isPresent(obj)) {
+        if (isBlank(this._obj)) {
+            if (isPresent(obj)) {
                 this._subscribe(obj);
             }
             this._latestReturnedValue = this._latestValue;
@@ -67,7 +93,7 @@ var AsyncPipe = (function () {
         }
         else {
             this._latestReturnedValue = this._latestValue;
-            return core_1.WrappedValue.wrap(this._latestValue);
+            return WrappedValue.wrap(this._latestValue);
         }
     };
     /** @internal */
@@ -79,14 +105,14 @@ var AsyncPipe = (function () {
     };
     /** @internal */
     AsyncPipe.prototype._selectStrategy = function (obj) {
-        if (lang_1.isPromise(obj)) {
+        if (isPromise(obj)) {
             return _promiseStrategy;
         }
         else if (obj.subscribe) {
             return _observableStrategy;
         }
         else {
-            throw new invalid_pipe_argument_exception_1.InvalidPipeArgumentException(AsyncPipe, obj);
+            throw new InvalidPipeArgumentError(AsyncPipe, obj);
         }
     };
     /** @internal */
@@ -104,15 +130,13 @@ var AsyncPipe = (function () {
             this._ref.markForCheck();
         }
     };
-    /** @nocollapse */
     AsyncPipe.decorators = [
-        { type: core_1.Pipe, args: [{ name: 'async', pure: false },] },
+        { type: Pipe, args: [{ name: 'async', pure: false },] },
     ];
     /** @nocollapse */
     AsyncPipe.ctorParameters = [
-        { type: core_1.ChangeDetectorRef, },
+        { type: ChangeDetectorRef, },
     ];
     return AsyncPipe;
 }());
-exports.AsyncPipe = AsyncPipe;
 //# sourceMappingURL=async_pipe.js.map

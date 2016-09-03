@@ -16,18 +16,15 @@
     // 'pdf-viewer': { main: 'pdf-viewer.component.js', defaultExtension: 'js' }
   };
 
-  var packageNames = [
-    '@angular/common',
-    '@angular/compiler',
-    '@angular/core',
-    '@angular/forms',
-    '@angular/platform-browser',
-    '@angular/platform-browser-dynamic'
-  ];
-
-  // add package entries for angular packages in the form '@angular/common': { main: 'index.js', defaultExtension: 'js' }
-  packageNames.forEach(function (pkgName) {
-    packages[pkgName] = { main: 'index.js', defaultExtension: 'js' };
+  [
+    'common',
+    'compiler',
+    'core',
+    'forms',
+    'platform-browser',
+    'platform-browser-dynamic'
+  ].forEach(function (pkgName) {
+    packages['@angular/' + pkgName] = { main: 'bundles/' +  pkgName + '.umd.js', defaultExtension: 'js' };
   });
 
   var config = {

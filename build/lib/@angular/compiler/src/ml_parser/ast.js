@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var Text = (function () {
+export var Text = (function () {
     function Text(value, sourceSpan) {
         this.value = value;
         this.sourceSpan = sourceSpan;
@@ -14,8 +13,7 @@ var Text = (function () {
     Text.prototype.visit = function (visitor, context) { return visitor.visitText(this, context); };
     return Text;
 }());
-exports.Text = Text;
-var Expansion = (function () {
+export var Expansion = (function () {
     function Expansion(switchValue, type, cases, sourceSpan, switchValueSourceSpan) {
         this.switchValue = switchValue;
         this.type = type;
@@ -26,8 +24,7 @@ var Expansion = (function () {
     Expansion.prototype.visit = function (visitor, context) { return visitor.visitExpansion(this, context); };
     return Expansion;
 }());
-exports.Expansion = Expansion;
-var ExpansionCase = (function () {
+export var ExpansionCase = (function () {
     function ExpansionCase(value, expression, sourceSpan, valueSourceSpan, expSourceSpan) {
         this.value = value;
         this.expression = expression;
@@ -38,8 +35,7 @@ var ExpansionCase = (function () {
     ExpansionCase.prototype.visit = function (visitor, context) { return visitor.visitExpansionCase(this, context); };
     return ExpansionCase;
 }());
-exports.ExpansionCase = ExpansionCase;
-var Attribute = (function () {
+export var Attribute = (function () {
     function Attribute(name, value, sourceSpan) {
         this.name = name;
         this.value = value;
@@ -48,8 +44,7 @@ var Attribute = (function () {
     Attribute.prototype.visit = function (visitor, context) { return visitor.visitAttribute(this, context); };
     return Attribute;
 }());
-exports.Attribute = Attribute;
-var Element = (function () {
+export var Element = (function () {
     function Element(name, attrs, children, sourceSpan, startSourceSpan, endSourceSpan) {
         this.name = name;
         this.attrs = attrs;
@@ -61,8 +56,7 @@ var Element = (function () {
     Element.prototype.visit = function (visitor, context) { return visitor.visitElement(this, context); };
     return Element;
 }());
-exports.Element = Element;
-var Comment = (function () {
+export var Comment = (function () {
     function Comment(value, sourceSpan) {
         this.value = value;
         this.sourceSpan = sourceSpan;
@@ -70,8 +64,7 @@ var Comment = (function () {
     Comment.prototype.visit = function (visitor, context) { return visitor.visitComment(this, context); };
     return Comment;
 }());
-exports.Comment = Comment;
-function visitAll(visitor, nodes, context) {
+export function visitAll(visitor, nodes, context) {
     if (context === void 0) { context = null; }
     var result = [];
     nodes.forEach(function (ast) {
@@ -82,5 +75,4 @@ function visitAll(visitor, nodes, context) {
     });
     return result;
 }
-exports.visitAll = visitAll;
 //# sourceMappingURL=ast.js.map

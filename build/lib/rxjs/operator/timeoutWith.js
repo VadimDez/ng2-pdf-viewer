@@ -99,7 +99,7 @@ var TimeoutWithSubscriber = (function (_super) {
         this._hasCompleted = true;
     };
     TimeoutWithSubscriber.prototype.handleTimeout = function () {
-        if (!this.isUnsubscribed) {
+        if (!this.closed) {
             var withObservable = this.withObservable;
             this.unsubscribe();
             this.destination.add(this.timeoutSubscription = subscribeToResult_1.subscribeToResult(this, withObservable));

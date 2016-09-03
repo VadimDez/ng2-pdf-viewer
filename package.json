@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Angular2 component for rendering PDF",
   "main": "dist/pdf-viewer.component.js",
   "typings": "./dist/pdf-viewer.component.min.d.ts",
@@ -35,23 +35,23 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "peerDependencies": {
-    "@angular/core": "2.0.0-rc.5",
-    "pdfjs-dist": "^1.5.385"
+    "@angular/core": "^2.0.0-rc.6",
+    "pdfjs-dist": "^1.5.418"
   },
   "dependencies": {
-    "@angular/common": "2.0.0-rc.5",
-    "@angular/compiler": "2.0.0-rc.5",
-    "@angular/core": "2.0.0-rc.5",
-    "@angular/forms": "^0.3.0",
-    "@angular/platform-browser": "2.0.0-rc.5",
-    "@angular/platform-browser-dynamic": "2.0.0-rc.5",
+    "@angular/common": "^2.0.0-rc.6",
+    "@angular/compiler": "^2.0.0-rc.6",
+    "@angular/core": "^2.0.0-rc.6",
+    "@angular/forms": "^2.0.0-rc.6",
+    "@angular/platform-browser": "^2.0.0-rc.6",
+    "@angular/platform-browser-dynamic": "^2.0.0-rc.6",
     "es6-shim": "^0.35.0",
     "material-design-lite": "^1.2.0",
-    "pdfjs-dist": "^1.5.385",
+    "pdfjs-dist": "^1.5.418",
     "reflect-metadata": "0.1.8",
-    "rxjs": "5.0.0-beta.6",
-    "systemjs": "0.19.36",
-    "zone.js": "^0.6.15"
+    "rxjs": "5.0.0-beta.11",
+    "systemjs": "0.19.37",
+    "zone.js": "^0.6.17"
   },
   "devDependencies": {
     "codelyzer": "0.0.28",
@@ -59,17 +59,17 @@
     "del": "^2.2.2",
     "ember-cli-inject-live-reload": "^1.4.1",
     "gulp": "^3.9.1",
-    "gulp-inline-ng2-template": "^3.0.0",
+    "gulp-inline-ng2-template": "^3.0.1",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-tslint": "^6.0.1",
+    "gulp-tslint": "^6.1.1",
     "gulp-typescript": "^2.12.0",
     "lite-server": "^2.2.0",
     "moment": "^2.14.1",
-    "systemjs-builder": "^0.15.23",
+    "systemjs-builder": "^0.15.30",
     "ts-node": "^1.3.0",
-    "tslint": "^3.6.0",
+    "tslint": "^3.15.1",
     "typescript": "^1.8.10",
-    "typings": "^1.3.2",
+    "typings": "^1.3.3",
     "uglifyjs": "^2.4.10"
   },
   "files": [

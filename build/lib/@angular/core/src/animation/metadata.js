@@ -5,18 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
+import { NumberWrapper, isArray, isPresent, isString } from '../facade/lang';
 /**
  * @experimental Animation support is experimental.
  */
-exports.AUTO_STYLE = '*';
+export var AUTO_STYLE = '*';
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link trigger trigger
@@ -24,23 +22,21 @@ exports.AUTO_STYLE = '*';
  *
  * @experimental Animation support is experimental.
  */
-var AnimationEntryMetadata = (function () {
+export var AnimationEntryMetadata = (function () {
     function AnimationEntryMetadata(name, definitions) {
         this.name = name;
         this.definitions = definitions;
     }
     return AnimationEntryMetadata;
 }());
-exports.AnimationEntryMetadata = AnimationEntryMetadata;
 /**
  * @experimental Animation support is experimental.
  */
-var AnimationStateMetadata = (function () {
+export var AnimationStateMetadata = (function () {
     function AnimationStateMetadata() {
     }
     return AnimationStateMetadata;
 }());
-exports.AnimationStateMetadata = AnimationStateMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link state state animation
@@ -48,7 +44,7 @@ exports.AnimationStateMetadata = AnimationStateMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationStateDeclarationMetadata = (function (_super) {
+export var AnimationStateDeclarationMetadata = (function (_super) {
     __extends(AnimationStateDeclarationMetadata, _super);
     function AnimationStateDeclarationMetadata(stateNameExpr, styles) {
         _super.call(this);
@@ -57,7 +53,6 @@ var AnimationStateDeclarationMetadata = (function (_super) {
     }
     return AnimationStateDeclarationMetadata;
 }(AnimationStateMetadata));
-exports.AnimationStateDeclarationMetadata = AnimationStateDeclarationMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the
@@ -65,7 +60,7 @@ exports.AnimationStateDeclarationMetadata = AnimationStateDeclarationMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationStateTransitionMetadata = (function (_super) {
+export var AnimationStateTransitionMetadata = (function (_super) {
     __extends(AnimationStateTransitionMetadata, _super);
     function AnimationStateTransitionMetadata(stateChangeExpr, steps) {
         _super.call(this);
@@ -74,16 +69,14 @@ var AnimationStateTransitionMetadata = (function (_super) {
     }
     return AnimationStateTransitionMetadata;
 }(AnimationStateMetadata));
-exports.AnimationStateTransitionMetadata = AnimationStateTransitionMetadata;
 /**
  * @experimental Animation support is experimental.
  */
-var AnimationMetadata = (function () {
+export var AnimationMetadata = (function () {
     function AnimationMetadata() {
     }
     return AnimationMetadata;
 }());
-exports.AnimationMetadata = AnimationMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link keyframes keyframes
@@ -91,7 +84,7 @@ exports.AnimationMetadata = AnimationMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationKeyframesSequenceMetadata = (function (_super) {
+export var AnimationKeyframesSequenceMetadata = (function (_super) {
     __extends(AnimationKeyframesSequenceMetadata, _super);
     function AnimationKeyframesSequenceMetadata(steps) {
         _super.call(this);
@@ -99,7 +92,6 @@ var AnimationKeyframesSequenceMetadata = (function (_super) {
     }
     return AnimationKeyframesSequenceMetadata;
 }(AnimationMetadata));
-exports.AnimationKeyframesSequenceMetadata = AnimationKeyframesSequenceMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link style style animation
@@ -107,7 +99,7 @@ exports.AnimationKeyframesSequenceMetadata = AnimationKeyframesSequenceMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationStyleMetadata = (function (_super) {
+export var AnimationStyleMetadata = (function (_super) {
     __extends(AnimationStyleMetadata, _super);
     function AnimationStyleMetadata(styles, offset) {
         if (offset === void 0) { offset = null; }
@@ -117,7 +109,6 @@ var AnimationStyleMetadata = (function (_super) {
     }
     return AnimationStyleMetadata;
 }(AnimationMetadata));
-exports.AnimationStyleMetadata = AnimationStyleMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link animate animate
@@ -125,7 +116,7 @@ exports.AnimationStyleMetadata = AnimationStyleMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationAnimateMetadata = (function (_super) {
+export var AnimationAnimateMetadata = (function (_super) {
     __extends(AnimationAnimateMetadata, _super);
     function AnimationAnimateMetadata(timings, styles) {
         _super.call(this);
@@ -134,23 +125,21 @@ var AnimationAnimateMetadata = (function (_super) {
     }
     return AnimationAnimateMetadata;
 }(AnimationMetadata));
-exports.AnimationAnimateMetadata = AnimationAnimateMetadata;
 /**
  * @experimental Animation support is experimental.
  */
-var AnimationWithStepsMetadata = (function (_super) {
+export var AnimationWithStepsMetadata = (function (_super) {
     __extends(AnimationWithStepsMetadata, _super);
     function AnimationWithStepsMetadata() {
         _super.call(this);
     }
     Object.defineProperty(AnimationWithStepsMetadata.prototype, "steps", {
-        get: function () { throw new exceptions_1.BaseException('NOT IMPLEMENTED: Base Class'); },
+        get: function () { throw new Error('NOT IMPLEMENTED: Base Class'); },
         enumerable: true,
         configurable: true
     });
     return AnimationWithStepsMetadata;
 }(AnimationMetadata));
-exports.AnimationWithStepsMetadata = AnimationWithStepsMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link sequence sequence
@@ -158,7 +147,7 @@ exports.AnimationWithStepsMetadata = AnimationWithStepsMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationSequenceMetadata = (function (_super) {
+export var AnimationSequenceMetadata = (function (_super) {
     __extends(AnimationSequenceMetadata, _super);
     function AnimationSequenceMetadata(_steps) {
         _super.call(this);
@@ -171,7 +160,6 @@ var AnimationSequenceMetadata = (function (_super) {
     });
     return AnimationSequenceMetadata;
 }(AnimationWithStepsMetadata));
-exports.AnimationSequenceMetadata = AnimationSequenceMetadata;
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the {@link group group animation
@@ -179,7 +167,7 @@ exports.AnimationSequenceMetadata = AnimationSequenceMetadata;
  *
  * @experimental Animation support is experimental.
  */
-var AnimationGroupMetadata = (function (_super) {
+export var AnimationGroupMetadata = (function (_super) {
     __extends(AnimationGroupMetadata, _super);
     function AnimationGroupMetadata(_steps) {
         _super.call(this);
@@ -192,7 +180,6 @@ var AnimationGroupMetadata = (function (_super) {
     });
     return AnimationGroupMetadata;
 }(AnimationWithStepsMetadata));
-exports.AnimationGroupMetadata = AnimationGroupMetadata;
 /**
  * `animate` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -245,16 +232,15 @@ exports.AnimationGroupMetadata = AnimationGroupMetadata;
  *
  * @experimental Animation support is experimental.
  */
-function animate(timing, styles) {
+export function animate(timing, styles) {
     if (styles === void 0) { styles = null; }
     var stylesEntry = styles;
-    if (!lang_1.isPresent(stylesEntry)) {
+    if (!isPresent(stylesEntry)) {
         var EMPTY_STYLE = {};
         stylesEntry = new AnimationStyleMetadata([EMPTY_STYLE], 1);
     }
     return new AnimationAnimateMetadata(timing, stylesEntry);
 }
-exports.animate = animate;
 /**
  * `group` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -293,10 +279,9 @@ exports.animate = animate;
  *
  * @experimental Animation support is experimental.
  */
-function group(steps) {
+export function group(steps) {
     return new AnimationGroupMetadata(steps);
 }
-exports.group = group;
 /**
  * `sequence` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -336,10 +321,9 @@ exports.group = group;
  *
  * @experimental Animation support is experimental.
  */
-function sequence(steps) {
+export function sequence(steps) {
     return new AnimationSequenceMetadata(steps);
 }
-exports.sequence = sequence;
 /**
  * `style` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -387,14 +371,14 @@ exports.sequence = sequence;
  *
  * @experimental Animation support is experimental.
  */
-function style(tokens) {
+export function style(tokens) {
     var input;
     var offset = null;
-    if (lang_1.isString(tokens)) {
+    if (isString(tokens)) {
         input = [tokens];
     }
     else {
-        if (lang_1.isArray(tokens)) {
+        if (isArray(tokens)) {
             input = tokens;
         }
         else {
@@ -402,14 +386,13 @@ function style(tokens) {
         }
         input.forEach(function (entry) {
             var entryOffset = entry['offset'];
-            if (lang_1.isPresent(entryOffset)) {
-                offset = offset == null ? lang_1.NumberWrapper.parseFloat(entryOffset) : offset;
+            if (isPresent(entryOffset)) {
+                offset = offset == null ? NumberWrapper.parseFloat(entryOffset) : offset;
             }
         });
     }
     return new AnimationStyleMetadata(input, offset);
 }
-exports.style = style;
 /**
  * `state` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -464,10 +447,9 @@ exports.style = style;
  *
  * @experimental Animation support is experimental.
  */
-function state(stateNameExpr, styles) {
+export function state(stateNameExpr, styles) {
     return new AnimationStateDeclarationMetadata(stateNameExpr, styles);
 }
-exports.state = state;
 /**
  * `keyframes` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -517,10 +499,9 @@ exports.state = state;
  *
  * @experimental Animation support is experimental.
  */
-function keyframes(steps) {
+export function keyframes(steps) {
     return new AnimationKeyframesSequenceMetadata(steps);
 }
-exports.keyframes = keyframes;
 /**
  * `transition` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -609,12 +590,11 @@ exports.keyframes = keyframes;
  *
  * @experimental Animation support is experimental.
  */
-function transition(stateChangeExpr, steps) {
-    var animationData = lang_1.isArray(steps) ? new AnimationSequenceMetadata(steps) :
+export function transition(stateChangeExpr, steps) {
+    var animationData = isArray(steps) ? new AnimationSequenceMetadata(steps) :
         steps;
     return new AnimationStateTransitionMetadata(stateChangeExpr, animationData);
 }
-exports.transition = transition;
 /**
  * `trigger` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
@@ -671,8 +651,7 @@ exports.transition = transition;
  *
  * @experimental Animation support is experimental.
  */
-function trigger(name, animation) {
+export function trigger(name, animation) {
     return new AnimationEntryMetadata(name, animation);
 }
-exports.trigger = trigger;
 //# sourceMappingURL=metadata.js.map

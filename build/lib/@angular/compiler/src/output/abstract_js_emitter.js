@@ -5,17 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var exceptions_1 = require('../facade/exceptions');
-var lang_1 = require('../facade/lang');
-var abstract_emitter_1 = require('./abstract_emitter');
-var o = require('./output_ast');
-var AbstractJsEmitterVisitor = (function (_super) {
+import { isPresent } from '../facade/lang';
+import { AbstractEmitterVisitor, CATCH_ERROR_VAR, CATCH_STACK_VAR } from './abstract_emitter';
+import * as o from './output_ast';
+export var AbstractJsEmitterVisitor = (function (_super) {
     __extends(AbstractJsEmitterVisitor, _super);
     function AbstractJsEmitterVisitor() {
         _super.call(this, false);
@@ -24,7 +22,7 @@ var AbstractJsEmitterVisitor = (function (_super) {
         var _this = this;
         ctx.pushClass(stmt);
         this._visitClassConstructor(stmt, ctx);
-        if (lang_1.isPresent(stmt.parent)) {
+        if (isPresent(stmt.parent)) {
             ctx.print(stmt.name + ".prototype = Object.create(");
             stmt.parent.visitExpression(this, ctx);
             ctx.println(".prototype);");
@@ -36,12 +34,12 @@ var AbstractJsEmitterVisitor = (function (_super) {
     };
     AbstractJsEmitterVisitor.prototype._visitClassConstructor = function (stmt, ctx) {
         ctx.print("function " + stmt.name + "(");
-        if (lang_1.isPresent(stmt.constructorMethod)) {
+        if (isPresent(stmt.constructorMethod)) {
             this._visitParams(stmt.constructorMethod.params, ctx);
         }
         ctx.println(") {");
         ctx.incIndent();
-        if (lang_1.isPresent(stmt.constructorMethod)) {
+        if (isPresent(stmt.constructorMethod)) {
             if (stmt.constructorMethod.body.length > 0) {
                 ctx.println("var self = this;");
                 this.visitAllStatements(stmt.constructorMethod.body, ctx);
@@ -77,7 +75,7 @@ var AbstractJsEmitterVisitor = (function (_super) {
             ctx.print('self');
         }
         else if (ast.builtin === o.BuiltinVar.Super) {
-            throw new exceptions_1.BaseException("'super' needs to be handled at a parent ast node, not at the variable level!");
+            throw new Error("'super' needs to be handled at a parent ast node, not at the variable level!");
         }
         else {
             _super.prototype.visitReadVarExpr.call(this, ast, ctx);
@@ -135,9 +133,9 @@ var AbstractJsEmitterVisitor = (function (_super) {
         ctx.incIndent();
         this.visitAllStatements(stmt.bodyStmts, ctx);
         ctx.decIndent();
-        ctx.println("} catch (" + abstract_emitter_1.CATCH_ERROR_VAR.name + ") {");
+        ctx.println("} catch (" + CATCH_ERROR_VAR.name + ") {");
         ctx.incIndent();
-        var catchStmts = [abstract_emitter_1.CATCH_STACK_VAR.set(abstract_emitter_1.CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
+        var catchStmts = [CATCH_STACK_VAR.set(CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
                 o.StmtModifier.Final
             ])].concat(stmt.catchStmts);
         this.visitAllStatements(catchStmts, ctx);
@@ -157,15 +155,14 @@ var AbstractJsEmitterVisitor = (function (_super) {
             case o.BuiltinMethod.SubscribeObservable:
                 name = 'subscribe';
                 break;
-            case o.BuiltinMethod.bind:
+            case o.BuiltinMethod.Bind:
                 name = 'bind';
                 break;
             default:
-                throw new exceptions_1.BaseException("Unknown builtin method: " + method);
+                throw new Error("Unknown builtin method: " + method);
         }
         return name;
     };
     return AbstractJsEmitterVisitor;
-}(abstract_emitter_1.AbstractEmitterVisitor));
-exports.AbstractJsEmitterVisitor = AbstractJsEmitterVisitor;
+}(AbstractEmitterVisitor));
 //# sourceMappingURL=abstract_js_emitter.js.map

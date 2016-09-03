@@ -5,19 +5,18 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_private_1 = require('../../core_private');
-var compile_metadata_1 = require('../compile_metadata');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var identifiers_1 = require('../identifiers');
-var o = require('../output/output_ast');
-var compile_method_1 = require('./compile_method');
-var compile_pipe_1 = require('./compile_pipe');
-var compile_query_1 = require('./compile_query');
-var constants_1 = require('./constants');
-var util_1 = require('./util');
-var CompileView = (function () {
+import { CompileIdentifierMetadata } from '../compile_metadata';
+import { ListWrapper, MapWrapper } from '../facade/collection';
+import { isBlank, isPresent } from '../facade/lang';
+import { Identifiers, resolveIdentifier } from '../identifiers';
+import * as o from '../output/output_ast';
+import { ViewType } from '../private_import_core';
+import { CompileMethod } from './compile_method';
+import { CompilePipe } from './compile_pipe';
+import { CompileQuery, addQueryToTokenMap, createQueryList } from './compile_query';
+import { EventHandlerVars } from './constants';
+import { createPureProxy, getPropertyInView, getViewFactoryName } from './util';
+export var CompileView = (function () {
     function CompileView(component, genConfig, pipeMetas, styles, animations, viewIndex, declarationElement, templateVariableBindings) {
         var _this = this;
         this.component = component;
@@ -44,46 +43,46 @@ var CompileView = (function () {
         this.literalArrayCount = 0;
         this.literalMapCount = 0;
         this.pipeCount = 0;
-        this.createMethod = new compile_method_1.CompileMethod(this);
-        this.injectorGetMethod = new compile_method_1.CompileMethod(this);
-        this.updateContentQueriesMethod = new compile_method_1.CompileMethod(this);
-        this.dirtyParentQueriesMethod = new compile_method_1.CompileMethod(this);
-        this.updateViewQueriesMethod = new compile_method_1.CompileMethod(this);
-        this.detectChangesInInputsMethod = new compile_method_1.CompileMethod(this);
-        this.detectChangesRenderPropertiesMethod = new compile_method_1.CompileMethod(this);
-        this.afterContentLifecycleCallbacksMethod = new compile_method_1.CompileMethod(this);
-        this.afterViewLifecycleCallbacksMethod = new compile_method_1.CompileMethod(this);
-        this.destroyMethod = new compile_method_1.CompileMethod(this);
-        this.detachMethod = new compile_method_1.CompileMethod(this);
+        this.createMethod = new CompileMethod(this);
+        this.injectorGetMethod = new CompileMethod(this);
+        this.updateContentQueriesMethod = new CompileMethod(this);
+        this.dirtyParentQueriesMethod = new CompileMethod(this);
+        this.updateViewQueriesMethod = new CompileMethod(this);
+        this.detectChangesInInputsMethod = new CompileMethod(this);
+        this.detectChangesRenderPropertiesMethod = new CompileMethod(this);
+        this.afterContentLifecycleCallbacksMethod = new CompileMethod(this);
+        this.afterViewLifecycleCallbacksMethod = new CompileMethod(this);
+        this.destroyMethod = new CompileMethod(this);
+        this.detachMethod = new CompileMethod(this);
         this.viewType = getViewType(component, viewIndex);
         this.className = "_View_" + component.type.name + viewIndex;
-        this.classType = o.importType(new compile_metadata_1.CompileIdentifierMetadata({ name: this.className }));
-        this.viewFactory = o.variable(util_1.getViewFactoryName(component, viewIndex));
-        if (this.viewType === core_private_1.ViewType.COMPONENT || this.viewType === core_private_1.ViewType.HOST) {
+        this.classType = o.importType(new CompileIdentifierMetadata({ name: this.className }));
+        this.viewFactory = o.variable(getViewFactoryName(component, viewIndex));
+        if (this.viewType === ViewType.COMPONENT || this.viewType === ViewType.HOST) {
             this.componentView = this;
         }
         else {
             this.componentView = this.declarationElement.view.componentView;
         }
         this.componentContext =
-            util_1.getPropertyInView(o.THIS_EXPR.prop('context'), this, this.componentView);
-        var viewQueries = new compile_metadata_1.CompileIdentifierMap();
-        if (this.viewType === core_private_1.ViewType.COMPONENT) {
+            getPropertyInView(o.THIS_EXPR.prop('context'), this, this.componentView);
+        var viewQueries = new Map();
+        if (this.viewType === ViewType.COMPONENT) {
             var directiveInstance = o.THIS_EXPR.prop('context');
-            collection_1.ListWrapper.forEachWithIndex(this.component.viewQueries, function (queryMeta, queryIndex) {
+            ListWrapper.forEachWithIndex(this.component.viewQueries, function (queryMeta, queryIndex) {
                 var propName = "_viewQuery_" + queryMeta.selectors[0].name + "_" + queryIndex;
-                var queryList = compile_query_1.createQueryList(queryMeta, directiveInstance, propName, _this);
-                var query = new compile_query_1.CompileQuery(queryMeta, queryList, directiveInstance, _this);
-                compile_query_1.addQueryToTokenMap(viewQueries, query);
+                var queryList = createQueryList(queryMeta, directiveInstance, propName, _this);
+                var query = new CompileQuery(queryMeta, queryList, directiveInstance, _this);
+                addQueryToTokenMap(viewQueries, query);
             });
             var constructorViewQueryCount = 0;
             this.component.type.diDeps.forEach(function (dep) {
-                if (lang_1.isPresent(dep.viewQuery)) {
+                if (isPresent(dep.viewQuery)) {
                     var queryList = o.THIS_EXPR.prop('declarationAppElement')
                         .prop('componentConstructorViewQueries')
                         .key(o.literal(constructorViewQueryCount++));
-                    var query = new compile_query_1.CompileQuery(dep.viewQuery, queryList, null, _this);
-                    compile_query_1.addQueryToTokenMap(viewQueries, query);
+                    var query = new CompileQuery(dep.viewQuery, queryList, null, _this);
+                    addQueryToTokenMap(viewQueries, query);
                 }
             });
         }
@@ -94,20 +93,20 @@ var CompileView = (function () {
         }
     }
     CompileView.prototype.callPipe = function (name, input, args) {
-        return compile_pipe_1.CompilePipe.call(this, name, [input].concat(args));
+        return CompilePipe.call(this, name, [input].concat(args));
     };
     CompileView.prototype.getLocal = function (name) {
-        if (name == constants_1.EventHandlerVars.event.name) {
-            return constants_1.EventHandlerVars.event;
+        if (name == EventHandlerVars.event.name) {
+            return EventHandlerVars.event;
         }
         var currView = this;
         var result = currView.locals.get(name);
-        while (lang_1.isBlank(result) && lang_1.isPresent(currView.declarationElement.view)) {
+        while (isBlank(result) && isPresent(currView.declarationElement.view)) {
             currView = currView.declarationElement.view;
             result = currView.locals.get(name);
         }
-        if (lang_1.isPresent(result)) {
-            return util_1.getPropertyInView(result, this, currView);
+        if (isPresent(result)) {
+            return getPropertyInView(result, this, currView);
         }
         else {
             return null;
@@ -115,7 +114,7 @@ var CompileView = (function () {
     };
     CompileView.prototype.createLiteralArray = function (values) {
         if (values.length === 0) {
-            return o.importExpr(identifiers_1.Identifiers.EMPTY_ARRAY);
+            return o.importExpr(resolveIdentifier(Identifiers.EMPTY_ARRAY));
         }
         var proxyExpr = o.THIS_EXPR.prop("_arr_" + this.literalArrayCount++);
         var proxyParams = [];
@@ -125,12 +124,12 @@ var CompileView = (function () {
             proxyParams.push(new o.FnParam(paramName));
             proxyReturnEntries.push(o.variable(paramName));
         }
-        util_1.createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalArr(proxyReturnEntries))], new o.ArrayType(o.DYNAMIC_TYPE)), values.length, proxyExpr, this);
+        createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalArr(proxyReturnEntries))], new o.ArrayType(o.DYNAMIC_TYPE)), values.length, proxyExpr, this);
         return proxyExpr.callFn(values);
     };
     CompileView.prototype.createLiteralMap = function (entries) {
         if (entries.length === 0) {
-            return o.importExpr(identifiers_1.Identifiers.EMPTY_MAP);
+            return o.importExpr(resolveIdentifier(Identifiers.EMPTY_MAP));
         }
         var proxyExpr = o.THIS_EXPR.prop("_map_" + this.literalMapCount++);
         var proxyParams = [];
@@ -142,25 +141,25 @@ var CompileView = (function () {
             proxyReturnEntries.push([entries[i][0], o.variable(paramName)]);
             values.push(entries[i][1]);
         }
-        util_1.createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalMap(proxyReturnEntries))], new o.MapType(o.DYNAMIC_TYPE)), entries.length, proxyExpr, this);
+        createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalMap(proxyReturnEntries))], new o.MapType(o.DYNAMIC_TYPE)), entries.length, proxyExpr, this);
         return proxyExpr.callFn(values);
     };
     CompileView.prototype.afterNodes = function () {
         var _this = this;
-        this.viewQueries.values().forEach(function (queries) { return queries.forEach(function (query) { return query.afterChildren(_this.createMethod, _this.updateViewQueriesMethod); }); });
+        MapWrapper.values(this.viewQueries)
+            .forEach(function (queries) { return queries.forEach(function (query) { return query.afterChildren(_this.createMethod, _this.updateViewQueriesMethod); }); });
     };
     return CompileView;
 }());
-exports.CompileView = CompileView;
 function getViewType(component, embeddedTemplateIndex) {
     if (embeddedTemplateIndex > 0) {
-        return core_private_1.ViewType.EMBEDDED;
+        return ViewType.EMBEDDED;
     }
     else if (component.type.isHost) {
-        return core_private_1.ViewType.HOST;
+        return ViewType.HOST;
     }
     else {
-        return core_private_1.ViewType.COMPONENT;
+        return ViewType.COMPONENT;
     }
 }
 //# sourceMappingURL=compile_view.js.map

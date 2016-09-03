@@ -5,16 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var chars = require('../chars');
-var parse_util_1 = require('../parse_util');
-var interpolation_config_1 = require('./interpolation_config');
-var tags_1 = require('./tags');
+import * as chars from '../chars';
+import { ParseError, ParseLocation, ParseSourceFile, ParseSourceSpan } from '../parse_util';
+import { DEFAULT_INTERPOLATION_CONFIG } from './interpolation_config';
+import { NAMED_ENTITIES, TagContentType } from './tags';
+export var TokenType;
 (function (TokenType) {
     TokenType[TokenType["TAG_OPEN_START"] = 0] = "TAG_OPEN_START";
     TokenType[TokenType["TAG_OPEN_END"] = 1] = "TAG_OPEN_END";
@@ -36,9 +36,8 @@ var tags_1 = require('./tags');
     TokenType[TokenType["EXPANSION_CASE_EXP_END"] = 17] = "EXPANSION_CASE_EXP_END";
     TokenType[TokenType["EXPANSION_FORM_END"] = 18] = "EXPANSION_FORM_END";
     TokenType[TokenType["EOF"] = 19] = "EOF";
-})(exports.TokenType || (exports.TokenType = {}));
-var TokenType = exports.TokenType;
-var Token = (function () {
+})(TokenType || (TokenType = {}));
+export var Token = (function () {
     function Token(type, parts, sourceSpan) {
         this.type = type;
         this.parts = parts;
@@ -46,31 +45,27 @@ var Token = (function () {
     }
     return Token;
 }());
-exports.Token = Token;
-var TokenError = (function (_super) {
+export var TokenError = (function (_super) {
     __extends(TokenError, _super);
     function TokenError(errorMsg, tokenType, span) {
         _super.call(this, span, errorMsg);
         this.tokenType = tokenType;
     }
     return TokenError;
-}(parse_util_1.ParseError));
-exports.TokenError = TokenError;
-var TokenizeResult = (function () {
+}(ParseError));
+export var TokenizeResult = (function () {
     function TokenizeResult(tokens, errors) {
         this.tokens = tokens;
         this.errors = errors;
     }
     return TokenizeResult;
 }());
-exports.TokenizeResult = TokenizeResult;
-function tokenize(source, url, getTagDefinition, tokenizeExpansionForms, interpolationConfig) {
+export function tokenize(source, url, getTagDefinition, tokenizeExpansionForms, interpolationConfig) {
     if (tokenizeExpansionForms === void 0) { tokenizeExpansionForms = false; }
-    if (interpolationConfig === void 0) { interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
-    return new _Tokenizer(new parse_util_1.ParseSourceFile(source, url), getTagDefinition, tokenizeExpansionForms, interpolationConfig)
+    if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
+    return new _Tokenizer(new ParseSourceFile(source, url), getTagDefinition, tokenizeExpansionForms, interpolationConfig)
         .tokenize();
 }
-exports.tokenize = tokenize;
 var _CR_OR_CRLF_REGEXP = /\r\n?/g;
 function _unexpectedCharacterErrorMsg(charCode) {
     var char = charCode === chars.$EOF ? 'EOF' : String.fromCharCode(charCode);
@@ -94,7 +89,7 @@ var _Tokenizer = (function () {
      * @param _interpolationConfig
      */
     function _Tokenizer(_file, _getTagDefinition, _tokenizeIcu, _interpolationConfig) {
-        if (_interpolationConfig === void 0) { _interpolationConfig = interpolation_config_1.DEFAULT_INTERPOLATION_CONFIG; }
+        if (_interpolationConfig === void 0) { _interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
         this._file = _file;
         this._getTagDefinition = _getTagDefinition;
         this._tokenizeIcu = _tokenizeIcu;
@@ -186,12 +181,12 @@ var _Tokenizer = (function () {
         return false;
     };
     _Tokenizer.prototype._getLocation = function () {
-        return new parse_util_1.ParseLocation(this._file, this._index, this._line, this._column);
+        return new ParseLocation(this._file, this._index, this._line, this._column);
     };
     _Tokenizer.prototype._getSpan = function (start, end) {
         if (start === void 0) { start = this._getLocation(); }
         if (end === void 0) { end = this._getLocation(); }
-        return new parse_util_1.ParseSourceSpan(start, end);
+        return new ParseSourceSpan(start, end);
     };
     _Tokenizer.prototype._beginToken = function (type, start) {
         if (start === void 0) { start = this._getLocation(); }
@@ -200,7 +195,7 @@ var _Tokenizer = (function () {
     };
     _Tokenizer.prototype._endToken = function (parts, end) {
         if (end === void 0) { end = this._getLocation(); }
-        var token = new Token(this._currentTokenType, parts, new parse_util_1.ParseSourceSpan(this._currentTokenStart, end));
+        var token = new Token(this._currentTokenType, parts, new ParseSourceSpan(this._currentTokenStart, end));
         this.tokens.push(token);
         this._currentTokenStart = null;
         this._currentTokenType = null;
@@ -338,7 +333,7 @@ var _Tokenizer = (function () {
             }
             this._advance();
             var name_1 = this._input.substring(start.offset + 1, this._index - 1);
-            var char = tags_1.NAMED_ENTITIES[name_1];
+            var char = NAMED_ENTITIES[name_1];
             if (!char) {
                 throw this._createError(_unknownEntityErrorMsg(name_1), this._getSpan(start));
             }
@@ -444,10 +439,10 @@ var _Tokenizer = (function () {
             throw e;
         }
         var contentTokenType = this._getTagDefinition(tagName).contentType;
-        if (contentTokenType === tags_1.TagContentType.RAW_TEXT) {
+        if (contentTokenType === TagContentType.RAW_TEXT) {
             this._consumeRawTextWithTagClose(lowercaseTagName, false);
         }
-        else if (contentTokenType === tags_1.TagContentType.ESCAPABLE_RAW_TEXT) {
+        else if (contentTokenType === TagContentType.ESCAPABLE_RAW_TEXT) {
             this._consumeRawTextWithTagClose(lowercaseTagName, true);
         }
     };

@@ -5,19 +5,18 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var core_1 = require('@angular/core');
-var collection_1 = require('../facade/collection');
-var lang_1 = require('../facade/lang');
-var util_1 = require('./util');
-var web_animations_player_1 = require('./web_animations_player');
-var WebAnimationsDriver = (function () {
+import { AUTO_STYLE } from '@angular/core';
+import { StringMapWrapper } from '../facade/collection';
+import { StringWrapper, isNumber, isPresent } from '../facade/lang';
+import { dashCaseToCamelCase } from './util';
+import { WebAnimationsPlayer } from './web_animations_player';
+export var WebAnimationsDriver = (function () {
     function WebAnimationsDriver() {
     }
     WebAnimationsDriver.prototype.animate = function (element, startingStyles, keyframes, duration, delay, easing) {
         var formattedSteps = [];
         var startingStyleLookup = {};
-        if (lang_1.isPresent(startingStyles) && startingStyles.styles.length > 0) {
+        if (isPresent(startingStyles) && startingStyles.styles.length > 0) {
             startingStyleLookup = _populateStyles(element, startingStyles, {});
             startingStyleLookup['offset'] = 0;
             formattedSteps.push(startingStyleLookup);
@@ -46,22 +45,21 @@ var WebAnimationsDriver = (function () {
         if (easing) {
             playerOptions['easing'] = easing;
         }
-        return new web_animations_player_1.WebAnimationsPlayer(element, formattedSteps, playerOptions);
+        return new WebAnimationsPlayer(element, formattedSteps, playerOptions);
     };
     return WebAnimationsDriver;
 }());
-exports.WebAnimationsDriver = WebAnimationsDriver;
 function _populateStyles(element, styles, defaultStyles) {
     var data = {};
     styles.styles.forEach(function (entry) {
-        collection_1.StringMapWrapper.forEach(entry, function (val, prop) {
-            var formattedProp = util_1.dashCaseToCamelCase(prop);
+        StringMapWrapper.forEach(entry, function (val, prop) {
+            var formattedProp = dashCaseToCamelCase(prop);
             data[formattedProp] =
-                val == core_1.AUTO_STYLE ? val : val.toString() + _resolveStyleUnit(val, prop, formattedProp);
+                val == AUTO_STYLE ? val : val.toString() + _resolveStyleUnit(val, prop, formattedProp);
         });
     });
-    collection_1.StringMapWrapper.forEach(defaultStyles, function (value, prop) {
-        if (!lang_1.isPresent(data[prop])) {
+    StringMapWrapper.forEach(defaultStyles, function (value, prop) {
+        if (!isPresent(data[prop])) {
             data[prop] = value;
         }
     });
@@ -70,11 +68,11 @@ function _populateStyles(element, styles, defaultStyles) {
 function _resolveStyleUnit(val, userProvidedProp, formattedProp) {
     var unit = '';
     if (_isPixelDimensionStyle(formattedProp) && val != 0 && val != '0') {
-        if (lang_1.isNumber(val)) {
+        if (isNumber(val)) {
             unit = 'px';
         }
         else if (_findDimensionalSuffix(val.toString()).length == 0) {
-            throw new core_1.BaseException('Please provide a CSS unit value for ' + userProvidedProp + ':' + val);
+            throw new Error('Please provide a CSS unit value for ' + userProvidedProp + ':' + val);
         }
     }
     return unit;
@@ -84,7 +82,7 @@ var _$9 = 57;
 var _$PERIOD = 46;
 function _findDimensionalSuffix(value) {
     for (var i = 0; i < value.length; i++) {
-        var c = lang_1.StringWrapper.charCodeAt(value, i);
+        var c = StringWrapper.charCodeAt(value, i);
         if ((c >= _$0 && c <= _$9) || c == _$PERIOD)
             continue;
         return value.substring(i, value.length);

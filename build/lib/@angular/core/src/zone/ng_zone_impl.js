@@ -5,20 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-/**
- * Stores error information; delivered via [NgZone.onError] stream.
- * @deprecated
- */
-var NgZoneError = (function () {
-    function NgZoneError(error, stackTrace) {
-        this.error = error;
-        this.stackTrace = stackTrace;
-    }
-    return NgZoneError;
-}());
-exports.NgZoneError = NgZoneError;
-var NgZoneImpl = (function () {
+export var NgZoneImpl = (function () {
     function NgZoneImpl(_a) {
         var _this = this;
         var trace = _a.trace, onEnter = _a.onEnter, onLeave = _a.onLeave, setMicrotask = _a.setMicrotask, setMacrotask = _a.setMacrotask, onError = _a.onError;
@@ -71,7 +58,7 @@ var NgZoneImpl = (function () {
                 },
                 onHandleError: function (delegate, current, target, error) {
                     delegate.handleError(target, error);
-                    _this.onError(new NgZoneError(error, error.stack));
+                    _this.onError(error);
                     return false;
                 }
             });
@@ -89,5 +76,4 @@ var NgZoneImpl = (function () {
     ;
     return NgZoneImpl;
 }());
-exports.NgZoneImpl = NgZoneImpl;
 //# sourceMappingURL=ng_zone_impl.js.map

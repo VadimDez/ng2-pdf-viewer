@@ -5,11 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
 /**
  * Injectable completer that allows signaling completion of an asynchronous test. Used internally.
  */
-var AsyncTestCompleter = (function () {
+export var AsyncTestCompleter = (function () {
     function AsyncTestCompleter() {
         var _this = this;
         this._promise = new Promise(function (res, rej) {
@@ -26,5 +25,4 @@ var AsyncTestCompleter = (function () {
     });
     return AsyncTestCompleter;
 }());
-exports.AsyncTestCompleter = AsyncTestCompleter;
 //# sourceMappingURL=async_test_completer.js.map
