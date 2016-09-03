@@ -14,11 +14,30 @@ npm install ng2-pdf-viewer --save
 
 In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
 
-Import component to your component
+Add ```PdfViewerComponent``` to your module's ```declarations```
+
+```js
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+
+import { PdfViewerComponent } from 'ng2-pdf-viewer';
+
+@NgModule({
+  imports: [BrowserModule],
+  declarations: [AppComponent, PdfViewerComponent],
+  bootstrap: [AppComponent]
+})
+
+class AppModule {}
+
+platformBrowserDynamic().bootstrapModule(AppModule);
+```
+
+And then use it in your component
 
 ```js
 import { Component } from '@angular/core';
-import { PdfViewerComponent } from 'ng2-pdf-viewer';
 
 @Component({
   selector: 'example-app',
@@ -31,9 +50,12 @@ import { PdfViewerComponent } from 'ng2-pdf-viewer';
       <label>Page:</label>
       <input type="number" placeholder="Page" [(ngModel)]="page">
   </div>
-  <pdf-viewer [src]="pdfSrc" [initialPage]="page" [original-size]="true" style="display: block;"></pdf-viewer>
-  `,
-  directives: [PdfViewerComponent]
+  <pdf-viewer [src]="pdfSrc" 
+              [initialPage]="page" 
+              [original-size]="true" 
+              style="display: block;"
+  ></pdf-viewer>
+  `
 })
 export class AppComponent {
   pdfSrc: string = '/pdf-test.pdf';
