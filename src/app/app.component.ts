@@ -11,6 +11,16 @@ import { Component } from '@angular/core';
 
 export class AppComponent {
   pdfSrc: string = './pdf-test.pdf';
+
+  // or pass options as object
+  // pdfSrc: any = {
+  //   url: './pdf-test.pdf',
+  //   withCredentials: true,
+  //// httpHeaders: { // cross domain
+  ////   'Access-Control-Allow-Credentials': true
+  //// }
+  // };
+
   page: number = 1;
   originalSize: boolean = false;
   showAll: boolean = true;

@@ -14,7 +14,7 @@ import 'pdfjs-dist/build/pdf.combined';
 export class PdfViewerComponent {
   private _showAll: boolean = false;
   private _originalSize: boolean = true;
-  private _src: string;
+  private _src: any;
   private _pdf: any;
   private _page: number = 1;
   private wasInvalidPage: boolean = false;
