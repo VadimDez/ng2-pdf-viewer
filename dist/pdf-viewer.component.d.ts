@@ -4,7 +4,7 @@
 import { ElementRef } from '@angular/core';
 export declare class PdfViewerComponent {
     originalSize: boolean;
-    src: string;
+    src: any;
     page: number;
     showAll: boolean;
     private element;
