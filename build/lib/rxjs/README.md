@@ -108,9 +108,9 @@ npm install @reactivex/rxjs@5.0.0-beta.1
 
 ### CDN
 
-For CDN, you can use [npmcdn](https://npmcdn.com):
+For CDN, you can use [unpkg](https://unpkg.com):
 
-https://npmcdn.com/@reactivex/rxjs/dist/global/Rx.umd.js
+https://unpkg.com/@reactivex/rxjs/dist/global/Rx.umd.js
 
 #### Node.js Usage:
 
