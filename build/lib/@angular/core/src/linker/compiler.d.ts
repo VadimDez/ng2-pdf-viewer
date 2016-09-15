@@ -52,15 +52,15 @@ export declare class Compiler {
      */
     compileModuleAsync<T>(moduleType: Type<T>): Promise<NgModuleFactory<T>>;
     /**
-     * Same as {@link compileModuleSync} put also creates ComponentFactories for all components.
+     * Same as {@link compileModuleSync} but also creates ComponentFactories for all components.
      */
     compileModuleAndAllComponentsSync<T>(moduleType: Type<T>): ModuleWithComponentFactories<T>;
     /**
-     * Same as {@link compileModuleAsync} put also creates ComponentFactories for all components.
+     * Same as {@link compileModuleAsync} but also creates ComponentFactories for all components.
      */
     compileModuleAndAllComponentsAsync<T>(moduleType: Type<T>): Promise<ModuleWithComponentFactories<T>>;
     /**
-     * Clears all caches
+     * Clears all caches.
      */
     clearCache(): void;
     /**

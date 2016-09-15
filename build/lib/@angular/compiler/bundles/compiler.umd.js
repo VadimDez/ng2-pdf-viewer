@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -182,8 +182,6 @@
           }
           throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
       };
-      // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-      NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
       Object.defineProperty(NumberWrapper, "NaN", {
           get: function () { return NaN; },
           enumerable: true,
@@ -635,9 +633,8 @@
           if (k1.length != k2.length) {
               return false;
           }
-          var key;
           for (var i = 0; i < k1.length; i++) {
-              key = k1[i];
+              var key = k1[i];
               if (m1[key] !== m2[key]) {
                   return false;
               }
@@ -804,6 +801,389 @@
       return SetWrapper;
   }());
 
+  /**
+   * @license
+   * Copyright Google Inc. All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.io/license
+   */
+  var TagContentType;
+  (function (TagContentType) {
+      TagContentType[TagContentType["RAW_TEXT"] = 0] = "RAW_TEXT";
+      TagContentType[TagContentType["ESCAPABLE_RAW_TEXT"] = 1] = "ESCAPABLE_RAW_TEXT";
+      TagContentType[TagContentType["PARSABLE_DATA"] = 2] = "PARSABLE_DATA";
+  })(TagContentType || (TagContentType = {}));
+  function splitNsName(elementName) {
+      if (elementName[0] != ':') {
+          return [null, elementName];
+      }
+      var colonIndex = elementName.indexOf(':', 1);
+      if (colonIndex == -1) {
+          throw new Error("Unsupported format \"" + elementName + "\" expecting \":namespace:name\"");
+      }
+      return [elementName.slice(1, colonIndex), elementName.slice(colonIndex + 1)];
+  }
+  function getNsPrefix(fullName) {
+      return fullName === null ? null : splitNsName(fullName)[0];
+  }
+  function mergeNsAndName(prefix, localName) {
+      return prefix ? ":" + prefix + ":" + localName : localName;
+  }
+  // see http://www.w3.org/TR/html51/syntax.html#named-character-references
+  // see https://html.spec.whatwg.org/multipage/entities.json
+  // This list is not exhaustive to keep the compiler footprint low.
+  // The `&#123;` / `&#x1ab;` syntax should be used when the named character reference does not exist.
+  var NAMED_ENTITIES = {
+      'Aacute': '\u00C1',
+      'aacute': '\u00E1',
+      'Acirc': '\u00C2',
+      'acirc': '\u00E2',
+      'acute': '\u00B4',
+      'AElig': '\u00C6',
+      'aelig': '\u00E6',
+      'Agrave': '\u00C0',
+      'agrave': '\u00E0',
+      'alefsym': '\u2135',
+      'Alpha': '\u0391',
+      'alpha': '\u03B1',
+      'amp': '&',
+      'and': '\u2227',
+      'ang': '\u2220',
+      'apos': '\u0027',
+      'Aring': '\u00C5',
+      'aring': '\u00E5',
+      'asymp': '\u2248',
+      'Atilde': '\u00C3',
+      'atilde': '\u00E3',
+      'Auml': '\u00C4',
+      'auml': '\u00E4',
+      'bdquo': '\u201E',
+      'Beta': '\u0392',
+      'beta': '\u03B2',
+      'brvbar': '\u00A6',
+      'bull': '\u2022',
+      'cap': '\u2229',
+      'Ccedil': '\u00C7',
+      'ccedil': '\u00E7',
+      'cedil': '\u00B8',
+      'cent': '\u00A2',
+      'Chi': '\u03A7',
+      'chi': '\u03C7',
+      'circ': '\u02C6',
+      'clubs': '\u2663',
+      'cong': '\u2245',
+      'copy': '\u00A9',
+      'crarr': '\u21B5',
+      'cup': '\u222A',
+      'curren': '\u00A4',
+      'dagger': '\u2020',
+      'Dagger': '\u2021',
+      'darr': '\u2193',
+      'dArr': '\u21D3',
+      'deg': '\u00B0',
+      'Delta': '\u0394',
+      'delta': '\u03B4',
+      'diams': '\u2666',
+      'divide': '\u00F7',
+      'Eacute': '\u00C9',
+      'eacute': '\u00E9',
+      'Ecirc': '\u00CA',
+      'ecirc': '\u00EA',
+      'Egrave': '\u00C8',
+      'egrave': '\u00E8',
+      'empty': '\u2205',
+      'emsp': '\u2003',
+      'ensp': '\u2002',
+      'Epsilon': '\u0395',
+      'epsilon': '\u03B5',
+      'equiv': '\u2261',
+      'Eta': '\u0397',
+      'eta': '\u03B7',
+      'ETH': '\u00D0',
+      'eth': '\u00F0',
+      'Euml': '\u00CB',
+      'euml': '\u00EB',
+      'euro': '\u20AC',
+      'exist': '\u2203',
+      'fnof': '\u0192',
+      'forall': '\u2200',
+      'frac12': '\u00BD',
+      'frac14': '\u00BC',
+      'frac34': '\u00BE',
+      'frasl': '\u2044',
+      'Gamma': '\u0393',
+      'gamma': '\u03B3',
+      'ge': '\u2265',
+      'gt': '>',
+      'harr': '\u2194',
+      'hArr': '\u21D4',
+      'hearts': '\u2665',
+      'hellip': '\u2026',
+      'Iacute': '\u00CD',
+      'iacute': '\u00ED',
+      'Icirc': '\u00CE',
+      'icirc': '\u00EE',
+      'iexcl': '\u00A1',
+      'Igrave': '\u00CC',
+      'igrave': '\u00EC',
+      'image': '\u2111',
+      'infin': '\u221E',
+      'int': '\u222B',
+      'Iota': '\u0399',
+      'iota': '\u03B9',
+      'iquest': '\u00BF',
+      'isin': '\u2208',
+      'Iuml': '\u00CF',
+      'iuml': '\u00EF',
+      'Kappa': '\u039A',
+      'kappa': '\u03BA',
+      'Lambda': '\u039B',
+      'lambda': '\u03BB',
+      'lang': '\u27E8',
+      'laquo': '\u00AB',
+      'larr': '\u2190',
+      'lArr': '\u21D0',
+      'lceil': '\u2308',
+      'ldquo': '\u201C',
+      'le': '\u2264',
+      'lfloor': '\u230A',
+      'lowast': '\u2217',
+      'loz': '\u25CA',
+      'lrm': '\u200E',
+      'lsaquo': '\u2039',
+      'lsquo': '\u2018',
+      'lt': '<',
+      'macr': '\u00AF',
+      'mdash': '\u2014',
+      'micro': '\u00B5',
+      'middot': '\u00B7',
+      'minus': '\u2212',
+      'Mu': '\u039C',
+      'mu': '\u03BC',
+      'nabla': '\u2207',
+      'nbsp': '\u00A0',
+      'ndash': '\u2013',
+      'ne': '\u2260',
+      'ni': '\u220B',
+      'not': '\u00AC',
+      'notin': '\u2209',
+      'nsub': '\u2284',
+      'Ntilde': '\u00D1',
+      'ntilde': '\u00F1',
+      'Nu': '\u039D',
+      'nu': '\u03BD',
+      'Oacute': '\u00D3',
+      'oacute': '\u00F3',
+      'Ocirc': '\u00D4',
+      'ocirc': '\u00F4',
+      'OElig': '\u0152',
+      'oelig': '\u0153',
+      'Ograve': '\u00D2',
+      'ograve': '\u00F2',
+      'oline': '\u203E',
+      'Omega': '\u03A9',
+      'omega': '\u03C9',
+      'Omicron': '\u039F',
+      'omicron': '\u03BF',
+      'oplus': '\u2295',
+      'or': '\u2228',
+      'ordf': '\u00AA',
+      'ordm': '\u00BA',
+      'Oslash': '\u00D8',
+      'oslash': '\u00F8',
+      'Otilde': '\u00D5',
+      'otilde': '\u00F5',
+      'otimes': '\u2297',
+      'Ouml': '\u00D6',
+      'ouml': '\u00F6',
+      'para': '\u00B6',
+      'permil': '\u2030',
+      'perp': '\u22A5',
+      'Phi': '\u03A6',
+      'phi': '\u03C6',
+      'Pi': '\u03A0',
+      'pi': '\u03C0',
+      'piv': '\u03D6',
+      'plusmn': '\u00B1',
+      'pound': '\u00A3',
+      'prime': '\u2032',
+      'Prime': '\u2033',
+      'prod': '\u220F',
+      'prop': '\u221D',
+      'Psi': '\u03A8',
+      'psi': '\u03C8',
+      'quot': '\u0022',
+      'radic': '\u221A',
+      'rang': '\u27E9',
+      'raquo': '\u00BB',
+      'rarr': '\u2192',
+      'rArr': '\u21D2',
+      'rceil': '\u2309',
+      'rdquo': '\u201D',
+      'real': '\u211C',
+      'reg': '\u00AE',
+      'rfloor': '\u230B',
+      'Rho': '\u03A1',
+      'rho': '\u03C1',
+      'rlm': '\u200F',
+      'rsaquo': '\u203A',
+      'rsquo': '\u2019',
+      'sbquo': '\u201A',
+      'Scaron': '\u0160',
+      'scaron': '\u0161',
+      'sdot': '\u22C5',
+      'sect': '\u00A7',
+      'shy': '\u00AD',
+      'Sigma': '\u03A3',
+      'sigma': '\u03C3',
+      'sigmaf': '\u03C2',
+      'sim': '\u223C',
+      'spades': '\u2660',
+      'sub': '\u2282',
+      'sube': '\u2286',
+      'sum': '\u2211',
+      'sup': '\u2283',
+      'sup1': '\u00B9',
+      'sup2': '\u00B2',
+      'sup3': '\u00B3',
+      'supe': '\u2287',
+      'szlig': '\u00DF',
+      'Tau': '\u03A4',
+      'tau': '\u03C4',
+      'there4': '\u2234',
+      'Theta': '\u0398',
+      'theta': '\u03B8',
+      'thetasym': '\u03D1',
+      'thinsp': '\u2009',
+      'THORN': '\u00DE',
+      'thorn': '\u00FE',
+      'tilde': '\u02DC',
+      'times': '\u00D7',
+      'trade': '\u2122',
+      'Uacute': '\u00DA',
+      'uacute': '\u00FA',
+      'uarr': '\u2191',
+      'uArr': '\u21D1',
+      'Ucirc': '\u00DB',
+      'ucirc': '\u00FB',
+      'Ugrave': '\u00D9',
+      'ugrave': '\u00F9',
+      'uml': '\u00A8',
+      'upsih': '\u03D2',
+      'Upsilon': '\u03A5',
+      'upsilon': '\u03C5',
+      'Uuml': '\u00DC',
+      'uuml': '\u00FC',
+      'weierp': '\u2118',
+      'Xi': '\u039E',
+      'xi': '\u03BE',
+      'Yacute': '\u00DD',
+      'yacute': '\u00FD',
+      'yen': '\u00A5',
+      'yuml': '\u00FF',
+      'Yuml': '\u0178',
+      'Zeta': '\u0396',
+      'zeta': '\u03B6',
+      'zwj': '\u200D',
+      'zwnj': '\u200C',
+  };
+
+  var HtmlTagDefinition = (function () {
+      function HtmlTagDefinition(_a) {
+          var _this = this;
+          var _b = _a === void 0 ? {} : _a, closedByChildren = _b.closedByChildren, requiredParents = _b.requiredParents, implicitNamespacePrefix = _b.implicitNamespacePrefix, _c = _b.contentType, contentType = _c === void 0 ? TagContentType.PARSABLE_DATA : _c, _d = _b.closedByParent, closedByParent = _d === void 0 ? false : _d, _e = _b.isVoid, isVoid = _e === void 0 ? false : _e, _f = _b.ignoreFirstLf, ignoreFirstLf = _f === void 0 ? false : _f;
+          this.closedByChildren = {};
+          this.closedByParent = false;
+          this.canSelfClose = false;
+          if (closedByChildren && closedByChildren.length > 0) {
+              closedByChildren.forEach(function (tagName) { return _this.closedByChildren[tagName] = true; });
+          }
+          this.isVoid = isVoid;
+          this.closedByParent = closedByParent || isVoid;
+          if (requiredParents && requiredParents.length > 0) {
+              this.requiredParents = {};
+              // The first parent is the list is automatically when none of the listed parents are present
+              this.parentToAdd = requiredParents[0];
+              requiredParents.forEach(function (tagName) { return _this.requiredParents[tagName] = true; });
+          }
+          this.implicitNamespacePrefix = implicitNamespacePrefix;
+          this.contentType = contentType;
+          this.ignoreFirstLf = ignoreFirstLf;
+      }
+      HtmlTagDefinition.prototype.requireExtraParent = function (currentParent) {
+          if (!this.requiredParents) {
+              return false;
+          }
+          if (!currentParent) {
+              return true;
+          }
+          var lcParent = currentParent.toLowerCase();
+          return this.requiredParents[lcParent] != true && lcParent != 'template';
+      };
+      HtmlTagDefinition.prototype.isClosedByChild = function (name) {
+          return this.isVoid || name.toLowerCase() in this.closedByChildren;
+      };
+      return HtmlTagDefinition;
+  }());
+  // see http://www.w3.org/TR/html51/syntax.html#optional-tags
+  // This implementation does not fully conform to the HTML5 spec.
+  var TAG_DEFINITIONS = {
+      'base': new HtmlTagDefinition({ isVoid: true }),
+      'meta': new HtmlTagDefinition({ isVoid: true }),
+      'area': new HtmlTagDefinition({ isVoid: true }),
+      'embed': new HtmlTagDefinition({ isVoid: true }),
+      'link': new HtmlTagDefinition({ isVoid: true }),
+      'img': new HtmlTagDefinition({ isVoid: true }),
+      'input': new HtmlTagDefinition({ isVoid: true }),
+      'param': new HtmlTagDefinition({ isVoid: true }),
+      'hr': new HtmlTagDefinition({ isVoid: true }),
+      'br': new HtmlTagDefinition({ isVoid: true }),
+      'source': new HtmlTagDefinition({ isVoid: true }),
+      'track': new HtmlTagDefinition({ isVoid: true }),
+      'wbr': new HtmlTagDefinition({ isVoid: true }),
+      'p': new HtmlTagDefinition({
+          closedByChildren: [
+              'address', 'article', 'aside', 'blockquote', 'div', 'dl', 'fieldset', 'footer', 'form',
+              'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr',
+              'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'
+          ],
+          closedByParent: true
+      }),
+      'thead': new HtmlTagDefinition({ closedByChildren: ['tbody', 'tfoot'] }),
+      'tbody': new HtmlTagDefinition({ closedByChildren: ['tbody', 'tfoot'], closedByParent: true }),
+      'tfoot': new HtmlTagDefinition({ closedByChildren: ['tbody'], closedByParent: true }),
+      'tr': new HtmlTagDefinition({
+          closedByChildren: ['tr'],
+          requiredParents: ['tbody', 'tfoot', 'thead'],
+          closedByParent: true
+      }),
+      'td': new HtmlTagDefinition({ closedByChildren: ['td', 'th'], closedByParent: true }),
+      'th': new HtmlTagDefinition({ closedByChildren: ['td', 'th'], closedByParent: true }),
+      'col': new HtmlTagDefinition({ requiredParents: ['colgroup'], isVoid: true }),
+      'svg': new HtmlTagDefinition({ implicitNamespacePrefix: 'svg' }),
+      'math': new HtmlTagDefinition({ implicitNamespacePrefix: 'math' }),
+      'li': new HtmlTagDefinition({ closedByChildren: ['li'], closedByParent: true }),
+      'dt': new HtmlTagDefinition({ closedByChildren: ['dt', 'dd'] }),
+      'dd': new HtmlTagDefinition({ closedByChildren: ['dt', 'dd'], closedByParent: true }),
+      'rb': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
+      'rt': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
+      'rtc': new HtmlTagDefinition({ closedByChildren: ['rb', 'rtc', 'rp'], closedByParent: true }),
+      'rp': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
+      'optgroup': new HtmlTagDefinition({ closedByChildren: ['optgroup'], closedByParent: true }),
+      'option': new HtmlTagDefinition({ closedByChildren: ['option', 'optgroup'], closedByParent: true }),
+      'pre': new HtmlTagDefinition({ ignoreFirstLf: true }),
+      'listing': new HtmlTagDefinition({ ignoreFirstLf: true }),
+      'style': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
+      'script': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
+      'title': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT }),
+      'textarea': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT, ignoreFirstLf: true }),
+  };
+  var _DEFAULT_TAG_DEFINITION = new HtmlTagDefinition();
+  function getHtmlTagDefinition(tagName) {
+      return TAG_DEFINITIONS[tagName.toLowerCase()] || _DEFAULT_TAG_DEFINITION;
+  }
+
   var _EMPTY_ATTR_VALUE = '';
   var _SELECTOR_REGEXP = new RegExp('(\\:not\\()|' +
       '([-\\w]+)|' +
@@ -882,7 +1262,7 @@
       };
       /** Gets a template string for an element that matches the selector. */
       CssSelector.prototype.getMatchingElementTemplate = function () {
-          var tagName = isPresent(this.element) ? this.element : 'div';
+          var tagName = this.element || 'div';
           var classAttr = this.classNames.length > 0 ? " class=\"" + this.classNames.join(' ') + "\"" : '';
           var attrs = '';
           for (var i = 0; i < this.attrs.length; i += 2) {
@@ -890,7 +1270,8 @@
               var attrValue = this.attrs[i + 1] !== '' ? "=\"" + this.attrs[i + 1] + "\"" : '';
               attrs += " " + attrName + attrValue;
           }
-          return "<" + tagName + classAttr + attrs + "></" + tagName + ">";
+          return getHtmlTagDefinition(tagName).isVoid ? "<" + tagName + classAttr + attrs + "/>" :
+              "<" + tagName + classAttr + attrs + "></" + tagName + ">";
       };
       CssSelector.prototype.addAttribute = function (name, value) {
           if (value === void 0) { value = _EMPTY_ATTR_VALUE; }
@@ -2565,7 +2946,7 @@
    */
   var CompileNgModuleMetadata = (function () {
       function CompileNgModuleMetadata(_a) {
-          var _b = _a === void 0 ? {} : _a, type = _b.type, providers = _b.providers, declaredDirectives = _b.declaredDirectives, exportedDirectives = _b.exportedDirectives, declaredPipes = _b.declaredPipes, exportedPipes = _b.exportedPipes, entryComponents = _b.entryComponents, bootstrapComponents = _b.bootstrapComponents, importedModules = _b.importedModules, exportedModules = _b.exportedModules, schemas = _b.schemas, transitiveModule = _b.transitiveModule;
+          var _b = _a === void 0 ? {} : _a, type = _b.type, providers = _b.providers, declaredDirectives = _b.declaredDirectives, exportedDirectives = _b.exportedDirectives, declaredPipes = _b.declaredPipes, exportedPipes = _b.exportedPipes, entryComponents = _b.entryComponents, bootstrapComponents = _b.bootstrapComponents, importedModules = _b.importedModules, exportedModules = _b.exportedModules, schemas = _b.schemas, transitiveModule = _b.transitiveModule, id = _b.id;
           this.type = type;
           this.declaredDirectives = _normalizeArray(declaredDirectives);
           this.exportedDirectives = _normalizeArray(exportedDirectives);
@@ -2577,6 +2958,7 @@
           this.importedModules = _normalizeArray(importedModules);
           this.exportedModules = _normalizeArray(exportedModules);
           this.schemas = _normalizeArray(schemas);
+          this.id = id;
           this.transitiveModule = transitiveModule;
       }
       Object.defineProperty(CompileNgModuleMetadata.prototype, "identifier", {
@@ -3420,7 +3802,7 @@
               this.advance();
           }
           var str = this.input.substring(start, this.index);
-          var value = simple ? NumberWrapper.parseIntAutoRadix(str) : NumberWrapper.parseFloat(str);
+          var value = simple ? NumberWrapper.parseIntAutoRadix(str) : parseFloat(str);
           return newNumberToken(start, value);
       };
       _Scanner.prototype.scanString = function () {
@@ -4362,7 +4744,7 @@
       ExpansionCase.prototype.visit = function (visitor, context) { return visitor.visitExpansionCase(this, context); };
       return ExpansionCase;
   }());
-  var Attribute = (function () {
+  var Attribute$1 = (function () {
       function Attribute(name, value, sourceSpan) {
           this.name = name;
           this.value = value;
@@ -4402,294 +4784,6 @@
       });
       return result;
   }
-
-  /**
-   * @license
-   * Copyright Google Inc. All Rights Reserved.
-   *
-   * Use of this source code is governed by an MIT-style license that can be
-   * found in the LICENSE file at https://angular.io/license
-   */
-  var TagContentType;
-  (function (TagContentType) {
-      TagContentType[TagContentType["RAW_TEXT"] = 0] = "RAW_TEXT";
-      TagContentType[TagContentType["ESCAPABLE_RAW_TEXT"] = 1] = "ESCAPABLE_RAW_TEXT";
-      TagContentType[TagContentType["PARSABLE_DATA"] = 2] = "PARSABLE_DATA";
-  })(TagContentType || (TagContentType = {}));
-  function splitNsName(elementName) {
-      if (elementName[0] != ':') {
-          return [null, elementName];
-      }
-      var colonIndex = elementName.indexOf(':', 1);
-      if (colonIndex == -1) {
-          throw new Error("Unsupported format \"" + elementName + "\" expecting \":namespace:name\"");
-      }
-      return [elementName.slice(1, colonIndex), elementName.slice(colonIndex + 1)];
-  }
-  function getNsPrefix(fullName) {
-      return fullName === null ? null : splitNsName(fullName)[0];
-  }
-  function mergeNsAndName(prefix, localName) {
-      return prefix ? ":" + prefix + ":" + localName : localName;
-  }
-  // see http://www.w3.org/TR/html51/syntax.html#named-character-references
-  // see https://html.spec.whatwg.org/multipage/entities.json
-  // This list is not exhaustive to keep the compiler footprint low.
-  // The `&#123;` / `&#x1ab;` syntax should be used when the named character reference does not exist.
-  var NAMED_ENTITIES = {
-      'Aacute': '\u00C1',
-      'aacute': '\u00E1',
-      'Acirc': '\u00C2',
-      'acirc': '\u00E2',
-      'acute': '\u00B4',
-      'AElig': '\u00C6',
-      'aelig': '\u00E6',
-      'Agrave': '\u00C0',
-      'agrave': '\u00E0',
-      'alefsym': '\u2135',
-      'Alpha': '\u0391',
-      'alpha': '\u03B1',
-      'amp': '&',
-      'and': '\u2227',
-      'ang': '\u2220',
-      'apos': '\u0027',
-      'Aring': '\u00C5',
-      'aring': '\u00E5',
-      'asymp': '\u2248',
-      'Atilde': '\u00C3',
-      'atilde': '\u00E3',
-      'Auml': '\u00C4',
-      'auml': '\u00E4',
-      'bdquo': '\u201E',
-      'Beta': '\u0392',
-      'beta': '\u03B2',
-      'brvbar': '\u00A6',
-      'bull': '\u2022',
-      'cap': '\u2229',
-      'Ccedil': '\u00C7',
-      'ccedil': '\u00E7',
-      'cedil': '\u00B8',
-      'cent': '\u00A2',
-      'Chi': '\u03A7',
-      'chi': '\u03C7',
-      'circ': '\u02C6',
-      'clubs': '\u2663',
-      'cong': '\u2245',
-      'copy': '\u00A9',
-      'crarr': '\u21B5',
-      'cup': '\u222A',
-      'curren': '\u00A4',
-      'dagger': '\u2020',
-      'Dagger': '\u2021',
-      'darr': '\u2193',
-      'dArr': '\u21D3',
-      'deg': '\u00B0',
-      'Delta': '\u0394',
-      'delta': '\u03B4',
-      'diams': '\u2666',
-      'divide': '\u00F7',
-      'Eacute': '\u00C9',
-      'eacute': '\u00E9',
-      'Ecirc': '\u00CA',
-      'ecirc': '\u00EA',
-      'Egrave': '\u00C8',
-      'egrave': '\u00E8',
-      'empty': '\u2205',
-      'emsp': '\u2003',
-      'ensp': '\u2002',
-      'Epsilon': '\u0395',
-      'epsilon': '\u03B5',
-      'equiv': '\u2261',
-      'Eta': '\u0397',
-      'eta': '\u03B7',
-      'ETH': '\u00D0',
-      'eth': '\u00F0',
-      'Euml': '\u00CB',
-      'euml': '\u00EB',
-      'euro': '\u20AC',
-      'exist': '\u2203',
-      'fnof': '\u0192',
-      'forall': '\u2200',
-      'frac12': '\u00BD',
-      'frac14': '\u00BC',
-      'frac34': '\u00BE',
-      'frasl': '\u2044',
-      'Gamma': '\u0393',
-      'gamma': '\u03B3',
-      'ge': '\u2265',
-      'gt': '>',
-      'harr': '\u2194',
-      'hArr': '\u21D4',
-      'hearts': '\u2665',
-      'hellip': '\u2026',
-      'Iacute': '\u00CD',
-      'iacute': '\u00ED',
-      'Icirc': '\u00CE',
-      'icirc': '\u00EE',
-      'iexcl': '\u00A1',
-      'Igrave': '\u00CC',
-      'igrave': '\u00EC',
-      'image': '\u2111',
-      'infin': '\u221E',
-      'int': '\u222B',
-      'Iota': '\u0399',
-      'iota': '\u03B9',
-      'iquest': '\u00BF',
-      'isin': '\u2208',
-      'Iuml': '\u00CF',
-      'iuml': '\u00EF',
-      'Kappa': '\u039A',
-      'kappa': '\u03BA',
-      'Lambda': '\u039B',
-      'lambda': '\u03BB',
-      'lang': '\u27E8',
-      'laquo': '\u00AB',
-      'larr': '\u2190',
-      'lArr': '\u21D0',
-      'lceil': '\u2308',
-      'ldquo': '\u201C',
-      'le': '\u2264',
-      'lfloor': '\u230A',
-      'lowast': '\u2217',
-      'loz': '\u25CA',
-      'lrm': '\u200E',
-      'lsaquo': '\u2039',
-      'lsquo': '\u2018',
-      'lt': '<',
-      'macr': '\u00AF',
-      'mdash': '\u2014',
-      'micro': '\u00B5',
-      'middot': '\u00B7',
-      'minus': '\u2212',
-      'Mu': '\u039C',
-      'mu': '\u03BC',
-      'nabla': '\u2207',
-      'nbsp': '\u00A0',
-      'ndash': '\u2013',
-      'ne': '\u2260',
-      'ni': '\u220B',
-      'not': '\u00AC',
-      'notin': '\u2209',
-      'nsub': '\u2284',
-      'Ntilde': '\u00D1',
-      'ntilde': '\u00F1',
-      'Nu': '\u039D',
-      'nu': '\u03BD',
-      'Oacute': '\u00D3',
-      'oacute': '\u00F3',
-      'Ocirc': '\u00D4',
-      'ocirc': '\u00F4',
-      'OElig': '\u0152',
-      'oelig': '\u0153',
-      'Ograve': '\u00D2',
-      'ograve': '\u00F2',
-      'oline': '\u203E',
-      'Omega': '\u03A9',
-      'omega': '\u03C9',
-      'Omicron': '\u039F',
-      'omicron': '\u03BF',
-      'oplus': '\u2295',
-      'or': '\u2228',
-      'ordf': '\u00AA',
-      'ordm': '\u00BA',
-      'Oslash': '\u00D8',
-      'oslash': '\u00F8',
-      'Otilde': '\u00D5',
-      'otilde': '\u00F5',
-      'otimes': '\u2297',
-      'Ouml': '\u00D6',
-      'ouml': '\u00F6',
-      'para': '\u00B6',
-      'permil': '\u2030',
-      'perp': '\u22A5',
-      'Phi': '\u03A6',
-      'phi': '\u03C6',
-      'Pi': '\u03A0',
-      'pi': '\u03C0',
-      'piv': '\u03D6',
-      'plusmn': '\u00B1',
-      'pound': '\u00A3',
-      'prime': '\u2032',
-      'Prime': '\u2033',
-      'prod': '\u220F',
-      'prop': '\u221D',
-      'Psi': '\u03A8',
-      'psi': '\u03C8',
-      'quot': '\u0022',
-      'radic': '\u221A',
-      'rang': '\u27E9',
-      'raquo': '\u00BB',
-      'rarr': '\u2192',
-      'rArr': '\u21D2',
-      'rceil': '\u2309',
-      'rdquo': '\u201D',
-      'real': '\u211C',
-      'reg': '\u00AE',
-      'rfloor': '\u230B',
-      'Rho': '\u03A1',
-      'rho': '\u03C1',
-      'rlm': '\u200F',
-      'rsaquo': '\u203A',
-      'rsquo': '\u2019',
-      'sbquo': '\u201A',
-      'Scaron': '\u0160',
-      'scaron': '\u0161',
-      'sdot': '\u22C5',
-      'sect': '\u00A7',
-      'shy': '\u00AD',
-      'Sigma': '\u03A3',
-      'sigma': '\u03C3',
-      'sigmaf': '\u03C2',
-      'sim': '\u223C',
-      'spades': '\u2660',
-      'sub': '\u2282',
-      'sube': '\u2286',
-      'sum': '\u2211',
-      'sup': '\u2283',
-      'sup1': '\u00B9',
-      'sup2': '\u00B2',
-      'sup3': '\u00B3',
-      'supe': '\u2287',
-      'szlig': '\u00DF',
-      'Tau': '\u03A4',
-      'tau': '\u03C4',
-      'there4': '\u2234',
-      'Theta': '\u0398',
-      'theta': '\u03B8',
-      'thetasym': '\u03D1',
-      'thinsp': '\u2009',
-      'THORN': '\u00DE',
-      'thorn': '\u00FE',
-      'tilde': '\u02DC',
-      'times': '\u00D7',
-      'trade': '\u2122',
-      'Uacute': '\u00DA',
-      'uacute': '\u00FA',
-      'uarr': '\u2191',
-      'uArr': '\u21D1',
-      'Ucirc': '\u00DB',
-      'ucirc': '\u00FB',
-      'Ugrave': '\u00D9',
-      'ugrave': '\u00F9',
-      'uml': '\u00A8',
-      'upsih': '\u03D2',
-      'Upsilon': '\u03A5',
-      'upsilon': '\u03C5',
-      'Uuml': '\u00DC',
-      'uuml': '\u00FC',
-      'weierp': '\u2118',
-      'Xi': '\u039E',
-      'xi': '\u03BE',
-      'Yacute': '\u00DD',
-      'yacute': '\u00FD',
-      'yen': '\u00A5',
-      'yuml': '\u00FF',
-      'Yuml': '\u0178',
-      'Zeta': '\u0396',
-      'zeta': '\u03B6',
-      'zwj': '\u200D',
-      'zwnj': '\u200C',
-  };
 
   /**
    * @license
@@ -5638,7 +5732,7 @@
               value = valueToken.parts[0];
               end = valueToken.sourceSpan.end;
           }
-          return new Attribute(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
+          return new Attribute$1(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
       };
       _TreeBuilder.prototype._getParentElement = function () {
           return this._elementStack.length > 0 ? ListWrapper.last(this._elementStack) : null;
@@ -5951,101 +6045,6 @@
       IcuPlaceholder.prototype.visit = function (visitor, context) { return visitor.visitIcuPlaceholder(this, context); };
       return IcuPlaceholder;
   }());
-
-  var HtmlTagDefinition = (function () {
-      function HtmlTagDefinition(_a) {
-          var _this = this;
-          var _b = _a === void 0 ? {} : _a, closedByChildren = _b.closedByChildren, requiredParents = _b.requiredParents, implicitNamespacePrefix = _b.implicitNamespacePrefix, _c = _b.contentType, contentType = _c === void 0 ? TagContentType.PARSABLE_DATA : _c, _d = _b.closedByParent, closedByParent = _d === void 0 ? false : _d, _e = _b.isVoid, isVoid = _e === void 0 ? false : _e, _f = _b.ignoreFirstLf, ignoreFirstLf = _f === void 0 ? false : _f;
-          this.closedByChildren = {};
-          this.closedByParent = false;
-          this.canSelfClose = false;
-          if (closedByChildren && closedByChildren.length > 0) {
-              closedByChildren.forEach(function (tagName) { return _this.closedByChildren[tagName] = true; });
-          }
-          this.isVoid = isVoid;
-          this.closedByParent = closedByParent || isVoid;
-          if (requiredParents && requiredParents.length > 0) {
-              this.requiredParents = {};
-              // The first parent is the list is automatically when none of the listed parents are present
-              this.parentToAdd = requiredParents[0];
-              requiredParents.forEach(function (tagName) { return _this.requiredParents[tagName] = true; });
-          }
-          this.implicitNamespacePrefix = implicitNamespacePrefix;
-          this.contentType = contentType;
-          this.ignoreFirstLf = ignoreFirstLf;
-      }
-      HtmlTagDefinition.prototype.requireExtraParent = function (currentParent) {
-          if (!this.requiredParents) {
-              return false;
-          }
-          if (!currentParent) {
-              return true;
-          }
-          var lcParent = currentParent.toLowerCase();
-          return this.requiredParents[lcParent] != true && lcParent != 'template';
-      };
-      HtmlTagDefinition.prototype.isClosedByChild = function (name) {
-          return this.isVoid || name.toLowerCase() in this.closedByChildren;
-      };
-      return HtmlTagDefinition;
-  }());
-  // see http://www.w3.org/TR/html51/syntax.html#optional-tags
-  // This implementation does not fully conform to the HTML5 spec.
-  var TAG_DEFINITIONS = {
-      'base': new HtmlTagDefinition({ isVoid: true }),
-      'meta': new HtmlTagDefinition({ isVoid: true }),
-      'area': new HtmlTagDefinition({ isVoid: true }),
-      'embed': new HtmlTagDefinition({ isVoid: true }),
-      'link': new HtmlTagDefinition({ isVoid: true }),
-      'img': new HtmlTagDefinition({ isVoid: true }),
-      'input': new HtmlTagDefinition({ isVoid: true }),
-      'param': new HtmlTagDefinition({ isVoid: true }),
-      'hr': new HtmlTagDefinition({ isVoid: true }),
-      'br': new HtmlTagDefinition({ isVoid: true }),
-      'source': new HtmlTagDefinition({ isVoid: true }),
-      'track': new HtmlTagDefinition({ isVoid: true }),
-      'wbr': new HtmlTagDefinition({ isVoid: true }),
-      'p': new HtmlTagDefinition({
-          closedByChildren: [
-              'address', 'article', 'aside', 'blockquote', 'div', 'dl', 'fieldset', 'footer', 'form',
-              'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr',
-              'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'
-          ],
-          closedByParent: true
-      }),
-      'thead': new HtmlTagDefinition({ closedByChildren: ['tbody', 'tfoot'] }),
-      'tbody': new HtmlTagDefinition({ closedByChildren: ['tbody', 'tfoot'], closedByParent: true }),
-      'tfoot': new HtmlTagDefinition({ closedByChildren: ['tbody'], closedByParent: true }),
-      'tr': new HtmlTagDefinition({
-          closedByChildren: ['tr'],
-          requiredParents: ['tbody', 'tfoot', 'thead'],
-          closedByParent: true
-      }),
-      'td': new HtmlTagDefinition({ closedByChildren: ['td', 'th'], closedByParent: true }),
-      'th': new HtmlTagDefinition({ closedByChildren: ['td', 'th'], closedByParent: true }),
-      'col': new HtmlTagDefinition({ requiredParents: ['colgroup'], isVoid: true }),
-      'svg': new HtmlTagDefinition({ implicitNamespacePrefix: 'svg' }),
-      'math': new HtmlTagDefinition({ implicitNamespacePrefix: 'math' }),
-      'li': new HtmlTagDefinition({ closedByChildren: ['li'], closedByParent: true }),
-      'dt': new HtmlTagDefinition({ closedByChildren: ['dt', 'dd'] }),
-      'dd': new HtmlTagDefinition({ closedByChildren: ['dt', 'dd'], closedByParent: true }),
-      'rb': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
-      'rt': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
-      'rtc': new HtmlTagDefinition({ closedByChildren: ['rb', 'rtc', 'rp'], closedByParent: true }),
-      'rp': new HtmlTagDefinition({ closedByChildren: ['rb', 'rt', 'rtc', 'rp'], closedByParent: true }),
-      'optgroup': new HtmlTagDefinition({ closedByChildren: ['optgroup'], closedByParent: true }),
-      'option': new HtmlTagDefinition({ closedByChildren: ['option', 'optgroup'], closedByParent: true }),
-      'pre': new HtmlTagDefinition({ ignoreFirstLf: true }),
-      'listing': new HtmlTagDefinition({ ignoreFirstLf: true }),
-      'style': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
-      'script': new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
-      'title': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT }),
-      'textarea': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT, ignoreFirstLf: true }),
-  };
-  var _DEFAULT_TAG_DEFINITION = new HtmlTagDefinition();
-  function getHtmlTagDefinition(tagName) {
-      return TAG_DEFINITIONS[tagName.toLowerCase()] || _DEFAULT_TAG_DEFINITION;
-  }
 
   /**
    * @license
@@ -6534,7 +6533,7 @@
       // add a translatable message
       _Visitor.prototype._addMessage = function (ast, meaningAndDesc) {
           if (ast.length == 0 ||
-              ast.length == 1 && ast[0] instanceof Attribute && !ast[0].value) {
+              ast.length == 1 && ast[0] instanceof Attribute$1 && !ast[0].value) {
               // Do not create empty messages
               return;
           }
@@ -6581,7 +6580,7 @@
                   if (nodes) {
                       if (nodes[0] instanceof Text) {
                           var value = nodes[0].value;
-                          translatedAttributes.push(new Attribute(attr.name, value, attr.sourceSpan));
+                          translatedAttributes.push(new Attribute$1(attr.name, value, attr.sourceSpan));
                       }
                       else {
                           _this._reportError(el, "Unexpected translation for attribute \"" + attr.name + "\" (id=\"" + id + "\")");
@@ -7393,6 +7392,7 @@
   var AppView = _angular_core.__core_private__.AppView;
   var DebugAppView = _angular_core.__core_private__.DebugAppView;
   var NgModuleInjector = _angular_core.__core_private__.NgModuleInjector;
+  var registerModuleFactory = _angular_core.__core_private__.registerModuleFactory;
   var ViewType = _angular_core.__core_private__.ViewType;
   var MAX_INTERPOLATION_VALUES = _angular_core.__core_private__.MAX_INTERPOLATION_VALUES;
   var checkBinding = _angular_core.__core_private__.checkBinding;
@@ -7526,6 +7526,11 @@
           name: 'NgModuleInjector',
           runtime: NgModuleInjector,
           moduleUrl: assetUrl('core', 'linker/ng_module_factory')
+      };
+      Identifiers.RegisterModuleFactoryFn = {
+          name: 'registerModuleFactory',
+          runtime: registerModuleFactory,
+          moduleUrl: assetUrl('core', 'linker/ng_module_factory_loader')
       };
       Identifiers.ValueUnwrapper = { name: 'ValueUnwrapper', moduleUrl: CD_MODULE_URL, runtime: ValueUnwrapper };
       Identifiers.Injector = {
@@ -7819,18 +7824,18 @@
           }
           var expansionResult = expandNodes(c.expression);
           errors.push.apply(errors, expansionResult.errors);
-          return new Element("template", [new Attribute('ngPluralCase', "" + c.value, c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
+          return new Element("template", [new Attribute$1('ngPluralCase', "" + c.value, c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
       });
-      var switchAttr = new Attribute('[ngPlural]', ast.switchValue, ast.switchValueSourceSpan);
+      var switchAttr = new Attribute$1('[ngPlural]', ast.switchValue, ast.switchValueSourceSpan);
       return new Element('ng-container', [switchAttr], children, ast.sourceSpan, ast.sourceSpan, ast.sourceSpan);
   }
   function _expandDefaultForm(ast, errors) {
       var children = ast.cases.map(function (c) {
           var expansionResult = expandNodes(c.expression);
           errors.push.apply(errors, expansionResult.errors);
-          return new Element("template", [new Attribute('ngSwitchCase', "" + c.value, c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
+          return new Element("template", [new Attribute$1('ngSwitchCase', "" + c.value, c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
       });
-      var switchAttr = new Attribute('[ngSwitch]', ast.switchValue, ast.switchValueSourceSpan);
+      var switchAttr = new Attribute$1('[ngSwitch]', ast.switchValue, ast.switchValueSourceSpan);
       return new Element('ng-container', [switchAttr], children, ast.sourceSpan, ast.sourceSpan, ast.sourceSpan);
   }
 
@@ -9713,10 +9718,10 @@
       if (errors.length == 0) {
           _fillAnimationAstStartingKeyframes(animationAst, styles, errors);
       }
-      var sequenceAst = (animationAst instanceof AnimationSequenceAst) ?
+      var stepsAst = (animationAst instanceof AnimationWithStepsAst) ?
           animationAst :
           new AnimationSequenceAst([animationAst]);
-      return new AnimationStateTransitionAst(transitionExprs, sequenceAst);
+      return new AnimationStateTransitionAst(transitionExprs, stepsAst);
   }
   function _parseAnimationTransitionExpr(eventStr, errors) {
       var expressions = [];
@@ -9753,7 +9758,9 @@
   }
   function _normalizeStyleSteps(entry, stateStyles, errors) {
       var steps = _normalizeStyleStepEntry(entry, stateStyles, errors);
-      return new CompileAnimationSequenceMetadata(steps);
+      return (entry instanceof CompileAnimationGroupMetadata) ?
+          new CompileAnimationGroupMetadata(steps) :
+          new CompileAnimationSequenceMetadata(steps);
   }
   function _mergeAnimationStyles(stylesList, newItem) {
       if (isStringMap(newItem) && stylesList.length > 0) {
@@ -10034,7 +10041,7 @@
               errors.push(new AnimationParseError("The provided timing value \"" + exp + "\" is invalid."));
               return new _AnimationTimings(0, 0, null);
           }
-          var durationMatch = NumberWrapper.parseFloat(matches[1]);
+          var durationMatch = parseFloat(matches[1]);
           var durationUnit = matches[2];
           if (durationUnit == 's') {
               durationMatch *= _ONE_SECOND;
@@ -10043,7 +10050,7 @@
           var delayMatch = matches[3];
           var delayUnit = matches[4];
           if (isPresent(delayMatch)) {
-              var delayVal = NumberWrapper.parseFloat(delayMatch);
+              var delayVal = parseFloat(delayMatch);
               if (isPresent(delayUnit) && delayUnit == 's') {
                   delayVal *= _ONE_SECOND;
               }
@@ -11322,6 +11329,7 @@
           this.literalMapCount = 0;
           this.pipeCount = 0;
           this.createMethod = new CompileMethod(this);
+          this.animationBindingsMethod = new CompileMethod(this);
           this.injectorGetMethod = new CompileMethod(this);
           this.updateContentQueriesMethod = new CompileMethod(this);
           this.dirtyParentQueriesMethod = new CompileMethod(this);
@@ -12072,7 +12080,6 @@
   function createCurrValueExpr(exprIndex) {
       return variable("currVal_" + exprIndex); // fix syntax highlighting: `
   }
-  var _animationViewCheckedFlagMap = new Map();
   function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, method, bindingIndex) {
       var checkExpression = convertCdExpressionToIr(view, context, parsedExpression, DetectChangesVars.valUnwrapper, bindingIndex);
       if (isBlank(checkExpression.expression)) {
@@ -12125,6 +12132,7 @@
           var oldRenderValue = sanitizedValue(boundProp, fieldExpr);
           var renderValue = sanitizedValue(boundProp, currValExpr);
           var updateStmts = [];
+          var compileMethod = view.detectChangesRenderPropertiesMethod;
           switch (boundProp.type) {
               case exports.PropertyBindingType.Property:
                   if (view.genConfig.logBindingUpdate) {
@@ -12162,6 +12170,7 @@
                   if (isHostProp) {
                       targetViewExpr = compileElement.appElement.prop('componentView');
                   }
+                  compileMethod = view.animationBindingsMethod;
                   var animationFnExpr = targetViewExpr.prop('componentType').prop('animations').key(literal(animationName));
                   // it's important to normalize the void value as `void` explicitly
                   // so that the styles data can be obtained from the stringmap
@@ -12177,15 +12186,9 @@
                   updateStmts.push(animationFnExpr.callFn([THIS_EXPR, renderNode, oldRenderVar, newRenderVar]).toStmt());
                   view.detachMethod.addStmt(animationFnExpr.callFn([THIS_EXPR, renderNode, oldRenderValue, emptyStateValue])
                       .toStmt());
-                  if (!_animationViewCheckedFlagMap.get(view)) {
-                      _animationViewCheckedFlagMap.set(view, true);
-                      var triggerStmt = THIS_EXPR.callMethod('triggerQueuedAnimations', []).toStmt();
-                      view.afterViewLifecycleCallbacksMethod.addStmt(triggerStmt);
-                      view.detachMethod.addStmt(triggerStmt);
-                  }
                   break;
           }
-          bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, view.detectChangesRenderPropertiesMethod, view.bindings.length);
+          bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, compileMethod, view.bindings.length);
       });
   }
   function sanitizedValue(boundProp, renderValue) {
@@ -12812,12 +12815,14 @@
   }
   function generateDetectChangesMethod(view) {
       var stmts = [];
-      if (view.detectChangesInInputsMethod.isEmpty() && view.updateContentQueriesMethod.isEmpty() &&
+      if (view.animationBindingsMethod.isEmpty() && view.detectChangesInInputsMethod.isEmpty() &&
+          view.updateContentQueriesMethod.isEmpty() &&
           view.afterContentLifecycleCallbacksMethod.isEmpty() &&
           view.detectChangesRenderPropertiesMethod.isEmpty() &&
           view.updateViewQueriesMethod.isEmpty() && view.afterViewLifecycleCallbacksMethod.isEmpty()) {
           return stmts;
       }
+      ListWrapper.addAll(stmts, view.animationBindingsMethod.finish());
       ListWrapper.addAll(stmts, view.detectChangesInInputsMethod.finish());
       stmts.push(THIS_EXPR.callMethod('detectContentChildrenChanges', [DetectChangesVars.throwOnChange])
           .toStmt());
@@ -13647,10 +13652,10 @@
   }
 
   function _isDirectiveMetadata(type) {
-      return type instanceof _angular_core.DirectiveMetadata;
+      return type instanceof _angular_core.Directive;
   }
   /*
-   * Resolve a `Type` for {@link DirectiveMetadata}.
+   * Resolve a `Type` for {@link Directive}.
    *
    * This interface can be overridden by the application developer to create custom behavior.
    *
@@ -13662,7 +13667,7 @@
           this._reflector = _reflector;
       }
       /**
-       * Return {@link DirectiveMetadata} for a given `Type`.
+       * Return {@link Directive} for a given `Type`.
        */
       DirectiveResolver.prototype.resolve = function (type, throwIfNotFound) {
           if (throwIfNotFound === void 0) { throwIfNotFound = true; }
@@ -13686,7 +13691,7 @@
           var queries = {};
           StringMapWrapper.forEach(propertyMetadata, function (metadata, propName) {
               metadata.forEach(function (a) {
-                  if (a instanceof _angular_core.InputMetadata) {
+                  if (a instanceof _angular_core.Input) {
                       if (isPresent(a.bindingPropertyName)) {
                           inputs.push(propName + ": " + a.bindingPropertyName);
                       }
@@ -13694,27 +13699,30 @@
                           inputs.push(propName);
                       }
                   }
-                  else if (a instanceof _angular_core.OutputMetadata) {
-                      if (isPresent(a.bindingPropertyName)) {
-                          outputs.push(propName + ": " + a.bindingPropertyName);
+                  else if (a instanceof _angular_core.Output) {
+                      var output = a;
+                      if (isPresent(output.bindingPropertyName)) {
+                          outputs.push(propName + ": " + output.bindingPropertyName);
                       }
                       else {
                           outputs.push(propName);
                       }
                   }
-                  else if (a instanceof _angular_core.HostBindingMetadata) {
-                      if (isPresent(a.hostPropertyName)) {
-                          host[("[" + a.hostPropertyName + "]")] = propName;
+                  else if (a instanceof _angular_core.HostBinding) {
+                      var hostBinding = a;
+                      if (isPresent(hostBinding.hostPropertyName)) {
+                          host[("[" + hostBinding.hostPropertyName + "]")] = propName;
                       }
                       else {
                           host[("[" + propName + "]")] = propName;
                       }
                   }
-                  else if (a instanceof _angular_core.HostListenerMetadata) {
-                      var args = isPresent(a.args) ? a.args.join(', ') : '';
-                      host[("(" + a.eventName + ")")] = propName + "(" + args + ")";
+                  else if (a instanceof _angular_core.HostListener) {
+                      var hostListener = a;
+                      var args = isPresent(hostListener.args) ? hostListener.args.join(', ') : '';
+                      host[("(" + hostListener.eventName + ")")] = propName + "(" + args + ")";
                   }
-                  else if (a instanceof _angular_core.QueryMetadata) {
+                  else if (a instanceof _angular_core.Query) {
                       queries[propName] = a;
                   }
               });
@@ -13754,8 +13762,8 @@
           }
           var mergedHost = isPresent(dm.host) ? StringMapWrapper.merge(dm.host, host) : host;
           var mergedQueries = isPresent(dm.queries) ? StringMapWrapper.merge(dm.queries, queries) : queries;
-          if (dm instanceof _angular_core.ComponentMetadata) {
-              return new _angular_core.ComponentMetadata({
+          if (dm instanceof _angular_core.Component) {
+              return new _angular_core.Component({
                   selector: dm.selector,
                   inputs: mergedInputs,
                   outputs: mergedOutputs,
@@ -13777,7 +13785,7 @@
               });
           }
           else {
-              return new _angular_core.DirectiveMetadata({
+              return new _angular_core.Directive({
                   selector: dm.selector,
                   inputs: mergedInputs,
                   outputs: mergedOutputs,
@@ -13825,10 +13833,10 @@
   }
 
   function _isNgModuleMetadata(obj) {
-      return obj instanceof _angular_core.NgModuleMetadata;
+      return obj instanceof _angular_core.NgModule;
   }
   /**
-   * Resolves types to {@link NgModuleMetadata}.
+   * Resolves types to {@link NgModule}.
    */
   var NgModuleResolver = (function () {
       function NgModuleResolver(_reflector) {
@@ -13859,10 +13867,10 @@
   }());
 
   function _isPipeMetadata(type) {
-      return type instanceof _angular_core.PipeMetadata;
+      return type instanceof _angular_core.Pipe;
   }
   /**
-   * Resolve a `Type` for {@link PipeMetadata}.
+   * Resolve a `Type` for {@link Pipe}.
    *
    * This interface can be overridden by the application developer to create custom behavior.
    *
@@ -13874,7 +13882,7 @@
           this._reflector = _reflector;
       }
       /**
-       * Return {@link PipeMetadata} for a given `Type`.
+       * Return {@link Pipe} for a given `Type`.
        */
       PipeResolver.prototype.resolve = function (type, throwIfNotFound) {
           if (throwIfNotFound === void 0) { throwIfNotFound = true; }
@@ -13944,7 +13952,7 @@
           this._directiveCache.delete(type);
           this._pipeCache.delete(type);
           this._ngModuleOfTypes.delete(type);
-          // Clear all of the NgModuleMetadata as they contain transitive information!
+          // Clear all of the NgModule as they contain transitive information!
           this._ngModuleCache.clear();
       };
       CompileMetadataResolver.prototype.clearCache = function () {
@@ -14011,7 +14019,7 @@
               var moduleUrl = staticTypeModuleUrl(directiveType);
               var entryComponentMetadata = [];
               var selector = dirMeta.selector;
-              if (dirMeta instanceof _angular_core.ComponentMetadata) {
+              if (dirMeta instanceof _angular_core.Component) {
                   var cmpMeta = dirMeta;
                   assertArrayOfStrings('styles', cmpMeta.styles);
                   assertInterpolationSymbols('interpolation', cmpMeta.interpolation);
@@ -14177,8 +14185,13 @@
                       .map(function (type) { return _this.getTypeMetadata(type, staticTypeModuleUrl(type)); }));
               }
               if (meta.bootstrap) {
-                  bootstrapComponents.push.apply(bootstrapComponents, flattenArray(meta.bootstrap)
-                      .map(function (type) { return _this.getTypeMetadata(type, staticTypeModuleUrl(type)); }));
+                  var typeMetadata = flattenArray(meta.bootstrap).map(function (type) {
+                      if (!isValidType(type)) {
+                          throw new Error("Unexpected value '" + stringify(type) + "' used in the bootstrap property of module '" + stringify(moduleType) + "'");
+                      }
+                      return _this.getTypeMetadata(type, staticTypeModuleUrl(type));
+                  });
+                  bootstrapComponents.push.apply(bootstrapComponents, typeMetadata);
               }
               entryComponents_1.push.apply(entryComponents_1, bootstrapComponents);
               if (meta.schemas) {
@@ -14198,7 +14211,8 @@
                   exportedPipes: exportedPipes_1,
                   importedModules: importedModules_1,
                   exportedModules: exportedModules_1,
-                  transitiveModule: transitiveModule_1
+                  transitiveModule: transitiveModule_1,
+                  id: meta.id,
               });
               transitiveModule_1.modules.push(compileMeta);
               this._verifyModule(compileMeta);
@@ -14239,7 +14253,9 @@
       CompileMetadataResolver.prototype._addTypeToModule = function (type, moduleType) {
           var oldModule = this._ngModuleOfTypes.get(type);
           if (oldModule && oldModule !== moduleType) {
-              throw new Error("Type " + stringify(type) + " is part of the declarations of 2 modules: " + stringify(oldModule) + " and " + stringify(moduleType) + "!");
+              throw new Error(("Type " + stringify(type) + " is part of the declarations of 2 modules: " + stringify(oldModule) + " and " + stringify(moduleType) + "! ") +
+                  ("Please consider moving " + stringify(type) + " to a higher module that imports " + stringify(oldModule) + " and " + stringify(moduleType) + ". ") +
+                  ("You can also create a new NgModule that exports and includes " + stringify(type) + " then import that NgModule in " + stringify(oldModule) + " and " + stringify(moduleType) + "."));
           }
           this._ngModuleOfTypes.set(type, moduleType);
       };
@@ -14332,23 +14348,23 @@
               var token = null;
               if (isArray(param)) {
                   param.forEach(function (paramEntry) {
-                      if (paramEntry instanceof _angular_core.HostMetadata) {
+                      if (paramEntry instanceof _angular_core.Host) {
                           isHost = true;
                       }
-                      else if (paramEntry instanceof _angular_core.SelfMetadata) {
+                      else if (paramEntry instanceof _angular_core.Self) {
                           isSelf = true;
                       }
-                      else if (paramEntry instanceof _angular_core.SkipSelfMetadata) {
+                      else if (paramEntry instanceof _angular_core.SkipSelf) {
                           isSkipSelf = true;
                       }
-                      else if (paramEntry instanceof _angular_core.OptionalMetadata) {
+                      else if (paramEntry instanceof _angular_core.Optional) {
                           isOptional = true;
                       }
-                      else if (paramEntry instanceof _angular_core.AttributeMetadata) {
+                      else if (paramEntry instanceof _angular_core.Attribute) {
                           isAttribute = true;
                           token = paramEntry.attributeName;
                       }
-                      else if (paramEntry instanceof _angular_core.QueryMetadata) {
+                      else if (paramEntry instanceof _angular_core.Query) {
                           if (paramEntry.isViewQuery) {
                               viewQuery = paramEntry;
                           }
@@ -14356,7 +14372,7 @@
                               query = paramEntry;
                           }
                       }
-                      else if (paramEntry instanceof _angular_core.InjectMetadata) {
+                      else if (paramEntry instanceof _angular_core.Inject) {
                           token = paramEntry.token;
                       }
                       else if (isValidType(paramEntry) && isBlank(token)) {
@@ -14505,11 +14521,14 @@
           });
           return res;
       };
+      CompileMetadataResolver.prototype._queryVarBindings = function (selector) {
+          return StringWrapper.split(selector, /\s*,\s*/g);
+      };
       CompileMetadataResolver.prototype.getQueryMetadata = function (q, propertyName, typeOrFunc) {
           var _this = this;
           var selectors;
-          if (q.isVarBindingQuery) {
-              selectors = q.varBindings.map(function (varName) { return _this.getTokenMetadata(varName); });
+          if (isString(q.selector)) {
+              selectors = this._queryVarBindings(q.selector).map(function (varName) { return _this.getTokenMetadata(varName); });
           }
           else {
               if (!isPresent(q.selector)) {
@@ -14653,7 +14672,14 @@
               .set(importExpr(resolveIdentifier(Identifiers.NgModuleFactory))
               .instantiate([variable(injectorClass.name), importExpr(ngModuleMeta.type)], importType(resolveIdentifier(Identifiers.NgModuleFactory), [importType(ngModuleMeta.type)], [TypeModifier.Const])))
               .toDeclStmt(null, [StmtModifier.Final]);
-          return new NgModuleCompileResult([injectorClass, ngModuleFactoryStmt], ngModuleFactoryVar, deps);
+          var stmts = [injectorClass, ngModuleFactoryStmt];
+          if (ngModuleMeta.id) {
+              var registerFactoryStmt = importExpr(resolveIdentifier(Identifiers.RegisterModuleFactoryFn))
+                  .callFn([literal(ngModuleMeta.id), variable(ngModuleFactoryVar)])
+                  .toStmt();
+              stmts.push(registerFactoryStmt);
+          }
+          return new NgModuleCompileResult(stmts, ngModuleFactoryVar, deps);
       };
       NgModuleCompiler.decorators = [
           { type: _angular_core.Injectable },
@@ -16511,11 +16537,11 @@
   function stripComments(input) {
       return StringWrapper.replaceAllMapped(input, _commentRe, function (_ /** TODO #9100 */) { return ''; });
   }
-  // all comments except inline source mapping ("/* #sourceMappingURL= ... */")
-  var _sourceMappingUrlRe = /[\s\S]*(\/\*\s*#\s*sourceMappingURL=[\s\S]+?\*\/)\s*$/;
+  // all comments except inline source mapping
+  var _sourceMappingUrlRe = /\/\*\s*#\s*sourceMappingURL=[\s\S]+?\*\//;
   function extractSourceMappingUrl(input) {
       var matcher = input.match(_sourceMappingUrlRe);
-      return matcher ? matcher[1] : '';
+      return matcher ? matcher[0] : '';
   }
   var _ruleRe = /(\s*)([^;\{\}]+?)(\s*)((?:{%BLOCK%}?\s*;?)|(?:\s*;))/g;
   var _curlyRe = /([{}])/g;
@@ -17121,7 +17147,8 @@
    * An `element` may inherit additional properties from `parentElement` If no `^parentElement` is
    * specified then `""` (blank) element is assumed.
    *
-   * NOTE: The blank element inherits from root `*` element, the super element of all elements.
+   * NOTE: The blank element inherits from root `[Element]` element, the super element of all
+   * elements.
    *
    * NOTE an element prefix such as `:svg:` has no special meaning to the schema.
    *
@@ -17157,11 +17184,12 @@
   // dom_security_schema.ts. Reach out to mprobst & rjamet for details.
   //
   // =================================================================================================
-  var SCHEMA = ([
-      '*|textContent,%classList,className,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*copy,*cut,*paste,*search,*selectstart,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerHTML,#scrollLeft,#scrollTop',
-      'abbr,address,article,aside,b,bdi,bdo,cite,code,dd,dfn,dt,em,figcaption,figure,footer,header,i,kbd,main,mark,nav,noscript,rb,rp,rt,rtc,ruby,s,samp,section,small,strong,sub,sup,u,var,wbr^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
-      'media^abbr|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,%srcObject,#volume',
-      ':svg:^abbr|*abort,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*cuechange,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*seeked,*seeking,*select,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,%style,#tabIndex',
+  var SCHEMA = [
+      '[Element]|textContent,%classList,className,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*copy,*cut,*paste,*search,*selectstart,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerHTML,#scrollLeft,#scrollTop',
+      '[HTMLElement]^[Element]|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
+      'abbr,address,article,aside,b,bdi,bdo,cite,code,dd,dfn,dt,em,figcaption,figure,footer,header,i,kbd,main,mark,nav,noscript,rb,rp,rt,rtc,ruby,s,samp,section,small,strong,sub,sup,u,var,wbr^[HTMLElement]|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
+      'media^[HTMLElement]|!autoplay,!controls,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,#playbackRate,preload,src,%srcObject,#volume',
+      ':svg:^[HTMLElement]|*abort,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*cuechange,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*seeked,*seeking,*select,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,%style,#tabIndex',
       ':svg:graphics^:svg:|',
       ':svg:animation^:svg:|*begin,*end,*repeat',
       ':svg:geometry^:svg:|',
@@ -17169,75 +17197,74 @@
       ':svg:gradient^:svg:|',
       ':svg:textContent^:svg:graphics|',
       ':svg:textPositioning^:svg:textContent|',
-      'abbr^*|accessKey,contentEditable,dir,!draggable,!hidden,innerText,lang,*abort,*beforecopy,*beforecut,*beforepaste,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*message,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*paste,*pause,*play,*playing,*progress,*ratechange,*reset,*resize,*scroll,*search,*seeked,*seeking,*select,*selectstart,*show,*stalled,*submit,*suspend,*timeupdate,*toggle,*volumechange,*waiting,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored,*webkitfullscreenchange,*webkitfullscreenerror,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate',
-      'a^abbr|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerPolicy,rel,rev,search,shape,target,text,type,username',
-      'area^abbr|alt,coords,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerPolicy,search,shape,target,username',
+      'a^[HTMLElement]|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerPolicy,rel,rev,search,shape,target,text,type,username',
+      'area^[HTMLElement]|alt,coords,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerPolicy,search,shape,target,username',
       'audio^media|',
-      'br^abbr|clear',
-      'base^abbr|href,target',
-      'body^abbr|aLink,background,bgColor,link,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink',
-      'button^abbr|!autofocus,!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value',
-      'canvas^abbr|#height,#width',
-      'content^abbr|select',
-      'dl^abbr|!compact',
-      'datalist^abbr|',
-      'details^abbr|!open',
-      'dialog^abbr|!open,returnValue',
-      'dir^abbr|!compact',
-      'div^abbr|align',
-      'embed^abbr|align,height,name,src,type,width',
-      'fieldset^abbr|!disabled,name',
-      'font^abbr|color,face,size',
-      'form^abbr|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target',
-      'frame^abbr|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src',
-      'frameset^abbr|cols,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows',
-      'hr^abbr|align,color,!noShade,size,width',
-      'head^abbr|',
-      'h1,h2,h3,h4,h5,h6^abbr|align',
-      'html^abbr|version',
-      'iframe^abbr|align,!allowFullscreen,frameBorder,height,longDesc,marginHeight,marginWidth,name,referrerPolicy,%sandbox,scrolling,src,srcdoc,width',
-      'img^abbr|align,alt,border,%crossOrigin,#height,#hspace,!isMap,longDesc,lowsrc,name,referrerPolicy,sizes,src,srcset,useMap,#vspace,#width',
-      'input^abbr|accept,align,alt,autocapitalize,autocomplete,!autofocus,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width',
-      'keygen^abbr|!autofocus,challenge,!disabled,keytype,name',
-      'li^abbr|type,#value',
-      'label^abbr|htmlFor',
-      'legend^abbr|align',
-      'link^abbr|as,charset,%crossOrigin,!disabled,href,hreflang,integrity,media,rel,%relList,rev,%sizes,target,type',
-      'map^abbr|name',
-      'marquee^abbr|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width',
-      'menu^abbr|!compact',
-      'meta^abbr|content,httpEquiv,name,scheme',
-      'meter^abbr|#high,#low,#max,#min,#optimum,#value',
-      'ins,del^abbr|cite,dateTime',
-      'ol^abbr|!compact,!reversed,#start,type',
-      'object^abbr|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width',
-      'optgroup^abbr|!disabled,label',
-      'option^abbr|!defaultSelected,!disabled,label,!selected,text,value',
-      'output^abbr|defaultValue,%htmlFor,name,value',
-      'p^abbr|align',
-      'param^abbr|name,type,value,valueType',
-      'picture^abbr|',
-      'pre^abbr|#width',
-      'progress^abbr|#max,#value',
-      'q,blockquote,cite^abbr|',
-      'script^abbr|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,src,text,type',
-      'select^abbr|!autofocus,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value',
-      'shadow^abbr|',
-      'source^abbr|media,sizes,src,srcset,type',
-      'span^abbr|',
-      'style^abbr|!disabled,media,type',
-      'caption^abbr|align',
-      'th,td^abbr|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width',
-      'col,colgroup^abbr|align,ch,chOff,#span,vAlign,width',
-      'table^abbr|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width',
-      'tr^abbr|align,bgColor,ch,chOff,vAlign',
-      'tfoot,thead,tbody^abbr|align,ch,chOff,vAlign',
-      'template^abbr|',
-      'textarea^abbr|autocapitalize,!autofocus,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap',
-      'title^abbr|text',
-      'track^abbr|!default,kind,label,src,srclang',
-      'ul^abbr|!compact,type',
-      'unknown^abbr|',
+      'br^[HTMLElement]|clear',
+      'base^[HTMLElement]|href,target',
+      'body^[HTMLElement]|aLink,background,bgColor,link,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink',
+      'button^[HTMLElement]|!autofocus,!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value',
+      'canvas^[HTMLElement]|#height,#width',
+      'content^[HTMLElement]|select',
+      'dl^[HTMLElement]|!compact',
+      'datalist^[HTMLElement]|',
+      'details^[HTMLElement]|!open',
+      'dialog^[HTMLElement]|!open,returnValue',
+      'dir^[HTMLElement]|!compact',
+      'div^[HTMLElement]|align',
+      'embed^[HTMLElement]|align,height,name,src,type,width',
+      'fieldset^[HTMLElement]|!disabled,name',
+      'font^[HTMLElement]|color,face,size',
+      'form^[HTMLElement]|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target',
+      'frame^[HTMLElement]|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src',
+      'frameset^[HTMLElement]|cols,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows',
+      'hr^[HTMLElement]|align,color,!noShade,size,width',
+      'head^[HTMLElement]|',
+      'h1,h2,h3,h4,h5,h6^[HTMLElement]|align',
+      'html^[HTMLElement]|version',
+      'iframe^[HTMLElement]|align,!allowFullscreen,frameBorder,height,longDesc,marginHeight,marginWidth,name,referrerPolicy,%sandbox,scrolling,src,srcdoc,width',
+      'img^[HTMLElement]|align,alt,border,%crossOrigin,#height,#hspace,!isMap,longDesc,lowsrc,name,referrerPolicy,sizes,src,srcset,useMap,#vspace,#width',
+      'input^[HTMLElement]|accept,align,alt,autocapitalize,autocomplete,!autofocus,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width',
+      'keygen^[HTMLElement]|!autofocus,challenge,!disabled,keytype,name',
+      'li^[HTMLElement]|type,#value',
+      'label^[HTMLElement]|htmlFor',
+      'legend^[HTMLElement]|align',
+      'link^[HTMLElement]|as,charset,%crossOrigin,!disabled,href,hreflang,integrity,media,rel,%relList,rev,%sizes,target,type',
+      'map^[HTMLElement]|name',
+      'marquee^[HTMLElement]|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width',
+      'menu^[HTMLElement]|!compact',
+      'meta^[HTMLElement]|content,httpEquiv,name,scheme',
+      'meter^[HTMLElement]|#high,#low,#max,#min,#optimum,#value',
+      'ins,del^[HTMLElement]|cite,dateTime',
+      'ol^[HTMLElement]|!compact,!reversed,#start,type',
+      'object^[HTMLElement]|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width',
+      'optgroup^[HTMLElement]|!disabled,label',
+      'option^[HTMLElement]|!defaultSelected,!disabled,label,!selected,text,value',
+      'output^[HTMLElement]|defaultValue,%htmlFor,name,value',
+      'p^[HTMLElement]|align',
+      'param^[HTMLElement]|name,type,value,valueType',
+      'picture^[HTMLElement]|',
+      'pre^[HTMLElement]|#width',
+      'progress^[HTMLElement]|#max,#value',
+      'q,blockquote,cite^[HTMLElement]|',
+      'script^[HTMLElement]|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,src,text,type',
+      'select^[HTMLElement]|!autofocus,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value',
+      'shadow^[HTMLElement]|',
+      'source^[HTMLElement]|media,sizes,src,srcset,type',
+      'span^[HTMLElement]|',
+      'style^[HTMLElement]|!disabled,media,type',
+      'caption^[HTMLElement]|align',
+      'th,td^[HTMLElement]|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width',
+      'col,colgroup^[HTMLElement]|align,ch,chOff,#span,vAlign,width',
+      'table^[HTMLElement]|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width',
+      'tr^[HTMLElement]|align,bgColor,ch,chOff,vAlign',
+      'tfoot,thead,tbody^[HTMLElement]|align,ch,chOff,vAlign',
+      'template^[HTMLElement]|',
+      'textarea^[HTMLElement]|autocapitalize,!autofocus,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap',
+      'title^[HTMLElement]|text',
+      'track^[HTMLElement]|!default,kind,label,src,srclang',
+      'ul^[HTMLElement]|!compact,type',
+      'unknown^[HTMLElement]|',
       'video^media|#height,poster,#width',
       ':svg:a^:svg:graphics|',
       ':svg:animate^:svg:animation|',
@@ -17304,13 +17331,17 @@
       ':svg:title^:svg:|',
       ':svg:use^:svg:graphics|',
       ':svg:view^:svg:|#zoomAndPan',
-  ]);
+      'data^[HTMLElement]|value',
+      'menuitem^[HTMLElement]|type,label,icon,!disabled,!checked,radiogroup,!default',
+      'summary^[HTMLElement]|',
+      'time^[HTMLElement]|dateTime',
+  ];
   var _ATTR_TO_PROP = {
       'class': 'className',
       'formaction': 'formAction',
       'innerHtml': 'innerHTML',
       'readonly': 'readOnly',
-      'tabindex': 'tabIndex'
+      'tabindex': 'tabIndex',
   };
   var DomElementSchemaRegistry = (function (_super) {
       __extends$18(DomElementSchemaRegistry, _super);
@@ -17319,12 +17350,12 @@
           _super.call(this);
           this._schema = {};
           SCHEMA.forEach(function (encodedType) {
+              var type = {};
               var _a = encodedType.split('|'), strType = _a[0], strProperties = _a[1];
               var properties = strProperties.split(',');
               var _b = strType.split('^'), typeNames = _b[0], superName = _b[1];
-              var type = {};
               typeNames.split(',').forEach(function (tag) { return _this._schema[tag.toLowerCase()] = type; });
-              var superType = _this._schema[superName];
+              var superType = superName && _this._schema[superName.toLowerCase()];
               if (superType) {
                   Object.keys(superType).forEach(function (prop) { type[prop] = superType[prop]; });
               }
@@ -17442,8 +17473,8 @@
           },
           deps: [
               HtmlParser,
-              [new _angular_core.OptionalMetadata(), new _angular_core.Inject(_angular_core.TRANSLATIONS)],
-              [new _angular_core.OptionalMetadata(), new _angular_core.Inject(_angular_core.TRANSLATIONS_FORMAT)],
+              [new _angular_core.Optional(), new _angular_core.Inject(_angular_core.TRANSLATIONS)],
+              [new _angular_core.Optional(), new _angular_core.Inject(_angular_core.TRANSLATIONS_FORMAT)],
           ]
       },
       TemplateParser,

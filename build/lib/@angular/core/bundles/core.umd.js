@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -184,8 +184,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -237,299 +235,6 @@
     function isPrimitive(obj) {
         return !isJsObject(obj);
     }
-
-    /**
-     * Allows to refer to references which are not yet defined.
-     *
-     * For instance, `forwardRef` is used when the `token` which we need to refer to for the purposes of
-     * DI is declared,
-     * but not yet defined. It is also used when the `token` which we use when creating a query is not
-     * yet defined.
-     *
-     * ### Example
-     * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref'}
-     * @experimental
-     */
-    function forwardRef(forwardRefFn) {
-        forwardRefFn.__forward_ref__ = forwardRef;
-        forwardRefFn.toString = function () { return stringify(this()); };
-        return forwardRefFn;
-    }
-    /**
-     * Lazily retrieves the reference value from a forwardRef.
-     *
-     * Acts as the identity function when given a non-forward-ref value.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/GU72mJrk1fiodChcmiDR?p=preview))
-     *
-     * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='resolve_forward_ref'}
-     *
-     * See: {@link forwardRef}
-     * @experimental
-     */
-    function resolveForwardRef(type) {
-        if (isFunction(type) && type.hasOwnProperty('__forward_ref__') &&
-            type.__forward_ref__ === forwardRef) {
-            return type();
-        }
-        else {
-            return type;
-        }
-    }
-
-    /**
-     * A parameter metadata that specifies a dependency.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/6uHYJK?p=preview))
-     *
-     * ```typescript
-     * class Engine {}
-     *
-     * @Injectable()
-     * class Car {
-     *   engine;
-     *   constructor(@Inject("MyEngine") engine:Engine) {
-     *     this.engine = engine;
-     *   }
-     * }
-     *
-     * var injector = Injector.resolveAndCreate([
-     *  {provide: "MyEngine", useClass: Engine},
-     *  Car
-     * ]);
-     *
-     * expect(injector.get(Car).engine instanceof Engine).toBe(true);
-     * ```
-     *
-     * When `@Inject()` is not present, {@link Injector} will use the type annotation of the parameter.
-     *
-     * ### Example
-     *
-     * ```typescript
-     * class Engine {}
-     *
-     * @Injectable()
-     * class Car {
-     *   constructor(public engine: Engine) {} //same as constructor(@Inject(Engine) engine:Engine)
-     * }
-     *
-     * var injector = Injector.resolveAndCreate([Engine, Car]);
-     * expect(injector.get(Car).engine instanceof Engine).toBe(true);
-     * ```
-     * @stable
-     */
-    var InjectMetadata = (function () {
-        function InjectMetadata(token) {
-            this.token = token;
-        }
-        InjectMetadata.prototype.toString = function () { return "@Inject(" + stringify(this.token) + ")"; };
-        return InjectMetadata;
-    }());
-    /**
-     * A parameter metadata that marks a dependency as optional. {@link Injector} provides `null` if
-     * the dependency is not found.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/AsryOm?p=preview))
-     *
-     * ```typescript
-     * class Engine {}
-     *
-     * @Injectable()
-     * class Car {
-     *   engine;
-     *   constructor(@Optional() engine:Engine) {
-     *     this.engine = engine;
-     *   }
-     * }
-     *
-     * var injector = Injector.resolveAndCreate([Car]);
-     * expect(injector.get(Car).engine).toBeNull();
-     * ```
-     * @stable
-     */
-    var OptionalMetadata = (function () {
-        function OptionalMetadata() {
-        }
-        OptionalMetadata.prototype.toString = function () { return "@Optional()"; };
-        return OptionalMetadata;
-    }());
-    /**
-     * `DependencyMetadata` is used by the framework to extend DI.
-     * This is internal to Angular and should not be used directly.
-     * @stable
-     */
-    var DependencyMetadata = (function () {
-        function DependencyMetadata() {
-        }
-        Object.defineProperty(DependencyMetadata.prototype, "token", {
-            get: function () { return null; },
-            enumerable: true,
-            configurable: true
-        });
-        return DependencyMetadata;
-    }());
-    /**
-     * A marker metadata that marks a class as available to {@link Injector} for creation.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/Wk4DMQ?p=preview))
-     *
-     * ```typescript
-     * @Injectable()
-     * class UsefulService {}
-     *
-     * @Injectable()
-     * class NeedsService {
-     *   constructor(public service:UsefulService) {}
-     * }
-     *
-     * var injector = Injector.resolveAndCreate([NeedsService, UsefulService]);
-     * expect(injector.get(NeedsService).service instanceof UsefulService).toBe(true);
-     * ```
-     * {@link Injector} will throw {@link NoAnnotationError} when trying to instantiate a class that
-     * does not have `@Injectable` marker, as shown in the example below.
-     *
-     * ```typescript
-     * class UsefulService {}
-     *
-     * class NeedsService {
-     *   constructor(public service:UsefulService) {}
-     * }
-     *
-     * var injector = Injector.resolveAndCreate([NeedsService, UsefulService]);
-     * expect(() => injector.get(NeedsService)).toThrowError();
-     * ```
-     * @stable
-     */
-    var InjectableMetadata = (function () {
-        function InjectableMetadata() {
-        }
-        return InjectableMetadata;
-    }());
-    /**
-     * Specifies that an {@link Injector} should retrieve a dependency only from itself.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/NeagAg?p=preview))
-     *
-     * ```typescript
-     * class Dependency {
-     * }
-     *
-     * @Injectable()
-     * class NeedsDependency {
-     *   dependency;
-     *   constructor(@Self() dependency:Dependency) {
-     *     this.dependency = dependency;
-     *   }
-     * }
-     *
-     * var inj = Injector.resolveAndCreate([Dependency, NeedsDependency]);
-     * var nd = inj.get(NeedsDependency);
-     *
-     * expect(nd.dependency instanceof Dependency).toBe(true);
-     *
-     * var inj = Injector.resolveAndCreate([Dependency]);
-     * var child = inj.resolveAndCreateChild([NeedsDependency]);
-     * expect(() => child.get(NeedsDependency)).toThrowError();
-     * ```
-     * @stable
-     */
-    var SelfMetadata = (function () {
-        function SelfMetadata() {
-        }
-        SelfMetadata.prototype.toString = function () { return "@Self()"; };
-        return SelfMetadata;
-    }());
-    /**
-     * Specifies that the dependency resolution should start from the parent injector.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/Wchdzb?p=preview))
-     *
-     * ```typescript
-     * class Dependency {
-     * }
-     *
-     * @Injectable()
-     * class NeedsDependency {
-     *   dependency;
-     *   constructor(@SkipSelf() dependency:Dependency) {
-     *     this.dependency = dependency;
-     *   }
-     * }
-     *
-     * var parent = Injector.resolveAndCreate([Dependency]);
-     * var child = parent.resolveAndCreateChild([NeedsDependency]);
-     * expect(child.get(NeedsDependency).dependency instanceof Depedency).toBe(true);
-     *
-     * var inj = Injector.resolveAndCreate([Dependency, NeedsDependency]);
-     * expect(() => inj.get(NeedsDependency)).toThrowError();
-     * ```
-     * @stable
-     */
-    var SkipSelfMetadata = (function () {
-        function SkipSelfMetadata() {
-        }
-        SkipSelfMetadata.prototype.toString = function () { return "@SkipSelf()"; };
-        return SkipSelfMetadata;
-    }());
-    /**
-     * Specifies that an injector should retrieve a dependency from any injector until reaching the
-     * closest host.
-     *
-     * In Angular, a component element is automatically declared as a host for all the injectors in
-     * its view.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/GX79pV?p=preview))
-     *
-     * In the following example `App` contains `ParentCmp`, which contains `ChildDirective`.
-     * So `ParentCmp` is the host of `ChildDirective`.
-     *
-     * `ChildDirective` depends on two services: `HostService` and `OtherService`.
-     * `HostService` is defined at `ParentCmp`, and `OtherService` is defined at `App`.
-     *
-     *```typescript
-     * class OtherService {}
-     * class HostService {}
-     *
-     * @Directive({
-     *   selector: 'child-directive'
-     * })
-     * class ChildDirective {
-     *   constructor(@Optional() @Host() os:OtherService, @Optional() @Host() hs:HostService){
-     *     console.log("os is null", os);
-     *     console.log("hs is NOT null", hs);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'parent-cmp',
-     *   providers: [HostService],
-     *   template: `
-     *     Dir: <child-directive></child-directive>
-     *   `,
-     *   directives: [ChildDirective]
-     * })
-     * class ParentCmp {
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   providers: [OtherService],
-     *   template: `
-     *     Parent: <parent-cmp></parent-cmp>
-     *   `,
-     *   directives: [ParentCmp]
-     * })
-     * class App {
-     * }
-     *```
-     * @stable
-     */
-    var HostMetadata = (function () {
-        function HostMetadata() {
-        }
-        HostMetadata.prototype.toString = function () { return "@Host()"; };
-        return HostMetadata;
-    }());
 
     var _nextClassId = 0;
     function extractAnnotation(annotation) {
@@ -690,22 +395,24 @@
         return constructor;
     }
     var Reflect = global$1.Reflect;
-    function makeDecorator(annotationCls, chainFn) {
+    function makeDecorator(name, props, parentClass, chainFn) {
         if (chainFn === void 0) { chainFn = null; }
+        var metaCtor = makeMetadataCtor([props]);
         function DecoratorFactory(objOrType) {
             if (!(Reflect && Reflect.getMetadata)) {
                 throw 'reflect-metadata shim is required when using class decorators';
             }
-            var annotationInstance = new annotationCls(objOrType);
-            if (this instanceof annotationCls) {
-                return annotationInstance;
+            if (this instanceof DecoratorFactory) {
+                metaCtor.call(this, objOrType);
+                return this;
             }
             else {
+                var annotationInstance_1 = new DecoratorFactory(objOrType);
                 var chainAnnotation = isFunction(this) && this.annotations instanceof Array ? this.annotations : [];
-                chainAnnotation.push(annotationInstance);
+                chainAnnotation.push(annotationInstance_1);
                 var TypeDecorator = function TypeDecorator(cls) {
                     var annotations = Reflect.getOwnMetadata('annotations', cls) || [];
-                    annotations.push(annotationInstance);
+                    annotations.push(annotationInstance_1);
                     Reflect.defineMetadata('annotations', annotations, cls);
                     return cls;
                 };
@@ -716,25 +423,51 @@
                 return TypeDecorator;
             }
         }
-        DecoratorFactory.prototype = Object.create(annotationCls.prototype);
-        DecoratorFactory.annotationCls = annotationCls;
+        if (parentClass) {
+            DecoratorFactory.prototype = Object.create(parentClass.prototype);
+        }
+        DecoratorFactory.prototype.toString = function () { return ("@" + name); };
+        DecoratorFactory.annotationCls = DecoratorFactory;
         return DecoratorFactory;
     }
-    function makeParamDecorator(annotationCls) {
+    function makeMetadataCtor(props) {
+        function ctor() {
+            var _this = this;
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            props.forEach(function (prop, i) {
+                var argVal = args[i];
+                if (Array.isArray(prop)) {
+                    // plain parameter
+                    var val = !argVal || argVal === undefined ? prop[1] : argVal;
+                    _this[prop[0]] = val;
+                }
+                else {
+                    for (var propName in prop) {
+                        var val = !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
+                        _this[propName] = val;
+                    }
+                }
+            });
+        }
+        return ctor;
+    }
+    function makeParamDecorator(name, props, parentClass) {
+        var metaCtor = makeMetadataCtor(props);
         function ParamDecoratorFactory() {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            var annotationInstance = Object.create(annotationCls.prototype);
-            annotationCls.apply(annotationInstance, args);
-            if (this instanceof annotationCls) {
-                return annotationInstance;
+            if (this instanceof ParamDecoratorFactory) {
+                metaCtor.apply(this, args);
+                return this;
             }
-            else {
-                ParamDecorator.annotation = annotationInstance;
-                return ParamDecorator;
-            }
+            var annotationInstance = new ((_a = ParamDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
+            ParamDecorator.annotation = annotationInstance;
+            return ParamDecorator;
             function ParamDecorator(cls, unusedKey, index) {
                 var parameters = Reflect.getMetadata('parameters', cls) || [];
                 // there might be gaps if some in between parameters do not have annotations.
@@ -748,23 +481,28 @@
                 Reflect.defineMetadata('parameters', parameters, cls);
                 return cls;
             }
+            var _a;
         }
-        ParamDecoratorFactory.prototype = Object.create(annotationCls.prototype);
-        ParamDecoratorFactory.annotationCls = annotationCls;
+        if (parentClass) {
+            ParamDecoratorFactory.prototype = Object.create(parentClass.prototype);
+        }
+        ParamDecoratorFactory.prototype.toString = function () { return ("@" + name); };
+        ParamDecoratorFactory.annotationCls = ParamDecoratorFactory;
         return ParamDecoratorFactory;
     }
-    function makePropDecorator(annotationCls) {
+    function makePropDecorator(name, props, parentClass) {
+        var metaCtor = makeMetadataCtor(props);
         function PropDecoratorFactory() {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            var decoratorInstance = Object.create(annotationCls.prototype);
-            annotationCls.apply(decoratorInstance, args);
-            if (this instanceof annotationCls) {
-                return decoratorInstance;
+            if (this instanceof PropDecoratorFactory) {
+                metaCtor.apply(this, args);
+                return this;
             }
             else {
+                var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
                 return function PropDecorator(target, name) {
                     var meta = Reflect.getOwnMetadata('propMetadata', target.constructor) || {};
                     meta[name] = meta[name] || [];
@@ -772,48 +510,58 @@
                     Reflect.defineMetadata('propMetadata', meta, target.constructor);
                 };
             }
+            var _a;
         }
-        PropDecoratorFactory.prototype = Object.create(annotationCls.prototype);
-        PropDecoratorFactory.annotationCls = annotationCls;
+        if (parentClass) {
+            PropDecoratorFactory.prototype = Object.create(parentClass.prototype);
+        }
+        PropDecoratorFactory.prototype.toString = function () { return ("@" + name); };
+        PropDecoratorFactory.annotationCls = PropDecoratorFactory;
         return PropDecoratorFactory;
     }
 
     /**
-     * Factory for creating {@link InjectMetadata}.
+     * Inject decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var Inject = makeParamDecorator(InjectMetadata);
+    var Inject = makeParamDecorator('Inject', [['token', undefined]]);
     /**
-     * Factory for creating {@link OptionalMetadata}.
+     * Optional decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var Optional = makeParamDecorator(OptionalMetadata);
+    var Optional = makeParamDecorator('Optional', []);
     /**
-     * Factory for creating {@link InjectableMetadata}.
+     * Injectable decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var Injectable = makeDecorator(InjectableMetadata);
+    var Injectable = makeParamDecorator('Injectable', []);
     /**
-     * Factory for creating {@link SelfMetadata}.
+     * Self decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var Self = makeParamDecorator(SelfMetadata);
+    var Self = makeParamDecorator('Self', []);
     /**
-     * Factory for creating {@link HostMetadata}.
+     * SkipSelf decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var Host = makeParamDecorator(HostMetadata);
+    var SkipSelf = makeParamDecorator('SkipSelf', []);
     /**
-     * Factory for creating {@link SkipSelfMetadata}.
+     * Host decorator and metadata.
+     *
      * @stable
      * @Annotation
      */
-    var SkipSelf = makeParamDecorator(SkipSelfMetadata);
+    var Host = makeParamDecorator('Host', []);
 
     /**
      * Creates a token that can be used in a DI Provider.
@@ -854,18 +602,6 @@
     }());
 
     /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var __extends = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-    /**
      * This token can be used to create a virtual provider that will populate the
      * `entryComponents` fields of components and ng modules based on its `useValue`.
      * All components that are referenced in the `useValue` value (either directly
@@ -888,7 +624,7 @@
      * // user code
      * let routes = [
      *   {path: '/root', component: RootComp},
-     *   {path: /teams', component: TeamsComp}
+     *   {path: '/teams', component: TeamsComp}
      * ];
      *
      * @NgModule({
@@ -901,470 +637,123 @@
      */
     var ANALYZE_FOR_ENTRY_COMPONENTS = new OpaqueToken('AnalyzeForEntryComponents');
     /**
-     * Specifies that a constant attribute value should be injected.
+     * Attribute decorator and metadata.
      *
-     * The directive can inject constant string literals of host element attributes.
+     * @stable
+     * @Annotation
+     */
+    var Attribute = makeParamDecorator('Attribute', [['attributeName', undefined]]);
+    /**
+     * Base class for query metadata.
      *
-     * ### Example
+     * See {@link ContentChildren}, {@link ContentChild}, {@link ViewChildren}, {@link ViewChild} for
+     * more information.
      *
-     * Suppose we have an `<input>` element and want to know its `type`.
-     *
-     * ```html
-     * <input type="text">
-     * ```
-     *
-     * A decorator can inject string literal `text` like so:
-     *
-     * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
      * @stable
      */
-    var AttributeMetadata = (function (_super) {
-        __extends(AttributeMetadata, _super);
-        function AttributeMetadata(attributeName) {
-            _super.call(this);
-            this.attributeName = attributeName;
+    var Query = (function () {
+        function Query() {
         }
-        Object.defineProperty(AttributeMetadata.prototype, "token", {
-            get: function () {
-                // Normally one would default a token to a type of an injected value but here
-                // the type of a variable is "string" and we can't use primitive type as a return value
-                // so we use instance of Attribute instead. This doesn't matter much in practice as arguments
-                // with @Attribute annotation are injected by ElementInjector that doesn't take tokens into
-                // account.
-                return this;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        AttributeMetadata.prototype.toString = function () { return "@Attribute(" + stringify(this.attributeName) + ")"; };
-        return AttributeMetadata;
-    }(DependencyMetadata));
+        return Query;
+    }());
     /**
-     * Declares an injectable parameter to be a live list of directives or variable
-     * bindings from the content children of a directive.
+     * ContentChildren decorator and metadata.
      *
-     * ### Example ([live demo](http://plnkr.co/edit/lY9m8HLy7z06vDoUaSN2?p=preview))
-     *
-     * Assume that `<tabs>` component would like to get a list its children `<pane>`
-     * components as shown in this example:
-     *
-     * ```html
-     * <tabs>
-     *   <pane title="Overview">...</pane>
-     *   <pane *ngFor="let o of objects" [title]="o.title">{{o.text}}</pane>
-     * </tabs>
-     * ```
-     *
-     * The preferred solution is to query for `Pane` directives using this decorator.
-     *
-     * ```javascript
-     * @Component({
-     *   selector: 'pane',
-     *   inputs: ['title']
-     * })
-     * class Pane {
-     *   title:string;
-     * }
-     *
-     * @Component({
-     *  selector: 'tabs',
-     *  template: `
-     *    <ul>
-     *      <li *ngFor="let pane of panes">{{pane.title}}</li>
-     *    </ul>
-     *    <ng-content></ng-content>
-     *  `
-     * })
-     * class Tabs {
-     *   @ContentChildren(Pane) panes: QueryList<Pane>;
-     * }
-     * ```
-     *
-     * A query can look for variable bindings by passing in a string with desired binding symbol.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/sT2j25cH1dURAyBRCKx1?p=preview))
-     * ```html
-     * <seeker>
-     *   <div #findme>...</div>
-     * </seeker>
-     *
-     * @Component({ selector: 'seeker' })
-     * class Seeker {
-     *   @ContentChildren('findme') elList;
-     * }
-     * ```
-     *
-     * In this case the object that is injected depend on the type of the variable
-     * binding. It can be an ElementRef, a directive or a component.
-     *
-     * Passing in a comma separated list of variable bindings will query for all of them.
-     *
-     * ```html
-     * <seeker>
-     *   <div #find-me>...</div>
-     *   <div #find-me-too>...</div>
-     * </seeker>
-     *
-     *  @Component({
-     *   selector: 'seeker'
-     * })
-     * class Seeker {
-     *   @ContentChildren('findMe, findMeToo') elList: QueryList<ElementRef>;
-     * }
-     * ```
-     *
-     * Configure whether query looks for direct children or all descendants
-     * of the querying element, by using the `descendants` parameter.
-     * It is set to `false` by default.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/wtGeB977bv7qvA5FTYl9?p=preview))
-     * ```html
-     * <container #first>
-     *   <item>a</item>
-     *   <item>b</item>
-     *   <container #second>
-     *     <item>c</item>
-     *   </container>
-     * </container>
-     * ```
-     *
-     * When querying for items, the first container will see only `a` and `b` by default,
-     * but with `ContentChildren(TextDirective, {descendants: true})` it will see `c` too.
-     *
-     * The queried directives are kept in a depth-first pre-order with respect to their
-     * positions in the DOM.
-     *
-     * ContentChildren does not look deep into any subcomponent views.
-     *
-     * ContentChildren is updated as part of the change-detection cycle. Since change detection
-     * happens after construction of a directive, QueryList will always be empty when observed in the
-     * constructor.
-     *
-     * The injected object is an unmodifiable live list.
-     * See {@link QueryList} for more details.
-     * @stable
+     *  @stable
+     *  @Annotation
      */
-    var QueryMetadata = (function (_super) {
-        __extends(QueryMetadata, _super);
-        function QueryMetadata(_selector, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.descendants, descendants = _c === void 0 ? false : _c, _d = _b.first, first = _d === void 0 ? false : _d, _e = _b.read, read = _e === void 0 ? null : _e;
-            _super.call(this);
-            this._selector = _selector;
-            this.descendants = descendants;
-            this.first = first;
-            this.read = read;
-        }
-        Object.defineProperty(QueryMetadata.prototype, "isViewQuery", {
-            /**
-             * always `false` to differentiate it with {@link ViewQueryMetadata}.
-             */
-            get: function () { return false; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(QueryMetadata.prototype, "selector", {
-            /**
-             * what this is querying for.
-             */
-            get: function () { return resolveForwardRef(this._selector); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(QueryMetadata.prototype, "isVarBindingQuery", {
-            /**
-             * whether this is querying for a variable binding or a directive.
-             */
-            get: function () { return isString(this.selector); },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(QueryMetadata.prototype, "varBindings", {
-            /**
-             * returns a list of variable bindings this is querying for.
-             * Only applicable if this is a variable bindings query.
-             */
-            get: function () { return StringWrapper.split(this.selector, /\s*,\s*/g); },
-            enumerable: true,
-            configurable: true
-        });
-        QueryMetadata.prototype.toString = function () { return "@Query(" + stringify(this.selector) + ")"; };
-        return QueryMetadata;
-    }(DependencyMetadata));
-    // TODO: add an example after ContentChildren and ViewChildren are in master
+    var ContentChildren = makePropDecorator('ContentChildren', [
+        ['selector', undefined],
+        { first: false, isViewQuery: false, descendants: false, read: undefined }
+    ], Query);
     /**
-     * Configures a content query.
+     * @whatItDoes Configures a content query.
+     *
+     * @howToUse
+     *
+     * {@example core/di/ts/contentChild/content_child_howto.ts region='HowTo'}
+     *
+     * @description
+     *
+     * You can use ContentChild to get the first element or the directive matching the selector from the
+     * content DOM. If the content DOM changes, and a new child matches the selector,
+     * the property will be updated.
      *
      * Content queries are set before the `ngAfterContentInit` callback is called.
      *
-     * ### Example
+     * **Metadata Properties**:
      *
-     * ```
-     * @Directive({
-     *   selector: 'someDir'
-     * })
-     * class SomeDir {
-     *   @ContentChildren(ChildDirective) contentChildren: QueryList<ChildDirective>;
+     * * **selector** - the directive type or the name used for querying.
+     * * **read** - read a different token from the queried element.
      *
-     *   ngAfterContentInit() {
-     *     // contentChildren is set
-     *   }
-     * }
-     * ```
+     * Let's look at an example:
+     *
+     * {@example core/di/ts/contentChild/content_child_example.ts region='Component'}
+     *
+     * **npm package**: `@angular/core`
+     *
      * @stable
+     * @Annotation
      */
-    var ContentChildrenMetadata = (function (_super) {
-        __extends(ContentChildrenMetadata, _super);
-        function ContentChildrenMetadata(_selector, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.descendants, descendants = _c === void 0 ? false : _c, _d = _b.read, read = _d === void 0 ? null : _d;
-            _super.call(this, _selector, { descendants: descendants, read: read });
+    var ContentChild = makePropDecorator('ContentChild', [
+        ['selector', undefined], {
+            first: true,
+            isViewQuery: false,
+            descendants: false,
+            read: undefined,
         }
-        return ContentChildrenMetadata;
-    }(QueryMetadata));
-    // TODO: add an example after ContentChild and ViewChild are in master
+    ], Query);
     /**
-     * Configures a content query.
+     * @whatItDoes Configures a view query.
      *
-     * Content queries are set before the `ngAfterContentInit` callback is called.
+     * @howToUse
      *
-     * ### Example
+     * {@example core/di/ts/viewChildren/view_children_howto.ts region='HowTo'}
      *
-     * ```
-     * @Directive({
-     *   selector: 'someDir'
-     * })
-     * class SomeDir {
-     *   @ContentChild(ChildDirective) contentChild;
+     * @description
      *
-     *   ngAfterContentInit() {
-     *     // contentChild is set
-     *   }
-     * }
-     * ```
+     * You can use ViewChildren to get the {@link QueryList} of elements or directives from the
+     * view DOM. Any time a child element is added, removed, or moved, the query list will be updated,
+     * and the changes observable of the query list will emit a new value.
+     *
+     * View queries are set before the `ngAfterViewInit` callback is called.
+     *
+     * **Metadata Properties**:
+     *
+     * * **selector** - the directive type or the name used for querying.
+     * * **read** - read a different token from the queried elements.
+     *
+     * Let's look at an example:
+     *
+     * {@example core/di/ts/viewChildren/view_children_example.ts region='Component'}
+     *
+     * **npm package**: `@angular/core`
+     *
      * @stable
+     * @Annotation
      */
-    var ContentChildMetadata = (function (_super) {
-        __extends(ContentChildMetadata, _super);
-        function ContentChildMetadata(_selector, _a) {
-            var _b = (_a === void 0 ? {} : _a).read, read = _b === void 0 ? null : _b;
-            _super.call(this, _selector, { descendants: true, first: true, read: read });
+    var ViewChildren = makePropDecorator('ViewChildren', [
+        ['selector', undefined], {
+            first: false,
+            isViewQuery: true,
+            descendants: true,
+            read: undefined,
         }
-        return ContentChildMetadata;
-    }(QueryMetadata));
+    ], Query);
     /**
-     * Similar to {@link ContentChildMetadata}, but querying the component view, instead
-     * of the content children.
+     * ViewChild decorator and metadata.
      *
-     * ### Example ([live demo](http://plnkr.co/edit/eNsFHDf7YjyM6IzKxM1j?p=preview))
-     *
-     * ```javascript
-     * @Component({
-     *   ...,
-     *   template: `
-     *     <item> a </item>
-     *     <item> b </item>
-     *     <item> c </item>
-     *   `
-     * })
-     * class MyComponent {
-     *   shown: boolean;
-     *
-     *   constructor(private @ViewChildren(Item) items:QueryList<Item>) {
-     *     items.changes.subscribe(() => console.log(items.length));
-     *   }
-     * }
-     * ```
-     *
-     * As `shown` is flipped between true and false, items will contain zero of one
-     * items.
-     *
-     * Specifies that a {@link QueryList} should be injected.
-     *
-     * The injected object is an iterable and observable live list.
-     * See {@link QueryList} for more details.
      * @stable
+     * @Annotation
      */
-    var ViewQueryMetadata = (function (_super) {
-        __extends(ViewQueryMetadata, _super);
-        function ViewQueryMetadata(_selector, _a) {
-            var _b = _a === void 0 ? {} : _a, _c = _b.descendants, descendants = _c === void 0 ? false : _c, _d = _b.first, first = _d === void 0 ? false : _d, _e = _b.read, read = _e === void 0 ? null : _e;
-            _super.call(this, _selector, { descendants: descendants, first: first, read: read });
+    var ViewChild = makePropDecorator('ViewChild', [
+        ['selector', undefined], {
+            first: true,
+            isViewQuery: true,
+            descendants: true,
+            read: undefined,
         }
-        Object.defineProperty(ViewQueryMetadata.prototype, "isViewQuery", {
-            /**
-             * always `true` to differentiate it with {@link QueryMetadata}.
-             */
-            get: function () { return true; },
-            enumerable: true,
-            configurable: true
-        });
-        return ViewQueryMetadata;
-    }(QueryMetadata));
-    /**
-     * Declares a list of child element references.
-     *
-     * Angular automatically updates the list when the DOM is updated.
-     *
-     * `ViewChildren` takes an argument to select elements.
-     *
-     * - If the argument is a type, directives or components with the type will be bound.
-     *
-     * - If the argument is a string, the string is interpreted as a list of comma-separated selectors.
-     * For each selector, an element containing the matching template variable (e.g. `#child`) will be
-     * bound.
-     *
-     * View children are set before the `ngAfterViewInit` callback is called.
-     *
-     * ### Example
-     *
-     * With type selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: `
-     *     <child-cmp></child-cmp>
-     *     <child-cmp></child-cmp>
-     *     <child-cmp></child-cmp>
-     *   `,
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChildren(ChildCmp) children:QueryList<ChildCmp>;
-     *
-     *   ngAfterViewInit() {
-     *     // children are set
-     *     this.children.toArray().forEach((child)=>child.doSomething());
-     *   }
-     * }
-     * ```
-     *
-     * With string selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: `
-     *     <child-cmp #child1></child-cmp>
-     *     <child-cmp #child2></child-cmp>
-     *     <child-cmp #child3></child-cmp>
-     *   `,
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChildren('child1,child2,child3') children:QueryList<ChildCmp>;
-     *
-     *   ngAfterViewInit() {
-     *     // children are set
-     *     this.children.toArray().forEach((child)=>child.doSomething());
-     *   }
-     * }
-     * ```
-     * @stable
-     */
-    var ViewChildrenMetadata = (function (_super) {
-        __extends(ViewChildrenMetadata, _super);
-        function ViewChildrenMetadata(_selector, _a) {
-            var _b = (_a === void 0 ? {} : _a).read, read = _b === void 0 ? null : _b;
-            _super.call(this, _selector, { descendants: true, read: read });
-        }
-        ViewChildrenMetadata.prototype.toString = function () { return "@ViewChildren(" + stringify(this.selector) + ")"; };
-        return ViewChildrenMetadata;
-    }(ViewQueryMetadata));
-    /**
-     *
-     * Declares a reference of child element.
-     *
-     * `ViewChildren` takes an argument to select elements.
-     *
-     * - If the argument is a type, a directive or a component with the type will be bound.
-     *
-     If the argument is a string, the string is interpreted as a selector. An element containing the
-     matching template variable (e.g. `#child`) will be bound.
-     *
-     * In either case, `@ViewChild()` assigns the first (looking from above) element if there are
-     multiple matches.
-     *
-     * View child is set before the `ngAfterViewInit` callback is called.
-     *
-     * ### Example
-     *
-     * With type selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: '<child-cmp></child-cmp>',
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChild(ChildCmp) child:ChildCmp;
-     *
-     *   ngAfterViewInit() {
-     *     // child is set
-     *     this.child.doSomething();
-     *   }
-     * }
-     * ```
-     *
-     * With string selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: '<child-cmp #child></child-cmp>',
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChild('child') child:ChildCmp;
-     *
-     *   ngAfterViewInit() {
-     *     // child is set
-     *     this.child.doSomething();
-     *   }
-     * }
-     * ```
-     * @stable
-     */
-    var ViewChildMetadata = (function (_super) {
-        __extends(ViewChildMetadata, _super);
-        function ViewChildMetadata(_selector, _a) {
-            var _b = (_a === void 0 ? {} : _a).read, read = _b === void 0 ? null : _b;
-            _super.call(this, _selector, { descendants: true, first: true, read: read });
-        }
-        return ViewChildMetadata;
-    }(ViewQueryMetadata));
+    ], Query);
 
     /**
      * Describes within the change detector which strategy will be used the next time change
@@ -1431,13 +820,423 @@
     }
 
     /**
+     * Directive decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var Directive = makeDecorator('Directive', {
+        selector: undefined,
+        inputs: undefined,
+        outputs: undefined,
+        host: undefined,
+        providers: undefined,
+        exportAs: undefined,
+        queries: undefined
+    });
+    /**
+     * Component decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var Component = makeDecorator('Component', {
+        selector: undefined,
+        inputs: undefined,
+        outputs: undefined,
+        host: undefined,
+        exportAs: undefined,
+        moduleId: undefined,
+        providers: undefined,
+        viewProviders: undefined,
+        changeDetection: exports.ChangeDetectionStrategy.Default,
+        queries: undefined,
+        templateUrl: undefined,
+        template: undefined,
+        styleUrls: undefined,
+        styles: undefined,
+        animations: undefined,
+        encapsulation: undefined,
+        interpolation: undefined,
+        entryComponents: undefined
+    }, Directive);
+    /**
+     * Pipe decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var Pipe = makeDecorator('Pipe', {
+        name: undefined,
+        pure: true,
+    });
+    /**
+     * Input decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var Input = makePropDecorator('Input', [['bindingPropertyName', undefined]]);
+    /**
+     * Output decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var Output = makePropDecorator('Output', [['bindingPropertyName', undefined]]);
+    /**
+     * HostBinding decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var HostBinding = makePropDecorator('HostBinding', [['hostPropertyName', undefined]]);
+    /**
+     * HostBinding decorator and metadata.
+     *
+     * @stable
+     * @Annotation
+     */
+    var HostListener = makePropDecorator('HostListener', [['eventName', undefined], ['args', []]]);
+
+    /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
      *
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$2 = (this && this.__extends) || function (d, b) {
+    /**
+     * @stable
+     */
+    var LifecycleHooks;
+    (function (LifecycleHooks) {
+        LifecycleHooks[LifecycleHooks["OnInit"] = 0] = "OnInit";
+        LifecycleHooks[LifecycleHooks["OnDestroy"] = 1] = "OnDestroy";
+        LifecycleHooks[LifecycleHooks["DoCheck"] = 2] = "DoCheck";
+        LifecycleHooks[LifecycleHooks["OnChanges"] = 3] = "OnChanges";
+        LifecycleHooks[LifecycleHooks["AfterContentInit"] = 4] = "AfterContentInit";
+        LifecycleHooks[LifecycleHooks["AfterContentChecked"] = 5] = "AfterContentChecked";
+        LifecycleHooks[LifecycleHooks["AfterViewInit"] = 6] = "AfterViewInit";
+        LifecycleHooks[LifecycleHooks["AfterViewChecked"] = 7] = "AfterViewChecked";
+    })(LifecycleHooks || (LifecycleHooks = {}));
+    var LIFECYCLE_HOOKS_VALUES = [
+        LifecycleHooks.OnInit, LifecycleHooks.OnDestroy, LifecycleHooks.DoCheck, LifecycleHooks.OnChanges,
+        LifecycleHooks.AfterContentInit, LifecycleHooks.AfterContentChecked, LifecycleHooks.AfterViewInit,
+        LifecycleHooks.AfterViewChecked
+    ];
+    /**
+     * @whatItDoes Lifecycle hook that is called when any data-bound property of a directive changes.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='OnChanges'}
+     *
+     * @description
+     * `ngOnChanges` is called right after the data-bound properties have been checked and before view
+     * and content children are checked if at least one of them has changed.
+     * The `changes` parameter contains the changed properties.
+     *
+     * See {@linkDocs guide/lifecycle-hooks#onchanges "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var OnChanges = (function () {
+        function OnChanges() {
+        }
+        return OnChanges;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called after data-bound properties of a directive are
+     * initialized.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='OnInit'}
+     *
+     * @description
+     * `ngOnInit` is called right after the directive's data-bound properties have been checked for the
+     * first time, and before any of its children have been checked. It is invoked only once when the
+     * directive is instantiated.
+     *
+     * See {@linkDocs guide/lifecycle-hooks "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var OnInit = (function () {
+        function OnInit() {
+        }
+        return OnInit;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called when Angular dirty checks a directive.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='DoCheck'}
+     *
+     * @description
+     * `ngDoCheck` gets called to check the changes in the directives in addition to the default
+     * algorithm. The default change detection algorithm looks for differences by comparing
+     * bound-property values by reference across change detection runs.
+     *
+     * Note that a directive typically should not use both `DoCheck` and {@link OnChanges} to respond to
+     * changes on the same input, as `ngOnChanges` will continue to be called when the default change
+     * detector detects changes.
+     *
+     * See {@link KeyValueDiffers} and {@link IterableDiffers} for implementing custom dirty checking
+     * for collections.
+     *
+     * See {@linkDocs guide/lifecycle-hooks#docheck "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var DoCheck = (function () {
+        function DoCheck() {
+        }
+        return DoCheck;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called when a directive or pipe is destroyed.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='OnDestroy'}
+     *
+     * @description
+     * `ngOnDestroy` callback is typically used for any custom cleanup that needs to occur when the
+     * instance is destroyed.
+     *
+     * See {@linkDocs guide/lifecycle-hooks "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var OnDestroy = (function () {
+        function OnDestroy() {
+        }
+        return OnDestroy;
+    }());
+    /**
+     *
+     * @whatItDoes Lifecycle hook that is called after a directive's content has been fully
+     * initialized.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='AfterContentInit'}
+     *
+     * @description
+     * See {@linkDocs guide/lifecycle-hooks#aftercontent "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var AfterContentInit = (function () {
+        function AfterContentInit() {
+        }
+        return AfterContentInit;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called after every check of a directive's content.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='AfterContentChecked'}
+     *
+     * @description
+     * See {@linkDocs guide/lifecycle-hooks#aftercontent "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var AfterContentChecked = (function () {
+        function AfterContentChecked() {
+        }
+        return AfterContentChecked;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called after a component's view has been fully
+     * initialized.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='AfterViewInit'}
+     *
+     * @description
+     * See {@linkDocs guide/lifecycle-hooks#afterview "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var AfterViewInit = (function () {
+        function AfterViewInit() {
+        }
+        return AfterViewInit;
+    }());
+    /**
+     * @whatItDoes Lifecycle hook that is called after every check of a component's view.
+     * @howToUse
+     * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='AfterViewChecked'}
+     *
+     * @description
+     * See {@linkDocs guide/lifecycle-hooks#afterview "Lifecycle Hooks Guide"}.
+     *
+     * @stable
+     */
+    var AfterViewChecked = (function () {
+        function AfterViewChecked() {
+        }
+        return AfterViewChecked;
+    }());
+
+    /**
+     * Defines a schema that will allow:
+     * - any non-angular elements with a `-` in their name,
+     * - any properties on elements with a `-` in their name which is the common rule for custom
+     * elements.
+     *
+     * @stable
+     */
+    var CUSTOM_ELEMENTS_SCHEMA = {
+        name: 'custom-elements'
+    };
+    /**
+     * Defines a schema that will allow any property on any element.
+     *
+     * @experimental
+     */
+    var NO_ERRORS_SCHEMA = {
+        name: 'no-errors-schema'
+    };
+    /**
+     * NgModule decorator and metadata
+     *
+     * @stable
+     * @Annotation
+     */
+    var NgModule = makeDecorator('NgModule', {
+        providers: undefined,
+        declarations: undefined,
+        imports: undefined,
+        exports: undefined,
+        entryComponents: undefined,
+        bootstrap: undefined,
+        schemas: undefined,
+        id: undefined,
+    });
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    /**
+     * Defines template and style encapsulation options available for Component's {@link Component}.
+     *
+     * See {@link ViewMetadata#encapsulation}.
+     * @stable
+     */
+    exports.ViewEncapsulation;
+    (function (ViewEncapsulation) {
+        /**
+         * Emulate `Native` scoping of styles by adding an attribute containing surrogate id to the Host
+         * Element and pre-processing the style rules provided via
+         * {@link ViewMetadata#styles} or {@link ViewMetadata#stylesUrls}, and adding the new Host Element
+         * attribute to all selectors.
+         *
+         * This is the default option.
+         */
+        ViewEncapsulation[ViewEncapsulation["Emulated"] = 0] = "Emulated";
+        /**
+         * Use the native encapsulation mechanism of the renderer.
+         *
+         * For the DOM this means using [Shadow DOM](https://w3c.github.io/webcomponents/spec/shadow/) and
+         * creating a ShadowRoot for Component's Host Element.
+         */
+        ViewEncapsulation[ViewEncapsulation["Native"] = 1] = "Native";
+        /**
+         * Don't provide any template or style encapsulation.
+         */
+        ViewEncapsulation[ViewEncapsulation["None"] = 2] = "None";
+    })(exports.ViewEncapsulation || (exports.ViewEncapsulation = {}));
+    var VIEW_ENCAPSULATION_VALUES = [exports.ViewEncapsulation.Emulated, exports.ViewEncapsulation.Native, exports.ViewEncapsulation.None];
+    /**
+     * Metadata properties available for configuring Views.
+     *
+     * Each Angular component requires a single `@Component` and at least one `@View` annotation. The
+     * `@View` annotation specifies the HTML template to use, and lists the directives that are active
+     * within the template.
+     *
+     * When a component is instantiated, the template is loaded into the component's shadow root, and
+     * the expressions and statements in the template are evaluated against the component.
+     *
+     * For details on the `@Component` annotation, see {@link Component}.
+     *
+     * ### Example
+     *
+     * ```
+     * @Component({
+     *   selector: 'greet',
+     *   template: 'Hello {{name}}!',
+     *   directives: [GreetUser, Bold]
+     * })
+     * class Greet {
+     *   name: string;
+     *
+     *   constructor() {
+     *     this.name = 'World';
+     *   }
+     * }
+     * ```
+     *
+     * @deprecated Use Component instead.
+     */
+    var ViewMetadata = (function () {
+        function ViewMetadata(_a) {
+            var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations, interpolation = _b.interpolation;
+            this.templateUrl = templateUrl;
+            this.template = template;
+            this.styleUrls = styleUrls;
+            this.styles = styles;
+            this.encapsulation = encapsulation;
+            this.animations = animations;
+            this.interpolation = interpolation;
+        }
+        return ViewMetadata;
+    }());
+
+    /**
+     * Allows to refer to references which are not yet defined.
+     *
+     * For instance, `forwardRef` is used when the `token` which we need to refer to for the purposes of
+     * DI is declared,
+     * but not yet defined. It is also used when the `token` which we use when creating a query is not
+     * yet defined.
+     *
+     * ### Example
+     * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref'}
+     * @experimental
+     */
+    function forwardRef(forwardRefFn) {
+        forwardRefFn.__forward_ref__ = forwardRef;
+        forwardRefFn.toString = function () { return stringify(this()); };
+        return forwardRefFn;
+    }
+    /**
+     * Lazily retrieves the reference value from a forwardRef.
+     *
+     * Acts as the identity function when given a non-forward-ref value.
+     *
+     * ### Example ([live demo](http://plnkr.co/edit/GU72mJrk1fiodChcmiDR?p=preview))
+     *
+     * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='resolve_forward_ref'}
+     *
+     * See: {@link forwardRef}
+     * @experimental
+     */
+    function resolveForwardRef(type) {
+        if (isFunction(type) && type.hasOwnProperty('__forward_ref__') &&
+            type.__forward_ref__ === forwardRef) {
+            return type();
+        }
+        else {
+            return type;
+        }
+    }
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1449,7 +1248,7 @@
      * @stable
      */
     var BaseError = (function (_super) {
-        __extends$2(BaseError, _super);
+        __extends(BaseError, _super);
         function BaseError(message) {
             // Errors don't use current this, instead they create a new instance.
             // We have to do forward all of our api to the nativeInstance.
@@ -1480,7 +1279,7 @@
      * @stable
      */
     var WrappedError = (function (_super) {
-        __extends$2(WrappedError, _super);
+        __extends(WrappedError, _super);
         function WrappedError(message, error) {
             _super.call(this, message + " caused by: " + (error instanceof Error ? error.message : error));
             this.originalError = error;
@@ -1511,6 +1310,23 @@
         return _NullInjector;
     }());
     /**
+     * @whatItDoes Injector interface
+     * @howToUse
+     * ```
+     * const injector: Injector = ...;
+     * injector.get(...);
+     * ```
+     *
+     * @description
+     * For more details, see the {@linkDocs guide/dependency-injection "Dependency Injection Guide"}.
+     *
+     * ### Example
+     *
+     * {@example core/di/ts/injector_spec.ts region='Injector'}
+     *
+     * `Injector` returns itself when given `Injector` as a token:
+     * {@example core/di/ts/injector_spec.ts region='injectInjector'}
+     *
      * @stable
      */
     var Injector = (function () {
@@ -1522,22 +1338,6 @@
          * - Throws {@link NoProviderError} if no `notFoundValue` that is not equal to
          * Injector.THROW_IF_NOT_FOUND is given
          * - Returns the `notFoundValue` otherwise
-         *
-         * ### Example ([live demo](http://plnkr.co/edit/HeXSHg?p=preview))
-         *
-         * ```typescript
-         * var injector = ReflectiveInjector.resolveAndCreate([
-         *   {provide: "validToken", useValue: "Value"}
-         * ]);
-         * expect(injector.get("validToken")).toEqual("Value");
-         * expect(() => injector.get("invalidToken")).toThrowError();
-         * ```
-         *
-         * `Injector` returns itself when given `Injector` as a token.
-         *
-         * ```typescript
-         * var injector = ReflectiveInjector.resolveAndCreate([]);
-         * expect(injector.get(Injector)).toBe(injector);
          * ```
          */
         Injector.prototype.get = function (token, notFoundValue) { return unimplemented(); };
@@ -1695,9 +1495,8 @@
             if (k1.length != k2.length) {
                 return false;
             }
-            var key;
             for (var i = 0; i < k1.length; i++) {
-                key = k1[i];
+                var key = k1[i];
                 if (m1[key] !== m2[key]) {
                     return false;
                 }
@@ -1906,7 +1705,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$3 = (this && this.__extends) || function (d, b) {
+    var __extends$1 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1935,7 +1734,7 @@
      * @stable
      */
     var AbstractProviderError = (function (_super) {
-        __extends$3(AbstractProviderError, _super);
+        __extends$1(AbstractProviderError, _super);
         function AbstractProviderError(injector, key, constructResolvingMessage) {
             _super.call(this, 'DI Error');
             this.keys = [key];
@@ -1966,7 +1765,7 @@
      * @stable
      */
     var NoProviderError = (function (_super) {
-        __extends$3(NoProviderError, _super);
+        __extends$1(NoProviderError, _super);
         function NoProviderError(injector, key) {
             _super.call(this, injector, key, function (keys) {
                 var first = stringify(ListWrapper.first(keys).token);
@@ -1993,7 +1792,7 @@
      * @stable
      */
     var CyclicDependencyError = (function (_super) {
-        __extends$3(CyclicDependencyError, _super);
+        __extends$1(CyclicDependencyError, _super);
         function CyclicDependencyError(injector, key) {
             _super.call(this, injector, key, function (keys) {
                 return "Cannot instantiate cyclic dependency!" + constructResolvingPath(keys);
@@ -2029,7 +1828,7 @@
      * @stable
      */
     var InstantiationError = (function (_super) {
-        __extends$3(InstantiationError, _super);
+        __extends$1(InstantiationError, _super);
         function InstantiationError(injector, originalException, originalStack, key) {
             _super.call(this, 'DI Error', originalException);
             this.keys = [key];
@@ -2066,7 +1865,7 @@
      * @stable
      */
     var InvalidProviderError = (function (_super) {
-        __extends$3(InvalidProviderError, _super);
+        __extends$1(InvalidProviderError, _super);
         function InvalidProviderError(provider) {
             _super.call(this, "Invalid provider - only instances of Provider and Type are allowed, got: " + provider);
         }
@@ -2102,7 +1901,7 @@
      * @stable
      */
     var NoAnnotationError = (function (_super) {
-        __extends$3(NoAnnotationError, _super);
+        __extends$1(NoAnnotationError, _super);
         function NoAnnotationError(typeOrFunc, params) {
             _super.call(this, NoAnnotationError._genMessage(typeOrFunc, params));
         }
@@ -2139,7 +1938,7 @@
      * @stable
      */
     var OutOfBoundsError = (function (_super) {
-        __extends$3(OutOfBoundsError, _super);
+        __extends$1(OutOfBoundsError, _super);
         function OutOfBoundsError(index) {
             _super.call(this, "Index " + index + " is out-of-bounds.");
         }
@@ -2159,7 +1958,7 @@
      * ```
      */
     var MixingMultiProvidersWithRegularProvidersError = (function (_super) {
-        __extends$3(MixingMultiProvidersWithRegularProvidersError, _super);
+        __extends$1(MixingMultiProvidersWithRegularProvidersError, _super);
         function MixingMultiProvidersWithRegularProvidersError(provider1, provider2) {
             _super.call(this, 'Cannot mix multi providers and regular providers, got: ' + provider1.toString() + ' ' +
                 provider2.toString());
@@ -2252,7 +2051,9 @@
      * found in the LICENSE file at https://angular.io/license
      */
     /**
-     * Runtime representation a type that a Component or other object is instances of.
+     * @whatItDoes Represents a type that a Component or other object is instances of.
+     *
+     * @description
      *
      * An example of a `Type` is `MyCustomComponent` class, which in JavaScript is be represented by
      * the `MyCustomComponent` constructor function.
@@ -2419,9 +2220,7 @@
             var decoratorType = decoratorInvocation.type;
             var annotationCls = decoratorType.annotationCls;
             var annotationArgs = decoratorInvocation.args ? decoratorInvocation.args : [];
-            var annotation = Object.create(annotationCls.prototype);
-            annotationCls.apply(annotation, annotationArgs);
-            return annotation;
+            return new (annotationCls.bind.apply(annotationCls, [void 0].concat(annotationArgs)))();
         });
     }
 
@@ -2449,7 +2248,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$4 = (this && this.__extends) || function (d, b) {
+    var __extends$2 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -2459,7 +2258,7 @@
      * to power dependency injection and compilation.
      */
     var Reflector = (function (_super) {
-        __extends$4(Reflector, _super);
+        __extends$2(Reflector, _super);
         function Reflector(reflectionCapabilities) {
             _super.call(this);
             /** @internal */
@@ -2776,7 +2575,7 @@
         var token = null;
         var optional = false;
         if (!isArray(metadata)) {
-            if (metadata instanceof InjectMetadata) {
+            if (metadata instanceof Inject) {
                 return _createDependency(metadata.token, optional, null, null, depProps);
             }
             else {
@@ -2790,26 +2589,20 @@
             if (paramMetadata instanceof Type) {
                 token = paramMetadata;
             }
-            else if (paramMetadata instanceof InjectMetadata) {
+            else if (paramMetadata instanceof Inject) {
                 token = paramMetadata.token;
             }
-            else if (paramMetadata instanceof OptionalMetadata) {
+            else if (paramMetadata instanceof Optional) {
                 optional = true;
             }
-            else if (paramMetadata instanceof SelfMetadata) {
+            else if (paramMetadata instanceof Self) {
                 upperBoundVisibility = paramMetadata;
             }
-            else if (paramMetadata instanceof HostMetadata) {
+            else if (paramMetadata instanceof Host) {
                 upperBoundVisibility = paramMetadata;
             }
-            else if (paramMetadata instanceof SkipSelfMetadata) {
+            else if (paramMetadata instanceof SkipSelf) {
                 lowerBoundVisibility = paramMetadata;
-            }
-            else if (paramMetadata instanceof DependencyMetadata) {
-                if (isPresent(paramMetadata.token)) {
-                    token = paramMetadata.token;
-                }
-                depProps.push(paramMetadata);
             }
         }
         token = resolveForwardRef(token);
@@ -3557,7 +3350,7 @@
             if (key === INJECTOR_KEY) {
                 return this;
             }
-            if (upperBoundVisibility instanceof SelfMetadata) {
+            if (upperBoundVisibility instanceof Self) {
                 return this._getByKeySelf(key, notFoundValue);
             }
             else {
@@ -3581,7 +3374,7 @@
         /** @internal */
         ReflectiveInjector_.prototype._getByKeyDefault = function (key, notFoundValue, lowerBoundVisibility) {
             var inj;
-            if (lowerBoundVisibility instanceof SkipSelfMetadata) {
+            if (lowerBoundVisibility instanceof SkipSelf) {
                 inj = this._parent;
             }
             else {
@@ -3621,2332 +3414,6 @@
         }
         return res;
     }
-
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var __extends$1 = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-    /**
-     * Directives allow you to attach behavior to elements in the DOM.
-     *
-     * {@link DirectiveMetadata}s with an embedded view are called {@link ComponentMetadata}s.
-     *
-     * A directive consists of a single directive annotation and a controller class. When the
-     * directive's `selector` matches
-     * elements in the DOM, the following steps occur:
-     *
-     * 1. For each directive, the `ElementInjector` attempts to resolve the directive's constructor
-     * arguments.
-     * 2. Angular instantiates directives for each matched element using `ElementInjector` in a
-     * depth-first order,
-     *    as declared in the HTML.
-     *
-     * ## Understanding How Injection Works
-     *
-     * There are three stages of injection resolution.
-     * - *Pre-existing Injectors*:
-     *   - The terminal {@link Injector} cannot resolve dependencies. It either throws an error or, if
-     * the dependency was
-     *     specified as `@Optional`, returns `null`.
-     *   - The platform injector resolves browser singleton resources, such as: cookies, title,
-     * location, and others.
-     * - *Component Injectors*: Each component instance has its own {@link Injector}, and they follow
-     * the same parent-child hierarchy
-     *     as the component instances in the DOM.
-     * - *Element Injectors*: Each component instance has a Shadow DOM. Within the Shadow DOM each
-     * element has an `ElementInjector`
-     *     which follow the same parent-child hierarchy as the DOM elements themselves.
-     *
-     * When a template is instantiated, it also must instantiate the corresponding directives in a
-     * depth-first order. The
-     * current `ElementInjector` resolves the constructor dependencies for each directive.
-     *
-     * Angular then resolves dependencies as follows, according to the order in which they appear in the
-     * {@link ComponentMetadata}:
-     *
-     * 1. Dependencies on the current element
-     * 2. Dependencies on element injectors and their parents until it encounters a Shadow DOM boundary
-     * 3. Dependencies on component injectors and their parents until it encounters the root component
-     * 4. Dependencies on pre-existing injectors
-     *
-     *
-     * The `ElementInjector` can inject other directives, element-specific special objects, or it can
-     * delegate to the parent
-     * injector.
-     *
-     * To inject other directives, declare the constructor parameter as:
-     * - `directive:DirectiveType`: a directive on the current element only
-     * - `@Host() directive:DirectiveType`: any directive that matches the type between the current
-     * element and the
-     *    Shadow DOM root.
-     * - `@Query(DirectiveType) query:QueryList<DirectiveType>`: A live collection of direct child
-     * directives.
-     * - `@QueryDescendants(DirectiveType) query:QueryList<DirectiveType>`: A live collection of any
-     * child directives.
-     *
-     * To inject element-specific special objects, declare the constructor parameter as:
-     * - `element: ElementRef` to obtain a reference to logical element in the view.
-     * - `viewContainer: ViewContainerRef` to control child template instantiation, for
-     * {@link DirectiveMetadata} directives only
-     * - `bindingPropagation: BindingPropagation` to control change detection in a more granular way.
-     *
-     * ### Example
-     *
-     * The following example demonstrates how dependency injection resolves constructor arguments in
-     * practice.
-     *
-     *
-     * Assume this HTML template:
-     *
-     * ```
-     * <div dependency="1">
-     *   <div dependency="2">
-     *     <div dependency="3" my-directive>
-     *       <div dependency="4">
-     *         <div dependency="5"></div>
-     *       </div>
-     *       <div dependency="6"></div>
-     *     </div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * With the following `dependency` decorator and `SomeService` injectable class.
-     *
-     * ```
-     * @Injectable()
-     * class SomeService {
-     * }
-     *
-     * @Directive({
-     *   selector: '[dependency]',
-     *   inputs: [
-     *     'id: dependency'
-     *   ]
-     * })
-     * class Dependency {
-     *   id:string;
-     * }
-     * ```
-     *
-     * Let's step through the different ways in which `MyDirective` could be declared...
-     *
-     *
-     * ### No injection
-     *
-     * Here the constructor is declared with no arguments, therefore nothing is injected into
-     * `MyDirective`.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor() {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with no dependencies.
-     *
-     *
-     * ### Component-level injection
-     *
-     * Directives can inject any injectable instance from the closest component injector or any of its
-     * parents.
-     *
-     * Here, the constructor declares a parameter, `someService`, and injects the `SomeService` type
-     * from the parent
-     * component's injector.
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(someService: SomeService) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a dependency on `SomeService`.
-     *
-     *
-     * ### Injecting a directive from the current element
-     *
-     * Directives can inject other directives declared on the current element.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(dependency: Dependency) {
-     *     expect(dependency.id).toEqual(3);
-     *   }
-     * }
-     * ```
-     * This directive would be instantiated with `Dependency` declared at the same element, in this case
-     * `dependency="3"`.
-     *
-     * ### Injecting a directive from any ancestor elements
-     *
-     * Directives can inject other directives declared on any ancestor element (in the current Shadow
-     * DOM), i.e. on the current element, the
-     * parent element, or its parents.
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Host() dependency: Dependency) {
-     *     expect(dependency.id).toEqual(2);
-     *   }
-     * }
-     * ```
-     *
-     * `@Host` checks the current element, the parent, as well as its parents recursively. If
-     * `dependency="2"` didn't
-     * exist on the direct parent, this injection would
-     * have returned
-     * `dependency="1"`.
-     *
-     *
-     * ### Injecting a live collection of direct child directives
-     *
-     *
-     * A directive can also query for other child directives. Since parent directives are instantiated
-     * before child directives, a directive can't simply inject the list of child directives. Instead,
-     * the directive injects a {@link QueryList}, which updates its contents as children are added,
-     * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ngFor`, an
-     * `ngIf`, or an `ngSwitch`.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Query(Dependency) dependencies:QueryList<Dependency>) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a {@link QueryList} which contains `Dependency` 4 and
-     * `Dependency` 6. Here, `Dependency` 5 would not be included, because it is not a direct child.
-     *
-     * ### Injecting a live collection of descendant directives
-     *
-     * By passing the descendant flag to `@Query` above, we can include the children of the child
-     * elements.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Query(Dependency, {descendants: true}) dependencies:QueryList<Dependency>) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a Query which would contain `Dependency` 4, 5 and 6.
-     *
-     * ### Optional injection
-     *
-     * The normal behavior of directives is to return an error when a specified dependency cannot be
-     * resolved. If you
-     * would like to inject `null` on unresolved dependency instead, you can annotate that dependency
-     * with `@Optional()`.
-     * This explicitly permits the author of a template to treat some of the surrounding directives as
-     * optional.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Optional() dependency:Dependency) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a `Dependency` directive found on the current element.
-     * If none can be
-     * found, the injector supplies `null` instead of throwing an error.
-     *
-     * ### Example
-     *
-     * Here we use a decorator directive to simply define basic tool-tip behavior.
-     *
-     * ```
-     * @Directive({
-     *   selector: '[tooltip]',
-     *   inputs: [
-     *     'text: tooltip'
-     *   ],
-     *   host: {
-     *     '(mouseenter)': 'onMouseEnter()',
-     *     '(mouseleave)': 'onMouseLeave()'
-     *   }
-     * })
-     * class Tooltip{
-     *   text:string;
-     *   overlay:Overlay; // NOT YET IMPLEMENTED
-     *   overlayManager:OverlayManager; // NOT YET IMPLEMENTED
-     *
-     *   constructor(overlayManager:OverlayManager) {
-     *     this.overlay = overlay;
-     *   }
-     *
-     *   onMouseEnter() {
-     *     // exact signature to be determined
-     *     this.overlay = this.overlayManager.open(text, ...);
-     *   }
-     *
-     *   onMouseLeave() {
-     *     this.overlay.close();
-     *     this.overlay = null;
-     *   }
-     * }
-     * ```
-     * In our HTML template, we can then add this behavior to a `<div>` or any other element with the
-     * `tooltip` selector,
-     * like so:
-     *
-     * ```
-     * <div tooltip="some text here"></div>
-     * ```
-     *
-     * Directives can also control the instantiation, destruction, and positioning of inline template
-     * elements:
-     *
-     * A directive uses a {@link ViewContainerRef} to instantiate, insert, move, and destroy views at
-     * runtime.
-     * The {@link ViewContainerRef} is created as a result of `<template>` element, and represents a
-     * location in the current view
-     * where these actions are performed.
-     *
-     * Views are always created as children of the current {@link ComponentMetadata}, and as siblings of
-     * the
-     * `<template>` element. Thus a
-     * directive in a child view cannot inject the directive that created it.
-     *
-     * Since directives that create views via ViewContainers are common in Angular, and using the full
-     * `<template>` element syntax is wordy, Angular
-     * also supports a shorthand notation: `<li *foo="bar">` and `<li template="foo: bar">` are
-     * equivalent.
-     *
-     * Thus,
-     *
-     * ```
-     * <ul>
-     *   <li *foo="bar" title="text"></li>
-     * </ul>
-     * ```
-     *
-     * Expands in use to:
-     *
-     * ```
-     * <ul>
-     *   <template [foo]="bar">
-     *     <li title="text"></li>
-     *   </template>
-     * </ul>
-     * ```
-     *
-     * Notice that although the shorthand places `*foo="bar"` within the `<li>` element, the binding for
-     * the directive
-     * controller is correctly instantiated on the `<template>` element rather than the `<li>` element.
-     *
-     * ## Lifecycle hooks
-     *
-     * When the directive class implements some {@linkDocs guide/lifecycle-hooks} the
-     * callbacks are called by the change detection at defined points in time during the life of the
-     * directive.
-     *
-     * ### Example
-     *
-     * Let's suppose we want to implement the `unless` behavior, to conditionally include a template.
-     *
-     * Here is a simple directive that triggers on an `unless` selector:
-     *
-     * ```
-     * @Directive({
-     *   selector: '[unless]',
-     *   inputs: ['unless']
-     * })
-     * export class Unless {
-     *   viewContainer: ViewContainerRef;
-     *   templateRef: TemplateRef;
-     *   prevCondition: boolean;
-     *
-     *   constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef) {
-     *     this.viewContainer = viewContainer;
-     *     this.templateRef = templateRef;
-     *     this.prevCondition = null;
-     *   }
-     *
-     *   set unless(newCondition) {
-     *     if (newCondition && (isBlank(this.prevCondition) || !this.prevCondition)) {
-     *       this.prevCondition = true;
-     *       this.viewContainer.clear();
-     *     } else if (!newCondition && (isBlank(this.prevCondition) || this.prevCondition)) {
-     *       this.prevCondition = false;
-     *       this.viewContainer.create(this.templateRef);
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * We can then use this `unless` selector in a template:
-     * ```
-     * <ul>
-     *   <li *unless="expr"></li>
-     * </ul>
-     * ```
-     *
-     * Once the directive instantiates the child view, the shorthand notation for the template expands
-     * and the result is:
-     *
-     * ```
-     * <ul>
-     *   <template [unless]="exp">
-     *     <li></li>
-     *   </template>
-     *   <li></li>
-     * </ul>
-     * ```
-     *
-     * Note also that although the `<li></li>` template still exists inside the `<template></template>`,
-     * the instantiated
-     * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
-     * @stable
-     */
-    var DirectiveMetadata = (function (_super) {
-        __extends$1(DirectiveMetadata, _super);
-        function DirectiveMetadata(_a) {
-            var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, host = _b.host, providers = _b.providers, exportAs = _b.exportAs, queries = _b.queries;
-            _super.call(this);
-            this.selector = selector;
-            this._inputs = inputs;
-            this._outputs = outputs;
-            this.host = host;
-            this.exportAs = exportAs;
-            this.queries = queries;
-            this._providers = providers;
-        }
-        Object.defineProperty(DirectiveMetadata.prototype, "inputs", {
-            /**
-             * Enumerates the set of data-bound input properties for a directive
-             *
-             * Angular automatically updates input properties during change detection.
-             *
-             * The `inputs` property defines a set of `directiveProperty` to `bindingProperty`
-             * configuration:
-             *
-             * - `directiveProperty` specifies the component property where the value is written.
-             * - `bindingProperty` specifies the DOM property where the value is read from.
-             *
-             * When `bindingProperty` is not provided, it is assumed to be equal to `directiveProperty`.
-             *
-             * ### Example ([live demo](http://plnkr.co/edit/ivhfXY?p=preview))
-             *
-             * The following example creates a component with two data-bound properties.
-             *
-             * ```typescript
-             * @Component({
-             *   selector: 'bank-account',
-             *   inputs: ['bankName', 'id: account-id'],
-             *   template: `
-             *     Bank Name: {{bankName}}
-             *     Account Id: {{id}}
-             *   `
-             * })
-             * class BankAccount {
-             *   bankName: string;
-             *   id: string;
-             *
-             *   // this property is not bound, and won't be automatically updated by Angular
-             *   normalizedBankName: string;
-             * }
-             *
-             * @Component({
-             *   selector: 'app',
-             *   template: `
-             *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
-             *   `
-             * })
-             * class App {}
-             * ```
-             *
-             */
-            get: function () { return this._inputs; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(DirectiveMetadata.prototype, "outputs", {
-            /**
-             * Enumerates the set of event-bound output properties.
-             *
-             * When an output property emits an event, an event handler attached to that event
-             * the template is invoked.
-             *
-             * The `outputs` property defines a set of `directiveProperty` to `bindingProperty`
-             * configuration:
-             *
-             * - `directiveProperty` specifies the component property that emits events.
-             * - `bindingProperty` specifies the DOM property the event handler is attached to.
-             *
-             * ### Example ([live demo](http://plnkr.co/edit/d5CNq7?p=preview))
-             *
-             * ```typescript
-             * @Directive({
-             *   selector: 'interval-dir',
-             *   outputs: ['everySecond', 'five5Secs: everyFiveSeconds']
-             * })
-             * class IntervalDir {
-             *   everySecond = new EventEmitter();
-             *   five5Secs = new EventEmitter();
-             *
-             *   constructor() {
-             *     setInterval(() => this.everySecond.emit("event"), 1000);
-             *     setInterval(() => this.five5Secs.emit("event"), 5000);
-             *   }
-             * }
-             *
-             * @Component({
-             *   selector: 'app',
-             *   template: `
-             *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
-             *     </interval-dir>
-             *   `
-             * })
-             * class App {
-             *   everySecond() { console.log('second'); }
-             *   everyFiveSeconds() { console.log('five seconds'); }
-             * }
-             * ```
-             *
-             */
-            get: function () { return this._outputs; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(DirectiveMetadata.prototype, "providers", {
-            /**
-             * Defines the set of injectable objects that are visible to a Directive and its light DOM
-             * children.
-             *
-             * ## Simple Example
-             *
-             * Here is an example of a class that can be injected:
-             *
-             * ```
-             * class Greeter {
-             *    greet(name:string) {
-             *      return 'Hello ' + name + '!';
-             *    }
-             * }
-             *
-             * @Directive({
-             *   selector: 'greet',
-             *   providers: [
-             *     Greeter
-             *   ]
-             * })
-             * class HelloWorld {
-             *   greeter:Greeter;
-             *
-             *   constructor(greeter:Greeter) {
-             *     this.greeter = greeter;
-             *   }
-             * }
-             * ```
-             */
-            get: function () { return this._providers; },
-            enumerable: true,
-            configurable: true
-        });
-        return DirectiveMetadata;
-    }(InjectableMetadata));
-    /**
-     * Declare reusable UI building blocks for an application.
-     *
-     * Each Angular component requires a single `@Component` annotation. The
-     * `@Component`
-     * annotation specifies when a component is instantiated, and which properties and hostListeners it
-     * binds to.
-     *
-     * When a component is instantiated, Angular
-     * - creates a shadow DOM for the component.
-     * - loads the selected template into the shadow DOM.
-     * - creates all the injectable objects configured with `providers` and `viewProviders`.
-     *
-     * All template expressions and statements are then evaluated against the component instance.
-     *
-     * ## Lifecycle hooks
-     *
-     * When the component class implements some {@linkDocs guide/lifecycle-hooks} the
-     * callbacks are called by the change detection at defined points in time during the life of the
-     * component.
-     *
-     * ### Example
-     *
-     * {@example core/ts/metadata/metadata.ts region='component'}
-     * @stable
-     */
-    var ComponentMetadata = (function (_super) {
-        __extends$1(ComponentMetadata, _super);
-        function ComponentMetadata(_a) {
-            var _b = _a === void 0 ? {} : _a, selector = _b.selector, inputs = _b.inputs, outputs = _b.outputs, host = _b.host, exportAs = _b.exportAs, moduleId = _b.moduleId, providers = _b.providers, viewProviders = _b.viewProviders, _c = _b.changeDetection, changeDetection = _c === void 0 ? exports.ChangeDetectionStrategy.Default : _c, queries = _b.queries, templateUrl = _b.templateUrl, template = _b.template, styleUrls = _b.styleUrls, styles = _b.styles, animations = _b.animations, encapsulation = _b.encapsulation, interpolation = _b.interpolation, entryComponents = _b.entryComponents;
-            _super.call(this, {
-                selector: selector,
-                inputs: inputs,
-                outputs: outputs,
-                host: host,
-                exportAs: exportAs,
-                providers: providers,
-                queries: queries
-            });
-            this.changeDetection = changeDetection;
-            this._viewProviders = viewProviders;
-            this.templateUrl = templateUrl;
-            this.template = template;
-            this.styleUrls = styleUrls;
-            this.styles = styles;
-            this.encapsulation = encapsulation;
-            this.moduleId = moduleId;
-            this.animations = animations;
-            this.interpolation = interpolation;
-            this.entryComponents = entryComponents;
-        }
-        Object.defineProperty(ComponentMetadata.prototype, "viewProviders", {
-            /**
-             * Defines the set of injectable objects that are visible to its view DOM children.
-             *
-             * ## Simple Example
-             *
-             * Here is an example of a class that can be injected:
-             *
-             * ```
-             * class Greeter {
-             *    greet(name:string) {
-             *      return 'Hello ' + name + '!';
-             *    }
-             * }
-             *
-             * @Directive({
-             *   selector: 'needs-greeter'
-             * })
-             * class NeedsGreeter {
-             *   greeter:Greeter;
-             *
-             *   constructor(greeter:Greeter) {
-             *     this.greeter = greeter;
-             *   }
-             * }
-             *
-             * @Component({
-             *   selector: 'greet',
-             *   viewProviders: [
-             *     Greeter
-             *   ],
-             *   template: `<needs-greeter></needs-greeter>`
-             * })
-             * class HelloWorld {
-             * }
-             *
-             * ```
-             */
-            get: function () { return this._viewProviders; },
-            enumerable: true,
-            configurable: true
-        });
-        return ComponentMetadata;
-    }(DirectiveMetadata));
-    /**
-     * Declare reusable pipe function.
-     *
-     * A "pure" pipe is only re-evaluated when either the input or any of the arguments change.
-     *
-     * When not specified, pipes default to being pure.
-     *
-     * ### Example
-     *
-     * {@example core/ts/metadata/metadata.ts region='pipe'}
-     * @stable
-     */
-    var PipeMetadata = (function (_super) {
-        __extends$1(PipeMetadata, _super);
-        function PipeMetadata(_a) {
-            var name = _a.name, pure = _a.pure;
-            _super.call(this);
-            this.name = name;
-            this._pure = pure;
-        }
-        Object.defineProperty(PipeMetadata.prototype, "pure", {
-            get: function () { return isPresent(this._pure) ? this._pure : true; },
-            enumerable: true,
-            configurable: true
-        });
-        return PipeMetadata;
-    }(InjectableMetadata));
-    /**
-     * Declares a data-bound input property.
-     *
-     * Angular automatically updates data-bound properties during change detection.
-     *
-     * `InputMetadata` takes an optional parameter that specifies the name
-     * used when instantiating a component in the template. When not provided,
-     * the name of the decorated property is used.
-     *
-     * ### Example
-     *
-     * The following example creates a component with two input properties.
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'bank-account',
-     *   template: `
-     *     Bank Name: {{bankName}}
-     *     Account Id: {{id}}
-     *   `
-     * })
-     * class BankAccount {
-     *   @Input() bankName: string;
-     *   @Input('account-id') id: string;
-     *
-     *   // this property is not bound, and won't be automatically updated by Angular
-     *   normalizedBankName: string;
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
-     *   `
-     * })
-     *
-     * class App {}
-     * ```
-     * @stable
-     */
-    var InputMetadata = (function () {
-        function InputMetadata(
-            /**
-             * Name used when instantiating a component in the template.
-             */
-            bindingPropertyName) {
-            this.bindingPropertyName = bindingPropertyName;
-        }
-        return InputMetadata;
-    }());
-    /**
-     * Declares an event-bound output property.
-     *
-     * When an output property emits an event, an event handler attached to that event
-     * the template is invoked.
-     *
-     * `OutputMetadata` takes an optional parameter that specifies the name
-     * used when instantiating a component in the template. When not provided,
-     * the name of the decorated property is used.
-     *
-     * ### Example
-     *
-     * ```typescript
-     * @Directive({
-     *   selector: 'interval-dir',
-     * })
-     * class IntervalDir {
-     *   @Output() everySecond = new EventEmitter();
-     *   @Output('everyFiveSeconds') five5Secs = new EventEmitter();
-     *
-     *   constructor() {
-     *     setInterval(() => this.everySecond.emit("event"), 1000);
-     *     setInterval(() => this.five5Secs.emit("event"), 5000);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
-     *     </interval-dir>
-     *   `
-     * })
-     * class App {
-     *   everySecond() { console.log('second'); }
-     *   everyFiveSeconds() { console.log('five seconds'); }
-     * }
-     * ```
-     * @stable
-     */
-    var OutputMetadata = (function () {
-        function OutputMetadata(bindingPropertyName) {
-            this.bindingPropertyName = bindingPropertyName;
-        }
-        return OutputMetadata;
-    }());
-    /**
-     * Declares a host property binding.
-     *
-     * Angular automatically checks host property bindings during change detection.
-     * If a binding changes, it will update the host element of the directive.
-     *
-     * `HostBindingMetadata` takes an optional parameter that specifies the property
-     * name of the host element that will be updated. When not provided,
-     * the class property name is used.
-     *
-     * ### Example
-     *
-     * The following example creates a directive that sets the `valid` and `invalid` classes
-     * on the DOM element that has ngModel directive on it.
-     *
-     * ```typescript
-     * @Directive({selector: '[ngModel]'})
-     * class NgModelStatus {
-     *   constructor(public control:NgModel) {}
-     *   @HostBinding('class.valid') get valid { return this.control.valid; }
-     *   @HostBinding('class.invalid') get invalid { return this.control.invalid; }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<input [(ngModel)]="prop">`
-     * })
-     * class App {
-     *   prop;
-     * }
-     * ```
-     * @stable
-     */
-    var HostBindingMetadata = (function () {
-        function HostBindingMetadata(hostPropertyName) {
-            this.hostPropertyName = hostPropertyName;
-        }
-        return HostBindingMetadata;
-    }());
-    /**
-     * Declares a host listener.
-     *
-     * Angular will invoke the decorated method when the host element emits the specified event.
-     *
-     * If the decorated method returns `false`, then `preventDefault` is applied on the DOM
-     * event.
-     *
-     * ### Example
-     *
-     * The following example declares a directive that attaches a click listener to the button and
-     * counts clicks.
-     *
-     * ```typescript
-     * @Directive({selector: 'button[counting]'})
-     * class CountClicks {
-     *   numberOfClicks = 0;
-     *
-     *   @HostListener('click', ['$event.target'])
-     *   onClick(btn) {
-     *     console.log("button", btn, "number of clicks:", this.numberOfClicks++);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<button counting>Increment</button>`
-     * })
-     * class App {}
-     * ```
-     * @stable
-     */
-    var HostListenerMetadata = (function () {
-        function HostListenerMetadata(eventName, args) {
-            this.eventName = eventName;
-            this.args = args;
-        }
-        return HostListenerMetadata;
-    }());
-
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var __extends$5 = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-    /**
-     * Defines a schema that will allow:
-     * - any non-angular elements with a `-` in their name,
-     * - any properties on elements with a `-` in their name which is the common rule for custom
-     * elements.
-     *
-     * @stable
-     */
-    var CUSTOM_ELEMENTS_SCHEMA = {
-        name: 'custom-elements'
-    };
-    /**
-     * Defines a schema that will allow any property on any element.
-     *
-     * @experimental
-     */
-    var NO_ERRORS_SCHEMA = {
-        name: 'no-errors-schema'
-    };
-    /**
-     * Declares an Angular Module.
-     * @stable
-     */
-    var NgModuleMetadata = (function (_super) {
-        __extends$5(NgModuleMetadata, _super);
-        function NgModuleMetadata(options) {
-            if (options === void 0) { options = {}; }
-            // We cannot use destructuring of the constructor argument because `exports` is a
-            // protected symbol in CommonJS and closure tries to aggressively optimize it away.
-            _super.call(this);
-            this._providers = options.providers;
-            this.declarations = options.declarations;
-            this.imports = options.imports;
-            this.exports = options.exports;
-            this.entryComponents = options.entryComponents;
-            this.bootstrap = options.bootstrap;
-            this.schemas = options.schemas;
-        }
-        Object.defineProperty(NgModuleMetadata.prototype, "providers", {
-            /**
-             * Defines the set of injectable objects that are available in the injector
-             * of this module.
-             *
-             * ## Simple Example
-             *
-             * Here is an example of a class that can be injected:
-             *
-             * ```
-             * class Greeter {
-             *    greet(name:string) {
-             *      return 'Hello ' + name + '!';
-             *    }
-             * }
-             *
-             * @NgModule({
-             *   providers: [
-             *     Greeter
-             *   ]
-             * })
-             * class HelloWorld {
-             *   greeter:Greeter;
-             *
-             *   constructor(greeter:Greeter) {
-             *     this.greeter = greeter;
-             *   }
-             * }
-             * ```
-             */
-            get: function () { return this._providers; },
-            enumerable: true,
-            configurable: true
-        });
-        return NgModuleMetadata;
-    }(InjectableMetadata));
-
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    /**
-     * @stable
-     */
-    var LifecycleHooks;
-    (function (LifecycleHooks) {
-        LifecycleHooks[LifecycleHooks["OnInit"] = 0] = "OnInit";
-        LifecycleHooks[LifecycleHooks["OnDestroy"] = 1] = "OnDestroy";
-        LifecycleHooks[LifecycleHooks["DoCheck"] = 2] = "DoCheck";
-        LifecycleHooks[LifecycleHooks["OnChanges"] = 3] = "OnChanges";
-        LifecycleHooks[LifecycleHooks["AfterContentInit"] = 4] = "AfterContentInit";
-        LifecycleHooks[LifecycleHooks["AfterContentChecked"] = 5] = "AfterContentChecked";
-        LifecycleHooks[LifecycleHooks["AfterViewInit"] = 6] = "AfterViewInit";
-        LifecycleHooks[LifecycleHooks["AfterViewChecked"] = 7] = "AfterViewChecked";
-    })(LifecycleHooks || (LifecycleHooks = {}));
-    var LIFECYCLE_HOOKS_VALUES = [
-        LifecycleHooks.OnInit, LifecycleHooks.OnDestroy, LifecycleHooks.DoCheck, LifecycleHooks.OnChanges,
-        LifecycleHooks.AfterContentInit, LifecycleHooks.AfterContentChecked, LifecycleHooks.AfterViewInit,
-        LifecycleHooks.AfterViewChecked
-    ];
-    /**
-     * Lifecycle hooks are guaranteed to be called in the following order:
-     * - `OnChanges` (if any bindings have changed),
-     * - `OnInit` (after the first check only),
-     * - `DoCheck`,
-     * - `AfterContentInit`,
-     * - `AfterContentChecked`,
-     * - `AfterViewInit`,
-     * - `AfterViewChecked`,
-     * - `OnDestroy` (at the very end before destruction)
-     */
-    /**
-     * Implement this interface to get notified when any data-bound property of your directive changes.
-     *
-     * `ngOnChanges` is called right after the data-bound properties have been checked and before view
-     * and content children are checked if at least one of them has changed.
-     *
-     * The `changes` parameter contains an entry for each of the changed data-bound property. The key is
-     * the property name and the value is an instance of {@link SimpleChange}.
-     *
-     * ### Example ([live example](http://plnkr.co/edit/AHrB6opLqHDBPkt4KpdT?p=preview)):
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'my-cmp',
-     *   template: `<p>myProp = {{myProp}}</p>`
-     * })
-     * class MyComponent implements OnChanges {
-     *   @Input() myProp: any;
-     *
-     *   ngOnChanges(changes: SimpleChanges) {
-     *     console.log('ngOnChanges - myProp = ' + changes['myProp'].currentValue);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <button (click)="value = value + 1">Change MyComponent</button>
-     *     <my-cmp [my-prop]="value"></my-cmp>`,
-     *   directives: [MyComponent]
-     * })
-     * export class App {
-     *   value = 0;
-     * }
-     * ```
-     * @stable
-     */
-    var OnChanges = (function () {
-        function OnChanges() {
-        }
-        return OnChanges;
-    }());
-    /**
-     * Implement this interface to execute custom initialization logic after your directive's
-     * data-bound properties have been initialized.
-     *
-     * `ngOnInit` is called right after the directive's data-bound properties have been checked for the
-     * first time, and before any of its children have been checked. It is invoked only once when the
-     * directive is instantiated.
-     *
-     * ### Example ([live example](http://plnkr.co/edit/1MBypRryXd64v4pV03Yn?p=preview))
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'my-cmp',
-     *   template: `<p>my-component</p>`
-     * })
-     * class MyComponent implements OnInit, OnDestroy {
-     *   ngOnInit() {
-     *     console.log('ngOnInit');
-     *   }
-     *
-     *   ngOnDestroy() {
-     *     console.log('ngOnDestroy');
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <button (click)="hasChild = !hasChild">
-     *       {{hasChild ? 'Destroy' : 'Create'}} MyComponent
-     *     </button>
-     *     <my-cmp *ngIf="hasChild"></my-cmp>`,
-     *   directives: [MyComponent, NgIf]
-     * })
-     * export class App {
-     *   hasChild = true;
-     * }
-     * ```
-     * @stable
-     */
-    var OnInit = (function () {
-        function OnInit() {
-        }
-        return OnInit;
-    }());
-    /**
-     * Implement this interface to supplement the default change detection algorithm in your directive.
-     *
-     * `ngDoCheck` gets called to check the changes in the directives in addition to the default
-     * algorithm.
-     *
-     * The default change detection algorithm looks for differences by comparing bound-property values
-     * by reference across change detection runs.
-     *
-     * Note that a directive typically should not use both `DoCheck` and {@link OnChanges} to respond to
-     * changes on the same input. `ngOnChanges` will continue to be called when the default change
-     * detector
-     * detects changes, so it is usually unnecessary to respond to changes on the same input in both
-     * hooks.
-     * Reaction to the changes have to be handled from within the `ngDoCheck` callback.
-     *
-     * You can use {@link KeyValueDiffers} and {@link IterableDiffers} to help add your custom check
-     * mechanisms.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/QpnIlF0CR2i5bcYbHEUJ?p=preview))
-     *
-     * In the following example `ngDoCheck` uses an {@link IterableDiffers} to detect the updates to the
-     * array `list`:
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'custom-check',
-     *   template: `
-     *     <p>Changes:</p>
-     *     <ul>
-     *       <li *ngFor="let line of logs">{{line}}</li>
-     *     </ul>`,
-     *   directives: [NgFor]
-     * })
-     * class CustomCheckComponent implements DoCheck {
-     *   @Input() list: any[];
-     *   differ: any;
-     *   logs = [];
-     *
-     *   constructor(differs: IterableDiffers) {
-     *     this.differ = differs.find([]).create(null);
-     *   }
-     *
-     *   ngDoCheck() {
-     *     var changes = this.differ.diff(this.list);
-     *
-     *     if (changes) {
-     *       changes.forEachAddedItem(r => this.logs.push('added ' + r.item));
-     *       changes.forEachRemovedItem(r => this.logs.push('removed ' + r.item))
-     *     }
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <button (click)="list.push(list.length)">Push</button>
-     *     <button (click)="list.pop()">Pop</button>
-     *     <custom-check [list]="list"></custom-check>`,
-     *   directives: [CustomCheckComponent]
-     * })
-     * export class App {
-     *   list = [];
-     * }
-     * ```
-     * @stable
-     */
-    var DoCheck = (function () {
-        function DoCheck() {
-        }
-        return DoCheck;
-    }());
-    /**
-     * Implement this interface to get notified when your directive is destroyed.
-     *
-     * `ngOnDestroy` callback is typically used for any custom cleanup that needs to occur when the
-     * instance is destroyed
-     *
-     * ### Example ([live example](http://plnkr.co/edit/1MBypRryXd64v4pV03Yn?p=preview))
-     *
-     * ```typesript
-     * @Component({
-     *   selector: 'my-cmp',
-     *   template: `<p>my-component</p>`
-     * })
-     * class MyComponent implements OnInit, OnDestroy {
-     *   ngOnInit() {
-     *     console.log('ngOnInit');
-     *   }
-     *
-     *   ngOnDestroy() {
-     *     console.log('ngOnDestroy');
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <button (click)="hasChild = !hasChild">
-     *       {{hasChild ? 'Destroy' : 'Create'}} MyComponent
-     *     </button>
-     *     <my-cmp *ngIf="hasChild"></my-cmp>`,
-     *   directives: [MyComponent, NgIf]
-     * })
-     * export class App {
-     *   hasChild = true;
-     * }
-     * ```
-     *
-     *
-     * To create a stateful Pipe, you should implement this interface and set the `pure`
-     * parameter to `false` in the {@link PipeMetadata}.
-     *
-     * A stateful pipe may produce different output, given the same input. It is
-     * likely that a stateful pipe may contain state that should be cleaned up when
-     * a binding is destroyed. For example, a subscription to a stream of data may need to
-     * be disposed, or an interval may need to be cleared.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/i8pm5brO4sPaLxBx56MR?p=preview))
-     *
-     * In this example, a pipe is created to countdown its input value, updating it every
-     * 50ms. Because it maintains an internal interval, it automatically clears
-     * the interval when the binding is destroyed or the countdown completes.
-     *
-     * ```
-     * import {OnDestroy, Pipe, PipeTransform} from '@angular/core'
-     * @Pipe({name: 'countdown', pure: false})
-     * class CountDown implements PipeTransform, OnDestroy {
-     *   remainingTime:Number;
-     *   interval:SetInterval;
-     *   ngOnDestroy() {
-     *     if (this.interval) {
-     *       clearInterval(this.interval);
-     *     }
-     *   }
-     *   transform(value: any, args: any[] = []) {
-     *     if (!parseInt(value, 10)) return null;
-     *     if (typeof this.remainingTime !== 'number') {
-     *       this.remainingTime = parseInt(value, 10);
-     *     }
-     *     if (!this.interval) {
-     *       this.interval = setInterval(() => {
-     *         this.remainingTime-=50;
-     *         if (this.remainingTime <= 0) {
-     *           this.remainingTime = 0;
-     *           clearInterval(this.interval);
-     *           delete this.interval;
-     *         }
-     *       }, 50);
-     *     }
-     *     return this.remainingTime;
-     *   }
-     * }
-     * ```
-     *
-     * Invoking `{{ 10000 | countdown }}` would cause the value to be decremented by 50,
-     * every 50ms, until it reaches 0.
-     *
-     * @stable
-     */
-    var OnDestroy = (function () {
-        function OnDestroy() {
-        }
-        return OnDestroy;
-    }());
-    /**
-     * Implement this interface to get notified when your directive's content has been fully
-     * initialized.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/plamXUpsLQbIXpViZhUO?p=preview))
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: `{{where}} child`
-     * })
-     * class ChildComponent {
-     *   @Input() where: string;
-     * }
-     *
-     * @Component({
-     *   selector: 'parent-cmp',
-     *   template: `<ng-content></ng-content>`
-     * })
-     * class ParentComponent implements AfterContentInit {
-     *   @ContentChild(ChildComponent) contentChild: ChildComponent;
-     *
-     *   constructor() {
-     *     // contentChild is not initialized yet
-     *     console.log(this.getMessage(this.contentChild));
-     *   }
-     *
-     *   ngAfterContentInit() {
-     *     // contentChild is updated after the content has been checked
-     *     console.log('AfterContentInit: ' + this.getMessage(this.contentChild));
-     *   }
-     *
-     *   private getMessage(cmp: ChildComponent): string {
-     *     return cmp ? cmp.where + ' child' : 'no child';
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <parent-cmp>
-     *       <child-cmp where="content"></child-cmp>
-     *     </parent-cmp>`,
-     *   directives: [ParentComponent, ChildComponent]
-     * })
-     * export class App {
-     * }
-     * ```
-     * @stable
-     */
-    var AfterContentInit = (function () {
-        function AfterContentInit() {
-        }
-        return AfterContentInit;
-    }());
-    /**
-     * Implement this interface to get notified after every check of your directive's content.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/tGdrytNEKQnecIPkD7NU?p=preview))
-     *
-     * ```typescript
-     * @Component({selector: 'child-cmp', template: `{{where}} child`})
-     * class ChildComponent {
-     *   @Input() where: string;
-     * }
-     *
-     * @Component({selector: 'parent-cmp', template: `<ng-content></ng-content>`})
-     * class ParentComponent implements AfterContentChecked {
-     *   @ContentChild(ChildComponent) contentChild: ChildComponent;
-     *
-     *   constructor() {
-     *     // contentChild is not initialized yet
-     *     console.log(this.getMessage(this.contentChild));
-     *   }
-     *
-     *   ngAfterContentChecked() {
-     *     // contentChild is updated after the content has been checked
-     *     console.log('AfterContentChecked: ' + this.getMessage(this.contentChild));
-     *   }
-     *
-     *   private getMessage(cmp: ChildComponent): string {
-     *     return cmp ? cmp.where + ' child' : 'no child';
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <parent-cmp>
-     *       <button (click)="hasContent = !hasContent">Toggle content child</button>
-     *       <child-cmp *ngIf="hasContent" where="content"></child-cmp>
-     *     </parent-cmp>`,
-     *   directives: [NgIf, ParentComponent, ChildComponent]
-     * })
-     * export class App {
-     *   hasContent = true;
-     * }
-     * ```
-     * @stable
-     */
-    var AfterContentChecked = (function () {
-        function AfterContentChecked() {
-        }
-        return AfterContentChecked;
-    }());
-    /**
-     * Implement this interface to get notified when your component's view has been fully initialized.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/LhTKVMEM0fkJgyp4CI1W?p=preview))
-     *
-     * ```typescript
-     * @Component({selector: 'child-cmp', template: `{{where}} child`})
-     * class ChildComponent {
-     *   @Input() where: string;
-     * }
-     *
-     * @Component({
-     *   selector: 'parent-cmp',
-     *   template: `<child-cmp where="view"></child-cmp>`,
-     *   directives: [ChildComponent]
-     * })
-     * class ParentComponent implements AfterViewInit {
-     *   @ViewChild(ChildComponent) viewChild: ChildComponent;
-     *
-     *   constructor() {
-     *     // viewChild is not initialized yet
-     *     console.log(this.getMessage(this.viewChild));
-     *   }
-     *
-     *   ngAfterViewInit() {
-     *     // viewChild is updated after the view has been initialized
-     *     console.log('ngAfterViewInit: ' + this.getMessage(this.viewChild));
-     *   }
-     *
-     *   private getMessage(cmp: ChildComponent): string {
-     *     return cmp ? cmp.where + ' child' : 'no child';
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<parent-cmp></parent-cmp>`,
-     *   directives: [ParentComponent]
-     * })
-     * export class App {
-     * }
-     * ```
-     * @stable
-     */
-    var AfterViewInit = (function () {
-        function AfterViewInit() {
-        }
-        return AfterViewInit;
-    }());
-    /**
-     * Implement this interface to get notified after every check of your component's view.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/0qDGHcPQkc25CXhTNzKU?p=preview))
-     *
-     * ```typescript
-     * @Component({selector: 'child-cmp', template: `{{where}} child`})
-     * class ChildComponent {
-     *   @Input() where: string;
-     * }
-     *
-     * @Component({
-     *   selector: 'parent-cmp',
-     *   template: `
-     *     <button (click)="showView = !showView">Toggle view child</button>
-     *     <child-cmp *ngIf="showView" where="view"></child-cmp>`,
-     *   directives: [NgIf, ChildComponent]
-     * })
-     * class ParentComponent implements AfterViewChecked {
-     *   @ViewChild(ChildComponent) viewChild: ChildComponent;
-     *   showView = true;
-     *
-     *   constructor() {
-     *     // viewChild is not initialized yet
-     *     console.log(this.getMessage(this.viewChild));
-     *   }
-     *
-     *   ngAfterViewChecked() {
-     *     // viewChild is updated after the view has been checked
-     *     console.log('AfterViewChecked: ' + this.getMessage(this.viewChild));
-     *   }
-     *
-     *   private getMessage(cmp: ChildComponent): string {
-     *     return cmp ? cmp.where + ' child' : 'no child';
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<parent-cmp></parent-cmp>`,
-     *   directives: [ParentComponent]
-     * })
-     * export class App {
-     * }
-     * ```
-     * @stable
-     */
-    var AfterViewChecked = (function () {
-        function AfterViewChecked() {
-        }
-        return AfterViewChecked;
-    }());
-
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    /**
-     * Defines template and style encapsulation options available for Component's {@link Component}.
-     *
-     * See {@link ViewMetadata#encapsulation}.
-     * @stable
-     */
-    exports.ViewEncapsulation;
-    (function (ViewEncapsulation) {
-        /**
-         * Emulate `Native` scoping of styles by adding an attribute containing surrogate id to the Host
-         * Element and pre-processing the style rules provided via
-         * {@link ViewMetadata#styles} or {@link ViewMetadata#stylesUrls}, and adding the new Host Element
-         * attribute to all selectors.
-         *
-         * This is the default option.
-         */
-        ViewEncapsulation[ViewEncapsulation["Emulated"] = 0] = "Emulated";
-        /**
-         * Use the native encapsulation mechanism of the renderer.
-         *
-         * For the DOM this means using [Shadow DOM](https://w3c.github.io/webcomponents/spec/shadow/) and
-         * creating a ShadowRoot for Component's Host Element.
-         */
-        ViewEncapsulation[ViewEncapsulation["Native"] = 1] = "Native";
-        /**
-         * Don't provide any template or style encapsulation.
-         */
-        ViewEncapsulation[ViewEncapsulation["None"] = 2] = "None";
-    })(exports.ViewEncapsulation || (exports.ViewEncapsulation = {}));
-    var VIEW_ENCAPSULATION_VALUES = [exports.ViewEncapsulation.Emulated, exports.ViewEncapsulation.Native, exports.ViewEncapsulation.None];
-    /**
-     * Metadata properties available for configuring Views.
-     *
-     * Each Angular component requires a single `@Component` and at least one `@View` annotation. The
-     * `@View` annotation specifies the HTML template to use, and lists the directives that are active
-     * within the template.
-     *
-     * When a component is instantiated, the template is loaded into the component's shadow root, and
-     * the expressions and statements in the template are evaluated against the component.
-     *
-     * For details on the `@Component` annotation, see {@link ComponentMetadata}.
-     *
-     * ### Example
-     *
-     * ```
-     * @Component({
-     *   selector: 'greet',
-     *   template: 'Hello {{name}}!',
-     *   directives: [GreetUser, Bold]
-     * })
-     * class Greet {
-     *   name: string;
-     *
-     *   constructor() {
-     *     this.name = 'World';
-     *   }
-     * }
-     * ```
-     *
-     * @deprecated Use ComponentMetadata instead.
-     */
-    var ViewMetadata = (function () {
-        function ViewMetadata(_a) {
-            var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations, interpolation = _b.interpolation;
-            this.templateUrl = templateUrl;
-            this.template = template;
-            this.styleUrls = styleUrls;
-            this.styles = styles;
-            this.encapsulation = encapsulation;
-            this.animations = animations;
-            this.interpolation = interpolation;
-        }
-        return ViewMetadata;
-    }());
-
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from ComponentMetadata.
-    /**
-     * Declare reusable UI building blocks for an application.
-     *
-     * Each Angular component requires a single `@Component` annotation. The `@Component`
-     * annotation specifies when a component is instantiated, and which properties and hostListeners it
-     * binds to.
-     *
-     * When a component is instantiated, Angular
-     * - creates a shadow DOM for the component.
-     * - loads the selected template into the shadow DOM.
-     * - creates all the injectable objects configured with `providers` and `viewProviders`.
-     *
-     * All template expressions and statements are then evaluated against the component instance.
-     *
-     * ## Lifecycle hooks
-     *
-     * When the component class implements some {@linkDocs guide/lifecycle-hooks} the
-     * callbacks are called by the change detection at defined points in time during the life of the
-     * component.
-     *
-     * ### Example
-     *
-     * {@example core/ts/metadata/metadata.ts region='component'}
-     * @stable
-     * @Annotation
-     */
-    var Component = makeDecorator(ComponentMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from DirectiveMetadata.
-    /**
-     * Directives allow you to attach behavior to elements in the DOM.
-     *
-     * {@link DirectiveMetadata}s with an embedded view are called {@link ComponentMetadata}s.
-     *
-     * A directive consists of a single directive annotation and a controller class. When the
-     * directive's `selector` matches
-     * elements in the DOM, the following steps occur:
-     *
-     * 1. For each directive, the `ElementInjector` attempts to resolve the directive's constructor
-     * arguments.
-     * 2. Angular instantiates directives for each matched element using `ElementInjector` in a
-     * depth-first order,
-     *    as declared in the HTML.
-     *
-     * ## Understanding How Injection Works
-     *
-     * There are three stages of injection resolution.
-     * - *Pre-existing Injectors*:
-     *   - The terminal {@link Injector} cannot resolve dependencies. It either throws an error or, if
-     * the dependency was
-     *     specified as `@Optional`, returns `null`.
-     *   - The platform injector resolves browser singleton resources, such as: cookies, title,
-     * location, and others.
-     * - *Component Injectors*: Each component instance has its own {@link Injector}, and they follow
-     * the same parent-child hierarchy
-     *     as the component instances in the DOM.
-     * - *Element Injectors*: Each component instance has a Shadow DOM. Within the Shadow DOM each
-     * element has an `ElementInjector`
-     *     which follow the same parent-child hierarchy as the DOM elements themselves.
-     *
-     * When a template is instantiated, it also must instantiate the corresponding directives in a
-     * depth-first order. The
-     * current `ElementInjector` resolves the constructor dependencies for each directive.
-     *
-     * Angular then resolves dependencies as follows, according to the order in which they appear in the
-     * {@link ComponentMetadata}:
-     *
-     * 1. Dependencies on the current element
-     * 2. Dependencies on element injectors and their parents until it encounters a Shadow DOM boundary
-     * 3. Dependencies on component injectors and their parents until it encounters the root component
-     * 4. Dependencies on pre-existing injectors
-     *
-     *
-     * The `ElementInjector` can inject other directives, element-specific special objects, or it can
-     * delegate to the parent
-     * injector.
-     *
-     * To inject other directives, declare the constructor parameter as:
-     * - `directive:DirectiveType`: a directive on the current element only
-     * - `@Host() directive:DirectiveType`: any directive that matches the type between the current
-     * element and the
-     *    Shadow DOM root.
-     * - `@Query(DirectiveType) query:QueryList<DirectiveType>`: A live collection of direct child
-     * directives.
-     * - `@QueryDescendants(DirectiveType) query:QueryList<DirectiveType>`: A live collection of any
-     * child directives.
-     *
-     * To inject element-specific special objects, declare the constructor parameter as:
-     * - `element: ElementRef` to obtain a reference to logical element in the view.
-     * - `viewContainer: ViewContainerRef` to control child template instantiation, for
-     * {@link DirectiveMetadata} directives only
-     * - `bindingPropagation: BindingPropagation` to control change detection in a more granular way.
-     *
-     * ### Example
-     *
-     * The following example demonstrates how dependency injection resolves constructor arguments in
-     * practice.
-     *
-     *
-     * Assume this HTML template:
-     *
-     * ```
-     * <div dependency="1">
-     *   <div dependency="2">
-     *     <div dependency="3" my-directive>
-     *       <div dependency="4">
-     *         <div dependency="5"></div>
-     *       </div>
-     *       <div dependency="6"></div>
-     *     </div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * With the following `dependency` decorator and `SomeService` injectable class.
-     *
-     * ```
-     * @Injectable()
-     * class SomeService {
-     * }
-     *
-     * @Directive({
-     *   selector: '[dependency]',
-     *   inputs: [
-     *     'id: dependency'
-     *   ]
-     * })
-     * class Dependency {
-     *   id:string;
-     * }
-     * ```
-     *
-     * Let's step through the different ways in which `MyDirective` could be declared...
-     *
-     *
-     * ### No injection
-     *
-     * Here the constructor is declared with no arguments, therefore nothing is injected into
-     * `MyDirective`.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor() {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with no dependencies.
-     *
-     *
-     * ### Component-level injection
-     *
-     * Directives can inject any injectable instance from the closest component injector or any of its
-     * parents.
-     *
-     * Here, the constructor declares a parameter, `someService`, and injects the `SomeService` type
-     * from the parent
-     * component's injector.
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(someService: SomeService) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a dependency on `SomeService`.
-     *
-     *
-     * ### Injecting a directive from the current element
-     *
-     * Directives can inject other directives declared on the current element.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(dependency: Dependency) {
-     *     expect(dependency.id).toEqual(3);
-     *   }
-     * }
-     * ```
-     * This directive would be instantiated with `Dependency` declared at the same element, in this case
-     * `dependency="3"`.
-     *
-     * ### Injecting a directive from any ancestor elements
-     *
-     * Directives can inject other directives declared on any ancestor element (in the current Shadow
-     * DOM), i.e. on the current element, the
-     * parent element, or its parents.
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Host() dependency: Dependency) {
-     *     expect(dependency.id).toEqual(2);
-     *   }
-     * }
-     * ```
-     *
-     * `@Host` checks the current element, the parent, as well as its parents recursively. If
-     * `dependency="2"` didn't
-     * exist on the direct parent, this injection would
-     * have returned
-     * `dependency="1"`.
-     *
-     *
-     * ### Injecting a live collection of direct child directives
-     *
-     *
-     * A directive can also query for other child directives. Since parent directives are instantiated
-     * before child directives, a directive can't simply inject the list of child directives. Instead,
-     * the directive injects a {@link QueryList}, which updates its contents as children are added,
-     * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ngFor`, an
-     * `ngIf`, or an `ngSwitch`.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Query(Dependency) dependencies:QueryList<Dependency>) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a {@link QueryList} which contains `Dependency` 4 and
-     * 6. Here, `Dependency` 5 would not be included, because it is not a direct child.
-     *
-     * ### Injecting a live collection of descendant directives
-     *
-     * By passing the descendant flag to `@Query` above, we can include the children of the child
-     * elements.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Query(Dependency, {descendants: true}) dependencies:QueryList<Dependency>) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a Query which would contain `Dependency` 4, 5 and 6.
-     *
-     * ### Optional injection
-     *
-     * The normal behavior of directives is to return an error when a specified dependency cannot be
-     * resolved. If you
-     * would like to inject `null` on unresolved dependency instead, you can annotate that dependency
-     * with `@Optional()`.
-     * This explicitly permits the author of a template to treat some of the surrounding directives as
-     * optional.
-     *
-     * ```
-     * @Directive({ selector: '[my-directive]' })
-     * class MyDirective {
-     *   constructor(@Optional() dependency:Dependency) {
-     *   }
-     * }
-     * ```
-     *
-     * This directive would be instantiated with a `Dependency` directive found on the current element.
-     * If none can be
-     * found, the injector supplies `null` instead of throwing an error.
-     *
-     * ### Example
-     *
-     * Here we use a decorator directive to simply define basic tool-tip behavior.
-     *
-     * ```
-     * @Directive({
-     *   selector: '[tooltip]',
-     *   inputs: [
-     *     'text: tooltip'
-     *   ],
-     *   host: {
-     *     '(mouseenter)': 'onMouseEnter()',
-     *     '(mouseleave)': 'onMouseLeave()'
-     *   }
-     * })
-     * class Tooltip{
-     *   text:string;
-     *   overlay:Overlay; // NOT YET IMPLEMENTED
-     *   overlayManager:OverlayManager; // NOT YET IMPLEMENTED
-     *
-     *   constructor(overlayManager:OverlayManager) {
-     *     this.overlayManager = overlayManager;
-     *   }
-     *
-     *   onMouseEnter() {
-     *     // exact signature to be determined
-     *     this.overlay = this.overlayManager.open(text, ...);
-     *   }
-     *
-     *   onMouseLeave() {
-     *     this.overlay.close();
-     *     this.overlay = null;
-     *   }
-     * }
-     * ```
-     * In our HTML template, we can then add this behavior to a `<div>` or any other element with the
-     * `tooltip` selector,
-     * like so:
-     *
-     * ```
-     * <div tooltip="some text here"></div>
-     * ```
-     *
-     * Directives can also control the instantiation, destruction, and positioning of inline template
-     * elements:
-     *
-     * A directive uses a {@link ViewContainerRef} to instantiate, insert, move, and destroy views at
-     * runtime.
-     * The {@link ViewContainerRef} is created as a result of `<template>` element, and represents a
-     * location in the current view
-     * where these actions are performed.
-     *
-     * Views are always created as children of the current {@link ComponentMetadata}, and as siblings of
-     * the
-     * `<template>` element. Thus a
-     * directive in a child view cannot inject the directive that created it.
-     *
-     * Since directives that create views via ViewContainers are common in Angular, and using the full
-     * `<template>` element syntax is wordy, Angular
-     * also supports a shorthand notation: `<li *foo="bar">` and `<li template="foo: bar">` are
-     * equivalent.
-     *
-     * Thus,
-     *
-     * ```
-     * <ul>
-     *   <li *foo="bar" title="text"></li>
-     * </ul>
-     * ```
-     *
-     * Expands in use to:
-     *
-     * ```
-     * <ul>
-     *   <template [foo]="bar">
-     *     <li title="text"></li>
-     *   </template>
-     * </ul>
-     * ```
-     *
-     * Notice that although the shorthand places `*foo="bar"` within the `<li>` element, the binding for
-     * the directive
-     * controller is correctly instantiated on the `<template>` element rather than the `<li>` element.
-     *
-     * ## Lifecycle hooks
-     *
-     * When the directive class implements some {@linkDocs guide/lifecycle-hooks} the
-     * callbacks are called by the change detection at defined points in time during the life of the
-     * directive.
-     *
-     * ### Example
-     *
-     * Let's suppose we want to implement the `unless` behavior, to conditionally include a template.
-     *
-     * Here is a simple directive that triggers on an `unless` selector:
-     *
-     * ```
-     * @Directive({
-     *   selector: '[unless]',
-     *   inputs: ['unless']
-     * })
-     * export class Unless {
-     *   viewContainer: ViewContainerRef;
-     *   templateRef: TemplateRef;
-     *   prevCondition: boolean;
-     *
-     *   constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef) {
-     *     this.viewContainer = viewContainer;
-     *     this.templateRef = templateRef;
-     *     this.prevCondition = null;
-     *   }
-     *
-     *   set unless(newCondition) {
-     *     if (newCondition && (isBlank(this.prevCondition) || !this.prevCondition)) {
-     *       this.prevCondition = true;
-     *       this.viewContainer.clear();
-     *     } else if (!newCondition && (isBlank(this.prevCondition) || this.prevCondition)) {
-     *       this.prevCondition = false;
-     *       this.viewContainer.create(this.templateRef);
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * We can then use this `unless` selector in a template:
-     * ```
-     * <ul>
-     *   <li *unless="expr"></li>
-     * </ul>
-     * ```
-     *
-     * Once the directive instantiates the child view, the shorthand notation for the template expands
-     * and the result is:
-     *
-     * ```
-     * <ul>
-     *   <template [unless]="exp">
-     *     <li></li>
-     *   </template>
-     *   <li></li>
-     * </ul>
-     * ```
-     *
-     * Note also that although the `<li></li>` template still exists inside the `<template></template>`,
-     * the instantiated
-     * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
-     * @stable
-     * @Annotation
-     */
-    var Directive = makeDecorator(DirectiveMetadata);
-    /**
-     * Specifies that a constant attribute value should be injected.
-     *
-     * The directive can inject constant string literals of host element attributes.
-     *
-     * ### Example
-     *
-     * Suppose we have an `<input>` element and want to know its `type`.
-     *
-     * ```html
-     * <input type="text">
-     * ```
-     *
-     * A decorator can inject string literal `text` like so:
-     *
-     * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
-     * @stable
-     * @Annotation
-     */
-    var Attribute = makeParamDecorator(AttributeMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from ContentChildrenMetadata.
-    /**
-     * Configures a content query.
-     *
-     * Content queries are set before the `ngAfterContentInit` callback is called.
-     *
-     * ### Example
-     *
-     * ```
-     * @Directive({
-     *   selector: 'someDir'
-     * })
-     * class SomeDir {
-     *   @ContentChildren(ChildDirective) contentChildren: QueryList<ChildDirective>;
-     *
-     *   ngAfterContentInit() {
-     *     // contentChildren is set
-     *   }
-     * }
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var ContentChildren = makePropDecorator(ContentChildrenMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from ContentChildMetadata.
-    /**
-     * Configures a content query.
-     *
-     * Content queries are set before the `ngAfterContentInit` callback is called.
-     *
-     * ### Example
-     *
-     * ```
-     * @Directive({
-     *   selector: 'someDir'
-     * })
-     * class SomeDir {
-     *   @ContentChild(ChildDirective) contentChild;
-     *   @ContentChild('container_ref') containerChild
-     *
-     *   ngAfterContentInit() {
-     *     // contentChild is set
-     *     // containerChild is set
-     *   }
-     * }
-     * ```
-     *
-     * ```html
-     * <container #container_ref>
-     *   <item>a</item>
-     *   <item>b</item>
-     * </container>
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var ContentChild = makePropDecorator(ContentChildMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewChildrenMetadata.
-    /**
-     * Declares a list of child element references.
-     *
-     * Angular automatically updates the list when the DOM is updated.
-     *
-     * `ViewChildren` takes a argument to select elements.
-     *
-     * - If the argument is a type, directives or components with the type will be bound.
-     *
-     * - If the argument is a string, the string is interpreted as a list of comma-separated selectors.
-     * For each selector, an element containing the matching template variable (e.g. `#child`) will be
-     * bound.
-     *
-     * View children are set before the `ngAfterViewInit` callback is called.
-     *
-     * ### Example
-     *
-     * With type selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: `
-     *     <child-cmp></child-cmp>
-     *     <child-cmp></child-cmp>
-     *     <child-cmp></child-cmp>
-     *   `,
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChildren(ChildCmp) children:QueryList<ChildCmp>;
-     *
-     *   ngAfterViewInit() {
-     *     // children are set
-     *     this.children.toArray().forEach((child)=>child.doSomething());
-     *   }
-     * }
-     * ```
-     *
-     * With string selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: `
-     *     <child-cmp #child1></child-cmp>
-     *     <child-cmp #child2></child-cmp>
-     *     <child-cmp #child3></child-cmp>
-     *   `,
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChildren('child1,child2,child3') children:QueryList<ChildCmp>;
-     *
-     *   ngAfterViewInit() {
-     *     // children are set
-     *     this.children.toArray().forEach((child)=>child.doSomething());
-     *   }
-     * }
-     * ```
-     *
-     * See also: [ViewChildrenMetadata]
-     * @stable
-     * @Annotation
-     */
-    var ViewChildren = makePropDecorator(ViewChildrenMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from ViewChildMetadata.
-    /**
-     * Declares a reference to a child element.
-     *
-     * `ViewChildren` takes a argument to select elements.
-     *
-     * - If the argument is a type, a directive or a component with the type will be bound.
-     *
-     * - If the argument is a string, the string is interpreted as a selector. An element containing the
-     * matching template variable (e.g. `#child`) will be bound.
-     *
-     * In either case, `@ViewChild()` assigns the first (looking from above) element if there are
-     * multiple matches.
-     *
-     * View child is set before the `ngAfterViewInit` callback is called.
-     *
-     * ### Example
-     *
-     * With type selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: '<child-cmp></child-cmp>',
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChild(ChildCmp) child:ChildCmp;
-     *
-     *   ngAfterViewInit() {
-     *     // child is set
-     *     this.child.doSomething();
-     *   }
-     * }
-     * ```
-     *
-     * With string selector:
-     *
-     * ```
-     * @Component({
-     *   selector: 'child-cmp',
-     *   template: '<p>child</p>'
-     * })
-     * class ChildCmp {
-     *   doSomething() {}
-     * }
-     *
-     * @Component({
-     *   selector: 'some-cmp',
-     *   template: '<child-cmp #child></child-cmp>',
-     *   directives: [ChildCmp]
-     * })
-     * class SomeCmp {
-     *   @ViewChild('child') child:ChildCmp;
-     *
-     *   ngAfterViewInit() {
-     *     // child is set
-     *     this.child.doSomething();
-     *   }
-     * }
-     * ```
-     * See also: [ViewChildMetadata]
-     * @stable
-     * @Annotation
-     */
-    var ViewChild = makePropDecorator(ViewChildMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from PipeMetadata.
-    /**
-     * Declare reusable pipe function.
-     *
-     * ### Example
-     *
-     * {@example core/ts/metadata/metadata.ts region='pipe'}
-     * @stable
-     * @Annotation
-     */
-    var Pipe = makeDecorator(PipeMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from InputMetadata.
-    /**
-     * Declares a data-bound input property.
-     *
-     * Angular automatically updates data-bound properties during change detection.
-     *
-     * `InputMetadata` takes an optional parameter that specifies the name
-     * used when instantiating a component in the template. When not provided,
-     * the name of the decorated property is used.
-     *
-     * ### Example
-     *
-     * The following example creates a component with two input properties.
-     *
-     * ```typescript
-     * @Component({
-     *   selector: 'bank-account',
-     *   template: `
-     *     Bank Name: {{bankName}}
-     *     Account Id: {{id}}
-     *   `
-     * })
-     * class BankAccount {
-     *   @Input() bankName: string;
-     *   @Input('account-id') id: string;
-     *
-     *   // this property is not bound, and won't be automatically updated by Angular
-     *   normalizedBankName: string;
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <bank-account bank-name="RBC" account-id="4747"></bank-account>
-     *   `,
-     *   directives: [BankAccount]
-     * })
-     * class App {}
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var Input = makePropDecorator(InputMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from OutputMetadata.
-    /**
-     * Declares an event-bound output property.
-     *
-     * When an output property emits an event, an event handler attached to that event
-     * the template is invoked.
-     *
-     * `OutputMetadata` takes an optional parameter that specifies the name
-     * used when instantiating a component in the template. When not provided,
-     * the name of the decorated property is used.
-     *
-     * ### Example
-     *
-     * ```typescript
-     * @Directive({
-     *   selector: 'interval-dir',
-     * })
-     * class IntervalDir {
-     *   @Output() everySecond = new EventEmitter();
-     *   @Output('everyFiveSeconds') five5Secs = new EventEmitter();
-     *
-     *   constructor() {
-     *     setInterval(() => this.everySecond.emit("event"), 1000);
-     *     setInterval(() => this.five5Secs.emit("event"), 5000);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `
-     *     <interval-dir (everySecond)="everySecond()" (everyFiveSeconds)="everyFiveSeconds()">
-     *     </interval-dir>
-     *   `,
-     *   directives: [IntervalDir]
-     * })
-     * class App {
-     *   everySecond() { console.log('second'); }
-     *   everyFiveSeconds() { console.log('five seconds'); }
-     * }
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var Output = makePropDecorator(OutputMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from HostBindingMetadata.
-    /**
-     * Declares a host property binding.
-     *
-     * Angular automatically checks host property bindings during change detection.
-     * If a binding changes, it will update the host element of the directive.
-     *
-     * `HostBindingMetadata` takes an optional parameter that specifies the property
-     * name of the host element that will be updated. When not provided,
-     * the class property name is used.
-     *
-     * ### Example
-     *
-     * The following example creates a directive that sets the `valid` and `invalid` classes
-     * on the DOM element that has ngModel directive on it.
-     *
-     * ```typescript
-     * @Directive({selector: '[ngModel]'})
-     * class NgModelStatus {
-     *   constructor(public control:NgModel) {}
-     *   @HostBinding('class.valid') get valid() { return this.control.valid; }
-     *   @HostBinding('class.invalid') get invalid() { return this.control.invalid; }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<input [(ngModel)]="prop">`,
-     *   directives: [FORM_DIRECTIVES, NgModelStatus]
-     * })
-     * class App {
-     *   prop;
-     * }
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var HostBinding = makePropDecorator(HostBindingMetadata);
-    // TODO(alexeagle): remove the duplication of this doc. It is copied from HostListenerMetadata.
-    /**
-     * Declares a host listener.
-     *
-     * Angular will invoke the decorated method when the host element emits the specified event.
-     *
-     * If the decorated method returns `false`, then `preventDefault` is applied on the DOM
-     * event.
-     *
-     * ### Example
-     *
-     * The following example declares a directive that attaches a click listener to the button and
-     * counts clicks.
-     *
-     * ```typescript
-     * @Directive({selector: 'button[counting]'})
-     * class CountClicks {
-     *   numberOfClicks = 0;
-     *
-     *   @HostListener('click', ['$event.target'])
-     *   onClick(btn) {
-     *     console.log("button", btn, "number of clicks:", this.numberOfClicks++);
-     *   }
-     * }
-     *
-     * @Component({
-     *   selector: 'app',
-     *   template: `<button counting>Increment</button>`,
-     *   directives: [CountClicks]
-     * })
-     * class App {}
-     * ```
-     * @stable
-     * @Annotation
-     */
-    var HostListener = makePropDecorator(HostListenerMetadata);
-    /**
-     * Declares an ng module.
-     * @stable
-     * @Annotation
-     */
-    var NgModule = makeDecorator(NgModuleMetadata);
 
     /**
      * @license
@@ -6163,7 +3630,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$7 = (this && this.__extends) || function (d, b) {
+    var __extends$4 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -6174,7 +3641,7 @@
      * @stable
      */
     var ComponentStillLoadingError = (function (_super) {
-        __extends$7(ComponentStillLoadingError, _super);
+        __extends$4(ComponentStillLoadingError, _super);
         function ComponentStillLoadingError(compType) {
             _super.call(this, "Can't compile synchronously as " + stringify(compType) + " is still being loaded!");
             this.compType = compType;
@@ -6220,19 +3687,19 @@
          */
         Compiler.prototype.compileModuleAsync = function (moduleType) { throw _throwError(); };
         /**
-         * Same as {@link compileModuleSync} put also creates ComponentFactories for all components.
+         * Same as {@link compileModuleSync} but also creates ComponentFactories for all components.
          */
         Compiler.prototype.compileModuleAndAllComponentsSync = function (moduleType) {
             throw _throwError();
         };
         /**
-         * Same as {@link compileModuleAsync} put also creates ComponentFactories for all components.
+         * Same as {@link compileModuleAsync} but also creates ComponentFactories for all components.
          */
         Compiler.prototype.compileModuleAndAllComponentsAsync = function (moduleType) {
             throw _throwError();
         };
         /**
-         * Clears all caches
+         * Clears all caches.
          */
         Compiler.prototype.clearCache = function () { };
         /**
@@ -7315,7 +4782,7 @@
                     return IterableDiffers.create(factories, parent);
                 },
                 // Dependency technically isn't optional, but we can provide a better error message this way.
-                deps: [[IterableDiffers, new SkipSelfMetadata(), new OptionalMetadata()]]
+                deps: [[IterableDiffers, new SkipSelf(), new Optional()]]
             };
         };
         IterableDiffers.prototype.find = function (iterable) {
@@ -7380,7 +4847,7 @@
                     return KeyValueDiffers.create(factories, parent);
                 },
                 // Dependency technically isn't optional, but we can provide a better error message this way.
-                deps: [[KeyValueDiffers, new SkipSelfMetadata(), new OptionalMetadata()]]
+                deps: [[KeyValueDiffers, new SkipSelf(), new Optional()]]
             };
         };
         KeyValueDiffers.prototype.find = function (kv) {
@@ -7410,7 +4877,7 @@
         }
     }
     /**
-     * Indicates that the result of a {@link PipeMetadata} transformation has changed even though the
+     * Indicates that the result of a {@link Pipe} transformation has changed even though the
      * reference
      * has not changed.
      *
@@ -8027,7 +5494,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$9 = (this && this.__extends) || function (d, b) {
+    var __extends$6 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8067,7 +5534,7 @@
      * @stable
      */
     var ExpressionChangedAfterItHasBeenCheckedError = (function (_super) {
-        __extends$9(ExpressionChangedAfterItHasBeenCheckedError, _super);
+        __extends$6(ExpressionChangedAfterItHasBeenCheckedError, _super);
         function ExpressionChangedAfterItHasBeenCheckedError(oldValue, currValue) {
             var msg = "Expression has changed after it was checked. Previous value: '" + oldValue + "'. Current value: '" + currValue + "'.";
             if (oldValue === UNINITIALIZED) {
@@ -8087,7 +5554,7 @@
      * @stable
      */
     var ViewWrappedError = (function (_super) {
-        __extends$9(ViewWrappedError, _super);
+        __extends$6(ViewWrappedError, _super);
         function ViewWrappedError(originalError, context) {
             _super.call(this, "Error in " + context.source, originalError);
             this.context = context;
@@ -8103,7 +5570,7 @@
      * @stable
      */
     var ViewDestroyedError = (function (_super) {
-        __extends$9(ViewDestroyedError, _super);
+        __extends$6(ViewDestroyedError, _super);
         function ViewDestroyedError(details) {
             _super.call(this, "Attempt to use a destroyed view: " + details);
         }
@@ -8417,7 +5884,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$8 = (this && this.__extends) || function (d, b) {
+    var __extends$5 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8486,7 +5953,7 @@
         return ComponentRef;
     }());
     var ComponentRef_ = (function (_super) {
-        __extends$8(ComponentRef_, _super);
+        __extends$5(ComponentRef_, _super);
         function ComponentRef_(_hostElement, _componentType) {
             _super.call(this);
             this._hostElement = _hostElement;
@@ -8572,7 +6039,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$10 = (this && this.__extends) || function (d, b) {
+    var __extends$7 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8581,7 +6048,7 @@
      * @stable
      */
     var NoComponentFactoryError = (function (_super) {
-        __extends$10(NoComponentFactoryError, _super);
+        __extends$7(NoComponentFactoryError, _super);
         function NoComponentFactoryError(component) {
             _super.call(this, "No component factory found for " + stringify(component));
             this.component = component;
@@ -8631,7 +6098,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$11 = (this && this.__extends) || function (d, b) {
+    var __extends$8 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8684,7 +6151,7 @@
      * @stable
      */
     var EventEmitter = (function (_super) {
-        __extends$11(EventEmitter, _super);
+        __extends$8(EventEmitter, _super);
         /**
          * Creates an instance of [EventEmitter], which depending on [isAsync],
          * delivers events synchronously or asynchronously.
@@ -8746,58 +6213,57 @@
             this.setMicrotask = setMicrotask;
             this.setMacrotask = setMacrotask;
             this.onError = onError;
-            if (Zone) {
-                this.outer = this.inner = Zone.current;
-                if (Zone['wtfZoneSpec']) {
-                    this.inner = this.inner.fork(Zone['wtfZoneSpec']);
-                }
-                if (trace && Zone['longStackTraceZoneSpec']) {
-                    this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
-                }
-                this.inner = this.inner.fork({
-                    name: 'angular',
-                    properties: { 'isAngularZone': true },
-                    onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
-                        try {
-                            _this.onEnter();
-                            return delegate.invokeTask(target, task, applyThis, applyArgs);
-                        }
-                        finally {
-                            _this.onLeave();
-                        }
-                    },
-                    onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
-                        try {
-                            _this.onEnter();
-                            return delegate.invoke(target, callback, applyThis, applyArgs, source);
-                        }
-                        finally {
-                            _this.onLeave();
-                        }
-                    },
-                    onHasTask: function (delegate, current, target, hasTaskState) {
-                        delegate.hasTask(target, hasTaskState);
-                        if (current == target) {
-                            // We are only interested in hasTask events which originate from our zone
-                            // (A child hasTask event is not interesting to us)
-                            if (hasTaskState.change == 'microTask') {
-                                _this.setMicrotask(hasTaskState.microTask);
-                            }
-                            else if (hasTaskState.change == 'macroTask') {
-                                _this.setMacrotask(hasTaskState.macroTask);
-                            }
-                        }
-                    },
-                    onHandleError: function (delegate, current, target, error) {
-                        delegate.handleError(target, error);
-                        _this.onError(error);
-                        return false;
+            if (typeof Zone == 'undefined') {
+                throw new Error('Angular requires Zone.js prolyfill.');
+            }
+            Zone.assertZonePatched();
+            this.outer = this.inner = Zone.current;
+            if (Zone['wtfZoneSpec']) {
+                this.inner = this.inner.fork(Zone['wtfZoneSpec']);
+            }
+            if (trace && Zone['longStackTraceZoneSpec']) {
+                this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
+            }
+            this.inner = this.inner.fork({
+                name: 'angular',
+                properties: { 'isAngularZone': true },
+                onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
+                    try {
+                        _this.onEnter();
+                        return delegate.invokeTask(target, task, applyThis, applyArgs);
                     }
-                });
-            }
-            else {
-                throw new Error('Angular requires Zone.js polyfill.');
-            }
+                    finally {
+                        _this.onLeave();
+                    }
+                },
+                onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
+                    try {
+                        _this.onEnter();
+                        return delegate.invoke(target, callback, applyThis, applyArgs, source);
+                    }
+                    finally {
+                        _this.onLeave();
+                    }
+                },
+                onHasTask: function (delegate, current, target, hasTaskState) {
+                    delegate.hasTask(target, hasTaskState);
+                    if (current === target) {
+                        // We are only interested in hasTask events which originate from our zone
+                        // (A child hasTask event is not interesting to us)
+                        if (hasTaskState.change == 'microTask') {
+                            _this.setMicrotask(hasTaskState.microTask);
+                        }
+                        else if (hasTaskState.change == 'macroTask') {
+                            _this.setMacrotask(hasTaskState.macroTask);
+                        }
+                    }
+                },
+                onHandleError: function (delegate, current, target, error) {
+                    delegate.handleError(target, error);
+                    _this.onError(error);
+                    return false;
+                }
+            });
         }
         NgZoneImpl.isInAngularZone = function () { return Zone.current.get('isAngularZone') === true; };
         NgZoneImpl.prototype.runInner = function (fn) { return this.inner.run(fn); };
@@ -9204,7 +6670,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$6 = (this && this.__extends) || function (d, b) {
+    var __extends$3 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9407,7 +6873,7 @@
         }
     }
     var PlatformRef_ = (function (_super) {
-        __extends$6(PlatformRef_, _super);
+        __extends$3(PlatformRef_, _super);
         function PlatformRef_(_injector) {
             _super.call(this);
             this._injector = _injector;
@@ -9542,7 +7008,7 @@
         return ApplicationRef;
     }());
     var ApplicationRef_ = (function (_super) {
-        __extends$6(ApplicationRef_, _super);
+        __extends$3(ApplicationRef_, _super);
         function ApplicationRef_(_zone, _console, _injector, _exceptionHandler, _componentFactoryResolver, _initStatus, _testabilityRegistry, _testability) {
             var _this = this;
             _super.call(this);
@@ -9670,7 +7136,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$12 = (this && this.__extends) || function (d, b) {
+    var __extends$9 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9738,7 +7204,7 @@
     }());
     var _UNDEFINED = new Object();
     var NgModuleInjector = (function (_super) {
-        __extends$12(NgModuleInjector, _super);
+        __extends$9(NgModuleInjector, _super);
         function NgModuleInjector(parent, factories, bootstrapFactories) {
             _super.call(this, factories, parent.get(ComponentFactoryResolver, ComponentFactoryResolver.NULL));
             this.parent = parent;
@@ -9793,12 +7259,36 @@
         }
         return NgModuleFactoryLoader;
     }());
+    var moduleFactories = new Map();
+    /**
+     * Registers a loaded module. Should only be called from generated NgModuleFactory code.
+     * @experimental
+     */
+    function registerModuleFactory(id, factory) {
+        var existing = moduleFactories.get(id);
+        if (existing) {
+            throw new Error("Duplicate module registered for " + id + " - " + existing.moduleType.name + " vs " + factory.moduleType.name);
+        }
+        moduleFactories.set(id, factory);
+    }
+    /**
+     * Returns the NgModuleFactory with the given id, if it exists and has been loaded.
+     * Factories for modules that do not specify an `id` cannot be retrieved. Throws if the module
+     * cannot be found.
+     * @experimental
+     */
+    function getModuleFactory(id) {
+        var factory = moduleFactories.get(id);
+        if (!factory)
+            throw new Error("No module with ID " + id + " loaded");
+        return factory;
+    }
 
     /**
      * An unmodifiable list of items that Angular keeps up to date when the state
      * of the application changes.
      *
-     * The type of object that {@link QueryMetadata} and {@link ViewQueryMetadata} provide.
+     * The type of object that {@link Query} and {@link ViewQueryMetadata} provide.
      *
      * Implements an iterable interface, therefore it can be used in both ES6
      * javascript `for (var i of items)` loops as well as in Angular templates with
@@ -9917,7 +7407,6 @@
     var SystemJsNgModuleLoader = (function () {
         function SystemJsNgModuleLoader(_compiler, config) {
             this._compiler = _compiler;
-            this._system = function () { return System; };
             this._config = config || DEFAULT_CONFIG;
         }
         SystemJsNgModuleLoader.prototype.load = function (path) {
@@ -9929,8 +7418,7 @@
             var _a = path.split(_SEPARATOR), module = _a[0], exportName = _a[1];
             if (exportName === undefined)
                 exportName = 'default';
-            return this._system()
-                .import(module)
+            return System.import(module)
                 .then(function (module) { return module[exportName]; })
                 .then(function (type) { return checkNotEmpty(type, module, exportName); })
                 .then(function (type) { return _this._compiler.compileModuleAsync(type); });
@@ -9942,8 +7430,7 @@
                 exportName = 'default';
                 factoryClassSuffix = '';
             }
-            return this._system()
-                .import(this._config.factoryPathPrefix + module + this._config.factoryPathSuffix)
+            return System.import(this._config.factoryPathPrefix + module + this._config.factoryPathSuffix)
                 .then(function (module) { return module[exportName + factoryClassSuffix]; })
                 .then(function (factory) { return checkNotEmpty(factory, module, exportName); });
         };
@@ -9971,7 +7458,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$13 = (this && this.__extends) || function (d, b) {
+    var __extends$10 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10012,7 +7499,7 @@
         return TemplateRef;
     }());
     var TemplateRef_ = (function (_super) {
-        __extends$13(TemplateRef_, _super);
+        __extends$10(TemplateRef_, _super);
         function TemplateRef_(_appElement, _viewFactory) {
             _super.call(this);
             this._appElement = _appElement;
@@ -10038,7 +7525,28 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$14 = (this && this.__extends) || function (d, b) {
+    var _queuedAnimations = [];
+    /** @internal */
+    function queueAnimation(player) {
+        _queuedAnimations.push(player);
+    }
+    /** @internal */
+    function triggerQueuedAnimations() {
+        for (var i = 0; i < _queuedAnimations.length; i++) {
+            var player = _queuedAnimations[i];
+            player.play();
+        }
+        _queuedAnimations = [];
+    }
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    var __extends$11 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10111,7 +7619,7 @@
      * @experimental
      */
     var EmbeddedViewRef = (function (_super) {
-        __extends$14(EmbeddedViewRef, _super);
+        __extends$11(EmbeddedViewRef, _super);
         function EmbeddedViewRef() {
             _super.apply(this, arguments);
         }
@@ -10156,7 +7664,10 @@
         });
         ViewRef_.prototype.markForCheck = function () { this._view.markPathToRootAsCheckOnce(); };
         ViewRef_.prototype.detach = function () { this._view.cdMode = ChangeDetectorStatus.Detached; };
-        ViewRef_.prototype.detectChanges = function () { this._view.detectChanges(false); };
+        ViewRef_.prototype.detectChanges = function () {
+            this._view.detectChanges(false);
+            triggerQueuedAnimations();
+        };
         ViewRef_.prototype.checkNoChanges = function () { this._view.detectChanges(true); };
         ViewRef_.prototype.reattach = function () {
             this._view.cdMode = this._originalMode;
@@ -10174,7 +7685,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$15 = (this && this.__extends) || function (d, b) {
+    var __extends$12 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10244,7 +7755,7 @@
      * @experimental All debugging apis are currently experimental.
      */
     var DebugElement = (function (_super) {
-        __extends$15(DebugElement, _super);
+        __extends$12(DebugElement, _super);
         function DebugElement(nativeNode, parent, _debugInfo) {
             _super.call(this, nativeNode, parent, _debugInfo);
             this.properties = {};
@@ -10681,7 +8192,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$16 = (this && this.__extends) || function (d, b) {
+    var __extends$13 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10720,7 +8231,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationStateDeclarationMetadata = (function (_super) {
-        __extends$16(AnimationStateDeclarationMetadata, _super);
+        __extends$13(AnimationStateDeclarationMetadata, _super);
         function AnimationStateDeclarationMetadata(stateNameExpr, styles) {
             _super.call(this);
             this.stateNameExpr = stateNameExpr;
@@ -10736,7 +8247,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationStateTransitionMetadata = (function (_super) {
-        __extends$16(AnimationStateTransitionMetadata, _super);
+        __extends$13(AnimationStateTransitionMetadata, _super);
         function AnimationStateTransitionMetadata(stateChangeExpr, steps) {
             _super.call(this);
             this.stateChangeExpr = stateChangeExpr;
@@ -10760,7 +8271,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationKeyframesSequenceMetadata = (function (_super) {
-        __extends$16(AnimationKeyframesSequenceMetadata, _super);
+        __extends$13(AnimationKeyframesSequenceMetadata, _super);
         function AnimationKeyframesSequenceMetadata(steps) {
             _super.call(this);
             this.steps = steps;
@@ -10775,7 +8286,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationStyleMetadata = (function (_super) {
-        __extends$16(AnimationStyleMetadata, _super);
+        __extends$13(AnimationStyleMetadata, _super);
         function AnimationStyleMetadata(styles, offset) {
             if (offset === void 0) { offset = null; }
             _super.call(this);
@@ -10792,7 +8303,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationAnimateMetadata = (function (_super) {
-        __extends$16(AnimationAnimateMetadata, _super);
+        __extends$13(AnimationAnimateMetadata, _super);
         function AnimationAnimateMetadata(timings, styles) {
             _super.call(this);
             this.timings = timings;
@@ -10804,7 +8315,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationWithStepsMetadata = (function (_super) {
-        __extends$16(AnimationWithStepsMetadata, _super);
+        __extends$13(AnimationWithStepsMetadata, _super);
         function AnimationWithStepsMetadata() {
             _super.call(this);
         }
@@ -10823,7 +8334,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationSequenceMetadata = (function (_super) {
-        __extends$16(AnimationSequenceMetadata, _super);
+        __extends$13(AnimationSequenceMetadata, _super);
         function AnimationSequenceMetadata(_steps) {
             _super.call(this);
             this._steps = _steps;
@@ -10843,7 +8354,7 @@
      * @experimental Animation support is experimental.
      */
     var AnimationGroupMetadata = (function (_super) {
-        __extends$16(AnimationGroupMetadata, _super);
+        __extends$13(AnimationGroupMetadata, _super);
         function AnimationGroupMetadata(_steps) {
             _super.call(this);
             this._steps = _steps;
@@ -10859,7 +8370,7 @@
      * `animate` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `animate` specifies an animation step that will apply the provided `styles` data for a given
@@ -10920,7 +8431,7 @@
      * `group` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `group` specifies a list of animation steps that are all run in parallel. Grouped animations
@@ -10961,7 +8472,7 @@
      * `sequence` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `sequence` Specifies a list of animation steps that are run one by one. (`sequence` is used
@@ -11003,7 +8514,7 @@
      * `style` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `style` declares a key/value object containing CSS properties/styles that can then
@@ -11062,7 +8573,7 @@
             input.forEach(function (entry) {
                 var entryOffset = entry['offset'];
                 if (isPresent(entryOffset)) {
-                    offset = offset == null ? NumberWrapper.parseFloat(entryOffset) : offset;
+                    offset = offset == null ? parseFloat(entryOffset) : offset;
                 }
             });
         }
@@ -11072,7 +8583,7 @@
      * `state` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `state` declares an animation state within the given trigger. When a state is
@@ -11129,7 +8640,7 @@
      * `keyframes` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `keyframes` specifies a collection of {@link style style} entries each optionally characterized
@@ -11181,7 +8692,7 @@
      * `transition` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `transition` declares the {@link sequence sequence of animation steps} that will be run when the
@@ -11274,7 +8785,7 @@
      * `trigger` is an animation-specific function that is designed to be used inside of Angular2's
      * animation
      * DSL language. If this information is new, please navigate to the
-     * {@link ComponentMetadata#animations-anchor component animations metadata
+     * {@link Component#animations-anchor component animations metadata
      * page} to gain a better understanding of how animations in Angular2 are used.
      *
      * `trigger` Creates an animation trigger which will a list of {@link state state} and {@link
@@ -11282,7 +8793,7 @@
      * entries that will be evaluated when the expression bound to the trigger changes.
      *
      * Triggers are registered within the component annotation data under the
-     * {@link ComponentMetadata#animations-anchor animations section}. An animation trigger can
+     * {@link Component#animations-anchor animations section}. An animation trigger can
      * be placed on an element within a template by referencing the name of the
      * trigger followed by the expression value that the trigger is bound to
      * (in the form of `[@triggerName]="expression"`.
@@ -11769,14 +9280,14 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$18 = (this && this.__extends) || function (d, b) {
+    var __extends$15 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var _UNDEFINED$1 = new Object();
     var ElementInjector = (function (_super) {
-        __extends$18(ElementInjector, _super);
+        __extends$15(ElementInjector, _super);
         function ElementInjector(_view, _nodeIndex) {
             _super.call(this);
             this._view = _view;
@@ -11803,7 +9314,7 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var __extends$17 = (this && this.__extends) || function (d, b) {
+    var __extends$14 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -11855,6 +9366,7 @@
         };
         AppView.prototype.queueAnimation = function (element, animationName, player, totalTime, fromState, toState) {
             var _this = this;
+            queueAnimation(player);
             var event = new AnimationTransitionEvent({ 'fromState': fromState, 'toState': toState, 'totalTime': totalTime });
             this.animationPlayers.set(element, animationName, player);
             player.onDone(function () {
@@ -11863,13 +9375,6 @@
                 _this.animationPlayers.remove(element, animationName);
             });
             player.onStart(function () { _this.triggerAnimationOutput(element, animationName, 'start', event); });
-        };
-        AppView.prototype.triggerQueuedAnimations = function () {
-            this.animationPlayers.getAllPlayers().forEach(function (player) {
-                if (!player.hasStarted()) {
-                    player.play();
-                }
-            });
         };
         AppView.prototype.triggerAnimationOutput = function (element, animationName, phase, event) {
             var listeners = this._animationListeners.get(element);
@@ -12114,7 +9619,7 @@
         return AppView;
     }());
     var DebugAppView = (function (_super) {
-        __extends$17(DebugAppView, _super);
+        __extends$14(DebugAppView, _super);
         function DebugAppView(clazz, componentType, type, viewUtils, parentInjector, declarationAppElement, cdMode, staticNodeDebugInfos) {
             _super.call(this, clazz, componentType, type, viewUtils, parentInjector, declarationAppElement, cdMode);
             this.staticNodeDebugInfos = staticNodeDebugInfos;
@@ -12241,6 +9746,7 @@
         AppView: AppView,
         DebugAppView: DebugAppView,
         NgModuleInjector: NgModuleInjector,
+        registerModuleFactory: registerModuleFactory,
         ViewType: ViewType,
         MAX_INTERPOLATION_VALUES: MAX_INTERPOLATION_VALUES,
         checkBinding: checkBinding,
@@ -12331,34 +9837,20 @@
     exports.AnimationTransitionEvent = AnimationTransitionEvent;
     exports.AnimationPlayer = AnimationPlayer;
     exports.Sanitizer = Sanitizer;
+    exports.ANALYZE_FOR_ENTRY_COMPONENTS = ANALYZE_FOR_ENTRY_COMPONENTS;
+    exports.Attribute = Attribute;
+    exports.ContentChild = ContentChild;
+    exports.ContentChildren = ContentChildren;
+    exports.Query = Query;
+    exports.ViewChild = ViewChild;
+    exports.ViewChildren = ViewChildren;
     exports.Component = Component;
     exports.Directive = Directive;
-    exports.Attribute = Attribute;
-    exports.ContentChildren = ContentChildren;
-    exports.ContentChild = ContentChild;
-    exports.ViewChildren = ViewChildren;
-    exports.ViewChild = ViewChild;
-    exports.Pipe = Pipe;
-    exports.Input = Input;
-    exports.Output = Output;
     exports.HostBinding = HostBinding;
     exports.HostListener = HostListener;
-    exports.NgModule = NgModule;
-    exports.ANALYZE_FOR_ENTRY_COMPONENTS = ANALYZE_FOR_ENTRY_COMPONENTS;
-    exports.AttributeMetadata = AttributeMetadata;
-    exports.ContentChildMetadata = ContentChildMetadata;
-    exports.ContentChildrenMetadata = ContentChildrenMetadata;
-    exports.QueryMetadata = QueryMetadata;
-    exports.ViewChildMetadata = ViewChildMetadata;
-    exports.ViewChildrenMetadata = ViewChildrenMetadata;
-    exports.ViewQueryMetadata = ViewQueryMetadata;
-    exports.ComponentMetadata = ComponentMetadata;
-    exports.DirectiveMetadata = DirectiveMetadata;
-    exports.HostBindingMetadata = HostBindingMetadata;
-    exports.HostListenerMetadata = HostListenerMetadata;
-    exports.InputMetadata = InputMetadata;
-    exports.OutputMetadata = OutputMetadata;
-    exports.PipeMetadata = PipeMetadata;
+    exports.Input = Input;
+    exports.Output = Output;
+    exports.Pipe = Pipe;
     exports.AfterContentChecked = AfterContentChecked;
     exports.AfterContentInit = AfterContentInit;
     exports.AfterViewChecked = AfterViewChecked;
@@ -12369,14 +9861,8 @@
     exports.OnInit = OnInit;
     exports.CUSTOM_ELEMENTS_SCHEMA = CUSTOM_ELEMENTS_SCHEMA;
     exports.NO_ERRORS_SCHEMA = NO_ERRORS_SCHEMA;
-    exports.NgModuleMetadata = NgModuleMetadata;
+    exports.NgModule = NgModule;
     exports.Class = Class;
-    exports.HostMetadata = HostMetadata;
-    exports.InjectMetadata = InjectMetadata;
-    exports.InjectableMetadata = InjectableMetadata;
-    exports.OptionalMetadata = OptionalMetadata;
-    exports.SelfMetadata = SelfMetadata;
-    exports.SkipSelfMetadata = SkipSelfMetadata;
     exports.forwardRef = forwardRef;
     exports.resolveForwardRef = resolveForwardRef;
     exports.Injector = Injector;
@@ -12388,8 +9874,8 @@
     exports.Optional = Optional;
     exports.Injectable = Injectable;
     exports.Self = Self;
-    exports.Host = Host;
     exports.SkipSelf = SkipSelf;
+    exports.Host = Host;
     exports.NgZone = NgZone;
     exports.RenderComponentType = RenderComponentType;
     exports.Renderer = Renderer;
@@ -12405,6 +9891,7 @@
     exports.NgModuleFactory = NgModuleFactory;
     exports.NgModuleRef = NgModuleRef;
     exports.NgModuleFactoryLoader = NgModuleFactoryLoader;
+    exports.getModuleFactory = getModuleFactory;
     exports.QueryList = QueryList;
     exports.SystemJsNgModuleLoader = SystemJsNgModuleLoader;
     exports.SystemJsNgModuleLoaderConfig = SystemJsNgModuleLoaderConfig;

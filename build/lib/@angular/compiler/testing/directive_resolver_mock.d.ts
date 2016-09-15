@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { DirectiveResolver } from '@angular/compiler';
-import { AnimationEntryMetadata, DirectiveMetadata, Injector, Provider, Type } from '@angular/core';
+import { AnimationEntryMetadata, Directive, Injector, Provider, Type } from '@angular/core';
 import { ViewMetadata } from './private_import_core';
 /**
  * An implementation of {@link DirectiveResolver} that allows overriding
@@ -23,11 +23,11 @@ export declare class MockDirectiveResolver extends DirectiveResolver {
     constructor(_injector: Injector);
     private _compiler;
     private _clearCacheFor(component);
-    resolve(type: Type<any>, throwIfNotFound?: boolean): DirectiveMetadata;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): Directive;
     /**
-     * Overrides the {@link DirectiveMetadata} for a directive.
+     * Overrides the {@link Directive} for a directive.
      */
-    setDirective(type: Type<any>, metadata: DirectiveMetadata): void;
+    setDirective(type: Type<any>, metadata: Directive): void;
     setProvidersOverride(type: Type<any>, providers: Provider[]): void;
     setViewProvidersOverride(type: Type<any>, viewProviders: Provider[]): void;
     /**

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { NgModuleResolver } from '@angular/compiler';
-import { Injector, NgModuleMetadata, Type } from '@angular/core';
+import { Injector, NgModule, Type } from '@angular/core';
 export declare class MockNgModuleResolver extends NgModuleResolver {
     private _injector;
     private _ngModules;
@@ -14,14 +14,14 @@ export declare class MockNgModuleResolver extends NgModuleResolver {
     private _compiler;
     private _clearCacheFor(component);
     /**
-     * Overrides the {@link NgModuleMetadata} for a module.
+     * Overrides the {@link NgModule} for a module.
      */
-    setNgModule(type: Type<any>, metadata: NgModuleMetadata): void;
+    setNgModule(type: Type<any>, metadata: NgModule): void;
     /**
-     * Returns the {@link NgModuleMetadata} for a module:
-     * - Set the {@link NgModuleMetadata} to the overridden view when it exists or fallback to the
+     * Returns the {@link NgModule} for a module:
+     * - Set the {@link NgModule} to the overridden view when it exists or fallback to the
      * default
      * `NgModuleResolver`, see `setNgModule`.
      */
-    resolve(type: Type<any>, throwIfNotFound?: boolean): NgModuleMetadata;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): NgModule;
 }

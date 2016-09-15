@@ -55,6 +55,7 @@ var MapOperator = (function () {
     };
     return MapOperator;
 }());
+exports.MapOperator = MapOperator;
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore

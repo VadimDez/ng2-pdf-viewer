@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -117,8 +117,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -395,7 +393,7 @@
                 var originalViewProviders = isPresent(metadata.providers) ? metadata.providers : [];
                 providers = originalViewProviders.concat(providerOverrides);
             }
-            if (metadata instanceof _angular_core.ComponentMetadata) {
+            if (metadata instanceof _angular_core.Component) {
                 var viewProviders = metadata.viewProviders;
                 if (isPresent(viewProviderOverrides)) {
                     var originalViewProviders = isPresent(metadata.viewProviders) ? metadata.viewProviders : [];
@@ -418,7 +416,7 @@
                 else {
                     inlineTemplate = view.template;
                 }
-                return new _angular_core.ComponentMetadata({
+                return new _angular_core.Component({
                     selector: metadata.selector,
                     inputs: metadata.inputs,
                     outputs: metadata.outputs,
@@ -439,7 +437,7 @@
                     interpolation: view.interpolation
                 });
             }
-            return new _angular_core.DirectiveMetadata({
+            return new _angular_core.Directive({
                 selector: metadata.selector,
                 inputs: metadata.inputs,
                 outputs: metadata.outputs,
@@ -450,7 +448,7 @@
             });
         };
         /**
-         * Overrides the {@link DirectiveMetadata} for a directive.
+         * Overrides the {@link Directive} for a directive.
          */
         MockDirectiveResolver.prototype.setDirective = function (type, metadata) {
             this._directives.set(type, metadata);
@@ -518,15 +516,15 @@
         });
         MockNgModuleResolver.prototype._clearCacheFor = function (component) { this._compiler.clearCacheFor(component); };
         /**
-         * Overrides the {@link NgModuleMetadata} for a module.
+         * Overrides the {@link NgModule} for a module.
          */
         MockNgModuleResolver.prototype.setNgModule = function (type, metadata) {
             this._ngModules.set(type, metadata);
             this._clearCacheFor(type);
         };
         /**
-         * Returns the {@link NgModuleMetadata} for a module:
-         * - Set the {@link NgModuleMetadata} to the overridden view when it exists or fallback to the
+         * Returns the {@link NgModule} for a module:
+         * - Set the {@link NgModule} to the overridden view when it exists or fallback to the
          * default
          * `NgModuleResolver`, see `setNgModule`.
          */
@@ -574,15 +572,15 @@
         });
         MockPipeResolver.prototype._clearCacheFor = function (pipe) { this._compiler.clearCacheFor(pipe); };
         /**
-         * Overrides the {@link PipeMetadata} for a pipe.
+         * Overrides the {@link Pipe} for a pipe.
          */
         MockPipeResolver.prototype.setPipe = function (type, metadata) {
             this._pipes.set(type, metadata);
             this._clearCacheFor(type);
         };
         /**
-         * Returns the {@link PipeMetadata} for a pipe:
-         * - Set the {@link PipeMetadata} to the overridden view when it exists or fallback to the
+         * Returns the {@link Pipe} for a pipe:
+         * - Set the {@link Pipe} to the overridden view when it exists or fallback to the
          * default
          * `PipeResolver`, see `setPipe`.
          */
@@ -764,19 +762,19 @@
         };
         TestingCompilerImpl.prototype.overrideModule = function (ngModule, override) {
             var oldMetadata = this._moduleResolver.resolve(ngModule, false);
-            this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(_angular_core.NgModuleMetadata, oldMetadata, override));
+            this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(_angular_core.NgModule, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overrideDirective = function (directive, override) {
             var oldMetadata = this._directiveResolver.resolve(directive, false);
-            this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(_angular_core.DirectiveMetadata, oldMetadata, override));
+            this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(_angular_core.Directive, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overrideComponent = function (component, override) {
             var oldMetadata = this._directiveResolver.resolve(component, false);
-            this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(_angular_core.ComponentMetadata, oldMetadata, override));
+            this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(_angular_core.Component, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overridePipe = function (pipe, override) {
             var oldMetadata = this._pipeResolver.resolve(pipe, false);
-            this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(_angular_core.PipeMetadata, oldMetadata, override));
+            this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(_angular_core.Pipe, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.clearCache = function () { this._compiler.clearCache(); };
         TestingCompilerImpl.prototype.clearCacheFor = function (type) { this._compiler.clearCacheFor(type); };

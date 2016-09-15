@@ -6,13 +6,13 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { NgModule } from '@angular/core';
-import { COMMON_DIRECTIVES } from './common_directives';
+import { COMMON_DIRECTIVES } from './directives/index';
 import { NgLocaleLocalization, NgLocalization } from './localization';
-import { COMMON_PIPES } from './pipes/common_pipes';
+import { COMMON_PIPES } from './pipes/index';
 // Note: This does not contain the location providers,
 // as they need some platform specific implementations to work.
 /**
- * The module that includes all the basic Angular directives like {@link NgIf}, ${link NgFor}, ...
+ * The module that includes all the basic Angular directives like {@link NgIf}, {@link NgFor}, ...
  *
  * @stable
  */

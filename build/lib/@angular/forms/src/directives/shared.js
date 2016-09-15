@@ -48,19 +48,19 @@ export function setUpControl(control, dir) {
     }
     // re-run validation when validator binding changes, e.g. minlength=3 -> minlength=4
     dir._rawValidators.forEach(function (validator) {
-        if (validator.registerOnChange)
-            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+        if (validator.registerOnValidatorChange)
+            validator.registerOnValidatorChange(function () { return control.updateValueAndValidity(); });
     });
     dir._rawAsyncValidators.forEach(function (validator) {
-        if (validator.registerOnChange)
-            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+        if (validator.registerOnValidatorChange)
+            validator.registerOnValidatorChange(function () { return control.updateValueAndValidity(); });
     });
 }
 export function cleanUpControl(control, dir) {
     dir.valueAccessor.registerOnChange(function () { return _noControlError(dir); });
     dir.valueAccessor.registerOnTouched(function () { return _noControlError(dir); });
-    dir._rawValidators.forEach(function (validator) { return validator.registerOnChange(null); });
-    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnChange(null); });
+    dir._rawValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
+    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
     if (control)
         control._clearChangeFns();
 }

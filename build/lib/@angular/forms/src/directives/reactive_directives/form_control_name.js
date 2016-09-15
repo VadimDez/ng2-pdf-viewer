@@ -26,69 +26,48 @@ export var controlNameBinding = {
     useExisting: forwardRef(function () { return FormControlName; })
 };
 /**
- * Syncs an existing form control with the specified name to a DOM element.
+ * @whatItDoes  Syncs a {@link FormControl} in an existing {@link FormGroup} to a form control
+ * element by name.
  *
- * This directive can only be used as a child of {@link FormGroupDirective}.  It also requires
- * importing the {@link ReactiveFormsModule}.
-
+ * In other words, this directive ensures that any values written to the {@link FormControl}
+ * instance programmatically will be written to the DOM element (model -> view). Conversely,
+ * any values written to the DOM element through user input will be reflected in the
+ * {@link FormControl} instance (view -> model).
+ *
+ * @howToUse
+ *
+ * This directive is designed to be used with a parent {@link FormGroupDirective} (selector:
+ * `[formGroup]`).
+ *
+ * It accepts the string name of the {@link FormControl} instance you want to
+ * link, and will look for a {@link FormControl} registered with that name in the
+ * closest {@link FormGroup} or {@link FormArray} above it.
+ *
+ * **Access the control**: You can access the {@link FormControl} associated with
+ * this directive by using the {@link AbstractControl.get} method.
+ * Ex: `this.form.get('first');`
+ *
+ * **Get value**: the `value` property is always synced and available on the {@link FormControl}.
+ * See a full list of available properties in {@link AbstractControl}.
+ *
+ *  **Set value**: You can set an initial value for the control when instantiating the
+ *  {@link FormControl}, or you can set it programmatically later using
+ *  {@link AbstractControl.setValue} or {@link AbstractControl.patchValue}.
+ *
+ * **Listen to value**: If you want to listen to changes in the value of the control, you can
+ * subscribe to the {@link AbstractControl.valueChanges} event.  You can also listen to
+ * {@link AbstractControl.statusChanges} to be notified when the validation status is
+ * re-calculated.
+ *
  * ### Example
  *
- * In this example, we create the login and password controls.
- * We can work with each control separately: check its validity, get its value, listen to its
- * changes.
+ * In this example, we create form controls for first name and last name.
  *
- *  ```
- * @Component({
- *      selector: "login-comp",
- *      template: `
- *        <form [formGroup]="myForm" (submit)="onLogIn()">
- *          Login <input type="text" formControlName="login">
- *          <div *ngIf="!loginCtrl.valid">Login is invalid</div>
- *          Password <input type="password" formControlName="password">
- *          <button type="submit">Log in!</button>
- *        </form>
- *      `})
- * class LoginComp {
- *  loginCtrl = new FormControl();
- *  passwordCtrl = new FormControl();
- *  myForm = new FormGroup({
- *     login: loginCtrl,
- *     password: passwordCtrl
- *  });
- *  onLogIn(): void {
- *    // value === {login: 'some login', password: 'some password'}
- *  }
- * }
- *  ```
+ * {@example forms/ts/simpleFormGroup/simple_form_group_example.ts region='Component'}
  *
- * We can also set the value of the form programmatically using setValue().
+ *  * **npm package**: `@angular/forms`
  *
- *  ```
- * @Component({
- *      selector: "login-comp",
- *      template: `
- *        <form [formGroup]="myForm" (submit)='onLogIn()'>
- *          Login <input type='text' formControlName='login'>
- *          Password <input type='password' formControlName='password'>
- *          <button type='submit'>Log in!</button>
- *        </form>
- *      `})
- * class LoginComp {
- *  myForm = new FormGroup({
- *    login: new FormControl(),
- *    password: new FormControl()
- *  });
- *
- *  populate() {
- *     this.myForm.setValue({login: 'some login', password: 'some password'});
- *  }
- *
- *  onLogIn(): void {
- *    // this.credentials.login === "some login"
- *    // this.credentials.password === "some password"
- *  }
- * }
- *  ```
+ *  * **NgModule**: {@link ReactiveFormsModule}
  *
  *  @stable
  */
@@ -109,13 +88,8 @@ export var FormControlName = (function (_super) {
         configurable: true
     });
     FormControlName.prototype.ngOnChanges = function (changes) {
-        if (!this._added) {
-            this._checkParentType();
-            this.formDirective.addControl(this);
-            if (this.control.disabled)
-                this.valueAccessor.setDisabledState(true);
-            this._added = true;
-        }
+        if (!this._added)
+            this._setUpControl();
         if (isPropertyUpdated(changes, this.viewModel)) {
             this.viewModel = this.model;
             this.formDirective.updateModel(this, this.model);
@@ -153,7 +127,7 @@ export var FormControlName = (function (_super) {
         configurable: true
     });
     Object.defineProperty(FormControlName.prototype, "control", {
-        get: function () { return this.formDirective.getControl(this); },
+        get: function () { return this._control; },
         enumerable: true,
         configurable: true
     });
@@ -166,6 +140,13 @@ export var FormControlName = (function (_super) {
             !(this._parent instanceof FormArrayName)) {
             ReactiveErrors.controlParentException();
         }
+    };
+    FormControlName.prototype._setUpControl = function () {
+        this._checkParentType();
+        this._control = this.formDirective.addControl(this);
+        if (this.control.disabled)
+            this.valueAccessor.setDisabledState(true);
+        this._added = true;
     };
     FormControlName.decorators = [
         { type: Directive, args: [{ selector: '[formControlName]', providers: [controlNameBinding] },] },

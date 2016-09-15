@@ -10,10 +10,11 @@ var ColdObservable_1 = require('./ColdObservable');
 var HotObservable_1 = require('./HotObservable');
 var SubscriptionLog_1 = require('./SubscriptionLog');
 var VirtualTimeScheduler_1 = require('../scheduler/VirtualTimeScheduler');
+var defaultMaxFrame = 750;
 var TestScheduler = (function (_super) {
     __extends(TestScheduler, _super);
     function TestScheduler(assertDeepEqual) {
-        _super.call(this);
+        _super.call(this, VirtualTimeScheduler_1.VirtualAction, defaultMaxFrame);
         this.assertDeepEqual = assertDeepEqual;
         this.hotObservables = [];
         this.coldObservables = [];

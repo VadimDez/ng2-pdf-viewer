@@ -41,7 +41,6 @@ export declare abstract class AppView<T> {
     destroyed: boolean;
     cancelActiveAnimation(element: any, animationName: string, removeAllAnimations?: boolean): void;
     queueAnimation(element: any, animationName: string, player: AnimationPlayer, totalTime: number, fromState: string, toState: string): void;
-    triggerQueuedAnimations(): void;
     triggerAnimationOutput(element: any, animationName: string, phase: string, event: AnimationTransitionEvent): void;
     registerAnimationOutput(element: any, outputEvent: AnimationOutput, eventHandler: Function): void;
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
@@ -90,7 +89,7 @@ export declare abstract class AppView<T> {
     removeFromContentChildren(renderAppElement: AppElement): void;
     markAsCheckOnce(): void;
     markPathToRootAsCheckOnce(): void;
-    eventHandler(cb: Function): Function;
+    eventHandler<E, R>(cb: (event?: E) => R): (event?: E) => R;
     throwDestroyedError(details: string): void;
 }
 export declare class DebugAppView<T> extends AppView<T> {
@@ -105,5 +104,5 @@ export declare class DebugAppView<T> extends AppView<T> {
     private _resetDebug();
     debug(nodeIndex: number, rowNum: number, colNum: number): DebugContext;
     private _rethrowWithContext(e);
-    eventHandler(cb: Function): Function;
+    eventHandler<E, R>(cb: (event?: E) => R): (event?: E) => R;
 }

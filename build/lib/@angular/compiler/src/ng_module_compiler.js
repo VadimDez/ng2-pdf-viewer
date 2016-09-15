@@ -58,7 +58,14 @@ export var NgModuleCompiler = (function () {
             .set(o.importExpr(resolveIdentifier(Identifiers.NgModuleFactory))
             .instantiate([o.variable(injectorClass.name), o.importExpr(ngModuleMeta.type)], o.importType(resolveIdentifier(Identifiers.NgModuleFactory), [o.importType(ngModuleMeta.type)], [o.TypeModifier.Const])))
             .toDeclStmt(null, [o.StmtModifier.Final]);
-        return new NgModuleCompileResult([injectorClass, ngModuleFactoryStmt], ngModuleFactoryVar, deps);
+        var stmts = [injectorClass, ngModuleFactoryStmt];
+        if (ngModuleMeta.id) {
+            var registerFactoryStmt = o.importExpr(resolveIdentifier(Identifiers.RegisterModuleFactoryFn))
+                .callFn([o.literal(ngModuleMeta.id), o.variable(ngModuleFactoryVar)])
+                .toStmt();
+            stmts.push(registerFactoryStmt);
+        }
+        return new NgModuleCompileResult(stmts, ngModuleFactoryVar, deps);
     };
     NgModuleCompiler.decorators = [
         { type: Injectable },

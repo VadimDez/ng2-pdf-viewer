@@ -24,7 +24,7 @@ export * from './schema_registry_mock';
 export * from './directive_resolver_mock';
 export * from './ng_module_resolver_mock';
 export * from './pipe_resolver_mock';
-import { createPlatformFactory, Injectable, COMPILER_OPTIONS, CompilerFactory, NgModuleMetadata, ComponentMetadata, DirectiveMetadata, PipeMetadata } from '@angular/core';
+import { createPlatformFactory, Injectable, COMPILER_OPTIONS, CompilerFactory, NgModule, Component, Directive, Pipe } from '@angular/core';
 import { TestingCompilerFactory } from './private_import_core';
 import { platformCoreDynamic, DirectiveResolver, NgModuleResolver, PipeResolver } from '@angular/compiler';
 import { MockDirectiveResolver } from './directive_resolver_mock';
@@ -75,19 +75,19 @@ export var TestingCompilerImpl = (function () {
     };
     TestingCompilerImpl.prototype.overrideModule = function (ngModule, override) {
         var oldMetadata = this._moduleResolver.resolve(ngModule, false);
-        this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(NgModuleMetadata, oldMetadata, override));
+        this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(NgModule, oldMetadata, override));
     };
     TestingCompilerImpl.prototype.overrideDirective = function (directive, override) {
         var oldMetadata = this._directiveResolver.resolve(directive, false);
-        this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(DirectiveMetadata, oldMetadata, override));
+        this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(Directive, oldMetadata, override));
     };
     TestingCompilerImpl.prototype.overrideComponent = function (component, override) {
         var oldMetadata = this._directiveResolver.resolve(component, false);
-        this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(ComponentMetadata, oldMetadata, override));
+        this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(Component, oldMetadata, override));
     };
     TestingCompilerImpl.prototype.overridePipe = function (pipe, override) {
         var oldMetadata = this._pipeResolver.resolve(pipe, false);
-        this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(PipeMetadata, oldMetadata, override));
+        this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(Pipe, oldMetadata, override));
     };
     TestingCompilerImpl.prototype.clearCache = function () { this._compiler.clearCache(); };
     TestingCompilerImpl.prototype.clearCacheFor = function (type) { this._compiler.clearCacheFor(type); };

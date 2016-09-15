@@ -44,6 +44,7 @@ export var CompileView = (function () {
         this.literalMapCount = 0;
         this.pipeCount = 0;
         this.createMethod = new CompileMethod(this);
+        this.animationBindingsMethod = new CompileMethod(this);
         this.injectorGetMethod = new CompileMethod(this);
         this.updateContentQueriesMethod = new CompileMethod(this);
         this.dirtyParentQueriesMethod = new CompileMethod(this);

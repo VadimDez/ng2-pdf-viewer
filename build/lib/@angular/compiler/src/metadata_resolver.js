@@ -10,12 +10,12 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { AnimationAnimateMetadata, AnimationGroupMetadata, AnimationKeyframesSequenceMetadata, AnimationStateDeclarationMetadata, AnimationStateTransitionMetadata, AnimationStyleMetadata, AnimationWithStepsMetadata, AttributeMetadata, ComponentMetadata, HostMetadata, InjectMetadata, Injectable, OptionalMetadata, QueryMetadata, SelfMetadata, SkipSelfMetadata, Type, resolveForwardRef } from '@angular/core';
+import { AnimationAnimateMetadata, AnimationGroupMetadata, AnimationKeyframesSequenceMetadata, AnimationStateDeclarationMetadata, AnimationStateTransitionMetadata, AnimationStyleMetadata, AnimationWithStepsMetadata, Attribute, Component, Host, Inject, Injectable, Optional, Query, Self, SkipSelf, Type, resolveForwardRef } from '@angular/core';
 import { StringMapWrapper } from '../src/facade/collection';
 import { assertArrayOfStrings, assertInterpolationSymbols } from './assertions';
 import * as cpl from './compile_metadata';
 import { DirectiveResolver } from './directive_resolver';
-import { isArray, isBlank, isPresent, isString, stringify } from './facade/lang';
+import { StringWrapper, isArray, isBlank, isPresent, isString, stringify } from './facade/lang';
 import { Identifiers, resolveIdentifierToken } from './identifiers';
 import { hasLifecycleHook } from './lifecycle_reflector';
 import { NgModuleResolver } from './ng_module_resolver';
@@ -56,7 +56,7 @@ export var CompileMetadataResolver = (function () {
         this._directiveCache.delete(type);
         this._pipeCache.delete(type);
         this._ngModuleOfTypes.delete(type);
-        // Clear all of the NgModuleMetadata as they contain transitive information!
+        // Clear all of the NgModule as they contain transitive information!
         this._ngModuleCache.clear();
     };
     CompileMetadataResolver.prototype.clearCache = function () {
@@ -123,7 +123,7 @@ export var CompileMetadataResolver = (function () {
             var moduleUrl = staticTypeModuleUrl(directiveType);
             var entryComponentMetadata = [];
             var selector = dirMeta.selector;
-            if (dirMeta instanceof ComponentMetadata) {
+            if (dirMeta instanceof Component) {
                 var cmpMeta = dirMeta;
                 assertArrayOfStrings('styles', cmpMeta.styles);
                 assertInterpolationSymbols('interpolation', cmpMeta.interpolation);
@@ -289,8 +289,13 @@ export var CompileMetadataResolver = (function () {
                     .map(function (type) { return _this.getTypeMetadata(type, staticTypeModuleUrl(type)); }));
             }
             if (meta.bootstrap) {
-                bootstrapComponents.push.apply(bootstrapComponents, flattenArray(meta.bootstrap)
-                    .map(function (type) { return _this.getTypeMetadata(type, staticTypeModuleUrl(type)); }));
+                var typeMetadata = flattenArray(meta.bootstrap).map(function (type) {
+                    if (!isValidType(type)) {
+                        throw new Error("Unexpected value '" + stringify(type) + "' used in the bootstrap property of module '" + stringify(moduleType) + "'");
+                    }
+                    return _this.getTypeMetadata(type, staticTypeModuleUrl(type));
+                });
+                bootstrapComponents.push.apply(bootstrapComponents, typeMetadata);
             }
             entryComponents_1.push.apply(entryComponents_1, bootstrapComponents);
             if (meta.schemas) {
@@ -310,7 +315,8 @@ export var CompileMetadataResolver = (function () {
                 exportedPipes: exportedPipes_1,
                 importedModules: importedModules_1,
                 exportedModules: exportedModules_1,
-                transitiveModule: transitiveModule_1
+                transitiveModule: transitiveModule_1,
+                id: meta.id,
             });
             transitiveModule_1.modules.push(compileMeta);
             this._verifyModule(compileMeta);
@@ -351,7 +357,9 @@ export var CompileMetadataResolver = (function () {
     CompileMetadataResolver.prototype._addTypeToModule = function (type, moduleType) {
         var oldModule = this._ngModuleOfTypes.get(type);
         if (oldModule && oldModule !== moduleType) {
-            throw new Error("Type " + stringify(type) + " is part of the declarations of 2 modules: " + stringify(oldModule) + " and " + stringify(moduleType) + "!");
+            throw new Error(("Type " + stringify(type) + " is part of the declarations of 2 modules: " + stringify(oldModule) + " and " + stringify(moduleType) + "! ") +
+                ("Please consider moving " + stringify(type) + " to a higher module that imports " + stringify(oldModule) + " and " + stringify(moduleType) + ". ") +
+                ("You can also create a new NgModule that exports and includes " + stringify(type) + " then import that NgModule in " + stringify(oldModule) + " and " + stringify(moduleType) + "."));
         }
         this._ngModuleOfTypes.set(type, moduleType);
     };
@@ -444,23 +452,23 @@ export var CompileMetadataResolver = (function () {
             var token = null;
             if (isArray(param)) {
                 param.forEach(function (paramEntry) {
-                    if (paramEntry instanceof HostMetadata) {
+                    if (paramEntry instanceof Host) {
                         isHost = true;
                     }
-                    else if (paramEntry instanceof SelfMetadata) {
+                    else if (paramEntry instanceof Self) {
                         isSelf = true;
                     }
-                    else if (paramEntry instanceof SkipSelfMetadata) {
+                    else if (paramEntry instanceof SkipSelf) {
                         isSkipSelf = true;
                     }
-                    else if (paramEntry instanceof OptionalMetadata) {
+                    else if (paramEntry instanceof Optional) {
                         isOptional = true;
                     }
-                    else if (paramEntry instanceof AttributeMetadata) {
+                    else if (paramEntry instanceof Attribute) {
                         isAttribute = true;
                         token = paramEntry.attributeName;
                     }
-                    else if (paramEntry instanceof QueryMetadata) {
+                    else if (paramEntry instanceof Query) {
                         if (paramEntry.isViewQuery) {
                             viewQuery = paramEntry;
                         }
@@ -468,7 +476,7 @@ export var CompileMetadataResolver = (function () {
                             query = paramEntry;
                         }
                     }
-                    else if (paramEntry instanceof InjectMetadata) {
+                    else if (paramEntry instanceof Inject) {
                         token = paramEntry.token;
                     }
                     else if (isValidType(paramEntry) && isBlank(token)) {
@@ -617,11 +625,14 @@ export var CompileMetadataResolver = (function () {
         });
         return res;
     };
+    CompileMetadataResolver.prototype._queryVarBindings = function (selector) {
+        return StringWrapper.split(selector, /\s*,\s*/g);
+    };
     CompileMetadataResolver.prototype.getQueryMetadata = function (q, propertyName, typeOrFunc) {
         var _this = this;
         var selectors;
-        if (q.isVarBindingQuery) {
-            selectors = q.varBindings.map(function (varName) { return _this.getTokenMetadata(varName); });
+        if (isString(q.selector)) {
+            selectors = this._queryVarBindings(q.selector).map(function (varName) { return _this.getTokenMetadata(varName); });
         }
         else {
             if (!isPresent(q.selector)) {

@@ -4,7 +4,7 @@ export declare const UNINITIALIZED: {
 };
 export declare function devModeEqual(a: any, b: any): boolean;
 /**
- * Indicates that the result of a {@link PipeMetadata} transformation has changed even though the
+ * Indicates that the result of a {@link Pipe} transformation has changed even though the
  * reference
  * has not changed.
  *

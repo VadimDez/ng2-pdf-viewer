@@ -32,8 +32,8 @@ import { TemplateRef, ViewContainerRef } from '@angular/core';
  */
 export declare class NgIf {
     private _viewContainer;
-    private _templateRef;
-    private _prevCondition;
-    constructor(_viewContainer: ViewContainerRef, _templateRef: TemplateRef<Object>);
+    private _template;
+    private _hasView;
+    constructor(_viewContainer: ViewContainerRef, _template: TemplateRef<Object>);
     ngIf: any;
 }

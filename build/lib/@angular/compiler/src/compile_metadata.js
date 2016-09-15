@@ -401,7 +401,7 @@ export var CompilePipeMetadata = (function () {
  */
 export var CompileNgModuleMetadata = (function () {
     function CompileNgModuleMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, type = _b.type, providers = _b.providers, declaredDirectives = _b.declaredDirectives, exportedDirectives = _b.exportedDirectives, declaredPipes = _b.declaredPipes, exportedPipes = _b.exportedPipes, entryComponents = _b.entryComponents, bootstrapComponents = _b.bootstrapComponents, importedModules = _b.importedModules, exportedModules = _b.exportedModules, schemas = _b.schemas, transitiveModule = _b.transitiveModule;
+        var _b = _a === void 0 ? {} : _a, type = _b.type, providers = _b.providers, declaredDirectives = _b.declaredDirectives, exportedDirectives = _b.exportedDirectives, declaredPipes = _b.declaredPipes, exportedPipes = _b.exportedPipes, entryComponents = _b.entryComponents, bootstrapComponents = _b.bootstrapComponents, importedModules = _b.importedModules, exportedModules = _b.exportedModules, schemas = _b.schemas, transitiveModule = _b.transitiveModule, id = _b.id;
         this.type = type;
         this.declaredDirectives = _normalizeArray(declaredDirectives);
         this.exportedDirectives = _normalizeArray(exportedDirectives);
@@ -413,6 +413,7 @@ export var CompileNgModuleMetadata = (function () {
         this.importedModules = _normalizeArray(importedModules);
         this.exportedModules = _normalizeArray(exportedModules);
         this.schemas = _normalizeArray(schemas);
+        this.id = id;
         this.transitiveModule = transitiveModule;
     }
     Object.defineProperty(CompileNgModuleMetadata.prototype, "identifier", {

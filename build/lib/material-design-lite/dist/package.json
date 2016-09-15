@@ -1,6 +1,6 @@
 {
   "name": "material-design-lite",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Material Design Components in CSS, JS and HTML",
   "private": true,
   "license": "Apache-2.0",
@@ -26,7 +26,7 @@
     "gulp-css-inline-images": "^0.1.1",
     "gulp-csso": "1.0.0",
     "gulp-file": "^0.2.0",
-    "gulp-flatten": "^0.2.0",
+    "gulp-flatten": "^0.3.1",
     "gulp-front-matter": "^1.2.2",
     "gulp-header": "^1.2.2",
     "gulp-if": "^2.0.0",

@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { AnimationGroupPlayer } from '../animation/animation_group_player';
+import { queueAnimation } from '../animation/animation_queue';
 import { AnimationTransitionEvent } from '../animation/animation_transition_event';
 import { ViewAnimationMap } from '../animation/view_animation_map';
 import { ChangeDetectorStatus } from '../change_detection/change_detection';
@@ -71,6 +72,7 @@ export var AppView = (function () {
     };
     AppView.prototype.queueAnimation = function (element, animationName, player, totalTime, fromState, toState) {
         var _this = this;
+        queueAnimation(player);
         var event = new AnimationTransitionEvent({ 'fromState': fromState, 'toState': toState, 'totalTime': totalTime });
         this.animationPlayers.set(element, animationName, player);
         player.onDone(function () {
@@ -79,13 +81,6 @@ export var AppView = (function () {
             _this.animationPlayers.remove(element, animationName);
         });
         player.onStart(function () { _this.triggerAnimationOutput(element, animationName, 'start', event); });
-    };
-    AppView.prototype.triggerQueuedAnimations = function () {
-        this.animationPlayers.getAllPlayers().forEach(function (player) {
-            if (!player.hasStarted()) {
-                player.play();
-            }
-        });
     };
     AppView.prototype.triggerAnimationOutput = function (element, animationName, phase, event) {
         var listeners = this._animationListeners.get(element);

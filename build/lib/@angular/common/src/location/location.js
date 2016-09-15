@@ -67,7 +67,7 @@ export var Location = (function () {
     };
     /**
      * Given a string representing a URL, returns the normalized URL path without leading or
-     * trailing slashes
+     * trailing slashes.
      */
     Location.prototype.normalize = function (url) {
         return Location.stripTrailingSlash(_stripBaseHref(this._baseHref, _stripIndexHtml(url)));

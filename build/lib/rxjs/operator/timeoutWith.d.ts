@@ -1,5 +1,5 @@
 import { Scheduler } from '../Scheduler';
-import { Observable } from '../Observable';
+import { Observable, ObservableInput } from '../Observable';
 /**
  * @param due
  * @param withObservable
@@ -8,8 +8,8 @@ import { Observable } from '../Observable';
  * @method timeoutWith
  * @owner Observable
  */
-export declare function timeoutWith<T, R>(due: number | Date, withObservable: Observable<R>, scheduler?: Scheduler): Observable<T | R>;
+export declare function timeoutWith<T, R>(due: number | Date, withObservable: ObservableInput<R>, scheduler?: Scheduler): Observable<T | R>;
 export interface TimeoutWithSignature<T> {
-    (due: number | Date, withObservable: Observable<T>, scheduler?: Scheduler): Observable<T>;
-    <R>(due: number | Date, withObservable: Observable<R>, scheduler?: Scheduler): Observable<T | R>;
+    (due: number | Date, withObservable: ObservableInput<T>, scheduler?: Scheduler): Observable<T>;
+    <R>(due: number | Date, withObservable: ObservableInput<R>, scheduler?: Scheduler): Observable<T | R>;
 }

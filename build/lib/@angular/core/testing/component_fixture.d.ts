@@ -12,6 +12,9 @@ import { ChangeDetectorRef, ComponentRef, DebugElement, ElementRef, NgZone } fro
  * @stable
  */
 export declare class ComponentFixture<T> {
+    componentRef: ComponentRef<T>;
+    ngZone: NgZone;
+    private _autoDetect;
     /**
      * The DebugElement associated with the root element of this component.
      */
@@ -29,18 +32,9 @@ export declare class ComponentFixture<T> {
      */
     elementRef: ElementRef;
     /**
-     * The ComponentRef for the component
-     */
-    componentRef: ComponentRef<T>;
-    /**
      * The ChangeDetectorRef for the component
      */
     changeDetectorRef: ChangeDetectorRef;
-    /**
-     * The NgZone in which this component was instantiated.
-     */
-    ngZone: NgZone;
-    private _autoDetect;
     private _isStable;
     private _isDestroyed;
     private _resolve;
@@ -49,7 +43,7 @@ export declare class ComponentFixture<T> {
     private _onStableSubscription;
     private _onMicrotaskEmptySubscription;
     private _onErrorSubscription;
-    constructor(componentRef: ComponentRef<T>, ngZone: NgZone, autoDetect: boolean);
+    constructor(componentRef: ComponentRef<T>, ngZone: NgZone, _autoDetect: boolean);
     private _tick(checkNoChanges);
     /**
      * Trigger a change detection cycle for the component.

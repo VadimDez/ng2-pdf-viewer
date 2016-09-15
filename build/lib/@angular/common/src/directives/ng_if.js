@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { isBlank } from '../facade/lang';
 /**
  * Removes or recreates a portion of the DOM tree based on an {expression}.
  *
@@ -32,19 +31,19 @@ import { isBlank } from '../facade/lang';
  * @stable
  */
 export var NgIf = (function () {
-    function NgIf(_viewContainer, _templateRef) {
+    function NgIf(_viewContainer, _template) {
         this._viewContainer = _viewContainer;
-        this._templateRef = _templateRef;
-        this._prevCondition = null;
+        this._template = _template;
+        this._hasView = false;
     }
     Object.defineProperty(NgIf.prototype, "ngIf", {
-        set: function (newCondition) {
-            if (newCondition && (isBlank(this._prevCondition) || !this._prevCondition)) {
-                this._prevCondition = true;
-                this._viewContainer.createEmbeddedView(this._templateRef);
+        set: function (condition) {
+            if (condition && !this._hasView) {
+                this._hasView = true;
+                this._viewContainer.createEmbeddedView(this._template);
             }
-            else if (!newCondition && (isBlank(this._prevCondition) || this._prevCondition)) {
-                this._prevCondition = false;
+            else if (!condition && this._hasView) {
+                this._hasView = false;
                 this._viewContainer.clear();
             }
         },

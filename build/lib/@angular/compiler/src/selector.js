@@ -7,6 +7,7 @@
  */
 import { ListWrapper } from './facade/collection';
 import { StringWrapper, isBlank, isPresent } from './facade/lang';
+import { getHtmlTagDefinition } from './ml_parser/html_tags';
 var _EMPTY_ATTR_VALUE = '';
 var _SELECTOR_REGEXP = new RegExp('(\\:not\\()|' +
     '([-\\w]+)|' +
@@ -85,7 +86,7 @@ export var CssSelector = (function () {
     };
     /** Gets a template string for an element that matches the selector. */
     CssSelector.prototype.getMatchingElementTemplate = function () {
-        var tagName = isPresent(this.element) ? this.element : 'div';
+        var tagName = this.element || 'div';
         var classAttr = this.classNames.length > 0 ? " class=\"" + this.classNames.join(' ') + "\"" : '';
         var attrs = '';
         for (var i = 0; i < this.attrs.length; i += 2) {
@@ -93,7 +94,8 @@ export var CssSelector = (function () {
             var attrValue = this.attrs[i + 1] !== '' ? "=\"" + this.attrs[i + 1] + "\"" : '';
             attrs += " " + attrName + attrValue;
         }
-        return "<" + tagName + classAttr + attrs + "></" + tagName + ">";
+        return getHtmlTagDefinition(tagName).isVoid ? "<" + tagName + classAttr + attrs + "/>" :
+            "<" + tagName + classAttr + attrs + "></" + tagName + ">";
     };
     CssSelector.prototype.addAttribute = function (name, value) {
         if (value === void 0) { value = _EMPTY_ATTR_VALUE; }

@@ -75,7 +75,6 @@ export declare class NumberWrapper {
     static equal(a: number, b: number): boolean;
     static parseIntAutoRadix(text: string): number;
     static parseInt(text: string, radix: number): number;
-    static parseFloat(text: string): number;
     static NaN: number;
     static isNumeric(value: any): boolean;
     static isNaN(value: any): boolean;

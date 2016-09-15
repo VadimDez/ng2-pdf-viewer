@@ -30,7 +30,7 @@ export interface Validator {
     validate(c: AbstractControl): {
         [key: string]: any;
     };
-    registerOnChange?(fn: () => void): void;
+    registerOnValidatorChange?(fn: () => void): void;
 }
 export declare const REQUIRED_VALIDATOR: any;
 /**
@@ -52,7 +52,7 @@ export declare class RequiredValidator implements Validator {
     validate(c: AbstractControl): {
         [key: string]: any;
     };
-    registerOnChange(fn: () => void): void;
+    registerOnValidatorChange(fn: () => void): void;
 }
 /**
  * @stable
@@ -91,7 +91,7 @@ export declare class MinLengthValidator implements Validator, OnChanges {
     validate(c: AbstractControl): {
         [key: string]: any;
     };
-    registerOnChange(fn: () => void): void;
+    registerOnValidatorChange(fn: () => void): void;
 }
 /**
  * Provider which adds {@link MaxLengthValidator} to {@link NG_VALIDATORS}.
@@ -117,7 +117,7 @@ export declare class MaxLengthValidator implements Validator, OnChanges {
     validate(c: AbstractControl): {
         [key: string]: any;
     };
-    registerOnChange(fn: () => void): void;
+    registerOnValidatorChange(fn: () => void): void;
 }
 export declare const PATTERN_VALIDATOR: any;
 /**
@@ -142,5 +142,5 @@ export declare class PatternValidator implements Validator, OnChanges {
     validate(c: AbstractControl): {
         [key: string]: any;
     };
-    registerOnChange(fn: () => void): void;
+    registerOnValidatorChange(fn: () => void): void;
 }

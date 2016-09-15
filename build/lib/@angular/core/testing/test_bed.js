@@ -63,7 +63,7 @@ export var TestBed = (function () {
      * first use `resetTestEnvironment`.
      *
      * Test modules and platforms for individual platforms are available from
-     * 'angular2/platform/testing/<platform_name>'.
+     * '@angular/<platform_name>/testing'.
      *
      * @experimental
      */
@@ -136,7 +136,7 @@ export var TestBed = (function () {
      * first use `resetTestEnvironment`.
      *
      * Test modules and platforms for individual platforms are available from
-     * 'angular2/platform/testing/<platform_name>'.
+     * '@angular/<platform_name>/testing'.
      *
      * @experimental
      */

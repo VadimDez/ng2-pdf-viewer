@@ -1,9 +1,9 @@
-import {Operator} from '../Operator';
-import {Subscriber} from '../Subscriber';
-import {Observable, ObservableInput} from '../Observable';
+import { Operator } from '../Operator';
+import { Subscriber } from '../Subscriber';
+import { Observable, ObservableInput } from '../Observable';
 
-import {OuterSubscriber} from '../OuterSubscriber';
-import {subscribeToResult} from '../util/subscribeToResult';
+import { OuterSubscriber } from '../OuterSubscriber';
+import { subscribeToResult } from '../util/subscribeToResult';
 
 /**
  * Catches errors on the observable to be handled by returning a new observable or throwing an error.
@@ -22,7 +22,6 @@ export function _catch<T, R>(selector: (err: any, caught: Observable<T>) => Obse
 }
 
 export interface CatchSignature<T> {
-  (selector: (err: any, caught: Observable<T>) => ObservableInput<T>): Observable<T>;
   <R>(selector: (err: any, caught: Observable<T>) => ObservableInput<R>): Observable<R>;
 }
 

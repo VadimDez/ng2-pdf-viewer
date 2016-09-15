@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ChangeDetectorRef, Directive, Input, IterableDiffers, TemplateRef, ViewContainerRef } from '@angular/core';
-import { getTypeNameForDebugging, isBlank, isPresent } from '../facade/lang';
+import { getTypeNameForDebugging } from '../facade/lang';
 export var NgForRow = (function () {
     function NgForRow($implicit, index, count) {
         this.$implicit = $implicit;
@@ -100,16 +100,17 @@ export var NgForRow = (function () {
  * @stable
  */
 export var NgFor = (function () {
-    function NgFor(_viewContainer, _templateRef, _iterableDiffers, _cdr) {
+    function NgFor(_viewContainer, _template, _differs, _cdr) {
         this._viewContainer = _viewContainer;
-        this._templateRef = _templateRef;
-        this._iterableDiffers = _iterableDiffers;
+        this._template = _template;
+        this._differs = _differs;
         this._cdr = _cdr;
+        this._differ = null;
     }
     Object.defineProperty(NgFor.prototype, "ngForTemplate", {
         set: function (value) {
-            if (isPresent(value)) {
-                this._templateRef = value;
+            if (value) {
+                this._template = value;
             }
         },
         enumerable: true,
@@ -119,9 +120,9 @@ export var NgFor = (function () {
         if ('ngForOf' in changes) {
             // React on ngForOf changes only once all inputs have been initialized
             var value = changes['ngForOf'].currentValue;
-            if (isBlank(this._differ) && isPresent(value)) {
+            if (!this._differ && value) {
                 try {
-                    this._differ = this._iterableDiffers.find(value).create(this._cdr, this.ngForTrackBy);
+                    this._differ = this._differs.find(value).create(this._cdr, this.ngForTrackBy);
                 }
                 catch (e) {
                     throw new Error("Cannot find a differ supporting object '" + value + "' of type '" + getTypeNameForDebugging(value) + "'. NgFor only supports binding to Iterables such as Arrays.");
@@ -130,9 +131,9 @@ export var NgFor = (function () {
         }
     };
     NgFor.prototype.ngDoCheck = function () {
-        if (isPresent(this._differ)) {
+        if (this._differ) {
             var changes = this._differ.diff(this.ngForOf);
-            if (isPresent(changes))
+            if (changes)
                 this._applyChanges(changes);
         }
     };
@@ -141,7 +142,7 @@ export var NgFor = (function () {
         var insertTuples = [];
         changes.forEachOperation(function (item, adjustedPreviousIndex, currentIndex) {
             if (item.previousIndex == null) {
-                var view = _this._viewContainer.createEmbeddedView(_this._templateRef, new NgForRow(null, null, null), currentIndex);
+                var view = _this._viewContainer.createEmbeddedView(_this._template, new NgForRow(null, null, null), currentIndex);
                 var tuple = new RecordViewTuple(item, view);
                 insertTuples.push(tuple);
             }

@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { DirectiveResolver } from '@angular/compiler';
-import { Compiler, ComponentMetadata, DirectiveMetadata, Injectable, Injector, resolveForwardRef } from '@angular/core';
+import { Compiler, Component, Directive, Injectable, Injector, resolveForwardRef } from '@angular/core';
 import { Map } from './facade/collection';
 import { isArray, isPresent } from './facade/lang';
 /**
@@ -45,7 +45,7 @@ export var MockDirectiveResolver = (function (_super) {
             var originalViewProviders = isPresent(metadata.providers) ? metadata.providers : [];
             providers = originalViewProviders.concat(providerOverrides);
         }
-        if (metadata instanceof ComponentMetadata) {
+        if (metadata instanceof Component) {
             var viewProviders = metadata.viewProviders;
             if (isPresent(viewProviderOverrides)) {
                 var originalViewProviders = isPresent(metadata.viewProviders) ? metadata.viewProviders : [];
@@ -68,7 +68,7 @@ export var MockDirectiveResolver = (function (_super) {
             else {
                 inlineTemplate = view.template;
             }
-            return new ComponentMetadata({
+            return new Component({
                 selector: metadata.selector,
                 inputs: metadata.inputs,
                 outputs: metadata.outputs,
@@ -89,7 +89,7 @@ export var MockDirectiveResolver = (function (_super) {
                 interpolation: view.interpolation
             });
         }
-        return new DirectiveMetadata({
+        return new Directive({
             selector: metadata.selector,
             inputs: metadata.inputs,
             outputs: metadata.outputs,
@@ -100,7 +100,7 @@ export var MockDirectiveResolver = (function (_super) {
         });
     };
     /**
-     * Overrides the {@link DirectiveMetadata} for a directive.
+     * Overrides the {@link Directive} for a directive.
      */
     MockDirectiveResolver.prototype.setDirective = function (type, metadata) {
         this._directives.set(type, metadata);

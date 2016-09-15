@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -78,8 +78,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -379,17 +377,30 @@
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(BrowserDetection.prototype, "supportsIntlApi", {
-            // The Intl API is only properly supported in recent Chrome and Opera.
-            // Note: Edge is disguised as Chrome 42, so checking the "Edge" part is needed,
-            // see https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-            get: function () { return !!_global.Intl; },
+        Object.defineProperty(BrowserDetection.prototype, "supportsNativeIntlApi", {
+            // The Intl API is only natively supported in Chrome, Firefox, IE11 and Edge.
+            // This detector is needed in tests to make the difference between:
+            // 1) IE11/Edge: they have a native Intl API, but with some discrepancies
+            // 2) IE9/IE10: they use the polyfill, and so no discrepancies
+            get: function () {
+                return !!_global.Intl && _global.Intl !== _global.IntlPolyfill;
+            },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(BrowserDetection.prototype, "isChromeDesktop", {
             get: function () {
                 return this._ua.indexOf('Chrome') > -1 && this._ua.indexOf('Mobile Safari') == -1 &&
+                    this._ua.indexOf('Edge') == -1;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BrowserDetection.prototype, "isOldChrome", {
+            // "Old Chrome" means Chrome 3X, where there are some discrepancies in the Intl API.
+            // Android 4.4 and 5.X have such browsers by default (respectively 30 and 39).
+            get: function () {
+                return this._ua.indexOf('Chrome') > -1 && this._ua.indexOf('Chrome/3') > -1 &&
                     this._ua.indexOf('Edge') == -1;
             },
             enumerable: true,

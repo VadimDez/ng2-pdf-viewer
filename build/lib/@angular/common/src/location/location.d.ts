@@ -43,7 +43,7 @@ export declare class Location {
     isCurrentPathEqualTo(path: string, query?: string): boolean;
     /**
      * Given a string representing a URL, returns the normalized URL path without leading or
-     * trailing slashes
+     * trailing slashes.
      */
     normalize(url: string): string;
     /**

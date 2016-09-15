@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, Injectable, NgZone, OpaqueToken } from '@angular/core';
-import { ListWrapper } from '../../facade/collection';
 /**
  * @stable
  */
@@ -19,7 +18,7 @@ export var EventManager = (function () {
         var _this = this;
         this._zone = _zone;
         plugins.forEach(function (p) { return p.manager = _this; });
-        this._plugins = ListWrapper.reversed(plugins);
+        this._plugins = plugins.slice().reverse();
     }
     EventManager.prototype.addEventListener = function (element, eventName, handler) {
         var plugin = this._findPluginFor(eventName);

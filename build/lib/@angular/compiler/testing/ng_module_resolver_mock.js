@@ -27,15 +27,15 @@ export var MockNgModuleResolver = (function (_super) {
     });
     MockNgModuleResolver.prototype._clearCacheFor = function (component) { this._compiler.clearCacheFor(component); };
     /**
-     * Overrides the {@link NgModuleMetadata} for a module.
+     * Overrides the {@link NgModule} for a module.
      */
     MockNgModuleResolver.prototype.setNgModule = function (type, metadata) {
         this._ngModules.set(type, metadata);
         this._clearCacheFor(type);
     };
     /**
-     * Returns the {@link NgModuleMetadata} for a module:
-     * - Set the {@link NgModuleMetadata} to the overridden view when it exists or fallback to the
+     * Returns the {@link NgModule} for a module:
+     * - Set the {@link NgModule} to the overridden view when it exists or fallback to the
      * default
      * `NgModuleResolver`, see `setNgModule`.
      */

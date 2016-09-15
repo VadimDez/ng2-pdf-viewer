@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -194,8 +194,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -380,9 +378,8 @@
             if (k1.length != k2.length) {
                 return false;
             }
-            var key;
             for (var i = 0; i < k1.length; i++) {
-                key = k1[i];
+                var key = k1[i];
                 if (m1[key] !== m2[key]) {
                     return false;
                 }
@@ -1471,6 +1468,32 @@
     }());
 
     /**
+     * A service that can be used to get and set the title of a current HTML document.
+     *
+     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
+     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
+     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
+     * title value.
+     *
+     * @experimental
+     */
+    var Title = (function () {
+        function Title() {
+        }
+        /**
+         * Get the title of the current HTML document.
+         * @returns {string}
+         */
+        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
+        /**
+         * Set the title of the current HTML document.
+         * @param newTitle
+         */
+        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
+        return Title;
+    }());
+
+    /**
      * A DI Token representing the main rendering context. In a browser this is the DOM Document.
      *
      * Note: Document might not be available in the Application Context when Application and Rendering
@@ -1492,7 +1515,7 @@
             var _this = this;
             this._zone = _zone;
             plugins.forEach(function (p) { return p.manager = _this; });
-            this._plugins = ListWrapper.reversed(plugins);
+            this._plugins = plugins.slice().reverse();
         }
         EventManager.prototype.addEventListener = function (element, eventName, handler) {
             var plugin = this._findPluginFor(eventName);
@@ -2833,7 +2856,7 @@
                             { provide: _angular_core.RootRenderer, useExisting: DomRootRenderer },
                             { provide: SharedStylesHost, useExisting: DomSharedStylesHost },
                             { provide: AnimationDriver, useFactory: _resolveDefaultAnimationDriver }, DomSharedStylesHost,
-                            _angular_core.Testability, EventManager, ELEMENT_PROBE_PROVIDERS
+                            _angular_core.Testability, EventManager, ELEMENT_PROBE_PROVIDERS, Title
                         ],
                         exports: [_angular_common.CommonModule, _angular_core.ApplicationModule]
                     },] },
@@ -2843,32 +2866,6 @@
             { type: BrowserModule, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.SkipSelf },] },
         ];
         return BrowserModule;
-    }());
-
-    /**
-     * A service that can be used to get and set the title of a current HTML document.
-     *
-     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
-     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
-     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
-     * title value.
-     *
-     * @experimental
-     */
-    var Title = (function () {
-        function Title() {
-        }
-        /**
-         * Get the title of the current HTML document.
-         * @returns {string}
-         */
-        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
-        /**
-         * Set the title of the current HTML document.
-         * @param newTitle
-         */
-        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
-        return Title;
     }());
 
     /**

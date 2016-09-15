@@ -32,6 +32,7 @@ export declare class CompileView implements NameResolver {
     bindings: CompileBinding[];
     classStatements: o.Statement[];
     createMethod: CompileMethod;
+    animationBindingsMethod: CompileMethod;
     injectorGetMethod: CompileMethod;
     updateContentQueriesMethod: CompileMethod;
     dirtyParentQueriesMethod: CompileMethod;

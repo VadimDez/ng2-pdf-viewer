@@ -5,16 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ComponentMetadata, DirectiveMetadata, HostBindingMetadata, HostListenerMetadata, Injectable, InputMetadata, OutputMetadata, QueryMetadata, resolveForwardRef } from '@angular/core';
+import { Component, Directive, HostBinding, HostListener, Injectable, Input, Output, Query, resolveForwardRef } from '@angular/core';
 import { StringMapWrapper } from './facade/collection';
 import { isPresent, stringify } from './facade/lang';
 import { ReflectorReader, reflector } from './private_import_core';
 import { splitAtColon } from './util';
 function _isDirectiveMetadata(type) {
-    return type instanceof DirectiveMetadata;
+    return type instanceof Directive;
 }
 /*
- * Resolve a `Type` for {@link DirectiveMetadata}.
+ * Resolve a `Type` for {@link Directive}.
  *
  * This interface can be overridden by the application developer to create custom behavior.
  *
@@ -26,7 +26,7 @@ export var DirectiveResolver = (function () {
         this._reflector = _reflector;
     }
     /**
-     * Return {@link DirectiveMetadata} for a given `Type`.
+     * Return {@link Directive} for a given `Type`.
      */
     DirectiveResolver.prototype.resolve = function (type, throwIfNotFound) {
         if (throwIfNotFound === void 0) { throwIfNotFound = true; }
@@ -50,7 +50,7 @@ export var DirectiveResolver = (function () {
         var queries = {};
         StringMapWrapper.forEach(propertyMetadata, function (metadata, propName) {
             metadata.forEach(function (a) {
-                if (a instanceof InputMetadata) {
+                if (a instanceof Input) {
                     if (isPresent(a.bindingPropertyName)) {
                         inputs.push(propName + ": " + a.bindingPropertyName);
                     }
@@ -58,27 +58,30 @@ export var DirectiveResolver = (function () {
                         inputs.push(propName);
                     }
                 }
-                else if (a instanceof OutputMetadata) {
-                    if (isPresent(a.bindingPropertyName)) {
-                        outputs.push(propName + ": " + a.bindingPropertyName);
+                else if (a instanceof Output) {
+                    var output = a;
+                    if (isPresent(output.bindingPropertyName)) {
+                        outputs.push(propName + ": " + output.bindingPropertyName);
                     }
                     else {
                         outputs.push(propName);
                     }
                 }
-                else if (a instanceof HostBindingMetadata) {
-                    if (isPresent(a.hostPropertyName)) {
-                        host[("[" + a.hostPropertyName + "]")] = propName;
+                else if (a instanceof HostBinding) {
+                    var hostBinding = a;
+                    if (isPresent(hostBinding.hostPropertyName)) {
+                        host[("[" + hostBinding.hostPropertyName + "]")] = propName;
                     }
                     else {
                         host[("[" + propName + "]")] = propName;
                     }
                 }
-                else if (a instanceof HostListenerMetadata) {
-                    var args = isPresent(a.args) ? a.args.join(', ') : '';
-                    host[("(" + a.eventName + ")")] = propName + "(" + args + ")";
+                else if (a instanceof HostListener) {
+                    var hostListener = a;
+                    var args = isPresent(hostListener.args) ? hostListener.args.join(', ') : '';
+                    host[("(" + hostListener.eventName + ")")] = propName + "(" + args + ")";
                 }
-                else if (a instanceof QueryMetadata) {
+                else if (a instanceof Query) {
                     queries[propName] = a;
                 }
             });
@@ -118,8 +121,8 @@ export var DirectiveResolver = (function () {
         }
         var mergedHost = isPresent(dm.host) ? StringMapWrapper.merge(dm.host, host) : host;
         var mergedQueries = isPresent(dm.queries) ? StringMapWrapper.merge(dm.queries, queries) : queries;
-        if (dm instanceof ComponentMetadata) {
-            return new ComponentMetadata({
+        if (dm instanceof Component) {
+            return new Component({
                 selector: dm.selector,
                 inputs: mergedInputs,
                 outputs: mergedOutputs,
@@ -141,7 +144,7 @@ export var DirectiveResolver = (function () {
             });
         }
         else {
-            return new DirectiveMetadata({
+            return new Directive({
                 selector: dm.selector,
                 inputs: mergedInputs,
                 outputs: mergedOutputs,

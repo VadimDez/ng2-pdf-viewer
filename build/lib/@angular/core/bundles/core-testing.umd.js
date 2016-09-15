@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.0.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -194,8 +194,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -220,8 +218,11 @@
      * @stable
      */
     var ComponentFixture = (function () {
-        function ComponentFixture(componentRef, ngZone, autoDetect) {
+        function ComponentFixture(componentRef, ngZone, _autoDetect) {
             var _this = this;
+            this.componentRef = componentRef;
+            this.ngZone = ngZone;
+            this._autoDetect = _autoDetect;
             this._isStable = true;
             this._isDestroyed = false;
             this._promise = null;
@@ -236,7 +237,6 @@
             this.nativeElement = this.elementRef.nativeElement;
             this.componentRef = componentRef;
             this.ngZone = ngZone;
-            this._autoDetect = autoDetect;
             if (ngZone != null) {
                 this._onUnstableSubscription =
                     ngZone.onUnstable.subscribe({ next: function () { _this._isStable = false; } });
@@ -907,7 +907,7 @@
          * first use `resetTestEnvironment`.
          *
          * Test modules and platforms for individual platforms are available from
-         * 'angular2/platform/testing/<platform_name>'.
+         * '@angular/<platform_name>/testing'.
          *
          * @experimental
          */
@@ -980,7 +980,7 @@
          * first use `resetTestEnvironment`.
          *
          * Test modules and platforms for individual platforms are available from
-         * 'angular2/platform/testing/<platform_name>'.
+         * '@angular/<platform_name>/testing'.
          *
          * @experimental
          */

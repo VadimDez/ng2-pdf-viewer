@@ -7,7 +7,6 @@
  */
 import { Directive, ElementRef, Injectable, Injector, Input, Renderer, forwardRef } from '@angular/core';
 import { ListWrapper } from '../facade/collection';
-import { isPresent } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 import { NgControl } from './ng_control';
 export var RADIO_VALUE_ACCESSOR = {
@@ -89,9 +88,7 @@ export var RadioControlValueAccessor = (function () {
     RadioControlValueAccessor.prototype.ngOnDestroy = function () { this._registry.remove(this); };
     RadioControlValueAccessor.prototype.writeValue = function (value) {
         this._state = value === this.value;
-        if (isPresent(value)) {
-            this._renderer.setElementProperty(this._elementRef.nativeElement, 'checked', this._state);
-        }
+        this._renderer.setElementProperty(this._elementRef.nativeElement, 'checked', this._state);
     };
     RadioControlValueAccessor.prototype.registerOnChange = function (fn) {
         var _this = this;

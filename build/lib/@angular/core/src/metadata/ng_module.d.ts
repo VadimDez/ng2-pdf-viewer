@@ -5,8 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { InjectableMetadata, Provider } from '../di';
+import { Provider } from '../di';
 import { Type } from '../type';
+import { TypeDecorator } from '../util/decorators';
 /**
  * A wrapper around a module that also includes the providers.
  *
@@ -40,23 +41,23 @@ export declare const CUSTOM_ELEMENTS_SCHEMA: SchemaMetadata;
  */
 export declare const NO_ERRORS_SCHEMA: SchemaMetadata;
 /**
- * Interface for creating {@link NgModuleMetadata}
+ * Type of the NgModule decorator / constructor function.
+ *
  * @stable
  */
-export interface NgModuleMetadataType {
-    providers?: Provider[];
-    declarations?: Array<Type<any> | any[]>;
-    imports?: Array<Type<any> | ModuleWithProviders | any[]>;
-    exports?: Array<Type<any> | any[]>;
-    entryComponents?: Array<Type<any> | any[]>;
-    bootstrap?: Array<Type<any> | any[]>;
-    schemas?: Array<SchemaMetadata | any[]>;
+export interface NgModuleDecorator {
+    /**
+     * Defines an NgModule.
+     */
+    (obj?: NgModule): TypeDecorator;
+    new (obj?: NgModule): NgModule;
 }
 /**
- * Declares an Angular Module.
+ * Type of the NgModule metadata.
+ *
  * @stable
  */
-export declare class NgModuleMetadata extends InjectableMetadata implements NgModuleMetadataType {
+export interface NgModule {
     /**
      * Defines the set of injectable objects that are available in the injector
      * of this module.
@@ -86,8 +87,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    providers: Provider[];
-    private _providers;
+    providers?: Provider[];
     /**
      * Specifies a list of directives/pipes that belong to this module.
      *
@@ -101,7 +101,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    declarations: Array<Type<any> | any[]>;
+    declarations?: Array<Type<any> | any[]>;
     /**
      * Specifies a list of modules whose exported directives/pipes
      * should be available to templates in this module.
@@ -117,7 +117,7 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    imports: Array<Type<any> | ModuleWithProviders | any[]>;
+    imports?: Array<Type<any> | ModuleWithProviders | any[]>;
     /**
      * Specifies a list of directives/pipes/module that can be used within the template
      * of any component that is part of an angular module
@@ -133,20 +133,20 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * }
      * ```
      */
-    exports: Array<Type<any> | any[]>;
+    exports?: Array<Type<any> | any[]>;
     /**
      * Defines the components that should be compiled as well when
      * this component is defined. For each components listed here,
      * Angular will create a {@link ComponentFactory ComponentFactory} and store it in the
      * {@link ComponentFactoryResolver ComponentFactoryResolver}.
      */
-    entryComponents: Array<Type<any> | any[]>;
+    entryComponents?: Array<Type<any> | any[]>;
     /**
      * Defines the components that should be bootstrapped when
      * this module is bootstrapped. The components listed here
      * will automatically be added to `entryComponents`.
      */
-    bootstrap: Array<Type<any> | any[]>;
+    bootstrap?: Array<Type<any> | any[]>;
     /**
      * Elements and properties that are not angular Components nor Directives have to be declared in
      * the schema.
@@ -159,6 +159,18 @@ export declare class NgModuleMetadata extends InjectableMetadata implements NgMo
      * @security When using one of `NO_ERRORS_SCHEMA` or `CUSTOM_ELEMENTS_SCHEMA` we're trusting that
      * allowed elements (and its properties) securely escape inputs.
      */
-    schemas: Array<SchemaMetadata | any[]>;
-    constructor(options?: NgModuleMetadataType);
+    schemas?: Array<SchemaMetadata | any[]>;
+    /**
+     * An opaque ID for this module, e.g. a name or a path. Used to identify modules in
+     * `getModuleFactory`. If left `undefined`, the `NgModule` will not be registered with
+     * `getModuleFactory`.
+     */
+    id?: string;
 }
+/**
+ * NgModule decorator and metadata
+ *
+ * @stable
+ * @Annotation
+ */
+export declare const NgModule: NgModuleDecorator;

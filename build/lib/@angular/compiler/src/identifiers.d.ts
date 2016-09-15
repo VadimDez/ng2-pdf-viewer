@@ -22,6 +22,7 @@ export declare class Identifiers {
     static ComponentFactory: IdentifierSpec;
     static NgModuleFactory: IdentifierSpec;
     static NgModuleInjector: IdentifierSpec;
+    static RegisterModuleFactoryFn: IdentifierSpec;
     static ValueUnwrapper: IdentifierSpec;
     static Injector: IdentifierSpec;
     static ViewEncapsulation: IdentifierSpec;

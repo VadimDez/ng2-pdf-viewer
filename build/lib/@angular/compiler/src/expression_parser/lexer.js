@@ -250,7 +250,7 @@ var _Scanner = (function () {
             this.advance();
         }
         var str = this.input.substring(start, this.index);
-        var value = simple ? NumberWrapper.parseIntAutoRadix(str) : NumberWrapper.parseFloat(str);
+        var value = simple ? NumberWrapper.parseIntAutoRadix(str) : parseFloat(str);
         return newNumberToken(start, value);
     };
     _Scanner.prototype.scanString = function () {

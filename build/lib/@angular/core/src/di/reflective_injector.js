@@ -8,7 +8,7 @@
 import { ListWrapper } from '../facade/collection';
 import { unimplemented } from '../facade/errors';
 import { Injector, THROW_IF_NOT_FOUND } from './injector';
-import { SelfMetadata, SkipSelfMetadata } from './metadata';
+import { Self, SkipSelf } from './metadata';
 import { AbstractProviderError, CyclicDependencyError, InstantiationError, NoProviderError, OutOfBoundsError } from './reflective_errors';
 import { ReflectiveKey } from './reflective_key';
 import { resolveReflectiveProviders } from './reflective_provider';
@@ -745,7 +745,7 @@ export var ReflectiveInjector_ = (function () {
         if (key === INJECTOR_KEY) {
             return this;
         }
-        if (upperBoundVisibility instanceof SelfMetadata) {
+        if (upperBoundVisibility instanceof Self) {
             return this._getByKeySelf(key, notFoundValue);
         }
         else {
@@ -769,7 +769,7 @@ export var ReflectiveInjector_ = (function () {
     /** @internal */
     ReflectiveInjector_.prototype._getByKeyDefault = function (key, notFoundValue, lowerBoundVisibility) {
         var inj;
-        if (lowerBoundVisibility instanceof SkipSelfMetadata) {
+        if (lowerBoundVisibility instanceof SkipSelf) {
             inj = this._parent;
         }
         else {

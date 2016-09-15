@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { NumberWrapper, isArray, isPresent, isString } from '../facade/lang';
+import { isArray, isPresent, isString } from '../facade/lang';
 /**
  * @experimental Animation support is experimental.
  */
@@ -184,7 +184,7 @@ export var AnimationGroupMetadata = (function (_super) {
  * `animate` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `animate` specifies an animation step that will apply the provided `styles` data for a given
@@ -245,7 +245,7 @@ export function animate(timing, styles) {
  * `group` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `group` specifies a list of animation steps that are all run in parallel. Grouped animations
@@ -286,7 +286,7 @@ export function group(steps) {
  * `sequence` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `sequence` Specifies a list of animation steps that are run one by one. (`sequence` is used
@@ -328,7 +328,7 @@ export function sequence(steps) {
  * `style` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `style` declares a key/value object containing CSS properties/styles that can then
@@ -387,7 +387,7 @@ export function style(tokens) {
         input.forEach(function (entry) {
             var entryOffset = entry['offset'];
             if (isPresent(entryOffset)) {
-                offset = offset == null ? NumberWrapper.parseFloat(entryOffset) : offset;
+                offset = offset == null ? parseFloat(entryOffset) : offset;
             }
         });
     }
@@ -397,7 +397,7 @@ export function style(tokens) {
  * `state` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `state` declares an animation state within the given trigger. When a state is
@@ -454,7 +454,7 @@ export function state(stateNameExpr, styles) {
  * `keyframes` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `keyframes` specifies a collection of {@link style style} entries each optionally characterized
@@ -506,7 +506,7 @@ export function keyframes(steps) {
  * `transition` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `transition` declares the {@link sequence sequence of animation steps} that will be run when the
@@ -599,7 +599,7 @@ export function transition(stateChangeExpr, steps) {
  * `trigger` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link ComponentMetadata#animations-anchor component animations metadata
+ * {@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `trigger` Creates an animation trigger which will a list of {@link state state} and {@link
@@ -607,7 +607,7 @@ export function transition(stateChangeExpr, steps) {
  * entries that will be evaluated when the expression bound to the trigger changes.
  *
  * Triggers are registered within the component annotation data under the
- * {@link ComponentMetadata#animations-anchor animations section}. An animation trigger can
+ * {@link Component#animations-anchor animations section}. An animation trigger can
  * be placed on an element within a template by referencing the name of the
  * trigger followed by the expression value that the trigger is bound to
  * (in the form of `[@triggerName]="expression"`.

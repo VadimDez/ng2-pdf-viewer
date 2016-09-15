@@ -13,8 +13,11 @@ import { scheduleMicroTask } from './facade/lang';
  * @stable
  */
 export var ComponentFixture = (function () {
-    function ComponentFixture(componentRef, ngZone, autoDetect) {
+    function ComponentFixture(componentRef, ngZone, _autoDetect) {
         var _this = this;
+        this.componentRef = componentRef;
+        this.ngZone = ngZone;
+        this._autoDetect = _autoDetect;
         this._isStable = true;
         this._isDestroyed = false;
         this._promise = null;
@@ -29,7 +32,6 @@ export var ComponentFixture = (function () {
         this.nativeElement = this.elementRef.nativeElement;
         this.componentRef = componentRef;
         this.ngZone = ngZone;
-        this._autoDetect = autoDetect;
         if (ngZone != null) {
             this._onUnstableSubscription =
                 ngZone.onUnstable.subscribe({ next: function () { _this._isStable = false; } });

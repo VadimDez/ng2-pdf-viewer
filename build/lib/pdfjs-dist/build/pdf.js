@@ -28,8 +28,8 @@ factory((root.pdfjsDistBuildPdf = {}));
   // Use strict in our context only - users might not want it
   'use strict';
 
-var pdfjsVersion = '1.5.418';
-var pdfjsBuild = '461a18a';
+var pdfjsVersion = '1.5.458';
+var pdfjsBuild = 'a7c3502';
 
   var pdfjsFilePath =
     typeof document !== 'undefined' && document.currentScript ?
@@ -1457,6 +1457,37 @@ function createPromiseCapability() {
   globalScope.Promise = Promise;
 })();
 
+(function WeakMapClosure() {
+  if (globalScope.WeakMap) {
+    return;
+  }
+
+  var id = 0;
+  function WeakMap() {
+    this.id = '$weakmap' + (id++);
+  }
+  WeakMap.prototype = {
+    has: function(obj) {
+      return !!Object.getOwnPropertyDescriptor(obj, this.id);
+    },
+    get: function(obj, defaultValue) {
+      return this.has(obj) ? obj[this.id] : defaultValue;
+    },
+    set: function(obj, value) {
+      Object.defineProperty(obj, this.id, {
+        value: value,
+        enumerable: false,
+        configurable: true
+      });
+    },
+    delete: function(obj) {
+      delete obj[this.id];
+    }
+  };
+
+  globalScope.WeakMap = WeakMap;
+})();
+
 var StatTimer = (function StatTimerClosure() {
   function rpad(str, pad, length) {
     while (str.length < length) {
@@ -1700,8 +1731,6 @@ function loadJpegStream(id, imageUrl, objs) {
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 (function checkURLConstructor(scope) {
-  /* jshint ignore:start */
-
   // feature detect for URL constructor
   var hasWorkingUrl = false;
   try {
@@ -1714,8 +1743,9 @@ function loadJpegStream(id, imageUrl, objs) {
     }
   } catch(e) { }
 
-  if (hasWorkingUrl)
+  if (hasWorkingUrl) {
     return;
+  }
 
   var relative = Object.create(null);
   relative['ftp'] = 21;
@@ -1742,11 +1772,11 @@ function loadJpegStream(id, imageUrl, objs) {
   }
 
   function IDNAToASCII(h) {
-    if ('' == h) {
-      invalid.call(this)
+    if ('' === h) {
+      invalid.call(this);
     }
     // XXX
-    return h.toLowerCase()
+    return h.toLowerCase();
   }
 
   function percentEscape(c) {
@@ -1754,7 +1784,7 @@ function loadJpegStream(id, imageUrl, objs) {
     if (unicode > 0x20 &&
        unicode < 0x7F &&
        // " # < > ? `
-       [0x22, 0x23, 0x3C, 0x3E, 0x3F, 0x60].indexOf(unicode) == -1
+       [0x22, 0x23, 0x3C, 0x3E, 0x3F, 0x60].indexOf(unicode) === -1
       ) {
       return c;
     }
@@ -1769,20 +1799,19 @@ function loadJpegStream(id, imageUrl, objs) {
     if (unicode > 0x20 &&
        unicode < 0x7F &&
        // " # < > ` (do not escape '?')
-       [0x22, 0x23, 0x3C, 0x3E, 0x60].indexOf(unicode) == -1
+       [0x22, 0x23, 0x3C, 0x3E, 0x60].indexOf(unicode) === -1
       ) {
       return c;
     }
     return encodeURIComponent(c);
   }
 
-  var EOF = undefined,
-      ALPHA = /[a-zA-Z]/,
+  var EOF, ALPHA = /[a-zA-Z]/,
       ALPHANUMERIC = /[a-zA-Z0-9\+\-\.]/;
 
   function parse(input, stateOverride, base) {
     function err(message) {
-      errors.push(message)
+      errors.push(message);
     }
 
     var state = stateOverride || 'scheme start',
@@ -1792,7 +1821,8 @@ function loadJpegStream(id, imageUrl, objs) {
         seenBracket = false,
         errors = [];
 
-    loop: while ((input[cursor - 1] != EOF || cursor == 0) && !this._isInvalid) {
+    loop: while ((input[cursor - 1] !== EOF || cursor === 0) &&
+                 !this._isInvalid) {
       var c = input[cursor];
       switch (state) {
         case 'scheme start':
@@ -1812,7 +1842,7 @@ function loadJpegStream(id, imageUrl, objs) {
         case 'scheme':
           if (c && ALPHANUMERIC.test(c)) {
             buffer += c.toLowerCase(); // ASCII-safe
-          } else if (':' == c) {
+          } else if (':' === c) {
             this._scheme = buffer;
             buffer = '';
             if (stateOverride) {
@@ -1821,9 +1851,10 @@ function loadJpegStream(id, imageUrl, objs) {
             if (isRelativeScheme(this._scheme)) {
               this._isRelative = true;
             }
-            if ('file' == this._scheme) {
+            if ('file' === this._scheme) {
               state = 'relative';
-            } else if (this._isRelative && base && base._scheme == this._scheme) {
+            } else if (this._isRelative && base &&
+                       base._scheme === this._scheme) {
               state = 'relative or authority';
             } else if (this._isRelative) {
               state = 'authority first slash';
@@ -1835,24 +1866,24 @@ function loadJpegStream(id, imageUrl, objs) {
             cursor = 0;
             state = 'no scheme';
             continue;
-          } else if (EOF == c) {
+          } else if (EOF === c) {
             break loop;
           } else {
-            err('Code point not allowed in scheme: ' + c)
+            err('Code point not allowed in scheme: ' + c);
             break loop;
           }
           break;
 
         case 'scheme data':
-          if ('?' == c) {
+          if ('?' === c) {
             this._query = '?';
             state = 'query';
-          } else if ('#' == c) {
+          } else if ('#' === c) {
             this._fragment = '#';
             state = 'fragment';
           } else {
             // XXX error handling
-            if (EOF != c && '\t' != c && '\n' != c && '\r' != c) {
+            if (EOF !== c && '\t' !== c && '\n' !== c && '\r' !== c) {
               this._schemeData += percentEscape(c);
             }
           }
@@ -1869,20 +1900,21 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'relative or authority':
-          if ('/' == c && '/' == input[cursor+1]) {
+          if ('/' === c && '/' === input[cursor+1]) {
             state = 'authority ignore slashes';
           } else {
             err('Expected /, got: ' + c);
             state = 'relative';
-            continue
+            continue;
           }
           break;
 
         case 'relative':
           this._isRelative = true;
-          if ('file' != this._scheme)
+          if ('file' !== this._scheme) {
             this._scheme = base._scheme;
-          if (EOF == c) {
+          }
+          if (EOF === c) {
             this._host = base._host;
             this._port = base._port;
             this._path = base._path.slice();
@@ -1890,11 +1922,12 @@ function loadJpegStream(id, imageUrl, objs) {
             this._username = base._username;
             this._password = base._password;
             break loop;
-          } else if ('/' == c || '\\' == c) {
-            if ('\\' == c)
+          } else if ('/' === c || '\\' === c) {
+            if ('\\' === c) {
               err('\\ is an invalid code point.');
+            }
             state = 'relative slash';
-          } else if ('?' == c) {
+          } else if ('?' === c) {
             this._host = base._host;
             this._port = base._port;
             this._path = base._path.slice();
@@ -1902,7 +1935,7 @@ function loadJpegStream(id, imageUrl, objs) {
             this._username = base._username;
             this._password = base._password;
             state = 'query';
-          } else if ('#' == c) {
+          } else if ('#' === c) {
             this._host = base._host;
             this._port = base._port;
             this._path = base._path.slice();
@@ -1912,12 +1945,12 @@ function loadJpegStream(id, imageUrl, objs) {
             this._password = base._password;
             state = 'fragment';
           } else {
-            var nextC = input[cursor+1]
-            var nextNextC = input[cursor+2]
-            if (
-              'file' != this._scheme || !ALPHA.test(c) ||
-              (nextC != ':' && nextC != '|') ||
-              (EOF != nextNextC && '/' != nextNextC && '\\' != nextNextC && '?' != nextNextC && '#' != nextNextC)) {
+            var nextC = input[cursor+1];
+            var nextNextC = input[cursor+2];
+            if ('file' !== this._scheme || !ALPHA.test(c) ||
+                (nextC !== ':' && nextC !== '|') ||
+                (EOF !== nextNextC && '/' !== nextNextC && '\\' !== nextNextC &&
+                '?' !== nextNextC && '#' !== nextNextC)) {
               this._host = base._host;
               this._port = base._port;
               this._username = base._username;
@@ -1931,17 +1964,17 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'relative slash':
-          if ('/' == c || '\\' == c) {
-            if ('\\' == c) {
+          if ('/' === c || '\\' === c) {
+            if ('\\' === c) {
               err('\\ is an invalid code point.');
             }
-            if ('file' == this._scheme) {
+            if ('file' === this._scheme) {
               state = 'file host';
             } else {
               state = 'authority ignore slashes';
             }
           } else {
-            if ('file' != this._scheme) {
+            if ('file' !== this._scheme) {
               this._host = base._host;
               this._port = base._port;
               this._username = base._username;
@@ -1953,10 +1986,10 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'authority first slash':
-          if ('/' == c) {
+          if ('/' === c) {
             state = 'authority second slash';
           } else {
-            err("Expected '/', got: " + c);
+            err('Expected \'/\', got: ' + c);
             state = 'authority ignore slashes';
             continue;
           }
@@ -1964,14 +1997,14 @@ function loadJpegStream(id, imageUrl, objs) {
 
         case 'authority second slash':
           state = 'authority ignore slashes';
-          if ('/' != c) {
-            err("Expected '/', got: " + c);
+          if ('/' !== c) {
+            err('Expected \'/\', got: ' + c);
             continue;
           }
           break;
 
         case 'authority ignore slashes':
-          if ('/' != c && '\\' != c) {
+          if ('/' !== c && '\\' !== c) {
             state = 'authority';
             continue;
           } else {
@@ -1980,7 +2013,7 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'authority':
-          if ('@' == c) {
+          if ('@' === c) {
             if (seenAt) {
               err('@ already seen.');
               buffer += '%40';
@@ -1988,20 +2021,25 @@ function loadJpegStream(id, imageUrl, objs) {
             seenAt = true;
             for (var i = 0; i < buffer.length; i++) {
               var cp = buffer[i];
-              if ('\t' == cp || '\n' == cp || '\r' == cp) {
+              if ('\t' === cp || '\n' === cp || '\r' === cp) {
                 err('Invalid whitespace in authority.');
                 continue;
               }
               // XXX check URL code points
-              if (':' == cp && null === this._password) {
+              if (':' === cp && null === this._password) {
                 this._password = '';
                 continue;
               }
               var tempC = percentEscape(cp);
-              (null !== this._password) ? this._password += tempC : this._username += tempC;
+              if (null !== this._password) {
+                this._password += tempC;
+              } else {
+                this._username += tempC;
+              }
             }
             buffer = '';
-          } else if (EOF == c || '/' == c || '\\' == c || '?' == c || '#' == c) {
+          } else if (EOF === c || '/' === c || '\\' === c ||
+                     '?' === c || '#' === c) {
             cursor -= buffer.length;
             buffer = '';
             state = 'host';
@@ -2012,10 +2050,11 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'file host':
-          if (EOF == c || '/' == c || '\\' == c || '?' == c || '#' == c) {
-            if (buffer.length == 2 && ALPHA.test(buffer[0]) && (buffer[1] == ':' || buffer[1] == '|')) {
+          if (EOF === c || '/' === c || '\\' === c || '?' === c || '#' === c) {
+            if (buffer.length === 2 && ALPHA.test(buffer[0]) &&
+                (buffer[1] === ':' || buffer[1] === '|')) {
               state = 'relative path';
-            } else if (buffer.length == 0) {
+            } else if (buffer.length === 0) {
               state = 'relative path start';
             } else {
               this._host = IDNAToASCII.call(this, buffer);
@@ -2023,7 +2062,7 @@ function loadJpegStream(id, imageUrl, objs) {
               state = 'relative path start';
             }
             continue;
-          } else if ('\t' == c || '\n' == c || '\r' == c) {
+          } else if ('\t' === c || '\n' === c || '\r' === c) {
             err('Invalid whitespace in file host.');
           } else {
             buffer += c;
@@ -2032,15 +2071,16 @@ function loadJpegStream(id, imageUrl, objs) {
 
         case 'host':
         case 'hostname':
-          if (':' == c && !seenBracket) {
+          if (':' === c && !seenBracket) {
             // XXX host parsing
             this._host = IDNAToASCII.call(this, buffer);
             buffer = '';
             state = 'port';
-            if ('hostname' == stateOverride) {
+            if ('hostname' === stateOverride) {
               break loop;
             }
-          } else if (EOF == c || '/' == c || '\\' == c || '?' == c || '#' == c) {
+          } else if (EOF === c || '/' === c ||
+                     '\\' === c || '?' === c || '#' === c) {
             this._host = IDNAToASCII.call(this, buffer);
             buffer = '';
             state = 'relative path start';
@@ -2048,10 +2088,10 @@ function loadJpegStream(id, imageUrl, objs) {
               break loop;
             }
             continue;
-          } else if ('\t' != c && '\n' != c && '\r' != c) {
-            if ('[' == c) {
+          } else if ('\t' !== c && '\n' !== c && '\r' !== c) {
+            if ('[' === c) {
               seenBracket = true;
-            } else if (']' == c) {
+            } else if (']' === c) {
               seenBracket = false;
             }
             buffer += c;
@@ -2063,10 +2103,11 @@ function loadJpegStream(id, imageUrl, objs) {
         case 'port':
           if (/[0-9]/.test(c)) {
             buffer += c;
-          } else if (EOF == c || '/' == c || '\\' == c || '?' == c || '#' == c || stateOverride) {
-            if ('' != buffer) {
+          } else if (EOF === c || '/' === c || '\\' === c ||
+                     '?' === c || '#' === c || stateOverride) {
+            if ('' !== buffer) {
               var temp = parseInt(buffer, 10);
-              if (temp != relative[this._scheme]) {
+              if (temp !== relative[this._scheme]) {
                 this._port = temp + '';
               }
               buffer = '';
@@ -2076,7 +2117,7 @@ function loadJpegStream(id, imageUrl, objs) {
             }
             state = 'relative path start';
             continue;
-          } else if ('\t' == c || '\n' == c || '\r' == c) {
+          } else if ('\t' === c || '\n' === c || '\r' === c) {
             err('Invalid code point in port: ' + c);
           } else {
             invalid.call(this);
@@ -2084,60 +2125,64 @@ function loadJpegStream(id, imageUrl, objs) {
           break;
 
         case 'relative path start':
-          if ('\\' == c)
-            err("'\\' not allowed in path.");
+          if ('\\' === c) {
+            err('\'\\\' not allowed in path.');
+          }
           state = 'relative path';
-          if ('/' != c && '\\' != c) {
+          if ('/' !== c && '\\' !== c) {
             continue;
           }
           break;
 
         case 'relative path':
-          if (EOF == c || '/' == c || '\\' == c || (!stateOverride && ('?' == c || '#' == c))) {
-            if ('\\' == c) {
+          if (EOF === c || '/' === c || '\\' === c ||
+              (!stateOverride && ('?' === c || '#' === c))) {
+            if ('\\' === c) {
               err('\\ not allowed in relative path.');
             }
             var tmp;
             if (tmp = relativePathDotMapping[buffer.toLowerCase()]) {
               buffer = tmp;
             }
-            if ('..' == buffer) {
+            if ('..' === buffer) {
               this._path.pop();
-              if ('/' != c && '\\' != c) {
+              if ('/' !== c && '\\' !== c) {
                 this._path.push('');
               }
-            } else if ('.' == buffer && '/' != c && '\\' != c) {
+            } else if ('.' === buffer && '/' !== c && '\\' !== c) {
               this._path.push('');
-            } else if ('.' != buffer) {
-              if ('file' == this._scheme && this._path.length == 0 && buffer.length == 2 && ALPHA.test(buffer[0]) && buffer[1] == '|') {
+            } else if ('.' !== buffer) {
+              if ('file' === this._scheme && this._path.length === 0 &&
+                  buffer.length === 2 && ALPHA.test(buffer[0]) &&
+                  buffer[1] === '|') {
                 buffer = buffer[0] + ':';
               }
               this._path.push(buffer);
             }
             buffer = '';
-            if ('?' == c) {
+            if ('?' === c) {
               this._query = '?';
               state = 'query';
-            } else if ('#' == c) {
+            } else if ('#' === c) {
               this._fragment = '#';
               state = 'fragment';
             }
-          } else if ('\t' != c && '\n' != c && '\r' != c) {
+          } else if ('\t' !== c && '\n' !== c && '\r' !== c) {
             buffer += percentEscape(c);
           }
           break;
 
         case 'query':
-          if (!stateOverride && '#' == c) {
+          if (!stateOverride && '#' === c) {
             this._fragment = '#';
             state = 'fragment';
-          } else if (EOF != c && '\t' != c && '\n' != c && '\r' != c) {
+          } else if (EOF !== c && '\t' !== c && '\n' !== c && '\r' !== c) {
             this._query += percentEscapeQuery(c);
           }
           break;
 
         case 'fragment':
-          if (EOF != c && '\t' != c && '\n' != c && '\r' != c) {
+          if (EOF !== c && '\t' !== c && '\n' !== c && '\r' !== c) {
             this._fragment += c;
           }
           break;
@@ -2163,9 +2208,10 @@ function loadJpegStream(id, imageUrl, objs) {
 
   // Does not process domain names or IP addresses.
   // Does not handle encoding for the query parameter.
-  function jURL(url, base /* , encoding */) {
-    if (base !== undefined && !(base instanceof jURL))
-      base = new jURL(String(base));
+  function JURL(url, base /* , encoding */) {
+    if (base !== undefined && !(base instanceof JURL)) {
+      base = new JURL(String(base));
+    }
 
     this._url = url;
     clear.call(this);
@@ -2176,18 +2222,18 @@ function loadJpegStream(id, imageUrl, objs) {
     parse.call(this, input, null, base);
   }
 
-  jURL.prototype = {
+  JURL.prototype = {
     toString: function() {
       return this.href;
     },
     get href() {
-      if (this._isInvalid)
+      if (this._isInvalid) {
         return this._url;
-
+      }
       var authority = '';
-      if ('' != this._username || null != this._password) {
+      if ('' !== this._username || null !== this._password) {
         authority = this._username +
-            (null != this._password ? ':' + this._password : '') + '@';
+            (null !== this._password ? ':' + this._password : '') + '@';
       }
 
       return this.protocol +
@@ -2203,8 +2249,9 @@ function loadJpegStream(id, imageUrl, objs) {
       return this._scheme + ':';
     },
     set protocol(protocol) {
-      if (this._isInvalid)
+      if (this._isInvalid) {
         return;
+      }
       parse.call(this, protocol + ':', 'scheme start');
     },
 
@@ -2213,8 +2260,9 @@ function loadJpegStream(id, imageUrl, objs) {
           this._host + ':' + this._port : this._host;
     },
     set host(host) {
-      if (this._isInvalid || !this._isRelative)
+      if (this._isInvalid || !this._isRelative) {
         return;
+      }
       parse.call(this, host, 'host');
     },
 
@@ -2222,8 +2270,9 @@ function loadJpegStream(id, imageUrl, objs) {
       return this._host;
     },
     set hostname(hostname) {
-      if (this._isInvalid || !this._isRelative)
+      if (this._isInvalid || !this._isRelative) {
         return;
+      }
       parse.call(this, hostname, 'hostname');
     },
 
@@ -2231,8 +2280,9 @@ function loadJpegStream(id, imageUrl, objs) {
       return this._port;
     },
     set port(port) {
-      if (this._isInvalid || !this._isRelative)
+      if (this._isInvalid || !this._isRelative) {
         return;
+      }
       parse.call(this, port, 'port');
     },
 
@@ -2241,35 +2291,40 @@ function loadJpegStream(id, imageUrl, objs) {
           '/' + this._path.join('/') : this._schemeData;
     },
     set pathname(pathname) {
-      if (this._isInvalid || !this._isRelative)
+      if (this._isInvalid || !this._isRelative) {
         return;
+      }
       this._path = [];
       parse.call(this, pathname, 'relative path start');
     },
 
     get search() {
-      return this._isInvalid || !this._query || '?' == this._query ?
+      return this._isInvalid || !this._query || '?' === this._query ?
           '' : this._query;
     },
     set search(search) {
-      if (this._isInvalid || !this._isRelative)
+      if (this._isInvalid || !this._isRelative) {
         return;
+      }
       this._query = '?';
-      if ('?' == search[0])
+      if ('?' === search[0]) {
         search = search.slice(1);
+      }
       parse.call(this, search, 'query');
     },
 
     get hash() {
-      return this._isInvalid || !this._fragment || '#' == this._fragment ?
+      return this._isInvalid || !this._fragment || '#' === this._fragment ?
           '' : this._fragment;
     },
     set hash(hash) {
-      if (this._isInvalid)
+      if (this._isInvalid) {
         return;
+      }
       this._fragment = '#';
-      if ('#' == hash[0])
+      if ('#' === hash[0]) {
         hash = hash.slice(1);
+      }
       parse.call(this, hash, 'fragment');
     },
 
@@ -2301,18 +2356,17 @@ function loadJpegStream(id, imageUrl, objs) {
   // Copy over the static methods
   var OriginalURL = scope.URL;
   if (OriginalURL) {
-    jURL.createObjectURL = function(blob) {
+    JURL.createObjectURL = function(blob) {
       // IE extension allows a second optional options argument.
       // http://msdn.microsoft.com/en-us/library/ie/hh772302(v=vs.85).aspx
       return OriginalURL.createObjectURL.apply(OriginalURL, arguments);
     };
-    jURL.revokeObjectURL = function(url) {
+    JURL.revokeObjectURL = function(url) {
       OriginalURL.revokeObjectURL(url);
     };
   }
 
-  scope.URL = jURL;
-  /* jshint ignore:end */
+  scope.URL = JURL;
 })(globalScope);
 
 exports.FONT_IDENTITY_MATRIX = FONT_IDENTITY_MATRIX;
@@ -4287,6 +4341,8 @@ var getDefaultSetting = displayDOMUtils.getDefaultSetting;
  * @property {PageViewport} viewport
  * @property {IPDFLinkService} linkService
  * @property {DownloadManager} downloadManager
+ * @property {string} imageResourcesPath
+ * @property {boolean} renderInteractiveForms
  */
 
 /**
@@ -4311,6 +4367,12 @@ AnnotationElementFactory.prototype =
         return new TextAnnotationElement(parameters);
 
       case AnnotationType.WIDGET:
+        var fieldType = parameters.data.fieldType;
+
+        switch (fieldType) {
+          case 'Tx':
+            return new TextWidgetAnnotationElement(parameters);
+        }
         return new WidgetAnnotationElement(parameters);
 
       case AnnotationType.POPUP:
@@ -4351,6 +4413,7 @@ var AnnotationElement = (function AnnotationElementClosure() {
     this.linkService = parameters.linkService;
     this.downloadManager = parameters.downloadManager;
     this.imageResourcesPath = parameters.imageResourcesPath;
+    this.renderInteractiveForms = parameters.renderInteractiveForms;
 
     if (isRenderable) {
       this.container = this._createContainer();
@@ -4634,9 +4697,7 @@ var TextAnnotationElement = (function TextAnnotationElementClosure() {
  */
 var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
   function WidgetAnnotationElement(parameters) {
-    var isRenderable = !parameters.data.hasAppearance &&
-                       !!parameters.data.fieldValue;
-    AnnotationElement.call(this, parameters, isRenderable);
+    AnnotationElement.call(this, parameters, true);
   }
 
   Util.inherit(WidgetAnnotationElement, AnnotationElement, {
@@ -4648,18 +4709,64 @@ var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
      * @returns {HTMLSectionElement}
      */
     render: function WidgetAnnotationElement_render() {
-      var content = document.createElement('div');
-      content.textContent = this.data.fieldValue;
-      var textAlignment = this.data.textAlignment;
-      content.style.textAlign = ['left', 'center', 'right'][textAlignment];
-      content.style.verticalAlign = 'middle';
-      content.style.display = 'table-cell';
+      // Show only the container for unsupported field types.
+      return this.container;
+    }
+  });
 
-      var font = (this.data.fontRefName ?
-        this.page.commonObjs.getData(this.data.fontRefName) : null);
-      this._setTextStyle(content, font);
+  return WidgetAnnotationElement;
+})();
 
-      this.container.appendChild(content);
+/**
+ * @class
+ * @alias TextWidgetAnnotationElement
+ */
+var TextWidgetAnnotationElement = (
+    function TextWidgetAnnotationElementClosure() {
+  var TEXT_ALIGNMENT = ['left', 'center', 'right'];
+
+  function TextWidgetAnnotationElement(parameters) {
+    WidgetAnnotationElement.call(this, parameters);
+  }
+
+  Util.inherit(TextWidgetAnnotationElement, WidgetAnnotationElement, {
+    /**
+     * Render the text widget annotation's HTML element in the empty container.
+     *
+     * @public
+     * @memberof TextWidgetAnnotationElement
+     * @returns {HTMLSectionElement}
+     */
+    render: function TextWidgetAnnotationElement_render() {
+      this.container.className = 'textWidgetAnnotation';
+
+      var element = null;
+      if (this.renderInteractiveForms) {
+        element = document.createElement('input');
+        element.type = 'text';
+        element.value = this.data.fieldValue;
+
+        if (this.data.maxLen !== null) {
+          element.maxLength = this.data.maxLen;
+        }
+      } else {
+        element = document.createElement('div');
+        element.textContent = this.data.fieldValue;
+        element.style.verticalAlign = 'middle';
+        element.style.display = 'table-cell';
+
+        var font = null;
+        if (this.data.fontRefName) {
+          font = this.page.commonObjs.getData(this.data.fontRefName);
+        }
+        this._setTextStyle(element, font);
+      }
+
+      if (this.data.textAlignment !== null) {
+        element.style.textAlign = TEXT_ALIGNMENT[this.data.textAlignment];
+      }
+
+      this.container.appendChild(element);
       return this.container;
     },
 
@@ -4669,10 +4776,10 @@ var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
      * @private
      * @param {HTMLDivElement} element
      * @param {Object} font
-     * @memberof WidgetAnnotationElement
+     * @memberof TextWidgetAnnotationElement
      */
     _setTextStyle:
-        function WidgetAnnotationElement_setTextStyle(element, font) {
+        function TextWidgetAnnotationElement_setTextStyle(element, font) {
       // TODO: This duplicates some of the logic in CanvasGraphics.setFont().
       var style = element.style;
       style.fontSize = this.data.fontSize + 'px';
@@ -4694,7 +4801,7 @@ var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
     }
   });
 
-  return WidgetAnnotationElement;
+  return TextWidgetAnnotationElement;
 })();
 
 /**
@@ -5086,6 +5193,7 @@ var FileAttachmentAnnotationElement = (
  * @property {PDFPage} page
  * @property {IPDFLinkService} linkService
  * @property {string} imageResourcesPath
+ * @property {boolean} renderInteractiveForms
  */
 
 /**
@@ -5118,7 +5226,8 @@ var AnnotationLayer = (function AnnotationLayerClosure() {
           linkService: parameters.linkService,
           downloadManager: parameters.downloadManager,
           imageResourcesPath: parameters.imageResourcesPath ||
-                              getDefaultSetting('imageResourcesPath')
+                              getDefaultSetting('imageResourcesPath'),
+          renderInteractiveForms: parameters.renderInteractiveForms || false,
         };
         var element = annotationElementFactory.create(properties);
         if (element.isRenderable) {
@@ -5179,6 +5288,8 @@ var getDefaultSetting = displayDOMUtils.getDefaultSetting;
  *   initially be set to empty array.
  * @property {number} timeout - (optional) Delay in milliseconds before
  *   rendering of the text  runs occurs.
+ * @property {boolean} enhanceTextSelection - (optional) Whether to turn on the
+ *   text selection enhancement.
  */
 var renderTextLayer = (function renderTextLayerClosure() {
   var MAX_TEXT_DIVS_TO_RENDER = 100000;
@@ -5189,17 +5300,31 @@ var renderTextLayer = (function renderTextLayerClosure() {
     return !NonWhitespaceRegexp.test(str);
   }
 
-  function appendText(textDivs, viewport, geom, styles, bounds,
-                      enhanceTextSelection) {
-    var style = styles[geom.fontName];
+  function appendText(task, geom, styles) {
+    // Initialize all used properties to keep the caches monomorphic.
     var textDiv = document.createElement('div');
-    textDivs.push(textDiv);
+    var textDivProperties = {
+      angle: 0,
+      canvasWidth: 0,
+      isWhitespace: false,
+      originalTransform: '',
+      paddingBottom: 0,
+      paddingLeft: 0,
+      paddingRight: 0,
+      paddingTop: 0,
+      scale: 1,
+    };
+
+    task._textDivs.push(textDiv);
     if (isAllWhitespace(geom.str)) {
-      textDiv.dataset.isWhitespace = true;
+      textDivProperties.isWhitespace = true;
+      task._textDivProperties.set(textDiv, textDivProperties);
       return;
     }
-    var tx = Util.transform(viewport.transform, geom.transform);
+
+    var tx = Util.transform(task._viewport.transform, geom.transform);
     var angle = Math.atan2(tx[1], tx[0]);
+    var style = styles[geom.fontName];
     if (style.vertical) {
       angle += Math.PI / 2;
     }
@@ -5228,32 +5353,34 @@ var renderTextLayer = (function renderTextLayerClosure() {
     textDiv.textContent = geom.str;
     // |fontName| is only used by the Font Inspector. This test will succeed
     // when e.g. the Font Inspector is off but the Stepper is on, but it's
-    // not worth the effort to do a more accurate test.
+    // not worth the effort to do a more accurate test. We only use `dataset`
+    // here to make the font name available for the debugger.
     if (getDefaultSetting('pdfBug')) {
       textDiv.dataset.fontName = geom.fontName;
     }
-    // Storing into dataset will convert number into string.
     if (angle !== 0) {
-      textDiv.dataset.angle = angle * (180 / Math.PI);
+      textDivProperties.angle = angle * (180 / Math.PI);
     }
     // We don't bother scaling single-char text divs, because it has very
     // little effect on text highlighting. This makes scrolling on docs with
     // lots of such divs a lot faster.
     if (geom.str.length > 1) {
       if (style.vertical) {
-        textDiv.dataset.canvasWidth = geom.height * viewport.scale;
+        textDivProperties.canvasWidth = geom.height * task._viewport.scale;
       } else {
-        textDiv.dataset.canvasWidth = geom.width * viewport.scale;
+        textDivProperties.canvasWidth = geom.width * task._viewport.scale;
       }
     }
-    if (enhanceTextSelection) {
+    task._textDivProperties.set(textDiv, textDivProperties);
+
+    if (task._enhanceTextSelection) {
       var angleCos = 1, angleSin = 0;
       if (angle !== 0) {
         angleCos = Math.cos(angle);
         angleSin = Math.sin(angle);
       }
       var divWidth = (style.vertical ? geom.height : geom.width) *
-                     viewport.scale;
+                     task._viewport.scale;
       var divHeight = fontHeight;
 
       var m, b;
@@ -5264,7 +5391,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
         b = [left, top, left + divWidth, top + divHeight];
       }
 
-      bounds.push({
+      task._bounds.push({
         left: b[0],
         top: b[1],
         right: b[2],
@@ -5301,7 +5428,8 @@ var renderTextLayer = (function renderTextLayerClosure() {
     var lastFontFamily;
     for (var i = 0; i < textDivsLength; i++) {
       var textDiv = textDivs[i];
-      if (textDiv.dataset.isWhitespace !== undefined) {
+      var textDivProperties = task._textDivProperties.get(textDiv);
+      if (textDivProperties.isWhitespace) {
         continue;
       }
 
@@ -5316,39 +5444,40 @@ var renderTextLayer = (function renderTextLayerClosure() {
       }
 
       var width = ctx.measureText(textDiv.textContent).width;
-      textDiv.dataset.originalWidth = width;
       textLayerFrag.appendChild(textDiv);
 
-      var transform;
-      if (textDiv.dataset.canvasWidth !== undefined && width > 0) {
-        // Dataset values are of type string.
-        var textScale = textDiv.dataset.canvasWidth / width;
-        transform = 'scaleX(' + textScale + ')';
-      } else {
-        transform = '';
+      var transform = '';
+      if (textDivProperties.canvasWidth !== 0 && width > 0) {
+        textDivProperties.scale = textDivProperties.canvasWidth / width;
+        transform = 'scaleX(' + textDivProperties.scale + ')';
       }
-      var rotation = textDiv.dataset.angle;
-      if (rotation) {
-        transform = 'rotate(' + rotation + 'deg) ' + transform;
+      if (textDivProperties.angle !== 0) {
+        transform = 'rotate(' + textDivProperties.angle + 'deg) ' + transform;
       }
-      if (transform) {
-        textDiv.dataset.originalTransform = transform;
-        CustomStyle.setProp('transform' , textDiv, transform);
+      if (transform !== '') {
+        textDivProperties.originalTransform = transform;
+        CustomStyle.setProp('transform', textDiv, transform);
       }
+      task._textDivProperties.set(textDiv, textDivProperties);
     }
     task._renderingDone = true;
     capability.resolve();
   }
 
-  function expand(bounds, viewport) {
+  function expand(task) {
+    var bounds = task._bounds;
+    var viewport = task._viewport;
+
     var expanded = expandBounds(viewport.width, viewport.height, bounds);
     for (var i = 0; i < expanded.length; i++) {
       var div = bounds[i].div;
-      if (!div.dataset.angle) {
-        div.dataset.paddingLeft = bounds[i].left - expanded[i].left;
-        div.dataset.paddingTop = bounds[i].top - expanded[i].top;
-        div.dataset.paddingRight = expanded[i].right - bounds[i].right;
-        div.dataset.paddingBottom = expanded[i].bottom - bounds[i].bottom;
+      var divProperties = task._textDivProperties.get(div);
+      if (divProperties.angle === 0) {
+        divProperties.paddingLeft = bounds[i].left - expanded[i].left;
+        divProperties.paddingTop = bounds[i].top - expanded[i].top;
+        divProperties.paddingRight = expanded[i].right - bounds[i].right;
+        divProperties.paddingBottom = expanded[i].bottom - bounds[i].bottom;
+        task._textDivProperties.set(div, divProperties);
         continue;
       }
       // Box is rotated -- trying to find padding so rotated div will not
@@ -5393,10 +5522,11 @@ var renderTextLayer = (function renderTextLayerClosure() {
       // Not based on math, but to simplify calculations, using cos and sin
       // absolute values to not exceed the box (it can but insignificantly).
       var boxScale = 1 + Math.min(Math.abs(c), Math.abs(s));
-      div.dataset.paddingLeft = findPositiveMin(ts, 32, 16) / boxScale;
-      div.dataset.paddingTop = findPositiveMin(ts, 48, 16) / boxScale;
-      div.dataset.paddingRight = findPositiveMin(ts, 0, 16) / boxScale;
-      div.dataset.paddingBottom = findPositiveMin(ts, 16, 16) / boxScale;
+      divProperties.paddingLeft = findPositiveMin(ts, 32, 16) / boxScale;
+      divProperties.paddingTop = findPositiveMin(ts, 48, 16) / boxScale;
+      divProperties.paddingRight = findPositiveMin(ts, 0, 16) / boxScale;
+      divProperties.paddingBottom = findPositiveMin(ts, 16, 16) / boxScale;
+      task._textDivProperties.set(div, divProperties);
     }
   }
 
@@ -5618,8 +5748,8 @@ var renderTextLayer = (function renderTextLayerClosure() {
     this._textContent = textContent;
     this._container = container;
     this._viewport = viewport;
-    textDivs = textDivs || [];
-    this._textDivs = textDivs;
+    this._textDivs = textDivs || [];
+    this._textDivProperties = new WeakMap();
     this._renderingDone = false;
     this._canceled = false;
     this._capability = createPromiseCapability();
@@ -5644,15 +5774,9 @@ var renderTextLayer = (function renderTextLayerClosure() {
 
     _render: function TextLayer_render(timeout) {
       var textItems = this._textContent.items;
-      var styles = this._textContent.styles;
-      var textDivs = this._textDivs;
-      var viewport = this._viewport;
-      var bounds = this._bounds;
-      var enhanceTextSelection = this._enhanceTextSelection;
-
+      var textStyles = this._textContent.styles;
       for (var i = 0, len = textItems.length; i < len; i++) {
-        appendText(textDivs, viewport, textItems[i], styles, bounds,
-                   enhanceTextSelection);
+        appendText(this, textItems[i], textStyles);
       }
 
       if (!timeout) { // Render right away
@@ -5671,58 +5795,52 @@ var renderTextLayer = (function renderTextLayerClosure() {
         return;
       }
       if (!this._expanded) {
-        expand(this._bounds, this._viewport);
+        expand(this);
         this._expanded = true;
         this._bounds.length = 0;
       }
-      if (expandDivs) {
-        for (var i = 0, ii = this._textDivs.length; i < ii; i++) {
-          var div = this._textDivs[i];
-          var transform;
-          var width = div.dataset.originalWidth;
-          if (div.dataset.canvasWidth !== undefined && width > 0) {
-            // Dataset values are of type string.
-            var textScale = div.dataset.canvasWidth / width;
-            transform = 'scaleX(' + textScale + ')';
-          } else {
-            transform = '';
+
+      for (var i = 0, ii = this._textDivs.length; i < ii; i++) {
+        var div = this._textDivs[i];
+        var divProperties = this._textDivProperties.get(div);
+
+        if (expandDivs) {
+          var transform = '';
+
+          if (divProperties.scale !== 1) {
+            transform = 'scaleX(' + divProperties.scale + ')';
           }
-          var rotation = div.dataset.angle;
-          if (rotation) {
-            transform = 'rotate(' + rotation + 'deg) ' + transform;
+          if (divProperties.angle !== 0) {
+            transform = 'rotate(' + divProperties.angle + 'deg) ' + transform;
           }
-          if (div.dataset.paddingLeft) {
+          if (divProperties.paddingLeft !== 0) {
             div.style.paddingLeft =
-              (div.dataset.paddingLeft / textScale) + 'px';
+              (divProperties.paddingLeft / divProperties.scale) + 'px';
             transform += ' translateX(' +
-              (-div.dataset.paddingLeft / textScale) + 'px)';
+              (-divProperties.paddingLeft / divProperties.scale) + 'px)';
           }
-          if (div.dataset.paddingTop) {
-            div.style.paddingTop = div.dataset.paddingTop + 'px';
-            transform += ' translateY(' + (-div.dataset.paddingTop) + 'px)';
+          if (divProperties.paddingTop !== 0) {
+            div.style.paddingTop = divProperties.paddingTop + 'px';
+            transform += ' translateY(' + (-divProperties.paddingTop) + 'px)';
           }
-          if (div.dataset.paddingRight) {
+          if (divProperties.paddingRight !== 0) {
             div.style.paddingRight =
-            div.dataset.paddingRight / textScale + 'px';
+              (divProperties.paddingRight / divProperties.scale) + 'px';
           }
-          if (div.dataset.paddingBottom) {
-            div.style.paddingBottom = div.dataset.paddingBottom + 'px';
+          if (divProperties.paddingBottom !== 0) {
+            div.style.paddingBottom = divProperties.paddingBottom + 'px';
           }
-          if (transform) {
-            CustomStyle.setProp('transform' , div, transform);
+          if (transform !== '') {
+            CustomStyle.setProp('transform', div, transform);
           }
-        }
-      } else {
-        for (i = 0, ii = this._textDivs.length; i < ii; i++) {
-          div = this._textDivs[i];
+        } else {
           div.style.padding = 0;
-          transform = div.dataset.originalTransform || '';
-          CustomStyle.setProp('transform', div, transform);
+          CustomStyle.setProp('transform', div,
+                              divProperties.originalTransform);
         }
       }
     },
   };
-
 
   /**
    * Starts rendering of the text layer.
@@ -8945,6 +9063,8 @@ var error = sharedUtil.error;
 var deprecated = sharedUtil.deprecated;
 var getVerbosityLevel = sharedUtil.getVerbosityLevel;
 var info = sharedUtil.info;
+var isInt = sharedUtil.isInt;
+var isArray = sharedUtil.isArray;
 var isArrayBuffer = sharedUtil.isArrayBuffer;
 var isSameOrigin = sharedUtil.isSameOrigin;
 var loadJpegStream = sharedUtil.loadJpegStream;
@@ -9968,6 +10088,84 @@ var PDFWorker = (function PDFWorkerClosure() {
     return fakeWorkerFilesLoadedCapability.promise;
   }
 
+  function FakeWorkerPort(defer) {
+    this._listeners = [];
+    this._defer = defer;
+    this._deferred = Promise.resolve(undefined);
+  }
+  FakeWorkerPort.prototype = {
+    postMessage: function (obj, transfers) {
+      function cloneValue(value) {
+        // Trying to perform a structured clone close to the spec, including
+        // transfers.
+        if (typeof value !== 'object' || value === null) {
+          return value;
+        }
+        if (cloned.has(value)) { // already cloned the object
+          return cloned.get(value);
+        }
+        var result;
+        var buffer;
+        if ((buffer = value.buffer) && isArrayBuffer(buffer)) {
+          // We found object with ArrayBuffer (typed array).
+          var transferable = transfers && transfers.indexOf(buffer) >= 0;
+          if (value === buffer) {
+            // Special case when we are faking typed arrays in compatibility.js.
+            result = value;
+          } else if (transferable) {
+            result = new value.constructor(buffer, value.byteOffset,
+                                           value.byteLength);
+          } else {
+            result = new value.constructor(value);
+          }
+          cloned.set(value, result);
+          return result;
+        }
+        result = isArray(value) ? [] : {};
+        cloned.set(value, result); // adding to cache now for cyclic references
+        // Cloning all value and object properties, however ignoring properties
+        // defined via getter.
+        for (var i in value) {
+          var desc, p = value;
+          while (!(desc = Object.getOwnPropertyDescriptor(p, i))) {
+            p = Object.getPrototypeOf(p);
+          }
+          if (typeof desc.value === 'undefined' ||
+              typeof desc.value === 'function') {
+            continue;
+          }
+          result[i] = cloneValue(desc.value);
+        }
+        return result;
+      }
+
+      if (!this._defer) {
+        this._listeners.forEach(function (listener) {
+          listener.call(this, {data: obj});
+        }, this);
+        return;
+      }
+
+      var cloned = new WeakMap();
+      var e = {data: cloneValue(obj)};
+      this._deferred.then(function () {
+        this._listeners.forEach(function (listener) {
+          listener.call(this, e);
+        }, this);
+      }.bind(this));
+    },
+    addEventListener: function (name, listener) {
+      this._listeners.push(listener);
+    },
+    removeEventListener: function (name, listener) {
+      var i = this._listeners.indexOf(listener);
+      this._listeners.splice(i, 1);
+    },
+    terminate: function () {
+      this._listeners = [];
+    }
+  };
+
   function createCDNWrapper(url) {
     // We will rely on blob URL's property to specify origin.
     // We want this function to fail in case if createObjectURL or Blob do not
@@ -10133,24 +10331,11 @@ var PDFWorker = (function PDFWorkerClosure() {
           return;
         }
 
-        // If we don't use a worker, just post/sendMessage to the main thread.
-        var port = {
-          _listeners: [],
-          postMessage: function (obj) {
-            var e = {data: obj};
-            this._listeners.forEach(function (listener) {
-              listener.call(this, e);
-            }, this);
-          },
-          addEventListener: function (name, listener) {
-            this._listeners.push(listener);
-          },
-          removeEventListener: function (name, listener) {
-            var i = this._listeners.indexOf(listener);
-            this._listeners.splice(i, 1);
-          },
-          terminate: function () {}
-        };
+        // We cannot turn on proper fake port simulation (this includes
+        // structured cloning) when typed arrays are not supported. Relying
+        // on a chance that messages will be sent in proper order.
+        var isTypedArraysPresent = Uint8Array !== Float32Array;
+        var port = new FakeWorkerPort(isTypedArraysPresent);
         this._port = port;
 
         // All fake workers use the same port, making id unique.
@@ -10502,7 +10687,7 @@ var WorkerTransport = (function WorkerTransportClosure() {
 
       messageHandler.on('JpegDecode', function(data) {
         if (this.destroyed) {
-          return Promise.reject('Worker was terminated');
+          return Promise.reject(new Error('Worker was destroyed'));
         }
 
         var imageUrl = data[0];
@@ -10552,8 +10737,7 @@ var WorkerTransport = (function WorkerTransportClosure() {
     },
 
     getPage: function WorkerTransport_getPage(pageNumber, capability) {
-      if (pageNumber <= 0 || pageNumber > this.numPages ||
-          (pageNumber|0) !== pageNumber) {
+      if (!isInt(pageNumber) || pageNumber <= 0 || pageNumber > this.numPages) {
         return Promise.reject(new Error('Invalid page request'));
       }
 
@@ -10576,12 +10760,11 @@ var WorkerTransport = (function WorkerTransportClosure() {
     },
 
     getPageIndex: function WorkerTransport_getPageIndexByRef(ref) {
-      return this.messageHandler.sendWithPromise('GetPageIndex', { ref: ref }).
-        then(function (pageIndex) {
-          return pageIndex;
-        }, function (reason) {
-          return Promise.reject(new Error(reason));
-        });
+      return this.messageHandler.sendWithPromise('GetPageIndex', {
+        ref: ref,
+      }).catch(function (reason) {
+        return Promise.reject(new Error(reason));
+      });
     },
 
     getAnnotations: function WorkerTransport_getAnnotations(pageIndex, intent) {
@@ -11178,6 +11361,13 @@ exports._UnsupportedManager = _UnsupportedManager;
     */
   PDFJS.isEvalSupported = (PDFJS.isEvalSupported === undefined ?
                            true : PDFJS.isEvalSupported);
+
+  /**
+   * Renders interactive form elements.
+   * @var {boolean}
+   */
+  PDFJS.renderInteractiveForms = (PDFJS.renderInteractiveForms === undefined ?
+                                  false : PDFJS.renderInteractiveForms);
 
   var savedOpenExternalLinksInNewWindow = PDFJS.openExternalLinksInNewWindow;
   delete PDFJS.openExternalLinksInNewWindow;

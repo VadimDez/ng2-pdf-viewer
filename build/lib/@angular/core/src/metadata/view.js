@@ -45,7 +45,7 @@ export var VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsul
  * When a component is instantiated, the template is loaded into the component's shadow root, and
  * the expressions and statements in the template are evaluated against the component.
  *
- * For details on the `@Component` annotation, see {@link ComponentMetadata}.
+ * For details on the `@Component` annotation, see {@link Component}.
  *
  * ### Example
  *
@@ -64,7 +64,7 @@ export var VIEW_ENCAPSULATION_VALUES = [ViewEncapsulation.Emulated, ViewEncapsul
  * }
  * ```
  *
- * @deprecated Use ComponentMetadata instead.
+ * @deprecated Use Component instead.
  */
 export var ViewMetadata = (function () {
     function ViewMetadata(_a) {

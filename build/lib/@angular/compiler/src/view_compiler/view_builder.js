@@ -450,12 +450,14 @@ function generateCreateMethod(view) {
 }
 function generateDetectChangesMethod(view) {
     var stmts = [];
-    if (view.detectChangesInInputsMethod.isEmpty() && view.updateContentQueriesMethod.isEmpty() &&
+    if (view.animationBindingsMethod.isEmpty() && view.detectChangesInInputsMethod.isEmpty() &&
+        view.updateContentQueriesMethod.isEmpty() &&
         view.afterContentLifecycleCallbacksMethod.isEmpty() &&
         view.detectChangesRenderPropertiesMethod.isEmpty() &&
         view.updateViewQueriesMethod.isEmpty() && view.afterViewLifecycleCallbacksMethod.isEmpty()) {
         return stmts;
     }
+    ListWrapper.addAll(stmts, view.animationBindingsMethod.finish());
     ListWrapper.addAll(stmts, view.detectChangesInInputsMethod.finish());
     stmts.push(o.THIS_EXPR.callMethod('detectContentChildrenChanges', [DetectChangesVars.throwOnChange])
         .toStmt());

@@ -1,12 +1,14 @@
-import {Observable} from '../Observable';
-import {Notification} from '../Notification';
-import {Subject} from '../Subject';
-import {ColdObservable} from './ColdObservable';
-import {HotObservable} from './HotObservable';
-import {TestMessage} from './TestMessage';
-import {SubscriptionLog} from './SubscriptionLog';
-import {Subscription} from '../Subscription';
-import {VirtualTimeScheduler} from '../scheduler/VirtualTimeScheduler';
+import { Observable } from '../Observable';
+import { Notification } from '../Notification';
+import { Subject } from '../Subject';
+import { ColdObservable } from './ColdObservable';
+import { HotObservable } from './HotObservable';
+import { TestMessage } from './TestMessage';
+import { SubscriptionLog } from './SubscriptionLog';
+import { Subscription } from '../Subscription';
+import { VirtualTimeScheduler, VirtualAction } from '../scheduler/VirtualTimeScheduler';
+
+const defaultMaxFrame: number = 750;
 
 interface FlushableTest {
   ready: boolean;
@@ -23,7 +25,7 @@ export class TestScheduler extends VirtualTimeScheduler {
   private flushTests: FlushableTest[] = [];
 
   constructor(public assertDeepEqual: (actual: any, expected: any) => boolean | void) {
-    super();
+    super(VirtualAction, defaultMaxFrame);
   }
 
   createTime(marbles: string): number {

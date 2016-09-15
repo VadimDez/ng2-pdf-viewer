@@ -14,58 +14,57 @@ export var NgZoneImpl = (function () {
         this.setMicrotask = setMicrotask;
         this.setMacrotask = setMacrotask;
         this.onError = onError;
-        if (Zone) {
-            this.outer = this.inner = Zone.current;
-            if (Zone['wtfZoneSpec']) {
-                this.inner = this.inner.fork(Zone['wtfZoneSpec']);
-            }
-            if (trace && Zone['longStackTraceZoneSpec']) {
-                this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
-            }
-            this.inner = this.inner.fork({
-                name: 'angular',
-                properties: { 'isAngularZone': true },
-                onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
-                    try {
-                        _this.onEnter();
-                        return delegate.invokeTask(target, task, applyThis, applyArgs);
-                    }
-                    finally {
-                        _this.onLeave();
-                    }
-                },
-                onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
-                    try {
-                        _this.onEnter();
-                        return delegate.invoke(target, callback, applyThis, applyArgs, source);
-                    }
-                    finally {
-                        _this.onLeave();
-                    }
-                },
-                onHasTask: function (delegate, current, target, hasTaskState) {
-                    delegate.hasTask(target, hasTaskState);
-                    if (current == target) {
-                        // We are only interested in hasTask events which originate from our zone
-                        // (A child hasTask event is not interesting to us)
-                        if (hasTaskState.change == 'microTask') {
-                            _this.setMicrotask(hasTaskState.microTask);
-                        }
-                        else if (hasTaskState.change == 'macroTask') {
-                            _this.setMacrotask(hasTaskState.macroTask);
-                        }
-                    }
-                },
-                onHandleError: function (delegate, current, target, error) {
-                    delegate.handleError(target, error);
-                    _this.onError(error);
-                    return false;
+        if (typeof Zone == 'undefined') {
+            throw new Error('Angular requires Zone.js prolyfill.');
+        }
+        Zone.assertZonePatched();
+        this.outer = this.inner = Zone.current;
+        if (Zone['wtfZoneSpec']) {
+            this.inner = this.inner.fork(Zone['wtfZoneSpec']);
+        }
+        if (trace && Zone['longStackTraceZoneSpec']) {
+            this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
+        }
+        this.inner = this.inner.fork({
+            name: 'angular',
+            properties: { 'isAngularZone': true },
+            onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
+                try {
+                    _this.onEnter();
+                    return delegate.invokeTask(target, task, applyThis, applyArgs);
                 }
-            });
-        }
-        else {
-            throw new Error('Angular requires Zone.js polyfill.');
-        }
+                finally {
+                    _this.onLeave();
+                }
+            },
+            onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
+                try {
+                    _this.onEnter();
+                    return delegate.invoke(target, callback, applyThis, applyArgs, source);
+                }
+                finally {
+                    _this.onLeave();
+                }
+            },
+            onHasTask: function (delegate, current, target, hasTaskState) {
+                delegate.hasTask(target, hasTaskState);
+                if (current === target) {
+                    // We are only interested in hasTask events which originate from our zone
+                    // (A child hasTask event is not interesting to us)
+                    if (hasTaskState.change == 'microTask') {
+                        _this.setMicrotask(hasTaskState.microTask);
+                    }
+                    else if (hasTaskState.change == 'macroTask') {
+                        _this.setMacrotask(hasTaskState.macroTask);
+                    }
+                }
+            },
+            onHandleError: function (delegate, current, target, error) {
+                delegate.handleError(target, error);
+                _this.onError(error);
+                return false;
+            }
+        });
     }
     NgZoneImpl.isInAngularZone = function () { return Zone.current.get('isAngularZone') === true; };
     NgZoneImpl.prototype.runInner = function (fn) { return this.inner.run(fn); };

@@ -11,6 +11,5 @@ import { Observable, ObservableInput } from '../Observable';
  */
 export declare function _catch<T, R>(selector: (err: any, caught: Observable<T>) => ObservableInput<R>): Observable<R>;
 export interface CatchSignature<T> {
-    (selector: (err: any, caught: Observable<T>) => ObservableInput<T>): Observable<T>;
     <R>(selector: (err: any, caught: Observable<T>) => ObservableInput<R>): Observable<R>;
 }

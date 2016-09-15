@@ -10,6 +10,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+import { triggerQueuedAnimations } from '../animation/animation_queue';
 import { ChangeDetectorStatus } from '../change_detection/constants';
 import { unimplemented } from '../facade/errors';
 /**
@@ -125,7 +126,10 @@ export var ViewRef_ = (function () {
     });
     ViewRef_.prototype.markForCheck = function () { this._view.markPathToRootAsCheckOnce(); };
     ViewRef_.prototype.detach = function () { this._view.cdMode = ChangeDetectorStatus.Detached; };
-    ViewRef_.prototype.detectChanges = function () { this._view.detectChanges(false); };
+    ViewRef_.prototype.detectChanges = function () {
+        this._view.detectChanges(false);
+        triggerQueuedAnimations();
+    };
     ViewRef_.prototype.checkNoChanges = function () { this._view.detectChanges(true); };
     ViewRef_.prototype.reattach = function () {
         this._view.cdMode = this._originalMode;
