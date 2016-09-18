@@ -73,6 +73,9 @@ var PdfViewerComponent = (function () {
         var _this = this;
         window.PDFJS.getDocument(this._src).then(function (pdf) {
             _this._pdf = pdf;
+            if (_this.onLoadComplete && typeof _this.onLoadComplete === 'function') {
+                _this.onLoadComplete(pdf);
+            }
             if (!_this.isValidPageNumber(_this._page)) {
                 _this._page = 1;
             }
@@ -122,6 +125,10 @@ var PdfViewerComponent = (function () {
             element.removeChild(element.firstChild);
         }
     };
+    __decorate([
+        core_1.Input('on-load-complete'), 
+        __metadata('design:type', Function)
+    ], PdfViewerComponent.prototype, "onLoadComplete", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object), 

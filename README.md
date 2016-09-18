@@ -112,6 +112,22 @@ Show single or all pages altogether
 [show-all]="true"
 ```
 
+#### [on-load-complete]
+
+Get PDF information with callback
+
+First define callback function "callBackFn" in your controller,
+```
+callBackFn(pdf: any) {
+   // do anything with "pdf"
+}
+```
+
+And then use it in your template:
+``` 
+[on-load-complete]="callBackFn"
+```
+
 ### License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)

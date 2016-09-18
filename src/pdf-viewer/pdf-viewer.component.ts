@@ -18,6 +18,7 @@ export class PdfViewerComponent {
   private _pdf: any;
   private _page: number = 1;
   private wasInvalidPage: boolean = false;
+  @Input('on-load-complete') onLoadComplete: Function;
 
   constructor(private element: ElementRef) {}
 
@@ -71,6 +72,10 @@ export class PdfViewerComponent {
   private fn() {
     (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
+
+      if (this.onLoadComplete && typeof this.onLoadComplete === 'function') {
+        this.onLoadComplete(pdf);
+      }
 
       if (!this.isValidPageNumber(this._page)) {
         this._page = 1;
