@@ -47,6 +47,7 @@
                     <label class="mdl-textfield__label" for="pdf-page">Page</label>
                     <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
+                <span>of {{ pdf?.numPages }}</span>
                 <button (click)="incrementPage(1)" class="mdl-button mdl-js-button">
                     Next
                 </button>
@@ -55,6 +56,7 @@
                         [(page)]="page"
                         [original-size]="originalSize"
                         [show-all]="showAll"
+                        [on-load-complete]="onLoadComplete"
             ></pdf-viewer>
 
         </div>

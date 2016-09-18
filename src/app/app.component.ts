@@ -24,8 +24,21 @@ export class AppComponent {
   page: number = 1;
   originalSize: boolean = false;
   showAll: boolean = true;
+  pdf: any;
+
+  constructor() {
+    this.onLoadComplete = this.onLoadComplete.bind(this);
+  }
 
   incrementPage(amount) {
     this.page += amount;
+  }
+
+  /**
+   * Get pdf information after it's loaded
+   * @param pdf
+   */
+  onLoadComplete(pdf: any) {
+    this.pdf = pdf;
   }
 }

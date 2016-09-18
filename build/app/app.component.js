@@ -15,9 +15,13 @@ var AppComponent = (function () {
         this.page = 1;
         this.originalSize = false;
         this.showAll = true;
+        this.onLoadComplete = this.onLoadComplete.bind(this);
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
+    };
+    AppComponent.prototype.onLoadComplete = function (pdf) {
+        this.pdf = pdf;
     };
     AppComponent = __decorate([
         core_1.Component({
