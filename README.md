@@ -51,7 +51,7 @@ import { Component } from '@angular/core';
       <input type="number" placeholder="Page" [(ngModel)]="page">
   </div>
   <pdf-viewer [src]="pdfSrc" 
-              [initialPage]="page" 
+              [page]="page" 
               [original-size]="true" 
               style="display: block;"
   ></pdf-viewer>
