@@ -93,6 +93,10 @@ Page number
 ```
 [page]="1"
 ```
+supports two way data binding as well
+```
+[(page)]="pageVariable"
+```
 
 #### [original-size]
 
