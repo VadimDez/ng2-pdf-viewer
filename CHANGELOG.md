@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.8-rc.4
+
+* [[#5](https://github.com/VadimDez/ng2-pdf-viewer/issues/5)] - Fixed web worker issue
+
 ## 0.0.7
 
 * Added webpack compatibility - [#2](https://github.com/VadimDez/ng2-pdf-viewer/issues/2)
