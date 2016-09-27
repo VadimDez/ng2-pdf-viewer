@@ -88,7 +88,7 @@ Options object for loading protected PDF would be
  }
  ```
  
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L79-L103).
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L81-L105).
 
 
 #### [page]
