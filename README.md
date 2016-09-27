@@ -8,13 +8,13 @@
 
 [Demo page](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-### Install
+## Install
 
 ```
 npm install ng2-pdf-viewer --save
 ```
 
-### Usage
+## Usage
 
 In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
 
@@ -67,7 +67,7 @@ export class AppComponent {
 }
 ```
 
-### Options
+## Options
 
 #### [src]
 
@@ -136,6 +136,6 @@ And then use it in your template:
 [on-load-complete]="callBackFn"
 ```
 
-### License
+## License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)
