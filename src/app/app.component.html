@@ -8,7 +8,7 @@
         <div class="page-content">
 
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input class="mdl-textfield__input" type="text" id="pdf-src" [(ngModel)]="pdfSrc">
+                <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
                 <label class="mdl-textfield__label" for="pdf-src">PDF path</label>
             </div>
 
