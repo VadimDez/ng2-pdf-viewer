@@ -1,16 +1,20 @@
-# Angular2 PDF Viewer [![npm version](https://badge.fury.io/js/ng2-pdf-viewer.svg)](https://badge.fury.io/js/ng2-pdf-viewer) ![](https://david-dm.org/vadimdez/ng2-pdf-viewer.svg)
+<h1 align="center">Angular2 PDF Viewer</h1>
+<p align="center">
+  <a href="https://badge.fury.io/js/ng2-pdf-viewer"><img src="https://badge.fury.io/js/ng2-pdf-viewer.svg" alt="npm version" height="18"></a>
+  <a href="https://david-dm.org/vadimdez/ng2-pdf-viewer" title="dependencies status"><img src="https://david-dm.org/vadimdez/ng2-pdf-viewer/status.svg"/></a>
+</p>
 
 > PDF Viewer Component for Angular 2
 
 [Demo page](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-### Install
+## Install
 
 ```
 npm install ng2-pdf-viewer --save
 ```
 
-### Usage
+## Usage
 
 In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
 
@@ -63,7 +67,7 @@ export class AppComponent {
 }
 ```
 
-### Options
+## Options
 
 #### [src]
 
@@ -84,7 +88,7 @@ Options object for loading protected PDF would be
  }
  ```
  
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L79-L103).
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L81-L105).
 
 
 #### [page]
@@ -92,6 +96,10 @@ Page number
 
 ```
 [page]="1"
+```
+supports two way data binding as well
+```
+[(page)]="pageVariable"
 ```
 
 #### [original-size]
@@ -128,6 +136,6 @@ And then use it in your template:
 [on-load-complete]="callBackFn"
 ```
 
-### License
+## License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)
