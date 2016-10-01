@@ -135,6 +135,10 @@ And then use it in your template:
 ``` 
 [on-load-complete]="callBackFn"
 ```
+## Develop
+```
+npm start
+```
 
 ## License
 
