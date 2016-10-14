@@ -8,7 +8,6 @@
 import { ANY_STATE as ANY_STATE_, DEFAULT_STATE as DEFAULT_STATE_, EMPTY_STATE as EMPTY_STATE_, FILL_STYLE_FLAG as FILL_STYLE_FLAG_ } from './animation/animation_constants';
 import { AnimationGroupPlayer as AnimationGroupPlayer_ } from './animation/animation_group_player';
 import { AnimationKeyframe as AnimationKeyframe_ } from './animation/animation_keyframe';
-import { AnimationOutput as AnimationOutput_ } from './animation/animation_output';
 import { AnimationPlayer as AnimationPlayer_, NoOpAnimationPlayer as NoOpAnimationPlayer_ } from './animation/animation_player';
 import { AnimationSequencePlayer as AnimationSequencePlayer_ } from './animation/animation_sequence_player';
 import * as animationUtils from './animation/animation_style_util';
@@ -35,10 +34,10 @@ import * as reflection_capabilities from './reflection/reflection_capabilities';
 import * as reflector_reader from './reflection/reflector_reader';
 import * as api from './render/api';
 import * as decorators from './util/decorators';
+import { isPromise } from './util/lang';
 export var __core_private__ = {
     isDefaultChangeDetectionStrategy: constants.isDefaultChangeDetectionStrategy,
     ChangeDetectorStatus: constants.ChangeDetectorStatus,
-    CHANGE_DETECTION_STRATEGY_VALUES: constants.CHANGE_DETECTION_STRATEGY_VALUES,
     constructDependencies: reflective_provider.constructDependencies,
     LifecycleHooks: lifecycle_hooks.LifecycleHooks,
     LIFECYCLE_HOOKS_VALUES: lifecycle_hooks.LIFECYCLE_HOOKS_VALUES,
@@ -55,7 +54,6 @@ export var __core_private__ = {
     flattenNestedViewRenderNodes: view_utils.flattenNestedViewRenderNodes,
     interpolate: view_utils.interpolate,
     ViewUtils: view_utils.ViewUtils,
-    VIEW_ENCAPSULATION_VALUES: metadata_view.VIEW_ENCAPSULATION_VALUES,
     ViewMetadata: metadata_view.ViewMetadata,
     DebugContext: debug_context.DebugContext,
     StaticNodeDebugInfo: debug_context.StaticNodeDebugInfo,
@@ -95,11 +93,11 @@ export var __core_private__ = {
     renderStyles: animationUtils.renderStyles,
     collectAndResolveStyles: animationUtils.collectAndResolveStyles,
     AnimationStyles: AnimationStyles_,
-    AnimationOutput: AnimationOutput_,
     ANY_STATE: ANY_STATE_,
     DEFAULT_STATE: DEFAULT_STATE_,
     EMPTY_STATE: EMPTY_STATE_,
     FILL_STYLE_FLAG: FILL_STYLE_FLAG_,
-    ComponentStillLoadingError: ComponentStillLoadingError
+    ComponentStillLoadingError: ComponentStillLoadingError,
+    isPromise: isPromise
 };
 //# sourceMappingURL=core_private_export.js.map

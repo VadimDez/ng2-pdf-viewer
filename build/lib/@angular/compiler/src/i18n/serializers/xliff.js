@@ -19,10 +19,6 @@ var _PLACEHOLDER_TAG = 'x';
 var _SOURCE_TAG = 'source';
 var _TARGET_TAG = 'target';
 var _UNIT_TAG = 'trans-unit';
-var _CR = function (ws) {
-    if (ws === void 0) { ws = 0; }
-    return new xml.Text("\n" + new Array(ws).join(' '));
-};
 // http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html
 // http://docs.oasis-open.org/xliff/v1.2/xliff-profile-html/xliff-profile-html-1.2.html
 export var Xliff = (function () {
@@ -36,20 +32,22 @@ export var Xliff = (function () {
         Object.keys(messageMap).forEach(function (id) {
             var message = messageMap[id];
             var transUnit = new xml.Tag(_UNIT_TAG, { id: id, datatype: 'html' });
-            transUnit.children.push(_CR(8), new xml.Tag(_SOURCE_TAG, {}, visitor.serialize(message.nodes)), _CR(8), new xml.Tag(_TARGET_TAG));
+            transUnit.children.push(new xml.CR(8), new xml.Tag(_SOURCE_TAG, {}, visitor.serialize(message.nodes)), new xml.CR(8), new xml.Tag(_TARGET_TAG));
             if (message.description) {
-                transUnit.children.push(_CR(8), new xml.Tag('note', { priority: '1', from: 'description' }, [new xml.Text(message.description)]));
+                transUnit.children.push(new xml.CR(8), new xml.Tag('note', { priority: '1', from: 'description' }, [new xml.Text(message.description)]));
             }
             if (message.meaning) {
-                transUnit.children.push(_CR(8), new xml.Tag('note', { priority: '1', from: 'meaning' }, [new xml.Text(message.meaning)]));
+                transUnit.children.push(new xml.CR(8), new xml.Tag('note', { priority: '1', from: 'meaning' }, [new xml.Text(message.meaning)]));
             }
-            transUnit.children.push(_CR(6));
-            transUnits.push(_CR(6), transUnit);
+            transUnit.children.push(new xml.CR(6));
+            transUnits.push(new xml.CR(6), transUnit);
         });
-        var body = new xml.Tag('body', {}, transUnits.concat([_CR(4)]));
-        var file = new xml.Tag('file', { 'source-language': _SOURCE_LANG, datatype: 'plaintext', original: 'ng2.template' }, [_CR(4), body, _CR(2)]);
-        var xliff = new xml.Tag('xliff', { version: _VERSION, xmlns: _XMLNS }, [_CR(2), file, _CR()]);
-        return xml.serialize([new xml.Declaration({ version: '1.0', encoding: 'UTF-8' }), _CR(), xliff]);
+        var body = new xml.Tag('body', {}, transUnits.concat([new xml.CR(4)]));
+        var file = new xml.Tag('file', { 'source-language': _SOURCE_LANG, datatype: 'plaintext', original: 'ng2.template' }, [new xml.CR(4), body, new xml.CR(2)]);
+        var xliff = new xml.Tag('xliff', { version: _VERSION, xmlns: _XMLNS }, [new xml.CR(2), file, new xml.CR()]);
+        return xml.serialize([
+            new xml.Declaration({ version: '1.0', encoding: 'UTF-8' }), new xml.CR(), xliff, new xml.CR()
+        ]);
     };
     Xliff.prototype.load = function (content, url, messageBundle) {
         var _this = this;
@@ -103,12 +101,13 @@ var _WriteVisitor = (function () {
         return nodes;
     };
     _WriteVisitor.prototype.visitTagPlaceholder = function (ph, context) {
-        var startTagPh = new xml.Tag(_PLACEHOLDER_TAG, { id: ph.startName, ctype: ph.tag });
+        var ctype = getCtypeForTag(ph.tag);
+        var startTagPh = new xml.Tag(_PLACEHOLDER_TAG, { id: ph.startName, ctype: ctype });
         if (ph.isVoid) {
             // void tags have no children nor closing tags
             return [startTagPh];
         }
-        var closeTagPh = new xml.Tag(_PLACEHOLDER_TAG, { id: ph.closeName, ctype: ph.tag });
+        var closeTagPh = new xml.Tag(_PLACEHOLDER_TAG, { id: ph.closeName, ctype: ctype });
         return [startTagPh].concat(this.serialize(ph.children), [closeTagPh]);
     };
     _WriteVisitor.prototype.visitPlaceholder = function (ph, context) {
@@ -229,4 +228,14 @@ var _LoadVisitor = (function () {
     };
     return _LoadVisitor;
 }());
+function getCtypeForTag(tag) {
+    switch (tag.toLowerCase()) {
+        case 'br':
+            return 'lb';
+        case 'img':
+            return 'image';
+        default:
+            return "x-" + tag;
+    }
+}
 //# sourceMappingURL=xliff.js.map

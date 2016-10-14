@@ -28,8 +28,8 @@ factory((root.pdfjsDistBuildPdf = {}));
   // Use strict in our context only - users might not want it
   'use strict';
 
-var pdfjsVersion = '1.5.458';
-var pdfjsBuild = 'a7c3502';
+var pdfjsVersion = '1.6.234';
+var pdfjsBuild = 'bc3bceb';
 
   var pdfjsFilePath =
     typeof document !== 'undefined' && document.currentScript ?
@@ -112,6 +112,28 @@ var AnnotationFlag = {
   LOCKED: 0x80,
   TOGGLENOVIEW: 0x100,
   LOCKEDCONTENTS: 0x200
+};
+
+var AnnotationFieldFlag = {
+  READONLY: 0x0000001,
+  REQUIRED: 0x0000002,
+  NOEXPORT: 0x0000004,
+  MULTILINE: 0x0001000,
+  PASSWORD: 0x0002000,
+  NOTOGGLETOOFF: 0x0004000,
+  RADIO: 0x0008000,
+  PUSHBUTTON: 0x0010000,
+  COMBO: 0x0020000,
+  EDIT: 0x0040000,
+  SORT: 0x0080000,
+  FILESELECT: 0x0100000,
+  MULTISELECT: 0x0200000,
+  DONOTSPELLCHECK: 0x0400000,
+  DONOTSCROLL: 0x0800000,
+  COMB: 0x1000000,
+  RICHTEXT: 0x2000000,
+  RADIOSINUNISON: 0x2000000,
+  COMMITONSELCHANGE: 0x4000000,
 };
 
 var AnnotationBorderStyleType = {
@@ -870,15 +892,15 @@ var Util = (function UtilClosure() {
     }
   };
 
-  Util.getInheritableProperty = function Util_getInheritableProperty(dict,
-                                                                     name) {
+  Util.getInheritableProperty =
+      function Util_getInheritableProperty(dict, name, getArray) {
     while (dict && !dict.has(name)) {
       dict = dict.get('Parent');
     }
     if (!dict) {
       return null;
     }
-    return dict.get(name);
+    return getArray ? dict.getArray(name) : dict.get(name);
   };
 
   Util.inherit = function Util_inherit(sub, base, prototype) {
@@ -2375,6 +2397,7 @@ exports.OPS = OPS;
 exports.VERBOSITY_LEVELS = VERBOSITY_LEVELS;
 exports.UNSUPPORTED_FEATURES = UNSUPPORTED_FEATURES;
 exports.AnnotationBorderStyleType = AnnotationBorderStyleType;
+exports.AnnotationFieldFlag = AnnotationFieldFlag;
 exports.AnnotationFlag = AnnotationFlag;
 exports.AnnotationType = AnnotationType;
 exports.FontType = FontType;
@@ -2741,6 +2764,10 @@ FontLoader.prototype = {
         warn('Failed to load font "' + nativeFontFace.family + '": ' + e);
       });
     };
+    // Firefox Font Loading API does not work with mozPrintCallback --
+    // disabling it in this case.
+    var isFontLoadingAPISupported = FontLoader.isFontLoadingAPISupported &&
+                                    !FontLoader.isSyncFontLoadingSupported;
     for (var i = 0, ii = fonts.length; i < ii; i++) {
       var font = fonts[i];
 
@@ -2751,7 +2778,7 @@ FontLoader.prototype = {
       }
       font.attached = true;
 
-      if (FontLoader.isFontLoadingAPISupported) {
+      if (isFontLoadingAPISupported) {
         var nativeFontFace = font.createNativeFontFace();
         if (nativeFontFace) {
           this.addNativeFontFace(nativeFontFace);
@@ -2768,7 +2795,7 @@ FontLoader.prototype = {
     }
 
     var request = this.queueLoadingCallback(callback);
-    if (FontLoader.isFontLoadingAPISupported) {
+    if (isFontLoadingAPISupported) {
       Promise.all(fontLoadPromises).then(function() {
         request.complete();
       });
@@ -4372,6 +4399,8 @@ AnnotationElementFactory.prototype =
         switch (fieldType) {
           case 'Tx':
             return new TextWidgetAnnotationElement(parameters);
+          case 'Ch':
+            return new ChoiceWidgetAnnotationElement(parameters);
         }
         return new WidgetAnnotationElement(parameters);
 
@@ -4696,8 +4725,8 @@ var TextAnnotationElement = (function TextAnnotationElementClosure() {
  * @alias WidgetAnnotationElement
  */
 var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
-  function WidgetAnnotationElement(parameters) {
-    AnnotationElement.call(this, parameters, true);
+  function WidgetAnnotationElement(parameters, isRenderable) {
+    AnnotationElement.call(this, parameters, isRenderable);
   }
 
   Util.inherit(WidgetAnnotationElement, AnnotationElement, {
@@ -4726,7 +4755,9 @@ var TextWidgetAnnotationElement = (
   var TEXT_ALIGNMENT = ['left', 'center', 'right'];
 
   function TextWidgetAnnotationElement(parameters) {
-    WidgetAnnotationElement.call(this, parameters);
+    var isRenderable = parameters.renderInteractiveForms ||
+      (!parameters.data.hasAppearance && !!parameters.data.fieldValue);
+    WidgetAnnotationElement.call(this, parameters, isRenderable);
   }
 
   Util.inherit(TextWidgetAnnotationElement, WidgetAnnotationElement, {
@@ -4742,12 +4773,30 @@ var TextWidgetAnnotationElement = (
 
       var element = null;
       if (this.renderInteractiveForms) {
-        element = document.createElement('input');
-        element.type = 'text';
-        element.value = this.data.fieldValue;
+        // NOTE: We cannot set the values using `element.value` below, since it
+        //       prevents the AnnotationLayer rasterizer in `test/driver.js`
+        //       from parsing the elements correctly for the reference tests.
+        if (this.data.multiLine) {
+          element = document.createElement('textarea');
+          element.textContent = this.data.fieldValue;
+        } else {
+          element = document.createElement('input');
+          element.type = 'text';
+          element.setAttribute('value', this.data.fieldValue);
+        }
+
+        element.disabled = this.data.readOnly;
 
         if (this.data.maxLen !== null) {
           element.maxLength = this.data.maxLen;
+        }
+
+        if (this.data.comb) {
+          var fieldWidth = this.data.rect[2] - this.data.rect[0];
+          var combWidth = fieldWidth / this.data.maxLen;
+
+          element.classList.add('comb');
+          element.style.letterSpacing = 'calc(' + combWidth + 'px - 1ch)';
         }
       } else {
         element = document.createElement('div');
@@ -4802,6 +4851,64 @@ var TextWidgetAnnotationElement = (
   });
 
   return TextWidgetAnnotationElement;
+})();
+
+/**
+ * @class
+ * @alias ChoiceWidgetAnnotationElement
+ */
+var ChoiceWidgetAnnotationElement = (
+    function ChoiceWidgetAnnotationElementClosure() {
+  function ChoiceWidgetAnnotationElement(parameters) {
+    WidgetAnnotationElement.call(this, parameters,
+                                 parameters.renderInteractiveForms);
+  }
+
+  Util.inherit(ChoiceWidgetAnnotationElement, WidgetAnnotationElement, {
+    /**
+     * Render the choice widget annotation's HTML element in the empty
+     * container.
+     *
+     * @public
+     * @memberof ChoiceWidgetAnnotationElement
+     * @returns {HTMLSectionElement}
+     */
+    render: function ChoiceWidgetAnnotationElement_render() {
+      this.container.className = 'choiceWidgetAnnotation';
+
+      var selectElement = document.createElement('select');
+      selectElement.disabled = this.data.readOnly;
+
+      if (!this.data.combo) {
+        // List boxes have a size and (optionally) multiple selection.
+        selectElement.size = this.data.options.length;
+
+        if (this.data.multiSelect) {
+          selectElement.multiple = true;
+        }
+      }
+
+      // Insert the options into the choice field.
+      for (var i = 0, ii = this.data.options.length; i < ii; i++) {
+        var option = this.data.options[i];
+
+        var optionElement = document.createElement('option');
+        optionElement.textContent = option.displayValue;
+        optionElement.value = option.exportValue;
+
+        if (this.data.fieldValue.indexOf(option.displayValue) >= 0) {
+          optionElement.setAttribute('selected', true);
+        }
+
+        selectElement.appendChild(optionElement);
+      }
+
+      this.container.appendChild(selectElement);
+      return this.container;
+    }
+  });
+
+  return ChoiceWidgetAnnotationElement;
 })();
 
 /**
@@ -5300,14 +5407,20 @@ var renderTextLayer = (function renderTextLayerClosure() {
     return !NonWhitespaceRegexp.test(str);
   }
 
+  // Text layers may contain many thousand div's, and using `styleBuf` avoids
+  // creating many intermediate strings when building their 'style' properties.
+  var styleBuf = ['left: ', 0, 'px; top: ', 0, 'px; font-size: ', 0,
+                  'px; font-family: ', '', ';'];
+
   function appendText(task, geom, styles) {
     // Initialize all used properties to keep the caches monomorphic.
     var textDiv = document.createElement('div');
     var textDivProperties = {
+      style: null,
       angle: 0,
       canvasWidth: 0,
       isWhitespace: false,
-      originalTransform: '',
+      originalTransform: null,
       paddingBottom: 0,
       paddingLeft: 0,
       paddingRight: 0,
@@ -5345,10 +5458,12 @@ var renderTextLayer = (function renderTextLayerClosure() {
       left = tx[4] + (fontAscent * Math.sin(angle));
       top = tx[5] - (fontAscent * Math.cos(angle));
     }
-    textDiv.style.left = left + 'px';
-    textDiv.style.top = top + 'px';
-    textDiv.style.fontSize = fontHeight + 'px';
-    textDiv.style.fontFamily = style.fontFamily;
+    styleBuf[1] = left;
+    styleBuf[3] = top;
+    styleBuf[5] = fontHeight;
+    styleBuf[7] = style.fontFamily;
+    textDivProperties.style = styleBuf.join('');
+    textDiv.setAttribute('style', textDivProperties.style);
 
     textDiv.textContent = geom.str;
     // |fontName| is only used by the Font Inspector. This test will succeed
@@ -5756,7 +5871,6 @@ var renderTextLayer = (function renderTextLayerClosure() {
     this._renderTimer = null;
     this._bounds = [];
     this._enhanceTextSelection = !!enhanceTextSelection;
-    this._expanded = false;
   }
   TextLayerRenderTask.prototype = {
     get promise() {
@@ -5794,18 +5908,20 @@ var renderTextLayer = (function renderTextLayerClosure() {
       if (!this._enhanceTextSelection || !this._renderingDone) {
         return;
       }
-      if (!this._expanded) {
+      if (this._bounds !== null) {
         expand(this);
-        this._expanded = true;
-        this._bounds.length = 0;
+        this._bounds = null;
       }
 
       for (var i = 0, ii = this._textDivs.length; i < ii; i++) {
         var div = this._textDivs[i];
         var divProperties = this._textDivProperties.get(div);
 
+        if (divProperties.isWhitespace) {
+          continue;
+        }
         if (expandDivs) {
-          var transform = '';
+          var transform = '', padding = '';
 
           if (divProperties.scale !== 1) {
             transform = 'scaleX(' + divProperties.scale + ')';
@@ -5814,21 +5930,26 @@ var renderTextLayer = (function renderTextLayerClosure() {
             transform = 'rotate(' + divProperties.angle + 'deg) ' + transform;
           }
           if (divProperties.paddingLeft !== 0) {
-            div.style.paddingLeft =
-              (divProperties.paddingLeft / divProperties.scale) + 'px';
+            padding += ' padding-left: ' +
+              (divProperties.paddingLeft / divProperties.scale) + 'px;';
             transform += ' translateX(' +
               (-divProperties.paddingLeft / divProperties.scale) + 'px)';
           }
           if (divProperties.paddingTop !== 0) {
-            div.style.paddingTop = divProperties.paddingTop + 'px';
+            padding += ' padding-top: ' + divProperties.paddingTop + 'px;';
             transform += ' translateY(' + (-divProperties.paddingTop) + 'px)';
           }
           if (divProperties.paddingRight !== 0) {
-            div.style.paddingRight =
-              (divProperties.paddingRight / divProperties.scale) + 'px';
+            padding += ' padding-right: ' +
+              (divProperties.paddingRight / divProperties.scale) + 'px;';
           }
           if (divProperties.paddingBottom !== 0) {
-            div.style.paddingBottom = divProperties.paddingBottom + 'px';
+            padding += ' padding-bottom: ' +
+              divProperties.paddingBottom + 'px;';
+          }
+
+          if (padding !== '') {
+            div.setAttribute('style', divProperties.style + padding);
           }
           if (transform !== '') {
             CustomStyle.setProp('transform', div, transform);
@@ -5836,7 +5957,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
         } else {
           div.style.padding = 0;
           CustomStyle.setProp('transform', div,
-                              divProperties.originalTransform);
+                              divProperties.originalTransform || '');
         }
       }
     },
@@ -7361,9 +7482,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
     if (sourceCtx.setLineDash !== undefined) {
       destCtx.setLineDash(sourceCtx.getLineDash());
       destCtx.lineDashOffset =  sourceCtx.lineDashOffset;
-    } else if (sourceCtx.mozDashOffset !== undefined) {
-      destCtx.mozDash = sourceCtx.mozDash;
-      destCtx.mozDashOffset = sourceCtx.mozDashOffset;
     }
   }
 
@@ -7619,9 +7737,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       if (ctx.setLineDash !== undefined) {
         ctx.setLineDash(dashArray);
         ctx.lineDashOffset = dashPhase;
-      } else {
-        ctx.mozDash = dashArray;
-        ctx.mozDashOffset = dashPhase;
       }
     },
     setRenderingIntent: function CanvasGraphics_setRenderingIntent(intent) {
@@ -9691,6 +9806,9 @@ var PDFDocumentProxy = (function PDFDocumentProxyClosure() {
  *                                calling of PDFPage.getViewport method.
  * @property {string} intent - Rendering intent, can be 'display' or 'print'
  *                    (default value is 'display').
+ * @property {boolean} renderInteractiveForms - (optional) Whether or not
+ *                     interactive form elements are rendered in the display
+ *                     layer. If so, we do not render them on canvas as well.
  * @property {Array}  transform - (optional) Additional transform, applied
  *                    just before viewport transform.
  * @property {Object} imageLayer - (optional) An object that has beginLayout,
@@ -9799,6 +9917,8 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
       this.pendingCleanup = false;
 
       var renderingIntent = (params.intent === 'print' ? 'print' : 'display');
+      var renderInteractiveForms = (params.renderInteractiveForms === true ?
+                                    true : /* Default */ false);
 
       if (!this.intentStates[renderingIntent]) {
         this.intentStates[renderingIntent] = Object.create(null);
@@ -9819,7 +9939,8 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
         this.stats.time('Page Request');
         this.transport.messageHandler.send('RenderPageRequest', {
           pageIndex: this.pageNumber - 1,
-          intent: renderingIntent
+          intent: renderingIntent,
+          renderInteractiveForms: renderInteractiveForms,
         });
       }
 
@@ -11361,13 +11482,6 @@ exports._UnsupportedManager = _UnsupportedManager;
     */
   PDFJS.isEvalSupported = (PDFJS.isEvalSupported === undefined ?
                            true : PDFJS.isEvalSupported);
-
-  /**
-   * Renders interactive form elements.
-   * @var {boolean}
-   */
-  PDFJS.renderInteractiveForms = (PDFJS.renderInteractiveForms === undefined ?
-                                  false : PDFJS.renderInteractiveForms);
 
   var savedOpenExternalLinksInNewWindow = PDFJS.openExternalLinksInNewWindow;
   delete PDFJS.openExternalLinksInNewWindow;

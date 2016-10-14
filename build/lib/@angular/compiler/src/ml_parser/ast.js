@@ -36,10 +36,11 @@ export var ExpansionCase = (function () {
     return ExpansionCase;
 }());
 export var Attribute = (function () {
-    function Attribute(name, value, sourceSpan) {
+    function Attribute(name, value, sourceSpan, valueSpan) {
         this.name = name;
         this.value = value;
         this.sourceSpan = sourceSpan;
+        this.valueSpan = valueSpan;
     }
     Attribute.prototype.visit = function (visitor, context) { return visitor.visitAttribute(this, context); };
     return Attribute;
@@ -67,8 +68,11 @@ export var Comment = (function () {
 export function visitAll(visitor, nodes, context) {
     if (context === void 0) { context = null; }
     var result = [];
+    var visit = visitor.visit ?
+        function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+        function (ast) { return ast.visit(visitor, context); };
     nodes.forEach(function (ast) {
-        var astResult = ast.visit(visitor, context);
+        var astResult = visit(ast);
         if (astResult) {
             result.push(astResult);
         }

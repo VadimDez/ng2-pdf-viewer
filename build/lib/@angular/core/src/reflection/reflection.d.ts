@@ -4,4 +4,4 @@ export { ReflectionInfo, Reflector } from './reflector';
  * The {@link Reflector} used internally in Angular to access metadata
  * about symbols.
  */
-export declare var reflector: Reflector;
+export declare const reflector: Reflector;

@@ -10,6 +10,8 @@ import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metada
 import { BindingPipe, RecursiveAstVisitor } from '../expression_parser/ast';
 import { Parser } from '../expression_parser/parser';
 import { I18NHtmlParser } from '../i18n/i18n_html_parser';
+import { ParseTreeResult } from '../ml_parser/html_parser';
+import { InterpolationConfig } from '../ml_parser/interpolation_config';
 import { ParseError, ParseErrorLevel, ParseSourceSpan } from '../parse_util';
 import { Console } from '../private_import_core';
 import { ElementSchemaRegistry } from '../schema/element_schema_registry';
@@ -39,6 +41,9 @@ export declare class TemplateParser {
     constructor(_exprParser: Parser, _schemaRegistry: ElementSchemaRegistry, _htmlParser: I18NHtmlParser, _console: Console, transforms: TemplateAstVisitor[]);
     parse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveMetadata[], pipes: CompilePipeMetadata[], schemas: SchemaMetadata[], templateUrl: string): TemplateAst[];
     tryParse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveMetadata[], pipes: CompilePipeMetadata[], schemas: SchemaMetadata[], templateUrl: string): TemplateParseResult;
+    tryParseHtml(htmlAstWithErrors: ParseTreeResult, component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveMetadata[], pipes: CompilePipeMetadata[], schemas: SchemaMetadata[], templateUrl: string): TemplateParseResult;
+    expandHtml(htmlAstWithErrors: ParseTreeResult, forced?: boolean): ParseTreeResult;
+    getInterpolationConfig(component: CompileDirectiveMetadata): InterpolationConfig;
 }
 export declare function splitClasses(classAttrValue: string): string[];
 export declare class PipeCollector extends RecursiveAstVisitor {

@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isPresent } from '../facade/lang';
 /**
  * A segment of text within the template.
  */
@@ -45,7 +44,8 @@ export var AttrAst = (function () {
     return AttrAst;
 }());
 /**
- * A binding for an element property (e.g. `[property]="expression"`).
+ * A binding for an element property (e.g. `[property]="expression"`) or an animation trigger (e.g.
+ * `[@trigger]="stateExp"`)
  */
 export var BoundElementPropertyAst = (function () {
     function BoundElementPropertyAst(name, type, securityContext, value, unit, sourceSpan) {
@@ -59,15 +59,22 @@ export var BoundElementPropertyAst = (function () {
     BoundElementPropertyAst.prototype.visit = function (visitor, context) {
         return visitor.visitElementProperty(this, context);
     };
+    Object.defineProperty(BoundElementPropertyAst.prototype, "isAnimation", {
+        get: function () { return this.type === PropertyBindingType.Animation; },
+        enumerable: true,
+        configurable: true
+    });
     return BoundElementPropertyAst;
 }());
 /**
- * A binding for an element event (e.g. `(event)="handler()"`).
+ * A binding for an element event (e.g. `(event)="handler()"`) or an animation trigger event (e.g.
+ * `(@trigger.phase)="callback($event)"`).
  */
 export var BoundEventAst = (function () {
-    function BoundEventAst(name, target, handler, sourceSpan) {
+    function BoundEventAst(name, target, phase, handler, sourceSpan) {
         this.name = name;
         this.target = target;
+        this.phase = phase;
         this.handler = handler;
         this.sourceSpan = sourceSpan;
     }
@@ -76,13 +83,18 @@ export var BoundEventAst = (function () {
     };
     Object.defineProperty(BoundEventAst.prototype, "fullName", {
         get: function () {
-            if (isPresent(this.target)) {
+            if (this.target) {
                 return this.target + ":" + this.name;
             }
             else {
                 return this.name;
             }
         },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BoundEventAst.prototype, "isAnimation", {
+        get: function () { return !!this.phase; },
         enumerable: true,
         configurable: true
     });
@@ -120,7 +132,7 @@ export var VariableAst = (function () {
  * An element declaration in a template.
  */
 export var ElementAst = (function () {
-    function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan) {
+    function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan, endSourceSpan) {
         this.name = name;
         this.attrs = attrs;
         this.inputs = inputs;
@@ -132,6 +144,7 @@ export var ElementAst = (function () {
         this.children = children;
         this.ngContentIndex = ngContentIndex;
         this.sourceSpan = sourceSpan;
+        this.endSourceSpan = endSourceSpan;
     }
     ElementAst.prototype.visit = function (visitor, context) {
         return visitor.visitElement(this, context);
@@ -263,9 +276,12 @@ export var PropertyBindingType;
 export function templateVisitAll(visitor, asts, context) {
     if (context === void 0) { context = null; }
     var result = [];
+    var visit = visitor.visit ?
+        function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+        function (ast) { return ast.visit(visitor, context); };
     asts.forEach(function (ast) {
-        var astResult = ast.visit(visitor, context);
-        if (isPresent(astResult)) {
+        var astResult = visit(ast);
+        if (astResult) {
             result.push(astResult);
         }
     });

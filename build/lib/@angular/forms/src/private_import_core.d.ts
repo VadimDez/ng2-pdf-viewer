@@ -5,9 +5,5 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-export declare class AnimationOutput {
-    name: string;
-    phase: string;
-    fullPropertyName: string;
-    constructor(name: string, phase: string, fullPropertyName: string);
-}
+import { __core_private__ as r } from '@angular/core';
+export declare const isPromise: typeof r.isPromise;

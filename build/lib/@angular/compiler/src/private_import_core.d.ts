@@ -68,8 +68,6 @@ export declare type AnimationKeyframe = typeof r._AnimationKeyframe;
 export declare const AnimationKeyframe: typeof r.AnimationKeyframe;
 export declare type AnimationStyles = typeof r._AnimationStyles;
 export declare const AnimationStyles: typeof r.AnimationStyles;
-export declare type AnimationOutput = typeof r._AnimationOutput;
-export declare const AnimationOutput: typeof r.AnimationOutput;
 export declare const ANY_STATE: string;
 export declare const DEFAULT_STATE: string;
 export declare const EMPTY_STATE: string;

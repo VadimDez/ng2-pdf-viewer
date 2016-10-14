@@ -26,7 +26,8 @@ export declare const formDirectiveProvider: any;
  * sub-groups within the form.
  *
  * You can listen to the directive's `ngSubmit` event to be notified when the user has
- * triggered a form submission.
+ * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+ * submission event.
  *
  * {@example forms/ts/simpleForm/simple_form_example.ts region='Component'}
  *
@@ -58,7 +59,7 @@ export declare class NgForm extends ControlContainer implements Form {
     setValue(value: {
         [key: string]: any;
     }): void;
-    onSubmit(): boolean;
+    onSubmit($event: Event): boolean;
     onReset(): void;
     resetForm(value?: any): void;
 }

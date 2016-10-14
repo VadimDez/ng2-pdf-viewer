@@ -10,7 +10,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { StringMapWrapper } from '../../facade/collection';
 import { EventManagerPlugin } from './event_manager';
 var _eventNames = {
     // pan
@@ -55,8 +54,7 @@ export var HammerGesturesPluginCommon = (function (_super) {
         _super.call(this);
     }
     HammerGesturesPluginCommon.prototype.supports = function (eventName) {
-        eventName = eventName.toLowerCase();
-        return StringMapWrapper.contains(_eventNames, eventName);
+        return _eventNames.hasOwnProperty(eventName.toLowerCase());
     };
     return HammerGesturesPluginCommon;
 }(EventManagerPlugin));

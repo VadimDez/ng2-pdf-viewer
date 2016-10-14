@@ -99,26 +99,24 @@ export var DirectiveNormalizer = (function () {
         var visitor = new TemplatePreparseVisitor();
         html.visitAll(visitor, rootNodesAndErrors.rootNodes);
         var templateStyles = this.normalizeStylesheet(new CompileStylesheetMetadata({ styles: visitor.styles, styleUrls: visitor.styleUrls, moduleUrl: templateAbsUrl }));
-        var allStyles = templateMetadataStyles.styles.concat(templateStyles.styles);
-        var allStyleUrls = templateMetadataStyles.styleUrls.concat(templateStyles.styleUrls);
         var encapsulation = templateMeta.encapsulation;
         if (isBlank(encapsulation)) {
             encapsulation = this._config.defaultEncapsulation;
         }
-        if (encapsulation === ViewEncapsulation.Emulated && allStyles.length === 0 &&
-            allStyleUrls.length === 0) {
+        var styles = templateMetadataStyles.styles.concat(templateStyles.styles);
+        var styleUrls = templateMetadataStyles.styleUrls.concat(templateStyles.styleUrls);
+        if (encapsulation === ViewEncapsulation.Emulated && styles.length === 0 &&
+            styleUrls.length === 0) {
             encapsulation = ViewEncapsulation.None;
         }
         return new CompileTemplateMetadata({
             encapsulation: encapsulation,
             template: template,
-            templateUrl: templateAbsUrl,
-            styles: allStyles,
-            styleUrls: allStyleUrls,
+            templateUrl: templateAbsUrl, styles: styles, styleUrls: styleUrls,
             externalStylesheets: templateMeta.externalStylesheets,
             ngContentSelectors: visitor.ngContentSelectors,
             animations: templateMeta.animations,
-            interpolation: templateMeta.interpolation
+            interpolation: templateMeta.interpolation,
         });
     };
     DirectiveNormalizer.prototype.normalizeExternalStylesheets = function (templateMeta) {
@@ -232,8 +230,7 @@ function _cloneDirectiveWithTemplate(directive, template) {
         viewProviders: directive.viewProviders,
         queries: directive.queries,
         viewQueries: directive.viewQueries,
-        entryComponents: directive.entryComponents,
-        template: template
+        entryComponents: directive.entryComponents, template: template,
     });
 }
 //# sourceMappingURL=directive_normalizer.js.map

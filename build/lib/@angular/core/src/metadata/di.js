@@ -69,8 +69,12 @@ export var Query = (function () {
  *  @Annotation
  */
 export var ContentChildren = makePropDecorator('ContentChildren', [
-    ['selector', undefined],
-    { first: false, isViewQuery: false, descendants: false, read: undefined }
+    ['selector', undefined], {
+        first: false,
+        isViewQuery: false,
+        descendants: false,
+        read: undefined,
+    }
 ], Query);
 /**
  * @whatItDoes Configures a content query.
@@ -105,7 +109,7 @@ export var ContentChild = makePropDecorator('ContentChild', [
     ['selector', undefined], {
         first: true,
         isViewQuery: false,
-        descendants: false,
+        descendants: true,
         read: undefined,
     }
 ], Query);

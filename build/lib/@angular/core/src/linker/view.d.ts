@@ -1,4 +1,3 @@
-import { AnimationOutput } from '../animation/animation_output';
 import { AnimationPlayer } from '../animation/animation_player';
 import { AnimationTransitionEvent } from '../animation/animation_transition_event';
 import { ViewAnimationMap } from '../animation/view_animation_map';
@@ -42,7 +41,7 @@ export declare abstract class AppView<T> {
     cancelActiveAnimation(element: any, animationName: string, removeAllAnimations?: boolean): void;
     queueAnimation(element: any, animationName: string, player: AnimationPlayer, totalTime: number, fromState: string, toState: string): void;
     triggerAnimationOutput(element: any, animationName: string, phase: string, event: AnimationTransitionEvent): void;
-    registerAnimationOutput(element: any, outputEvent: AnimationOutput, eventHandler: Function): void;
+    registerAnimationOutput(element: any, eventName: string, eventPhase: string, eventHandler: Function): void;
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
     /**
      * Overwritten by implementations.

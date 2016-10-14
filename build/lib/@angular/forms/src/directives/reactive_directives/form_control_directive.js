@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { Directive, Inject, Input, Optional, Output, Self, forwardRef } from '@angular/core';
 import { EventEmitter } from '../../facade/async';
-import { StringMapWrapper } from '../../facade/collection';
 import { NG_ASYNC_VALIDATORS, NG_VALIDATORS } from '../../validators';
 import { NG_VALUE_ACCESSOR } from '../control_value_accessor';
 import { NgControl } from '../ng_control';
@@ -81,8 +80,9 @@ export var FormControlDirective = (function (_super) {
     FormControlDirective.prototype.ngOnChanges = function (changes) {
         if (this._isControlChanged(changes)) {
             setUpControl(this.form, this);
-            if (this.control.disabled)
+            if (this.control.disabled && this.valueAccessor.setDisabledState) {
                 this.valueAccessor.setDisabledState(true);
+            }
             this.form.updateValueAndValidity({ emitEvent: false });
         }
         if (isPropertyUpdated(changes, this.viewModel)) {
@@ -117,7 +117,7 @@ export var FormControlDirective = (function (_super) {
         this.update.emit(newValue);
     };
     FormControlDirective.prototype._isControlChanged = function (changes) {
-        return StringMapWrapper.contains(changes, 'form');
+        return changes.hasOwnProperty('form');
     };
     FormControlDirective.decorators = [
         { type: Directive, args: [{ selector: '[formControl]', providers: [formControlBinding], exportAs: 'ngForm' },] },

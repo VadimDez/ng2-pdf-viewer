@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Injectable } from '@angular/core';
-import { ListWrapper, StringMapWrapper } from '../../facade/collection';
-import { StringWrapper, isPresent } from '../../facade/lang';
+import { ListWrapper } from '../../facade/collection';
+import { isPresent } from '../../facade/lang';
 import { getDOM } from '../dom_adapter';
 import { EventManagerPlugin } from './event_manager';
 var modifierKeys = ['alt', 'control', 'meta', 'shift'];
@@ -35,17 +35,15 @@ export var KeyEventsPlugin = (function (_super) {
     };
     KeyEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
         var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
-        var outsideHandler = KeyEventsPlugin.eventCallback(element, StringMapWrapper.get(parsedEvent, 'fullKey'), handler, this.manager.getZone());
+        var outsideHandler = KeyEventsPlugin.eventCallback(element, parsedEvent['fullKey'], handler, this.manager.getZone());
         return this.manager.getZone().runOutsideAngular(function () {
-            return getDOM().onAndCancel(element, StringMapWrapper.get(parsedEvent, 'domEventName'), outsideHandler);
+            return getDOM().onAndCancel(element, parsedEvent['domEventName'], outsideHandler);
         });
     };
     KeyEventsPlugin.parseEventName = function (eventName) {
         var parts = eventName.toLowerCase().split('.');
         var domEventName = parts.shift();
-        if ((parts.length === 0) ||
-            !(StringWrapper.equals(domEventName, 'keydown') ||
-                StringWrapper.equals(domEventName, 'keyup'))) {
+        if ((parts.length === 0) || !(domEventName === 'keydown' || domEventName === 'keyup')) {
             return null;
         }
         var key = KeyEventsPlugin._normalizeKey(parts.pop());
@@ -61,24 +59,24 @@ export var KeyEventsPlugin = (function (_super) {
             // returning null instead of throwing to let another plugin process the event
             return null;
         }
-        var result = StringMapWrapper.create();
-        StringMapWrapper.set(result, 'domEventName', domEventName);
-        StringMapWrapper.set(result, 'fullKey', fullKey);
+        var result = {};
+        result['domEventName'] = domEventName;
+        result['fullKey'] = fullKey;
         return result;
     };
     KeyEventsPlugin.getEventFullKey = function (event) {
         var fullKey = '';
         var key = getDOM().getEventKey(event);
         key = key.toLowerCase();
-        if (StringWrapper.equals(key, ' ')) {
+        if (key === ' ') {
             key = 'space'; // for readability
         }
-        else if (StringWrapper.equals(key, '.')) {
+        else if (key === '.') {
             key = 'dot'; // because '.' is used as a separator in event names
         }
         modifierKeys.forEach(function (modifierName) {
             if (modifierName != key) {
-                var modifierGetter = StringMapWrapper.get(modifierKeyGetters, modifierName);
+                var modifierGetter = modifierKeyGetters[modifierName];
                 if (modifierGetter(event)) {
                     fullKey += modifierName + '.';
                 }
@@ -89,7 +87,7 @@ export var KeyEventsPlugin = (function (_super) {
     };
     KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
         return function (event /** TODO #9100 */) {
-            if (StringWrapper.equals(KeyEventsPlugin.getEventFullKey(event), fullKey)) {
+            if (KeyEventsPlugin.getEventFullKey(event) === fullKey) {
                 zone.runGuarded(function () { return handler(event); });
             }
         };

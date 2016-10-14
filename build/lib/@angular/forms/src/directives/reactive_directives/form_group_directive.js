@@ -12,8 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { Directive, Inject, Input, Optional, Output, Self, forwardRef } from '@angular/core';
 import { EventEmitter } from '../../facade/async';
-import { ListWrapper, StringMapWrapper } from '../../facade/collection';
-import { isBlank } from '../../facade/lang';
+import { ListWrapper } from '../../facade/collection';
 import { NG_ASYNC_VALIDATORS, NG_VALIDATORS, Validators } from '../../validators';
 import { ControlContainer } from '../control_container';
 import { ReactiveErrors } from '../reactive_errors';
@@ -41,6 +40,10 @@ export var formDirectiveProvider = {
  * its {@link AbstractControl.statusChanges} event to be notified when the validation status is
  * re-calculated.
  *
+ * Furthermore, you can listen to the directive's `ngSubmit` event to be notified when the user has
+ * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+ * submission event.
+ *
  * ### Example
  *
  * In this example, we create form controls for first name and last name.
@@ -66,7 +69,7 @@ export var FormGroupDirective = (function (_super) {
     }
     FormGroupDirective.prototype.ngOnChanges = function (changes) {
         this._checkFormPresent();
-        if (StringMapWrapper.contains(changes, 'form')) {
+        if (changes.hasOwnProperty('form')) {
             this._updateValidators();
             this._updateDomValue();
             this._updateRegistrations();
@@ -119,9 +122,9 @@ export var FormGroupDirective = (function (_super) {
         var ctrl = this.form.get(dir.path);
         ctrl.setValue(value);
     };
-    FormGroupDirective.prototype.onSubmit = function () {
+    FormGroupDirective.prototype.onSubmit = function ($event) {
         this._submitted = true;
-        this.ngSubmit.emit(null);
+        this.ngSubmit.emit($event);
         return false;
     };
     FormGroupDirective.prototype.onReset = function () { this.resetForm(); };
@@ -158,7 +161,7 @@ export var FormGroupDirective = (function (_super) {
         this.form.asyncValidator = Validators.composeAsync([this.form.asyncValidator, async]);
     };
     FormGroupDirective.prototype._checkFormPresent = function () {
-        if (isBlank(this.form)) {
+        if (!this.form) {
             ReactiveErrors.missingFormException();
         }
     };
@@ -166,7 +169,7 @@ export var FormGroupDirective = (function (_super) {
         { type: Directive, args: [{
                     selector: '[formGroup]',
                     providers: [formDirectiveProvider],
-                    host: { '(submit)': 'onSubmit()', '(reset)': 'onReset()' },
+                    host: { '(submit)': 'onSubmit($event)', '(reset)': 'onReset()' },
                     exportAs: 'ngForm'
                 },] },
     ];

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ChangeDetectorRef, Pipe, WrappedValue } from '@angular/core';
-import { isBlank, isPresent, isPromise } from '../facade/lang';
+import { isPromise } from '../private_import_core';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
 var ObservableStrategy = (function () {
     function ObservableStrategy() {
@@ -30,7 +30,6 @@ var PromiseStrategy = (function () {
 }());
 var _promiseStrategy = new PromiseStrategy();
 var _observableStrategy = new ObservableStrategy();
-var __unused; // avoid unused import when Promise union types are erased
 /**
  * @ngModule CommonModule
  * @whatItDoes Unwraps a value from an asynchronous primitive.
@@ -58,25 +57,21 @@ var __unused; // avoid unused import when Promise union types are erased
  */
 export var AsyncPipe = (function () {
     function AsyncPipe(_ref) {
-        /** @internal */
+        this._ref = _ref;
         this._latestValue = null;
-        /** @internal */
         this._latestReturnedValue = null;
-        /** @internal */
         this._subscription = null;
-        /** @internal */
         this._obj = null;
         this._strategy = null;
-        this._ref = _ref;
     }
     AsyncPipe.prototype.ngOnDestroy = function () {
-        if (isPresent(this._subscription)) {
+        if (this._subscription) {
             this._dispose();
         }
     };
     AsyncPipe.prototype.transform = function (obj) {
-        if (isBlank(this._obj)) {
-            if (isPresent(obj)) {
+        if (!this._obj) {
+            if (obj) {
                 this._subscribe(obj);
             }
             this._latestReturnedValue = this._latestValue;
@@ -89,31 +84,24 @@ export var AsyncPipe = (function () {
         if (this._latestValue === this._latestReturnedValue) {
             return this._latestReturnedValue;
         }
-        else {
-            this._latestReturnedValue = this._latestValue;
-            return WrappedValue.wrap(this._latestValue);
-        }
+        this._latestReturnedValue = this._latestValue;
+        return WrappedValue.wrap(this._latestValue);
     };
-    /** @internal */
     AsyncPipe.prototype._subscribe = function (obj) {
         var _this = this;
         this._obj = obj;
         this._strategy = this._selectStrategy(obj);
         this._subscription = this._strategy.createSubscription(obj, function (value) { return _this._updateLatestValue(obj, value); });
     };
-    /** @internal */
     AsyncPipe.prototype._selectStrategy = function (obj) {
         if (isPromise(obj)) {
             return _promiseStrategy;
         }
-        else if (obj.subscribe) {
+        if (obj.subscribe) {
             return _observableStrategy;
         }
-        else {
-            throw new InvalidPipeArgumentError(AsyncPipe, obj);
-        }
+        throw new InvalidPipeArgumentError(AsyncPipe, obj);
     };
-    /** @internal */
     AsyncPipe.prototype._dispose = function () {
         this._strategy.dispose(this._subscription);
         this._latestValue = null;
@@ -121,7 +109,6 @@ export var AsyncPipe = (function () {
         this._subscription = null;
         this._obj = null;
     };
-    /** @internal */
     AsyncPipe.prototype._updateLatestValue = function (async, value) {
         if (async === this._obj) {
             this._latestValue = value;

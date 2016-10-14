@@ -28,7 +28,6 @@ export declare abstract class Injector {
      * - Throws {@link NoProviderError} if no `notFoundValue` that is not equal to
      * Injector.THROW_IF_NOT_FOUND is given
      * - Returns the `notFoundValue` otherwise
-     * ```
      */
     get(token: any, notFoundValue?: any): any;
 }

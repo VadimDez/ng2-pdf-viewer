@@ -6,6 +6,4 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { __core_private__ as r } from '@angular/core';
-export declare var ReflectionCapabilities: typeof r.ReflectionCapabilities;
-export declare var reflector: typeof r.reflector;
-export declare var Console: typeof r.Console;
+export declare const isPromise: typeof r.isPromise;

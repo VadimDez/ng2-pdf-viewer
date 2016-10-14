@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { OpaqueToken } from '../di/opaque_token';
 import { Type } from '../type';
 /**
@@ -42,55 +49,56 @@ export declare const ANALYZE_FOR_ENTRY_COMPONENTS: OpaqueToken;
  */
 export interface AttributeDecorator {
     /**
-   * Specifies that a constant attribute value should be injected.
-   *
-   * The directive can inject constant string literals of host element attributes.
-   *
-   * ### Example
-   *
-   * Suppose we have an `<input>` element and want to know its `type`.
-   *
-   * ```html
-   * <input type="text">
-   * ```
-   *
-   * A decorator can inject string literal `text` like so:
-   *
-   * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
-   *
-   * ### Example as TypeScript Decorator
-   *
-   * {@example core/ts/metadata/metadata.ts region='attributeFactory'}
-   *
-   * ### Example as ES5 DSL
-   *
-   * ```
-   * var MyComponent = ng
-   *   .Component({...})
-   *   .Class({
-   *     constructor: [new ng.Attribute('title'), function(title) {
-   *       ...
-   *     }]
-   *   })
-   * ```
-   *
-   * ### Example as ES5 annotation
-   *
-   * ```
-   * var MyComponent = function(title) {
-   *   ...
-   * };
-   *
-   * MyComponent.annotations = [
-   *   new ng.Component({...})
-   * ]
-   * MyComponent.parameters = [
-   *   [new ng.Attribute('title')]
-   * ]
-   * ```
-   *
-   * @stable
-   */ (name: string): any;
+     * Specifies that a constant attribute value should be injected.
+     *
+     * The directive can inject constant string literals of host element attributes.
+     *
+     * ### Example
+     *
+     * Suppose we have an `<input>` element and want to know its `type`.
+     *
+     * ```html
+     * <input type="text">
+     * ```
+     *
+     * A decorator can inject string literal `text` like so:
+     *
+     * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
+     *
+     * ### Example as TypeScript Decorator
+     *
+     * {@example core/ts/metadata/metadata.ts region='attributeFactory'}
+     *
+     * ### Example as ES5 DSL
+     *
+     * ```
+     * var MyComponent = ng
+     *   .Component({...})
+     *   .Class({
+     *     constructor: [new ng.Attribute('title'), function(title) {
+     *       ...
+     *     }]
+     *   })
+     * ```
+     *
+     * ### Example as ES5 annotation
+     *
+     * ```
+     * var MyComponent = function(title) {
+     *   ...
+     * };
+     *
+     * MyComponent.annotations = [
+     *   new ng.Component({...})
+     * ]
+     * MyComponent.parameters = [
+     *   [new ng.Attribute('title')]
+     * ]
+     * ```
+     *
+     * @stable
+     */
+    (name: string): any;
     new (name: string): Attribute;
 }
 /**
@@ -325,8 +333,6 @@ export interface ViewChildDecorator {
      *
      * * **selector** - the directive type or the name used for querying.
      * * **read** - read a different token from the queried elements.
-     *
-     * Let's look at an example!!!!:
      *
      * {@example core/di/ts/viewChild/view_child_example.ts region='Component'}
      *

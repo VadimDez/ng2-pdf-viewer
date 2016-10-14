@@ -32,6 +32,10 @@ export declare const formDirectiveProvider: any;
  * its {@link AbstractControl.statusChanges} event to be notified when the validation status is
  * re-calculated.
  *
+ * Furthermore, you can listen to the directive's `ngSubmit` event to be notified when the user has
+ * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+ * submission event.
+ *
  * ### Example
  *
  * In this example, we create form controls for first name and last name.
@@ -68,7 +72,7 @@ export declare class FormGroupDirective extends ControlContainer implements Form
     removeFormArray(dir: FormArrayName): void;
     getFormArray(dir: FormArrayName): FormArray;
     updateModel(dir: FormControlName, value: any): void;
-    onSubmit(): boolean;
+    onSubmit($event: Event): boolean;
     onReset(): void;
     resetForm(value?: any): void;
     private _updateRegistrations();

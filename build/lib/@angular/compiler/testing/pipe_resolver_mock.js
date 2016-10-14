@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { PipeResolver } from '@angular/compiler';
 import { Compiler, Injectable, Injector } from '@angular/core';
-import { Map } from './facade/collection';
 export var MockPipeResolver = (function (_super) {
     __extends(MockPipeResolver, _super);
     function MockPipeResolver(_injector) {

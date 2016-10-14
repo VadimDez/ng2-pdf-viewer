@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { StringMapWrapper } from './facade/collection';
 import { isArray, isPresent } from './facade/lang';
 import { FormArray, FormControl, FormGroup } from './model';
 /**
@@ -41,8 +40,8 @@ export var FormBuilder = (function () {
     FormBuilder.prototype.group = function (controlsConfig, extra) {
         if (extra === void 0) { extra = null; }
         var controls = this._reduceControls(controlsConfig);
-        var validator = isPresent(extra) ? StringMapWrapper.get(extra, 'validator') : null;
-        var asyncValidator = isPresent(extra) ? StringMapWrapper.get(extra, 'asyncValidator') : null;
+        var validator = isPresent(extra) ? extra['validator'] : null;
+        var asyncValidator = isPresent(extra) ? extra['asyncValidator'] : null;
         return new FormGroup(controls, validator, asyncValidator);
     };
     /**
@@ -73,8 +72,8 @@ export var FormBuilder = (function () {
     FormBuilder.prototype._reduceControls = function (controlsConfig) {
         var _this = this;
         var controls = {};
-        StringMapWrapper.forEach(controlsConfig, function (controlConfig, controlName) {
-            controls[controlName] = _this._createControl(controlConfig);
+        Object.keys(controlsConfig).forEach(function (controlName) {
+            controls[controlName] = _this._createControl(controlsConfig[controlName]);
         });
         return controls;
     };

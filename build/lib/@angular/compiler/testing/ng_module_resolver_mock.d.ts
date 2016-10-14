@@ -11,8 +11,6 @@ export declare class MockNgModuleResolver extends NgModuleResolver {
     private _injector;
     private _ngModules;
     constructor(_injector: Injector);
-    private _compiler;
-    private _clearCacheFor(component);
     /**
      * Overrides the {@link NgModule} for a module.
      */
@@ -24,4 +22,6 @@ export declare class MockNgModuleResolver extends NgModuleResolver {
      * `NgModuleResolver`, see `setNgModule`.
      */
     resolve(type: Type<any>, throwIfNotFound?: boolean): NgModule;
+    private _compiler;
+    private _clearCacheFor(component);
 }

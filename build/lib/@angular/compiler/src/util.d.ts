@@ -10,6 +10,7 @@ import * as o from './output/output_ast';
 export declare const MODULE_SUFFIX: string;
 export declare function camelCaseToDashCase(input: string): string;
 export declare function splitAtColon(input: string, defaultValues: string[]): string[];
+export declare function splitAtPeriod(input: string, defaultValues: string[]): string[];
 export declare function sanitizeIdentifier(name: string): string;
 export declare function visitValue(value: any, visitor: ValueVisitor, context: any): any;
 export interface ValueVisitor {

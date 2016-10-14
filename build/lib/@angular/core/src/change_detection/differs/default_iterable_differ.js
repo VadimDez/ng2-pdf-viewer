@@ -41,7 +41,7 @@ export var DefaultIterableDiffer = (function () {
         // Keeps track of records where custom track by is the same, but item identity has changed
         this._identityChangesHead = null;
         this._identityChangesTail = null;
-        this._trackByFn = isPresent(this._trackByFn) ? this._trackByFn : trackByIdentity;
+        this._trackByFn = this._trackByFn || trackByIdentity;
     }
     Object.defineProperty(DefaultIterableDiffer.prototype, "collection", {
         get: function () { return this._collection; },
@@ -680,7 +680,7 @@ var _DuplicateMap = (function () {
         if (afterIndex === void 0) { afterIndex = null; }
         var key = getMapKey(trackById);
         var recordList = this.map.get(key);
-        return isBlank(recordList) ? null : recordList.get(trackById, afterIndex);
+        return recordList ? recordList.get(trackById, afterIndex) : null;
     };
     /**
      * Removes a {@link CollectionChangeRecord} from the list of duplicates.

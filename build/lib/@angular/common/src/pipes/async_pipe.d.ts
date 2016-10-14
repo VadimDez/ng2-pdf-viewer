@@ -33,8 +33,17 @@ import { EventEmitter, Observable } from '../facade/async';
  * @stable
  */
 export declare class AsyncPipe implements OnDestroy {
+    private _ref;
+    private _latestValue;
+    private _latestReturnedValue;
+    private _subscription;
+    private _obj;
     private _strategy;
     constructor(_ref: ChangeDetectorRef);
     ngOnDestroy(): void;
     transform(obj: Observable<any> | Promise<any> | EventEmitter<any>): any;
+    private _subscribe(obj);
+    private _selectStrategy(obj);
+    private _dispose();
+    private _updateLatestValue(async, value);
 }

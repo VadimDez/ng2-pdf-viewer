@@ -14,8 +14,7 @@ import { Inject, Injectable, OpaqueToken, Optional, SecurityContext } from '@ang
 import { removeIdentifierDuplicates } from '../compile_metadata';
 import { EmptyExpr, RecursiveAstVisitor } from '../expression_parser/ast';
 import { Parser } from '../expression_parser/parser';
-import { StringMapWrapper } from '../facade/collection';
-import { isBlank, isPresent, isString } from '../facade/lang';
+import { isPresent, isString } from '../facade/lang';
 import { I18NHtmlParser } from '../i18n/i18n_html_parser';
 import { Identifiers, identifierToken, resolveIdentifierToken } from '../identifiers';
 import * as html from '../ml_parser/ast';
@@ -29,7 +28,7 @@ import { ProviderElementContext, ProviderViewContext } from '../provider_analyze
 import { ElementSchemaRegistry } from '../schema/element_schema_registry';
 import { CssSelector, SelectorMatcher } from '../selector';
 import { isStyleUrlResolvable } from '../style_url_resolver';
-import { splitAtColon } from '../util';
+import { splitAtColon, splitAtPeriod } from '../util';
 import { AttrAst, BoundDirectivePropertyAst, BoundElementPropertyAst, BoundEventAst, BoundTextAst, DirectiveAst, ElementAst, EmbeddedTemplateAst, NgContentAst, PropertyBindingType, ReferenceAst, TextAst, VariableAst, templateVisitAll } from './template_ast';
 import { PreparsedElementType, preparseElement } from './template_preparser';
 // Group 1 = "bind-"
@@ -107,19 +106,11 @@ export var TemplateParser = (function () {
         return result.templateAst;
     };
     TemplateParser.prototype.tryParse = function (component, template, directives, pipes, schemas, templateUrl) {
-        var interpolationConfig;
-        if (component.template) {
-            interpolationConfig = InterpolationConfig.fromArray(component.template.interpolation);
-        }
-        var htmlAstWithErrors = this._htmlParser.parse(template, templateUrl, true, interpolationConfig);
-        var errors = htmlAstWithErrors.errors;
+        return this.tryParseHtml(this.expandHtml(this._htmlParser.parse(template, templateUrl, true, this.getInterpolationConfig(component))), component, template, directives, pipes, schemas, templateUrl);
+    };
+    TemplateParser.prototype.tryParseHtml = function (htmlAstWithErrors, component, template, directives, pipes, schemas, templateUrl) {
         var result;
-        if (errors.length == 0) {
-            // Transform ICU messages to angular directives
-            var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
-            errors.push.apply(errors, expandedHtmlAst.errors);
-            htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
-        }
+        var errors = htmlAstWithErrors.errors;
         if (htmlAstWithErrors.rootNodes.length > 0) {
             var uniqDirectives = removeIdentifierDuplicates(directives);
             var uniqPipes = removeIdentifierDuplicates(pipes);
@@ -139,6 +130,22 @@ export var TemplateParser = (function () {
             this.transforms.forEach(function (transform) { result = templateVisitAll(transform, result); });
         }
         return new TemplateParseResult(result, errors);
+    };
+    TemplateParser.prototype.expandHtml = function (htmlAstWithErrors, forced) {
+        if (forced === void 0) { forced = false; }
+        var errors = htmlAstWithErrors.errors;
+        if (errors.length == 0 || forced) {
+            // Transform ICU messages to angular directives
+            var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
+            errors.push.apply(errors, expandedHtmlAst.errors);
+            htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
+        }
+        return htmlAstWithErrors;
+    };
+    TemplateParser.prototype.getInterpolationConfig = function (component) {
+        if (component.template) {
+            return InterpolationConfig.fromArray(component.template.interpolation);
+        }
     };
     /** @internal */
     TemplateParser.prototype._assertNoReferenceDuplicationOnTemplate = function (result, errors) {
@@ -364,8 +371,8 @@ var TemplateParseVisitor = (function () {
         var ngContentIndex = parent.findNgContentIndex(projectionSelector);
         var parsedElement;
         if (preparsedElement.type === PreparsedElementType.NG_CONTENT) {
-            if (isPresent(element.children) && element.children.length > 0) {
-                this._reportError("<ng-content> element cannot have content. <ng-content> must be immediately followed by </ng-content>", element.sourceSpan);
+            if (element.children && !element.children.every(_isEmptyTextNode)) {
+                this._reportError("<ng-content> element cannot have content.", element.sourceSpan);
             }
             parsedElement = new NgContentAst(this.ngContentCount++, hasInlineTemplates ? null : ngContentIndex, element.sourceSpan);
         }
@@ -378,7 +385,11 @@ var TemplateParseVisitor = (function () {
             this._assertElementExists(matchElement, element);
             this._assertOnlyOneComponent(directiveAsts, element.sourceSpan);
             var ngContentIndex_1 = hasInlineTemplates ? null : parent.findNgContentIndex(projectionSelector);
-            parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan);
+            parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan, element.endSourceSpan);
+            this._findComponentDirectives(directiveAsts)
+                .forEach(function (componentDirectiveAst) { return _this._validateElementAnimationInputOutputs(componentDirectiveAst.hostProperties, componentDirectiveAst.hostEvents, componentDirectiveAst.directive.template); });
+            var componentTemplate = providerContext.viewContext.component.template;
+            this._validateElementAnimationInputOutputs(elementProps, events, componentTemplate);
         }
         if (hasInlineTemplates) {
             var templateCssSelector = createElementCssSelector(TEMPLATE_ELEMENT, templateMatchableAttrs);
@@ -391,6 +402,26 @@ var TemplateParseVisitor = (function () {
             parsedElement = new EmbeddedTemplateAst([], [], [], templateElementVars, templateProviderContext.transformedDirectiveAsts, templateProviderContext.transformProviders, templateProviderContext.transformedHasViewContainer, [parsedElement], ngContentIndex, element.sourceSpan);
         }
         return parsedElement;
+    };
+    TemplateParseVisitor.prototype._validateElementAnimationInputOutputs = function (inputs, outputs, template) {
+        var _this = this;
+        var triggerLookup = new Set();
+        template.animations.forEach(function (entry) { triggerLookup.add(entry.name); });
+        var animationInputs = inputs.filter(function (input) { return input.isAnimation; });
+        animationInputs.forEach(function (input) {
+            var name = input.name;
+            if (!triggerLookup.has(name)) {
+                _this._reportError("Couldn't find an animation entry for \"" + name + "\"", input.sourceSpan);
+            }
+        });
+        outputs.forEach(function (output) {
+            if (output.isAnimation) {
+                var found = animationInputs.find(function (input) { return input.name == output.name; });
+                if (!found) {
+                    _this._reportError("Unable to listen on (@" + output.name + "." + output.phase + ") because the animation trigger [@" + output.name + "] isn't being used on the same element", output.sourceSpan);
+                }
+            }
+        });
     };
     TemplateParseVisitor.prototype._parseInlineTemplateBinding = function (attr, targetMatchableAttrs, targetProps, targetVars) {
         var templateBindingsSource = null;
@@ -445,14 +476,14 @@ var TemplateParseVisitor = (function () {
                 this._parseReference(identifier, value, srcSpan, targetRefs);
             }
             else if (bindParts[KW_ON_IDX]) {
-                this._parseEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
+                this._parseEventOrAnimationEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
             }
             else if (bindParts[KW_BINDON_IDX]) {
                 this._parsePropertyOrAnimation(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetProps, targetAnimationProps);
                 this._parseAssignmentEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
             }
             else if (bindParts[KW_AT_IDX]) {
-                if (name[0] == '@' && isPresent(value) && value.length > 0) {
+                if (_isAnimationLabel(name) && isPresent(value) && value.length > 0) {
                     this._reportError("Assigning animation triggers via @prop=\"exp\" attributes with an expression is invalid." +
                         " Use property bindings (e.g. [@prop]=\"exp\") or use an attribute without a value (e.g. @prop) instead.", srcSpan, ParseErrorLevel.FATAL);
                 }
@@ -466,7 +497,7 @@ var TemplateParseVisitor = (function () {
                 this._parsePropertyOrAnimation(bindParts[IDENT_PROPERTY_IDX], value, srcSpan, targetMatchableAttrs, targetProps, targetAnimationProps);
             }
             else if (bindParts[IDENT_EVENT_IDX]) {
-                this._parseEvent(bindParts[IDENT_EVENT_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
+                this._parseEventOrAnimationEvent(bindParts[IDENT_EVENT_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
             }
         }
         else {
@@ -495,7 +526,7 @@ var TemplateParseVisitor = (function () {
     };
     TemplateParseVisitor.prototype._parsePropertyOrAnimation = function (name, expression, sourceSpan, targetMatchableAttrs, targetProps, targetAnimationProps) {
         var animatePropLength = ANIMATE_PROP_PREFIX.length;
-        var isAnimationProp = name[0] == '@';
+        var isAnimationProp = _isAnimationLabel(name);
         var animationPrefixLength = 1;
         if (name.substring(0, animatePropLength) == ANIMATE_PROP_PREFIX) {
             isAnimationProp = true;
@@ -532,16 +563,43 @@ var TemplateParseVisitor = (function () {
         targetProps.push(new BoundElementOrDirectiveProperty(name, ast, false, sourceSpan));
     };
     TemplateParseVisitor.prototype._parseAssignmentEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
-        this._parseEvent(name + "Change", expression + "=$event", sourceSpan, targetMatchableAttrs, targetEvents);
+        this._parseEventOrAnimationEvent(name + "Change", expression + "=$event", sourceSpan, targetMatchableAttrs, targetEvents);
+    };
+    TemplateParseVisitor.prototype._parseEventOrAnimationEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
+        if (_isAnimationLabel(name)) {
+            name = name.substr(1);
+            this._parseAnimationEvent(name, expression, sourceSpan, targetEvents);
+        }
+        else {
+            this._parseEvent(name, expression, sourceSpan, targetMatchableAttrs, targetEvents);
+        }
+    };
+    TemplateParseVisitor.prototype._parseAnimationEvent = function (name, expression, sourceSpan, targetEvents) {
+        var matches = splitAtPeriod(name, [name, '']);
+        var eventName = matches[0];
+        var phase = matches[1].toLowerCase();
+        if (phase) {
+            switch (phase) {
+                case 'start':
+                case 'done':
+                    var ast = this._parseAction(expression, sourceSpan);
+                    targetEvents.push(new BoundEventAst(eventName, null, phase, ast, sourceSpan));
+                    break;
+                default:
+                    this._reportError("The provided animation output phase value \"" + phase + "\" for \"@" + eventName + "\" is not supported (use start or done)", sourceSpan);
+                    break;
+            }
+        }
+        else {
+            this._reportError("The animation trigger output event (@" + eventName + ") is missing its phase value name (start or done are currently supported)", sourceSpan);
+        }
     };
     TemplateParseVisitor.prototype._parseEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
         // long format: 'target: eventName'
-        var parts = splitAtColon(name, [null, name]);
-        var target = parts[0];
-        var eventName = parts[1];
+        var _a = splitAtColon(name, [null, name]), target = _a[0], eventName = _a[1];
         var ast = this._parseAction(expression, sourceSpan);
         targetMatchableAttrs.push([name, ast.source]);
-        targetEvents.push(new BoundEventAst(eventName, target, ast, sourceSpan));
+        targetEvents.push(new BoundEventAst(eventName, target, null, ast, sourceSpan));
         // Don't detect directives for event names for now,
         // so don't add the event name to the matchableAttrs
     };
@@ -608,7 +666,8 @@ var TemplateParseVisitor = (function () {
     TemplateParseVisitor.prototype._createDirectiveHostPropertyAsts = function (elementName, hostProps, sourceSpan, targetPropertyAsts) {
         var _this = this;
         if (hostProps) {
-            StringMapWrapper.forEach(hostProps, function (expression, propName) {
+            Object.keys(hostProps).forEach(function (propName) {
+                var expression = hostProps[propName];
                 if (isString(expression)) {
                     var exprAst = _this._parseBinding(expression, sourceSpan);
                     targetPropertyAsts.push(_this._createElementPropertyAst(elementName, propName, exprAst, sourceSpan));
@@ -622,9 +681,10 @@ var TemplateParseVisitor = (function () {
     TemplateParseVisitor.prototype._createDirectiveHostEventAsts = function (hostListeners, sourceSpan, targetEventAsts) {
         var _this = this;
         if (hostListeners) {
-            StringMapWrapper.forEach(hostListeners, function (expression, propName) {
+            Object.keys(hostListeners).forEach(function (propName) {
+                var expression = hostListeners[propName];
                 if (isString(expression)) {
-                    _this._parseEvent(propName, expression, sourceSpan, [], targetEventAsts);
+                    _this._parseEventOrAnimationEvent(propName, expression, sourceSpan, [], targetEventAsts);
                 }
                 else {
                     _this._reportError("Value of the host listener \"" + propName + "\" needs to be a string representing an expression but got \"" + expression + "\" (" + typeof expression + ")", sourceSpan);
@@ -637,12 +697,13 @@ var TemplateParseVisitor = (function () {
             var boundPropsByName_1 = new Map();
             boundProps.forEach(function (boundProp) {
                 var prevValue = boundPropsByName_1.get(boundProp.name);
-                if (isBlank(prevValue) || prevValue.isLiteral) {
+                if (!prevValue || prevValue.isLiteral) {
                     // give [a]="b" a higher precedence than a="b" on the same element
                     boundPropsByName_1.set(boundProp.name, boundProp);
                 }
             });
-            StringMapWrapper.forEach(directiveProperties, function (elProp, dirProp) {
+            Object.keys(directiveProperties).forEach(function (dirProp) {
+                var elProp = directiveProperties[dirProp];
                 var boundProp = boundPropsByName_1.get(elProp);
                 // Bindings are optional, so this binding only needs to be set up if an expression is given.
                 if (boundProp) {
@@ -661,7 +722,7 @@ var TemplateParseVisitor = (function () {
             });
         });
         props.forEach(function (prop) {
-            if (!prop.isLiteral && isBlank(boundDirectivePropsIndex.get(prop.name))) {
+            if (!prop.isLiteral && !boundDirectivePropsIndex.get(prop.name)) {
                 boundElementProps.push(_this._createElementPropertyAst(elementName, prop.name, prop.expression, prop.sourceSpan));
             }
         });
@@ -675,7 +736,7 @@ var TemplateParseVisitor = (function () {
         var securityContext;
         if (parts.length === 1) {
             var partValue = parts[0];
-            if (partValue[0] == '@') {
+            if (_isAnimationLabel(partValue)) {
                 boundPropertyName = partValue.substr(1);
                 bindingType = PropertyBindingType.Animation;
                 securityContext = SecurityContext.NONE;
@@ -684,13 +745,13 @@ var TemplateParseVisitor = (function () {
                 boundPropertyName = this._schemaRegistry.getMappedPropName(partValue);
                 securityContext = this._schemaRegistry.securityContext(elementName, boundPropertyName);
                 bindingType = PropertyBindingType.Property;
-                this._assertNoEventBinding(boundPropertyName, sourceSpan);
+                this._validatePropertyOrAttributeName(boundPropertyName, sourceSpan, false);
                 if (!this._schemaRegistry.hasProperty(elementName, boundPropertyName, this._schemas)) {
                     var errorMsg = "Can't bind to '" + boundPropertyName + "' since it isn't a known property of '" + elementName + "'.";
                     if (elementName.indexOf('-') > -1) {
                         errorMsg +=
                             ("\n1. If '" + elementName + "' is an Angular component and it has '" + boundPropertyName + "' input, then verify that it is part of this module.") +
-                                ("\n2. If '" + elementName + "' is a Web Component then add \"CUSTOM_ELEMENTS_SCHEMA\" to the '@NgModule.schema' of this component to suppress this message.\n");
+                                ("\n2. If '" + elementName + "' is a Web Component then add \"CUSTOM_ELEMENTS_SCHEMA\" to the '@NgModule.schemas' of this component to suppress this message.\n");
                     }
                     this._reportError(errorMsg, sourceSpan);
                 }
@@ -699,7 +760,7 @@ var TemplateParseVisitor = (function () {
         else {
             if (parts[0] == ATTRIBUTE_PREFIX) {
                 boundPropertyName = parts[1];
-                this._assertNoEventBinding(boundPropertyName, sourceSpan);
+                this._validatePropertyOrAttributeName(boundPropertyName, sourceSpan, true);
                 // NB: For security purposes, use the mapped property name, not the attribute name.
                 var mapPropName = this._schemaRegistry.getMappedPropName(boundPropertyName);
                 securityContext = this._schemaRegistry.securityContext(elementName, mapPropName);
@@ -730,21 +791,25 @@ var TemplateParseVisitor = (function () {
         }
         return new BoundElementPropertyAst(boundPropertyName, bindingType, securityContext, ast, unit, sourceSpan);
     };
-    TemplateParseVisitor.prototype._assertNoEventBinding = function (propName, sourceSpan) {
-        if (propName.toLowerCase().startsWith('on')) {
-            this._reportError(("Binding to event attribute '" + propName + "' is disallowed ") +
-                ("for security reasons, please use (" + propName.slice(2) + ")=..."), sourceSpan, ParseErrorLevel.FATAL);
+    /**
+     * @param propName the name of the property / attribute
+     * @param sourceSpan
+     * @param isAttr true when binding to an attribute
+     * @private
+     */
+    TemplateParseVisitor.prototype._validatePropertyOrAttributeName = function (propName, sourceSpan, isAttr) {
+        var report = isAttr ? this._schemaRegistry.validateAttribute(propName) :
+            this._schemaRegistry.validateProperty(propName);
+        if (report.error) {
+            this._reportError(report.msg, sourceSpan, ParseErrorLevel.FATAL);
         }
     };
+    TemplateParseVisitor.prototype._findComponentDirectives = function (directives) {
+        return directives.filter(function (directive) { return directive.directive.isComponent; });
+    };
     TemplateParseVisitor.prototype._findComponentDirectiveNames = function (directives) {
-        var componentTypeNames = [];
-        directives.forEach(function (directive) {
-            var typeName = directive.directive.type.name;
-            if (directive.directive.isComponent) {
-                componentTypeNames.push(typeName);
-            }
-        });
-        return componentTypeNames;
+        return this._findComponentDirectives(directives)
+            .map(function (directive) { return directive.directive.type.name; });
     };
     TemplateParseVisitor.prototype._assertOnlyOneComponent = function (directives, sourceSpan) {
         var componentTypeNames = this._findComponentDirectiveNames(directives);
@@ -766,7 +831,7 @@ var TemplateParseVisitor = (function () {
         if (!matchElement && !this._schemaRegistry.hasElement(elName, this._schemas)) {
             var errorMsg = ("'" + elName + "' is not a known element:\n") +
                 ("1. If '" + elName + "' is an Angular component, then verify that it is part of this module.\n") +
-                ("2. If '" + elName + "' is a Web Component then add \"CUSTOM_ELEMENTS_SCHEMA\" to the '@NgModule.schema' of this component to suppress this message.");
+                ("2. If '" + elName + "' is a Web Component then add \"CUSTOM_ELEMENTS_SCHEMA\" to the '@NgModule.schemas' of this component to suppress this message.");
             this._reportError(errorMsg, element.sourceSpan);
         }
     };
@@ -784,7 +849,8 @@ var TemplateParseVisitor = (function () {
         var _this = this;
         var allDirectiveEvents = new Set();
         directives.forEach(function (directive) {
-            StringMapWrapper.forEach(directive.directive.outputs, function (eventName) {
+            Object.keys(directive.directive.outputs).forEach(function (k) {
+                var eventName = directive.directive.outputs[k];
                 allDirectiveEvents.add(eventName);
             });
         });
@@ -813,7 +879,7 @@ var NonBindableVisitor = (function () {
         var selector = createElementCssSelector(ast.name, attrNameAndValues);
         var ngContentIndex = parent.findNgContentIndex(selector);
         var children = html.visitAll(this, ast.children, EMPTY_ELEMENT_CONTEXT);
-        return new ElementAst(ast.name, html.visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan);
+        return new ElementAst(ast.name, html.visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan, ast.endSourceSpan);
     };
     NonBindableVisitor.prototype.visitComment = function (comment, context) { return null; };
     NonBindableVisitor.prototype.visitAttribute = function (attribute, context) {
@@ -915,4 +981,10 @@ export var PipeCollector = (function (_super) {
     };
     return PipeCollector;
 }(RecursiveAstVisitor));
+function _isAnimationLabel(name) {
+    return name[0] == '@';
+}
+function _isEmptyTextNode(node) {
+    return node instanceof html.Text && node.value.trim().length == 0;
+}
 //# sourceMappingURL=template_parser.js.map

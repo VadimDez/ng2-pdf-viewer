@@ -7,7 +7,7 @@
  */
 import { NgZone } from '@angular/core';
 import { ListWrapper } from './facade/collection';
-import { StringWrapper, global, isPresent, isString } from './facade/lang';
+import { global, isPresent, isString } from './facade/lang';
 import { getDOM } from './private_import_platform-browser';
 export var BrowserDetection = (function () {
     function BrowserDetection(ua) {
@@ -110,13 +110,24 @@ export function el(html) {
     return getDOM().firstChild(getDOM().content(getDOM().createTemplate(html)));
 }
 export function normalizeCSS(css) {
-    css = StringWrapper.replaceAll(css, /\s+/g, ' ');
-    css = StringWrapper.replaceAll(css, /:\s/g, ':');
-    css = StringWrapper.replaceAll(css, /'/g, '"');
-    css = StringWrapper.replaceAll(css, / }/g, '}');
-    css = StringWrapper.replaceAllMapped(css, /url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function (match /** TODO #9100 */) { return ("url(\"" + match[2] + "\")"); });
-    css = StringWrapper.replaceAllMapped(css, /\[(.+)=([^"\]]+)\]/g, function (match /** TODO #9100 */) { return ("[" + match[1] + "=\"" + match[2] + "\"]"); });
-    return css;
+    return css.replace(/\s+/g, ' ')
+        .replace(/:\s/g, ':')
+        .replace(/'/g, '"')
+        .replace(/ }/g, '}')
+        .replace(/url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function () {
+        var match = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            match[_i - 0] = arguments[_i];
+        }
+        return ("url(\"" + match[2] + "\")");
+    })
+        .replace(/\[(.+)=([^"\]]+)\]/g, function () {
+        var match = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            match[_i - 0] = arguments[_i];
+        }
+        return ("[" + match[1] + "=\"" + match[2] + "\"]");
+    });
 }
 var _singleTagWhitelist = ['br', 'hr', 'input'];
 export function stringifyElement(el /** TODO #9100 */) {

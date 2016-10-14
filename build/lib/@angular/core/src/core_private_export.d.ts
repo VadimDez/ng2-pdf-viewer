@@ -8,7 +8,6 @@
 import { ANY_STATE as ANY_STATE_, DEFAULT_STATE as DEFAULT_STATE_, EMPTY_STATE as EMPTY_STATE_, FILL_STYLE_FLAG as FILL_STYLE_FLAG_ } from './animation/animation_constants';
 import { AnimationGroupPlayer as AnimationGroupPlayer_ } from './animation/animation_group_player';
 import { AnimationKeyframe as AnimationKeyframe_ } from './animation/animation_keyframe';
-import { AnimationOutput as AnimationOutput_ } from './animation/animation_output';
 import { AnimationPlayer as AnimationPlayer_, NoOpAnimationPlayer as NoOpAnimationPlayer_ } from './animation/animation_player';
 import { AnimationSequencePlayer as AnimationSequencePlayer_ } from './animation/animation_sequence_player';
 import * as animationUtils from './animation/animation_style_util';
@@ -36,11 +35,11 @@ import * as reflector_reader from './reflection/reflector_reader';
 import * as reflection_types from './reflection/types';
 import * as api from './render/api';
 import * as decorators from './util/decorators';
+import { isPromise } from './util/lang';
 export declare var __core_private__: {
     isDefaultChangeDetectionStrategy: typeof constants.isDefaultChangeDetectionStrategy;
     ChangeDetectorStatus: typeof constants.ChangeDetectorStatus;
     _ChangeDetectorStatus?: constants.ChangeDetectorStatus;
-    CHANGE_DETECTION_STRATEGY_VALUES: typeof constants.CHANGE_DETECTION_STRATEGY_VALUES;
     constructDependencies: typeof reflective_provider.constructDependencies;
     LifecycleHooks: typeof lifecycle_hooks.LifecycleHooks;
     _LifecycleHooks?: lifecycle_hooks.LifecycleHooks;
@@ -69,7 +68,6 @@ export declare var __core_private__: {
     interpolate: typeof view_utils.interpolate;
     ViewUtils: typeof view_utils.ViewUtils;
     _ViewUtils?: view_utils.ViewUtils;
-    VIEW_ENCAPSULATION_VALUES: typeof metadata_view.VIEW_ENCAPSULATION_VALUES;
     ViewMetadata: typeof metadata_view.ViewMetadata;
     _ViewMetadata?: metadata_view.ViewMetadata;
     DebugContext: typeof debug_context.DebugContext;
@@ -125,12 +123,11 @@ export declare var __core_private__: {
     collectAndResolveStyles: typeof animationUtils.collectAndResolveStyles;
     AnimationStyles: typeof AnimationStyles_;
     _AnimationStyles?: AnimationStyles_;
-    AnimationOutput: typeof AnimationOutput_;
-    _AnimationOutput?: AnimationOutput_;
     ANY_STATE: typeof ANY_STATE_;
     DEFAULT_STATE: typeof DEFAULT_STATE_;
     EMPTY_STATE: typeof EMPTY_STATE_;
     FILL_STYLE_FLAG: typeof FILL_STYLE_FLAG_;
     _ComponentStillLoadingError?: ComponentStillLoadingError;
     ComponentStillLoadingError: typeof ComponentStillLoadingError;
+    isPromise: typeof isPromise;
 };

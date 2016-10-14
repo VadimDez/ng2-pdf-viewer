@@ -65,9 +65,14 @@ export var controlNameBinding = {
  *
  * {@example forms/ts/simpleFormGroup/simple_form_group_example.ts region='Component'}
  *
- *  * **npm package**: `@angular/forms`
+ * To see `formControlName` examples with different form control types, see:
  *
- *  * **NgModule**: {@link ReactiveFormsModule}
+ * * Radio buttons: {@link RadioControlValueAccessor}
+ * * Selects: {@link SelectControlValueAccessor}
+ *
+ * **npm package**: `@angular/forms`
+ *
+ * **NgModule**: {@link ReactiveFormsModule}
  *
  *  @stable
  */
@@ -144,8 +149,9 @@ export var FormControlName = (function (_super) {
     FormControlName.prototype._setUpControl = function () {
         this._checkParentType();
         this._control = this.formDirective.addControl(this);
-        if (this.control.disabled)
+        if (this.control.disabled && this.valueAccessor.setDisabledState) {
             this.valueAccessor.setDisabledState(true);
+        }
         this._added = true;
     };
     FormControlName.decorators = [

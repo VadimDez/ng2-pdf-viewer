@@ -9,11 +9,8 @@
  * @module
  * @description
  * This module is used for handling user input, by defining and building a {@link FormGroup} that
- * consists of
- * {@link FormControl} objects, and mapping them onto the DOM. {@link FormControl} objects can then
- * be used
- * to read information
- * from the form DOM elements.
+ * consists of {@link FormControl} objects, and mapping them onto the DOM. {@link FormControl}
+ * objects can then be used to read information from the form DOM elements.
  *
  * Forms providers are not included in default providers; you must import these providers
  * explicitly.
@@ -29,6 +26,7 @@ export { NgControlStatus, NgControlStatusGroup } from './directives/ng_control_s
 export { NgForm } from './directives/ng_form';
 export { NgModel } from './directives/ng_model';
 export { NgModelGroup } from './directives/ng_model_group';
+export { RadioControlValueAccessor } from './directives/radio_control_value_accessor';
 export { FormControlDirective } from './directives/reactive_directives/form_control_directive';
 export { FormControlName } from './directives/reactive_directives/form_control_name';
 export { FormGroupDirective } from './directives/reactive_directives/form_group_directive';

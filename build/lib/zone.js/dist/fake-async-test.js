@@ -1,3 +1,16 @@
+/**
+* @license
+* Copyright Google Inc. All Rights Reserved.
+*
+* Use of this source code is governed by an MIT-style license that can be
+* found in the LICENSE file at https://angular.io/license
+*/
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (factory());
+}(this, (function () { 'use strict';
+
 (function (global) {
     var Scheduler = (function () {
         function Scheduler() {
@@ -236,3 +249,5 @@
     // constructor params.
     Zone['FakeAsyncTestZoneSpec'] = FakeAsyncTestZoneSpec;
 })(typeof window === 'object' && window || typeof self === 'object' && self || global);
+
+})));

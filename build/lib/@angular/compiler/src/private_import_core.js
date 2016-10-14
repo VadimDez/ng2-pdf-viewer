@@ -8,7 +8,6 @@
 import { __core_private__ as r } from '@angular/core';
 export var isDefaultChangeDetectionStrategy = r.isDefaultChangeDetectionStrategy;
 export var ChangeDetectorStatus = r.ChangeDetectorStatus;
-r.CHANGE_DETECTION_STRATEGY_VALUES;
 export var LifecycleHooks = r.LifecycleHooks;
 export var LIFECYCLE_HOOKS_VALUES = r.LIFECYCLE_HOOKS_VALUES;
 export var ReflectorReader = r.ReflectorReader;
@@ -54,7 +53,6 @@ export var AnimationSequencePlayer = r.AnimationSequencePlayer;
 export var AnimationGroupPlayer = r.AnimationGroupPlayer;
 export var AnimationKeyframe = r.AnimationKeyframe;
 export var AnimationStyles = r.AnimationStyles;
-export var AnimationOutput = r.AnimationOutput;
 export var ANY_STATE = r.ANY_STATE;
 export var DEFAULT_STATE = r.DEFAULT_STATE;
 export var EMPTY_STATE = r.EMPTY_STATE;

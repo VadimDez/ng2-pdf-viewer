@@ -112,7 +112,7 @@ export var ReflectiveProtoInjectorDynamicStrategy = (function () {
     function ReflectiveProtoInjectorDynamicStrategy(protoInj, providers) {
         this.providers = providers;
         var len = providers.length;
-        this.keyIds = ListWrapper.createFixedSize(len);
+        this.keyIds = new Array(len);
         for (var i = 0; i < len; i++) {
             this.keyIds[i] = providers[i].key.id;
         }
@@ -257,7 +257,7 @@ export var ReflectiveInjectorDynamicStrategy = (function () {
     function ReflectiveInjectorDynamicStrategy(protoStrategy, injector) {
         this.protoStrategy = protoStrategy;
         this.injector = injector;
-        this.objs = ListWrapper.createFixedSize(protoStrategy.providers.length);
+        this.objs = new Array(protoStrategy.providers.length);
         ListWrapper.fill(this.objs, UNDEFINED);
     }
     ReflectiveInjectorDynamicStrategy.prototype.resetConstructionCounter = function () { this.injector._constructionCounter = 0; };
@@ -601,7 +601,7 @@ export var ReflectiveInjector_ = (function () {
     };
     ReflectiveInjector_.prototype._instantiateProvider = function (provider) {
         if (provider.multiProvider) {
-            var res = ListWrapper.createFixedSize(provider.resolvedFactories.length);
+            var res = new Array(provider.resolvedFactories.length);
             for (var i = 0; i < provider.resolvedFactories.length; ++i) {
                 res[i] = this._instantiate(provider, provider.resolvedFactories[i]);
             }

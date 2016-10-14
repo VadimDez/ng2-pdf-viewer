@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ListWrapper } from '../facade/collection';
-import { isBlank, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { getPropertyInView } from './util';
@@ -54,7 +54,7 @@ export var CompileQuery = (function () {
     CompileQuery.prototype._isStatic = function () {
         return !this._values.values.some(function (value) { return value instanceof ViewQueryValues; });
     };
-    CompileQuery.prototype.afterChildren = function (targetStaticMethod /** TODO #9100 */, targetDynamicMethod) {
+    CompileQuery.prototype.afterChildren = function (targetStaticMethod, targetDynamicMethod) {
         var values = createQueryValues(this._values);
         var updateStmts = [this.queryList.callMethod('reset', [o.literalArr(values)]).toStmt()];
         if (isPresent(this.ownerDirectiveExpression)) {
@@ -88,9 +88,7 @@ function createQueryValues(viewValues) {
     }));
 }
 function mapNestedViews(declarationAppElement, view, expressions) {
-    var adjustedExpressions = expressions.map(function (expr) {
-        return o.replaceVarInExpression(o.THIS_EXPR.name, o.variable('nestedView'), expr);
-    });
+    var adjustedExpressions = expressions.map(function (expr) { return o.replaceVarInExpression(o.THIS_EXPR.name, o.variable('nestedView'), expr); });
     return declarationAppElement.callMethod('mapNestedViews', [
         o.variable(view.className),
         o.fn([new o.FnParam('nestedView', view.classType)], [new o.ReturnStatement(o.literalArr(adjustedExpressions))], o.DYNAMIC_TYPE)
@@ -108,7 +106,7 @@ export function createQueryList(query, directiveInstance, propertyName, compileV
 export function addQueryToTokenMap(map, query) {
     query.meta.selectors.forEach(function (selector) {
         var entry = map.get(selector.reference);
-        if (isBlank(entry)) {
+        if (!entry) {
             entry = [];
             map.set(selector.reference, entry);
         }

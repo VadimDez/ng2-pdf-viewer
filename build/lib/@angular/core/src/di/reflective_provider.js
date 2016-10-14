@@ -159,7 +159,7 @@ function _normalizeProviders(providers, res) {
     return res;
 }
 export function constructDependencies(typeOrFunc, dependencies) {
-    if (isBlank(dependencies)) {
+    if (!dependencies) {
         return _dependenciesFor(typeOrFunc);
     }
     else {
@@ -169,7 +169,7 @@ export function constructDependencies(typeOrFunc, dependencies) {
 }
 function _dependenciesFor(typeOrFunc) {
     var params = reflector.parameters(typeOrFunc);
-    if (isBlank(params))
+    if (!params)
         return [];
     if (params.some(isBlank)) {
         throw new NoAnnotationError(typeOrFunc, params);

@@ -26,20 +26,14 @@ export var ViewCompiler = (function () {
         this._genConfig = _genConfig;
         this._animationCompiler = new AnimationCompiler();
     }
-    ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes) {
+    ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes, compiledAnimations) {
         var dependencies = [];
-        var compiledAnimations = this._animationCompiler.compileComponent(component, template);
+        var view = new CompileView(component, this._genConfig, pipes, styles, compiledAnimations, 0, CompileElement.createNull(), []);
         var statements = [];
-        var animationTriggers = compiledAnimations.triggers;
-        animationTriggers.forEach(function (entry) {
-            statements.push(entry.statesMapStatement);
-            statements.push(entry.fnStatement);
-        });
-        var view = new CompileView(component, this._genConfig, pipes, styles, animationTriggers, 0, CompileElement.createNull(), []);
         buildView(view, template, dependencies);
         // Need to separate binding from creation to be able to refer to
         // variables that have been declared after usage.
-        bindView(view, template, compiledAnimations.outputs);
+        bindView(view, template);
         finishView(view, statements);
         return new ViewCompileResult(statements, view.viewFactory.name, dependencies);
     };

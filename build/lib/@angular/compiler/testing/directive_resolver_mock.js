@@ -5,8 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { DirectiveResolver } from '@angular/compiler';
 import { Compiler, Component, Directive, Injectable, Injector, resolveForwardRef } from '@angular/core';
-import { Map } from './facade/collection';
-import { isArray, isPresent } from './facade/lang';
+import { isPresent } from './facade/lang';
 /**
  * An implementation of {@link DirectiveResolver} that allows overriding
  * various properties of directives.
@@ -42,13 +41,13 @@ export var MockDirectiveResolver = (function (_super) {
         var viewProviderOverrides = this._viewProviderOverrides.get(type);
         var providers = metadata.providers;
         if (isPresent(providerOverrides)) {
-            var originalViewProviders = isPresent(metadata.providers) ? metadata.providers : [];
+            var originalViewProviders = metadata.providers || [];
             providers = originalViewProviders.concat(providerOverrides);
         }
         if (metadata instanceof Component) {
             var viewProviders = metadata.viewProviders;
             if (isPresent(viewProviderOverrides)) {
-                var originalViewProviders = isPresent(metadata.viewProviders) ? metadata.viewProviders : [];
+                var originalViewProviders = metadata.viewProviders || [];
                 viewProviders = originalViewProviders.concat(viewProviderOverrides);
             }
             var view = this._views.get(type);
@@ -146,7 +145,7 @@ function flattenArray(tree, out) {
         return;
     for (var i = 0; i < tree.length; i++) {
         var item = resolveForwardRef(tree[i]);
-        if (isArray(item)) {
+        if (Array.isArray(item)) {
             flattenArray(item, out);
         }
         else {

@@ -144,7 +144,7 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         return null;
     };
     AbstractJsEmitterVisitor.prototype._visitParams = function (params, ctx) {
-        this.visitAllObjects(function (param /** TODO #9100 */) { return ctx.print(param.name); }, params, ctx, ',');
+        this.visitAllObjects(function (param) { return ctx.print(param.name); }, params, ctx, ',');
     };
     AbstractJsEmitterVisitor.prototype.getBuiltinMethodName = function (method) {
         var name;

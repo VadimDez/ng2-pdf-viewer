@@ -54,19 +54,16 @@ export var NgPlural = (function () {
         configurable: true
     });
     NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
-    /** @internal */
     NgPlural.prototype._updateView = function () {
         this._clearViews();
         var cases = Object.keys(this._caseViews);
         var key = getPluralCategory(this._switchValue, cases, this._localization);
         this._activateView(this._caseViews[key]);
     };
-    /** @internal */
     NgPlural.prototype._clearViews = function () {
         if (this._activeView)
             this._activeView.destroy();
     };
-    /** @internal */
     NgPlural.prototype._activateView = function (view) {
         if (view) {
             this._activeView = view;
@@ -92,10 +89,12 @@ export var NgPlural = (function () {
  *             given expression matches the plural expression according to CLDR rules.
  *
  * @howToUse
- *     <some-element [ngPlural]="value">
- *       <ng-container *ngPluralCase="'=0'">...</ng-container>
- *       <ng-container *ngPluralCase="'other'">...</ng-container>
- *     </some-element>
+ * ```
+ * <some-element [ngPlural]="value">
+ *   <ng-container *ngPluralCase="'=0'">...</ng-container>
+ *   <ng-container *ngPluralCase="'other'">...</ng-container>
+ * </some-element>
+ *```
  *
  * See {@link NgPlural} for more details and example.
  *

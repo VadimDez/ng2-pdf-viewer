@@ -54,7 +54,8 @@ export declare class AttrAst implements TemplateAst {
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
- * A binding for an element property (e.g. `[property]="expression"`).
+ * A binding for an element property (e.g. `[property]="expression"`) or an animation trigger (e.g.
+ * `[@trigger]="stateExp"`)
  */
 export declare class BoundElementPropertyAst implements TemplateAst {
     name: string;
@@ -65,18 +66,22 @@ export declare class BoundElementPropertyAst implements TemplateAst {
     sourceSpan: ParseSourceSpan;
     constructor(name: string, type: PropertyBindingType, securityContext: SecurityContext, value: AST, unit: string, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
+    isAnimation: boolean;
 }
 /**
- * A binding for an element event (e.g. `(event)="handler()"`).
+ * A binding for an element event (e.g. `(event)="handler()"`) or an animation trigger event (e.g.
+ * `(@trigger.phase)="callback($event)"`).
  */
 export declare class BoundEventAst implements TemplateAst {
     name: string;
     target: string;
+    phase: string;
     handler: AST;
     sourceSpan: ParseSourceSpan;
-    constructor(name: string, target: string, handler: AST, sourceSpan: ParseSourceSpan);
+    constructor(name: string, target: string, phase: string, handler: AST, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
     fullName: string;
+    isAnimation: boolean;
 }
 /**
  * A reference declaration on an element (e.g. `let someName="expression"`).
@@ -113,7 +118,8 @@ export declare class ElementAst implements TemplateAst {
     children: TemplateAst[];
     ngContentIndex: number;
     sourceSpan: ParseSourceSpan;
-    constructor(name: string, attrs: AttrAst[], inputs: BoundElementPropertyAst[], outputs: BoundEventAst[], references: ReferenceAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, children: TemplateAst[], ngContentIndex: number, sourceSpan: ParseSourceSpan);
+    endSourceSpan: ParseSourceSpan;
+    constructor(name: string, attrs: AttrAst[], inputs: BoundElementPropertyAst[], outputs: BoundEventAst[], references: ReferenceAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, children: TemplateAst[], ngContentIndex: number, sourceSpan: ParseSourceSpan, endSourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
@@ -216,6 +222,7 @@ export declare enum PropertyBindingType {
  * A visitor for {@link TemplateAst} trees that will process each node.
  */
 export interface TemplateAstVisitor {
+    visit?(ast: TemplateAst, context: any): any;
     visitNgContent(ast: NgContentAst, context: any): any;
     visitEmbeddedTemplate(ast: EmbeddedTemplateAst, context: any): any;
     visitElement(ast: ElementAst, context: any): any;

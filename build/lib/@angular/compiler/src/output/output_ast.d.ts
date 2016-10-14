@@ -228,9 +228,9 @@ export declare class LiteralArrayExpr extends Expression {
     visitExpression(visitor: ExpressionVisitor, context: any): any;
 }
 export declare class LiteralMapExpr extends Expression {
-    entries: Array<Array<string | Expression>>;
+    entries: [string, Expression][];
     valueType: Type;
-    constructor(entries: Array<Array<string | Expression>>, type?: MapType);
+    constructor(entries: [string, Expression][], type?: MapType);
     visitExpression(visitor: ExpressionVisitor, context: any): any;
 }
 export interface ExpressionVisitor {
@@ -426,7 +426,7 @@ export declare function variable(name: string, type?: Type): ReadVarExpr;
 export declare function importExpr(id: CompileIdentifierMetadata, typeParams?: Type[]): ExternalExpr;
 export declare function importType(id: CompileIdentifierMetadata, typeParams?: Type[], typeModifiers?: TypeModifier[]): ExternalType;
 export declare function literalArr(values: Expression[], type?: Type): LiteralArrayExpr;
-export declare function literalMap(values: Array<Array<string | Expression>>, type?: MapType): LiteralMapExpr;
+export declare function literalMap(values: [string, Expression][], type?: MapType): LiteralMapExpr;
 export declare function not(expr: Expression): NotExpr;
 export declare function fn(params: FnParam[], body: Statement[], type?: Type): FunctionExpr;
 export declare function literal(value: any, type?: Type): LiteralExpr;

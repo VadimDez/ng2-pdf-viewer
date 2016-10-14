@@ -28,8 +28,8 @@ factory((root.pdfjsDistBuildPdfCombined = {}));
   // Use strict in our context only - users might not want it
   'use strict';
 
-var pdfjsVersion = '1.5.458';
-var pdfjsBuild = 'a7c3502';
+var pdfjsVersion = '1.6.234';
+var pdfjsBuild = 'bc3bceb';
 
   var pdfjsFilePath =
     typeof document !== 'undefined' && document.currentScript ?
@@ -1100,6 +1100,28 @@ var AnnotationFlag = {
   LOCKEDCONTENTS: 0x200
 };
 
+var AnnotationFieldFlag = {
+  READONLY: 0x0000001,
+  REQUIRED: 0x0000002,
+  NOEXPORT: 0x0000004,
+  MULTILINE: 0x0001000,
+  PASSWORD: 0x0002000,
+  NOTOGGLETOOFF: 0x0004000,
+  RADIO: 0x0008000,
+  PUSHBUTTON: 0x0010000,
+  COMBO: 0x0020000,
+  EDIT: 0x0040000,
+  SORT: 0x0080000,
+  FILESELECT: 0x0100000,
+  MULTISELECT: 0x0200000,
+  DONOTSPELLCHECK: 0x0400000,
+  DONOTSCROLL: 0x0800000,
+  COMB: 0x1000000,
+  RICHTEXT: 0x2000000,
+  RADIOSINUNISON: 0x2000000,
+  COMMITONSELCHANGE: 0x4000000,
+};
+
 var AnnotationBorderStyleType = {
   SOLID: 1,
   DASHED: 2,
@@ -1856,15 +1878,15 @@ var Util = (function UtilClosure() {
     }
   };
 
-  Util.getInheritableProperty = function Util_getInheritableProperty(dict,
-                                                                     name) {
+  Util.getInheritableProperty =
+      function Util_getInheritableProperty(dict, name, getArray) {
     while (dict && !dict.has(name)) {
       dict = dict.get('Parent');
     }
     if (!dict) {
       return null;
     }
-    return dict.get(name);
+    return getArray ? dict.getArray(name) : dict.get(name);
   };
 
   Util.inherit = function Util_inherit(sub, base, prototype) {
@@ -3361,6 +3383,7 @@ exports.OPS = OPS;
 exports.VERBOSITY_LEVELS = VERBOSITY_LEVELS;
 exports.UNSUPPORTED_FEATURES = UNSUPPORTED_FEATURES;
 exports.AnnotationBorderStyleType = AnnotationBorderStyleType;
+exports.AnnotationFieldFlag = AnnotationFieldFlag;
 exports.AnnotationFlag = AnnotationFlag;
 exports.AnnotationType = AnnotationType;
 exports.FontType = FontType;
@@ -11161,7 +11184,7 @@ var error = sharedUtil.error;
  *   (partners.adobe.com/public/developer/en/ps/sdk/5116.DCT_Filter.pdf)
  */
 
-var JpegImage = (function jpegImage() {
+var JpegImage = (function JpegImageClosure() {
   var dctZigZag = new Uint8Array([
      0,
      1,  8,
@@ -11189,7 +11212,9 @@ var JpegImage = (function jpegImage() {
   var dctSqrt2 =  5793;   // sqrt(2)
   var dctSqrt1d2 = 2896;  // sqrt(2) / 2
 
-  function constructor() {
+  function JpegImage() {
+    this.decodeTransform = null;
+    this.colorTransform = -1;
   }
 
   function buildHuffmanTable(codeLengths, values) {
@@ -11484,6 +11509,12 @@ var JpegImage = (function jpegImage() {
       // find marker
       bitsCount = 0;
       marker = (data[offset] << 8) | data[offset + 1];
+      // Some bad images seem to pad Scan blocks with zero bytes, skip past
+      // those to attempt to find a valid marker (fixes issue4090.pdf).
+      while (data[offset] === 0x00 && offset < data.length - 1) {
+        offset++;
+        marker = (data[offset] << 8) | data[offset + 1];
+      }
       if (marker <= 0xFF00) {
         error('JPEG error: marker was not found');
       }
@@ -11706,7 +11737,7 @@ var JpegImage = (function jpegImage() {
     return a <= 0 ? 0 : a >= 255 ? 255 : a;
   }
 
-  constructor.prototype = {
+  JpegImage.prototype = {
     parse: function parse(data) {
 
       function readUint16() {
@@ -12023,8 +12054,20 @@ var JpegImage = (function jpegImage() {
         // The adobe transform marker overrides any previous setting
         return true;
       } else if (this.numComponents === 3) {
+        if (!this.adobe && this.colorTransform === 0) {
+          // If the Adobe transform marker is not present and the image
+          // dictionary has a 'ColorTransform' entry, explicitly set to `0`,
+          // then the colours should *not* be transformed.
+          return false;
+        }
         return true;
-      } else {
+      } else { // `this.numComponents !== 3`
+        if (!this.adobe && this.colorTransform === 1) {
+          // If the Adobe transform marker is not present and the image
+          // dictionary has a 'ColorTransform' entry, explicitly set to `1`,
+          // then the colours should be transformed.
+          return true;
+        }
         return false;
       }
     },
@@ -12166,7 +12209,7 @@ var JpegImage = (function jpegImage() {
           rgbData[offset++] = grayColor;
         }
         return rgbData;
-      } else if (this.numComponents === 3) {
+      } else if (this.numComponents === 3 && this._isColorConversionNeeded()) {
         return this._convertYccToRgb(data);
       } else if (this.numComponents === 4) {
         if (this._isColorConversionNeeded()) {
@@ -12183,7 +12226,7 @@ var JpegImage = (function jpegImage() {
     }
   };
 
-  return constructor;
+  return JpegImage;
 })();
 
 exports.JpegImage = JpegImage;
@@ -20075,6 +20118,10 @@ FontLoader.prototype = {
         warn('Failed to load font "' + nativeFontFace.family + '": ' + e);
       });
     };
+    // Firefox Font Loading API does not work with mozPrintCallback --
+    // disabling it in this case.
+    var isFontLoadingAPISupported = FontLoader.isFontLoadingAPISupported &&
+                                    !FontLoader.isSyncFontLoadingSupported;
     for (var i = 0, ii = fonts.length; i < ii; i++) {
       var font = fonts[i];
 
@@ -20085,7 +20132,7 @@ FontLoader.prototype = {
       }
       font.attached = true;
 
-      if (FontLoader.isFontLoadingAPISupported) {
+      if (isFontLoadingAPISupported) {
         var nativeFontFace = font.createNativeFontFace();
         if (nativeFontFace) {
           this.addNativeFontFace(nativeFontFace);
@@ -20102,7 +20149,7 @@ FontLoader.prototype = {
     }
 
     var request = this.queueLoadingCallback(callback);
-    if (FontLoader.isFontLoadingAPISupported) {
+    if (isFontLoadingAPISupported) {
       Promise.all(fontLoadPromises).then(function() {
         request.complete();
       });
@@ -21662,6 +21709,7 @@ exports.SVGGraphics = SVGGraphics;
 var Util = sharedUtil.Util;
 var error = sharedUtil.error;
 var info = sharedUtil.info;
+var isInt = sharedUtil.isInt;
 var isArray = sharedUtil.isArray;
 var createObjectURL = sharedUtil.createObjectURL;
 var shadow = sharedUtil.shadow;
@@ -22519,7 +22567,7 @@ var PredictorStream = (function PredictorStreamClosure() {
  * DecodeStreams.
  */
 var JpegStream = (function JpegStreamClosure() {
-  function JpegStream(stream, maybeLength, dict, xref) {
+  function JpegStream(stream, maybeLength, dict) {
     // Some images may contain 'junk' before the SOI (start-of-image) marker.
     // Note: this seems to mainly affect inline images.
     var ch;
@@ -22553,8 +22601,8 @@ var JpegStream = (function JpegStreamClosure() {
     var jpegImage = new JpegImage();
 
     // Checking if values need to be transformed before conversion.
-    if (this.forceRGB && this.dict && isArray(this.dict.get('Decode'))) {
-      var decodeArr = this.dict.getArray('Decode');
+    var decodeArr = this.dict.getArray('Decode', 'D');
+    if (this.forceRGB && isArray(decodeArr)) {
       var bitsPerComponent = this.dict.get('BitsPerComponent') || 8;
       var decodeArrLength = decodeArr.length;
       var transform = new Int32Array(decodeArrLength);
@@ -22569,6 +22617,14 @@ var JpegStream = (function JpegStreamClosure() {
       }
       if (transformNeeded) {
         jpegImage.decodeTransform = transform;
+      }
+    }
+    // Fetching the 'ColorTransform' entry, if it exists.
+    var decodeParams = this.dict.get('DecodeParms', 'DP');
+    if (isDict(decodeParams)) {
+      var colorTransform = decodeParams.get('ColorTransform');
+      if (isInt(colorTransform)) {
+        jpegImage.colorTransform = colorTransform;
       }
     }
 
@@ -22692,7 +22748,7 @@ var Jbig2Stream = (function Jbig2StreamClosure() {
     var jbig2Image = new Jbig2Image();
 
     var chunks = [];
-    var decodeParams = this.dict.getArray('DecodeParms');
+    var decodeParams = this.dict.getArray('DecodeParms', 'DP');
 
     // According to the PDF specification, DecodeParms can be either
     // a dictionary, or an array whose elements are dictionaries.
@@ -24177,6 +24233,8 @@ AnnotationElementFactory.prototype =
         switch (fieldType) {
           case 'Tx':
             return new TextWidgetAnnotationElement(parameters);
+          case 'Ch':
+            return new ChoiceWidgetAnnotationElement(parameters);
         }
         return new WidgetAnnotationElement(parameters);
 
@@ -24501,8 +24559,8 @@ var TextAnnotationElement = (function TextAnnotationElementClosure() {
  * @alias WidgetAnnotationElement
  */
 var WidgetAnnotationElement = (function WidgetAnnotationElementClosure() {
-  function WidgetAnnotationElement(parameters) {
-    AnnotationElement.call(this, parameters, true);
+  function WidgetAnnotationElement(parameters, isRenderable) {
+    AnnotationElement.call(this, parameters, isRenderable);
   }
 
   Util.inherit(WidgetAnnotationElement, AnnotationElement, {
@@ -24531,7 +24589,9 @@ var TextWidgetAnnotationElement = (
   var TEXT_ALIGNMENT = ['left', 'center', 'right'];
 
   function TextWidgetAnnotationElement(parameters) {
-    WidgetAnnotationElement.call(this, parameters);
+    var isRenderable = parameters.renderInteractiveForms ||
+      (!parameters.data.hasAppearance && !!parameters.data.fieldValue);
+    WidgetAnnotationElement.call(this, parameters, isRenderable);
   }
 
   Util.inherit(TextWidgetAnnotationElement, WidgetAnnotationElement, {
@@ -24547,12 +24607,30 @@ var TextWidgetAnnotationElement = (
 
       var element = null;
       if (this.renderInteractiveForms) {
-        element = document.createElement('input');
-        element.type = 'text';
-        element.value = this.data.fieldValue;
+        // NOTE: We cannot set the values using `element.value` below, since it
+        //       prevents the AnnotationLayer rasterizer in `test/driver.js`
+        //       from parsing the elements correctly for the reference tests.
+        if (this.data.multiLine) {
+          element = document.createElement('textarea');
+          element.textContent = this.data.fieldValue;
+        } else {
+          element = document.createElement('input');
+          element.type = 'text';
+          element.setAttribute('value', this.data.fieldValue);
+        }
+
+        element.disabled = this.data.readOnly;
 
         if (this.data.maxLen !== null) {
           element.maxLength = this.data.maxLen;
+        }
+
+        if (this.data.comb) {
+          var fieldWidth = this.data.rect[2] - this.data.rect[0];
+          var combWidth = fieldWidth / this.data.maxLen;
+
+          element.classList.add('comb');
+          element.style.letterSpacing = 'calc(' + combWidth + 'px - 1ch)';
         }
       } else {
         element = document.createElement('div');
@@ -24607,6 +24685,64 @@ var TextWidgetAnnotationElement = (
   });
 
   return TextWidgetAnnotationElement;
+})();
+
+/**
+ * @class
+ * @alias ChoiceWidgetAnnotationElement
+ */
+var ChoiceWidgetAnnotationElement = (
+    function ChoiceWidgetAnnotationElementClosure() {
+  function ChoiceWidgetAnnotationElement(parameters) {
+    WidgetAnnotationElement.call(this, parameters,
+                                 parameters.renderInteractiveForms);
+  }
+
+  Util.inherit(ChoiceWidgetAnnotationElement, WidgetAnnotationElement, {
+    /**
+     * Render the choice widget annotation's HTML element in the empty
+     * container.
+     *
+     * @public
+     * @memberof ChoiceWidgetAnnotationElement
+     * @returns {HTMLSectionElement}
+     */
+    render: function ChoiceWidgetAnnotationElement_render() {
+      this.container.className = 'choiceWidgetAnnotation';
+
+      var selectElement = document.createElement('select');
+      selectElement.disabled = this.data.readOnly;
+
+      if (!this.data.combo) {
+        // List boxes have a size and (optionally) multiple selection.
+        selectElement.size = this.data.options.length;
+
+        if (this.data.multiSelect) {
+          selectElement.multiple = true;
+        }
+      }
+
+      // Insert the options into the choice field.
+      for (var i = 0, ii = this.data.options.length; i < ii; i++) {
+        var option = this.data.options[i];
+
+        var optionElement = document.createElement('option');
+        optionElement.textContent = option.displayValue;
+        optionElement.value = option.exportValue;
+
+        if (this.data.fieldValue.indexOf(option.displayValue) >= 0) {
+          optionElement.setAttribute('selected', true);
+        }
+
+        selectElement.appendChild(optionElement);
+      }
+
+      this.container.appendChild(selectElement);
+      return this.container;
+    }
+  });
+
+  return ChoiceWidgetAnnotationElement;
 })();
 
 /**
@@ -25105,14 +25241,20 @@ var renderTextLayer = (function renderTextLayerClosure() {
     return !NonWhitespaceRegexp.test(str);
   }
 
+  // Text layers may contain many thousand div's, and using `styleBuf` avoids
+  // creating many intermediate strings when building their 'style' properties.
+  var styleBuf = ['left: ', 0, 'px; top: ', 0, 'px; font-size: ', 0,
+                  'px; font-family: ', '', ';'];
+
   function appendText(task, geom, styles) {
     // Initialize all used properties to keep the caches monomorphic.
     var textDiv = document.createElement('div');
     var textDivProperties = {
+      style: null,
       angle: 0,
       canvasWidth: 0,
       isWhitespace: false,
-      originalTransform: '',
+      originalTransform: null,
       paddingBottom: 0,
       paddingLeft: 0,
       paddingRight: 0,
@@ -25150,10 +25292,12 @@ var renderTextLayer = (function renderTextLayerClosure() {
       left = tx[4] + (fontAscent * Math.sin(angle));
       top = tx[5] - (fontAscent * Math.cos(angle));
     }
-    textDiv.style.left = left + 'px';
-    textDiv.style.top = top + 'px';
-    textDiv.style.fontSize = fontHeight + 'px';
-    textDiv.style.fontFamily = style.fontFamily;
+    styleBuf[1] = left;
+    styleBuf[3] = top;
+    styleBuf[5] = fontHeight;
+    styleBuf[7] = style.fontFamily;
+    textDivProperties.style = styleBuf.join('');
+    textDiv.setAttribute('style', textDivProperties.style);
 
     textDiv.textContent = geom.str;
     // |fontName| is only used by the Font Inspector. This test will succeed
@@ -25560,7 +25704,6 @@ var renderTextLayer = (function renderTextLayerClosure() {
     this._renderTimer = null;
     this._bounds = [];
     this._enhanceTextSelection = !!enhanceTextSelection;
-    this._expanded = false;
   }
   TextLayerRenderTask.prototype = {
     get promise() {
@@ -25598,18 +25741,20 @@ var renderTextLayer = (function renderTextLayerClosure() {
       if (!this._enhanceTextSelection || !this._renderingDone) {
         return;
       }
-      if (!this._expanded) {
+      if (this._bounds !== null) {
         expand(this);
-        this._expanded = true;
-        this._bounds.length = 0;
+        this._bounds = null;
       }
 
       for (var i = 0, ii = this._textDivs.length; i < ii; i++) {
         var div = this._textDivs[i];
         var divProperties = this._textDivProperties.get(div);
 
+        if (divProperties.isWhitespace) {
+          continue;
+        }
         if (expandDivs) {
-          var transform = '';
+          var transform = '', padding = '';
 
           if (divProperties.scale !== 1) {
             transform = 'scaleX(' + divProperties.scale + ')';
@@ -25618,21 +25763,26 @@ var renderTextLayer = (function renderTextLayerClosure() {
             transform = 'rotate(' + divProperties.angle + 'deg) ' + transform;
           }
           if (divProperties.paddingLeft !== 0) {
-            div.style.paddingLeft =
-              (divProperties.paddingLeft / divProperties.scale) + 'px';
+            padding += ' padding-left: ' +
+              (divProperties.paddingLeft / divProperties.scale) + 'px;';
             transform += ' translateX(' +
               (-divProperties.paddingLeft / divProperties.scale) + 'px)';
           }
           if (divProperties.paddingTop !== 0) {
-            div.style.paddingTop = divProperties.paddingTop + 'px';
+            padding += ' padding-top: ' + divProperties.paddingTop + 'px;';
             transform += ' translateY(' + (-divProperties.paddingTop) + 'px)';
           }
           if (divProperties.paddingRight !== 0) {
-            div.style.paddingRight =
-              (divProperties.paddingRight / divProperties.scale) + 'px';
+            padding += ' padding-right: ' +
+              (divProperties.paddingRight / divProperties.scale) + 'px;';
           }
           if (divProperties.paddingBottom !== 0) {
-            div.style.paddingBottom = divProperties.paddingBottom + 'px';
+            padding += ' padding-bottom: ' +
+              divProperties.paddingBottom + 'px;';
+          }
+
+          if (padding !== '') {
+            div.setAttribute('style', divProperties.style + padding);
           }
           if (transform !== '') {
             CustomStyle.setProp('transform', div, transform);
@@ -25640,7 +25790,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
         } else {
           div.style.padding = 0;
           CustomStyle.setProp('transform', div,
-                              divProperties.originalTransform);
+                              divProperties.originalTransform || '');
         }
       }
     },
@@ -29443,7 +29593,10 @@ var Parser = (function ParserClosure() {
       return stream;
     },
     makeFilter: function Parser_makeFilter(stream, name, maybeLength, params) {
-      if (stream.dict.get('Length') === 0 && !maybeLength) {
+      // Since the 'Length' entry in the stream dictionary can be completely
+      // wrong, e.g. zero for non-empty streams, only skip parsing the stream
+      // when we can be absolutely certain that it actually is empty.
+      if (maybeLength === 0) {
         warn('Empty "' + name + '" stream.');
         return new NullStream(stream);
       }
@@ -29475,7 +29628,7 @@ var Parser = (function ParserClosure() {
         }
         if (name === 'DCTDecode' || name === 'DCT') {
           xrefStreamStats[StreamType.DCT] = true;
-          return new JpegStream(stream, maybeLength, stream.dict, this.xref);
+          return new JpegStream(stream, maybeLength, stream.dict);
         }
         if (name === 'JPXDecode' || name === 'JPX') {
           xrefStreamStats[StreamType.JPX] = true;
@@ -32283,6 +32436,30 @@ function adjustWidths(properties) {
   properties.defaultWidth *= scale;
 }
 
+function adjustToUnicode(properties, builtInEncoding) {
+  if (properties.hasIncludedToUnicodeMap) {
+    return; // The font dictionary has a `ToUnicode` entry.
+  }
+  if (properties.hasEncoding) {
+    return; // The font dictionary has an `Encoding` entry.
+  }
+  if (builtInEncoding === properties.defaultEncoding) {
+    return; // No point in trying to adjust `toUnicode` if the encodings match.
+  }
+  if (properties.toUnicode instanceof IdentityToUnicodeMap) {
+    return;
+  }
+  var toUnicode = [], glyphsUnicodeMap = getGlyphsUnicode();
+  for (var charCode in builtInEncoding) {
+    var glyphName = builtInEncoding[charCode];
+    var unicode = getUnicodeForGlyph(glyphName, glyphsUnicodeMap);
+    if (unicode !== -1) {
+      toUnicode[charCode] = String.fromCharCode(unicode);
+    }
+  }
+  properties.toUnicode.amend(toUnicode);
+}
+
 function getFontType(type, subtype) {
   switch (type) {
     case 'Type1':
@@ -32381,7 +32558,13 @@ var ToUnicodeMap = (function ToUnicodeMapClosure() {
 
     charCodeOf: function(v) {
       return this._map.indexOf(v);
-    }
+    },
+
+    amend: function (map) {
+      for (var charCode in map) {
+        this._map[charCode] = map[charCode];
+      }
+    },
   };
 
   return ToUnicodeMap;
@@ -32417,7 +32600,11 @@ var IdentityToUnicodeMap = (function IdentityToUnicodeMapClosure() {
 
     charCodeOf: function (v) {
       return (isInt(v) && v >= this.firstChar && v <= this.lastChar) ? v : -1;
-    }
+    },
+
+    amend: function (map) {
+      error('Should not call amend()');
+    },
   };
 
   return IdentityToUnicodeMap;
@@ -32818,6 +33005,7 @@ var Font = (function FontClosure() {
     this.fontMatrix = properties.fontMatrix;
     this.widths = properties.widths;
     this.defaultWidth = properties.defaultWidth;
+    this.toUnicode = properties.toUnicode;
     this.encoding = properties.baseEncoding;
     this.seacMap = properties.seacMap;
 
@@ -34439,10 +34627,8 @@ var Font = (function FontClosure() {
       } else {
         // Most of the following logic in this code branch is based on the
         // 9.6.6.4 of the PDF spec.
-        var hasEncoding =
-          properties.differences.length > 0 || !!properties.baseEncodingName;
-        var cmapTable =
-          readCmapTable(tables['cmap'], font, this.isSymbolicFont, hasEncoding);
+        var cmapTable = readCmapTable(tables['cmap'], font, this.isSymbolicFont,
+                                      properties.hasEncoding);
         var cmapPlatformId = cmapTable.platformId;
         var cmapEncodingId = cmapTable.encodingId;
         var cmapMappings = cmapTable.mappings;
@@ -34451,7 +34637,7 @@ var Font = (function FontClosure() {
         // The spec seems to imply that if the font is symbolic the encoding
         // should be ignored, this doesn't appear to work for 'preistabelle.pdf'
         // where the the font is symbolic and it has an encoding.
-        if (hasEncoding &&
+        if (properties.hasEncoding &&
             (cmapPlatformId === 3 && cmapEncodingId === 1 ||
              cmapPlatformId === 1 && cmapEncodingId === 0) ||
             (cmapPlatformId === -1 && cmapEncodingId === -1 && // Temporary hack
@@ -34614,6 +34800,12 @@ var Font = (function FontClosure() {
     convert: function Font_convert(fontName, font, properties) {
       // TODO: Check the charstring widths to determine this.
       properties.fixedPitch = false;
+
+      if (properties.builtInEncoding) {
+        // For Type1 fonts that do not include either `ToUnicode` or `Encoding`
+        // data, attempt to use the `builtInEncoding` to improve text selection.
+        adjustToUnicode(properties, properties.builtInEncoding);
+      }
 
       var mapping = font.getGlyphMapping(properties);
       var newMapping = adjustMapping(mapping, properties);
@@ -35310,7 +35502,14 @@ var Type1Font = (function Type1FontClosure() {
       var charStringsIndex = new CFFIndex();
       charStringsIndex.add([0x8B, 0x0E]); // .notdef
       for (i = 0; i < count; i++) {
-        charStringsIndex.add(glyphs[i]);
+        var glyph = glyphs[i];
+        // If the CharString outline is empty, replace it with .notdef to
+        // prevent OTS from rejecting the font (fixes bug1252420.pdf).
+        if (glyph.length === 0) {
+          charStringsIndex.add([0x8B, 0x0E]); // .notdef
+          continue;
+        }
+        charStringsIndex.add(glyph);
       }
       cff.charStrings = charStringsIndex;
 
@@ -36302,9 +36501,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
     if (sourceCtx.setLineDash !== undefined) {
       destCtx.setLineDash(sourceCtx.getLineDash());
       destCtx.lineDashOffset =  sourceCtx.lineDashOffset;
-    } else if (sourceCtx.mozDashOffset !== undefined) {
-      destCtx.mozDash = sourceCtx.mozDash;
-      destCtx.mozDashOffset = sourceCtx.mozDashOffset;
     }
   }
 
@@ -36560,9 +36756,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       if (ctx.setLineDash !== undefined) {
         ctx.setLineDash(dashArray);
         ctx.lineDashOffset = dashPhase;
-      } else {
-        ctx.mozDash = dashArray;
-        ctx.mozDashOffset = dashPhase;
       }
     },
     setRenderingIntent: function CanvasGraphics_setRenderingIntent(intent) {
@@ -39742,6 +39935,9 @@ var PDFDocumentProxy = (function PDFDocumentProxyClosure() {
  *                                calling of PDFPage.getViewport method.
  * @property {string} intent - Rendering intent, can be 'display' or 'print'
  *                    (default value is 'display').
+ * @property {boolean} renderInteractiveForms - (optional) Whether or not
+ *                     interactive form elements are rendered in the display
+ *                     layer. If so, we do not render them on canvas as well.
  * @property {Array}  transform - (optional) Additional transform, applied
  *                    just before viewport transform.
  * @property {Object} imageLayer - (optional) An object that has beginLayout,
@@ -39850,6 +40046,8 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
       this.pendingCleanup = false;
 
       var renderingIntent = (params.intent === 'print' ? 'print' : 'display');
+      var renderInteractiveForms = (params.renderInteractiveForms === true ?
+                                    true : /* Default */ false);
 
       if (!this.intentStates[renderingIntent]) {
         this.intentStates[renderingIntent] = Object.create(null);
@@ -39870,7 +40068,8 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
         this.stats.time('Page Request');
         this.transport.messageHandler.send('RenderPageRequest', {
           pageIndex: this.pageNumber - 1,
-          intent: renderingIntent
+          intent: renderingIntent,
+          renderInteractiveForms: renderInteractiveForms,
         });
       }
 
@@ -42602,13 +42801,6 @@ exports.ColorSpace = ColorSpace;
     */
   PDFJS.isEvalSupported = (PDFJS.isEvalSupported === undefined ?
                            true : PDFJS.isEvalSupported);
-
-  /**
-   * Renders interactive form elements.
-   * @var {boolean}
-   */
-  PDFJS.renderInteractiveForms = (PDFJS.renderInteractiveForms === undefined ?
-                                  false : PDFJS.renderInteractiveForms);
 
   var savedOpenExternalLinksInNewWindow = PDFJS.openExternalLinksInNewWindow;
   delete PDFJS.openExternalLinksInNewWindow;
@@ -45843,18 +46035,26 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
    */
   NativeImageDecoder.isSupported =
       function NativeImageDecoder_isSupported(image, xref, res) {
-    var cs = ColorSpace.parse(image.dict.get('ColorSpace', 'CS'), xref, res);
+    var dict = image.dict;
+    if (dict.has('DecodeParms') || dict.has('DP')) {
+      return false;
+    }
+    var cs = ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res);
     return (cs.name === 'DeviceGray' || cs.name === 'DeviceRGB') &&
-           cs.isDefaultDecode(image.dict.getArray('Decode', 'D'));
+           cs.isDefaultDecode(dict.getArray('Decode', 'D'));
   };
   /**
    * Checks if the image can be decoded by the browser.
    */
   NativeImageDecoder.isDecodable =
       function NativeImageDecoder_isDecodable(image, xref, res) {
-    var cs = ColorSpace.parse(image.dict.get('ColorSpace', 'CS'), xref, res);
+    var dict = image.dict;
+    if (dict.has('DecodeParms') || dict.has('DP')) {
+      return false;
+    }
+    var cs = ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res);
     return (cs.numComps === 1 || cs.numComps === 3) &&
-           cs.isDefaultDecode(image.dict.getArray('Decode', 'D'));
+           cs.isDefaultDecode(dict.getArray('Decode', 'D'));
   };
 
   function PartialEvaluator(pdfManager, xref, handler, pageIndex,
@@ -47220,7 +47420,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               for (var j = 0, jj = items.length; j < jj; j++) {
                 if (typeof items[j] === 'string') {
                   buildTextContentItem(items[j]);
-                } else {
+                } else if (isNum(items[j])) {
                   ensureTextContentItem();
 
                   // PDF Specification 5.3.2 states:
@@ -47454,6 +47654,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
       properties.differences = differences;
       properties.baseEncodingName = baseEncodingName;
+      properties.hasEncoding = !!baseEncodingName || differences.length > 0;
       properties.dict = dict;
       return toUnicodePromise.then(function(toUnicode) {
         properties.toUnicode = toUnicode;
@@ -47471,8 +47672,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
      *   {ToUnicodeMap|IdentityToUnicodeMap} object.
      */
     buildToUnicode: function PartialEvaluator_buildToUnicode(properties) {
+      properties.hasIncludedToUnicodeMap =
+        !!properties.toUnicode && properties.toUnicode.length > 0;
       // Section 9.10.2 Mapping Character Codes to Unicode Values
-      if (properties.toUnicode && properties.toUnicode.length !== 0) {
+      if (properties.hasIncludedToUnicodeMap) {
         return Promise.resolve(properties.toUnicode);
       }
       // According to the spec if the font is a simple font we should only map
@@ -49017,6 +49220,7 @@ exports.PartialEvaluator = PartialEvaluator;
                   coreColorSpace, coreObj, coreEvaluator) {
 
 var AnnotationBorderStyleType = sharedUtil.AnnotationBorderStyleType;
+var AnnotationFieldFlag = sharedUtil.AnnotationFieldFlag;
 var AnnotationFlag = sharedUtil.AnnotationFlag;
 var AnnotationType = sharedUtil.AnnotationType;
 var OPS = sharedUtil.OPS;
@@ -49049,6 +49253,8 @@ AnnotationFactory.prototype = /** @lends AnnotationFactory.prototype */ {
   /**
    * @param {XRef} xref
    * @param {Object} ref
+   * @param {string} uniquePrefix
+   * @param {Object} idCounters
    * @returns {Annotation}
    */
   create: function AnnotationFactory_create(xref, ref,
@@ -49087,6 +49293,8 @@ AnnotationFactory.prototype = /** @lends AnnotationFactory.prototype */ {
         switch (fieldType) {
           case 'Tx':
             return new TextWidgetAnnotation(parameters);
+          case 'Ch':
+            return new ChoiceWidgetAnnotation(parameters);
         }
         warn('Unimplemented widget field type "' + fieldType + '", ' +
              'falling back to base field type.');
@@ -49395,7 +49603,8 @@ var Annotation = (function AnnotationClosure() {
       }.bind(this));
     },
 
-    getOperatorList: function Annotation_getOperatorList(evaluator, task) {
+    getOperatorList: function Annotation_getOperatorList(evaluator, task,
+                                                         renderForms) {
       if (!this.appearance) {
         return Promise.resolve(new OperatorList());
       }
@@ -49432,13 +49641,13 @@ var Annotation = (function AnnotationClosure() {
   };
 
   Annotation.appendToOperatorList = function Annotation_appendToOperatorList(
-      annotations, opList, partialEvaluator, task, intent) {
+      annotations, opList, partialEvaluator, task, intent, renderForms) {
     var annotationPromises = [];
     for (var i = 0, n = annotations.length; i < n; ++i) {
       if ((intent === 'display' && annotations[i].viewable) ||
           (intent === 'print' && annotations[i].printable)) {
         annotationPromises.push(
-          annotations[i].getOperatorList(partialEvaluator, task));
+          annotations[i].getOperatorList(partialEvaluator, task, renderForms));
       }
     }
     return Promise.all(annotationPromises).then(function(operatorLists) {
@@ -49599,14 +49808,20 @@ var WidgetAnnotation = (function WidgetAnnotationClosure() {
     var data = this.data;
 
     data.annotationType = AnnotationType.WIDGET;
-    data.fieldValue = stringToPDFString(
-      Util.getInheritableProperty(dict, 'V') || '');
+    data.fieldValue = Util.getInheritableProperty(dict, 'V',
+                                                  /* getArray = */ true);
     data.alternativeText = stringToPDFString(dict.get('TU') || '');
     data.defaultAppearance = Util.getInheritableProperty(dict, 'DA') || '';
     var fieldType = Util.getInheritableProperty(dict, 'FT');
     data.fieldType = isName(fieldType) ? fieldType.name : null;
-    data.fieldFlags = Util.getInheritableProperty(dict, 'Ff') || 0;
     this.fieldResources = Util.getInheritableProperty(dict, 'DR') || Dict.empty;
+
+    data.fieldFlags = Util.getInheritableProperty(dict, 'Ff');
+    if (!isInt(data.fieldFlags) || data.fieldFlags < 0) {
+      data.fieldFlags = 0;
+    }
+
+    data.readOnly = this.hasFieldFlag(AnnotationFieldFlag.READONLY);
 
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
@@ -49646,7 +49861,21 @@ var WidgetAnnotation = (function WidgetAnnotationClosure() {
     data.fullName = fieldName.join('.');
   }
 
-  Util.inherit(WidgetAnnotation, Annotation, {});
+  Util.inherit(WidgetAnnotation, Annotation, {
+    /**
+     * Check if a provided field flag is set.
+     *
+     * @public
+     * @memberof WidgetAnnotation
+     * @param {number} flag - Hexadecimal representation for an annotation
+     *                        field characteristic
+     * @return {boolean}
+     * @see {@link shared/util.js}
+     */
+    hasFieldFlag: function WidgetAnnotation_hasFieldFlag(flag) {
+      return !!(this.data.fieldFlags & flag);
+    },
+  });
 
   return WidgetAnnotation;
 })();
@@ -49654,6 +49883,9 @@ var WidgetAnnotation = (function WidgetAnnotationClosure() {
 var TextWidgetAnnotation = (function TextWidgetAnnotationClosure() {
   function TextWidgetAnnotation(params) {
     WidgetAnnotation.call(this, params);
+
+    // The field value is always a string.
+    this.data.fieldValue = stringToPDFString(this.data.fieldValue || '');
 
     // Determine the alignment of text in the field.
     var alignment = Util.getInheritableProperty(params.dict, 'Q');
@@ -49668,34 +49900,105 @@ var TextWidgetAnnotation = (function TextWidgetAnnotationClosure() {
       maximumLength = null;
     }
     this.data.maxLen = maximumLength;
+
+    // Process field flags for the display layer.
+    this.data.multiLine = this.hasFieldFlag(AnnotationFieldFlag.MULTILINE);
+    this.data.comb = this.hasFieldFlag(AnnotationFieldFlag.COMB) &&
+                     !this.hasFieldFlag(AnnotationFieldFlag.MULTILINE) &&
+                     !this.hasFieldFlag(AnnotationFieldFlag.PASSWORD) &&
+                     !this.hasFieldFlag(AnnotationFieldFlag.FILESELECT) &&
+                     this.data.maxLen !== null;
   }
 
   Util.inherit(TextWidgetAnnotation, WidgetAnnotation, {
-    getOperatorList: function TextWidgetAnnotation_getOperatorList(evaluator,
-                                                                   task) {
-      if (this.appearance) {
-        return Annotation.prototype.getOperatorList.call(this, evaluator, task);
+    getOperatorList:
+        function TextWidgetAnnotation_getOperatorList(evaluator, task,
+                                                      renderForms) {
+      var operatorList = new OperatorList();
+
+      // Do not render form elements on the canvas when interactive forms are
+      // enabled. The display layer is responsible for rendering them instead.
+      if (renderForms) {
+        return Promise.resolve(operatorList);
       }
 
-      var opList = new OperatorList();
-      var data = this.data;
+      if (this.appearance) {
+        return Annotation.prototype.getOperatorList.call(this, evaluator, task,
+                                                         renderForms);
+      }
 
       // Even if there is an appearance stream, ignore it. This is the
       // behaviour used by Adobe Reader.
-      if (!data.defaultAppearance) {
-        return Promise.resolve(opList);
+      if (!this.data.defaultAppearance) {
+        return Promise.resolve(operatorList);
       }
 
-      var stream = new Stream(stringToBytes(data.defaultAppearance));
-      return evaluator.getOperatorList(stream, task,
-                                       this.fieldResources, opList).
+      var stream = new Stream(stringToBytes(this.data.defaultAppearance));
+      return evaluator.getOperatorList(stream, task, this.fieldResources,
+                                       operatorList).
         then(function () {
-          return opList;
+          return operatorList;
         });
     }
   });
 
   return TextWidgetAnnotation;
+})();
+
+var ChoiceWidgetAnnotation = (function ChoiceWidgetAnnotationClosure() {
+  function ChoiceWidgetAnnotation(params) {
+    WidgetAnnotation.call(this, params);
+
+    // Determine the options. The options array may consist of strings or
+    // arrays. If the array consists of arrays, then the first element of
+    // each array is the export value and the second element of each array is
+    // the display value. If the array consists of strings, then these
+    // represent both the export and display value. In this case, we convert
+    // it to an array of arrays as well for convenience in the display layer.
+    this.data.options = [];
+
+    var options = params.dict.getArray('Opt');
+    if (isArray(options)) {
+      for (var i = 0, ii = options.length; i < ii; i++) {
+        var option = options[i];
+
+        this.data.options[i] = {
+          exportValue: isArray(option) ? option[0] : option,
+          displayValue: isArray(option) ? option[1] : option,
+        };
+      }
+    }
+
+    // Determine the field value. In this case, it may be a string or an
+    // array of strings. For convenience in the display layer, convert the
+    // string to an array of one string as well.
+    if (!isArray(this.data.fieldValue)) {
+      this.data.fieldValue = [this.data.fieldValue];
+    }
+
+    // Process field flags for the display layer.
+    this.data.combo = this.hasFieldFlag(AnnotationFieldFlag.COMBO);
+    this.data.multiSelect = this.hasFieldFlag(AnnotationFieldFlag.MULTISELECT);
+  }
+
+  Util.inherit(ChoiceWidgetAnnotation, WidgetAnnotation, {
+    getOperatorList:
+        function ChoiceWidgetAnnotation_getOperatorList(evaluator, task,
+                                                        renderForms) {
+      var operatorList = new OperatorList();
+
+      // Do not render form elements on the canvas when interactive forms are
+      // enabled. The display layer is responsible for rendering them instead.
+      if (renderForms) {
+        return Promise.resolve(operatorList);
+      }
+
+      return Annotation.prototype.getOperatorList.call(this, evaluator, task,
+                                                       renderForms);
+    }
+  });
+
+  return ChoiceWidgetAnnotation;
 })();
 
 var TextAnnotation = (function TextAnnotationClosure() {
@@ -50137,7 +50440,8 @@ var Page = (function PageClosure() {
       }.bind(this));
     },
 
-    getOperatorList: function Page_getOperatorList(handler, task, intent) {
+    getOperatorList: function Page_getOperatorList(handler, task, intent,
+                                                   renderInteractiveForms) {
       var self = this;
 
       var pdfManager = this.pdfManager;
@@ -50189,7 +50493,8 @@ var Page = (function PageClosure() {
         }
 
         var annotationsReadyPromise = Annotation.appendToOperatorList(
-          annotations, pageOpList, partialEvaluator, task, intent);
+          annotations, pageOpList, partialEvaluator, task, intent,
+          renderInteractiveForms);
         return annotationsReadyPromise.then(function () {
           pageOpList.flush(true);
           return pageOpList;
@@ -51447,7 +51752,8 @@ var WorkerMessageHandler = {
         var pageNum = pageIndex + 1;
         var start = Date.now();
         // Pre compile the pdf page and fetch the fonts/images.
-        page.getOperatorList(handler, task, data.intent).then(
+        page.getOperatorList(handler, task, data.intent,
+                             data.renderInteractiveForms).then(
             function(operatorList) {
           finishWorkerTask(task);
 

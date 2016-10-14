@@ -5,6 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var _Visitor = (function () {
     function _Visitor() {
     }
@@ -77,6 +82,14 @@ export var Text = (function () {
     Text.prototype.visit = function (visitor) { return visitor.visitText(this); };
     return Text;
 }());
+export var CR = (function (_super) {
+    __extends(CR, _super);
+    function CR(ws) {
+        if (ws === void 0) { ws = 0; }
+        _super.call(this, "\n" + new Array(ws + 1).join(' '));
+    }
+    return CR;
+}(Text));
 var _ESCAPED_CHARS = [
     [/&/g, '&amp;'],
     [/"/g, '&quot;'],

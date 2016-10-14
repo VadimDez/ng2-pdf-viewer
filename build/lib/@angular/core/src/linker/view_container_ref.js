@@ -110,7 +110,7 @@ export var ViewContainerRef_ = (function () {
         if (injector === void 0) { injector = null; }
         if (projectableNodes === void 0) { projectableNodes = null; }
         var s = this._createComponentInContainerScope();
-        var contextInjector = isPresent(injector) ? injector : this._element.parentInjector;
+        var contextInjector = injector || this._element.parentInjector;
         var componentRef = componentFactory.create(contextInjector, projectableNodes);
         this.insert(componentRef.hostView, index);
         return wtfLeave(s, componentRef);

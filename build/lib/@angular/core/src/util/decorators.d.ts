@@ -110,7 +110,7 @@ export interface TypeDecorator {
  *
  * ```
  * var MyService = ng.Class({
- *   constructor: [String, [new Query(), QueryList], function(name, queryList) {
+ *   constructor: [String, [new Optional(), Service], function(name, myService) {
  *     ...
  *   }]
  * });
@@ -120,7 +120,7 @@ export interface TypeDecorator {
  *
  * ```
  * class MyService {
- *   constructor(name: string, @Query() queryList: QueryList) {
+ *   constructor(name: string, @Optional() myService: Service) {
  *     ...
  *   }
  * }
@@ -147,10 +147,10 @@ export interface TypeDecorator {
  */
 export declare function Class(clsDef: ClassDefinition): Type<any>;
 export declare function makeDecorator(name: string, props: {
-    [key: string]: any;
+    [name: string]: any;
 }, parentClass?: any, chainFn?: (fn: Function) => void): (...args: any[]) => (cls: any) => any;
 export declare function makeParamDecorator(name: string, props: ([string, any] | {
-    [key: string]: any;
+    [name: string]: any;
 })[], parentClass?: any): any;
 export declare function makePropDecorator(name: string, props: ([string, any] | {
     [key: string]: any;

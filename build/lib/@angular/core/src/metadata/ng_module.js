@@ -8,7 +8,7 @@
 import { makeDecorator } from '../util/decorators';
 /**
  * Defines a schema that will allow:
- * - any non-angular elements with a `-` in their name,
+ * - any non-Angular elements with a `-` in their name,
  * - any properties on elements with a `-` in their name which is the common rule for custom
  * elements.
  *
@@ -26,7 +26,7 @@ export var NO_ERRORS_SCHEMA = {
     name: 'no-errors-schema'
 };
 /**
- * NgModule decorator and metadata
+ * NgModule decorator and metadata.
  *
  * @stable
  * @Annotation

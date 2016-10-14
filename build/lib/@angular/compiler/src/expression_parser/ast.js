@@ -10,7 +10,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { ListWrapper } from '../facade/collection';
 import { isBlank } from '../facade/lang';
 export var ParserError = (function () {
     function ParserError(message, input, errLocation, ctxLocation) {
@@ -472,7 +471,7 @@ export var AstTransformer = (function () {
         return new KeyedWrite(ast.span, ast.obj.visit(this), ast.key.visit(this), ast.value.visit(this));
     };
     AstTransformer.prototype.visitAll = function (asts) {
-        var res = ListWrapper.createFixedSize(asts.length);
+        var res = new Array(asts.length);
         for (var i = 0; i < asts.length; ++i) {
             res[i] = asts[i].visit(this);
         }

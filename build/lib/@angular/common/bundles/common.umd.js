@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0
+ * @license Angular v2.1.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -132,18 +132,14 @@
     }
     // Need to declare a new variable for global here since TypeScript
     // exports the original value of the symbol.
-    var global$1 = globalScope;
+    var _global = globalScope;
     function getTypeNameForDebugging(type) {
-        if (type['name']) {
-            return type['name'];
-        }
-        return typeof type;
+        return type['name'] || typeof type;
     }
-    var Date = global$1.Date;
     // TODO: remove calls to assert in production environment
     // Note: Can't just export this and import in in other files
     // as `assert` is a reserved keyword in Dart
-    global$1.assert = function assert(condition) {
+    _global.assert = function assert(condition) {
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
@@ -152,22 +148,8 @@
     function isBlank(obj) {
         return obj === undefined || obj === null;
     }
-    function isNumber(obj) {
-        return typeof obj === 'number';
-    }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isFunction(obj) {
-        return typeof obj === 'function';
-    }
     function isStringMap(obj) {
         return typeof obj === 'object' && obj !== null;
-    }
-    function isPromise(obj) {
-        // allow any Promise/A+ compliant thenable.
-        // It's up to the caller to ensure that obj.then conforms to the spec
-        return isPresent(obj) && isFunction(obj.then);
     }
     function isArray(obj) {
         return Array.isArray(obj);
@@ -190,76 +172,8 @@
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
-        return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
+        return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
-    var StringWrapper = (function () {
-        function StringWrapper() {
-        }
-        StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-        StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-        StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-        StringWrapper.equals = function (s, s2) { return s === s2; };
-        StringWrapper.stripLeft = function (s, charVal) {
-            if (s && s.length) {
-                var pos = 0;
-                for (var i = 0; i < s.length; i++) {
-                    if (s[i] != charVal)
-                        break;
-                    pos++;
-                }
-                s = s.substring(pos);
-            }
-            return s;
-        };
-        StringWrapper.stripRight = function (s, charVal) {
-            if (s && s.length) {
-                var pos = s.length;
-                for (var i = s.length - 1; i >= 0; i--) {
-                    if (s[i] != charVal)
-                        break;
-                    pos--;
-                }
-                s = s.substring(0, pos);
-            }
-            return s;
-        };
-        StringWrapper.replace = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.replaceAll = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.slice = function (s, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return s.slice(from, to === null ? undefined : to);
-        };
-        StringWrapper.replaceAllMapped = function (s, from, cb) {
-            return s.replace(from, function () {
-                var matches = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    matches[_i - 0] = arguments[_i];
-                }
-                // Remove offset & string from the result array
-                matches.splice(-2, 2);
-                // The callback receives match, p1, ..., pn
-                return cb(matches);
-            });
-        };
-        StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-        StringWrapper.compare = function (a, b) {
-            if (a < b) {
-                return -1;
-            }
-            else if (a > b) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        };
-        return StringWrapper;
-    }());
     var NumberWrapper = (function () {
         function NumberWrapper() {
         }
@@ -308,31 +222,12 @@
     var Json = (function () {
         function Json() {
         }
-        Json.parse = function (s) { return global$1.JSON.parse(s); };
+        Json.parse = function (s) { return _global.JSON.parse(s); };
         Json.stringify = function (data) {
             // Dart doesn't take 3 arguments
-            return global$1.JSON.stringify(data, null, 2);
+            return _global.JSON.stringify(data, null, 2);
         };
         return Json;
-    }());
-    var DateWrapper = (function () {
-        function DateWrapper() {
-        }
-        DateWrapper.create = function (year, month, day, hour, minutes, seconds, milliseconds) {
-            if (month === void 0) { month = 1; }
-            if (day === void 0) { day = 1; }
-            if (hour === void 0) { hour = 0; }
-            if (minutes === void 0) { minutes = 0; }
-            if (seconds === void 0) { seconds = 0; }
-            if (milliseconds === void 0) { milliseconds = 0; }
-            return new Date(year, month - 1, day, hour, minutes, seconds, milliseconds);
-        };
-        DateWrapper.fromISOString = function (str) { return new Date(str); };
-        DateWrapper.fromMillis = function (ms) { return new Date(ms); };
-        DateWrapper.toMillis = function (date) { return date.getTime(); };
-        DateWrapper.now = function () { return new Date(); };
-        DateWrapper.toJson = function (date) { return date.toJSON(); };
-        return DateWrapper;
     }());
     var _symbolIterator = null;
     function getSymbolIterator() {
@@ -395,7 +290,13 @@
             this._platformStrategy = platformStrategy;
             var browserBaseHref = this._platformStrategy.getBaseHref();
             this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
-            this._platformStrategy.onPopState(function (ev) { _this._subject.emit({ 'url': _this.path(true), 'pop': true, 'type': ev.type }); });
+            this._platformStrategy.onPopState(function (ev) {
+                _this._subject.emit({
+                    'url': _this.path(true),
+                    'pop': true,
+                    'type': ev.type,
+                });
+            });
         }
         /**
          * Returns the normalized URL path.
@@ -1192,43 +1093,8 @@
         }
     }
 
-    var Map$1 = global$1.Map;
-    var Set$1 = global$1.Set;
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map$1([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map$1(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map$1();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var createMapFromMap = (function () {
-        try {
-            if (new Map$1(new Map$1())) {
-                return function createMapFromMap(m) { return new Map$1(m); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromMap(m) {
-            var map = new Map$1();
-            m.forEach(function (v, k) { map.set(k, v); });
-            return map;
-        };
-    })();
     var _clearValues = (function () {
-        if ((new Map$1()).keys().next) {
+        if ((new Map()).keys().next) {
             return function _clearValues(m) {
                 var keyIterator = m.keys();
                 var k;
@@ -1247,7 +1113,7 @@
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
         try {
-            if ((new Map$1()).values().next) {
+            if ((new Map()).values().next) {
                 return function createArrayFromMap(m, getValues) {
                     return getValues ? Array.from(m.values()) : Array.from(m.keys());
                 };
@@ -1256,7 +1122,7 @@
         catch (e) {
         }
         return function createArrayFromMapWithForeach(m, getValues) {
-            var res = ListWrapper.createFixedSize(m.size), i = 0;
+            var res = new Array(m.size), i = 0;
             m.forEach(function (v, k) {
                 res[i] = getValues ? v : k;
                 i++;
@@ -1264,70 +1130,6 @@
             return res;
         };
     })();
-    /**
-     * Wraps Javascript Objects
-     */
-    var StringMapWrapper = (function () {
-        function StringMapWrapper() {
-        }
-        StringMapWrapper.create = function () {
-            // Note: We are not using Object.create(null) here due to
-            // performance!
-            // http://jsperf.com/ng2-object-create-null
-            return {};
-        };
-        StringMapWrapper.contains = function (map, key) {
-            return map.hasOwnProperty(key);
-        };
-        StringMapWrapper.get = function (map, key) {
-            return map.hasOwnProperty(key) ? map[key] : undefined;
-        };
-        StringMapWrapper.set = function (map, key, value) { map[key] = value; };
-        StringMapWrapper.keys = function (map) { return Object.keys(map); };
-        StringMapWrapper.values = function (map) {
-            return Object.keys(map).map(function (k) { return map[k]; });
-        };
-        StringMapWrapper.isEmpty = function (map) {
-            for (var prop in map) {
-                return false;
-            }
-            return true;
-        };
-        StringMapWrapper.delete = function (map, key) { delete map[key]; };
-        StringMapWrapper.forEach = function (map, callback) {
-            for (var _i = 0, _a = Object.keys(map); _i < _a.length; _i++) {
-                var k = _a[_i];
-                callback(map[k], k);
-            }
-        };
-        StringMapWrapper.merge = function (m1, m2) {
-            var m = {};
-            for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
-                var k = _a[_i];
-                m[k] = m1[k];
-            }
-            for (var _b = 0, _c = Object.keys(m2); _b < _c.length; _b++) {
-                var k = _c[_b];
-                m[k] = m2[k];
-            }
-            return m;
-        };
-        StringMapWrapper.equals = function (m1, m2) {
-            var k1 = Object.keys(m1);
-            var k2 = Object.keys(m2);
-            if (k1.length != k2.length) {
-                return false;
-            }
-            for (var i = 0; i < k1.length; i++) {
-                var key = k1[i];
-                if (m1[key] !== m2[key]) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        return StringMapWrapper;
-    }());
     var ListWrapper = (function () {
         function ListWrapper() {
         }
@@ -1462,28 +1264,9 @@
         if (!isJsObject(obj))
             return false;
         return isArray(obj) ||
-            (!(obj instanceof Map$1) &&
+            (!(obj instanceof Map) &&
                 getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
     }
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Set constructor.  We work around that by manually adding the items.
-    var createSetFromList = (function () {
-        var test = new Set$1([1, 2, 3]);
-        if (test.size === 3) {
-            return function createSetFromList(lst) { return new Set$1(lst); };
-        }
-        else {
-            return function createSetAndPopulateFromList(lst) {
-                var res = new Set$1(lst);
-                if (res.size !== lst.length) {
-                    for (var i = 0; i < lst.length; i++) {
-                        res.add(lst[i]);
-                    }
-                }
-                return res;
-            };
-        }
-    })();
 
     /**
      * @ngModule CommonModule
@@ -1967,7 +1750,6 @@
                 this._activateViews(this._valueViews.get(_CASE_DEFAULT));
             }
         };
-        /** @internal */
         NgSwitch.prototype._emptyAllActiveViews = function () {
             var activeContainers = this._activeViews;
             for (var i = 0; i < activeContainers.length; i++) {
@@ -1975,9 +1757,7 @@
             }
             this._activeViews = [];
         };
-        /** @internal */
         NgSwitch.prototype._activateViews = function (views) {
-            // TODO(vicb): assert(this._activeViews.length === 0);
             if (views) {
                 for (var i = 0; i < views.length; i++) {
                     views[i].create();
@@ -1994,7 +1774,6 @@
             }
             views.push(view);
         };
-        /** @internal */
         NgSwitch.prototype._deregisterView = function (value, view) {
             // `_CASE_DEFAULT` is used a marker for non-registered cases
             if (value === _CASE_DEFAULT)
@@ -2025,10 +1804,11 @@
      *             expression.
      *
      * @howToUse
-     *     <container-element [ngSwitch]="switch_expression">
-     *       <some-element *ngSwitchCase="match_expression_1">...</some-element>
-     *     </container-element>
-     *
+     * ```
+     * <container-element [ngSwitch]="switch_expression">
+     *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
+     * </container-element>
+     *```
      * @description
      *
      * Insert the sub-tree when the expression evaluates to the same value as the enclosing switch
@@ -2043,7 +1823,6 @@
     var NgSwitchCase = (function () {
         function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
             // `_CASE_DEFAULT` is used as a marker for a not yet initialized value
-            /** @internal */
             this._value = _CASE_DEFAULT;
             this._switch = ngSwitch;
             this._view = new SwitchView(viewContainer, templateRef);
@@ -2077,10 +1856,12 @@
      *             switch expression.
      *
      * @howToUse
-     *     <container-element [ngSwitch]="switch_expression">
-     *       <some-element *ngSwitchCase="match_expression_1">...</some-element>
-     *       <some-other-element *ngSwitchDefault>...</some-other-element>
-     *     </container-element>
+     * ```
+     * <container-element [ngSwitch]="switch_expression">
+     *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
+     *   <some-other-element *ngSwitchDefault>...</some-other-element>
+     * </container-element>
+     * ```
      *
      * @description
      *
@@ -2153,19 +1934,16 @@
             configurable: true
         });
         NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
-        /** @internal */
         NgPlural.prototype._updateView = function () {
             this._clearViews();
             var cases = Object.keys(this._caseViews);
             var key = getPluralCategory(this._switchValue, cases, this._localization);
             this._activateView(this._caseViews[key]);
         };
-        /** @internal */
         NgPlural.prototype._clearViews = function () {
             if (this._activeView)
                 this._activeView.destroy();
         };
-        /** @internal */
         NgPlural.prototype._activateView = function (view) {
             if (view) {
                 this._activeView = view;
@@ -2191,10 +1969,12 @@
      *             given expression matches the plural expression according to CLDR rules.
      *
      * @howToUse
-     *     <some-element [ngPlural]="value">
-     *       <ng-container *ngPluralCase="'=0'">...</ng-container>
-     *       <ng-container *ngPluralCase="'other'">...</ng-container>
-     *     </some-element>
+     * ```
+     * <some-element [ngPlural]="value">
+     *   <ng-container *ngPluralCase="'=0'">...</ng-container>
+     *   <ng-container *ngPluralCase="'other'">...</ng-container>
+     * </some-element>
+     *```
      *
      * See {@link NgPlural} for more details and example.
      *
@@ -2272,7 +2052,7 @@
         };
         NgStyle.prototype._setStyle = function (nameAndUnit, value) {
             var _a = nameAndUnit.split('.'), name = _a[0], unit = _a[1];
-            value = value !== null && value !== void (0) && unit ? "" + value + unit : value;
+            value = value && unit ? "" + value + unit : value;
             this._renderer.setElementStyle(this._ngEl.nativeElement, name, value);
         };
         NgStyle.decorators = [
@@ -2326,7 +2106,7 @@
             enumerable: true,
             configurable: true
         });
-        NgTemplateOutlet.prototype.ngOnChanges = function () {
+        NgTemplateOutlet.prototype.ngOnChanges = function (changes) {
             if (this._viewRef) {
                 this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
             }
@@ -2364,6 +2144,8 @@
         NgPlural,
         NgPluralCase,
     ];
+
+    var isPromise = _angular_core.__core_private__.isPromise;
 
     /**
      * @license
@@ -2470,7 +2252,6 @@
     }());
     var _promiseStrategy = new PromiseStrategy();
     var _observableStrategy = new ObservableStrategy();
-    // avoid unused import when Promise union types are erased
     /**
      * @ngModule CommonModule
      * @whatItDoes Unwraps a value from an asynchronous primitive.
@@ -2498,25 +2279,21 @@
      */
     var AsyncPipe = (function () {
         function AsyncPipe(_ref) {
-            /** @internal */
+            this._ref = _ref;
             this._latestValue = null;
-            /** @internal */
             this._latestReturnedValue = null;
-            /** @internal */
             this._subscription = null;
-            /** @internal */
             this._obj = null;
             this._strategy = null;
-            this._ref = _ref;
         }
         AsyncPipe.prototype.ngOnDestroy = function () {
-            if (isPresent(this._subscription)) {
+            if (this._subscription) {
                 this._dispose();
             }
         };
         AsyncPipe.prototype.transform = function (obj) {
-            if (isBlank(this._obj)) {
-                if (isPresent(obj)) {
+            if (!this._obj) {
+                if (obj) {
                     this._subscribe(obj);
                 }
                 this._latestReturnedValue = this._latestValue;
@@ -2529,31 +2306,24 @@
             if (this._latestValue === this._latestReturnedValue) {
                 return this._latestReturnedValue;
             }
-            else {
-                this._latestReturnedValue = this._latestValue;
-                return _angular_core.WrappedValue.wrap(this._latestValue);
-            }
+            this._latestReturnedValue = this._latestValue;
+            return _angular_core.WrappedValue.wrap(this._latestValue);
         };
-        /** @internal */
         AsyncPipe.prototype._subscribe = function (obj) {
             var _this = this;
             this._obj = obj;
             this._strategy = this._selectStrategy(obj);
             this._subscription = this._strategy.createSubscription(obj, function (value) { return _this._updateLatestValue(obj, value); });
         };
-        /** @internal */
         AsyncPipe.prototype._selectStrategy = function (obj) {
             if (isPromise(obj)) {
                 return _promiseStrategy;
             }
-            else if (obj.subscribe) {
+            if (obj.subscribe) {
                 return _observableStrategy;
             }
-            else {
-                throw new InvalidPipeArgumentError(AsyncPipe, obj);
-            }
+            throw new InvalidPipeArgumentError(AsyncPipe, obj);
         };
-        /** @internal */
         AsyncPipe.prototype._dispose = function () {
             this._strategy.dispose(this._subscription);
             this._latestValue = null;
@@ -2561,7 +2331,6 @@
             this._subscription = null;
             this._obj = null;
         };
-        /** @internal */
         AsyncPipe.prototype._updateLatestValue = function (async, value) {
             if (async === this._obj) {
                 this._latestValue = value;
@@ -2852,24 +2621,13 @@
                 throw new InvalidPipeArgumentError(DatePipe, value);
             }
             if (NumberWrapper.isNumeric(value)) {
-                value = DateWrapper.fromMillis(parseFloat(value));
+                value = parseFloat(value);
             }
-            else if (isString(value)) {
-                value = DateWrapper.fromISOString(value);
-            }
-            if (StringMapWrapper.contains(DatePipe._ALIASES, pattern)) {
-                pattern = StringMapWrapper.get(DatePipe._ALIASES, pattern);
-            }
-            return DateFormatter.format(value, this._locale, pattern);
+            return DateFormatter.format(new Date(value), this._locale, DatePipe._ALIASES[pattern] || pattern);
         };
         DatePipe.prototype.supports = function (obj) {
-            if (isDate(obj) || NumberWrapper.isNumeric(obj)) {
-                return true;
-            }
-            if (isString(obj) && isDate(DateWrapper.fromISOString(obj))) {
-                return true;
-            }
-            return false;
+            return isDate(obj) || NumberWrapper.isNumeric(obj) ||
+                (typeof obj === 'string' && isDate(new Date(obj)));
         };
         /** @internal */
         DatePipe._ALIASES = {
@@ -2921,7 +2679,7 @@
                 throw new InvalidPipeArgumentError(I18nPluralPipe, pluralMap);
             }
             var key = getPluralCategory(value, Object.keys(pluralMap), this._localization);
-            return StringWrapper.replaceAll(pluralMap[key], _INTERPOLATION_REGEXP, value.toString());
+            return pluralMap[key].replace(_INTERPOLATION_REGEXP, value.toString());
         };
         I18nPluralPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'i18nPlural', pure: true },] },
@@ -3013,7 +2771,7 @@
         LowerCasePipe.prototype.transform = function (value) {
             if (isBlank(value))
                 return value;
-            if (!isString(value)) {
+            if (typeof value !== 'string') {
                 throw new InvalidPipeArgumentError(LowerCasePipe, value);
             }
             return value.toLowerCase();
@@ -3026,15 +2784,15 @@
         return LowerCasePipe;
     }());
 
-    var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(\-(\d+))?)?$/;
+    var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(-(\d+))?)?$/;
     function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSymbol) {
         if (currency === void 0) { currency = null; }
         if (currencyAsSymbol === void 0) { currencyAsSymbol = false; }
         if (isBlank(value))
             return null;
         // Convert strings to numbers
-        value = isString(value) && NumberWrapper.isNumeric(value) ? +value : value;
-        if (!isNumber(value)) {
+        value = typeof value === 'string' && NumberWrapper.isNumeric(value) ? +value : value;
+        if (typeof value !== 'number') {
             throw new InvalidPipeArgumentError(pipe, value);
         }
         var minInt;
@@ -3046,7 +2804,7 @@
             minFraction = 0;
             maxFraction = 3;
         }
-        if (isPresent(digits)) {
+        if (digits) {
             var parts = digits.match(_NUMBER_FORMAT_REGEXP);
             if (parts === null) {
                 throw new Error(digits + " is not a valid digit info for number pipes");
@@ -3066,7 +2824,7 @@
             minimumFractionDigits: minFraction,
             maximumFractionDigits: maxFraction,
             currency: currency,
-            currencyAsSymbol: currencyAsSymbol
+            currencyAsSymbol: currencyAsSymbol,
         });
     }
     /**
@@ -3242,18 +3000,14 @@
         function SlicePipe() {
         }
         SlicePipe.prototype.transform = function (value, start, end) {
-            if (end === void 0) { end = null; }
             if (isBlank(value))
                 return value;
             if (!this.supports(value)) {
                 throw new InvalidPipeArgumentError(SlicePipe, value);
             }
-            if (isString(value)) {
-                return StringWrapper.slice(value, start, end);
-            }
-            return ListWrapper.slice(value, start, end);
+            return value.slice(start, end);
         };
-        SlicePipe.prototype.supports = function (obj) { return isString(obj) || isArray(obj); };
+        SlicePipe.prototype.supports = function (obj) { return typeof obj === 'string' || Array.isArray(obj); };
         SlicePipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'slice', pure: false },] },
         ];
@@ -3282,7 +3036,7 @@
         UpperCasePipe.prototype.transform = function (value) {
             if (isBlank(value))
                 return value;
-            if (!isString(value)) {
+            if (typeof value !== 'string') {
                 throw new InvalidPipeArgumentError(UpperCasePipe, value);
             }
             return value.toUpperCase();
