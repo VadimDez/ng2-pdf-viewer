@@ -22,6 +22,7 @@ export class AppComponent {
   // };
 
   page: number = 1;
+  zoom: number = 1.0;
   originalSize: boolean = false;
   showAll: boolean = true;
   pdf: any;
@@ -30,8 +31,12 @@ export class AppComponent {
     this.onLoadComplete = this.onLoadComplete.bind(this);
   }
 
-  incrementPage(amount) {
+  incrementPage(amount: number) {
     this.page += amount;
+  }
+
+  incrementZoom(amount: number) {
+    this.zoom += amount;
   }
 
   /**

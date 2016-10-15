@@ -31,6 +31,25 @@
                 </label>
             </div>
 
+            <div mdl>
+                <button (click)="incrementZoom(-0.1)" class="mdl-button mdl-js-button">
+                    -
+                </button>
+                <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input [(ngModel)]="zoom"
+                           [value]="zoom"
+                           class="mdl-textfield__input"
+                           type="number"
+                           pattern="-?[0-9]*(\.[0-9]+)?"
+                           id="pdf-zoom"
+                    >
+                    <label class="mdl-textfield__label" for="pdf-zoom">Zoom</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
+                </div>
+                <button (click)="incrementZoom(0.1)" class="mdl-button mdl-js-button">
+                    +
+                </button>
+            </div>
 
             <div mdl *ngIf="!showAll">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
@@ -57,6 +76,7 @@
                         [original-size]="originalSize"
                         [show-all]="showAll"
                         [on-load-complete]="onLoadComplete"
+                        [zoom]="zoom"
             ></pdf-viewer>
 
         </div>
