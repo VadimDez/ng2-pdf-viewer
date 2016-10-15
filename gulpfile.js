@@ -31,34 +31,34 @@ gulp.task('tslint', () => {
  * Compile TypeScript sources and create sourcemaps in build directory.
  */
 gulp.task("compile", ["tslint"], () => {
-  let tsResult = gulp.src(['src/**/*.ts'])
+  let tsResult = gulp.src([`${ __dirname }/src/**/*.ts`])
     .pipe(sourcemaps.init())
     .pipe(tsProject());
 
   return tsResult.js
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("build"));
+    .pipe(gulp.dest(`${ __dirname }/build`));
 });
 
 /**
  * Compile TypeScript sources and create sourcemaps in build directory.
  */
-gulp.task("compile-and-inline-html", ["tslint"], () => {
-  let tsResult = gulp.src("src/**/*.ts")
+gulp.task('compile-and-inline-html', ['tslint'], () => {
+  let tsResult = gulp.src(`${ __dirname }src/**/*.ts`)
     .pipe(inlineNg2Template({ base: './src' }))
     .pipe(sourcemaps.init())
     .pipe(tsProject());
   return tsResult.js
     .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest("build"));
+    .pipe(gulp.dest(`${ __dirname }/build`));
 });
 
 /**
  * Copy all resources that are not TypeScript files into build directory.
  */
-gulp.task("resources", () => {
-  return gulp.src(["src/**/*.css", "src/**/*.html"])
-      .pipe(gulp.dest("build"));
+gulp.task('resources', () => {
+  return gulp.src([`${ __dirname }/src/**/*.css`, `${ __dirname }/src/**/*.html`])
+      .pipe(gulp.dest(`${ __dirname }/build`));
 });
 
 /**
@@ -76,7 +76,7 @@ gulp.task("libs", () => {
     'pdfjs-dist/**',
     'material-design-lite/**'
   ], {cwd: "node_modules/**"}) /* Glob required here. */
-  .pipe(gulp.dest("build/lib"));
+  .pipe(gulp.dest(`${ __dirname }/build/lib`));
 });
 
 gulp.task("files", () => {
@@ -90,11 +90,11 @@ gulp.task("files", () => {
  * Watch for changes in TypeScript, HTML and CSS files.
  */
 gulp.task('watch', function () {
-  gulp.watch(["src/**/*.ts"], ['compile']).on('change', function (e) {
+  gulp.watch([`${ __dirname }/src/**/*.ts`], ['compile']).on('change', function (e) {
     console.log('TypeScript file ' + e.path + ' has been changed. Compiling.');
   });
 
-  gulp.watch(["src/**/*.html", "src/**/*.css"], ['resources']).on('change', function (e) {
+  gulp.watch([`${ __dirname }/src/**/*.html`, `${ __dirname }/src/**/*.css`], ['resources']).on('change', function (e) {
     console.log('Resource file ' + e.path + ' has been changed. Updating.');
   });
 });

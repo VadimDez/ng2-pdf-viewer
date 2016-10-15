@@ -62,6 +62,7 @@
     "@types/jasmine": "^2.5.35",
     "@types/node": "^6.0.45",
     "@types/pdf": "0.0.31",
+    "@types/systemjs": "^0.19.31",
     "codelyzer": "^1.0.0-beta.2",
     "concurrently": "^3.1.0",
     "del": "^2.2.2",

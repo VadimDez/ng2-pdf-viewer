@@ -38,6 +38,6 @@
     global.filterSystemConfig(config);
   }
 
-  System.config(config);
+  SystemJS.config(config);
 
 })(this);

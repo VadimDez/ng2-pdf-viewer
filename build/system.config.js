@@ -27,7 +27,7 @@
     if (global.filterSystemConfig) {
         global.filterSystemConfig(config);
     }
-    System.config(config);
+    SystemJS.config(config);
 })(this);
 
 //# sourceMappingURL=system.config.js.map
