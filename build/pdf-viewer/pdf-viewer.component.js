@@ -116,7 +116,7 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.renderPage = function (page) {
         var _this = this;
         return this._pdf.getPage(page).then(function (page) {
-            var viewport = page.getViewport(1 * _this._zoom);
+            var viewport = page.getViewport(_this._zoom);
             var container = _this.element.nativeElement.querySelector('div');
             var canvas = document.createElement('canvas');
             if (!_this._originalSize) {

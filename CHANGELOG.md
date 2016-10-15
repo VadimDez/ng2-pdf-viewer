@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.13
+* [[#22](https://github.com/VadimDez/ng2-pdf-viewer/issues/22)] - Support zoom
+* other minor changes
+
 ## 0.0.12
 
 * [[#7](https://github.com/VadimDez/ng2-pdf-viewer/issues/7)] - Return pdf info

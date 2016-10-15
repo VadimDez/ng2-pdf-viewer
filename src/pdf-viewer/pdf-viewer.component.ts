@@ -128,7 +128,7 @@ export class PdfViewerComponent {
 
   private renderPage(page: number) {
     return this._pdf.getPage(page).then((page: any) => {
-      let viewport = page.getViewport(1 * this._zoom);
+      let viewport = page.getViewport(this._zoom);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 
