@@ -69,6 +69,13 @@ export class AppComponent {
 
 ## Options
 
+* [src](#src)
+* [page](#page)
+* [zoom](#zoom)
+* [original-size](#original-size)
+* [show-all](#show-all)
+* [on-load-complete](#on-load-complete)
+
 #### [src]
 
 Pass pdf location
