@@ -102,6 +102,12 @@ supports two way data binding as well
 [(page)]="pageVariable"
 ```
 
+#### [zoom]
+Zoom pdf
+```
+[zoom]="0.5"
+```
+
 #### [original-size]
 
 if set to *true* - size will be as same as original document
