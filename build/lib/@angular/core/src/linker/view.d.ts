@@ -1,9 +1,14 @@
-import { AnimationPlayer } from '../animation/animation_player';
-import { AnimationTransitionEvent } from '../animation/animation_transition_event';
-import { ViewAnimationMap } from '../animation/view_animation_map';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
 import { Injector } from '../di/injector';
 import { RenderComponentType, RenderDebugInfo, Renderer } from '../render/api';
+import { AnimationViewContext } from './animation_view_context';
 import { DebugContext, StaticNodeDebugInfo } from './debug_context';
 import { AppElement } from './element';
 import { ViewRef_ } from './view_ref';
@@ -33,15 +38,11 @@ export declare abstract class AppView<T> {
     projectableNodes: Array<any | any[]>;
     renderer: Renderer;
     private _hasExternalHostElement;
-    animationPlayers: ViewAnimationMap;
-    private _animationListeners;
+    private _animationContext;
     context: T;
     constructor(clazz: any, componentType: RenderComponentType, type: ViewType, viewUtils: ViewUtils, parentInjector: Injector, declarationAppElement: AppElement, cdMode: ChangeDetectorStatus);
+    animationContext: AnimationViewContext;
     destroyed: boolean;
-    cancelActiveAnimation(element: any, animationName: string, removeAllAnimations?: boolean): void;
-    queueAnimation(element: any, animationName: string, player: AnimationPlayer, totalTime: number, fromState: string, toState: string): void;
-    triggerAnimationOutput(element: any, animationName: string, phase: string, event: AnimationTransitionEvent): void;
-    registerAnimationOutput(element: any, eventName: string, eventPhase: string, eventHandler: Function): void;
     create(context: T, givenProjectableNodes: Array<any | any[]>, rootSelectorOrNode: string | any): AppElement;
     /**
      * Overwritten by implementations.

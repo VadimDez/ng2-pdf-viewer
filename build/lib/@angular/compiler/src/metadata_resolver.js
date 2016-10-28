@@ -14,7 +14,7 @@ import { AnimationAnimateMetadata, AnimationGroupMetadata, AnimationKeyframesSeq
 import { assertArrayOfStrings, assertInterpolationSymbols } from './assertions';
 import * as cpl from './compile_metadata';
 import { DirectiveResolver } from './directive_resolver';
-import { isBlank, isPresent, isString, stringify } from './facade/lang';
+import { isBlank, isPresent, stringify } from './facade/lang';
 import { Identifiers, resolveIdentifierToken } from './identifiers';
 import { hasLifecycleHook } from './lifecycle_reflector';
 import { NgModuleResolver } from './ng_module_resolver';
@@ -503,7 +503,7 @@ export var CompileMetadataResolver = (function () {
     CompileMetadataResolver.prototype.getTokenMetadata = function (token) {
         token = resolveForwardRef(token);
         var compileToken;
-        if (isString(token)) {
+        if (typeof token === 'string') {
             compileToken = new cpl.CompileTokenMetadata({ value: token });
         }
         else {

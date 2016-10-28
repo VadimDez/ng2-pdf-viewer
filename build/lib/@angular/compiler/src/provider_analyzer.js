@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { CompileDiDependencyMetadata, CompileProviderMetadata, CompileTokenMetadata, CompileTypeMetadata } from './compile_metadata';
 import { ListWrapper, MapWrapper } from './facade/collection';
-import { isArray, isBlank, isPresent, normalizeBlank } from './facade/lang';
+import { isBlank, isPresent, normalizeBlank } from './facade/lang';
 import { Identifiers, resolveIdentifierToken } from './identifiers';
 import { ParseError } from './parse_util';
 import { ProviderAst, ProviderAstType } from './template_parser/template_ast';
@@ -391,7 +391,7 @@ function _normalizeProviders(providers, sourceSpan, targetErrors, targetProvider
     }
     if (isPresent(providers)) {
         providers.forEach(function (provider) {
-            if (isArray(provider)) {
+            if (Array.isArray(provider)) {
                 _normalizeProviders(provider, sourceSpan, targetErrors, targetProviders);
             }
             else {

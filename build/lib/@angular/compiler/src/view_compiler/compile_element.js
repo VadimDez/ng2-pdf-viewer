@@ -10,7 +10,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { CompileDiDependencyMetadata, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { CompileDiDependencyMetadata, CompileIdentifierMetadata, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { DirectiveWrapperCompiler } from '../directive_wrapper_compiler';
 import { ListWrapper, MapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { Identifiers, identifierToken, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
@@ -21,6 +22,7 @@ import { createDiTokenExpression } from '../util';
 import { CompileMethod } from './compile_method';
 import { CompileQuery, addQueryToTokenMap, createQueryList } from './compile_query';
 import { InjectMethodVars } from './constants';
+import { ComponentFactoryDependency, DirectiveWrapperDependency } from './deps';
 import { getPropertyInView, injectFromViewParentInjector } from './util';
 export var CompileNode = (function () {
     function CompileNode(parent, view, nodeIndex, renderNode, sourceAst) {
@@ -36,7 +38,7 @@ export var CompileNode = (function () {
 }());
 export var CompileElement = (function (_super) {
     __extends(CompileElement, _super);
-    function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references) {
+    function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references, _targetDependencies) {
         var _this = this;
         _super.call(this, parent, view, nodeIndex, renderNode, sourceAst);
         this.component = component;
@@ -44,8 +46,10 @@ export var CompileElement = (function (_super) {
         this._resolvedProvidersArray = _resolvedProvidersArray;
         this.hasViewContainer = hasViewContainer;
         this.hasEmbeddedView = hasEmbeddedView;
+        this._targetDependencies = _targetDependencies;
         this._compViewExpr = null;
         this.instances = new Map();
+        this.directiveWrapperInstance = new Map();
         this._queryCount = 0;
         this._queries = new Map();
         this._componentConstructorViewQueryLists = [];
@@ -61,9 +65,12 @@ export var CompileElement = (function (_super) {
         if (this.hasViewContainer || this.hasEmbeddedView || isPresent(this.component)) {
             this._createAppElement();
         }
+        if (this.component) {
+            this._createComponentFactoryResolver();
+        }
     }
     CompileElement.createNull = function () {
-        return new CompileElement(null, null, null, null, null, null, [], [], false, false, []);
+        return new CompileElement(null, null, null, null, null, null, [], [], false, false, [], []);
     };
     CompileElement.prototype._createAppElement = function () {
         var fieldName = "_appEl_" + this.nodeIndex;
@@ -79,7 +86,13 @@ export var CompileElement = (function (_super) {
         this.appElement = o.THIS_EXPR.prop(fieldName);
         this.instances.set(resolveIdentifierToken(Identifiers.AppElement).reference, this.appElement);
     };
-    CompileElement.prototype.createComponentFactoryResolver = function (entryComponents) {
+    CompileElement.prototype._createComponentFactoryResolver = function () {
+        var _this = this;
+        var entryComponents = this.component.entryComponents.map(function (entryComponent) {
+            var id = new CompileIdentifierMetadata({ name: entryComponent.name });
+            _this._targetDependencies.push(new ComponentFactoryDependency(entryComponent, id));
+            return id;
+        });
         if (!entryComponents || entryComponents.length === 0) {
             return;
         }
@@ -128,6 +141,8 @@ export var CompileElement = (function (_super) {
         // create all the provider instances, some in the view constructor,
         // some as getters. We rely on the fact that they are already sorted topologically.
         MapWrapper.values(this._resolvedProviders).forEach(function (resolvedProvider) {
+            var isDirectiveWrapper = resolvedProvider.providerType === ProviderAstType.Component ||
+                resolvedProvider.providerType === ProviderAstType.Directive;
             var providerValueExpressions = resolvedProvider.providers.map(function (provider) {
                 if (isPresent(provider.useExisting)) {
                     return _this._getDependency(resolvedProvider.providerType, new CompileDiDependencyMetadata({ token: provider.useExisting }));
@@ -140,8 +155,16 @@ export var CompileElement = (function (_super) {
                 else if (isPresent(provider.useClass)) {
                     var deps = provider.deps || provider.useClass.diDeps;
                     var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
-                    return o.importExpr(provider.useClass)
-                        .instantiate(depsExpr, o.importType(provider.useClass));
+                    if (isDirectiveWrapper) {
+                        var directiveWrapperIdentifier = new CompileIdentifierMetadata({ name: DirectiveWrapperCompiler.dirWrapperClassName(provider.useClass) });
+                        _this._targetDependencies.push(new DirectiveWrapperDependency(provider.useClass, directiveWrapperIdentifier));
+                        return o.importExpr(directiveWrapperIdentifier)
+                            .instantiate(depsExpr, o.importType(directiveWrapperIdentifier));
+                    }
+                    else {
+                        return o.importExpr(provider.useClass)
+                            .instantiate(depsExpr, o.importType(provider.useClass));
+                    }
                 }
                 else {
                     return convertValueToOutputAst(provider.useValue);
@@ -149,7 +172,13 @@ export var CompileElement = (function (_super) {
             });
             var propName = "_" + resolvedProvider.token.name + "_" + _this.nodeIndex + "_" + _this.instances.size;
             var instance = createProviderProperty(propName, resolvedProvider, providerValueExpressions, resolvedProvider.multiProvider, resolvedProvider.eager, _this);
-            _this.instances.set(resolvedProvider.token.reference, instance);
+            if (isDirectiveWrapper) {
+                _this.directiveWrapperInstance.set(resolvedProvider.token.reference, instance);
+                _this.instances.set(resolvedProvider.token.reference, instance.prop('context'));
+            }
+            else {
+                _this.instances.set(resolvedProvider.token.reference, instance);
+            }
         });
         for (var i = 0; i < this._directives.length; i++) {
             var directive = this._directives[i];

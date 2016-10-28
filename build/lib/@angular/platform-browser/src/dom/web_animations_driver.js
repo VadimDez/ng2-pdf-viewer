@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { AUTO_STYLE } from '@angular/core';
-import { isNumber, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { dashCaseToCamelCase } from './util';
 import { WebAnimationsPlayer } from './web_animations_player';
 export var WebAnimationsDriver = (function () {
@@ -68,7 +68,7 @@ function _populateStyles(element, styles, defaultStyles) {
 function _resolveStyleUnit(val, userProvidedProp, formattedProp) {
     var unit = '';
     if (_isPixelDimensionStyle(formattedProp) && val != 0 && val != '0') {
-        if (isNumber(val)) {
+        if (typeof val === 'number') {
             unit = 'px';
         }
         else if (_findDimensionalSuffix(val.toString()).length == 0) {

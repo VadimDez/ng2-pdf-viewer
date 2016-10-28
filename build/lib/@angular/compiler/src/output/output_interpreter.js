@@ -82,7 +82,7 @@ function createDynamicClass(_classStmt, _ctx, _visitor) {
         _classStmt.fields.forEach(function (field) { _this[field.name] = undefined; });
         _executeFunctionStatements(ctorParamNames, args, _classStmt.constructorMethod.body, instanceCtx, _visitor);
     };
-    var superClass = _classStmt.parent.visitExpression(_visitor, _ctx);
+    var superClass = _classStmt.parent ? _classStmt.parent.visitExpression(_visitor, _ctx) : Object;
     ctor.prototype = Object.create(superClass.prototype, propertyDescriptors);
     return ctor;
 }

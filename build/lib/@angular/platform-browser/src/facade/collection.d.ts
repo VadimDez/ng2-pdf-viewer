@@ -2,11 +2,6 @@ export declare class MapWrapper {
     static createFromStringMap<T>(stringMap: {
         [key: string]: T;
     }): Map<string, T>;
-    static toStringMap<T>(m: Map<string, T>): {
-        [key: string]: T;
-    };
-    static createFromPairs(pairs: any[]): Map<any, any>;
-    static iterable<T>(m: T): T;
     static keys<K>(m: Map<K, any>): K[];
     static values<V>(m: Map<any, V>): V[];
 }

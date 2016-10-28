@@ -197,7 +197,7 @@ export function makeDecorator(name, props, parentClass, chainFn) {
     return DecoratorFactory;
 }
 function makeMetadataCtor(props) {
-    function ctor() {
+    return function ctor() {
         var _this = this;
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -207,17 +207,16 @@ function makeMetadataCtor(props) {
             var argVal = args[i];
             if (Array.isArray(prop)) {
                 // plain parameter
-                _this[prop[0]] = !argVal || argVal === undefined ? prop[1] : argVal;
+                _this[prop[0]] = argVal === undefined ? prop[1] : argVal;
             }
             else {
                 for (var propName in prop) {
                     _this[propName] =
-                        !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
+                        argVal && argVal.hasOwnProperty(propName) ? argVal[propName] : prop[propName];
                 }
             }
         });
-    }
-    return ctor;
+    };
 }
 export function makeParamDecorator(name, props, parentClass) {
     var metaCtor = makeMetadataCtor(props);
@@ -268,7 +267,7 @@ export function makePropDecorator(name, props, parentClass) {
         var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
         return function PropDecorator(target, name) {
             var meta = Reflect.getOwnMetadata('propMetadata', target.constructor) || {};
-            meta[name] = meta[name] || [];
+            meta[name] = meta.hasOwnProperty(name) && meta[name] || [];
             meta[name].unshift(decoratorInstance);
             Reflect.defineMetadata('propMetadata', meta, target.constructor);
         };

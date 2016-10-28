@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.0
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -15,56 +15,6 @@
     function isBlank(obj) {
         return obj === undefined || obj === null;
     }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isStringMap(obj) {
-        return typeof obj === 'object' && obj !== null;
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
-    }
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
     // JS has NaN !== NaN
     function looseIdentical(a, b) {
         return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
@@ -77,9 +27,6 @@
     }
     function isPrimitive(obj) {
         return !isJsObject(obj);
-    }
-    function hasConstructor(value, type) {
-        return value.constructor === type;
     }
 
     /**
@@ -224,41 +171,6 @@
         return ControlContainer;
     }(AbstractControlDirective));
 
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -290,13 +202,6 @@
             }
             return result;
         };
-        MapWrapper.toStringMap = function (m) {
-            var r = {};
-            m.forEach(function (v, k) { return r[k] = v; });
-            return r;
-        };
-        MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-        MapWrapper.iterable = function (m) { return m; };
         MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
         MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
         return MapWrapper;
@@ -455,7 +360,7 @@
         if (isPresent(source)) {
             for (var i = 0; i < source.length; i++) {
                 var item = source[i];
-                if (isArray(item)) {
+                if (Array.isArray(item)) {
                     _flattenArray(item, target);
                 }
                 else {
@@ -1150,7 +1055,7 @@
     function _buildValueString$1(id, value) {
         if (isBlank(id))
             return "" + value;
-        if (isString(value))
+        if (typeof value === 'string')
             value = "'" + value + "'";
         if (!isPrimitive(value))
             value = 'Object';
@@ -1324,9 +1229,7 @@
     }());
 
     function controlPath(name, parent) {
-        var p = ListWrapper.clone(parent.path);
-        p.push(name);
-        return p;
+        return parent.path.concat([name]);
     }
     function setUpControl(control, dir) {
         if (!control)
@@ -1409,12 +1312,15 @@
             return true;
         return !looseIdentical(viewModel, change.currentValue);
     }
+    var BUILTIN_ACCESSORS = [
+        CheckboxControlValueAccessor,
+        NumberValueAccessor,
+        SelectControlValueAccessor,
+        SelectMultipleControlValueAccessor,
+        RadioControlValueAccessor,
+    ];
     function isBuiltInAccessor(valueAccessor) {
-        return (hasConstructor(valueAccessor, CheckboxControlValueAccessor) ||
-            hasConstructor(valueAccessor, NumberValueAccessor) ||
-            hasConstructor(valueAccessor, SelectControlValueAccessor) ||
-            hasConstructor(valueAccessor, SelectMultipleControlValueAccessor) ||
-            hasConstructor(valueAccessor, RadioControlValueAccessor));
+        return BUILTIN_ACCESSORS.some(function (a) { return valueAccessor.constructor === a; });
     }
     // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
     function selectValueAccessor(dir, valueAccessors) {
@@ -1424,25 +1330,25 @@
         var builtinAccessor;
         var customAccessor;
         valueAccessors.forEach(function (v) {
-            if (hasConstructor(v, DefaultValueAccessor)) {
+            if (v.constructor === DefaultValueAccessor) {
                 defaultAccessor = v;
             }
             else if (isBuiltInAccessor(v)) {
-                if (isPresent(builtinAccessor))
+                if (builtinAccessor)
                     _throwError(dir, 'More than one built-in value accessor matches form control with');
                 builtinAccessor = v;
             }
             else {
-                if (isPresent(customAccessor))
+                if (customAccessor)
                     _throwError(dir, 'More than one custom value accessor matches form control with');
                 customAccessor = v;
             }
         });
-        if (isPresent(customAccessor))
+        if (customAccessor)
             return customAccessor;
-        if (isPresent(builtinAccessor))
+        if (builtinAccessor)
             return builtinAccessor;
-        if (isPresent(defaultAccessor))
+        if (defaultAccessor)
             return defaultAccessor;
         _throwError(dir, 'No valid value accessor for form control with');
         return null;
@@ -1771,7 +1677,7 @@
         if (!(path instanceof Array)) {
             path = path.split(delimiter);
         }
-        if (path instanceof Array && ListWrapper.isEmpty(path))
+        if (path instanceof Array && (path.length === 0))
             return null;
         return path.reduce(function (v, name) {
             if (v instanceof FormGroup) {
@@ -2199,7 +2105,7 @@
          */
         AbstractControl.prototype.getError = function (errorCode, path) {
             if (path === void 0) { path = null; }
-            var control = isPresent(path) && !ListWrapper.isEmpty(path) ? this.get(path) : this;
+            var control = isPresent(path) && (path.length > 0) ? this.get(path) : this;
             if (isPresent(control) && isPresent(control._errors)) {
                 return control._errors[errorCode];
             }
@@ -2259,7 +2165,7 @@
         };
         /** @internal */
         AbstractControl.prototype._anyControlsHaveStatus = function (status) {
-            return this._anyControls(function (control) { return control.status == status; });
+            return this._anyControls(function (control) { return control.status === status; });
         };
         /** @internal */
         AbstractControl.prototype._anyControlsDirty = function () {
@@ -2287,8 +2193,8 @@
         };
         /** @internal */
         AbstractControl.prototype._isBoxedValue = function (formState) {
-            return isStringMap(formState) && Object.keys(formState).length === 2 && 'value' in formState &&
-                'disabled' in formState;
+            return typeof formState === 'object' && formState !== null &&
+                Object.keys(formState).length === 2 && 'value' in formState && 'disabled' in formState;
         };
         /** @internal */
         AbstractControl.prototype._registerOnCollectionChange = function (fn) { this._onCollectionChange = fn; };
@@ -2845,7 +2751,7 @@
          * Insert a new {@link AbstractControl} at the given `index` in the array.
          */
         FormArray.prototype.insert = function (index, control) {
-            ListWrapper.insert(this.controls, index, control);
+            this.controls.splice(index, 0, control);
             this._registerControl(control);
             this.updateValueAndValidity();
             this._onCollectionChange();
@@ -2856,7 +2762,7 @@
         FormArray.prototype.removeAt = function (index) {
             if (this.controls[index])
                 this.controls[index]._registerOnCollectionChange(function () { });
-            ListWrapper.removeAt(this.controls, index);
+            this.controls.splice(index, 1);
             this.updateValueAndValidity();
             this._onCollectionChange();
         };
@@ -2866,9 +2772,9 @@
         FormArray.prototype.setControl = function (index, control) {
             if (this.controls[index])
                 this.controls[index]._registerOnCollectionChange(function () { });
-            ListWrapper.removeAt(this.controls, index);
+            this.controls.splice(index, 1);
             if (control) {
-                ListWrapper.insert(this.controls, index, control);
+                this.controls.splice(index, 0, control);
                 this._registerControl(control);
             }
             this.updateValueAndValidity();
@@ -4495,7 +4401,7 @@
                 controlConfig instanceof FormArray) {
                 return controlConfig;
             }
-            else if (isArray(controlConfig)) {
+            else if (Array.isArray(controlConfig)) {
                 var value = controlConfig[0];
                 var validator = controlConfig.length > 1 ? controlConfig[1] : null;
                 var asyncValidator = controlConfig.length > 2 ? controlConfig[2] : null;

@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isArray, isBlank, isPresent, isPrimitive, isStrictStringMap } from './facade/lang';
+import { isBlank, isPresent, isPrimitive, isStrictStringMap } from './facade/lang';
 import * as o from './output/output_ast';
 export var MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
@@ -34,18 +34,16 @@ export function sanitizeIdentifier(name) {
     return name.replace(/\W/g, '_');
 }
 export function visitValue(value, visitor, context) {
-    if (isArray(value)) {
+    if (Array.isArray(value)) {
         return visitor.visitArray(value, context);
     }
-    else if (isStrictStringMap(value)) {
+    if (isStrictStringMap(value)) {
         return visitor.visitStringMap(value, context);
     }
-    else if (isBlank(value) || isPrimitive(value)) {
+    if (isBlank(value) || isPrimitive(value)) {
         return visitor.visitPrimitive(value, context);
     }
-    else {
-        return visitor.visitOther(value, context);
-    }
+    return visitor.visitOther(value, context);
 }
 export var ValueTransformer = (function () {
     function ValueTransformer() {

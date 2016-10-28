@@ -7,7 +7,7 @@
  */
 import { Directive, ElementRef, Host, Input, Optional, Renderer, forwardRef } from '@angular/core';
 import { MapWrapper } from '../facade/collection';
-import { isBlank, isPresent, isPrimitive, isString, looseIdentical } from '../facade/lang';
+import { isBlank, isPresent, isPrimitive, looseIdentical } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var SELECT_MULTIPLE_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
@@ -17,7 +17,7 @@ export var SELECT_MULTIPLE_VALUE_ACCESSOR = {
 function _buildValueString(id, value) {
     if (isBlank(id))
         return "" + value;
-    if (isString(value))
+    if (typeof value === 'string')
         value = "'" + value + "'";
     if (!isPrimitive(value))
         value = 'Object';

@@ -10,14 +10,11 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { AnimationGroupPlayer } from '../animation/animation_group_player';
-import { queueAnimation } from '../animation/animation_queue';
-import { AnimationTransitionEvent } from '../animation/animation_transition_event';
-import { ViewAnimationMap } from '../animation/view_animation_map';
 import { ChangeDetectorStatus } from '../change_detection/change_detection';
 import { ListWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { wtfCreateScope, wtfLeave } from '../profile/profile';
+import { AnimationViewContext } from './animation_view_context';
 import { DebugContext } from './debug_context';
 import { AppElement } from './element';
 import { ElementInjector } from './element_injector';
@@ -43,8 +40,6 @@ export var AppView = (function () {
         this.viewChildren = [];
         this.viewContainerElement = null;
         this.numberOfChecks = 0;
-        this.animationPlayers = new ViewAnimationMap();
-        this._animationListeners = new Map();
         this.ref = new ViewRef_(this);
         if (type === ViewType.COMPONENT || type === ViewType.HOST) {
             this.renderer = viewUtils.renderComponent(componentType);
@@ -53,56 +48,21 @@ export var AppView = (function () {
             this.renderer = declarationAppElement.parentView.renderer;
         }
     }
+    Object.defineProperty(AppView.prototype, "animationContext", {
+        get: function () {
+            if (!this._animationContext) {
+                this._animationContext = new AnimationViewContext();
+            }
+            return this._animationContext;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(AppView.prototype, "destroyed", {
         get: function () { return this.cdMode === ChangeDetectorStatus.Destroyed; },
         enumerable: true,
         configurable: true
     });
-    AppView.prototype.cancelActiveAnimation = function (element, animationName, removeAllAnimations) {
-        if (removeAllAnimations === void 0) { removeAllAnimations = false; }
-        if (removeAllAnimations) {
-            this.animationPlayers.findAllPlayersByElement(element).forEach(function (player) { return player.destroy(); });
-        }
-        else {
-            var player = this.animationPlayers.find(element, animationName);
-            if (isPresent(player)) {
-                player.destroy();
-            }
-        }
-    };
-    AppView.prototype.queueAnimation = function (element, animationName, player, totalTime, fromState, toState) {
-        var _this = this;
-        queueAnimation(player);
-        var event = new AnimationTransitionEvent({ 'fromState': fromState, 'toState': toState, 'totalTime': totalTime });
-        this.animationPlayers.set(element, animationName, player);
-        player.onDone(function () {
-            // TODO: make this into a datastructure for done|start
-            _this.triggerAnimationOutput(element, animationName, 'done', event);
-            _this.animationPlayers.remove(element, animationName);
-        });
-        player.onStart(function () { _this.triggerAnimationOutput(element, animationName, 'start', event); });
-    };
-    AppView.prototype.triggerAnimationOutput = function (element, animationName, phase, event) {
-        var listeners = this._animationListeners.get(element);
-        if (isPresent(listeners) && listeners.length) {
-            for (var i = 0; i < listeners.length; i++) {
-                var listener = listeners[i];
-                // we check for both the name in addition to the phase in the event
-                // that there may be more than one @trigger on the same element
-                if (listener.eventName === animationName && listener.eventPhase === phase) {
-                    listener.handler(event);
-                    break;
-                }
-            }
-        }
-    };
-    AppView.prototype.registerAnimationOutput = function (element, eventName, eventPhase, eventHandler) {
-        var animations = this._animationListeners.get(element);
-        if (!isPresent(animations)) {
-            this._animationListeners.set(element, animations = []);
-        }
-        animations.push(new _AnimationOutputHandler(eventName, eventPhase, eventHandler));
-    };
     AppView.prototype.create = function (context, givenProjectableNodes, rootSelectorOrNode) {
         this.context = context;
         var projectableNodes;
@@ -202,12 +162,11 @@ export var AppView = (function () {
         }
         this.destroyInternal();
         this.dirtyParentQueriesInternal();
-        if (this.animationPlayers.length == 0) {
-            this.renderer.destroyView(hostElement, this.allNodes);
+        if (this._animationContext) {
+            this._animationContext.onAllActiveAnimationsDone(function () { return _this.renderer.destroyView(hostElement, _this.allNodes); });
         }
         else {
-            var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
-            player.onDone(function () { _this.renderer.destroyView(hostElement, _this.allNodes); });
+            this.renderer.destroyView(hostElement, this.allNodes);
         }
     };
     /**
@@ -221,12 +180,11 @@ export var AppView = (function () {
     AppView.prototype.detach = function () {
         var _this = this;
         this.detachInternal();
-        if (this.animationPlayers.length == 0) {
-            this.renderer.detachView(this.flatRootNodes);
+        if (this._animationContext) {
+            this._animationContext.onAllActiveAnimationsDone(function () { return _this.renderer.detachView(_this.flatRootNodes); });
         }
         else {
-            var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
-            player.onDone(function () { _this.renderer.detachView(_this.flatRootNodes); });
+            this.renderer.detachView(this.flatRootNodes);
         }
     };
     Object.defineProperty(AppView.prototype, "changeDetectorRef", {
@@ -430,12 +388,4 @@ function _findLastRenderNode(node) {
     }
     return lastNode;
 }
-var _AnimationOutputHandler = (function () {
-    function _AnimationOutputHandler(eventName, eventPhase, handler) {
-        this.eventName = eventName;
-        this.eventPhase = eventPhase;
-        this.handler = handler;
-    }
-    return _AnimationOutputHandler;
-}());
 //# sourceMappingURL=view.js.map

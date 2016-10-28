@@ -11,8 +11,7 @@ export declare class ReflectionCapabilities implements PlatformReflectionCapabil
     propMetadata(typeOrFunc: any): {
         [key: string]: any[];
     };
-    interfaces(type: Type<any>): any[];
-    hasLifecycleHook(type: any, lcInterface: Type<any>, lcProperty: string): boolean;
+    hasLifecycleHook(type: any, lcProperty: string): boolean;
     getter(name: string): GetterFn;
     setter(name: string): SetterFn;
     method(name: string): MethodFn;

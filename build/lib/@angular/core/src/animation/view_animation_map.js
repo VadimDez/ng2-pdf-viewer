@@ -11,11 +11,6 @@ export var ViewAnimationMap = (function () {
         this._map = new Map();
         this._allPlayers = [];
     }
-    Object.defineProperty(ViewAnimationMap.prototype, "length", {
-        get: function () { return this.getAllPlayers().length; },
-        enumerable: true,
-        configurable: true
-    });
     ViewAnimationMap.prototype.find = function (element, animationName) {
         var playersByAnimation = this._map.get(element);
         if (isPresent(playersByAnimation)) {

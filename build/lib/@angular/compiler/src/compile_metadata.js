@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { ListWrapper, MapWrapper } from './facade/collection';
-import { isPresent, isStringMap, normalizeBlank, normalizeBool } from './facade/lang';
+import { isPresent, normalizeBlank, normalizeBool } from './facade/lang';
 import { CssSelector } from './selector';
 import { sanitizeIdentifier, splitAtColon } from './util';
 function unimplemented() {
@@ -452,7 +452,7 @@ function _normalizeArray(obj) {
     return obj || [];
 }
 export function isStaticSymbol(value) {
-    return isStringMap(value) && isPresent(value['name']) && isPresent(value['filePath']);
+    return typeof value === 'object' && value !== null && value['name'] && value['filePath'];
 }
 export var ProviderMeta = (function () {
     function ProviderMeta(token, _a) {

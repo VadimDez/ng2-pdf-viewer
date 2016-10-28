@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ListWrapper, MapWrapper } from '../facade/collection';
-import { isArray, isBlank, isPresent } from '../facade/lang';
+import { isBlank, isPresent } from '../facade/lang';
 import { reflector } from '../reflection/reflection';
 import { Type } from '../type';
 import { resolveForwardRef } from './forward_ref';
@@ -180,7 +180,7 @@ function _extractToken(typeOrFunc /** TODO #9100 */, metadata /** TODO #9100 */ 
     var depProps = [];
     var token = null;
     var optional = false;
-    if (!isArray(metadata)) {
+    if (!Array.isArray(metadata)) {
         if (metadata instanceof Inject) {
             return _createDependency(metadata.token, optional, null, null, depProps);
         }

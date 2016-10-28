@@ -10,10 +10,20 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { evalExpression, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { sanitizeIdentifier } from '../util';
 import { EmitterVisitorContext } from './abstract_emitter';
 import { AbstractJsEmitterVisitor } from './abstract_js_emitter';
+function evalExpression(sourceUrl, expr, declarations, vars) {
+    var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
+    var fnArgNames = [];
+    var fnArgValues = [];
+    for (var argName in vars) {
+        fnArgNames.push(argName);
+        fnArgValues.push(vars[argName]);
+    }
+    return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
+}
 export function jitStatements(sourceUrl, statements, resultVar) {
     var converter = new JitEmitterVisitor();
     var ctx = EmitterVisitorContext.createRoot([resultVar]);

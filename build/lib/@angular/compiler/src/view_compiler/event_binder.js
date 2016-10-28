@@ -39,6 +39,11 @@ export var CompileEventListener = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(CompileEventListener.prototype, "isAnimation", {
+        get: function () { return !!this.eventPhase; },
+        enumerable: true,
+        configurable: true
+    });
     CompileEventListener.prototype.addAction = function (hostEvent, directive, directiveInstance) {
         if (isPresent(directive) && directive.isComponent) {
             this._hasComponentHostListener = true;
@@ -88,16 +93,11 @@ export var CompileEventListener = (function () {
         // private is fine here as no child view will reference the event handler...
         this.compileElement.view.createMethod.addStmt(disposable.set(listenExpr).toDeclStmt(o.FUNCTION_TYPE, [o.StmtModifier.Private]));
     };
-    CompileEventListener.prototype.listenToAnimation = function () {
-        var outputListener = o.THIS_EXPR.callMethod('eventHandler', [o.THIS_EXPR.prop(this._methodName).callMethod(o.BuiltinMethod.Bind, [o.THIS_EXPR])]);
-        // tie the property callback method to the view animations map
-        var stmt = o.THIS_EXPR
-            .callMethod('registerAnimationOutput', [
-            this.compileElement.renderNode, o.literal(this.eventName),
-            o.literal(this.eventPhase), outputListener
-        ])
+    CompileEventListener.prototype.listenToAnimation = function (animationTransitionVar) {
+        var callbackMethod = this.eventPhase == 'start' ? 'onStart' : 'onDone';
+        return animationTransitionVar
+            .callMethod(callbackMethod, [o.THIS_EXPR.prop(this.methodName).callMethod(o.BuiltinMethod.Bind, [o.THIS_EXPR])])
             .toStmt();
-        this.compileElement.view.createMethod.addStmt(stmt);
     };
     CompileEventListener.prototype.listenToDirective = function (directiveInstance, observablePropName) {
         var subscription = o.variable("subscription_" + this.compileElement.view.subscriptions.length);
@@ -138,10 +138,9 @@ export function bindDirectiveOutputs(directiveAst, directiveInstance, eventListe
 }
 export function bindRenderOutputs(eventListeners) {
     eventListeners.forEach(function (listener) {
-        if (listener.eventPhase) {
-            listener.listenToAnimation();
-        }
-        else {
+        // the animation listeners are handled within property_binder.ts to
+        // allow them to be placed next to the animation factory statements
+        if (!listener.isAnimation) {
             listener.listenToRenderer();
         }
     });

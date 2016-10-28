@@ -6,13 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { AnimationCompiler } from '../animation/animation_compiler';
 import { CompilerConfig } from '../config';
 import { CompileElement } from './compile_element';
 import { CompileView } from './compile_view';
 import { bindView } from './view_binder';
 import { buildView, finishView } from './view_builder';
-export { ComponentFactoryDependency, ViewFactoryDependency } from './view_builder';
+export { ComponentFactoryDependency, DirectiveWrapperDependency, ViewFactoryDependency } from './deps';
 export var ViewCompileResult = (function () {
     function ViewCompileResult(statements, viewFactoryVar, dependencies) {
         this.statements = statements;
@@ -24,7 +23,6 @@ export var ViewCompileResult = (function () {
 export var ViewCompiler = (function () {
     function ViewCompiler(_genConfig) {
         this._genConfig = _genConfig;
-        this._animationCompiler = new AnimationCompiler();
     }
     ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes, compiledAnimations) {
         var dependencies = [];

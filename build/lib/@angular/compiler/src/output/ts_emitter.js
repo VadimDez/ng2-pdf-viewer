@@ -10,20 +10,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { isArray, isBlank, isPresent } from '../facade/lang';
+import { isBlank, isPresent } from '../facade/lang';
 import { AbstractEmitterVisitor, CATCH_ERROR_VAR, CATCH_STACK_VAR, EmitterVisitorContext } from './abstract_emitter';
 import * as o from './output_ast';
 var _debugModuleUrl = 'asset://debug/lib';
 export function debugOutputAstAsTypeScript(ast) {
     var converter = new _TsEmitterVisitor(_debugModuleUrl);
     var ctx = EmitterVisitorContext.createRoot([]);
-    var asts;
-    if (isArray(ast)) {
-        asts = ast;
-    }
-    else {
-        asts = [ast];
-    }
+    var asts = Array.isArray(ast) ? ast : [ast];
     asts.forEach(function (ast) {
         if (ast instanceof o.Statement) {
             ast.visitStatement(converter, ctx);

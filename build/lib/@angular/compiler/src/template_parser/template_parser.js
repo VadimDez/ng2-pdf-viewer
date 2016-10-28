@@ -14,7 +14,7 @@ import { Inject, Injectable, OpaqueToken, Optional, SecurityContext } from '@ang
 import { removeIdentifierDuplicates } from '../compile_metadata';
 import { EmptyExpr, RecursiveAstVisitor } from '../expression_parser/ast';
 import { Parser } from '../expression_parser/parser';
-import { isPresent, isString } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { I18NHtmlParser } from '../i18n/i18n_html_parser';
 import { Identifiers, identifierToken, resolveIdentifierToken } from '../identifiers';
 import * as html from '../ml_parser/ast';
@@ -23,7 +23,7 @@ import { expandNodes } from '../ml_parser/icu_ast_expander';
 import { InterpolationConfig } from '../ml_parser/interpolation_config';
 import { mergeNsAndName, splitNsName } from '../ml_parser/tags';
 import { ParseError, ParseErrorLevel, ParseSourceSpan } from '../parse_util';
-import { Console, MAX_INTERPOLATION_VALUES } from '../private_import_core';
+import { Console, view_utils } from '../private_import_core';
 import { ProviderElementContext, ProviderViewContext } from '../provider_analyzer';
 import { ElementSchemaRegistry } from '../schema/element_schema_registry';
 import { CssSelector, SelectorMatcher } from '../selector';
@@ -219,8 +219,8 @@ var TemplateParseVisitor = (function () {
                 this._reportParserErrors(ast.errors, sourceSpan);
             this._checkPipes(ast, sourceSpan);
             if (isPresent(ast) &&
-                ast.ast.expressions.length > MAX_INTERPOLATION_VALUES) {
-                throw new Error("Only support at most " + MAX_INTERPOLATION_VALUES + " interpolation values!");
+                ast.ast.expressions.length > view_utils.MAX_INTERPOLATION_VALUES) {
+                throw new Error("Only support at most " + view_utils.MAX_INTERPOLATION_VALUES + " interpolation values!");
             }
             return ast;
         }
@@ -668,7 +668,7 @@ var TemplateParseVisitor = (function () {
         if (hostProps) {
             Object.keys(hostProps).forEach(function (propName) {
                 var expression = hostProps[propName];
-                if (isString(expression)) {
+                if (typeof expression === 'string') {
                     var exprAst = _this._parseBinding(expression, sourceSpan);
                     targetPropertyAsts.push(_this._createElementPropertyAst(elementName, propName, exprAst, sourceSpan));
                 }
@@ -683,7 +683,7 @@ var TemplateParseVisitor = (function () {
         if (hostListeners) {
             Object.keys(hostListeners).forEach(function (propName) {
                 var expression = hostListeners[propName];
-                if (isString(expression)) {
+                if (typeof expression === 'string') {
                     _this._parseEventOrAnimationEvent(propName, expression, sourceSpan, [], targetEventAsts);
                 }
                 else {

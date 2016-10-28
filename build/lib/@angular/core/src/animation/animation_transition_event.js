@@ -38,10 +38,11 @@
  */
 export var AnimationTransitionEvent = (function () {
     function AnimationTransitionEvent(_a) {
-        var fromState = _a.fromState, toState = _a.toState, totalTime = _a.totalTime;
+        var fromState = _a.fromState, toState = _a.toState, totalTime = _a.totalTime, phaseName = _a.phaseName;
         this.fromState = fromState;
         this.toState = toState;
         this.totalTime = totalTime;
+        this.phaseName = phaseName;
     }
     return AnimationTransitionEvent;
 }());

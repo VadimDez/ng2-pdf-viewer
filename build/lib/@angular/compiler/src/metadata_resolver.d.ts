@@ -32,7 +32,7 @@ export declare class CompileMetadataResolver {
     getAnimationStateMetadata(value: AnimationStateMetadata): cpl.CompileAnimationStateMetadata;
     getAnimationStyleMetadata(value: AnimationStyleMetadata): cpl.CompileAnimationStyleMetadata;
     getAnimationMetadata(value: AnimationMetadata): cpl.CompileAnimationMetadata;
-    getDirectiveMetadata(directiveType: Type<any>, throwIfNotFound?: boolean): cpl.CompileDirectiveMetadata;
+    getDirectiveMetadata(directiveType: any, throwIfNotFound?: boolean): cpl.CompileDirectiveMetadata;
     getNgModuleMetadata(moduleType: any, throwIfNotFound?: boolean): cpl.CompileNgModuleMetadata;
     private _verifyModule(moduleMeta);
     private _getTypeDescriptor(type);

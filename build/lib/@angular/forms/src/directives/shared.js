@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
-import { hasConstructor, isBlank, isPresent, looseIdentical } from '../facade/lang';
+import { isBlank, isPresent, looseIdentical } from '../facade/lang';
 import { Validators } from '../validators';
 import { CheckboxControlValueAccessor } from './checkbox_value_accessor';
 import { DefaultValueAccessor } from './default_value_accessor';
@@ -16,9 +15,7 @@ import { RadioControlValueAccessor } from './radio_control_value_accessor';
 import { SelectControlValueAccessor } from './select_control_value_accessor';
 import { SelectMultipleControlValueAccessor } from './select_multiple_control_value_accessor';
 export function controlPath(name, parent) {
-    var p = ListWrapper.clone(parent.path);
-    p.push(name);
-    return p;
+    return parent.path.concat([name]);
 }
 export function setUpControl(control, dir) {
     if (!control)
@@ -101,12 +98,15 @@ export function isPropertyUpdated(changes, viewModel) {
         return true;
     return !looseIdentical(viewModel, change.currentValue);
 }
+var BUILTIN_ACCESSORS = [
+    CheckboxControlValueAccessor,
+    NumberValueAccessor,
+    SelectControlValueAccessor,
+    SelectMultipleControlValueAccessor,
+    RadioControlValueAccessor,
+];
 export function isBuiltInAccessor(valueAccessor) {
-    return (hasConstructor(valueAccessor, CheckboxControlValueAccessor) ||
-        hasConstructor(valueAccessor, NumberValueAccessor) ||
-        hasConstructor(valueAccessor, SelectControlValueAccessor) ||
-        hasConstructor(valueAccessor, SelectMultipleControlValueAccessor) ||
-        hasConstructor(valueAccessor, RadioControlValueAccessor));
+    return BUILTIN_ACCESSORS.some(function (a) { return valueAccessor.constructor === a; });
 }
 // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
 export function selectValueAccessor(dir, valueAccessors) {
@@ -116,25 +116,25 @@ export function selectValueAccessor(dir, valueAccessors) {
     var builtinAccessor;
     var customAccessor;
     valueAccessors.forEach(function (v) {
-        if (hasConstructor(v, DefaultValueAccessor)) {
+        if (v.constructor === DefaultValueAccessor) {
             defaultAccessor = v;
         }
         else if (isBuiltInAccessor(v)) {
-            if (isPresent(builtinAccessor))
+            if (builtinAccessor)
                 _throwError(dir, 'More than one built-in value accessor matches form control with');
             builtinAccessor = v;
         }
         else {
-            if (isPresent(customAccessor))
+            if (customAccessor)
                 _throwError(dir, 'More than one custom value accessor matches form control with');
             customAccessor = v;
         }
     });
-    if (isPresent(customAccessor))
+    if (customAccessor)
         return customAccessor;
-    if (isPresent(builtinAccessor))
+    if (builtinAccessor)
         return builtinAccessor;
-    if (isPresent(defaultAccessor))
+    if (defaultAccessor)
         return defaultAccessor;
     _throwError(dir, 'No valid value accessor for form control with');
     return null;

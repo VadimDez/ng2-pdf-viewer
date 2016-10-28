@@ -13,8 +13,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { fromPromise } from 'rxjs/observable/fromPromise';
 import { composeAsyncValidators, composeValidators } from './directives/shared';
 import { EventEmitter } from './facade/async';
-import { ListWrapper } from './facade/collection';
-import { isBlank, isPresent, isStringMap, normalizeBool } from './facade/lang';
+import { isBlank, isPresent, normalizeBool } from './facade/lang';
 import { isPromise } from './private_import_core';
 /**
  * Indicates that a FormControl is valid, i.e. that no errors exist in the input value.
@@ -43,7 +42,7 @@ function _find(control, path, delimiter) {
     if (!(path instanceof Array)) {
         path = path.split(delimiter);
     }
-    if (path instanceof Array && ListWrapper.isEmpty(path))
+    if (path instanceof Array && (path.length === 0))
         return null;
     return path.reduce(function (v, name) {
         if (v instanceof FormGroup) {
@@ -471,7 +470,7 @@ export var AbstractControl = (function () {
      */
     AbstractControl.prototype.getError = function (errorCode, path) {
         if (path === void 0) { path = null; }
-        var control = isPresent(path) && !ListWrapper.isEmpty(path) ? this.get(path) : this;
+        var control = isPresent(path) && (path.length > 0) ? this.get(path) : this;
         if (isPresent(control) && isPresent(control._errors)) {
             return control._errors[errorCode];
         }
@@ -531,7 +530,7 @@ export var AbstractControl = (function () {
     };
     /** @internal */
     AbstractControl.prototype._anyControlsHaveStatus = function (status) {
-        return this._anyControls(function (control) { return control.status == status; });
+        return this._anyControls(function (control) { return control.status === status; });
     };
     /** @internal */
     AbstractControl.prototype._anyControlsDirty = function () {
@@ -559,8 +558,8 @@ export var AbstractControl = (function () {
     };
     /** @internal */
     AbstractControl.prototype._isBoxedValue = function (formState) {
-        return isStringMap(formState) && Object.keys(formState).length === 2 && 'value' in formState &&
-            'disabled' in formState;
+        return typeof formState === 'object' && formState !== null &&
+            Object.keys(formState).length === 2 && 'value' in formState && 'disabled' in formState;
     };
     /** @internal */
     AbstractControl.prototype._registerOnCollectionChange = function (fn) { this._onCollectionChange = fn; };
@@ -1117,7 +1116,7 @@ export var FormArray = (function (_super) {
      * Insert a new {@link AbstractControl} at the given `index` in the array.
      */
     FormArray.prototype.insert = function (index, control) {
-        ListWrapper.insert(this.controls, index, control);
+        this.controls.splice(index, 0, control);
         this._registerControl(control);
         this.updateValueAndValidity();
         this._onCollectionChange();
@@ -1128,7 +1127,7 @@ export var FormArray = (function (_super) {
     FormArray.prototype.removeAt = function (index) {
         if (this.controls[index])
             this.controls[index]._registerOnCollectionChange(function () { });
-        ListWrapper.removeAt(this.controls, index);
+        this.controls.splice(index, 1);
         this.updateValueAndValidity();
         this._onCollectionChange();
     };
@@ -1138,9 +1137,9 @@ export var FormArray = (function (_super) {
     FormArray.prototype.setControl = function (index, control) {
         if (this.controls[index])
             this.controls[index]._registerOnCollectionChange(function () { });
-        ListWrapper.removeAt(this.controls, index);
+        this.controls.splice(index, 1);
         if (control) {
-            ListWrapper.insert(this.controls, index, control);
+            this.controls.splice(index, 0, control);
             this._registerControl(control);
         }
         this.updateValueAndValidity();

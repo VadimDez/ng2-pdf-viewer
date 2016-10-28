@@ -59,6 +59,9 @@ export declare class Identifiers {
     static collectAndResolveStyles: IdentifierSpec;
     static LOCALE_ID: IdentifierSpec;
     static TRANSLATIONS_FORMAT: IdentifierSpec;
+    static setBindingDebugInfo: IdentifierSpec;
+    static setBindingDebugInfoForChanges: IdentifierSpec;
+    static AnimationTransition: IdentifierSpec;
 }
 export declare function resolveIdentifier(identifier: IdentifierSpec): CompileIdentifierMetadata;
 export declare function identifierToken(identifier: CompileIdentifierMetadata): CompileTokenMetadata;

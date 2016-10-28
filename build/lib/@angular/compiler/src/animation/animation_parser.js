@@ -12,8 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { CompileAnimationAnimateMetadata, CompileAnimationGroupMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationSequenceMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStyleMetadata, CompileAnimationWithStepsMetadata } from '../compile_metadata';
 import { ListWrapper, StringMapWrapper } from '../facade/collection';
-import { isArray, isBlank, isPresent, isString, isStringMap } from '../facade/lang';
-import { Math } from '../facade/math';
+import { isBlank, isPresent } from '../facade/lang';
 import { ParseError } from '../parse_util';
 import { ANY_STATE, FILL_STYLE_FLAG } from '../private_import_core';
 import { AnimationEntryAst, AnimationGroupAst, AnimationKeyframeAst, AnimationSequenceAst, AnimationStateDeclarationAst, AnimationStateTransitionAst, AnimationStateTransitionExpression, AnimationStepAst, AnimationStylesAst, AnimationWithStepsAst } from './animation_ast';
@@ -93,7 +92,7 @@ function _parseAnimationDeclarationStates(stateMetadata, errors) {
     var styleValues = [];
     stateMetadata.styles.styles.forEach(function (stylesEntry) {
         // TODO (matsko): change this when we get CSS class integration support
-        if (isStringMap(stylesEntry)) {
+        if (typeof stylesEntry === 'object' && stylesEntry !== null) {
             styleValues.push(stylesEntry);
         }
         else {
@@ -152,13 +151,12 @@ function _parseAnimationTransitionExpr(eventStr, errors) {
     return expressions;
 }
 function _normalizeAnimationEntry(entry) {
-    return isArray(entry) ? new CompileAnimationSequenceMetadata(entry) :
-        entry;
+    return Array.isArray(entry) ? new CompileAnimationSequenceMetadata(entry) : entry;
 }
 function _normalizeStyleMetadata(entry, stateStyles, errors) {
     var normalizedStyles = [];
     entry.styles.forEach(function (styleEntry) {
-        if (isString(styleEntry)) {
+        if (typeof styleEntry === 'string') {
             ListWrapper.addAll(normalizedStyles, _resolveStylesFromState(styleEntry, stateStyles, errors));
         }
         else {
@@ -174,10 +172,10 @@ function _normalizeStyleSteps(entry, stateStyles, errors) {
         new CompileAnimationSequenceMetadata(steps);
 }
 function _mergeAnimationStyles(stylesList, newItem) {
-    if (isStringMap(newItem) && stylesList.length > 0) {
+    if (typeof newItem === 'object' && newItem !== null && stylesList.length > 0) {
         var lastIndex = stylesList.length - 1;
         var lastItem = stylesList[lastIndex];
-        if (isStringMap(lastItem)) {
+        if (typeof lastItem === 'object' && lastItem !== null) {
             stylesList[lastIndex] = StringMapWrapper.merge(lastItem, newItem);
             return;
         }
@@ -255,7 +253,7 @@ function _resolveStylesFromState(stateName, stateStyles, errors) {
         }
         else {
             value.styles.forEach(function (stylesEntry) {
-                if (isStringMap(stylesEntry)) {
+                if (typeof stylesEntry === 'object' && stylesEntry !== null) {
                     styles.push(stylesEntry);
                 }
             });
@@ -444,7 +442,7 @@ function _parseTimeExpression(exp, errors) {
     var duration;
     var delay = 0;
     var easing = null;
-    if (isString(exp)) {
+    if (typeof exp === 'string') {
         var matches = exp.match(regex);
         if (matches === null) {
             errors.push(new AnimationParseError("The provided timing value \"" + exp + "\" is invalid."));

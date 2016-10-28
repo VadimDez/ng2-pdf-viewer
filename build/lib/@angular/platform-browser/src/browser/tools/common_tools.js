@@ -8,7 +8,7 @@
 import { ApplicationRef } from '@angular/core';
 import { getDOM } from '../../dom/dom_adapter';
 import { window } from '../../facade/browser';
-import { NumberWrapper, isPresent } from '../../facade/lang';
+import { isPresent } from '../../facade/lang';
 export var ChangeDetectionPerfRecord = (function () {
     function ChangeDetectionPerfRecord(msPerTick, numTicks) {
         this.msPerTick = msPerTick;
@@ -51,7 +51,7 @@ export var AngularProfiler = (function () {
      * ```
      */
     AngularProfiler.prototype.timeChangeDetection = function (config) {
-        var record = isPresent(config) && config['record'];
+        var record = config && config['record'];
         var profileName = 'Change Detection';
         // Profiler is not available in Android browsers, nor in IE 9 without dev tools opened
         var isProfilerAvailable = isPresent(window.console.profile);
@@ -74,7 +74,7 @@ export var AngularProfiler = (function () {
         }
         var msPerTick = (end - start) / numTicks;
         window.console.log("ran " + numTicks + " change detection cycles");
-        window.console.log(NumberWrapper.toFixed(msPerTick, 2) + " ms per check");
+        window.console.log(msPerTick.toFixed(2) + " ms per check");
         return new ChangeDetectionPerfRecord(msPerTick, numTicks);
     };
     return AngularProfiler;

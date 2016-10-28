@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.0
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -41,64 +41,7 @@
     function isPresent(obj) {
         return obj !== undefined && obj !== null;
     }
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
 
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {

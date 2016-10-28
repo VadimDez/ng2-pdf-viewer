@@ -10,7 +10,7 @@ import { AnimationParser } from './animation/animation_parser';
 import { CompileProviderMetadata, createHostComponentMeta } from './compile_metadata';
 import { Identifiers, resolveIdentifier, resolveIdentifierToken } from './identifiers';
 import * as o from './output/output_ast';
-import { ComponentFactoryDependency, ViewFactoryDependency } from './view_compiler/view_compiler';
+import { ComponentFactoryDependency, DirectiveWrapperDependency, ViewFactoryDependency } from './view_compiler/view_compiler';
 export var SourceModule = (function () {
     function SourceModule(moduleUrl, source) {
         this.moduleUrl = moduleUrl;
@@ -19,33 +19,32 @@ export var SourceModule = (function () {
     return SourceModule;
 }());
 export var NgModulesSummary = (function () {
-    function NgModulesSummary(ngModuleByComponent, ngModules) {
-        this.ngModuleByComponent = ngModuleByComponent;
+    function NgModulesSummary(ngModuleByDirective, ngModules) {
+        this.ngModuleByDirective = ngModuleByDirective;
         this.ngModules = ngModules;
     }
     return NgModulesSummary;
 }());
 export function analyzeModules(ngModules, metadataResolver) {
-    var ngModuleByComponent = new Map();
+    var ngModuleByDirective = new Map();
     var modules = [];
     ngModules.forEach(function (ngModule) {
         var ngModuleMeta = metadataResolver.getNgModuleMetadata(ngModule);
         modules.push(ngModuleMeta);
         ngModuleMeta.declaredDirectives.forEach(function (dirMeta) {
-            if (dirMeta.isComponent) {
-                ngModuleByComponent.set(dirMeta.type.reference, ngModuleMeta);
-            }
+            ngModuleByDirective.set(dirMeta.type.reference, ngModuleMeta);
         });
     });
-    return new NgModulesSummary(ngModuleByComponent, modules);
+    return new NgModulesSummary(ngModuleByDirective, modules);
 }
 export var OfflineCompiler = (function () {
-    function OfflineCompiler(_metadataResolver, _directiveNormalizer, _templateParser, _styleCompiler, _viewCompiler, _ngModuleCompiler, _outputEmitter, _localeId, _translationFormat) {
+    function OfflineCompiler(_metadataResolver, _directiveNormalizer, _templateParser, _styleCompiler, _viewCompiler, _dirWrapperCompiler, _ngModuleCompiler, _outputEmitter, _localeId, _translationFormat) {
         this._metadataResolver = _metadataResolver;
         this._directiveNormalizer = _directiveNormalizer;
         this._templateParser = _templateParser;
         this._styleCompiler = _styleCompiler;
         this._viewCompiler = _viewCompiler;
+        this._dirWrapperCompiler = _dirWrapperCompiler;
         this._ngModuleCompiler = _ngModuleCompiler;
         this._outputEmitter = _outputEmitter;
         this._localeId = _localeId;
@@ -60,7 +59,7 @@ export var OfflineCompiler = (function () {
         this._directiveNormalizer.clearCache();
         this._metadataResolver.clearCache();
     };
-    OfflineCompiler.prototype.compile = function (moduleUrl, ngModulesSummary, components, ngModules) {
+    OfflineCompiler.prototype.compile = function (moduleUrl, ngModulesSummary, directives, ngModules) {
         var _this = this;
         var fileSuffix = _splitTypescriptSuffix(moduleUrl)[1];
         var statements = [];
@@ -68,11 +67,16 @@ export var OfflineCompiler = (function () {
         var outputSourceModules = [];
         // compile all ng modules
         exportedVars.push.apply(exportedVars, ngModules.map(function (ngModuleType) { return _this._compileModule(ngModuleType, statements); }));
+        // compile directive wrappers
+        exportedVars.push.apply(exportedVars, directives.map(function (directiveType) { return _this._compileDirectiveWrapper(directiveType, statements); }));
         // compile components
         return Promise
-            .all(components.map(function (compType) {
-            var compMeta = _this._metadataResolver.getDirectiveMetadata(compType);
-            var ngModule = ngModulesSummary.ngModuleByComponent.get(compType);
+            .all(directives.map(function (dirType) {
+            var compMeta = _this._metadataResolver.getDirectiveMetadata(dirType);
+            if (!compMeta.isComponent) {
+                return Promise.resolve(null);
+            }
+            var ngModule = ngModulesSummary.ngModuleByDirective.get(dirType);
             if (!ngModule) {
                 throw new Error("Cannot determine the module for component " + compMeta.type.name + "!");
             }
@@ -119,6 +123,12 @@ export var OfflineCompiler = (function () {
         });
         targetStatements.push.apply(targetStatements, appCompileResult.statements);
         return appCompileResult.ngModuleFactoryVar;
+    };
+    OfflineCompiler.prototype._compileDirectiveWrapper = function (directiveType, targetStatements) {
+        var dirMeta = this._metadataResolver.getDirectiveMetadata(directiveType);
+        var dirCompileResult = this._dirWrapperCompiler.compile(dirMeta);
+        targetStatements.push.apply(targetStatements, dirCompileResult.statements);
+        return dirCompileResult.dirWrapperClassVar;
     };
     OfflineCompiler.prototype._compileComponentFactory = function (compMeta, fileSuffix, targetStatements) {
         var hostMeta = createHostComponentMeta(compMeta);
@@ -167,6 +177,10 @@ function _resolveViewStatements(compileResult) {
             cfd.placeholder.name = _componentFactoryName(cfd.comp);
             cfd.placeholder.moduleUrl = _ngfactoryModuleUrl(cfd.comp.moduleUrl);
         }
+        else if (dep instanceof DirectiveWrapperDependency) {
+            var dwd = dep;
+            dwd.placeholder.moduleUrl = _ngfactoryModuleUrl(dwd.dir.moduleUrl);
+        }
     });
     return compileResult.statements;
 }
@@ -176,8 +190,8 @@ function _resolveStyleStatements(compileResult, fileSuffix) {
     });
     return compileResult.statements;
 }
-function _ngfactoryModuleUrl(compUrl) {
-    var urlWithSuffix = _splitTypescriptSuffix(compUrl);
+function _ngfactoryModuleUrl(dirUrl) {
+    var urlWithSuffix = _splitTypescriptSuffix(dirUrl);
     return urlWithSuffix[0] + ".ngfactory" + urlWithSuffix[1];
 }
 function _componentFactoryName(comp) {

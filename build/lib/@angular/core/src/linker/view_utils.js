@@ -313,4 +313,27 @@ export function pureProxy10(fn) {
         return result;
     };
 }
+export function setBindingDebugInfoForChanges(renderer, el, changes) {
+    Object.keys(changes).forEach(function (propName) {
+        setBindingDebugInfo(renderer, el, propName, changes[propName].currentValue);
+    });
+}
+export function setBindingDebugInfo(renderer, el, propName, value) {
+    try {
+        renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), value ? value.toString() : null);
+    }
+    catch (e) {
+        renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), '[ERROR] Exception while trying to serialize the value');
+    }
+}
+var CAMEL_CASE_REGEXP = /([A-Z])/g;
+function camelCaseToDashCase(input) {
+    return input.replace(CAMEL_CASE_REGEXP, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        return '-' + m[1].toLowerCase();
+    });
+}
 //# sourceMappingURL=view_utils.js.map

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { isListLikeIterable, iterateListLike } from '../../facade/collection';
-import { getMapKey, isArray, isBlank, isPresent, looseIdentical, stringify } from '../../facade/lang';
+import { isBlank, looseIdentical, stringify } from '../../facade/lang';
 export var DefaultIterableDifferFactory = (function () {
     function DefaultIterableDifferFactory() {
     }
@@ -161,20 +161,20 @@ export var DefaultIterableDiffer = (function () {
         var index;
         var item;
         var itemTrackBy;
-        if (isArray(collection)) {
+        if (Array.isArray(collection)) {
             var list = collection;
             this._length = collection.length;
-            for (index = 0; index < this._length; index++) {
-                item = list[index];
-                itemTrackBy = this._trackByFn(index, item);
+            for (var index_1 = 0; index_1 < this._length; index_1++) {
+                item = list[index_1];
+                itemTrackBy = this._trackByFn(index_1, item);
                 if (record === null || !looseIdentical(record.trackById, itemTrackBy)) {
-                    record = this._mismatch(record, item, itemTrackBy, index);
+                    record = this._mismatch(record, item, itemTrackBy, index_1);
                     mayBeDirty = true;
                 }
                 else {
                     if (mayBeDirty) {
                         // TODO(misko): can we limit this to duplicates only?
-                        record = this._verifyReinsertion(record, item, itemTrackBy, index);
+                        record = this._verifyReinsertion(record, item, itemTrackBy, index_1);
                     }
                     if (!looseIdentical(record.item, item))
                         this._addIdentityChange(record, item);
@@ -660,10 +660,9 @@ var _DuplicateMap = (function () {
         this.map = new Map();
     }
     _DuplicateMap.prototype.put = function (record) {
-        // todo(vicb) handle corner cases
-        var key = getMapKey(record.trackById);
+        var key = record.trackById;
         var duplicates = this.map.get(key);
-        if (!isPresent(duplicates)) {
+        if (!duplicates) {
             duplicates = new _DuplicateItemRecordList();
             this.map.set(key, duplicates);
         }
@@ -678,7 +677,7 @@ var _DuplicateMap = (function () {
      */
     _DuplicateMap.prototype.get = function (trackById, afterIndex) {
         if (afterIndex === void 0) { afterIndex = null; }
-        var key = getMapKey(trackById);
+        var key = trackById;
         var recordList = this.map.get(key);
         return recordList ? recordList.get(trackById, afterIndex) : null;
     };
@@ -688,9 +687,7 @@ var _DuplicateMap = (function () {
      * The list of duplicates also is removed from the map if it gets empty.
      */
     _DuplicateMap.prototype.remove = function (record) {
-        var key = getMapKey(record.trackById);
-        // todo(vicb)
-        // assert(this.map.containsKey(key));
+        var key = record.trackById;
         var recordList = this.map.get(key);
         // Remove the list of duplicates when it gets empty
         if (recordList.remove(record)) {

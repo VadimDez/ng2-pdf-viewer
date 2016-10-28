@@ -1,5 +1,6 @@
 import { CompileNgModuleMetadata, StaticSymbol } from './compile_metadata';
 import { DirectiveNormalizer } from './directive_normalizer';
+import { DirectiveWrapperCompiler } from './directive_wrapper_compiler';
 import { CompileMetadataResolver } from './metadata_resolver';
 import { NgModuleCompiler } from './ng_module_compiler';
 import { OutputEmitter } from './output/abstract_emitter';
@@ -12,9 +13,9 @@ export declare class SourceModule {
     constructor(moduleUrl: string, source: string);
 }
 export declare class NgModulesSummary {
-    ngModuleByComponent: Map<StaticSymbol, CompileNgModuleMetadata>;
+    ngModuleByDirective: Map<StaticSymbol, CompileNgModuleMetadata>;
     ngModules: CompileNgModuleMetadata[];
-    constructor(ngModuleByComponent: Map<StaticSymbol, CompileNgModuleMetadata>, ngModules: CompileNgModuleMetadata[]);
+    constructor(ngModuleByDirective: Map<StaticSymbol, CompileNgModuleMetadata>, ngModules: CompileNgModuleMetadata[]);
 }
 export declare function analyzeModules(ngModules: StaticSymbol[], metadataResolver: CompileMetadataResolver): NgModulesSummary;
 export declare class OfflineCompiler {
@@ -23,17 +24,19 @@ export declare class OfflineCompiler {
     private _templateParser;
     private _styleCompiler;
     private _viewCompiler;
+    private _dirWrapperCompiler;
     private _ngModuleCompiler;
     private _outputEmitter;
     private _localeId;
     private _translationFormat;
     private _animationParser;
     private _animationCompiler;
-    constructor(_metadataResolver: CompileMetadataResolver, _directiveNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _outputEmitter: OutputEmitter, _localeId: string, _translationFormat: string);
+    constructor(_metadataResolver: CompileMetadataResolver, _directiveNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _dirWrapperCompiler: DirectiveWrapperCompiler, _ngModuleCompiler: NgModuleCompiler, _outputEmitter: OutputEmitter, _localeId: string, _translationFormat: string);
     analyzeModules(ngModules: StaticSymbol[]): NgModulesSummary;
     clearCache(): void;
-    compile(moduleUrl: string, ngModulesSummary: NgModulesSummary, components: StaticSymbol[], ngModules: StaticSymbol[]): Promise<SourceModule[]>;
+    compile(moduleUrl: string, ngModulesSummary: NgModulesSummary, directives: StaticSymbol[], ngModules: StaticSymbol[]): Promise<SourceModule[]>;
     private _compileModule(ngModuleType, targetStatements);
+    private _compileDirectiveWrapper(directiveType, targetStatements);
     private _compileComponentFactory(compMeta, fileSuffix, targetStatements);
     private _compileComponent(compMeta, directives, pipes, schemas, componentStyles, fileSuffix, targetStatements);
     private _codgenStyles(stylesCompileResult, fileSuffix);

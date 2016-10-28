@@ -5,56 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { getSymbolIterator, isArray, isBlank, isJsObject, isPresent } from './lang';
-// Safari and Internet Explorer do not support the iterable parameter to the
-// Map constructor.  We work around that by manually adding the items.
-var createMapFromPairs = (function () {
-    try {
-        if (new Map([[1, 2]]).size === 1) {
-            return function createMapFromPairs(pairs) { return new Map(pairs); };
-        }
-    }
-    catch (e) {
-    }
-    return function createMapAndPopulateFromPairs(pairs) {
-        var map = new Map();
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i];
-            map.set(pair[0], pair[1]);
-        }
-        return map;
-    };
-})();
-var createMapFromMap = (function () {
-    try {
-        if (new Map(new Map())) {
-            return function createMapFromMap(m) { return new Map(m); };
-        }
-    }
-    catch (e) {
-    }
-    return function createMapAndPopulateFromMap(m) {
-        var map = new Map();
-        m.forEach(function (v, k) { map.set(k, v); });
-        return map;
-    };
-})();
-var _clearValues = (function () {
-    if ((new Map()).keys().next) {
-        return function _clearValues(m) {
-            var keyIterator = m.keys();
-            var k;
-            while (!((k = keyIterator.next()).done)) {
-                m.set(k.value, null);
-            }
-        };
-    }
-    else {
-        return function _clearValuesWithForeEach(m) {
-            m.forEach(function (v, k) { m.set(k, null); });
-        };
-    }
-})();
+import { getSymbolIterator, isBlank, isJsObject, isPresent } from './lang';
 // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
 // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
 var _arrayFromMap = (function () {
@@ -86,13 +37,6 @@ export var MapWrapper = (function () {
         }
         return result;
     };
-    MapWrapper.toStringMap = function (m) {
-        var r = {};
-        m.forEach(function (v, k) { return r[k] = v; });
-        return r;
-    };
-    MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-    MapWrapper.iterable = function (m) { return m; };
     MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
     MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
     return MapWrapper;
@@ -251,7 +195,7 @@ function _flattenArray(source, target) {
     if (isPresent(source)) {
         for (var i = 0; i < source.length; i++) {
             var item = source[i];
-            if (isArray(item)) {
+            if (Array.isArray(item)) {
                 _flattenArray(item, target);
             }
             else {
@@ -264,7 +208,7 @@ function _flattenArray(source, target) {
 export function isListLikeIterable(obj) {
     if (!isJsObject(obj))
         return false;
-    return isArray(obj) ||
+    return Array.isArray(obj) ||
         (!(obj instanceof Map) &&
             getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
 }
@@ -283,14 +227,14 @@ export function areIterablesEqual(a, b, comparator) {
     }
 }
 export function iterateListLike(obj, fn) {
-    if (isArray(obj)) {
+    if (Array.isArray(obj)) {
         for (var i = 0; i < obj.length; i++) {
             fn(obj[i]);
         }
     }
     else {
         var iterator = obj[getSymbolIterator()]();
-        var item;
+        var item = void 0;
         while (!((item = iterator.next()).done)) {
             fn(item.value);
         }
