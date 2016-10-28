@@ -44,7 +44,7 @@ gulp.task("compile", ["tslint"], () => {
  * Compile TypeScript sources and create sourcemaps in build directory.
  */
 gulp.task('compile-and-inline-html', ['tslint'], () => {
-  let tsResult = gulp.src(`${ __dirname }src/**/*.ts`)
+  let tsResult = gulp.src(`${ __dirname }/src/**/*.ts`)
     .pipe(inlineNg2Template({ base: './src' }))
     .pipe(sourcemaps.init())
     .pipe(tsProject());
