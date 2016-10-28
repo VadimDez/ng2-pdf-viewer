@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { ListWrapper } from '../facade/collection';
 import { BaseError, WrappedError } from '../facade/errors';
-import { isBlank, stringify } from '../facade/lang';
+import { stringify } from '../facade/lang';
 function findFirstClosedCycle(keys) {
     var res = [];
     for (var i = 0; i < keys.length; ++i) {
@@ -212,7 +212,7 @@ export var NoAnnotationError = (function (_super) {
         var signature = [];
         for (var i = 0, ii = params.length; i < ii; i++) {
             var parameter = params[i];
-            if (isBlank(parameter) || parameter.length == 0) {
+            if (!parameter || parameter.length == 0) {
                 signature.push('?');
             }
             else {

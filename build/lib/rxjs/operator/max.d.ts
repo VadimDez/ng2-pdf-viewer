@@ -11,7 +11,7 @@ import { Observable } from '../Observable';
  * @method max
  * @owner Observable
  */
-export declare function max<T>(comparer?: (x: T, y: T) => T): Observable<T>;
+export declare function max<T>(comparer?: (x: T, y: T) => number): Observable<T>;
 export interface MaxSignature<T> {
-    (comparer?: (x: T, y: T) => T): Observable<T>;
+    (comparer?: (x: T, y: T) => number): Observable<T>;
 }

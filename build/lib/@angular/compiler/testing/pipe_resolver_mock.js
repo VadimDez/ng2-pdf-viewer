@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { PipeResolver } from '@angular/compiler';
 import { Compiler, Injectable, Injector } from '@angular/core';
-import { Map } from './facade/collection';
 export var MockPipeResolver = (function (_super) {
     __extends(MockPipeResolver, _super);
     function MockPipeResolver(_injector) {
@@ -27,15 +26,15 @@ export var MockPipeResolver = (function (_super) {
     });
     MockPipeResolver.prototype._clearCacheFor = function (pipe) { this._compiler.clearCacheFor(pipe); };
     /**
-     * Overrides the {@link PipeMetadata} for a pipe.
+     * Overrides the {@link Pipe} for a pipe.
      */
     MockPipeResolver.prototype.setPipe = function (type, metadata) {
         this._pipes.set(type, metadata);
         this._clearCacheFor(type);
     };
     /**
-     * Returns the {@link PipeMetadata} for a pipe:
-     * - Set the {@link PipeMetadata} to the overridden view when it exists or fallback to the
+     * Returns the {@link Pipe} for a pipe:
+     * - Set the {@link Pipe} to the overridden view when it exists or fallback to the
      * default
      * `PipeResolver`, see `setPipe`.
      */

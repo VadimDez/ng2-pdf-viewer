@@ -95,7 +95,7 @@ export function getPluralCase(locale, nLike) {
     var v = nDecimal.length;
     var f = parseInt(nDecimal, 10);
     var t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
-    var lang = locale.split('_')[0].toLowerCase();
+    var lang = locale.split('-')[0].toLowerCase();
     switch (lang) {
         case 'af':
         case 'asa':

@@ -24,6 +24,7 @@ export declare class Testability implements PublicTestability {
     isStable(): boolean;
     whenStable(callback: Function): void;
     getPendingRequestCount(): number;
+    /** @deprecated use findProviders */
     findBindings(using: any, provider: string, exactMatch: boolean): any[];
     findProviders(using: any, provider: string, exactMatch: boolean): any[];
 }

@@ -1,45 +1,54 @@
 {
   "_args": [
     [
-      "rxjs@5.0.0-beta.11",
+      {
+        "raw": "rxjs@^5.0.0-beta.12",
+        "scope": null,
+        "escapedName": "rxjs",
+        "name": "rxjs",
+        "rawSpec": "^5.0.0-beta.12",
+        "spec": ">=5.0.0-beta.12 <6.0.0",
+        "type": "range"
+      },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "rxjs@5.0.0-beta.11",
-  "_id": "rxjs@5.0.0-beta.11",
+  "_from": "rxjs@>=5.0.0-beta.12 <6.0.0",
+  "_id": "rxjs@5.0.0-beta.12",
   "_inCache": true,
   "_installable": true,
   "_location": "/rxjs",
   "_nodeVersion": "5.0.0",
   "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/rxjs-5.0.0-beta.11.tgz_1470762149276_0.8274131978396326"
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/rxjs-5.0.0-beta.12.tgz_1473443366415_0.7348345792852342"
   },
   "_npmUser": {
-    "email": "ben@benlesh.com",
-    "name": "blesh"
+    "name": "blesh",
+    "email": "ben@benlesh.com"
   },
   "_npmVersion": "3.7.3",
   "_phantomChildren": {},
   "_requested": {
-    "name": "rxjs",
-    "raw": "rxjs@5.0.0-beta.11",
-    "rawSpec": "5.0.0-beta.11",
+    "raw": "rxjs@^5.0.0-beta.12",
     "scope": null,
-    "spec": "5.0.0-beta.11",
-    "type": "version"
+    "escapedName": "rxjs",
+    "name": "rxjs",
+    "rawSpec": "^5.0.0-beta.12",
+    "spec": ">=5.0.0-beta.12 <6.0.0",
+    "type": "range"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.11.tgz",
-  "_shasum": "abac447d6f801c1bf066b7f0e49c65d2fee36ca2",
+  "_resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.12.tgz",
+  "_shasum": "cdfde2d8c4639d20ae7794bff8fddf32da7ad337",
   "_shrinkwrap": null,
-  "_spec": "rxjs@5.0.0-beta.11",
+  "_spec": "rxjs@^5.0.0-beta.12",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
-    "email": "blesh@netflix.com",
-    "name": "Ben Lesh"
+    "name": "Ben Lesh",
+    "email": "blesh@netflix.com"
   },
   "bugs": {
     "url": "https://github.com/ReactiveX/RxJS/issues"
@@ -55,28 +64,28 @@
   },
   "contributors": [
     {
-      "email": "blesh@netflix.com",
-      "name": "Ben Lesh"
+      "name": "Ben Lesh",
+      "email": "blesh@netflix.com"
     },
     {
-      "email": "paul.e.taylor@me.com",
-      "name": "Paul Taylor"
+      "name": "Paul Taylor",
+      "email": "paul.e.taylor@me.com"
     },
     {
-      "email": "crossj@google.com",
-      "name": "Jeff Cross"
+      "name": "Jeff Cross",
+      "email": "crossj@google.com"
     },
     {
-      "email": "matthewp@microsoft.com",
-      "name": "Matthew Podwysocki"
+      "name": "Matthew Podwysocki",
+      "email": "matthewp@microsoft.com"
     },
     {
-      "email": "kwon.ohjoong@gmail.com",
-      "name": "OJ Kwon"
+      "name": "OJ Kwon",
+      "email": "kwon.ohjoong@gmail.com"
     },
     {
-      "email": "andre@staltz.com",
-      "name": "Andre Staltz"
+      "name": "Andre Staltz",
+      "email": "andre@staltz.com"
     }
   ],
   "dependencies": {
@@ -135,8 +144,8 @@
   },
   "directories": {},
   "dist": {
-    "shasum": "abac447d6f801c1bf066b7f0e49c65d2fee36ca2",
-    "tarball": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.11.tgz"
+    "shasum": "cdfde2d8c4639d20ae7794bff8fddf32da7ad337",
+    "tarball": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.12.tgz"
   },
   "engines": {
     "npm": ">=2.0.0"
@@ -162,12 +171,12 @@
   "main": "Rx.js",
   "maintainers": [
     {
-      "email": "ben@benlesh.com",
-      "name": "blesh"
+      "name": "blesh",
+      "email": "ben@benlesh.com"
     },
     {
-      "email": "middlefloor@gmail.com",
-      "name": "jeffbcross"
+      "name": "jeffbcross",
+      "email": "middlefloor@gmail.com"
     }
   ],
   "name": "rxjs",
@@ -179,41 +188,38 @@
   },
   "scripts": {},
   "scripts-info": {
-    "build_all": "Build all packages(ES6, CJS, AMD, Global) and generate packages",
-    "build_amd": "Build AMD package with clean up existing build, copy source into dist",
+    "info": "List available script",
+    "build_all": "Build all packages (ES6, CJS, UMD) and generate packages",
     "build_cjs": "Build CJS package with clean up existing build, copy source into dist",
-    "build_closure_core": "Minify Global core build using closure compiler",
-    "build_cover": "Run lint to current code, build CJS & test spec, execute test coverage",
-    "build_docs": "Build ES6 & global package, create documentation using it",
     "build_es6": "Build ES6 package with clean up existing build, copy source into dist",
+    "build_closure_core": "Minify Global core build using closure compiler",
     "build_global": "Build Global package, then minify build",
     "build_perf": "Build CJS & Global build, run macro performance test",
-    "build_spec": "Build test specs",
     "build_test": "Build CJS package & test spec, execute mocha test runner",
+    "build_cover": "Run lint to current code, build CJS & test spec, execute test coverage",
+    "build_docs": "Build ES6 & global package, create documentation using it",
+    "build_spec": "Build test specs",
     "check_circular_dependencies": "Check codebase has circular dependencies",
-    "clean_dist_amd": "Clean up existing AMD package output",
+    "clean_spec": "Clean up existing test spec build output",
     "clean_dist_cjs": "Clean up existing CJS package output",
     "clean_dist_es6": "Clean up existing ES6 package output",
-    "clean_spec": "Clean up existing test spec build output",
     "commit": "Run git commit wizard",
-    "compile_dist_amd": "Compile codebase into AMD module",
     "compile_dist_cjs": "Compile codebase into CJS module",
     "compile_dist_es6": "Compile codebase into ES6",
     "cover": "Execute test coverage",
-    "info": "List available script",
-    "lint": "Run lint against everything",
     "lint_perf": "Run lint against performance test suite",
     "lint_spec": "Run lint against test spec",
     "lint_src": "Run lint against source",
     "lint_staged": "Run lint against staged files",
+    "lint": "Run lint against everything",
     "perf": "Run macro performance benchmark",
     "perf_micro": "Run micro performance benchmark",
-    "test": "Clean up existing test spec build, build test spec and execute mocha test runner",
-    "test_browser": "Execute mocha test runner on browser against existing test spec build",
     "test_mocha": "Execute mocha test runner against existing test spec build",
+    "test_browser": "Execute mocha test runner on browser against existing test spec build",
+    "test": "Clean up existing test spec build, build test spec and execute mocha test runner",
     "tests2png": "Generate marble diagram image from test spec",
     "watch": "Watch codebase, trigger compile when source code changes"
   },
   "typings": "Rx.d.ts",
-  "version": "5.0.0-beta.11"
+  "version": "5.0.0-beta.12"
 }

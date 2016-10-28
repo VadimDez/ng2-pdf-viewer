@@ -8,16 +8,23 @@ import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
   selector: 'pdf-viewer',
-  template: '<div class="ng2-pdf-viewer-container"></div>'
+  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': _zoom < 1}"></div>`,
+  styles: [`
+    .ng2-pdf-viewer--zoom {
+        overflow-x: scroll;
+    }`
+  ]
 })
 
 export class PdfViewerComponent {
   private _showAll: boolean = false;
   private _originalSize: boolean = true;
-  private _src: string;
+  private _src: any;
   private _pdf: any;
   private _page: number = 1;
+  private _zoom: number = 1;
   private wasInvalidPage: boolean = false;
+  @Input('on-load-complete') onLoadComplete: Function;
 
   constructor(private element: ElementRef) {}
 
@@ -68,9 +75,26 @@ export class PdfViewerComponent {
     }
   }
 
+  @Input('zoom')
+  set zoom(value: number) {
+    if (value <= 0) {
+      return;
+    }
+
+    this._zoom = value;
+
+    if (this._pdf) {
+      this.fn();
+    }
+  }
+
   private fn() {
     (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
+
+      if (this.onLoadComplete && typeof this.onLoadComplete === 'function') {
+        this.onLoadComplete(pdf);
+      }
 
       if (!this.isValidPageNumber(this._page)) {
         this._page = 1;
@@ -104,7 +128,7 @@ export class PdfViewerComponent {
 
   private renderPage(page: number) {
     return this._pdf.getPage(page).then((page: any) => {
-      let viewport = page.getViewport(1);
+      let viewport = page.getViewport(this._zoom);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 

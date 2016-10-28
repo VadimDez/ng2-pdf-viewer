@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Math, StringWrapper } from '../src/facade/lang';
 import { OpaqueToken } from './di';
 /**
  * A DI Token representing a unique string id assigned to the application by Angular and used
@@ -28,10 +27,10 @@ export function _appIdRandomProviderFactory() {
 export var APP_ID_RANDOM_PROVIDER = {
     provide: APP_ID,
     useFactory: _appIdRandomProviderFactory,
-    deps: []
+    deps: [],
 };
 function _randomChar() {
-    return StringWrapper.fromCharCode(97 + Math.floor(Math.random() * 25));
+    return String.fromCharCode(97 + Math.floor(Math.random() * 25));
 }
 /**
  * A function that will be executed when a platform is initialized.

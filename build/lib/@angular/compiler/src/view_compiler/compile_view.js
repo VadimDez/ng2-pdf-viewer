@@ -7,7 +7,7 @@
  */
 import { CompileIdentifierMetadata } from '../compile_metadata';
 import { ListWrapper, MapWrapper } from '../facade/collection';
-import { isBlank, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { ViewType } from '../private_import_core';
@@ -44,6 +44,7 @@ export var CompileView = (function () {
         this.literalMapCount = 0;
         this.pipeCount = 0;
         this.createMethod = new CompileMethod(this);
+        this.animationBindingsMethod = new CompileMethod(this);
         this.injectorGetMethod = new CompileMethod(this);
         this.updateContentQueriesMethod = new CompileMethod(this);
         this.dirtyParentQueriesMethod = new CompileMethod(this);
@@ -101,7 +102,7 @@ export var CompileView = (function () {
         }
         var currView = this;
         var result = currView.locals.get(name);
-        while (isBlank(result) && isPresent(currView.declarationElement.view)) {
+        while (!result && isPresent(currView.declarationElement.view)) {
             currView = currView.declarationElement.view;
             result = currView.locals.get(name);
         }

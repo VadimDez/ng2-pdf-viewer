@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { AnimationEntryMetadata, AnimationMetadata, AnimationStateMetadata, AnimationStyleMetadata, Provider, QueryMetadata, Type } from '@angular/core';
+import { AnimationEntryMetadata, AnimationMetadata, AnimationStateMetadata, AnimationStyleMetadata, Provider, Query, Type } from '@angular/core';
 import * as cpl from './compile_metadata';
 import { DirectiveResolver } from './directive_resolver';
 import { NgModuleResolver } from './ng_module_resolver';
@@ -49,7 +49,8 @@ export declare class CompileMetadataResolver {
     private _getEntryComponentsFromProvider(provider);
     getProviderMetadata(provider: cpl.ProviderMeta): cpl.CompileProviderMetadata;
     getQueriesMetadata(queries: {
-        [key: string]: QueryMetadata;
+        [key: string]: Query;
     }, isViewQuery: boolean, directiveType: Type<any>): cpl.CompileQueryMetadata[];
-    getQueryMetadata(q: QueryMetadata, propertyName: string, typeOrFunc: Type<any> | Function): cpl.CompileQueryMetadata;
+    private _queryVarBindings(selector);
+    getQueryMetadata(q: Query, propertyName: string, typeOrFunc: Type<any> | Function): cpl.CompileQueryMetadata;
 }

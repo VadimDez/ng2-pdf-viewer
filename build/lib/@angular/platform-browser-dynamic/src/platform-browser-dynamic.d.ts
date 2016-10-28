@@ -5,6 +5,6 @@ export * from './private_export';
  */
 export declare const RESOURCE_CACHE_PROVIDER: Provider[];
 /**
- * @experimental API related to bootstrapping are still under review.
+ * @stable
  */
 export declare const platformBrowserDynamic: (extraProviders?: Provider[]) => PlatformRef;

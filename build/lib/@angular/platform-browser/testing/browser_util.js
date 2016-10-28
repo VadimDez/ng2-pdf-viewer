@@ -7,7 +7,7 @@
  */
 import { NgZone } from '@angular/core';
 import { ListWrapper } from './facade/collection';
-import { StringWrapper, global, isPresent, isString } from './facade/lang';
+import { global, isPresent, isString } from './facade/lang';
 import { getDOM } from './private_import_platform-browser';
 export var BrowserDetection = (function () {
     function BrowserDetection(ua) {
@@ -71,17 +71,30 @@ export var BrowserDetection = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(BrowserDetection.prototype, "supportsIntlApi", {
-        // The Intl API is only properly supported in recent Chrome and Opera.
-        // Note: Edge is disguised as Chrome 42, so checking the "Edge" part is needed,
-        // see https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-        get: function () { return !!global.Intl; },
+    Object.defineProperty(BrowserDetection.prototype, "supportsNativeIntlApi", {
+        // The Intl API is only natively supported in Chrome, Firefox, IE11 and Edge.
+        // This detector is needed in tests to make the difference between:
+        // 1) IE11/Edge: they have a native Intl API, but with some discrepancies
+        // 2) IE9/IE10: they use the polyfill, and so no discrepancies
+        get: function () {
+            return !!global.Intl && global.Intl !== global.IntlPolyfill;
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(BrowserDetection.prototype, "isChromeDesktop", {
         get: function () {
             return this._ua.indexOf('Chrome') > -1 && this._ua.indexOf('Mobile Safari') == -1 &&
+                this._ua.indexOf('Edge') == -1;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BrowserDetection.prototype, "isOldChrome", {
+        // "Old Chrome" means Chrome 3X, where there are some discrepancies in the Intl API.
+        // Android 4.4 and 5.X have such browsers by default (respectively 30 and 39).
+        get: function () {
+            return this._ua.indexOf('Chrome') > -1 && this._ua.indexOf('Chrome/3') > -1 &&
                 this._ua.indexOf('Edge') == -1;
         },
         enumerable: true,
@@ -97,13 +110,24 @@ export function el(html) {
     return getDOM().firstChild(getDOM().content(getDOM().createTemplate(html)));
 }
 export function normalizeCSS(css) {
-    css = StringWrapper.replaceAll(css, /\s+/g, ' ');
-    css = StringWrapper.replaceAll(css, /:\s/g, ':');
-    css = StringWrapper.replaceAll(css, /'/g, '"');
-    css = StringWrapper.replaceAll(css, / }/g, '}');
-    css = StringWrapper.replaceAllMapped(css, /url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function (match /** TODO #9100 */) { return ("url(\"" + match[2] + "\")"); });
-    css = StringWrapper.replaceAllMapped(css, /\[(.+)=([^"\]]+)\]/g, function (match /** TODO #9100 */) { return ("[" + match[1] + "=\"" + match[2] + "\"]"); });
-    return css;
+    return css.replace(/\s+/g, ' ')
+        .replace(/:\s/g, ':')
+        .replace(/'/g, '"')
+        .replace(/ }/g, '}')
+        .replace(/url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, function () {
+        var match = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            match[_i - 0] = arguments[_i];
+        }
+        return ("url(\"" + match[2] + "\")");
+    })
+        .replace(/\[(.+)=([^"\]]+)\]/g, function () {
+        var match = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            match[_i - 0] = arguments[_i];
+        }
+        return ("[" + match[1] + "=\"" + match[2] + "\"]");
+    });
 }
 var _singleTagWhitelist = ['br', 'hr', 'input'];
 export function stringifyElement(el /** TODO #9100 */) {

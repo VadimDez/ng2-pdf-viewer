@@ -14,9 +14,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 export var SpyLocation = (function () {
     function SpyLocation() {
         this.urlChanges = [];
-        /** @internal */
         this._history = [new LocationState('', '')];
-        /** @internal */
         this._historyIndex = 0;
         /** @internal */
         this._subject = new EventEmitter();

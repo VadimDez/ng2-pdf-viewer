@@ -8,12 +8,22 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules"
+    ],
+    "types": [
+      "systemjs",
+      "core-js",
+      "jasmine",
+      "node",
+      "pdf"
+    ]
   },
   "exclude": [
     "gulpfile.ts",
     "node_modules",
-    "typings",
     "dist"
   ]
 }

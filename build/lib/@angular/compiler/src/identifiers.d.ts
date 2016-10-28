@@ -22,6 +22,7 @@ export declare class Identifiers {
     static ComponentFactory: IdentifierSpec;
     static NgModuleFactory: IdentifierSpec;
     static NgModuleInjector: IdentifierSpec;
+    static RegisterModuleFactoryFn: IdentifierSpec;
     static ValueUnwrapper: IdentifierSpec;
     static Injector: IdentifierSpec;
     static ViewEncapsulation: IdentifierSpec;
@@ -58,7 +59,6 @@ export declare class Identifiers {
     static collectAndResolveStyles: IdentifierSpec;
     static LOCALE_ID: IdentifierSpec;
     static TRANSLATIONS_FORMAT: IdentifierSpec;
-    static AnimationOutput: IdentifierSpec;
 }
 export declare function resolveIdentifier(identifier: IdentifierSpec): CompileIdentifierMetadata;
 export declare function identifierToken(identifier: CompileIdentifierMetadata): CompileTokenMetadata;

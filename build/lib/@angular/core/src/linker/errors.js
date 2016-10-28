@@ -24,13 +24,10 @@ import { BaseError, WrappedError } from '../facade/errors';
  * ```typescript
  * @Component({
  *   selector: 'parent',
- *   template: `
- *     <child [prop]="parentProp"></child>
- *   `,
- *   directives: [forwardRef(() => Child)]
+ *   template: '<child [prop]="parentProp"></child>',
  * })
  * class Parent {
- *   parentProp = "init";
+ *   parentProp = 'init';
  * }
  *
  * @Directive({selector: 'child', inputs: ['prop']})
@@ -40,7 +37,7 @@ import { BaseError, WrappedError } from '../facade/errors';
  *   set prop(v) {
  *     // this updates the parent property, which is disallowed during change detection
  *     // this will result in ExpressionChangedAfterItHasBeenCheckedError
- *     this.parent.parentProp = "updated";
+ *     this.parent.parentProp = 'updated';
  *   }
  * }
  * ```

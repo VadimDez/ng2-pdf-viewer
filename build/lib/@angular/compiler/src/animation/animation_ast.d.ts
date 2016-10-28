@@ -43,8 +43,8 @@ export declare class AnimationStateTransitionExpression {
 }
 export declare class AnimationStateTransitionAst extends AnimationStateAst {
     stateChanges: AnimationStateTransitionExpression[];
-    animation: AnimationSequenceAst;
-    constructor(stateChanges: AnimationStateTransitionExpression[], animation: AnimationSequenceAst);
+    animation: AnimationWithStepsAst;
+    constructor(stateChanges: AnimationStateTransitionExpression[], animation: AnimationWithStepsAst);
     visit(visitor: AnimationAstVisitor, context: any): any;
 }
 export declare class AnimationStepAst extends AnimationAst {

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { SecurityContext } from '@angular/core';
-import { isBlank, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { EMPTY_STATE as EMPTY_ANIMATION_STATE, LifecycleHooks, isDefaultChangeDetectionStrategy } from '../private_import_core';
@@ -21,10 +21,9 @@ function createBindFieldExpr(exprIndex) {
 function createCurrValueExpr(exprIndex) {
     return o.variable("currVal_" + exprIndex); // fix syntax highlighting: `
 }
-var _animationViewCheckedFlagMap = new Map();
 function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, method, bindingIndex) {
     var checkExpression = convertCdExpressionToIr(view, context, parsedExpression, DetectChangesVars.valUnwrapper, bindingIndex);
-    if (isBlank(checkExpression.expression)) {
+    if (!checkExpression.expression) {
         // e.g. an empty expression was given
         return;
     }
@@ -70,10 +69,10 @@ function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp)
         view.detectChangesRenderPropertiesMethod.resetDebugInfo(compileElement.nodeIndex, boundProp);
         var fieldExpr = createBindFieldExpr(bindingIndex);
         var currValExpr = createCurrValueExpr(bindingIndex);
-        var renderMethod;
         var oldRenderValue = sanitizedValue(boundProp, fieldExpr);
         var renderValue = sanitizedValue(boundProp, currValExpr);
         var updateStmts = [];
+        var compileMethod = view.detectChangesRenderPropertiesMethod;
         switch (boundProp.type) {
             case PropertyBindingType.Property:
                 if (view.genConfig.logBindingUpdate) {
@@ -111,6 +110,7 @@ function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp)
                 if (isHostProp) {
                     targetViewExpr = compileElement.appElement.prop('componentView');
                 }
+                compileMethod = view.animationBindingsMethod;
                 var animationFnExpr = targetViewExpr.prop('componentType').prop('animations').key(o.literal(animationName));
                 // it's important to normalize the void value as `void` explicitly
                 // so that the styles data can be obtained from the stringmap
@@ -126,15 +126,9 @@ function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp)
                 updateStmts.push(animationFnExpr.callFn([o.THIS_EXPR, renderNode, oldRenderVar, newRenderVar]).toStmt());
                 view.detachMethod.addStmt(animationFnExpr.callFn([o.THIS_EXPR, renderNode, oldRenderValue, emptyStateValue])
                     .toStmt());
-                if (!_animationViewCheckedFlagMap.get(view)) {
-                    _animationViewCheckedFlagMap.set(view, true);
-                    var triggerStmt = o.THIS_EXPR.callMethod('triggerQueuedAnimations', []).toStmt();
-                    view.afterViewLifecycleCallbacksMethod.addStmt(triggerStmt);
-                    view.detachMethod.addStmt(triggerStmt);
-                }
                 break;
         }
-        bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, view.detectChangesRenderPropertiesMethod, view.bindings.length);
+        bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, compileMethod, view.bindings.length);
     });
 }
 function sanitizedValue(boundProp, renderValue) {

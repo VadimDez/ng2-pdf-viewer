@@ -7,7 +7,7 @@
  */
 import { Injectable } from '@angular/core';
 import * as chars from '../chars';
-import { NumberWrapper, StringJoiner, StringWrapper, isPresent } from '../facade/lang';
+import { NumberWrapper, StringJoiner, isPresent } from '../facade/lang';
 export var TokenType;
 (function (TokenType) {
     TokenType[TokenType["Character"] = 0] = "Character";
@@ -84,7 +84,7 @@ export var Token = (function () {
     return Token;
 }());
 function newCharacterToken(index, code) {
-    return new Token(index, TokenType.Character, code, StringWrapper.fromCharCode(code));
+    return new Token(index, TokenType.Character, code, String.fromCharCode(code));
 }
 function newIdentifierToken(index, text) {
     return new Token(index, TokenType.Identifier, 0, text);
@@ -114,8 +114,7 @@ var _Scanner = (function () {
         this.advance();
     }
     _Scanner.prototype.advance = function () {
-        this.peek =
-            ++this.index >= this.length ? chars.$EOF : StringWrapper.charCodeAt(this.input, this.index);
+        this.peek = ++this.index >= this.length ? chars.$EOF : this.input.charCodeAt(this.index);
     };
     _Scanner.prototype.scanToken = function () {
         var input = this.input, length = this.length, peek = this.peek, index = this.index;
@@ -126,7 +125,7 @@ var _Scanner = (function () {
                 break;
             }
             else {
-                peek = StringWrapper.charCodeAt(input, index);
+                peek = input.charCodeAt(index);
             }
         }
         this.peek = peek;
@@ -165,15 +164,15 @@ var _Scanner = (function () {
             case chars.$SLASH:
             case chars.$PERCENT:
             case chars.$CARET:
-                return this.scanOperator(start, StringWrapper.fromCharCode(peek));
+                return this.scanOperator(start, String.fromCharCode(peek));
             case chars.$QUESTION:
                 return this.scanComplexOperator(start, '?', chars.$PERIOD, '.');
             case chars.$LT:
             case chars.$GT:
-                return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), chars.$EQ, '=');
+                return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, '=');
             case chars.$BANG:
             case chars.$EQ:
-                return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
+                return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
             case chars.$AMPERSAND:
                 return this.scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
             case chars.$BAR:
@@ -184,7 +183,7 @@ var _Scanner = (function () {
                 return this.scanToken();
         }
         this.advance();
-        return this.error("Unexpected character [" + StringWrapper.fromCharCode(peek) + "]", 0);
+        return this.error("Unexpected character [" + String.fromCharCode(peek) + "]", 0);
     };
     _Scanner.prototype.scanCharacter = function (start, code) {
         this.advance();
@@ -250,7 +249,7 @@ var _Scanner = (function () {
             this.advance();
         }
         var str = this.input.substring(start, this.index);
-        var value = simple ? NumberWrapper.parseIntAutoRadix(str) : NumberWrapper.parseFloat(str);
+        var value = simple ? NumberWrapper.parseIntAutoRadix(str) : parseFloat(str);
         return newNumberToken(start, value);
     };
     _Scanner.prototype.scanString = function () {
@@ -284,7 +283,7 @@ var _Scanner = (function () {
                     unescapedCode = unescape(this.peek);
                     this.advance();
                 }
-                buffer.add(StringWrapper.fromCharCode(unescapedCode));
+                buffer.add(String.fromCharCode(unescapedCode));
                 marker = this.index;
             }
             else if (this.peek == chars.$EOF) {

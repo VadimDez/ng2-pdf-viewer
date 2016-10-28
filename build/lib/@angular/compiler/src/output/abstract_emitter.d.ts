@@ -56,7 +56,7 @@ export declare abstract class AbstractEmitterVisitor implements o.StatementVisit
     visitLiteralArrayExpr(ast: o.LiteralArrayExpr, ctx: EmitterVisitorContext): any;
     visitLiteralMapExpr(ast: o.LiteralMapExpr, ctx: EmitterVisitorContext): any;
     visitAllExpressions(expressions: o.Expression[], ctx: EmitterVisitorContext, separator: string, newLine?: boolean): void;
-    visitAllObjects(handler: Function, expressions: any, ctx: EmitterVisitorContext, separator: string, newLine?: boolean): void;
+    visitAllObjects<T>(handler: (t: T) => void, expressions: T[], ctx: EmitterVisitorContext, separator: string, newLine?: boolean): void;
     visitAllStatements(statements: o.Statement[], ctx: EmitterVisitorContext): void;
 }
 export declare function escapeIdentifier(input: string, escapeDollar: boolean, alwaysQuote?: boolean): any;

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.0.13
+* [[#22](https://github.com/VadimDez/ng2-pdf-viewer/issues/22)] - Support zoom
+* other minor changes
+
+## 0.0.12
+
+* [[#7](https://github.com/VadimDez/ng2-pdf-viewer/issues/7)] - Return pdf info
+
+## 0.0.11
+
+* [[#10](https://github.com/VadimDez/ng2-pdf-viewer/issues/10)] - Need to Pass cookies with request for document src
+
 ## 0.0.10
 
 * [[#11](https://github.com/VadimDez/ng2-pdf-viewer/issues/11)] - Update to Angular RC6

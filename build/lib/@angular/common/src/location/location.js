@@ -47,7 +47,13 @@ export var Location = (function () {
         this._platformStrategy = platformStrategy;
         var browserBaseHref = this._platformStrategy.getBaseHref();
         this._baseHref = Location.stripTrailingSlash(_stripIndexHtml(browserBaseHref));
-        this._platformStrategy.onPopState(function (ev) { _this._subject.emit({ 'url': _this.path(true), 'pop': true, 'type': ev.type }); });
+        this._platformStrategy.onPopState(function (ev) {
+            _this._subject.emit({
+                'url': _this.path(true),
+                'pop': true,
+                'type': ev.type,
+            });
+        });
     }
     /**
      * Returns the normalized URL path.
@@ -67,7 +73,7 @@ export var Location = (function () {
     };
     /**
      * Given a string representing a URL, returns the normalized URL path without leading or
-     * trailing slashes
+     * trailing slashes.
      */
     Location.prototype.normalize = function (url) {
         return Location.stripTrailingSlash(_stripBaseHref(this._baseHref, _stripIndexHtml(url)));

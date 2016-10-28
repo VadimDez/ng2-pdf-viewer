@@ -41,7 +41,7 @@ export var RequiredValidator = (function () {
     RequiredValidator.prototype.validate = function (c) {
         return this.required ? Validators.required(c) : null;
     };
-    RequiredValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
+    RequiredValidator.prototype.registerOnValidatorChange = function (fn) { this._onChange = fn; };
     RequiredValidator.decorators = [
         { type: Directive, args: [{
                     selector: '[required][formControlName],[required][formControl],[required][ngModel]',
@@ -90,7 +90,7 @@ export var MinLengthValidator = (function () {
     MinLengthValidator.prototype.validate = function (c) {
         return isPresent(this.minlength) ? this._validator(c) : null;
     };
-    MinLengthValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
+    MinLengthValidator.prototype.registerOnValidatorChange = function (fn) { this._onChange = fn; };
     MinLengthValidator.decorators = [
         { type: Directive, args: [{
                     selector: '[minlength][formControlName],[minlength][formControl],[minlength][ngModel]',
@@ -140,7 +140,7 @@ export var MaxLengthValidator = (function () {
     MaxLengthValidator.prototype.validate = function (c) {
         return isPresent(this.maxlength) ? this._validator(c) : null;
     };
-    MaxLengthValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
+    MaxLengthValidator.prototype.registerOnValidatorChange = function (fn) { this._onChange = fn; };
     MaxLengthValidator.decorators = [
         { type: Directive, args: [{
                     selector: '[maxlength][formControlName],[maxlength][formControl],[maxlength][ngModel]',
@@ -187,7 +187,7 @@ export var PatternValidator = (function () {
     PatternValidator.prototype.validate = function (c) {
         return isPresent(this.pattern) ? this._validator(c) : null;
     };
-    PatternValidator.prototype.registerOnChange = function (fn) { this._onChange = fn; };
+    PatternValidator.prototype.registerOnValidatorChange = function (fn) { this._onChange = fn; };
     PatternValidator.decorators = [
         { type: Directive, args: [{
                     selector: '[pattern][formControlName],[pattern][formControl],[pattern][ngModel]',

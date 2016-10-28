@@ -24,7 +24,7 @@ export * from './schema_registry_mock';
 export * from './directive_resolver_mock';
 export * from './ng_module_resolver_mock';
 export * from './pipe_resolver_mock';
-import { ModuleWithComponentFactories, CompilerOptions, CompilerFactory, NgModuleFactory, Injector, NgModuleMetadataType, ComponentMetadataType, DirectiveMetadataType, PipeMetadataType, Type, PlatformRef } from '@angular/core';
+import { ModuleWithComponentFactories, CompilerOptions, CompilerFactory, NgModuleFactory, Injector, NgModule, Component, Directive, Pipe, Type, PlatformRef } from '@angular/core';
 import { MetadataOverride } from '@angular/core/testing';
 import { TestingCompilerFactory, TestingCompiler } from './private_import_core';
 import { RuntimeCompiler } from '@angular/compiler';
@@ -48,10 +48,10 @@ export declare class TestingCompilerImpl implements TestingCompiler {
     compileModuleAsync<T>(moduleType: Type<T>): Promise<NgModuleFactory<T>>;
     compileModuleAndAllComponentsSync<T>(moduleType: Type<T>): ModuleWithComponentFactories<T>;
     compileModuleAndAllComponentsAsync<T>(moduleType: Type<T>): Promise<ModuleWithComponentFactories<T>>;
-    overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModuleMetadataType>): void;
-    overrideDirective(directive: Type<any>, override: MetadataOverride<DirectiveMetadataType>): void;
-    overrideComponent(component: Type<any>, override: MetadataOverride<ComponentMetadataType>): void;
-    overridePipe(pipe: Type<any>, override: MetadataOverride<PipeMetadataType>): void;
+    overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModule>): void;
+    overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): void;
+    overrideComponent(component: Type<any>, override: MetadataOverride<Component>): void;
+    overridePipe(pipe: Type<any>, override: MetadataOverride<Pipe>): void;
     clearCache(): void;
     clearCacheFor(type: Type<any>): void;
 }

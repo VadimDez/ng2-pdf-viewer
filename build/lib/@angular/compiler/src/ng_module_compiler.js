@@ -7,7 +7,7 @@
  */
 import { Injectable } from '@angular/core';
 import { CompileDiDependencyMetadata, CompileIdentifierMetadata } from './compile_metadata';
-import { isBlank, isPresent } from './facade/lang';
+import { isPresent } from './facade/lang';
 import { Identifiers, resolveIdentifier, resolveIdentifierToken } from './identifiers';
 import * as o from './output/output_ast';
 import { convertValueToOutputAst } from './output/value_util';
@@ -58,7 +58,14 @@ export var NgModuleCompiler = (function () {
             .set(o.importExpr(resolveIdentifier(Identifiers.NgModuleFactory))
             .instantiate([o.variable(injectorClass.name), o.importExpr(ngModuleMeta.type)], o.importType(resolveIdentifier(Identifiers.NgModuleFactory), [o.importType(ngModuleMeta.type)], [o.TypeModifier.Const])))
             .toDeclStmt(null, [o.StmtModifier.Final]);
-        return new NgModuleCompileResult([injectorClass, ngModuleFactoryStmt], ngModuleFactoryVar, deps);
+        var stmts = [injectorClass, ngModuleFactoryStmt];
+        if (ngModuleMeta.id) {
+            var registerFactoryStmt = o.importExpr(resolveIdentifier(Identifiers.RegisterModuleFactoryFn))
+                .callFn([o.literal(ngModuleMeta.id), o.variable(ngModuleFactoryVar)])
+                .toStmt();
+            stmts.push(registerFactoryStmt);
+        }
+        return new NgModuleCompileResult(stmts, ngModuleFactoryVar, deps);
     };
     NgModuleCompiler.decorators = [
         { type: Injectable },
@@ -122,12 +129,12 @@ var _InjectorBuilder = (function () {
             result = this._getDependency(new CompileDiDependencyMetadata({ token: provider.useExisting }));
         }
         else if (isPresent(provider.useFactory)) {
-            var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+            var deps = provider.deps || provider.useFactory.diDeps;
             var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
             result = o.importExpr(provider.useFactory).callFn(depsExpr);
         }
         else if (isPresent(provider.useClass)) {
-            var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+            var deps = provider.deps || provider.useClass.diDeps;
             var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
             result =
                 o.importExpr(provider.useClass).instantiate(depsExpr, o.importType(provider.useClass));
@@ -148,7 +155,7 @@ var _InjectorBuilder = (function () {
             resolvedProviderValueExpr = providerValueExpressions[0];
             type = providerValueExpressions[0].type;
         }
-        if (isBlank(type)) {
+        if (!type) {
             type = o.DYNAMIC_TYPE;
         }
         if (isEager) {
@@ -179,11 +186,11 @@ var _InjectorBuilder = (function () {
                         resolveIdentifierToken(Identifiers.ComponentFactoryResolver).reference)) {
                 result = o.THIS_EXPR;
             }
-            if (isBlank(result)) {
+            if (!result) {
                 result = this._instances.get(dep.token.reference);
             }
         }
-        if (isBlank(result)) {
+        if (!result) {
             var args = [createDiTokenExpression(dep.token)];
             if (dep.isOptional) {
                 args.push(o.NULL_EXPR);

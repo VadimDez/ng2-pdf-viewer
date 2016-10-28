@@ -8,7 +8,7 @@
         <div class="page-content">
 
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input class="mdl-textfield__input" type="text" id="pdf-src" [(ngModel)]="pdfSrc">
+                <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
                 <label class="mdl-textfield__label" for="pdf-src">PDF path</label>
             </div>
 
@@ -31,6 +31,25 @@
                 </label>
             </div>
 
+            <div mdl>
+                <button (click)="incrementZoom(-0.1)" class="mdl-button mdl-js-button">
+                    -
+                </button>
+                <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input [(ngModel)]="zoom"
+                           [value]="zoom"
+                           class="mdl-textfield__input"
+                           type="number"
+                           pattern="-?[0-9]*(\.[0-9]+)?"
+                           id="pdf-zoom"
+                    >
+                    <label class="mdl-textfield__label" for="pdf-zoom">Zoom</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
+                </div>
+                <button (click)="incrementZoom(0.1)" class="mdl-button mdl-js-button">
+                    +
+                </button>
+            </div>
 
             <div mdl *ngIf="!showAll">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
@@ -47,6 +66,7 @@
                     <label class="mdl-textfield__label" for="pdf-page">Page</label>
                     <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
+                <span>of {{ pdf?.numPages }}</span>
                 <button (click)="incrementPage(1)" class="mdl-button mdl-js-button">
                     Next
                 </button>
@@ -55,6 +75,8 @@
                         [(page)]="page"
                         [original-size]="originalSize"
                         [show-all]="showAll"
+                        [on-load-complete]="onLoadComplete"
+                        [zoom]="zoom"
             ></pdf-viewer>
 
         </div>

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.1.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -10,10 +10,12 @@
 }(this, function (exports,_angular_core,_angular_compiler,_angular_core_testing) { 'use strict';
 
     var MockSchemaRegistry = (function () {
-        function MockSchemaRegistry(existingProperties, attrPropMapping, existingElements) {
+        function MockSchemaRegistry(existingProperties, attrPropMapping, existingElements, invalidProperties, invalidAttributes) {
             this.existingProperties = existingProperties;
             this.attrPropMapping = attrPropMapping;
             this.existingElements = existingElements;
+            this.invalidProperties = invalidProperties;
+            this.invalidAttributes = invalidAttributes;
         }
         MockSchemaRegistry.prototype.hasProperty = function (tagName, property, schemas) {
             var value = this.existingProperties[property];
@@ -28,46 +30,30 @@
         };
         MockSchemaRegistry.prototype.getMappedPropName = function (attrName) { return this.attrPropMapping[attrName] || attrName; };
         MockSchemaRegistry.prototype.getDefaultComponentElementName = function () { return 'ng-component'; };
+        MockSchemaRegistry.prototype.validateProperty = function (name) {
+            if (this.invalidProperties.indexOf(name) > -1) {
+                return { error: true, msg: "Binding to property '" + name + "' is disallowed for security reasons" };
+            }
+            else {
+                return { error: false };
+            }
+        };
+        MockSchemaRegistry.prototype.validateAttribute = function (name) {
+            if (this.invalidAttributes.indexOf(name) > -1) {
+                return {
+                    error: true,
+                    msg: "Binding to attribute '" + name + "' is disallowed for security reasons"
+                };
+            }
+            else {
+                return { error: false };
+            }
+        };
         return MockSchemaRegistry;
     }());
 
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var globalScope;
-    if (typeof window === 'undefined') {
-        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-            // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
-            globalScope = self;
-        }
-        else {
-            globalScope = global;
-        }
-    }
-    else {
-        globalScope = window;
-    }
-    // Need to declare a new variable for global here since TypeScript
-    // exports the original value of the symbol.
-    var _global = globalScope;
-    // TODO: remove calls to assert in production environment
-    // Note: Can't just export this and import in in other files
-    // as `assert` is a reserved keyword in Dart
-    _global.assert = function assert(condition) {
-        // TODO: to be fixed properly via #2830, noop for now
-    };
     function isPresent(obj) {
         return obj !== undefined && obj !== null;
-    }
-    function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
     }
     function stringify(token) {
         if (typeof token === 'string') {
@@ -84,7 +70,7 @@
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
-        return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
+        return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
     var NumberWrapper = (function () {
         function NumberWrapper() {
@@ -117,8 +103,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -129,228 +113,6 @@
         NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
         return NumberWrapper;
     }());
-
-    var Map$1 = _global.Map;
-    var Set$1 = _global.Set;
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map$1([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map$1(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map$1();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var createMapFromMap = (function () {
-        try {
-            if (new Map$1(new Map$1())) {
-                return function createMapFromMap(m) { return new Map$1(m); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromMap(m) {
-            var map = new Map$1();
-            m.forEach(function (v, k) { map.set(k, v); });
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map$1()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
-    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
-    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
-    var _arrayFromMap = (function () {
-        try {
-            if ((new Map$1()).values().next) {
-                return function createArrayFromMap(m, getValues) {
-                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
-                };
-            }
-        }
-        catch (e) {
-        }
-        return function createArrayFromMapWithForeach(m, getValues) {
-            var res = ListWrapper.createFixedSize(m.size), i = 0;
-            m.forEach(function (v, k) {
-                res[i] = getValues ? v : k;
-                i++;
-            });
-            return res;
-        };
-    })();
-    var ListWrapper = (function () {
-        function ListWrapper() {
-        }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
-        ListWrapper.removeAll = function (list, items) {
-            for (var i = 0; i < items.length; ++i) {
-                var index = list.indexOf(items[i]);
-                list.splice(index, 1);
-            }
-        };
-        ListWrapper.remove = function (list, el) {
-            var index = list.indexOf(el);
-            if (index > -1) {
-                list.splice(index, 1);
-                return true;
-            }
-            return false;
-        };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
-        ListWrapper.equals = function (a, b) {
-            if (a.length != b.length)
-                return false;
-            for (var i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (isBlank(candidate)) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
-        ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
-        return ListWrapper;
-    }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Set constructor.  We work around that by manually adding the items.
-    var createSetFromList = (function () {
-        var test = new Set$1([1, 2, 3]);
-        if (test.size === 3) {
-            return function createSetFromList(lst) { return new Set$1(lst); };
-        }
-        else {
-            return function createSetAndPopulateFromList(lst) {
-                var res = new Set$1(lst);
-                if (res.size !== lst.length) {
-                    for (var i = 0; i < lst.length; i++) {
-                        res.add(lst[i]);
-                    }
-                }
-                return res;
-            };
-        }
-    })();
 
     var __extends = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -366,12 +128,12 @@
         function MockDirectiveResolver(_injector) {
             _super.call(this);
             this._injector = _injector;
-            this._directives = new Map$1();
-            this._providerOverrides = new Map$1();
-            this._viewProviderOverrides = new Map$1();
-            this._views = new Map$1();
-            this._inlineTemplates = new Map$1();
-            this._animations = new Map$1();
+            this._directives = new Map();
+            this._providerOverrides = new Map();
+            this._viewProviderOverrides = new Map();
+            this._views = new Map();
+            this._inlineTemplates = new Map();
+            this._animations = new Map();
         }
         Object.defineProperty(MockDirectiveResolver.prototype, "_compiler", {
             get: function () { return this._injector.get(_angular_core.Compiler); },
@@ -392,13 +154,13 @@
             var viewProviderOverrides = this._viewProviderOverrides.get(type);
             var providers = metadata.providers;
             if (isPresent(providerOverrides)) {
-                var originalViewProviders = isPresent(metadata.providers) ? metadata.providers : [];
+                var originalViewProviders = metadata.providers || [];
                 providers = originalViewProviders.concat(providerOverrides);
             }
-            if (metadata instanceof _angular_core.ComponentMetadata) {
+            if (metadata instanceof _angular_core.Component) {
                 var viewProviders = metadata.viewProviders;
                 if (isPresent(viewProviderOverrides)) {
-                    var originalViewProviders = isPresent(metadata.viewProviders) ? metadata.viewProviders : [];
+                    var originalViewProviders = metadata.viewProviders || [];
                     viewProviders = originalViewProviders.concat(viewProviderOverrides);
                 }
                 var view = this._views.get(type);
@@ -418,7 +180,7 @@
                 else {
                     inlineTemplate = view.template;
                 }
-                return new _angular_core.ComponentMetadata({
+                return new _angular_core.Component({
                     selector: metadata.selector,
                     inputs: metadata.inputs,
                     outputs: metadata.outputs,
@@ -439,7 +201,7 @@
                     interpolation: view.interpolation
                 });
             }
-            return new _angular_core.DirectiveMetadata({
+            return new _angular_core.Directive({
                 selector: metadata.selector,
                 inputs: metadata.inputs,
                 outputs: metadata.outputs,
@@ -450,7 +212,7 @@
             });
         };
         /**
-         * Overrides the {@link DirectiveMetadata} for a directive.
+         * Overrides the {@link Directive} for a directive.
          */
         MockDirectiveResolver.prototype.setDirective = function (type, metadata) {
             this._directives.set(type, metadata);
@@ -509,35 +271,31 @@
         function MockNgModuleResolver(_injector) {
             _super.call(this);
             this._injector = _injector;
-            this._ngModules = new Map$1();
+            this._ngModules = new Map();
         }
-        Object.defineProperty(MockNgModuleResolver.prototype, "_compiler", {
-            get: function () { return this._injector.get(_angular_core.Compiler); },
-            enumerable: true,
-            configurable: true
-        });
-        MockNgModuleResolver.prototype._clearCacheFor = function (component) { this._compiler.clearCacheFor(component); };
         /**
-         * Overrides the {@link NgModuleMetadata} for a module.
+         * Overrides the {@link NgModule} for a module.
          */
         MockNgModuleResolver.prototype.setNgModule = function (type, metadata) {
             this._ngModules.set(type, metadata);
             this._clearCacheFor(type);
         };
         /**
-         * Returns the {@link NgModuleMetadata} for a module:
-         * - Set the {@link NgModuleMetadata} to the overridden view when it exists or fallback to the
+         * Returns the {@link NgModule} for a module:
+         * - Set the {@link NgModule} to the overridden view when it exists or fallback to the
          * default
          * `NgModuleResolver`, see `setNgModule`.
          */
         MockNgModuleResolver.prototype.resolve = function (type, throwIfNotFound) {
             if (throwIfNotFound === void 0) { throwIfNotFound = true; }
-            var metadata = this._ngModules.get(type);
-            if (!metadata) {
-                metadata = _super.prototype.resolve.call(this, type, throwIfNotFound);
-            }
-            return metadata;
+            return this._ngModules.get(type) || _super.prototype.resolve.call(this, type, throwIfNotFound);
         };
+        Object.defineProperty(MockNgModuleResolver.prototype, "_compiler", {
+            get: function () { return this._injector.get(_angular_core.Compiler); },
+            enumerable: true,
+            configurable: true
+        });
+        MockNgModuleResolver.prototype._clearCacheFor = function (component) { this._compiler.clearCacheFor(component); };
         MockNgModuleResolver.decorators = [
             { type: _angular_core.Injectable },
         ];
@@ -565,7 +323,7 @@
         function MockPipeResolver(_injector) {
             _super.call(this);
             this._injector = _injector;
-            this._pipes = new Map$1();
+            this._pipes = new Map();
         }
         Object.defineProperty(MockPipeResolver.prototype, "_compiler", {
             get: function () { return this._injector.get(_angular_core.Compiler); },
@@ -574,15 +332,15 @@
         });
         MockPipeResolver.prototype._clearCacheFor = function (pipe) { this._compiler.clearCacheFor(pipe); };
         /**
-         * Overrides the {@link PipeMetadata} for a pipe.
+         * Overrides the {@link Pipe} for a pipe.
          */
         MockPipeResolver.prototype.setPipe = function (type, metadata) {
             this._pipes.set(type, metadata);
             this._clearCacheFor(type);
         };
         /**
-         * Returns the {@link PipeMetadata} for a pipe:
-         * - Set the {@link PipeMetadata} to the overridden view when it exists or fallback to the
+         * Returns the {@link Pipe} for a pipe:
+         * - Set the {@link Pipe} to the overridden view when it exists or fallback to the
          * default
          * `PipeResolver`, see `setPipe`.
          */
@@ -764,19 +522,19 @@
         };
         TestingCompilerImpl.prototype.overrideModule = function (ngModule, override) {
             var oldMetadata = this._moduleResolver.resolve(ngModule, false);
-            this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(_angular_core.NgModuleMetadata, oldMetadata, override));
+            this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(_angular_core.NgModule, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overrideDirective = function (directive, override) {
             var oldMetadata = this._directiveResolver.resolve(directive, false);
-            this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(_angular_core.DirectiveMetadata, oldMetadata, override));
+            this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(_angular_core.Directive, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overrideComponent = function (component, override) {
             var oldMetadata = this._directiveResolver.resolve(component, false);
-            this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(_angular_core.ComponentMetadata, oldMetadata, override));
+            this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(_angular_core.Component, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.overridePipe = function (pipe, override) {
             var oldMetadata = this._pipeResolver.resolve(pipe, false);
-            this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(_angular_core.PipeMetadata, oldMetadata, override));
+            this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(_angular_core.Pipe, oldMetadata, override));
         };
         TestingCompilerImpl.prototype.clearCache = function () { this._compiler.clearCache(); };
         TestingCompilerImpl.prototype.clearCacheFor = function (type) { this._compiler.clearCacheFor(type); };

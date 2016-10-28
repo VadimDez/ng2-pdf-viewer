@@ -18,8 +18,9 @@ export declare class BrowserDetection {
     isWebkit: boolean;
     isIOS7: boolean;
     isSlow: boolean;
-    supportsIntlApi: boolean;
+    supportsNativeIntlApi: boolean;
     isChromeDesktop: boolean;
+    isOldChrome: boolean;
 }
 export declare function dispatchEvent(element: any, eventType: any): void;
 export declare function el(html: string): HTMLElement;

@@ -8,7 +8,7 @@
 import { ListWrapper } from '../facade/collection';
 import { unimplemented } from '../facade/errors';
 import { Injector, THROW_IF_NOT_FOUND } from './injector';
-import { SelfMetadata, SkipSelfMetadata } from './metadata';
+import { Self, SkipSelf } from './metadata';
 import { AbstractProviderError, CyclicDependencyError, InstantiationError, NoProviderError, OutOfBoundsError } from './reflective_errors';
 import { ReflectiveKey } from './reflective_key';
 import { resolveReflectiveProviders } from './reflective_provider';
@@ -112,7 +112,7 @@ export var ReflectiveProtoInjectorDynamicStrategy = (function () {
     function ReflectiveProtoInjectorDynamicStrategy(protoInj, providers) {
         this.providers = providers;
         var len = providers.length;
-        this.keyIds = ListWrapper.createFixedSize(len);
+        this.keyIds = new Array(len);
         for (var i = 0; i < len; i++) {
             this.keyIds[i] = providers[i].key.id;
         }
@@ -257,7 +257,7 @@ export var ReflectiveInjectorDynamicStrategy = (function () {
     function ReflectiveInjectorDynamicStrategy(protoStrategy, injector) {
         this.protoStrategy = protoStrategy;
         this.injector = injector;
-        this.objs = ListWrapper.createFixedSize(protoStrategy.providers.length);
+        this.objs = new Array(protoStrategy.providers.length);
         ListWrapper.fill(this.objs, UNDEFINED);
     }
     ReflectiveInjectorDynamicStrategy.prototype.resetConstructionCounter = function () { this.injector._constructionCounter = 0; };
@@ -601,7 +601,7 @@ export var ReflectiveInjector_ = (function () {
     };
     ReflectiveInjector_.prototype._instantiateProvider = function (provider) {
         if (provider.multiProvider) {
-            var res = ListWrapper.createFixedSize(provider.resolvedFactories.length);
+            var res = new Array(provider.resolvedFactories.length);
             for (var i = 0; i < provider.resolvedFactories.length; ++i) {
                 res[i] = this._instantiate(provider, provider.resolvedFactories[i]);
             }
@@ -745,7 +745,7 @@ export var ReflectiveInjector_ = (function () {
         if (key === INJECTOR_KEY) {
             return this;
         }
-        if (upperBoundVisibility instanceof SelfMetadata) {
+        if (upperBoundVisibility instanceof Self) {
             return this._getByKeySelf(key, notFoundValue);
         }
         else {
@@ -769,7 +769,7 @@ export var ReflectiveInjector_ = (function () {
     /** @internal */
     ReflectiveInjector_.prototype._getByKeyDefault = function (key, notFoundValue, lowerBoundVisibility) {
         var inj;
-        if (lowerBoundVisibility instanceof SkipSelfMetadata) {
+        if (lowerBoundVisibility instanceof SkipSelf) {
             inj = this._parent;
         }
         else {

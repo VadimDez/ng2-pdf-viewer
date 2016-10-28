@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, ElementRef, Renderer, forwardRef } from '@angular/core';
-import { NumberWrapper, isBlank } from '../facade/lang';
+import { isBlank } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var NUMBER_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
@@ -35,7 +35,7 @@ export var NumberValueAccessor = (function () {
         this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
     };
     NumberValueAccessor.prototype.registerOnChange = function (fn) {
-        this.onChange = function (value) { fn(value == '' ? null : NumberWrapper.parseFloat(value)); };
+        this.onChange = function (value) { fn(value == '' ? null : parseFloat(value)); };
     };
     NumberValueAccessor.prototype.registerOnTouched = function (fn) { this.onTouched = fn; };
     NumberValueAccessor.prototype.setDisabledState = function (isDisabled) {

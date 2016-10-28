@@ -121,7 +121,7 @@ var _TreeBuilder = (function () {
         // read =
         while (this._peek.type === lex.TokenType.EXPANSION_CASE_VALUE) {
             var expCase = this._parseExpansionCase();
-            if (isBlank(expCase))
+            if (!expCase)
                 return; // error
             cases.push(expCase);
         }
@@ -144,7 +144,7 @@ var _TreeBuilder = (function () {
         // read until }
         var start = this._advance();
         var exp = this._collectExpansionExpTokens(start);
-        if (isBlank(exp))
+        if (!exp)
             return null;
         var end = this._advance();
         exp.push(new lex.Token(lex.TokenType.EOF, [], end.sourceSpan));
@@ -291,12 +291,14 @@ var _TreeBuilder = (function () {
         var fullName = mergeNsAndName(attrName.parts[0], attrName.parts[1]);
         var end = attrName.sourceSpan.end;
         var value = '';
+        var valueSpan;
         if (this._peek.type === lex.TokenType.ATTR_VALUE) {
             var valueToken = this._advance();
             value = valueToken.parts[0];
             end = valueToken.sourceSpan.end;
+            valueSpan = valueToken.sourceSpan;
         }
-        return new html.Attribute(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
+        return new html.Attribute(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end), valueSpan);
     };
     _TreeBuilder.prototype._getParentElement = function () {
         return this._elementStack.length > 0 ? ListWrapper.last(this._elementStack) : null;

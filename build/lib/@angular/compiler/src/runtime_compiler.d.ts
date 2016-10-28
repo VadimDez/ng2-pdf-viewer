@@ -34,6 +34,8 @@ export declare class RuntimeCompiler implements Compiler {
     private _compiledTemplateCache;
     private _compiledHostTemplateCache;
     private _compiledNgModuleCache;
+    private _animationParser;
+    private _animationCompiler;
     constructor(_injector: Injector, _metadataResolver: CompileMetadataResolver, _templateNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _ngModuleCompiler: NgModuleCompiler, _compilerConfig: CompilerConfig);
     injector: Injector;
     compileModuleSync<T>(moduleType: Type<T>): NgModuleFactory<T>;

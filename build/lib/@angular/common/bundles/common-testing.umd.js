@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.1.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -17,9 +17,7 @@
     var SpyLocation = (function () {
         function SpyLocation() {
             this.urlChanges = [];
-            /** @internal */
             this._history = [new LocationState('', '')];
-            /** @internal */
             this._historyIndex = 0;
             /** @internal */
             this._subject = new _angular_core.EventEmitter();

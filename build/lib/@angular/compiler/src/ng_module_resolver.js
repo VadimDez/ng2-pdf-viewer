@@ -5,14 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Injectable, NgModuleMetadata } from '@angular/core';
+import { Injectable, NgModule } from '@angular/core';
 import { isPresent, stringify } from './facade/lang';
 import { ReflectorReader, reflector } from './private_import_core';
 function _isNgModuleMetadata(obj) {
-    return obj instanceof NgModuleMetadata;
+    return obj instanceof NgModule;
 }
 /**
- * Resolves types to {@link NgModuleMetadata}.
+ * Resolves types to {@link NgModule}.
  */
 export var NgModuleResolver = (function () {
     function NgModuleResolver(_reflector) {

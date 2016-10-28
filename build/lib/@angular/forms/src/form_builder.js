@@ -6,46 +6,25 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { StringMapWrapper } from './facade/collection';
 import { isArray, isPresent } from './facade/lang';
 import { FormArray, FormControl, FormGroup } from './model';
 /**
- * Creates a form object from a user-specified configuration.
+ * @whatItDoes Creates an {@link AbstractControl} from a user-specified configuration.
  *
- * ```typescript
- * @Component({
- *   selector: 'my-app',
- *   template: `
- *     <form [formGroup]="loginForm">
- *       <p>Login <input formControlName="login"></p>
- *       <div formGroupName="passwordRetry">
- *         <p>Password <input type="password" formControlName="password"></p>
- *         <p>Confirm password <input type="password" formControlName="passwordConfirmation"></p>
- *       </div>
- *     </form>
- *     <h3>Form value:</h3>
- *     <pre>{{value}}</pre>
- *   `,
- *   directives: [REACTIVE_FORM_DIRECTIVES]
- * })
- * export class App {
- *   loginForm: FormGroup;
+ * It is essentially syntactic sugar that shortens the `new FormGroup()`,
+ * `new FormControl()`, and `new FormArray()` boilerplate that can build up in larger
+ * forms.
  *
- *   constructor(builder: FormBuilder) {
- *     this.loginForm = builder.group({
- *       login: ["", Validators.required],
- *       passwordRetry: builder.group({
- *         password: ["", Validators.required],
- *         passwordConfirmation: ["", Validators.required, asyncValidator]
- *       })
- *     });
- *   }
+ * @howToUse
  *
- *   get value(): string {
- *     return JSON.stringify(this.loginForm.value, null, 2);
- *   }
- * }
- * ```
+ * To use, inject `FormBuilder` into your component class. You can then call its methods
+ * directly.
+ *
+ * {@example forms/ts/formBuilder/form_builder_example.ts region='Component'}
+ *
+ *  * **npm package**: `@angular/forms`
+ *
+ *  * **NgModule**: {@link ReactiveFormsModule}
  *
  * @stable
  */
@@ -54,20 +33,24 @@ export var FormBuilder = (function () {
     }
     /**
      * Construct a new {@link FormGroup} with the given map of configuration.
-     * Valid keys for the `extra` parameter map are `optionals` and `validator`.
+     * Valid keys for the `extra` parameter map are `validator` and `asyncValidator`.
      *
      * See the {@link FormGroup} constructor for more details.
      */
     FormBuilder.prototype.group = function (controlsConfig, extra) {
         if (extra === void 0) { extra = null; }
         var controls = this._reduceControls(controlsConfig);
-        var validator = isPresent(extra) ? StringMapWrapper.get(extra, 'validator') : null;
-        var asyncValidator = isPresent(extra) ? StringMapWrapper.get(extra, 'asyncValidator') : null;
+        var validator = isPresent(extra) ? extra['validator'] : null;
+        var asyncValidator = isPresent(extra) ? extra['asyncValidator'] : null;
         return new FormGroup(controls, validator, asyncValidator);
     };
     /**
      * Construct a new {@link FormControl} with the given `formState`,`validator`, and
      * `asyncValidator`.
+     *
+     * `formState` can either be a standalone value for the form control or an object
+     * that contains both a value and a disabled status.
+     *
      */
     FormBuilder.prototype.control = function (formState, validator, asyncValidator) {
         if (validator === void 0) { validator = null; }
@@ -75,7 +58,7 @@ export var FormBuilder = (function () {
         return new FormControl(formState, validator, asyncValidator);
     };
     /**
-     * Construct an array of {@link FormControl}s from the given `controlsConfig` array of
+     * Construct a {@link FormArray} from the given `controlsConfig` array of
      * configuration, with the given optional `validator` and `asyncValidator`.
      */
     FormBuilder.prototype.array = function (controlsConfig, validator, asyncValidator) {
@@ -89,8 +72,8 @@ export var FormBuilder = (function () {
     FormBuilder.prototype._reduceControls = function (controlsConfig) {
         var _this = this;
         var controls = {};
-        StringMapWrapper.forEach(controlsConfig, function (controlConfig, controlName) {
-            controls[controlName] = _this._createControl(controlConfig);
+        Object.keys(controlsConfig).forEach(function (controlName) {
+            controls[controlName] = _this._createControl(controlsConfig[controlName]);
         });
         return controls;
     };

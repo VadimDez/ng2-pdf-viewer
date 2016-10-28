@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isBlank } from '../facade/lang';
 import { Identifiers, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
 import * as o from '../output/output_ast';
 import { createPureProxy, getPropertyInView, injectFromViewParentInjector } from './util';
@@ -36,7 +35,7 @@ export var CompilePipe = (function () {
         if (meta.pure) {
             // pure pipes live on the component view
             pipe = compView.purePipes.get(name);
-            if (isBlank(pipe)) {
+            if (!pipe) {
                 pipe = new CompilePipe(compView, meta);
                 compView.purePipes.set(name, pipe);
                 compView.pipes.push(pipe);
@@ -80,7 +79,7 @@ function _findPipeMeta(view, name) {
             break;
         }
     }
-    if (isBlank(pipeMeta)) {
+    if (!pipeMeta) {
         throw new Error("Illegal state: Could not find pipe " + name + " although the parser should have detected this error!");
     }
     return pipeMeta;

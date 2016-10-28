@@ -6,10 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ViewEncapsulation } from '@angular/core';
-import { AnimationCompiler } from '../animation/animation_compiler';
 import { CompileIdentifierMetadata } from '../compile_metadata';
-import { ListWrapper, SetWrapper, StringMapWrapper } from '../facade/collection';
-import { StringWrapper, isPresent } from '../facade/lang';
+import { ListWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
 import { Identifiers, identifierToken, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { ChangeDetectorStatus, ViewType, isDefaultChangeDetectionStrategy } from '../private_import_core';
@@ -58,7 +57,6 @@ var ViewBuilderVisitor = (function () {
         this.view = view;
         this.targetDependencies = targetDependencies;
         this.nestedViewCount = 0;
-        this._animationCompiler = new AnimationCompiler();
     }
     ViewBuilderVisitor.prototype._isRootNode = function (parent) { return parent.view !== this.view; };
     ViewBuilderVisitor.prototype._addRootNodeAndProject = function (node) {
@@ -69,11 +67,11 @@ var ViewBuilderVisitor = (function () {
         if (this._isRootNode(parent)) {
             // store appElement as root node only for ViewContainers
             if (this.view.viewType !== ViewType.COMPONENT) {
-                this.view.rootNodesOrAppElements.push(isPresent(vcAppEl) ? vcAppEl : node.renderNode);
+                this.view.rootNodesOrAppElements.push(vcAppEl || node.renderNode);
             }
         }
         else if (isPresent(parent.component) && isPresent(ngContentIndex)) {
-            parent.addContentNode(ngContentIndex, isPresent(vcAppEl) ? vcAppEl : node.renderNode);
+            parent.addContentNode(ngContentIndex, vcAppEl || node.renderNode);
         }
     };
     ViewBuilderVisitor.prototype._getParentRenderNode = function (parent) {
@@ -231,9 +229,8 @@ var ViewBuilderVisitor = (function () {
         var directives = ast.directives.map(function (directiveAst) { return directiveAst.directive; });
         var compileElement = new CompileElement(parent, this.view, nodeIndex, renderNode, ast, null, directives, ast.providers, ast.hasViewContainer, true, ast.references);
         this.view.nodes.push(compileElement);
-        var compiledAnimations = this._animationCompiler.compileComponent(this.view.component, [ast]);
         this.nestedViewCount++;
-        var embeddedView = new CompileView(this.view.component, this.view.genConfig, this.view.pipeMetas, o.NULL_EXPR, compiledAnimations.triggers, this.view.viewIndex + this.nestedViewCount, compileElement, templateVariableBindings);
+        var embeddedView = new CompileView(this.view.component, this.view.genConfig, this.view.pipeMetas, o.NULL_EXPR, this.view.animations, this.view.viewIndex + this.nestedViewCount, compileElement, templateVariableBindings);
         this.nestedViewCount += buildView(embeddedView, ast.children, this.targetDependencies);
         compileElement.beforeChildren();
         this._addRootNodeAndProject(compileElement);
@@ -285,9 +282,10 @@ function _isNgContainer(node, view) {
 }
 function _mergeHtmlAndDirectiveAttrs(declaredHtmlAttrs, directives) {
     var result = {};
-    StringMapWrapper.forEach(declaredHtmlAttrs, function (value, key) { result[key] = value; });
+    Object.keys(declaredHtmlAttrs).forEach(function (key) { result[key] = declaredHtmlAttrs[key]; });
     directives.forEach(function (directiveMeta) {
-        StringMapWrapper.forEach(directiveMeta.hostAttributes, function (value, name) {
+        Object.keys(directiveMeta.hostAttributes).forEach(function (name) {
+            var value = directiveMeta.hostAttributes[name];
             var prevValue = result[name];
             result[name] = isPresent(prevValue) ? mergeAttributeValue(name, prevValue, value) : value;
         });
@@ -309,12 +307,10 @@ function mergeAttributeValue(attrName, attrValue1, attrValue2) {
 }
 function mapToKeyValueArray(data) {
     var entryArray = [];
-    StringMapWrapper.forEach(data, function (value, name) {
-        entryArray.push([name, value]);
-    });
+    Object.keys(data).forEach(function (name) { entryArray.push([name, data[name]]); });
     // We need to sort to get a defined output order
     // for tests and for caching generated artifacts...
-    ListWrapper.sort(entryArray, function (entry1, entry2) { return StringWrapper.compare(entry1[0], entry2[0]); });
+    ListWrapper.sort(entryArray);
     return entryArray;
 }
 function createViewTopLevelStmts(view, targetStatements) {
@@ -344,7 +340,8 @@ function createStaticNodeDebugInfo(node) {
         if (isPresent(compileElement.component)) {
             componentToken = createDiTokenExpression(identifierToken(compileElement.component.type));
         }
-        StringMapWrapper.forEach(compileElement.referenceTokens, function (token, varName) {
+        Object.keys(compileElement.referenceTokens).forEach(function (varName) {
+            var token = compileElement.referenceTokens[varName];
             varTokenEntries.push([varName, isPresent(token) ? createDiTokenExpression(token) : o.NULL_EXPR]);
         });
     }
@@ -404,21 +401,26 @@ function createViewFactory(view, viewClass, renderCompTypeVar) {
         templateUrlInfo = view.component.template.templateUrl;
     }
     if (view.viewIndex === 0) {
-        var animationsExpr = o.literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnVariable]; }));
-        initRenderCompTypeStmts = [new o.IfStmt(renderCompTypeVar.identical(o.NULL_EXPR), [
+        var animationsExpr = o.literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnExp]; }));
+        initRenderCompTypeStmts = [
+            new o.IfStmt(renderCompTypeVar.identical(o.NULL_EXPR), [
                 renderCompTypeVar
                     .set(ViewConstructorVars.viewUtils.callMethod('createRenderComponentType', [
-                    o.literal(templateUrlInfo),
+                    view.genConfig.genDebugInfo ? o.literal(templateUrlInfo) : o.literal(''),
                     o.literal(view.component.template.ngContentSelectors.length),
-                    ViewEncapsulationEnum.fromValue(view.component.template.encapsulation), view.styles,
-                    animationsExpr
+                    ViewEncapsulationEnum.fromValue(view.component.template.encapsulation),
+                    view.styles,
+                    animationsExpr,
                 ]))
-                    .toStmt()
-            ])];
+                    .toStmt(),
+            ]),
+        ];
     }
     return o
-        .fn(viewFactoryArgs, initRenderCompTypeStmts.concat([new o.ReturnStatement(o.variable(viewClass.name)
-            .instantiate(viewClass.constructorMethod.params.map(function (param) { return o.variable(param.name); })))]), o.importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
+        .fn(viewFactoryArgs, initRenderCompTypeStmts.concat([
+        new o.ReturnStatement(o.variable(viewClass.name)
+            .instantiate(viewClass.constructorMethod.params.map(function (param) { return o.variable(param.name); }))),
+    ]), o.importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
         .toDeclStmt(view.viewFactory.name, [o.StmtModifier.Final]);
 }
 function generateCreateMethod(view) {
@@ -450,12 +452,14 @@ function generateCreateMethod(view) {
 }
 function generateDetectChangesMethod(view) {
     var stmts = [];
-    if (view.detectChangesInInputsMethod.isEmpty() && view.updateContentQueriesMethod.isEmpty() &&
+    if (view.animationBindingsMethod.isEmpty() && view.detectChangesInInputsMethod.isEmpty() &&
+        view.updateContentQueriesMethod.isEmpty() &&
         view.afterContentLifecycleCallbacksMethod.isEmpty() &&
         view.detectChangesRenderPropertiesMethod.isEmpty() &&
         view.updateViewQueriesMethod.isEmpty() && view.afterViewLifecycleCallbacksMethod.isEmpty()) {
         return stmts;
     }
+    ListWrapper.addAll(stmts, view.animationBindingsMethod.finish());
     ListWrapper.addAll(stmts, view.detectChangesInInputsMethod.finish());
     stmts.push(o.THIS_EXPR.callMethod('detectContentChildrenChanges', [DetectChangesVars.throwOnChange])
         .toStmt());
@@ -472,14 +476,14 @@ function generateDetectChangesMethod(view) {
     }
     var varStmts = [];
     var readVars = o.findReadVarNames(stmts);
-    if (SetWrapper.has(readVars, DetectChangesVars.changed.name)) {
+    if (readVars.has(DetectChangesVars.changed.name)) {
         varStmts.push(DetectChangesVars.changed.set(o.literal(true)).toDeclStmt(o.BOOL_TYPE));
     }
-    if (SetWrapper.has(readVars, DetectChangesVars.changes.name)) {
+    if (readVars.has(DetectChangesVars.changes.name)) {
         varStmts.push(DetectChangesVars.changes.set(o.NULL_EXPR)
             .toDeclStmt(new o.MapType(o.importType(resolveIdentifier(Identifiers.SimpleChange)))));
     }
-    if (SetWrapper.has(readVars, DetectChangesVars.valUnwrapper.name)) {
+    if (readVars.has(DetectChangesVars.valUnwrapper.name)) {
         varStmts.push(DetectChangesVars.valUnwrapper
             .set(o.importExpr(resolveIdentifier(Identifiers.ValueUnwrapper)).instantiate([]))
             .toDeclStmt(null, [o.StmtModifier.Final]));

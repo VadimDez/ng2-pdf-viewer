@@ -8,9 +8,8 @@
 import { APP_ID } from '../application_tokens';
 import { devModeEqual } from '../change_detection/change_detection';
 import { UNINITIALIZED } from '../change_detection/change_detection_util';
-import { Inject, Injectable } from '../di/decorators';
-import { ListWrapper } from '../facade/collection';
-import { isBlank, isPresent, looseIdentical } from '../facade/lang';
+import { Inject, Injectable } from '../di';
+import { isPresent, looseIdentical } from '../facade/lang';
 import { RenderComponentType, RootRenderer } from '../render/api';
 import { Sanitizer } from '../security';
 import { AppElement } from './element';
@@ -68,12 +67,12 @@ function _flattenNestedViewRenderNodes(nodes, renderNodes) {
 var EMPTY_ARR = [];
 export function ensureSlotCount(projectableNodes, expectedSlotCount) {
     var res;
-    if (isBlank(projectableNodes)) {
+    if (!projectableNodes) {
         res = EMPTY_ARR;
     }
     else if (projectableNodes.length < expectedSlotCount) {
         var givenSlotCount = projectableNodes.length;
-        res = ListWrapper.createFixedSize(expectedSlotCount);
+        res = new Array(expectedSlotCount);
         for (var i = 0; i < expectedSlotCount; i++) {
             res[i] = (i < givenSlotCount) ? projectableNodes[i] : EMPTY_ARR;
         }

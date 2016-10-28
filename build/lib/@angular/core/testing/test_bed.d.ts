@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ComponentMetadataType, DirectiveMetadataType, Injector, NgModuleMetadataType, OpaqueToken, PipeMetadataType, PlatformRef, SchemaMetadata, Type } from '@angular/core';
+import { Component, Directive, Injector, NgModule, OpaqueToken, Pipe, PlatformRef, SchemaMetadata, Type } from '@angular/core';
 import { ComponentFixture } from './component_fixture';
 import { MetadataOverride } from './metadata_override';
 /**
@@ -19,11 +19,11 @@ export declare class TestComponentRenderer {
 /**
  * @experimental
  */
-export declare var ComponentFixtureAutoDetect: OpaqueToken;
+export declare const ComponentFixtureAutoDetect: OpaqueToken;
 /**
  * @experimental
  */
-export declare var ComponentFixtureNoNgZone: OpaqueToken;
+export declare const ComponentFixtureNoNgZone: OpaqueToken;
 /**
  * @experimental
  */
@@ -34,7 +34,13 @@ export declare type TestModuleMetadata = {
     schemas?: Array<SchemaMetadata | any[]>;
 };
 /**
- * @experimental
+ * @whatItDoes Configures and initializes environment for unit testing and provides methods for
+ * creating components and services in unit tests.
+ * @description
+ *
+ * TestBed is the primary api for writing unit tests for Angular applications and libraries.
+ *
+ * @stable
  */
 export declare class TestBed implements Injector {
     /**
@@ -46,7 +52,7 @@ export declare class TestBed implements Injector {
      * first use `resetTestEnvironment`.
      *
      * Test modules and platforms for individual platforms are available from
-     * 'angular2/platform/testing/<platform_name>'.
+     * '@angular/<platform_name>/testing'.
      *
      * @experimental
      */
@@ -77,10 +83,10 @@ export declare class TestBed implements Injector {
      * as fetching urls is asynchronous.
      */
     static compileComponents(): Promise<any>;
-    static overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModuleMetadataType>): typeof TestBed;
-    static overrideComponent(component: Type<any>, override: MetadataOverride<ComponentMetadataType>): typeof TestBed;
-    static overrideDirective(directive: Type<any>, override: MetadataOverride<DirectiveMetadataType>): typeof TestBed;
-    static overridePipe(pipe: Type<any>, override: MetadataOverride<PipeMetadataType>): typeof TestBed;
+    static overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModule>): typeof TestBed;
+    static overrideComponent(component: Type<any>, override: MetadataOverride<Component>): typeof TestBed;
+    static overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): typeof TestBed;
+    static overridePipe(pipe: Type<any>, override: MetadataOverride<Pipe>): typeof TestBed;
     static get(token: any, notFoundValue?: any): any;
     static createComponent<T>(component: Type<T>): ComponentFixture<T>;
     private _instantiated;
@@ -106,7 +112,7 @@ export declare class TestBed implements Injector {
      * first use `resetTestEnvironment`.
      *
      * Test modules and platforms for individual platforms are available from
-     * 'angular2/platform/testing/<platform_name>'.
+     * '@angular/<platform_name>/testing'.
      *
      * @experimental
      */
@@ -131,10 +137,10 @@ export declare class TestBed implements Injector {
     private _assertNotInstantiated(methodName, methodDescription);
     get(token: any, notFoundValue?: any): any;
     execute(tokens: any[], fn: Function): any;
-    overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModuleMetadataType>): void;
-    overrideComponent(component: Type<any>, override: MetadataOverride<ComponentMetadataType>): void;
-    overrideDirective(directive: Type<any>, override: MetadataOverride<DirectiveMetadataType>): void;
-    overridePipe(pipe: Type<any>, override: MetadataOverride<PipeMetadataType>): void;
+    overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModule>): void;
+    overrideComponent(component: Type<any>, override: MetadataOverride<Component>): void;
+    overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): void;
+    overridePipe(pipe: Type<any>, override: MetadataOverride<Pipe>): void;
     createComponent<T>(component: Type<T>): ComponentFixture<T>;
 }
 /**

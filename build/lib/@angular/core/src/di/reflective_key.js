@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isBlank, stringify } from '../facade/lang';
+import { stringify } from '../facade/lang';
 import { resolveForwardRef } from './forward_ref';
 /**
  * A unique object used for retrieving items from the {@link ReflectiveInjector}.
@@ -30,7 +30,7 @@ export var ReflectiveKey = (function () {
     function ReflectiveKey(token, id) {
         this.token = token;
         this.id = id;
-        if (isBlank(token)) {
+        if (!token) {
             throw new Error('Token must be defined!');
         }
     }

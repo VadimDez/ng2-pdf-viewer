@@ -9,7 +9,6 @@ import { __core_private__ as r } from '@angular/core';
 export declare type RenderDebugInfo = typeof r._RenderDebugInfo;
 export declare var RenderDebugInfo: typeof r.RenderDebugInfo;
 export declare var ReflectionCapabilities: typeof r.ReflectionCapabilities;
-export declare var VIEW_ENCAPSULATION_VALUES: typeof r.VIEW_ENCAPSULATION_VALUES;
 export declare type DebugDomRootRenderer = typeof r._DebugDomRootRenderer;
 export declare var DebugDomRootRenderer: typeof r.DebugDomRootRenderer;
 export declare var reflector: typeof r.reflector;

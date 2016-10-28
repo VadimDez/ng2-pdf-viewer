@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OptionalMetadata, SkipSelfMetadata } from '../../di';
+import { Optional, SkipSelf } from '../../di';
 import { ListWrapper } from '../../facade/collection';
-import { getTypeNameForDebugging, isBlank, isPresent } from '../../facade/lang';
+import { getTypeNameForDebugging, isPresent } from '../../facade/lang';
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
  * @stable
@@ -49,7 +49,7 @@ export var IterableDiffers = (function () {
         return {
             provide: IterableDiffers,
             useFactory: function (parent) {
-                if (isBlank(parent)) {
+                if (!parent) {
                     // Typically would occur when calling IterableDiffers.extend inside of dependencies passed
                     // to
                     // bootstrap(), which would override default pipes instead of extending them.
@@ -58,7 +58,7 @@ export var IterableDiffers = (function () {
                 return IterableDiffers.create(factories, parent);
             },
             // Dependency technically isn't optional, but we can provide a better error message this way.
-            deps: [[IterableDiffers, new SkipSelfMetadata(), new OptionalMetadata()]]
+            deps: [[IterableDiffers, new SkipSelf(), new Optional()]]
         };
     };
     IterableDiffers.prototype.find = function (iterable) {

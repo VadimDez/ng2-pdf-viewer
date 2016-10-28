@@ -319,8 +319,9 @@ export declare class CompileNgModuleMetadata implements CompileMetadataWithIdent
     importedModules: CompileNgModuleMetadata[];
     exportedModules: CompileNgModuleMetadata[];
     schemas: SchemaMetadata[];
+    id: string;
     transitiveModule: TransitiveCompileNgModuleMetadata;
-    constructor({type, providers, declaredDirectives, exportedDirectives, declaredPipes, exportedPipes, entryComponents, bootstrapComponents, importedModules, exportedModules, schemas, transitiveModule}?: {
+    constructor({type, providers, declaredDirectives, exportedDirectives, declaredPipes, exportedPipes, entryComponents, bootstrapComponents, importedModules, exportedModules, schemas, transitiveModule, id}?: {
         type?: CompileTypeMetadata;
         providers?: Array<CompileProviderMetadata | CompileTypeMetadata | CompileIdentifierMetadata | any[]>;
         declaredDirectives?: CompileDirectiveMetadata[];
@@ -333,6 +334,7 @@ export declare class CompileNgModuleMetadata implements CompileMetadataWithIdent
         exportedModules?: CompileNgModuleMetadata[];
         transitiveModule?: TransitiveCompileNgModuleMetadata;
         schemas?: SchemaMetadata[];
+        id?: string;
     });
     identifier: CompileIdentifierMetadata;
 }

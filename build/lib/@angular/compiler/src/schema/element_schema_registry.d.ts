@@ -12,4 +12,12 @@ export declare abstract class ElementSchemaRegistry {
     abstract securityContext(tagName: string, propName: string): any;
     abstract getMappedPropName(propName: string): string;
     abstract getDefaultComponentElementName(): string;
+    abstract validateProperty(name: string): {
+        error: boolean;
+        msg?: string;
+    };
+    abstract validateAttribute(name: string): {
+        error: boolean;
+        msg?: string;
+    };
 }

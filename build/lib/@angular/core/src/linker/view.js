@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { AnimationGroupPlayer } from '../animation/animation_group_player';
+import { queueAnimation } from '../animation/animation_queue';
 import { AnimationTransitionEvent } from '../animation/animation_transition_event';
 import { ViewAnimationMap } from '../animation/view_animation_map';
 import { ChangeDetectorStatus } from '../change_detection/change_detection';
@@ -71,6 +72,7 @@ export var AppView = (function () {
     };
     AppView.prototype.queueAnimation = function (element, animationName, player, totalTime, fromState, toState) {
         var _this = this;
+        queueAnimation(player);
         var event = new AnimationTransitionEvent({ 'fromState': fromState, 'toState': toState, 'totalTime': totalTime });
         this.animationPlayers.set(element, animationName, player);
         player.onDone(function () {
@@ -80,13 +82,6 @@ export var AppView = (function () {
         });
         player.onStart(function () { _this.triggerAnimationOutput(element, animationName, 'start', event); });
     };
-    AppView.prototype.triggerQueuedAnimations = function () {
-        this.animationPlayers.getAllPlayers().forEach(function (player) {
-            if (!player.hasStarted()) {
-                player.play();
-            }
-        });
-    };
     AppView.prototype.triggerAnimationOutput = function (element, animationName, phase, event) {
         var listeners = this._animationListeners.get(element);
         if (isPresent(listeners) && listeners.length) {
@@ -94,20 +89,19 @@ export var AppView = (function () {
                 var listener = listeners[i];
                 // we check for both the name in addition to the phase in the event
                 // that there may be more than one @trigger on the same element
-                if (listener.output.name == animationName && listener.output.phase == phase) {
+                if (listener.eventName === animationName && listener.eventPhase === phase) {
                     listener.handler(event);
                     break;
                 }
             }
         }
     };
-    AppView.prototype.registerAnimationOutput = function (element, outputEvent, eventHandler) {
-        var entry = new _AnimationOutputWithHandler(outputEvent, eventHandler);
+    AppView.prototype.registerAnimationOutput = function (element, eventName, eventPhase, eventHandler) {
         var animations = this._animationListeners.get(element);
         if (!isPresent(animations)) {
             this._animationListeners.set(element, animations = []);
         }
-        animations.push(entry);
+        animations.push(new _AnimationOutputHandler(eventName, eventPhase, eventHandler));
     };
     AppView.prototype.create = function (context, givenProjectableNodes, rootSelectorOrNode) {
         this.context = context;
@@ -436,11 +430,12 @@ function _findLastRenderNode(node) {
     }
     return lastNode;
 }
-var _AnimationOutputWithHandler = (function () {
-    function _AnimationOutputWithHandler(output, handler) {
-        this.output = output;
+var _AnimationOutputHandler = (function () {
+    function _AnimationOutputHandler(eventName, eventPhase, handler) {
+        this.eventName = eventName;
+        this.eventPhase = eventPhase;
         this.handler = handler;
     }
-    return _AnimationOutputWithHandler;
+    return _AnimationOutputHandler;
 }());
 //# sourceMappingURL=view.js.map

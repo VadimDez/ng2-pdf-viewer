@@ -27,20 +27,8 @@ export declare const SHARED_FORM_DIRECTIVES: Type<any>[];
 export declare const TEMPLATE_DRIVEN_DIRECTIVES: Type<any>[];
 export declare const REACTIVE_DRIVEN_DIRECTIVES: Type<any>[];
 /**
+ * A list of all the form directives.
  *
- * A list of all the form directives used as part of a `@Component` annotation.
- *
- *  This is a shorthand for importing them each individually.
- *
- * ### Example
- *
- * ```typescript
- * @Component({
- *   selector: 'my-app',
- *   directives: [FORM_DIRECTIVES]
- * })
- * class MyApp {}
- * ```
  * @stable
  */
 export declare const FORM_DIRECTIVES: Type<any>[][];

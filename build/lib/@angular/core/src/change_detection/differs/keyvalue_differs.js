@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OptionalMetadata, SkipSelfMetadata } from '../../di';
+import { Optional, SkipSelf } from '../../di';
 import { ListWrapper } from '../../facade/collection';
-import { isBlank, isPresent } from '../../facade/lang';
+import { isPresent } from '../../facade/lang';
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
  * @stable
@@ -49,7 +49,7 @@ export var KeyValueDiffers = (function () {
         return {
             provide: KeyValueDiffers,
             useFactory: function (parent) {
-                if (isBlank(parent)) {
+                if (!parent) {
                     // Typically would occur when calling KeyValueDiffers.extend inside of dependencies passed
                     // to
                     // bootstrap(), which would override default pipes instead of extending them.
@@ -58,7 +58,7 @@ export var KeyValueDiffers = (function () {
                 return KeyValueDiffers.create(factories, parent);
             },
             // Dependency technically isn't optional, but we can provide a better error message this way.
-            deps: [[KeyValueDiffers, new SkipSelfMetadata(), new OptionalMetadata()]]
+            deps: [[KeyValueDiffers, new SkipSelf(), new Optional()]]
         };
     };
     KeyValueDiffers.prototype.find = function (kv) {

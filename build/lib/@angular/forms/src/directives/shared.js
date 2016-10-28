@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper, StringMapWrapper } from '../facade/collection';
+import { ListWrapper } from '../facade/collection';
 import { hasConstructor, isBlank, isPresent, looseIdentical } from '../facade/lang';
 import { Validators } from '../validators';
 import { CheckboxControlValueAccessor } from './checkbox_value_accessor';
@@ -21,9 +21,9 @@ export function controlPath(name, parent) {
     return p;
 }
 export function setUpControl(control, dir) {
-    if (isBlank(control))
+    if (!control)
         _throwError(dir, 'Cannot find control with');
-    if (isBlank(dir.valueAccessor))
+    if (!dir.valueAccessor)
         _throwError(dir, 'No value accessor for form control with');
     control.validator = Validators.compose([control.validator, dir.validator]);
     control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
@@ -48,19 +48,19 @@ export function setUpControl(control, dir) {
     }
     // re-run validation when validator binding changes, e.g. minlength=3 -> minlength=4
     dir._rawValidators.forEach(function (validator) {
-        if (validator.registerOnChange)
-            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+        if (validator.registerOnValidatorChange)
+            validator.registerOnValidatorChange(function () { return control.updateValueAndValidity(); });
     });
     dir._rawAsyncValidators.forEach(function (validator) {
-        if (validator.registerOnChange)
-            validator.registerOnChange(function () { return control.updateValueAndValidity(); });
+        if (validator.registerOnValidatorChange)
+            validator.registerOnValidatorChange(function () { return control.updateValueAndValidity(); });
     });
 }
 export function cleanUpControl(control, dir) {
     dir.valueAccessor.registerOnChange(function () { return _noControlError(dir); });
     dir.valueAccessor.registerOnTouched(function () { return _noControlError(dir); });
-    dir._rawValidators.forEach(function (validator) { return validator.registerOnChange(null); });
-    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnChange(null); });
+    dir._rawValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
+    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
     if (control)
         control._clearChangeFns();
 }
@@ -94,7 +94,7 @@ export function composeAsyncValidators(validators) {
         null;
 }
 export function isPropertyUpdated(changes, viewModel) {
-    if (!StringMapWrapper.contains(changes, 'model'))
+    if (!changes.hasOwnProperty('model'))
         return false;
     var change = changes['model'];
     if (change.isFirstChange())
@@ -110,7 +110,7 @@ export function isBuiltInAccessor(valueAccessor) {
 }
 // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
 export function selectValueAccessor(dir, valueAccessors) {
-    if (isBlank(valueAccessors))
+    if (!valueAccessors)
         return null;
     var defaultAccessor;
     var builtinAccessor;

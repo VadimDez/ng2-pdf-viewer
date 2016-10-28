@@ -16,6 +16,7 @@ var PdfViewerComponent = (function () {
         this._showAll = false;
         this._originalSize = true;
         this._page = 1;
+        this._zoom = 1;
         this.wasInvalidPage = false;
         this.pageChange = new core_1.EventEmitter(true);
     }
@@ -69,10 +70,26 @@ var PdfViewerComponent = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(PdfViewerComponent.prototype, "zoom", {
+        set: function (value) {
+            if (value <= 0) {
+                return;
+            }
+            this._zoom = value;
+            if (this._pdf) {
+                this.fn();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     PdfViewerComponent.prototype.fn = function () {
         var _this = this;
         window.PDFJS.getDocument(this._src).then(function (pdf) {
             _this._pdf = pdf;
+            if (_this.onLoadComplete && typeof _this.onLoadComplete === 'function') {
+                _this.onLoadComplete(pdf);
+            }
             if (!_this.isValidPageNumber(_this._page)) {
                 _this._page = 1;
             }
@@ -99,7 +116,7 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.renderPage = function (page) {
         var _this = this;
         return this._pdf.getPage(page).then(function (page) {
-            var viewport = page.getViewport(1);
+            var viewport = page.getViewport(_this._zoom);
             var container = _this.element.nativeElement.querySelector('div');
             var canvas = document.createElement('canvas');
             if (!_this._originalSize) {
@@ -122,6 +139,10 @@ var PdfViewerComponent = (function () {
             element.removeChild(element.firstChild);
         }
     };
+    __decorate([
+        core_1.Input('on-load-complete'), 
+        __metadata('design:type', Function)
+    ], PdfViewerComponent.prototype, "onLoadComplete", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object), 
@@ -146,10 +167,17 @@ var PdfViewerComponent = (function () {
         __metadata('design:type', Boolean), 
         __metadata('design:paramtypes', [Boolean])
     ], PdfViewerComponent.prototype, "showAll", null);
+    __decorate([
+        core_1.Input('zoom'), 
+        __metadata('design:type', Number), 
+        __metadata('design:paramtypes', [Number])
+    ], PdfViewerComponent.prototype, "zoom", null);
     PdfViewerComponent = __decorate([
         core_1.Component({
             selector: 'pdf-viewer',
-            template: '<div class="ng2-pdf-viewer-container"></div>'
+            template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': _zoom < 1}\"></div>",
+            styles: ["\n    .ng2-pdf-viewer--zoom {\n        overflow-x: scroll;\n    }"
+            ]
         }), 
         __metadata('design:paramtypes', [core_1.ElementRef])
     ], PdfViewerComponent);

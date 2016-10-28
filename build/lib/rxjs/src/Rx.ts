@@ -104,11 +104,13 @@ import './add/operator/publishLast';
 import './add/operator/race';
 import './add/operator/reduce';
 import './add/operator/repeat';
+import './add/operator/repeatWhen';
 import './add/operator/retry';
 import './add/operator/retryWhen';
 import './add/operator/sample';
 import './add/operator/sampleTime';
 import './add/operator/scan';
+import './add/operator/sequenceEqual';
 import './add/operator/share';
 import './add/operator/single';
 import './add/operator/skip';
@@ -161,17 +163,17 @@ export {TestScheduler} from './testing/TestScheduler';
 export {VirtualTimeScheduler} from './scheduler/VirtualTimeScheduler';
 export {AjaxRequest, AjaxResponse, AjaxError, AjaxTimeoutError} from './observable/dom/AjaxObservable';
 
-import {asap} from './scheduler/asap';
-import {async} from './scheduler/async';
-import {queue} from './scheduler/queue';
-import {animationFrame} from './scheduler/animationFrame';
-import {AsapScheduler} from './scheduler/AsapScheduler';
-import {AsyncScheduler} from './scheduler/AsyncScheduler';
-import {QueueScheduler} from './scheduler/QueueScheduler';
-import {AnimationFrameScheduler} from './scheduler/AnimationFrameScheduler';
-import {$$rxSubscriber as rxSubscriber} from './symbol/rxSubscriber';
-import {$$iterator as iterator} from './symbol/iterator';
-import {$$observable as observable} from './symbol/observable';
+import { asap } from './scheduler/asap';
+import { async } from './scheduler/async';
+import { queue } from './scheduler/queue';
+import { animationFrame } from './scheduler/animationFrame';
+import { AsapScheduler } from './scheduler/AsapScheduler';
+import { AsyncScheduler } from './scheduler/AsyncScheduler';
+import { QueueScheduler } from './scheduler/QueueScheduler';
+import { AnimationFrameScheduler } from './scheduler/AnimationFrameScheduler';
+import { $$rxSubscriber as rxSubscriber } from './symbol/rxSubscriber';
+import { $$iterator as iterator } from './symbol/iterator';
+import { $$observable as observable } from './symbol/observable';
 
 /* tslint:enable:no-unused-variable */
 

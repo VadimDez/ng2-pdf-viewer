@@ -6,14 +6,16 @@
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * Runtime representation a type that a Component or other object is instances of.
+ * @whatItDoes Represents a type that a Component or other object is instances of.
+ *
+ * @description
  *
  * An example of a `Type` is `MyCustomComponent` class, which in JavaScript is be represented by
  * the `MyCustomComponent` constructor function.
  *
  * @stable
  */
-export declare var Type: FunctionConstructor;
+export declare const Type: FunctionConstructor;
 export interface Type<T> extends Function {
     new (...args: any[]): T;
 }

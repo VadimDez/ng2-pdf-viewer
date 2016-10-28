@@ -25,4 +25,12 @@ export declare class DomElementSchemaRegistry extends ElementSchemaRegistry {
     securityContext(tagName: string, propName: string): SecurityContext;
     getMappedPropName(propName: string): string;
     getDefaultComponentElementName(): string;
+    validateProperty(name: string): {
+        error: boolean;
+        msg?: string;
+    };
+    validateAttribute(name: string): {
+        error: boolean;
+        msg?: string;
+    };
 }

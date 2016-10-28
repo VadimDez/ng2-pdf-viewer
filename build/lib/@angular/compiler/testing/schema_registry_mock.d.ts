@@ -17,16 +17,26 @@ export declare class MockSchemaRegistry implements ElementSchemaRegistry {
     existingElements: {
         [key: string]: boolean;
     };
+    invalidProperties: Array<string>;
+    invalidAttributes: Array<string>;
     constructor(existingProperties: {
         [key: string]: boolean;
     }, attrPropMapping: {
         [key: string]: string;
     }, existingElements: {
         [key: string]: boolean;
-    });
+    }, invalidProperties: Array<string>, invalidAttributes: Array<string>);
     hasProperty(tagName: string, property: string, schemas: SchemaMetadata[]): boolean;
     hasElement(tagName: string, schemaMetas: SchemaMetadata[]): boolean;
     securityContext(tagName: string, property: string): SecurityContext;
     getMappedPropName(attrName: string): string;
     getDefaultComponentElementName(): string;
+    validateProperty(name: string): {
+        error: boolean;
+        msg?: string;
+    };
+    validateAttribute(name: string): {
+        error: boolean;
+        msg?: string;
+    };
 }

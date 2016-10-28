@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { PipeResolver } from '@angular/compiler';
-import { Injector, PipeMetadata, Type } from '@angular/core';
+import { Injector, Pipe, Type } from '@angular/core';
 export declare class MockPipeResolver extends PipeResolver {
     private _injector;
     private _pipes;
@@ -14,14 +14,14 @@ export declare class MockPipeResolver extends PipeResolver {
     private _compiler;
     private _clearCacheFor(pipe);
     /**
-     * Overrides the {@link PipeMetadata} for a pipe.
+     * Overrides the {@link Pipe} for a pipe.
      */
-    setPipe(type: Type<any>, metadata: PipeMetadata): void;
+    setPipe(type: Type<any>, metadata: Pipe): void;
     /**
-     * Returns the {@link PipeMetadata} for a pipe:
-     * - Set the {@link PipeMetadata} to the overridden view when it exists or fallback to the
+     * Returns the {@link Pipe} for a pipe:
+     * - Set the {@link Pipe} to the overridden view when it exists or fallback to the
      * default
      * `PipeResolver`, see `setPipe`.
      */
-    resolve(type: Type<any>, throwIfNotFound?: boolean): PipeMetadata;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): Pipe;
 }

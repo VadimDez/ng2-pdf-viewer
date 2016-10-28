@@ -1,8 +1,4 @@
-
-export declare var Map: MapConstructor;
-export declare var Set: SetConstructor;
 export declare class MapWrapper {
-    static clone<K, V>(m: Map<K, V>): Map<K, V>;
     static createFromStringMap<T>(stringMap: {
         [key: string]: T;
     }): Map<string, T>;
@@ -10,7 +6,6 @@ export declare class MapWrapper {
         [key: string]: T;
     };
     static createFromPairs(pairs: any[]): Map<any, any>;
-    static clearValues(m: Map<any, any>): void;
     static iterable<T>(m: T): T;
     static keys<K>(m: Map<K, any>): K[];
     static values<V>(m: Map<any, V>): V[];
@@ -19,33 +14,6 @@ export declare class MapWrapper {
  * Wraps Javascript Objects
  */
 export declare class StringMapWrapper {
-    static create(): {
-        [k: string]: any;
-    };
-    static contains(map: {
-        [key: string]: any;
-    }, key: string): boolean;
-    static get<V>(map: {
-        [key: string]: V;
-    }, key: string): V;
-    static set<V>(map: {
-        [key: string]: V;
-    }, key: string, value: V): void;
-    static keys(map: {
-        [key: string]: any;
-    }): string[];
-    static values<T>(map: {
-        [key: string]: T;
-    }): T[];
-    static isEmpty(map: {
-        [key: string]: any;
-    }): boolean;
-    static delete(map: {
-        [key: string]: any;
-    }, key: string): void;
-    static forEach<K, V>(map: {
-        [key: string]: V;
-    }, callback: (v: V, K: string) => void): void;
     static merge<V>(m1: {
         [key: string]: V;
     }, m2: {
@@ -97,8 +65,3 @@ export declare class ListWrapper {
 export declare function isListLikeIterable(obj: any): boolean;
 export declare function areIterablesEqual(a: any, b: any, comparator: Function): boolean;
 export declare function iterateListLike(obj: any, fn: Function): void;
-export declare class SetWrapper {
-    static createFromList<T>(lst: T[]): Set<T>;
-    static has<T>(s: Set<T>, key: T): boolean;
-    static delete<K>(m: Set<K>, k: K): void;
-}

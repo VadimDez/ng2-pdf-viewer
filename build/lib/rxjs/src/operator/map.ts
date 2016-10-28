@@ -1,6 +1,6 @@
-import {Operator} from '../Operator';
-import {Subscriber} from '../Subscriber';
-import {Observable} from '../Observable';
+import { Operator } from '../Operator';
+import { Subscriber } from '../Subscriber';
+import { Observable } from '../Observable';
 
 /**
  * Applies a given `project` function to each value emitted by the source
@@ -46,7 +46,7 @@ export interface MapSignature<T> {
   <R>(project: (value: T, index: number) => R, thisArg?: any): Observable<R>;
 }
 
-class MapOperator<T, R> implements Operator<T, R> {
+export class MapOperator<T, R> implements Operator<T, R> {
   constructor(private project: (value: T, index: number) => R, private thisArg: any) {
   }
 

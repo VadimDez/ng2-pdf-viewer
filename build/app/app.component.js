@@ -13,11 +13,19 @@ var AppComponent = (function () {
     function AppComponent() {
         this.pdfSrc = './pdf-test.pdf';
         this.page = 1;
+        this.zoom = 1.0;
         this.originalSize = false;
         this.showAll = true;
+        this.onLoadComplete = this.onLoadComplete.bind(this);
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
+    };
+    AppComponent.prototype.incrementZoom = function (amount) {
+        this.zoom += amount;
+    };
+    AppComponent.prototype.onLoadComplete = function (pdf) {
+        this.pdf = pdf;
     };
     AppComponent = __decorate([
         core_1.Component({

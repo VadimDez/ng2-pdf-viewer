@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.0-rc.6
+ * @license Angular v2.1.0
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -105,46 +105,11 @@
         return Zone.current.runGuarded(fn);
     }
 
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var globalScope;
-    if (typeof window === 'undefined') {
-        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-            // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
-            globalScope = self;
-        }
-        else {
-            globalScope = global;
-        }
-    }
-    else {
-        globalScope = window;
-    }
     function scheduleMicroTask(fn) {
         Zone.current.scheduleMicroTask('scheduleMicrotask', fn);
     }
-    // Need to declare a new variable for global here since TypeScript
-    // exports the original value of the symbol.
-    var global$1 = globalScope;
-    // TODO: remove calls to assert in production environment
-    // Note: Can't just export this and import in in other files
-    // as `assert` is a reserved keyword in Dart
-    global$1.assert = function assert(condition) {
-        // TODO: to be fixed properly via #2830, noop for now
-    };
     function isPresent(obj) {
         return obj !== undefined && obj !== null;
-    }
-    function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
     }
     function stringify(token) {
         if (typeof token === 'string') {
@@ -161,7 +126,7 @@
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
-        return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
+        return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
     var NumberWrapper = (function () {
         function NumberWrapper() {
@@ -194,8 +159,6 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        // TODO: NaN is a valid literal but is returned by parseFloat to indicate an error.
-        NumberWrapper.parseFloat = function (text) { return parseFloat(text); };
         Object.defineProperty(NumberWrapper, "NaN", {
             get: function () { return NaN; },
             enumerable: true,
@@ -206,13 +169,6 @@
         NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
         return NumberWrapper;
     }());
-    var FunctionWrapper = (function () {
-        function FunctionWrapper() {
-        }
-        FunctionWrapper.apply = function (fn, posArgs) { return fn.apply(null, posArgs); };
-        FunctionWrapper.bind = function (fn, scope) { return fn.bind(scope); };
-        return FunctionWrapper;
-    }());
 
     /**
      * Fixture for debugging and testing a component.
@@ -220,8 +176,11 @@
      * @stable
      */
     var ComponentFixture = (function () {
-        function ComponentFixture(componentRef, ngZone, autoDetect) {
+        function ComponentFixture(componentRef, ngZone, _autoDetect) {
             var _this = this;
+            this.componentRef = componentRef;
+            this.ngZone = ngZone;
+            this._autoDetect = _autoDetect;
             this._isStable = true;
             this._isDestroyed = false;
             this._promise = null;
@@ -236,7 +195,6 @@
             this.nativeElement = this.elementRef.nativeElement;
             this.componentRef = componentRef;
             this.ngZone = ngZone;
-            this._autoDetect = autoDetect;
             if (ngZone != null) {
                 this._onUnstableSubscription =
                     ngZone.onUnstable.subscribe({ next: function () { _this._isStable = false; } });
@@ -515,228 +473,6 @@
         return AsyncTestCompleter;
     }());
 
-    var Map$1 = global$1.Map;
-    var Set = global$1.Set;
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map$1([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map$1(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map$1();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var createMapFromMap = (function () {
-        try {
-            if (new Map$1(new Map$1())) {
-                return function createMapFromMap(m) { return new Map$1(m); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromMap(m) {
-            var map = new Map$1();
-            m.forEach(function (v, k) { map.set(k, v); });
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map$1()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
-    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
-    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
-    var _arrayFromMap = (function () {
-        try {
-            if ((new Map$1()).values().next) {
-                return function createArrayFromMap(m, getValues) {
-                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
-                };
-            }
-        }
-        catch (e) {
-        }
-        return function createArrayFromMapWithForeach(m, getValues) {
-            var res = ListWrapper.createFixedSize(m.size), i = 0;
-            m.forEach(function (v, k) {
-                res[i] = getValues ? v : k;
-                i++;
-            });
-            return res;
-        };
-    })();
-    var ListWrapper = (function () {
-        function ListWrapper() {
-        }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
-        ListWrapper.removeAll = function (list, items) {
-            for (var i = 0; i < items.length; ++i) {
-                var index = list.indexOf(items[i]);
-                list.splice(index, 1);
-            }
-        };
-        ListWrapper.remove = function (list, el) {
-            var index = list.indexOf(el);
-            if (index > -1) {
-                list.splice(index, 1);
-                return true;
-            }
-            return false;
-        };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
-        ListWrapper.equals = function (a, b) {
-            if (a.length != b.length)
-                return false;
-            for (var i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (isBlank(candidate)) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
-        ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
-        return ListWrapper;
-    }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Set constructor.  We work around that by manually adding the items.
-    var createSetFromList = (function () {
-        var test = new Set([1, 2, 3]);
-        if (test.size === 3) {
-            return function createSetFromList(lst) { return new Set(lst); };
-        }
-        else {
-            return function createSetAndPopulateFromList(lst) {
-                var res = new Set(lst);
-                if (res.size !== lst.length) {
-                    for (var i = 0; i < lst.length; i++) {
-                        res.add(lst[i]);
-                    }
-                }
-                return res;
-            };
-        }
-    })();
-
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -877,7 +613,13 @@
      */
     var ComponentFixtureNoNgZone = new _angular_core.OpaqueToken('ComponentFixtureNoNgZone');
     /**
-     * @experimental
+     * @whatItDoes Configures and initializes environment for unit testing and provides methods for
+     * creating components and services in unit tests.
+     * @description
+     *
+     * TestBed is the primary api for writing unit tests for Angular applications and libraries.
+     *
+     * @stable
      */
     var TestBed = (function () {
         function TestBed() {
@@ -907,13 +649,13 @@
          * first use `resetTestEnvironment`.
          *
          * Test modules and platforms for individual platforms are available from
-         * 'angular2/platform/testing/<platform_name>'.
+         * '@angular/<platform_name>/testing'.
          *
          * @experimental
          */
         TestBed.initTestEnvironment = function (ngModule, platform) {
             var testBed = getTestBed();
-            getTestBed().initTestEnvironment(ngModule, platform);
+            testBed.initTestEnvironment(ngModule, platform);
             return testBed;
         };
         /**
@@ -980,7 +722,7 @@
          * first use `resetTestEnvironment`.
          *
          * Test modules and platforms for individual platforms are available from
-         * 'angular2/platform/testing/<platform_name>'.
+         * '@angular/<platform_name>/testing'.
          *
          * @experimental
          */
@@ -1025,17 +767,18 @@
         TestBed.prototype.configureTestingModule = function (moduleDef) {
             this._assertNotInstantiated('TestBed.configureTestingModule', 'configure the test module');
             if (moduleDef.providers) {
-                this._providers = ListWrapper.concat(this._providers, moduleDef.providers);
+                (_a = this._providers).push.apply(_a, moduleDef.providers);
             }
             if (moduleDef.declarations) {
-                this._declarations = ListWrapper.concat(this._declarations, moduleDef.declarations);
+                (_b = this._declarations).push.apply(_b, moduleDef.declarations);
             }
             if (moduleDef.imports) {
-                this._imports = ListWrapper.concat(this._imports, moduleDef.imports);
+                (_c = this._imports).push.apply(_c, moduleDef.imports);
             }
             if (moduleDef.schemas) {
-                this._schemas = ListWrapper.concat(this._schemas, moduleDef.schemas);
+                (_d = this._schemas).push.apply(_d, moduleDef.schemas);
             }
+            var _a, _b, _c, _d;
         };
         TestBed.prototype.compileComponents = function () {
             var _this = this;
@@ -1118,7 +861,7 @@
             var _this = this;
             this._initIfNeeded();
             var params = tokens.map(function (t) { return _this.get(t); });
-            return FunctionWrapper.apply(fn, params);
+            return fn.apply(void 0, params);
         };
         TestBed.prototype.overrideModule = function (ngModule, override) {
             this._assertNotInstantiated('overrideModule', 'override module metadata');
@@ -1153,7 +896,7 @@
                 var componentRef = componentFactory.create(_this, [], "#" + rootElId);
                 return new ComponentFixture(componentRef, ngZone, autoDetect);
             };
-            var fixture = ngZone == null ? initComponent() : ngZone.run(initComponent);
+            var fixture = !ngZone ? initComponent() : ngZone.run(initComponent);
             this._activeFixtures.push(fixture);
             return fixture;
         };
@@ -1164,10 +907,7 @@
      * @experimental
      */
     function getTestBed() {
-        if (_testBed == null) {
-            _testBed = new TestBed();
-        }
-        return _testBed;
+        return _testBed = _testBed || new TestBed();
     }
     /**
      * Allows injecting dependencies in `beforeEach()` and `it()`.
@@ -1247,10 +987,10 @@
         return new InjectSetupWrapper(function () { return moduleDef; });
     }
 
-    var _global$1 = (typeof window === 'undefined' ? global : window);
+    var _global$2 = (typeof window === 'undefined' ? global : window);
     // Reset the test providers and the fake async zone before each test.
-    if (_global$1.beforeEach) {
-        _global$1.beforeEach(function () {
+    if (_global$2.beforeEach) {
+        _global$2.beforeEach(function () {
             TestBed.resetTestingModule();
             resetFakeAsyncZone();
         });

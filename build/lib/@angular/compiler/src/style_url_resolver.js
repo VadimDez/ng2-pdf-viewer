@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { StringWrapper, isBlank, isPresent } from './facade/lang';
+import { isBlank } from './facade/lang';
 export var StyleWithImports = (function () {
     function StyleWithImports(style, styleUrls) {
         this.style = style;
@@ -25,8 +25,12 @@ export function isStyleUrlResolvable(url) {
  */
 export function extractStyleUrls(resolver, baseUrl, cssText) {
     var foundUrls = [];
-    var modifiedCssText = StringWrapper.replaceAllMapped(cssText, _cssImportRe, function (m) {
-        var url = isPresent(m[1]) ? m[1] : m[2];
+    var modifiedCssText = cssText.replace(_cssImportRe, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        var url = m[1] || m[2];
         if (!isStyleUrlResolvable(url)) {
             // Do not attempt to resolve non-package absolute URLs with URI scheme
             return m[0];

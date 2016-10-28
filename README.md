@@ -1,16 +1,20 @@
-# Angular2 PDF Viewer [![npm version](https://badge.fury.io/js/ng2-pdf-viewer.svg)](https://badge.fury.io/js/ng2-pdf-viewer) ![](https://david-dm.org/vadimdez/ng2-pdf-viewer.svg)
+<h1 align="center">Angular2 PDF Viewer</h1>
+<p align="center">
+  <a href="https://badge.fury.io/js/ng2-pdf-viewer"><img src="https://badge.fury.io/js/ng2-pdf-viewer.svg" alt="npm version" height="18"></a>
+  <a href="https://david-dm.org/vadimdez/ng2-pdf-viewer" title="dependencies status"><img src="https://david-dm.org/vadimdez/ng2-pdf-viewer/status.svg"/></a>
+</p>
 
 > PDF Viewer Component for Angular 2
 
 [Demo page](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-### Install
+## Install
 
 ```
 npm install ng2-pdf-viewer --save
 ```
 
-### Usage
+## Usage
 
 In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
 
@@ -51,7 +55,7 @@ import { Component } from '@angular/core';
       <input type="number" placeholder="Page" [(ngModel)]="page">
   </div>
   <pdf-viewer [src]="pdfSrc" 
-              [initialPage]="page" 
+              [page]="page" 
               [original-size]="true" 
               style="display: block;"
   ></pdf-viewer>
@@ -63,7 +67,14 @@ export class AppComponent {
 }
 ```
 
-### Options
+## Options
+
+* [src](#src)
+* [page](#page)
+* [zoom](#zoom)
+* [original-size](#original-size)
+* [show-all](#show-all)
+* [on-load-complete](#on-load-complete)
 
 #### [src]
 
@@ -73,11 +84,35 @@ Pass pdf location
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
+For more control you can pass options object to ```[src]```.
+
+Options object for loading protected PDF would be
+ 
+ ```js
+ {
+  url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
+  withCredentials: true
+ }
+ ```
+ 
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L108-L132).
+
+
 #### [page]
 Page number
 
 ```
 [page]="1"
+```
+supports two way data binding as well
+```
+[(page)]="pageVariable"
+```
+
+#### [zoom]
+Zoom pdf
+```
+[zoom]="0.5"
 ```
 
 #### [original-size]
@@ -98,6 +133,26 @@ Show single or all pages altogether
 [show-all]="true"
 ```
 
-### License
+#### [on-load-complete]
+
+Get PDF information with callback
+
+First define callback function "callBackFn" in your controller,
+```
+callBackFn(pdf: any) {
+   // do anything with "pdf"
+}
+```
+
+And then use it in your template:
+``` 
+[on-load-complete]="callBackFn"
+```
+## Develop
+```
+npm start
+```
+
+## License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)

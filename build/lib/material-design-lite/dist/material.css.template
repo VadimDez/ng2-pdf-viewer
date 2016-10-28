@@ -7534,7 +7534,7 @@ input.mdl-button[type="submit"] {
   font-size: 26px;
   line-height: 56px;
   font-family: Helvetica, Arial, sans-serif;
-  margin: 10px 12px;
+  margin: 8px 12px;
   top: 0;
   left: 0;
   color: rgb($color-primary-contrast);
@@ -7552,7 +7552,7 @@ input.mdl-button[type="submit"] {
       color: rgba(0, 0, 0, 0.5); } }
   @media screen and (min-width: 1025px) {
     .mdl-layout__drawer-button {
-      line-height: 64px; }
+      line-height: 54px; }
       .mdl-layout--no-desktop-drawer-button .mdl-layout__drawer-button,
       .mdl-layout--fixed-drawer > .mdl-layout__drawer-button,
       .mdl-layout--no-drawer-button .mdl-layout__drawer-button {

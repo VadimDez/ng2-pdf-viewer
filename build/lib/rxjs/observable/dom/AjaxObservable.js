@@ -9,6 +9,7 @@ var tryCatch_1 = require('../../util/tryCatch');
 var errorObject_1 = require('../../util/errorObject');
 var Observable_1 = require('../../Observable');
 var Subscriber_1 = require('../../Subscriber');
+var map_1 = require('../../operator/map');
 function getCORSRequest() {
     if (root_1.root.XMLHttpRequest) {
         var xhr = new root_1.root.XMLHttpRequest();
@@ -71,7 +72,8 @@ function ajaxPut(url, body, headers) {
 exports.ajaxPut = ajaxPut;
 ;
 function ajaxGetJSON(url, headers) {
-    return new AjaxObservable({ method: 'GET', url: url, responseType: 'json', headers: headers }).map(function (x) { return x.response; });
+    return new AjaxObservable({ method: 'GET', url: url, responseType: 'json', headers: headers })
+        .lift(new map_1.MapOperator(function (x, index) { return x.response; }, null));
 }
 exports.ajaxGetJSON = ajaxGetJSON;
 ;
@@ -338,10 +340,10 @@ var AjaxResponse = (function () {
             case 'json':
                 if ('response' in xhr) {
                     //IE does not support json as responseType, parse it internally
-                    this.response = xhr.responseType ? xhr.response : JSON.parse(xhr.response || xhr.responseText || '');
+                    this.response = xhr.responseType ? xhr.response : JSON.parse(xhr.response || xhr.responseText || 'null');
                 }
                 else {
-                    this.response = JSON.parse(xhr.responseText || '');
+                    this.response = JSON.parse(xhr.responseText || 'null');
                 }
                 break;
             case 'xml':

@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isBlank, isPresent } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { createDiTokenExpression } from '../util';
@@ -70,7 +70,7 @@ export function createFlatArray(expressions) {
 export function createPureProxy(fn, argCount, pureProxyProp, view) {
     view.fields.push(new o.ClassField(pureProxyProp.name, null));
     var pureProxyId = argCount < Identifiers.pureProxies.length ? Identifiers.pureProxies[argCount] : null;
-    if (isBlank(pureProxyId)) {
+    if (!pureProxyId) {
         throw new Error("Unsupported number of argument for pure functions: " + argCount);
     }
     view.createMethod.addStmt(o.THIS_EXPR.prop(pureProxyProp.name)

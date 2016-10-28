@@ -11,7 +11,7 @@ var VirtualTimeScheduler = (function (_super) {
     function VirtualTimeScheduler(SchedulerAction, maxFrames) {
         var _this = this;
         if (SchedulerAction === void 0) { SchedulerAction = VirtualAction; }
-        if (maxFrames === void 0) { maxFrames = 750; }
+        if (maxFrames === void 0) { maxFrames = Number.POSITIVE_INFINITY; }
         _super.call(this, SchedulerAction, function () { return _this.frame; });
         this.maxFrames = maxFrames;
         this.frame = 0;

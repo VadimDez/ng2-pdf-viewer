@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { CompileIdentifierMetadata } from '../compile_metadata';
-import { StringMapWrapper } from '../facade/collection';
 import { visitValue } from '../util';
 import * as o from './output_ast';
 export function convertValueToOutputAst(value, type) {
@@ -23,9 +22,7 @@ var _ValueOutputAstTransformer = (function () {
     _ValueOutputAstTransformer.prototype.visitStringMap = function (map, type) {
         var _this = this;
         var entries = [];
-        StringMapWrapper.forEach(map, function (value, key) {
-            entries.push([key, visitValue(value, _this, null)]);
-        });
+        Object.keys(map).forEach(function (key) { entries.push([key, visitValue(map[key], _this, null)]); });
         return o.literalMap(entries, type);
     };
     _ValueOutputAstTransformer.prototype.visitPrimitive = function (value, type) { return o.literal(value, type); };
