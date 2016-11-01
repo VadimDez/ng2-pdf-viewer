@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../src/pdf-viewer/index.ts"],"names":[],"mappings":";AAGA,qCAAmC,wBAAwB,CAAC;AAAnD,uEAAmD","sourcesContent":["/**\n * Created by vadimdez on 01/11/2016.\n */\nexport { PdfViewerComponent } from './pdf-viewer.component';\n\ninterface DecoratorInvocation {\n  type: Function;\n  args?: any[];\n}\n"]}

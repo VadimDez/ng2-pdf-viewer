@@ -8,7 +8,7 @@ import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': _zoom < 1}"></div>`,
+  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
   styles: [`
     .ng2-pdf-viewer--zoom {
         overflow-x: scroll;
@@ -86,6 +86,10 @@ export class PdfViewerComponent {
     if (this._pdf) {
       this.fn();
     }
+  }
+
+  get zoom() {
+    return this._zoom;
   }
 
   private fn() {
