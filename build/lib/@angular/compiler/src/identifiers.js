@@ -8,7 +8,6 @@
 import { ANALYZE_FOR_ENTRY_COMPONENTS, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ElementRef, Injector, LOCALE_ID, NgModuleFactory, QueryList, RenderComponentType, Renderer, SecurityContext, SimpleChange, TRANSLATIONS_FORMAT, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { CompileIdentifierMetadata, CompileTokenMetadata } from './compile_metadata';
 import { AnimationGroupPlayer, AnimationKeyframe, AnimationSequencePlayer, AnimationStyles, AnimationTransition, AppElement, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, DebugAppView, DebugContext, NgModuleInjector, NoOpAnimationPlayer, StaticNodeDebugInfo, TemplateRef_, UNINITIALIZED, ValueUnwrapper, ViewType, balanceAnimationKeyframes, clearStyles, collectAndResolveStyles, devModeEqual, prepareFinalAnimationStyles, reflector, registerModuleFactory, renderStyles, view_utils } from './private_import_core';
-import { assetUrl } from './util';
 var APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
 var VIEW_UTILS_MODULE_URL = assetUrl('core', 'linker/view_utils');
 var CD_MODULE_URL = assetUrl('core', 'change_detection/change_detection');
@@ -176,6 +175,16 @@ export var Identifiers = (function () {
         moduleUrl: VIEW_UTILS_MODULE_URL,
         runtime: view_utils.EMPTY_MAP
     };
+    Identifiers.createRenderElement = {
+        name: 'createRenderElement',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.createRenderElement
+    };
+    Identifiers.selectOrCreateRenderHostElement = {
+        name: 'selectOrCreateRenderHostElement',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.selectOrCreateRenderHostElement
+    };
     Identifiers.pureProxies = [
         null,
         { name: 'pureProxy1', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy1 },
@@ -269,8 +278,37 @@ export var Identifiers = (function () {
         moduleUrl: assetUrl('core', 'animation/animation_transition'),
         runtime: AnimationTransition
     };
+    // This is just the interface!
+    Identifiers.InlineArray = { name: 'InlineArray', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: null };
+    Identifiers.inlineArrays = [
+        { name: 'InlineArray2', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.InlineArray2 },
+        { name: 'InlineArray2', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.InlineArray2 },
+        { name: 'InlineArray4', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.InlineArray4 },
+        { name: 'InlineArray8', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.InlineArray8 },
+        { name: 'InlineArray16', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.InlineArray16 },
+    ];
+    Identifiers.EMPTY_INLINE_ARRAY = {
+        name: 'EMPTY_INLINE_ARRAY',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.EMPTY_INLINE_ARRAY
+    };
+    Identifiers.InlineArrayDynamic = {
+        name: 'InlineArrayDynamic',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.InlineArrayDynamic
+    };
     return Identifiers;
 }());
+export function assetUrl(pkg, path, type) {
+    if (path === void 0) { path = null; }
+    if (type === void 0) { type = 'src'; }
+    if (path == null) {
+        return "asset:@angular/lib/" + pkg + "/index";
+    }
+    else {
+        return "asset:@angular/lib/" + pkg + "/src/" + path;
+    }
+}
 export function resolveIdentifier(identifier) {
     return new CompileIdentifierMetadata({
         name: identifier.name,

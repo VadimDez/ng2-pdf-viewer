@@ -4,7 +4,9 @@ require('reflect-metadata');
 var tsc = require('@angular/tsc-wrapped');
 var codegen_1 = require('./codegen');
 function codegen(ngOptions, cliOptions, program, host) {
-    return codegen_1.CodeGenerator.create(ngOptions, cliOptions, program, host).codegen();
+    return codegen_1.CodeGenerator.create(ngOptions, cliOptions, program, host).codegen({
+        transitiveModules: true
+    });
 }
 // CLI entry point
 if (require.main === module) {

@@ -39,7 +39,4 @@ import { Observable } from '../Observable';
  * @method delay
  * @owner Observable
  */
-export declare function delay<T>(delay: number | Date, scheduler?: Scheduler): Observable<T>;
-export interface DelaySignature<T> {
-    (delay: number | Date, scheduler?: Scheduler): Observable<T>;
-}
+export declare function delay<T>(this: Observable<T>, delay: number | Date, scheduler?: Scheduler): Observable<T>;

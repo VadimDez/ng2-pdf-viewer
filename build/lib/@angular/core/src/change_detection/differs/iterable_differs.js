@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Optional, SkipSelf } from '../../di';
-import { ListWrapper } from '../../facade/collection';
 import { getTypeNameForDebugging, isPresent } from '../../facade/lang';
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
@@ -18,7 +17,7 @@ export var IterableDiffers = (function () {
     }
     IterableDiffers.create = function (factories, parent) {
         if (isPresent(parent)) {
-            var copied = ListWrapper.clone(parent.factories);
+            var copied = parent.factories.slice();
             factories = factories.concat(copied);
             return new IterableDiffers(factories);
         }

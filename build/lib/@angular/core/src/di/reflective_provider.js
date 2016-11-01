@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper, MapWrapper } from '../facade/collection';
+import { MapWrapper } from '../facade/collection';
 import { isBlank, isPresent } from '../facade/lang';
 import { reflector } from '../reflection/reflection';
 import { Type } from '../type';
@@ -131,7 +131,7 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
         else {
             var resolvedProvider;
             if (provider.multiProvider) {
-                resolvedProvider = new ResolvedReflectiveProvider_(provider.key, ListWrapper.clone(provider.resolvedFactories), provider.multiProvider);
+                resolvedProvider = new ResolvedReflectiveProvider_(provider.key, provider.resolvedFactories.slice(), provider.multiProvider);
             }
             else {
                 resolvedProvider = provider;

@@ -14,14 +14,14 @@
     ]
   ],
   "_from": "@angular/compiler-cli@latest",
-  "_id": "@angular/compiler-cli@2.1.1",
+  "_id": "@angular/compiler-cli@2.1.2",
   "_inCache": true,
   "_installable": true,
   "_location": "/@angular/compiler-cli",
   "_nodeVersion": "6.7.0",
   "_npmOperationalInternal": {
-    "host": "packages-18-east.internal.npmjs.com",
-    "tmp": "tmp/compiler-cli-2.1.1.tgz_1477003631395_0.9941605641506612"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/compiler-cli-2.1.2.tgz_1477593262964_0.9359697939362377"
   },
   "_npmUser": {
     "name": "angular",
@@ -42,8 +42,8 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.1.tgz",
-  "_shasum": "2ff7934d0c5a8505169ff2e70a8caf15a2d60516",
+  "_resolved": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz",
+  "_shasum": "9c34433af2183f294b9c63a035c785e002edc792",
   "_shrinkwrap": null,
   "_spec": "@angular/compiler-cli",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
@@ -75,8 +75,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "2ff7934d0c5a8505169ff2e70a8caf15a2d60516",
-    "tarball": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.1.tgz"
+    "shasum": "9c34433af2183f294b9c63a035c785e002edc792",
+    "tarball": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz"
   },
   "homepage": "https://github.com/angular/angular/tree/master/modules/@angular/compiler-cli",
   "keywords": [
@@ -95,8 +95,8 @@
   "optionalDependencies": {},
   "peerDependencies": {
     "typescript": "^2.0.2",
-    "@angular/compiler": "2.1.1",
-    "@angular/core": "2.1.1"
+    "@angular/compiler": "2.1.2",
+    "@angular/core": "2.1.2"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -105,5 +105,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.1.1"
+  "version": "2.1.2"
 }

@@ -6,16 +6,15 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { CompileIdentifierMetadata } from '../compile_metadata';
-import { ListWrapper, MapWrapper } from '../facade/collection';
+import { EventHandlerVars } from '../compiler_util/expression_converter';
+import { MapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
-import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
 import { ViewType } from '../private_import_core';
 import { CompileMethod } from './compile_method';
 import { CompilePipe } from './compile_pipe';
 import { CompileQuery, addQueryToTokenMap, createQueryList } from './compile_query';
-import { EventHandlerVars } from './constants';
-import { createPureProxy, getPropertyInView, getViewFactoryName } from './util';
+import { getPropertyInView, getViewFactoryName } from './util';
 export var CompileView = (function () {
     function CompileView(component, genConfig, pipeMetas, styles, animations, viewIndex, declarationElement, templateVariableBindings) {
         var _this = this;
@@ -30,9 +29,8 @@ export var CompileView = (function () {
         this.nodes = [];
         // root nodes or AppElements for ViewContainers
         this.rootNodesOrAppElements = [];
-        this.bindings = [];
-        this.classStatements = [];
-        this.eventHandlerMethods = [];
+        this.methods = [];
+        this.ctorStmts = [];
         this.fields = [];
         this.getters = [];
         this.disposables = [];
@@ -70,7 +68,7 @@ export var CompileView = (function () {
         var viewQueries = new Map();
         if (this.viewType === ViewType.COMPONENT) {
             var directiveInstance = o.THIS_EXPR.prop('context');
-            ListWrapper.forEachWithIndex(this.component.viewQueries, function (queryMeta, queryIndex) {
+            this.component.viewQueries.forEach(function (queryMeta, queryIndex) {
                 var propName = "_viewQuery_" + queryMeta.selectors[0].name + "_" + queryIndex;
                 var queryList = createQueryList(queryMeta, directiveInstance, propName, _this);
                 var query = new CompileQuery(queryMeta, queryList, directiveInstance, _this);
@@ -112,38 +110,6 @@ export var CompileView = (function () {
         else {
             return null;
         }
-    };
-    CompileView.prototype.createLiteralArray = function (values) {
-        if (values.length === 0) {
-            return o.importExpr(resolveIdentifier(Identifiers.EMPTY_ARRAY));
-        }
-        var proxyExpr = o.THIS_EXPR.prop("_arr_" + this.literalArrayCount++);
-        var proxyParams = [];
-        var proxyReturnEntries = [];
-        for (var i = 0; i < values.length; i++) {
-            var paramName = "p" + i;
-            proxyParams.push(new o.FnParam(paramName));
-            proxyReturnEntries.push(o.variable(paramName));
-        }
-        createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalArr(proxyReturnEntries))], new o.ArrayType(o.DYNAMIC_TYPE)), values.length, proxyExpr, this);
-        return proxyExpr.callFn(values);
-    };
-    CompileView.prototype.createLiteralMap = function (entries) {
-        if (entries.length === 0) {
-            return o.importExpr(resolveIdentifier(Identifiers.EMPTY_MAP));
-        }
-        var proxyExpr = o.THIS_EXPR.prop("_map_" + this.literalMapCount++);
-        var proxyParams = [];
-        var proxyReturnEntries = [];
-        var values = [];
-        for (var i = 0; i < entries.length; i++) {
-            var paramName = "p" + i;
-            proxyParams.push(new o.FnParam(paramName));
-            proxyReturnEntries.push([entries[i][0], o.variable(paramName)]);
-            values.push(entries[i][1]);
-        }
-        createPureProxy(o.fn(proxyParams, [new o.ReturnStatement(o.literalMap(proxyReturnEntries))], new o.MapType(o.DYNAMIC_TYPE)), entries.length, proxyExpr, this);
-        return proxyExpr.callFn(values);
     };
     CompileView.prototype.afterNodes = function () {
         var _this = this;

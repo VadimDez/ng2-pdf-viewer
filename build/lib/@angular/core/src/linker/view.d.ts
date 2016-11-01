@@ -7,7 +7,7 @@
  */
 import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
 import { Injector } from '../di/injector';
-import { RenderComponentType, RenderDebugInfo, Renderer } from '../render/api';
+import { RenderComponentType, Renderer } from '../render/api';
 import { AnimationViewContext } from './animation_view_context';
 import { DebugContext, StaticNodeDebugInfo } from './debug_context';
 import { AppElement } from './element';
@@ -50,7 +50,6 @@ export declare abstract class AppView<T> {
      */
     createInternal(rootSelectorOrNode: string | any): AppElement;
     init(rootNodesOrAppElements: any[], allNodes: any[], disposables: Function[], subscriptions: any[]): void;
-    selectOrCreateHostElement(elementName: string, rootSelectorOrNode: string | any, debugInfo: RenderDebugInfo): any;
     injectorGet(token: any, nodeIndex: number, notFoundResult: any): any;
     /**
      * Overwritten by implementations

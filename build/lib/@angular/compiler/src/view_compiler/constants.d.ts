@@ -30,9 +30,6 @@ export declare class ViewProperties {
     static projectableNodes: o.ReadPropExpr;
     static viewUtils: o.ReadPropExpr;
 }
-export declare class EventHandlerVars {
-    static event: o.ReadVarExpr;
-}
 export declare class InjectMethodVars {
     static token: o.ReadVarExpr;
     static requestNodeIndex: o.ReadVarExpr;
@@ -42,5 +39,4 @@ export declare class DetectChangesVars {
     static throwOnChange: o.ReadVarExpr;
     static changes: o.ReadVarExpr;
     static changed: o.ReadVarExpr;
-    static valUnwrapper: o.ReadVarExpr;
 }

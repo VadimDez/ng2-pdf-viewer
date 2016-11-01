@@ -37,7 +37,4 @@ import { Observable, SubscribableOrPromise } from '../Observable';
  * @method throttle
  * @owner Observable
  */
-export declare function throttle<T>(durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;
-export interface ThrottleSignature<T> {
-    (durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;
-}
+export declare function throttle<T>(this: Observable<T>, durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;

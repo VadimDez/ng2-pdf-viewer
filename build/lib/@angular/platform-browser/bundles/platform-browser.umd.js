@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.1
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -60,10 +60,10 @@
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
+        return obj == null;
     }
     function stringify(token) {
         if (typeof token === 'string') {
@@ -940,6 +940,86 @@
         return BrowserPlatformLocation;
     }(_angular_common.PlatformLocation));
 
+    var BrowserGetTestability = (function () {
+        function BrowserGetTestability() {
+        }
+        BrowserGetTestability.init = function () { _angular_core.setTestabilityGetter(new BrowserGetTestability()); };
+        BrowserGetTestability.prototype.addToWindow = function (registry) {
+            global$1.getAngularTestability = function (elem, findInAncestors) {
+                if (findInAncestors === void 0) { findInAncestors = true; }
+                var testability = registry.findTestabilityInTree(elem, findInAncestors);
+                if (testability == null) {
+                    throw new Error('Could not find testability for element.');
+                }
+                return testability;
+            };
+            global$1.getAllAngularTestabilities = function () { return registry.getAllTestabilities(); };
+            global$1.getAllAngularRootElements = function () { return registry.getAllRootElements(); };
+            var whenAllStable = function (callback /** TODO #9100 */) {
+                var testabilities = global$1.getAllAngularTestabilities();
+                var count = testabilities.length;
+                var didWork = false;
+                var decrement = function (didWork_ /** TODO #9100 */) {
+                    didWork = didWork || didWork_;
+                    count--;
+                    if (count == 0) {
+                        callback(didWork);
+                    }
+                };
+                testabilities.forEach(function (testability /** TODO #9100 */) {
+                    testability.whenStable(decrement);
+                });
+            };
+            if (!global$1['frameworkStabilizers']) {
+                global$1['frameworkStabilizers'] = [];
+            }
+            global$1['frameworkStabilizers'].push(whenAllStable);
+        };
+        BrowserGetTestability.prototype.findTestabilityInTree = function (registry, elem, findInAncestors) {
+            if (elem == null) {
+                return null;
+            }
+            var t = registry.getTestability(elem);
+            if (isPresent(t)) {
+                return t;
+            }
+            else if (!findInAncestors) {
+                return null;
+            }
+            if (getDOM().isShadowRoot(elem)) {
+                return this.findTestabilityInTree(registry, getDOM().getHost(elem), true);
+            }
+            return this.findTestabilityInTree(registry, getDOM().parentElement(elem), true);
+        };
+        return BrowserGetTestability;
+    }());
+
+    /**
+     * A service that can be used to get and set the title of a current HTML document.
+     *
+     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
+     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
+     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
+     * title value.
+     *
+     * @experimental
+     */
+    var Title = (function () {
+        function Title() {
+        }
+        /**
+         * Get the title of the current HTML document.
+         * @returns {string}
+         */
+        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
+        /**
+         * Set the title of the current HTML document.
+         * @param newTitle
+         */
+        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
+        return Title;
+    }());
+
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -998,42 +1078,6 @@
     var ListWrapper = (function () {
         function ListWrapper() {
         }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
@@ -1048,13 +1092,6 @@
             }
             return false;
         };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
         ListWrapper.equals = function (a, b) {
             if (a.length != b.length)
                 return false;
@@ -1064,22 +1101,6 @@
             }
             return true;
         };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
         ListWrapper.maximum = function (list, predicate) {
             if (list.length == 0) {
                 return null;
@@ -1088,7 +1109,7 @@
             var maxValue = -Infinity;
             for (var index = 0; index < list.length; index++) {
                 var candidate = list[index];
-                if (isBlank(candidate)) {
+                if (candidate == null) {
                     continue;
                 }
                 var candidateValue = predicate(candidate);
@@ -1103,11 +1124,6 @@
             var target = [];
             _flattenArray(list, target);
             return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
         };
         return ListWrapper;
     }());
@@ -1125,86 +1141,6 @@
         }
         return target;
     }
-
-    var BrowserGetTestability = (function () {
-        function BrowserGetTestability() {
-        }
-        BrowserGetTestability.init = function () { _angular_core.setTestabilityGetter(new BrowserGetTestability()); };
-        BrowserGetTestability.prototype.addToWindow = function (registry) {
-            global$1.getAngularTestability = function (elem, findInAncestors) {
-                if (findInAncestors === void 0) { findInAncestors = true; }
-                var testability = registry.findTestabilityInTree(elem, findInAncestors);
-                if (testability == null) {
-                    throw new Error('Could not find testability for element.');
-                }
-                return testability;
-            };
-            global$1.getAllAngularTestabilities = function () { return registry.getAllTestabilities(); };
-            global$1.getAllAngularRootElements = function () { return registry.getAllRootElements(); };
-            var whenAllStable = function (callback /** TODO #9100 */) {
-                var testabilities = global$1.getAllAngularTestabilities();
-                var count = testabilities.length;
-                var didWork = false;
-                var decrement = function (didWork_ /** TODO #9100 */) {
-                    didWork = didWork || didWork_;
-                    count--;
-                    if (count == 0) {
-                        callback(didWork);
-                    }
-                };
-                testabilities.forEach(function (testability /** TODO #9100 */) {
-                    testability.whenStable(decrement);
-                });
-            };
-            if (!global$1['frameworkStabilizers']) {
-                global$1['frameworkStabilizers'] = ListWrapper.createGrowableSize(0);
-            }
-            global$1['frameworkStabilizers'].push(whenAllStable);
-        };
-        BrowserGetTestability.prototype.findTestabilityInTree = function (registry, elem, findInAncestors) {
-            if (elem == null) {
-                return null;
-            }
-            var t = registry.getTestability(elem);
-            if (isPresent(t)) {
-                return t;
-            }
-            else if (!findInAncestors) {
-                return null;
-            }
-            if (getDOM().isShadowRoot(elem)) {
-                return this.findTestabilityInTree(registry, getDOM().getHost(elem), true);
-            }
-            return this.findTestabilityInTree(registry, getDOM().parentElement(elem), true);
-        };
-        return BrowserGetTestability;
-    }());
-
-    /**
-     * A service that can be used to get and set the title of a current HTML document.
-     *
-     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
-     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
-     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
-     * title value.
-     *
-     * @experimental
-     */
-    var Title = (function () {
-        function Title() {
-        }
-        /**
-         * Get the title of the current HTML document.
-         * @returns {string}
-         */
-        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
-        /**
-         * Set the title of the current HTML document.
-         * @param newTitle
-         */
-        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
-        return Title;
-    }());
 
     /**
      * A DI Token representing the main rendering context. In a browser this is the DOM Document.
@@ -1904,7 +1840,7 @@
             var key = KeyEventsPlugin._normalizeKey(parts.pop());
             var fullKey = '';
             modifierKeys.forEach(function (modifierName) {
-                if (ListWrapper.contains(parts, modifierName)) {
+                if (parts.indexOf(modifierName) > -1) {
                     ListWrapper.remove(parts, modifierName);
                     fullKey += modifierName + '.';
                 }

@@ -28,14 +28,13 @@ export interface BrowserNodeGlobal {
     encodeURI: Function;
 }
 export declare function scheduleMicroTask(fn: Function): void;
-declare var _global: BrowserNodeGlobal;
+declare const _global: BrowserNodeGlobal;
 export { _global as global };
 export declare function getTypeNameForDebugging(type: any): string;
 export declare function isPresent(obj: any): boolean;
 export declare function isBlank(obj: any): boolean;
 export declare function isStrictStringMap(obj: any): boolean;
 export declare function isDate(obj: any): obj is Date;
-export declare function noop(): void;
 export declare function stringify(token: any): string;
 export declare class NumberWrapper {
     static parseIntAutoRadix(text: string): number;
@@ -43,8 +42,6 @@ export declare class NumberWrapper {
     static isNumeric(value: any): boolean;
 }
 export declare function looseIdentical(a: any, b: any): boolean;
-export declare function normalizeBlank(obj: Object): any;
-export declare function normalizeBool(obj: boolean): boolean;
 export declare function isJsObject(o: any): boolean;
 export declare function print(obj: Error | Object): void;
 export declare function warn(obj: Error | Object): void;

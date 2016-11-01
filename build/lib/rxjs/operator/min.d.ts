@@ -10,7 +10,4 @@ import { Observable } from '../Observable';
  * @method min
  * @owner Observable
  */
-export declare function min<T>(comparer?: (x: T, y: T) => number): Observable<T>;
-export interface MinSignature<T> {
-    (comparer?: (x: T, y: T) => number): Observable<T>;
-}
+export declare function min<T>(this: Observable<T>, comparer?: (x: T, y: T) => number): Observable<T>;

@@ -37,7 +37,4 @@ import { Notification } from '../Notification';
  * @method materialize
  * @owner Observable
  */
-export declare function materialize<T>(): Observable<Notification<T>>;
-export interface MaterializeSignature<T> {
-    (): Observable<Notification<T>>;
-}
+export declare function materialize<T>(this: Observable<T>): Observable<Notification<T>>;

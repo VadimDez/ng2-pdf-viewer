@@ -53,8 +53,9 @@ export var Parser = (function () {
     Parser.prototype.parseSimpleBinding = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
         var ast = this._parseBindingAst(input, location, interpolationConfig);
-        if (!SimpleExpressionChecker.check(ast)) {
-            this._reportError('Host binding expression can only contain field access and constants', input, location);
+        var errors = SimpleExpressionChecker.check(ast);
+        if (errors.length > 0) {
+            this._reportError("Host binding expression cannot contain " + errors.join(' '), input, location);
         }
         return new ASTWithSource(ast, input, location, this.errors);
     };
@@ -706,36 +707,36 @@ export var _ParseAST = (function () {
 }());
 var SimpleExpressionChecker = (function () {
     function SimpleExpressionChecker() {
-        this.simple = true;
+        this.errors = [];
     }
     SimpleExpressionChecker.check = function (ast) {
         var s = new SimpleExpressionChecker();
         ast.visit(s);
-        return s.simple;
+        return s.errors;
     };
     SimpleExpressionChecker.prototype.visitImplicitReceiver = function (ast, context) { };
-    SimpleExpressionChecker.prototype.visitInterpolation = function (ast, context) { this.simple = false; };
+    SimpleExpressionChecker.prototype.visitInterpolation = function (ast, context) { };
     SimpleExpressionChecker.prototype.visitLiteralPrimitive = function (ast, context) { };
     SimpleExpressionChecker.prototype.visitPropertyRead = function (ast, context) { };
-    SimpleExpressionChecker.prototype.visitPropertyWrite = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitSafePropertyRead = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitMethodCall = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitSafeMethodCall = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitFunctionCall = function (ast, context) { this.simple = false; };
+    SimpleExpressionChecker.prototype.visitPropertyWrite = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitSafePropertyRead = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitMethodCall = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitSafeMethodCall = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitFunctionCall = function (ast, context) { };
     SimpleExpressionChecker.prototype.visitLiteralArray = function (ast, context) { this.visitAll(ast.expressions); };
     SimpleExpressionChecker.prototype.visitLiteralMap = function (ast, context) { this.visitAll(ast.values); };
-    SimpleExpressionChecker.prototype.visitBinary = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitPrefixNot = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitConditional = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitPipe = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitKeyedRead = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitKeyedWrite = function (ast, context) { this.simple = false; };
+    SimpleExpressionChecker.prototype.visitBinary = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitPrefixNot = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitConditional = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitPipe = function (ast, context) { this.errors.push('pipes'); };
+    SimpleExpressionChecker.prototype.visitKeyedRead = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitKeyedWrite = function (ast, context) { };
     SimpleExpressionChecker.prototype.visitAll = function (asts) {
         var _this = this;
         return asts.map(function (node) { return node.visit(_this); });
     };
-    SimpleExpressionChecker.prototype.visitChain = function (ast, context) { this.simple = false; };
-    SimpleExpressionChecker.prototype.visitQuote = function (ast, context) { this.simple = false; };
+    SimpleExpressionChecker.prototype.visitChain = function (ast, context) { };
+    SimpleExpressionChecker.prototype.visitQuote = function (ast, context) { };
     return SimpleExpressionChecker;
 }());
 //# sourceMappingURL=parser.js.map

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.1
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -25,7 +25,8 @@
             var value = this.existingElements[tagName.toLowerCase()];
             return value === void 0 ? true : value;
         };
-        MockSchemaRegistry.prototype.securityContext = function (tagName, property) {
+        MockSchemaRegistry.prototype.allKnownElementNames = function () { return Object.keys(this.existingElements); };
+        MockSchemaRegistry.prototype.securityContext = function (selector, property, isAttribute) {
             return _angular_core.SecurityContext.NONE;
         };
         MockSchemaRegistry.prototype.getMappedPropName = function (attrName) { return this.attrPropMapping[attrName] || attrName; };
@@ -53,7 +54,7 @@
     }());
 
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function stringify(token) {
         if (typeof token === 'string') {

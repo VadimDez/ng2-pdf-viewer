@@ -14,7 +14,9 @@ export interface StaticReflectorHost {
      */
     getMetadataFor(modulePath: string): {
         [key: string]: any;
-    };
+    } | {
+        [key: string]: any;
+    }[];
     /**
      * Resolve a symbol from an import statement form, to the file where it is declared.
      * @param module the location imported from

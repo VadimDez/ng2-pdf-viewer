@@ -11,6 +11,8 @@ function __export(m) {
 }
 var codegen_1 = require('./src/codegen');
 exports.CodeGenerator = codegen_1.CodeGenerator;
+var extractor_1 = require('./src/extractor');
+exports.Extractor = extractor_1.Extractor;
 var reflector_host_1 = require('./src/reflector_host');
 exports.NodeReflectorHostContext = reflector_host_1.NodeReflectorHostContext;
 exports.ReflectorHost = reflector_host_1.ReflectorHost;

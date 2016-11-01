@@ -47,10 +47,7 @@ import { OuterSubscriber } from '../OuterSubscriber';
  * @method mergeAll
  * @owner Observable
  */
-export declare function mergeAll<T>(concurrent?: number): T;
-export interface MergeAllSignature<T> {
-    (concurrent?: number): T;
-}
+export declare function mergeAll<T>(this: Observable<T>, concurrent?: number): T;
 export declare class MergeAllOperator<T> implements Operator<Observable<T>, T> {
     private concurrent;
     constructor(concurrent: number);

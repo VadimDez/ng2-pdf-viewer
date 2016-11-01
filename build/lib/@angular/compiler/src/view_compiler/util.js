@@ -10,10 +10,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+import { createDiTokenExpression } from '../compiler_util/identifier_util';
 import { isPresent } from '../facade/lang';
-import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
-import { createDiTokenExpression } from '../util';
 export function getPropertyInView(property, callingView, definedView) {
     if (callingView === definedView) {
         return property;
@@ -88,15 +87,5 @@ export function createFlatArray(expressions) {
             result.callMethod(o.BuiltinMethod.ConcatArray, [o.literalArr(lastNonArrayExpressions)]);
     }
     return result;
-}
-export function createPureProxy(fn, argCount, pureProxyProp, view) {
-    view.fields.push(new o.ClassField(pureProxyProp.name, null));
-    var pureProxyId = argCount < Identifiers.pureProxies.length ? Identifiers.pureProxies[argCount] : null;
-    if (!pureProxyId) {
-        throw new Error("Unsupported number of argument for pure functions: " + argCount);
-    }
-    view.createMethod.addStmt(o.THIS_EXPR.prop(pureProxyProp.name)
-        .set(o.importExpr(resolveIdentifier(pureProxyId)).callFn([fn]))
-        .toStmt());
 }
 //# sourceMappingURL=util.js.map

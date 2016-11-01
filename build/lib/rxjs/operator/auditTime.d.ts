@@ -42,7 +42,4 @@ import { Observable } from '../Observable';
  * @method auditTime
  * @owner Observable
  */
-export declare function auditTime<T>(duration: number, scheduler?: Scheduler): Observable<T>;
-export interface AuditTimeSignature<T> {
-    (duration: number, scheduler?: Scheduler): Observable<T>;
-}
+export declare function auditTime<T>(this: Observable<T>, duration: number, scheduler?: Scheduler): Observable<T>;

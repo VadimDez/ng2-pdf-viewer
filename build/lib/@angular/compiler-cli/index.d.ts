@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 export { CodeGenerator } from './src/codegen';
+export { Extractor } from './src/extractor';
 export { NodeReflectorHostContext, ReflectorHost, ReflectorHostContext } from './src/reflector_host';
 export { StaticReflector, StaticReflectorHost, StaticSymbol } from './src/static_reflector';
 export * from '@angular/tsc-wrapped';

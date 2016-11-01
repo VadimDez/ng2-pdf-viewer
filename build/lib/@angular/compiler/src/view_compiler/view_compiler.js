@@ -7,6 +7,7 @@
  */
 import { Injectable } from '@angular/core';
 import { CompilerConfig } from '../config';
+import { ElementSchemaRegistry } from '../schema/element_schema_registry';
 import { CompileElement } from './compile_element';
 import { CompileView } from './compile_view';
 import { bindView } from './view_binder';
@@ -21,8 +22,9 @@ export var ViewCompileResult = (function () {
     return ViewCompileResult;
 }());
 export var ViewCompiler = (function () {
-    function ViewCompiler(_genConfig) {
+    function ViewCompiler(_genConfig, _schemaRegistry) {
         this._genConfig = _genConfig;
+        this._schemaRegistry = _schemaRegistry;
     }
     ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes, compiledAnimations) {
         var dependencies = [];
@@ -31,7 +33,7 @@ export var ViewCompiler = (function () {
         buildView(view, template, dependencies);
         // Need to separate binding from creation to be able to refer to
         // variables that have been declared after usage.
-        bindView(view, template);
+        bindView(view, template, this._schemaRegistry);
         finishView(view, statements);
         return new ViewCompileResult(statements, view.viewFactory.name, dependencies);
     };
@@ -41,6 +43,7 @@ export var ViewCompiler = (function () {
     /** @nocollapse */
     ViewCompiler.ctorParameters = [
         { type: CompilerConfig, },
+        { type: ElementSchemaRegistry, },
     ];
     return ViewCompiler;
 }());

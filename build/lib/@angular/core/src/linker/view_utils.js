@@ -336,4 +336,181 @@ function camelCaseToDashCase(input) {
         return '-' + m[1].toLowerCase();
     });
 }
+export function createRenderElement(renderer, parentElement, name, attrs, debugInfo) {
+    var el = renderer.createElement(parentElement, name, debugInfo);
+    for (var i = 0; i < attrs.length; i += 2) {
+        renderer.setElementAttribute(el, attrs.get(i), attrs.get(i + 1));
+    }
+    return el;
+}
+export function selectOrCreateRenderHostElement(renderer, elementName, attrs, rootSelectorOrNode, debugInfo) {
+    var hostElement;
+    if (isPresent(rootSelectorOrNode)) {
+        hostElement = renderer.selectRootElement(rootSelectorOrNode, debugInfo);
+    }
+    else {
+        hostElement = createRenderElement(renderer, null, elementName, attrs, debugInfo);
+    }
+    return hostElement;
+}
+var InlineArray0 = (function () {
+    function InlineArray0() {
+        this.length = 0;
+    }
+    InlineArray0.prototype.get = function (index) { return undefined; };
+    return InlineArray0;
+}());
+export var InlineArray2 = (function () {
+    function InlineArray2(length, _v0, _v1) {
+        this.length = length;
+        this._v0 = _v0;
+        this._v1 = _v1;
+    }
+    InlineArray2.prototype.get = function (index) {
+        switch (index) {
+            case 0:
+                return this._v0;
+            case 1:
+                return this._v1;
+            default:
+                return undefined;
+        }
+    };
+    return InlineArray2;
+}());
+export var InlineArray4 = (function () {
+    function InlineArray4(length, _v0, _v1, _v2, _v3) {
+        this.length = length;
+        this._v0 = _v0;
+        this._v1 = _v1;
+        this._v2 = _v2;
+        this._v3 = _v3;
+    }
+    InlineArray4.prototype.get = function (index) {
+        switch (index) {
+            case 0:
+                return this._v0;
+            case 1:
+                return this._v1;
+            case 2:
+                return this._v2;
+            case 3:
+                return this._v3;
+            default:
+                return undefined;
+        }
+    };
+    return InlineArray4;
+}());
+export var InlineArray8 = (function () {
+    function InlineArray8(length, _v0, _v1, _v2, _v3, _v4, _v5, _v6, _v7) {
+        this.length = length;
+        this._v0 = _v0;
+        this._v1 = _v1;
+        this._v2 = _v2;
+        this._v3 = _v3;
+        this._v4 = _v4;
+        this._v5 = _v5;
+        this._v6 = _v6;
+        this._v7 = _v7;
+    }
+    InlineArray8.prototype.get = function (index) {
+        switch (index) {
+            case 0:
+                return this._v0;
+            case 1:
+                return this._v1;
+            case 2:
+                return this._v2;
+            case 3:
+                return this._v3;
+            case 4:
+                return this._v4;
+            case 5:
+                return this._v5;
+            case 6:
+                return this._v6;
+            case 7:
+                return this._v7;
+            default:
+                return undefined;
+        }
+    };
+    return InlineArray8;
+}());
+export var InlineArray16 = (function () {
+    function InlineArray16(length, _v0, _v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9, _v10, _v11, _v12, _v13, _v14, _v15) {
+        this.length = length;
+        this._v0 = _v0;
+        this._v1 = _v1;
+        this._v2 = _v2;
+        this._v3 = _v3;
+        this._v4 = _v4;
+        this._v5 = _v5;
+        this._v6 = _v6;
+        this._v7 = _v7;
+        this._v8 = _v8;
+        this._v9 = _v9;
+        this._v10 = _v10;
+        this._v11 = _v11;
+        this._v12 = _v12;
+        this._v13 = _v13;
+        this._v14 = _v14;
+        this._v15 = _v15;
+    }
+    InlineArray16.prototype.get = function (index) {
+        switch (index) {
+            case 0:
+                return this._v0;
+            case 1:
+                return this._v1;
+            case 2:
+                return this._v2;
+            case 3:
+                return this._v3;
+            case 4:
+                return this._v4;
+            case 5:
+                return this._v5;
+            case 6:
+                return this._v6;
+            case 7:
+                return this._v7;
+            case 8:
+                return this._v8;
+            case 9:
+                return this._v9;
+            case 10:
+                return this._v10;
+            case 11:
+                return this._v11;
+            case 12:
+                return this._v12;
+            case 13:
+                return this._v13;
+            case 14:
+                return this._v14;
+            case 15:
+                return this._v15;
+            default:
+                return undefined;
+        }
+    };
+    return InlineArray16;
+}());
+export var InlineArrayDynamic = (function () {
+    // Note: We still take the length argument so this class can be created
+    // in the same ways as the other classes!
+    function InlineArrayDynamic(length) {
+        var values = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            values[_i - 1] = arguments[_i];
+        }
+        this.length = length;
+        this._values = values;
+    }
+    InlineArrayDynamic.prototype.get = function (index) { return this._values[index]; };
+    return InlineArrayDynamic;
+}());
+export var EMPTY_INLINE_ARRAY = new InlineArray0();
 //# sourceMappingURL=view_utils.js.map

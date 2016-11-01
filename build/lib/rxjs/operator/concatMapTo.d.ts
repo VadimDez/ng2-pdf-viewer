@@ -49,8 +49,5 @@ import { Observable, ObservableInput } from '../Observable';
  * @method concatMapTo
  * @owner Observable
  */
-export declare function concatMapTo<T, I, R>(innerObservable: Observable<I>, resultSelector?: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-export interface ConcatMapToSignature<T> {
-    <R>(observable: ObservableInput<R>): Observable<R>;
-    <I, R>(observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-}
+export declare function concatMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>): Observable<R>;
+export declare function concatMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;

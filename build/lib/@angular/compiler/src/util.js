@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isBlank, isPresent, isPrimitive, isStrictStringMap } from './facade/lang';
-import * as o from './output/output_ast';
+import { isBlank, isPrimitive, isStrictStringMap } from './facade/lang';
 export var MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
 export function camelCaseToDashCase(input) {
@@ -62,28 +61,6 @@ export var ValueTransformer = (function () {
     ValueTransformer.prototype.visitOther = function (value, context) { return value; };
     return ValueTransformer;
 }());
-export function assetUrl(pkg, path, type) {
-    if (path === void 0) { path = null; }
-    if (type === void 0) { type = 'src'; }
-    if (path == null) {
-        return "asset:@angular/lib/" + pkg + "/index";
-    }
-    else {
-        return "asset:@angular/lib/" + pkg + "/src/" + path;
-    }
-}
-export function createDiTokenExpression(token) {
-    if (isPresent(token.value)) {
-        return o.literal(token.value);
-    }
-    else if (token.identifierIsInstance) {
-        return o.importExpr(token.identifier)
-            .instantiate([], o.importType(token.identifier, [], [o.TypeModifier.Const]));
-    }
-    else {
-        return o.importExpr(token.identifier);
-    }
-}
 export var SyncAsyncResult = (function () {
     function SyncAsyncResult(syncResult, asyncResult) {
         if (asyncResult === void 0) { asyncResult = null; }

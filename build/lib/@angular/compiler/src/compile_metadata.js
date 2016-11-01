@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { ListWrapper, MapWrapper } from './facade/collection';
-import { isPresent, normalizeBlank, normalizeBool } from './facade/lang';
+import { isPresent } from './facade/lang';
 import { CssSelector } from './selector';
 import { sanitizeIdentifier, splitAtColon } from './util';
 function unimplemented() {
@@ -23,7 +23,6 @@ function unimplemented() {
 // group 2: "event" from "(event)"
 // group 3: "@trigger" from "@trigger"
 var HOST_REG_EXP = /^(?:(?:\[([^\]]+)\])|(?:\(([^\)]+)\)))|(\@[-\w]+)$/;
-var UNDEFINED = new Object();
 export var CompileMetadataWithIdentifier = (function () {
     function CompileMetadataWithIdentifier() {
     }
@@ -145,12 +144,12 @@ export var CompileIdentifierMetadata = (function () {
 export var CompileDiDependencyMetadata = (function () {
     function CompileDiDependencyMetadata(_a) {
         var _b = _a === void 0 ? {} : _a, isAttribute = _b.isAttribute, isSelf = _b.isSelf, isHost = _b.isHost, isSkipSelf = _b.isSkipSelf, isOptional = _b.isOptional, isValue = _b.isValue, query = _b.query, viewQuery = _b.viewQuery, token = _b.token, value = _b.value;
-        this.isAttribute = normalizeBool(isAttribute);
-        this.isSelf = normalizeBool(isSelf);
-        this.isHost = normalizeBool(isHost);
-        this.isSkipSelf = normalizeBool(isSkipSelf);
-        this.isOptional = normalizeBool(isOptional);
-        this.isValue = normalizeBool(isValue);
+        this.isAttribute = !!isAttribute;
+        this.isSelf = !!isSelf;
+        this.isHost = !!isHost;
+        this.isSkipSelf = !!isSkipSelf;
+        this.isOptional = !!isOptional;
+        this.isValue = !!isValue;
         this.query = query;
         this.viewQuery = viewQuery;
         this.token = token;
@@ -166,8 +165,8 @@ export var CompileProviderMetadata = (function () {
         this.useValue = useValue;
         this.useExisting = useExisting;
         this.useFactory = useFactory;
-        this.deps = normalizeBlank(deps);
-        this.multi = normalizeBool(multi);
+        this.deps = deps || null;
+        this.multi = !!multi;
     }
     return CompileProviderMetadata;
 }());
@@ -185,7 +184,7 @@ export var CompileTokenMetadata = (function () {
         var value = _a.value, identifier = _a.identifier, identifierIsInstance = _a.identifierIsInstance;
         this.value = value;
         this.identifier = identifier;
-        this.identifierIsInstance = normalizeBool(identifierIsInstance);
+        this.identifierIsInstance = !!identifierIsInstance;
     }
     Object.defineProperty(CompileTokenMetadata.prototype, "reference", {
         get: function () {
@@ -216,7 +215,7 @@ export var CompileTypeMetadata = (function (_super) {
     function CompileTypeMetadata(_a) {
         var _b = _a === void 0 ? {} : _a, reference = _b.reference, name = _b.name, moduleUrl = _b.moduleUrl, prefix = _b.prefix, isHost = _b.isHost, value = _b.value, diDeps = _b.diDeps, lifecycleHooks = _b.lifecycleHooks;
         _super.call(this, { reference: reference, name: name, moduleUrl: moduleUrl, prefix: prefix, value: value });
-        this.isHost = normalizeBool(isHost);
+        this.isHost = !!isHost;
         this.diDeps = _normalizeArray(diDeps);
         this.lifecycleHooks = _normalizeArray(lifecycleHooks);
     }
@@ -226,8 +225,8 @@ export var CompileQueryMetadata = (function () {
     function CompileQueryMetadata(_a) {
         var _b = _a === void 0 ? {} : _a, selectors = _b.selectors, descendants = _b.descendants, first = _b.first, propertyName = _b.propertyName, read = _b.read;
         this.selectors = selectors;
-        this.descendants = normalizeBool(descendants);
-        this.first = normalizeBool(first);
+        this.descendants = !!descendants;
+        this.first = !!first;
         this.propertyName = propertyName;
         this.read = read;
     }
@@ -257,9 +256,9 @@ export var CompileTemplateMetadata = (function () {
         this.styles = _normalizeArray(styles);
         this.styleUrls = _normalizeArray(styleUrls);
         this.externalStylesheets = _normalizeArray(externalStylesheets);
-        this.animations = isPresent(animations) ? ListWrapper.flatten(animations) : [];
+        this.animations = animations ? ListWrapper.flatten(animations) : [];
         this.ngContentSelectors = ngContentSelectors || [];
-        if (isPresent(interpolation) && interpolation.length != 2) {
+        if (interpolation && interpolation.length != 2) {
             throw new Error("'interpolation' should have a start and an end symbol.");
         }
         this.interpolation = interpolation;
@@ -329,7 +328,7 @@ export var CompileDirectiveMetadata = (function () {
         }
         return new CompileDirectiveMetadata({
             type: type,
-            isComponent: normalizeBool(isComponent), selector: selector, exportAs: exportAs, changeDetection: changeDetection,
+            isComponent: !!isComponent, selector: selector, exportAs: exportAs, changeDetection: changeDetection,
             inputs: inputsMap,
             outputs: outputsMap,
             hostListeners: hostListeners,
@@ -388,7 +387,7 @@ export var CompilePipeMetadata = (function () {
         var _b = _a === void 0 ? {} : _a, type = _b.type, name = _b.name, pure = _b.pure;
         this.type = type;
         this.name = name;
-        this.pure = normalizeBool(pure);
+        this.pure = !!pure;
     }
     Object.defineProperty(CompilePipeMetadata.prototype, "identifier", {
         get: function () { return this.type; },
@@ -398,7 +397,7 @@ export var CompilePipeMetadata = (function () {
     return CompilePipeMetadata;
 }());
 /**
- * Metadata regarding compilation of a directive.
+ * Metadata regarding compilation of a module.
  */
 export var CompileNgModuleMetadata = (function () {
     function CompileNgModuleMetadata(_a) {

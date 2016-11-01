@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import * as o from './output_ast';
 import { debugOutputAstAsTypeScript } from './ts_emitter';
@@ -153,7 +152,7 @@ var StatementInterpreter = (function () {
         if (isPresent(expr.builtin)) {
             switch (expr.builtin) {
                 case o.BuiltinMethod.ConcatArray:
-                    result = ListWrapper.concat(receiver, args[0]);
+                    result = receiver.concat(args[0]);
                     break;
                 case o.BuiltinMethod.SubscribeObservable:
                     result = receiver.subscribe({ next: args[0] });

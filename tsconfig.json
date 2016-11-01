@@ -1,21 +1,23 @@
 {
   "compilerOptions": {
-    "outDir": "build/app",
+    "outDir": "build",
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "inlineSources": true,
+    "declaration": true,
     "removeComments": true,
     "noImplicitAny": false,
+    "lib": ["es6", "dom"],
     "typeRoots": [
       "node_modules/@types",
       "node_modules"
     ],
     "types": [
       "systemjs",
-      "core-js",
       "jasmine",
       "node",
       "pdf"
@@ -24,6 +26,8 @@
   "exclude": [
     "gulpfile.ts",
     "node_modules",
-    "dist"
+    "dist",
+    "build",
+    "aot"
   ]
 }

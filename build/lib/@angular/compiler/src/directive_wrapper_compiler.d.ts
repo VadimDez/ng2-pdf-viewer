@@ -1,6 +1,9 @@
 import { CompileDirectiveMetadata, CompileIdentifierMetadata } from './compile_metadata';
 import { CompilerConfig } from './config';
+import { Parser } from './expression_parser/parser';
 import * as o from './output/output_ast';
+import { Console } from './private_import_core';
+import { ElementSchemaRegistry } from './schema/element_schema_registry';
 export declare class DirectiveWrapperCompileResult {
     statements: o.Statement[];
     dirWrapperClassVar: string;
@@ -16,7 +19,10 @@ export declare class DirectiveWrapperCompileResult {
  */
 export declare class DirectiveWrapperCompiler {
     private compilerConfig;
+    private _exprParser;
+    private _schemaRegistry;
+    private _console;
     static dirWrapperClassName(id: CompileIdentifierMetadata): string;
-    constructor(compilerConfig: CompilerConfig);
+    constructor(compilerConfig: CompilerConfig, _exprParser: Parser, _schemaRegistry: ElementSchemaRegistry, _console: Console);
     compile(dirMeta: CompileDirectiveMetadata): DirectiveWrapperCompileResult;
 }

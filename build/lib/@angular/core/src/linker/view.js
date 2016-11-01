@@ -100,16 +100,6 @@ export var AppView = (function () {
             this.dirtyParentQueriesInternal();
         }
     };
-    AppView.prototype.selectOrCreateHostElement = function (elementName, rootSelectorOrNode, debugInfo) {
-        var hostElement;
-        if (isPresent(rootSelectorOrNode)) {
-            hostElement = this.renderer.selectRootElement(rootSelectorOrNode, debugInfo);
-        }
-        else {
-            hostElement = this.renderer.createElement(null, elementName, debugInfo);
-        }
-        return hostElement;
-    };
     AppView.prototype.injectorGet = function (token, nodeIndex, notFoundResult) {
         return this.injectorGetInternal(token, nodeIndex, notFoundResult);
     };

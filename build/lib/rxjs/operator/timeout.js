@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var async_1 = require('../scheduler/async');
 var isDate_1 = require('../util/isDate');
 var Subscriber_1 = require('../Subscriber');
+var TimeoutError_1 = require('../util/TimeoutError');
 /**
  * @param due
  * @param errorToSend
@@ -95,7 +96,7 @@ var TimeoutSubscriber = (function (_super) {
         this._hasCompleted = true;
     };
     TimeoutSubscriber.prototype.notifyTimeout = function () {
-        this.error(this.errorToSend || new Error('timeout'));
+        this.error(this.errorToSend || new TimeoutError_1.TimeoutError());
     };
     return TimeoutSubscriber;
 }(Subscriber_1.Subscriber));

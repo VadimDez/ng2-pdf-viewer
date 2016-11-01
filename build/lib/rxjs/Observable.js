@@ -35,17 +35,6 @@ var Observable = (function () {
         observable.operator = operator;
         return observable;
     };
-    /**
-     * Registers handlers for handling emitted values, error and completions from the observable, and
-     *  executes the observable's subscriber function, which will take action to set up the underlying data stream
-     * @method subscribe
-     * @param {PartialObserver|Function} observerOrNext (optional) either an observer defining all functions to be called,
-     *  or the first of three possible handlers, which is the handler for each value emitted from the observable.
-     * @param {Function} error (optional) a handler for a terminal event resulting from an error. If no error handler is provided,
-     *  the error will be thrown as unhandled
-     * @param {Function} complete (optional) a handler for a terminal event resulting from successful completion.
-     * @return {ISubscription} a subscription reference to the registered handlers
-     */
     Observable.prototype.subscribe = function (observerOrNext, error, complete) {
         var operator = this.operator;
         var sink = toSubscriber_1.toSubscriber(observerOrNext, error, complete);

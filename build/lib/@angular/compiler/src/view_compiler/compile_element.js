@@ -11,14 +11,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { CompileDiDependencyMetadata, CompileIdentifierMetadata, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { createDiTokenExpression } from '../compiler_util/identifier_util';
 import { DirectiveWrapperCompiler } from '../directive_wrapper_compiler';
-import { ListWrapper, MapWrapper } from '../facade/collection';
+import { MapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { Identifiers, identifierToken, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
 import * as o from '../output/output_ast';
 import { convertValueToOutputAst } from '../output/value_util';
 import { ProviderAst, ProviderAstType } from '../template_parser/template_ast';
-import { createDiTokenExpression } from '../util';
 import { CompileMethod } from './compile_method';
 import { CompileQuery, addQueryToTokenMap, createQueryList } from './compile_query';
 import { InjectMethodVars } from './constants';
@@ -188,7 +188,7 @@ export var CompileElement = (function (_super) {
         var queriesWithReads = [];
         MapWrapper.values(this._resolvedProviders).forEach(function (resolvedProvider) {
             var queriesForProvider = _this._getQueriesFor(resolvedProvider.token);
-            ListWrapper.addAll(queriesWithReads, queriesForProvider.map(function (query) { return new _QueryWithRead(query, resolvedProvider.token); }));
+            queriesWithReads.push.apply(queriesWithReads, queriesForProvider.map(function (query) { return new _QueryWithRead(query, resolvedProvider.token); }));
         });
         Object.keys(this.referenceTokens).forEach(function (varName) {
             var token = _this.referenceTokens[varName];
@@ -201,7 +201,7 @@ export var CompileElement = (function (_super) {
             }
             _this.view.locals.set(varName, varValue);
             var varToken = new CompileTokenMetadata({ value: varName });
-            ListWrapper.addAll(queriesWithReads, _this._getQueriesFor(varToken).map(function (query) { return new _QueryWithRead(query, varToken); }));
+            queriesWithReads.push.apply(queriesWithReads, _this._getQueriesFor(varToken).map(function (query) { return new _QueryWithRead(query, varToken); }));
         });
         queriesWithReads.forEach(function (queryWithRead) {
             var value;
@@ -270,7 +270,7 @@ export var CompileElement = (function (_super) {
         while (!currentEl.isNull()) {
             queries = currentEl._queries.get(token.reference);
             if (isPresent(queries)) {
-                ListWrapper.addAll(result, queries.filter(function (query) { return query.meta.descendants || distance <= 1; }));
+                result.push.apply(result, queries.filter(function (query) { return query.meta.descendants || distance <= 1; }));
             }
             if (currentEl._directives.length > 0) {
                 distance++;
@@ -279,7 +279,7 @@ export var CompileElement = (function (_super) {
         }
         queries = this.view.componentView.viewQueries.get(token.reference);
         if (isPresent(queries)) {
-            ListWrapper.addAll(result, queries);
+            result.push.apply(result, queries);
         }
         return result;
     };

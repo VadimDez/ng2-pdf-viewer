@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper, StringMapWrapper } from '../facade/collection';
+import { StringMapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { FILL_STYLE_FLAG } from './animation_constants';
 import { AUTO_STYLE } from './metadata';
@@ -43,7 +43,7 @@ export function balanceAnimationKeyframes(collectedStyles, finalStateStyles, key
     var keyframeCollectedStyles = StringMapWrapper.merge({}, flatenedFirstKeyframeStyles);
     // phase 2: normalize the final keyframe
     var finalKeyframe = keyframes[limit];
-    ListWrapper.insert(finalKeyframe.styles.styles, 0, finalStateStyles);
+    finalKeyframe.styles.styles.unshift(finalStateStyles);
     var flatenedFinalKeyframeStyles = flattenStyles(finalKeyframe.styles.styles);
     var extraFinalKeyframeStyles = {};
     var hasExtraFinalStyles = false;

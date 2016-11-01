@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.1
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -143,10 +143,10 @@
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
+        return obj == null;
     }
     function isDate(obj) {
         return obj instanceof Date && !isNaN(obj.valueOf());
@@ -205,8 +205,8 @@
     }
     var _symbolIterator = null;
     function getSymbolIterator() {
-        if (isBlank(_symbolIterator)) {
-            if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
+        if (!_symbolIterator) {
+            if (globalScope.Symbol && Symbol.iterator) {
                 _symbolIterator = Symbol.iterator;
             }
             else {
@@ -1091,42 +1091,6 @@
     var ListWrapper = (function () {
         function ListWrapper() {
         }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
@@ -1141,13 +1105,6 @@
             }
             return false;
         };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
         ListWrapper.equals = function (a, b) {
             if (a.length != b.length)
                 return false;
@@ -1157,22 +1114,6 @@
             }
             return true;
         };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
         ListWrapper.maximum = function (list, predicate) {
             if (list.length == 0) {
                 return null;
@@ -1181,7 +1122,7 @@
             var maxValue = -Infinity;
             for (var index = 0; index < list.length; index++) {
                 var candidate = list[index];
-                if (isBlank(candidate)) {
+                if (candidate == null) {
                     continue;
                 }
                 var candidateValue = predicate(candidate);
@@ -1196,11 +1137,6 @@
             var target = [];
             _flattenArray(list, target);
             return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
         };
         return ListWrapper;
     }());
@@ -1244,11 +1180,11 @@
      *
      * @description
      *
-     * The CSS classes are updated as follow depending on the type of the expression evaluation:
-     * - `string` - the CSS classes listed in a string (space delimited) are added,
-     * - `Array` - the CSS classes (Array elements) are added,
-     * - `Object` - keys are CSS class names that get added when the expression given in the value
-     *              evaluates to a truthy value, otherwise class are removed.
+     * The CSS classes are updated as follows, depending on the type of the expression evaluation:
+     * - `string` - the CSS classes listed in the string (space delimited) are added,
+     * - `Array` - the CSS classes declared as Array elements are added,
+     * - `Object` - keys are CSS classes that get added when the expression given in the value
+     *              evaluates to a truthy value, otherwise they are removed.
      *
      * @stable
      */

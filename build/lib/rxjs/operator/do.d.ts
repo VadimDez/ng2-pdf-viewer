@@ -43,8 +43,5 @@ import { PartialObserver } from '../Observer';
  * @name do
  * @owner Observable
  */
-export declare function _do<T>(nextOrObserver?: PartialObserver<T> | ((x: T) => void), error?: (e: any) => void, complete?: () => void): Observable<T>;
-export interface DoSignature<T> {
-    (next: (x: T) => void, error?: (e: any) => void, complete?: () => void): Observable<T>;
-    (observer: PartialObserver<T>): Observable<T>;
-}
+export declare function _do<T>(next: (x: T) => void, error?: (e: any) => void, complete?: (this: Observable<T>) => void): Observable<T>;
+export declare function _do<T>(this: Observable<T>, observer: PartialObserver<T>): Observable<T>;

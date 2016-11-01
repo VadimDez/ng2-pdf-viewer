@@ -10,7 +10,4 @@ import { Observable } from '../Observable';
  * @method skip
  * @owner Observable
  */
-export declare function skip<T>(total: number): Observable<T>;
-export interface SkipSignature<T> {
-    (total: number): Observable<T>;
-}
+export declare function skip<T>(this: Observable<T>, total: number): Observable<T>;

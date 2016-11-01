@@ -5,14 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
 import { unimplemented } from '../facade/errors';
 import { Injector, THROW_IF_NOT_FOUND } from './injector';
 import { Self, SkipSelf } from './metadata';
 import { AbstractProviderError, CyclicDependencyError, InstantiationError, NoProviderError, OutOfBoundsError } from './reflective_errors';
 import { ReflectiveKey } from './reflective_key';
 import { resolveReflectiveProviders } from './reflective_provider';
-var __unused; // avoid unused import when Type union types are erased
 // Threshold for the dynamic version
 var _MAX_CONSTRUCTION_COUNTER = 10;
 var UNDEFINED = new Object();
@@ -257,8 +255,7 @@ export var ReflectiveInjectorDynamicStrategy = (function () {
     function ReflectiveInjectorDynamicStrategy(protoStrategy, injector) {
         this.protoStrategy = protoStrategy;
         this.injector = injector;
-        this.objs = new Array(protoStrategy.providers.length);
-        ListWrapper.fill(this.objs, UNDEFINED);
+        this.objs = new Array(protoStrategy.providers.length).fill(UNDEFINED);
     }
     ReflectiveInjectorDynamicStrategy.prototype.resetConstructionCounter = function () { this.injector._constructionCounter = 0; };
     ReflectiveInjectorDynamicStrategy.prototype.instantiateProvider = function (provider) {

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.1
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -10,17 +10,14 @@
 }(this, function (exports,_angular_core,rxjs_operator_toPromise,rxjs_Subject,rxjs_Observable,rxjs_observable_fromPromise) { 'use strict';
 
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
+        return obj == null;
     }
     // JS has NaN !== NaN
     function looseIdentical(a, b) {
         return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
-    }
-    function normalizeBool(obj) {
-        return isBlank(obj) ? false : obj;
     }
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
@@ -243,42 +240,6 @@
     var ListWrapper = (function () {
         function ListWrapper() {
         }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
@@ -293,13 +254,6 @@
             }
             return false;
         };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
         ListWrapper.equals = function (a, b) {
             if (a.length != b.length)
                 return false;
@@ -309,22 +263,6 @@
             }
             return true;
         };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
         ListWrapper.maximum = function (list, predicate) {
             if (list.length == 0) {
                 return null;
@@ -333,7 +271,7 @@
             var maxValue = -Infinity;
             for (var index = 0; index < list.length; index++) {
                 var candidate = list[index];
-                if (isBlank(candidate)) {
+                if (candidate == null) {
                     continue;
                 }
                 var candidateValue = predicate(candidate);
@@ -348,11 +286,6 @@
             var target = [];
             _flattenArray(list, target);
             return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
         };
         return ListWrapper;
     }());
@@ -758,7 +691,7 @@
                     indexToRemove = i;
                 }
             }
-            ListWrapper.removeAt(this._accessors, indexToRemove);
+            this._accessors.splice(indexToRemove, 1);
         };
         RadioControlRegistry.prototype.select = function (accessor) {
             var _this = this;
@@ -1672,7 +1605,7 @@
      */
     var DISABLED = 'DISABLED';
     function _find(control, path, delimiter) {
-        if (isBlank(path))
+        if (path == null)
             return null;
         if (!(path instanceof Array)) {
             path = path.split(delimiter);
@@ -1900,9 +1833,8 @@
          */
         AbstractControl.prototype.markAsTouched = function (_a) {
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            onlySelf = normalizeBool(onlySelf);
             this._touched = true;
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent.markAsTouched({ onlySelf: onlySelf });
             }
         };
@@ -1917,7 +1849,7 @@
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
             this._touched = false;
             this._forEachChild(function (control) { control.markAsUntouched({ onlySelf: true }); });
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent._updateTouched({ onlySelf: onlySelf });
             }
         };
@@ -1929,9 +1861,8 @@
          */
         AbstractControl.prototype.markAsDirty = function (_a) {
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            onlySelf = normalizeBool(onlySelf);
             this._pristine = false;
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent.markAsDirty({ onlySelf: onlySelf });
             }
         };
@@ -1946,7 +1877,7 @@
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
             this._pristine = true;
             this._forEachChild(function (control) { control.markAsPristine({ onlySelf: true }); });
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent._updatePristine({ onlySelf: onlySelf });
             }
         };
@@ -1955,9 +1886,8 @@
          */
         AbstractControl.prototype.markAsPending = function (_a) {
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            onlySelf = normalizeBool(onlySelf);
             this._status = PENDING;
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent.markAsPending({ onlySelf: onlySelf });
             }
         };
@@ -1969,12 +1899,11 @@
          */
         AbstractControl.prototype.disable = function (_a) {
             var _b = _a === void 0 ? {} : _a, onlySelf = _b.onlySelf, emitEvent = _b.emitEvent;
-            emitEvent = isPresent(emitEvent) ? emitEvent : true;
             this._status = DISABLED;
             this._errors = null;
             this._forEachChild(function (control) { control.disable({ onlySelf: true }); });
             this._updateValue();
-            if (emitEvent) {
+            if (emitEvent !== false) {
                 this._valueChanges.emit(this._value);
                 this._statusChanges.emit(this._status);
             }
@@ -1997,7 +1926,7 @@
             this._onDisabledChange.forEach(function (changeFn) { return changeFn(false); });
         };
         AbstractControl.prototype._updateAncestors = function (onlySelf) {
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent.updateValueAndValidity();
                 this._parent._updatePristine();
                 this._parent._updateTouched();
@@ -2011,8 +1940,6 @@
          */
         AbstractControl.prototype.updateValueAndValidity = function (_a) {
             var _b = _a === void 0 ? {} : _a, onlySelf = _b.onlySelf, emitEvent = _b.emitEvent;
-            onlySelf = normalizeBool(onlySelf);
-            emitEvent = isPresent(emitEvent) ? emitEvent : true;
             this._setInitialStatus();
             this._updateValue();
             if (this.enabled) {
@@ -2022,11 +1949,11 @@
                     this._runAsyncValidator(emitEvent);
                 }
             }
-            if (emitEvent) {
+            if (emitEvent !== false) {
                 this._valueChanges.emit(this._value);
                 this._statusChanges.emit(this._status);
             }
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
             }
         };
@@ -2038,19 +1965,20 @@
         };
         AbstractControl.prototype._setInitialStatus = function () { this._status = this._allControlsDisabled() ? DISABLED : VALID; };
         AbstractControl.prototype._runValidator = function () {
-            return isPresent(this.validator) ? this.validator(this) : null;
+            return this.validator ? this.validator(this) : null;
         };
         AbstractControl.prototype._runAsyncValidator = function (emitEvent) {
             var _this = this;
-            if (isPresent(this.asyncValidator)) {
+            if (this.asyncValidator) {
                 this._status = PENDING;
                 this._cancelExistingSubscription();
                 var obs = toObservable(this.asyncValidator(this));
-                this._asyncValidationSubscription = obs.subscribe({ next: function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); } });
+                this._asyncValidationSubscription =
+                    obs.subscribe({ next: function (res) { return _this.setErrors(res, { emitEvent: emitEvent }); } });
             }
         };
         AbstractControl.prototype._cancelExistingSubscription = function () {
-            if (isPresent(this._asyncValidationSubscription)) {
+            if (this._asyncValidationSubscription) {
                 this._asyncValidationSubscription.unsubscribe();
             }
         };
@@ -2079,9 +2007,8 @@
          */
         AbstractControl.prototype.setErrors = function (errors, _a) {
             var emitEvent = (_a === void 0 ? {} : _a).emitEvent;
-            emitEvent = isPresent(emitEvent) ? emitEvent : true;
             this._errors = errors;
-            this._updateControlsErrors(emitEvent);
+            this._updateControlsErrors(emitEvent !== false);
         };
         /**
          * Retrieves a child control given the control's name or path.
@@ -2105,13 +2032,8 @@
          */
         AbstractControl.prototype.getError = function (errorCode, path) {
             if (path === void 0) { path = null; }
-            var control = isPresent(path) && (path.length > 0) ? this.get(path) : this;
-            if (isPresent(control) && isPresent(control._errors)) {
-                return control._errors[errorCode];
-            }
-            else {
-                return null;
-            }
+            var control = path ? this.get(path) : this;
+            return control && control._errors ? control._errors[errorCode] : null;
         };
         /**
          * Returns true if the control with the given path has the error specified. Otherwise
@@ -2121,7 +2043,7 @@
          */
         AbstractControl.prototype.hasError = function (errorCode, path) {
             if (path === void 0) { path = null; }
-            return isPresent(this.getError(errorCode, path));
+            return !!this.getError(errorCode, path);
         };
         Object.defineProperty(AbstractControl.prototype, "root", {
             /**
@@ -2129,7 +2051,7 @@
              */
             get: function () {
                 var x = this;
-                while (isPresent(x._parent)) {
+                while (x._parent) {
                     x = x._parent;
                 }
                 return x;
@@ -2143,7 +2065,7 @@
             if (emitEvent) {
                 this._statusChanges.emit(this._status);
             }
-            if (isPresent(this._parent)) {
+            if (this._parent) {
                 this._parent._updateControlsErrors(emitEvent);
             }
         };
@@ -2155,7 +2077,7 @@
         AbstractControl.prototype._calculateStatus = function () {
             if (this._allControlsDisabled())
                 return DISABLED;
-            if (isPresent(this._errors))
+            if (this._errors)
                 return INVALID;
             if (this._anyControlsHaveStatus(PENDING))
                 return PENDING;
@@ -2179,7 +2101,7 @@
         AbstractControl.prototype._updatePristine = function (_a) {
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
             this._pristine = !this._anyControlsDirty();
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent._updatePristine({ onlySelf: onlySelf });
             }
         };
@@ -2187,7 +2109,7 @@
         AbstractControl.prototype._updateTouched = function (_a) {
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
             this._touched = this._anyControlsTouched();
-            if (isPresent(this._parent) && !onlySelf) {
+            if (this._parent && !onlySelf) {
                 this._parent._updateTouched({ onlySelf: onlySelf });
             }
         };
@@ -2276,11 +2198,9 @@
         FormControl.prototype.setValue = function (value, _a) {
             var _this = this;
             var _b = _a === void 0 ? {} : _a, onlySelf = _b.onlySelf, emitEvent = _b.emitEvent, emitModelToViewChange = _b.emitModelToViewChange, emitViewToModelChange = _b.emitViewToModelChange;
-            emitModelToViewChange = isPresent(emitModelToViewChange) ? emitModelToViewChange : true;
-            emitViewToModelChange = isPresent(emitViewToModelChange) ? emitViewToModelChange : true;
             this._value = value;
-            if (this._onChange.length && emitModelToViewChange) {
-                this._onChange.forEach(function (changeFn) { return changeFn(_this._value, emitViewToModelChange); });
+            if (this._onChange.length && emitModelToViewChange !== false) {
+                this._onChange.forEach(function (changeFn) { return changeFn(_this._value, emitViewToModelChange !== false); });
             }
             this.updateValueAndValidity({ onlySelf: onlySelf, emitEvent: emitEvent });
         };
@@ -2571,7 +2491,7 @@
          * ### Example
          *
          * ```ts
-         * this.form.reset({first: 'name', last; 'last name'});
+         * this.form.reset({first: 'name', last: 'last name'});
          *
          * console.log(this.form.value);  // {first: 'name', last: 'last name'}
          * ```
@@ -3092,7 +3012,7 @@
         /** @internal */
         NgForm.prototype._findContainer = function (path) {
             path.pop();
-            return ListWrapper.isEmpty(path) ? this.form : this.form.get(path);
+            return path.length ? this.form.get(path) : this.form;
         };
         NgForm.decorators = [
             { type: _angular_core.Directive, args: [{

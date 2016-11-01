@@ -8,6 +8,8 @@ const tsProject = tsc.createProject("tsconfig.json");
 const tslint = require('gulp-tslint');
 const Builder  = require("systemjs-builder");
 const inlineNg2Template = require('gulp-inline-ng2-template');
+const exec = require('child_process').exec;
+const os = require('os');
 
 /**
  * Remove build directory.
@@ -30,14 +32,15 @@ gulp.task('tslint', () => {
 /**
  * Compile TypeScript sources and create sourcemaps in build directory.
  */
-gulp.task("compile", ["tslint"], () => {
-  let tsResult = gulp.src([`${ __dirname }/src/**/*.ts`])
-    .pipe(sourcemaps.init())
-    .pipe(tsProject());
+gulp.task("compile", ["tslint"], cb => {
+  var cmd = os.platform() === 'win32' ?
+    'node_modules\\.bin\\ngc -p tsconfig-aot.json' : './node_modules/.bin/ngc -p tsconfig-aot.json';
 
-  return tsResult.js
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(`${ __dirname }/build`));
+  exec(cmd, function (err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
+    cb(err);
+  });
 });
 
 /**

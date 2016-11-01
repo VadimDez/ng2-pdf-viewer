@@ -41,7 +41,4 @@ import { Observable, SubscribableOrPromise } from '../Observable';
  * @method debounce
  * @owner Observable
  */
-export declare function debounce<T>(durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;
-export interface DebounceSignature<T> {
-    (durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;
-}
+export declare function debounce<T>(this: Observable<T>, durationSelector: (value: T) => SubscribableOrPromise<number>): Observable<T>;

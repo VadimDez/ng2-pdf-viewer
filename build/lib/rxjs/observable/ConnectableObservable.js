@@ -51,6 +51,14 @@ var ConnectableObservable = (function (_super) {
     return ConnectableObservable;
 }(Observable_1.Observable));
 exports.ConnectableObservable = ConnectableObservable;
+exports.connectableObservableDescriptor = {
+    operator: { value: null },
+    _refCount: { value: 0, writable: true },
+    _subscribe: { value: ConnectableObservable.prototype._subscribe },
+    getSubject: { value: ConnectableObservable.prototype.getSubject },
+    connect: { value: ConnectableObservable.prototype.connect },
+    refCount: { value: ConnectableObservable.prototype.refCount }
+};
 var ConnectableSubscriber = (function (_super) {
     __extends(ConnectableSubscriber, _super);
     function ConnectableSubscriber(destination, connectable) {

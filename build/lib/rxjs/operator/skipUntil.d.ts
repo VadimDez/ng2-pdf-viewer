@@ -11,7 +11,4 @@ import { Observable } from '../Observable';
  * @method skipUntil
  * @owner Observable
  */
-export declare function skipUntil<T>(notifier: Observable<any>): Observable<T>;
-export interface SkipUntilSignature<T> {
-    (notifier: Observable<any>): Observable<T>;
-}
+export declare function skipUntil<T>(this: Observable<T>, notifier: Observable<any>): Observable<T>;

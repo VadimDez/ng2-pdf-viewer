@@ -43,9 +43,6 @@ import { Observable } from '../Observable';
  * @method bufferTime
  * @owner Observable
  */
-export declare function bufferTime<T>(bufferTimeSpan: number): Observable<T[]>;
-export interface BufferTimeSignature<T> {
-    (bufferTimeSpan: number, scheduler?: Scheduler): Observable<T[]>;
-    (bufferTimeSpan: number, bufferCreationInterval: number, scheduler?: Scheduler): Observable<T[]>;
-    (bufferTimeSpan: number, bufferCreationInterval: number, maxBufferSize: number, scheduler?: Scheduler): Observable<T[]>;
-}
+export declare function bufferTime<T>(this: Observable<T>, bufferTimeSpan: number, scheduler?: Scheduler): Observable<T[]>;
+export declare function bufferTime<T>(this: Observable<T>, bufferTimeSpan: number, bufferCreationInterval: number, scheduler?: Scheduler): Observable<T[]>;
+export declare function bufferTime<T>(this: Observable<T>, bufferTimeSpan: number, bufferCreationInterval: number, maxBufferSize: number, scheduler?: Scheduler): Observable<T[]>;

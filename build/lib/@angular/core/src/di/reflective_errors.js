@@ -10,13 +10,12 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { ListWrapper } from '../facade/collection';
 import { BaseError, WrappedError } from '../facade/errors';
 import { stringify } from '../facade/lang';
 function findFirstClosedCycle(keys) {
     var res = [];
     for (var i = 0; i < keys.length; ++i) {
-        if (ListWrapper.contains(res, keys[i])) {
+        if (res.indexOf(keys[i]) > -1) {
             res.push(keys[i]);
             return res;
         }
@@ -26,7 +25,7 @@ function findFirstClosedCycle(keys) {
 }
 function constructResolvingPath(keys) {
     if (keys.length > 1) {
-        var reversed = findFirstClosedCycle(ListWrapper.reversed(keys));
+        var reversed = findFirstClosedCycle(keys.slice().reverse());
         var tokenStrs = reversed.map(function (k) { return stringify(k.token); });
         return ' (' + tokenStrs.join(' -> ') + ')';
     }
@@ -71,7 +70,7 @@ export var NoProviderError = (function (_super) {
     __extends(NoProviderError, _super);
     function NoProviderError(injector, key) {
         _super.call(this, injector, key, function (keys) {
-            var first = stringify(ListWrapper.first(keys).token);
+            var first = stringify(keys[0].token);
             return "No provider for " + first + "!" + constructResolvingPath(keys);
         });
     }
@@ -143,7 +142,7 @@ export var InstantiationError = (function (_super) {
     };
     Object.defineProperty(InstantiationError.prototype, "message", {
         get: function () {
-            var first = stringify(ListWrapper.first(this.keys).token);
+            var first = stringify(this.keys[0].token);
             return this.originalError.message + ": Error during instantiation of " + first + "!" + constructResolvingPath(this.keys) + ".";
         },
         enumerable: true,

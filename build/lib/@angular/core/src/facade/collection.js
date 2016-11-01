@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { getSymbolIterator, isBlank, isJsObject, isPresent } from './lang';
+import { getSymbolIterator, isJsObject, isPresent } from './lang';
 // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
 // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
 var _arrayFromMap = (function () {
@@ -78,42 +78,6 @@ export var StringMapWrapper = (function () {
 export var ListWrapper = (function () {
     function ListWrapper() {
     }
-    // JS has no way to express a statically fixed size list, but dart does so we
-    // keep both methods.
-    ListWrapper.createFixedSize = function (size) { return new Array(size); };
-    ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-    ListWrapper.clone = function (array) { return array.slice(0); };
-    ListWrapper.forEachWithIndex = function (array, fn) {
-        for (var i = 0; i < array.length; i++) {
-            fn(array[i], i);
-        }
-    };
-    ListWrapper.first = function (array) {
-        if (!array)
-            return null;
-        return array[0];
-    };
-    ListWrapper.last = function (array) {
-        if (!array || array.length == 0)
-            return null;
-        return array[array.length - 1];
-    };
-    ListWrapper.indexOf = function (array, value, startIndex) {
-        if (startIndex === void 0) { startIndex = 0; }
-        return array.indexOf(value, startIndex);
-    };
-    ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-    ListWrapper.reversed = function (array) {
-        var a = ListWrapper.clone(array);
-        return a.reverse();
-    };
-    ListWrapper.concat = function (a, b) { return a.concat(b); };
-    ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-    ListWrapper.removeAt = function (list, index) {
-        var res = list[index];
-        list.splice(index, 1);
-        return res;
-    };
     ListWrapper.removeAll = function (list, items) {
         for (var i = 0; i < items.length; ++i) {
             var index = list.indexOf(items[i]);
@@ -128,13 +92,6 @@ export var ListWrapper = (function () {
         }
         return false;
     };
-    ListWrapper.clear = function (list) { list.length = 0; };
-    ListWrapper.isEmpty = function (list) { return list.length == 0; };
-    ListWrapper.fill = function (list, value, start, end) {
-        if (start === void 0) { start = 0; }
-        if (end === void 0) { end = null; }
-        list.fill(value, start, end === null ? list.length : end);
-    };
     ListWrapper.equals = function (a, b) {
         if (a.length != b.length)
             return false;
@@ -144,22 +101,6 @@ export var ListWrapper = (function () {
         }
         return true;
     };
-    ListWrapper.slice = function (l, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return l.slice(from, to === null ? undefined : to);
-    };
-    ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-    ListWrapper.sort = function (l, compareFn) {
-        if (isPresent(compareFn)) {
-            l.sort(compareFn);
-        }
-        else {
-            l.sort();
-        }
-    };
-    ListWrapper.toString = function (l) { return l.toString(); };
-    ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
     ListWrapper.maximum = function (list, predicate) {
         if (list.length == 0) {
             return null;
@@ -168,7 +109,7 @@ export var ListWrapper = (function () {
         var maxValue = -Infinity;
         for (var index = 0; index < list.length; index++) {
             var candidate = list[index];
-            if (isBlank(candidate)) {
+            if (candidate == null) {
                 continue;
             }
             var candidateValue = predicate(candidate);
@@ -183,11 +124,6 @@ export var ListWrapper = (function () {
         var target = [];
         _flattenArray(list, target);
         return target;
-    };
-    ListWrapper.addAll = function (list, source) {
-        for (var i = 0; i < source.length; i++) {
-            list.push(source[i]);
-        }
     };
     return ListWrapper;
 }());

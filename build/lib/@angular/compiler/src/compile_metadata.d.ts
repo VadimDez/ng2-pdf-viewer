@@ -305,7 +305,7 @@ export declare class CompilePipeMetadata implements CompileMetadataWithIdentifie
     identifier: CompileIdentifierMetadata;
 }
 /**
- * Metadata regarding compilation of a directive.
+ * Metadata regarding compilation of a module.
  */
 export declare class CompileNgModuleMetadata implements CompileMetadataWithIdentifier {
     type: CompileTypeMetadata;

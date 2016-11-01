@@ -5,9 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import { createPureProxy } from '../compiler_util/identifier_util';
 import { Identifiers, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
 import * as o from '../output/output_ast';
-import { createPureProxy, getPropertyInView, injectFromViewParentInjector } from './util';
+import { getPropertyInView, injectFromViewParentInjector } from './util';
 export var CompilePipe = (function () {
     function CompilePipe(view, meta) {
         var _this = this;
@@ -59,7 +60,7 @@ export var CompilePipe = (function () {
             var purePipeProxyInstance = o.THIS_EXPR.prop(this.instance.name + "_" + this._purePipeProxyCount++);
             var pipeInstanceSeenFromPureProxy = getPropertyInView(this.instance, callingView, this.view);
             createPureProxy(pipeInstanceSeenFromPureProxy.prop('transform')
-                .callMethod(o.BuiltinMethod.Bind, [pipeInstanceSeenFromPureProxy]), args.length, purePipeProxyInstance, callingView);
+                .callMethod(o.BuiltinMethod.Bind, [pipeInstanceSeenFromPureProxy]), args.length, purePipeProxyInstance, { fields: callingView.fields, ctorStmts: callingView.createMethod });
             return o.importExpr(resolveIdentifier(Identifiers.castByValue))
                 .callFn([purePipeProxyInstance, pipeInstanceSeenFromPureProxy.prop('transform')])
                 .callFn(args);

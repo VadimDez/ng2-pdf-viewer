@@ -7,7 +7,6 @@
  */
 import { OpaqueToken, SchemaMetadata } from '@angular/core';
 import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metadata';
-import { BindingPipe, RecursiveAstVisitor } from '../expression_parser/ast';
 import { Parser } from '../expression_parser/parser';
 import { I18NHtmlParser } from '../i18n/i18n_html_parser';
 import { ParseTreeResult } from '../ml_parser/html_parser';
@@ -46,7 +45,3 @@ export declare class TemplateParser {
     getInterpolationConfig(component: CompileDirectiveMetadata): InterpolationConfig;
 }
 export declare function splitClasses(classAttrValue: string): string[];
-export declare class PipeCollector extends RecursiveAstVisitor {
-    pipes: Set<string>;
-    visitPipe(ast: BindingPipe, context: any): any;
-}

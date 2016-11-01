@@ -34,10 +34,8 @@ import { Subscriber } from '../Subscriber';
  * @method find
  * @owner Observable
  */
-export declare function find<T>(predicate: (value: T, index: number, source: Observable<T>) => boolean, thisArg?: any): Observable<T>;
-export interface FindSignature<T> {
-    (predicate: (value: T, index: number, source: Observable<T>) => boolean, thisArg?: any): Observable<T>;
-}
+export declare function find<T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => boolean, thisArg?: any): Observable<T>;
+export declare function find<T, S extends T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => value is S, thisArg?: any): Observable<S>;
 export declare class FindValueOperator<T> implements Operator<T, T> {
     private predicate;
     private source;

@@ -42,6 +42,7 @@ export declare class WebSocketSubject<T> extends AnonymousSubject<T> {
     static create<T>(urlConfigOrSource: string | WebSocketSubjectConfig): WebSocketSubject<T>;
     constructor(urlConfigOrSource: string | WebSocketSubjectConfig | Observable<T>, destination?: Observer<T>);
     lift<R>(operator: Operator<T, R>): WebSocketSubject<R>;
+    private _resetState();
     multiplex(subMsg: () => any, unsubMsg: () => any, messageFilter: (value: T) => boolean): Observable<{}>;
     private _connectSocket();
     protected _subscribe(subscriber: Subscriber<T>): Subscription;

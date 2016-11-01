@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.1
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -109,7 +109,7 @@
         Zone.current.scheduleMicroTask('scheduleMicrotask', fn);
     }
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function stringify(token) {
         if (typeof token === 'string') {

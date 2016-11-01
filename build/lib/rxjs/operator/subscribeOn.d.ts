@@ -11,7 +11,4 @@ import { Observable } from '../Observable';
  * @method subscribeOn
  * @owner Observable
  */
-export declare function subscribeOn<T>(scheduler: Scheduler, delay?: number): Observable<T>;
-export interface SubscribeOnSignature<T> {
-    (scheduler: Scheduler, delay?: number): Observable<T>;
-}
+export declare function subscribeOn<T>(this: Observable<T>, scheduler: Scheduler, delay?: number): Observable<T>;

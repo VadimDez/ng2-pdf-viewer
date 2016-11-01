@@ -2,18 +2,18 @@
   "_args": [
     [
       {
-        "raw": "material-design-lite@^1.2.0",
+        "raw": "material-design-lite@^1.2.1",
         "scope": null,
         "escapedName": "material-design-lite",
         "name": "material-design-lite",
-        "rawSpec": "^1.2.0",
-        "spec": ">=1.2.0 <2.0.0",
+        "rawSpec": "^1.2.1",
+        "spec": ">=1.2.1 <2.0.0",
         "type": "range"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "material-design-lite@>=1.2.0 <2.0.0",
+  "_from": "material-design-lite@>=1.2.1 <2.0.0",
   "_id": "material-design-lite@1.2.1",
   "_inCache": true,
   "_installable": true,
@@ -30,12 +30,12 @@
   "_npmVersion": "3.10.3",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "material-design-lite@^1.2.0",
+    "raw": "material-design-lite@^1.2.1",
     "scope": null,
     "escapedName": "material-design-lite",
     "name": "material-design-lite",
-    "rawSpec": "^1.2.0",
-    "spec": ">=1.2.0 <2.0.0",
+    "rawSpec": "^1.2.1",
+    "spec": ">=1.2.1 <2.0.0",
     "type": "range"
   },
   "_requiredBy": [
@@ -44,7 +44,7 @@
   "_resolved": "https://registry.npmjs.org/material-design-lite/-/material-design-lite-1.2.1.tgz",
   "_shasum": "09e5caab2575af8ee21b2630bff175c5a822c662",
   "_shrinkwrap": null,
-  "_spec": "material-design-lite@^1.2.0",
+  "_spec": "material-design-lite@^1.2.1",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "Google"

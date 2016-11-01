@@ -314,7 +314,11 @@ export var DomElementSchemaRegistry = (function (_super) {
      * 'NONE' security context, i.e. that they are safe inert string values. Only specific well known
      * attack vectors are assigned their appropriate context.
      */
-    DomElementSchemaRegistry.prototype.securityContext = function (tagName, propName) {
+    DomElementSchemaRegistry.prototype.securityContext = function (tagName, propName, isAttribute) {
+        if (isAttribute) {
+            // NB: For security purposes, use the mapped property name, not the attribute name.
+            propName = this.getMappedPropName(propName);
+        }
         // Make sure comparisons are case insensitive, so that case differences between attribute and
         // property names do not have a security impact.
         tagName = tagName.toLowerCase();
@@ -350,6 +354,7 @@ export var DomElementSchemaRegistry = (function (_super) {
             return { error: false };
         }
     };
+    DomElementSchemaRegistry.prototype.allKnownElementNames = function () { return Object.keys(this._schema); };
     DomElementSchemaRegistry.decorators = [
         { type: Injectable },
     ];

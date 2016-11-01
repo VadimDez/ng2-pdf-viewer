@@ -10,7 +10,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { ListWrapper } from '../facade/collection';
 import { isBlank, isPresent } from '../facade/lang';
 import { ParseError, ParseSourceSpan } from '../parse_util';
 import * as html from './ast';
@@ -208,7 +207,7 @@ var _TreeBuilder = (function () {
     };
     _TreeBuilder.prototype._closeVoidElement = function () {
         if (this._elementStack.length > 0) {
-            var el = ListWrapper.last(this._elementStack);
+            var el = this._elementStack[this._elementStack.length - 1];
             if (this.getTagDefinition(el.name).isVoid) {
                 this._elementStack.pop();
             }
@@ -248,7 +247,7 @@ var _TreeBuilder = (function () {
     };
     _TreeBuilder.prototype._pushElement = function (el) {
         if (this._elementStack.length > 0) {
-            var parentEl = ListWrapper.last(this._elementStack);
+            var parentEl = this._elementStack[this._elementStack.length - 1];
             if (this.getTagDefinition(parentEl.name).isClosedByChild(el.name)) {
                 this._elementStack.pop();
             }
@@ -278,7 +277,7 @@ var _TreeBuilder = (function () {
         for (var stackIndex = this._elementStack.length - 1; stackIndex >= 0; stackIndex--) {
             var el = this._elementStack[stackIndex];
             if (el.name == fullName) {
-                ListWrapper.splice(this._elementStack, stackIndex, this._elementStack.length - stackIndex);
+                this._elementStack.splice(stackIndex, this._elementStack.length - stackIndex);
                 return true;
             }
             if (!this.getTagDefinition(el.name).closedByParent) {
@@ -301,7 +300,7 @@ var _TreeBuilder = (function () {
         return new html.Attribute(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end), valueSpan);
     };
     _TreeBuilder.prototype._getParentElement = function () {
-        return this._elementStack.length > 0 ? ListWrapper.last(this._elementStack) : null;
+        return this._elementStack.length > 0 ? this._elementStack[this._elementStack.length - 1] : null;
     };
     /**
      * Returns the parent in the DOM and the container.
@@ -316,7 +315,7 @@ var _TreeBuilder = (function () {
             }
             container = this._elementStack[i];
         }
-        return { parent: ListWrapper.last(this._elementStack), container: container };
+        return { parent: this._elementStack[this._elementStack.length - 1], container: container };
     };
     _TreeBuilder.prototype._addToParent = function (node) {
         var parent = this._getParentElement();

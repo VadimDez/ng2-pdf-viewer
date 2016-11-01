@@ -35,10 +35,10 @@ _global.assert = function assert(condition) {
     // TODO: to be fixed properly via #2830, noop for now
 };
 export function isPresent(obj) {
-    return obj !== undefined && obj !== null;
+    return obj != null;
 }
 export function isBlank(obj) {
-    return obj === undefined || obj === null;
+    return obj == null;
 }
 var STRING_MAP_PROTO = Object.getPrototypeOf({});
 export function isStrictStringMap(obj) {
@@ -47,7 +47,6 @@ export function isStrictStringMap(obj) {
 export function isDate(obj) {
     return obj instanceof Date && !isNaN(obj.valueOf());
 }
-export function noop() { }
 export function stringify(token) {
     if (typeof token === 'string') {
         return token;
@@ -101,12 +100,6 @@ export var NumberWrapper = (function () {
 export function looseIdentical(a, b) {
     return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
 }
-export function normalizeBlank(obj) {
-    return isBlank(obj) ? null : obj;
-}
-export function normalizeBool(obj) {
-    return isBlank(obj) ? false : obj;
-}
 export function isJsObject(o) {
     return o !== null && (typeof o === 'function' || typeof o === 'object');
 }
@@ -135,8 +128,8 @@ export function setValueOnPath(global, path, value) {
 }
 var _symbolIterator = null;
 export function getSymbolIterator() {
-    if (isBlank(_symbolIterator)) {
-        if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
+    if (!_symbolIterator) {
+        if (globalScope.Symbol && Symbol.iterator) {
             _symbolIterator = Symbol.iterator;
         }
         else {

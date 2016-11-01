@@ -16,9 +16,8 @@ import { Observable } from '../Observable';
  * @method last
  * @owner Observable
  */
-export declare function last<T, R>(predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R | void, defaultValue?: R): Observable<T | R>;
-export interface LastSignature<T> {
-    (predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
-    (predicate: (value: T, index: number, source: Observable<T>) => boolean, resultSelector: void, defaultValue?: T): Observable<T>;
-    <R>(predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R, defaultValue?: R): Observable<R>;
-}
+export declare function last<T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
+export declare function last<T, S extends T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => value is S): Observable<S>;
+export declare function last<T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => boolean, resultSelector: void, defaultValue?: T): Observable<T>;
+export declare function last<T, S extends T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => value is S, resultSelector: void, defaultValue?: S): Observable<S>;
+export declare function last<T, R>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R, defaultValue?: R): Observable<R>;

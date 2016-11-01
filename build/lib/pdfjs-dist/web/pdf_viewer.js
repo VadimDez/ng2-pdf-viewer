@@ -1695,10 +1695,19 @@
             var self = this;
             var goToDestination = function (destRef) {
               // dest array looks like that: <page-ref> </XYZ|/FitXXX> <args..>
-              var pageNumber = destRef instanceof Object ? self._pagesRefCache[destRef.num + ' ' + destRef.gen + ' R'] : destRef + 1;
+              var pageNumber;
+              if (destRef instanceof Object) {
+                pageNumber = self._cachedPageNumber(destRef);
+              } else if ((destRef | 0) === destRef) {
+                // Integer
+                pageNumber = destRef + 1;
+              } else {
+                console.error('PDFLinkService_navigateTo: "' + destRef + '" is not a valid destination reference.');
+                return;
+              }
               if (pageNumber) {
-                if (pageNumber > self.pagesCount) {
-                  console.error('PDFLinkService_navigateTo: ' + 'Trying to navigate to a non-existent page.');
+                if (pageNumber < 1 || pageNumber > self.pagesCount) {
+                  console.error('PDFLinkService_navigateTo: "' + pageNumber + '" is a non-existent page number.');
                   return;
                 }
                 self.pdfViewer.scrollPageIntoView({
@@ -1715,10 +1724,11 @@
                 }
               } else {
                 self.pdfDocument.getPageIndex(destRef).then(function (pageIndex) {
-                  var pageNum = pageIndex + 1;
-                  var cacheKey = destRef.num + ' ' + destRef.gen + ' R';
-                  self._pagesRefCache[cacheKey] = pageNum;
+                  self.cachePageRef(pageIndex + 1, destRef);
                   goToDestination(destRef);
+                }).catch(function () {
+                  console.error('PDFLinkService_navigateTo: "' + destRef + '" is not a valid page reference.');
+                  return;
                 });
               }
             };
@@ -1732,9 +1742,9 @@
             destinationPromise.then(function (destination) {
               dest = destination;
               if (!(destination instanceof Array)) {
+                console.error('PDFLinkService_navigateTo: "' + destination + '" is not a valid destination array.');
                 return;
               }
-              // invalid destination
               goToDestination(destination[0]);
             });
           },
@@ -1851,14 +1861,20 @@
                   mode: params.pagemode
                 });
               }
-            } else if (isPageNumber(hash)) {
-              // Page number.
-              this.page = hash | 0;
             } else {
               // Named (or explicit) destination.
+              if (isPageNumber(hash) && hash <= this.pagesCount) {
+                console.warn('PDFLinkService_setHash: specifying a page number ' + 'directly after the hash symbol (#) is deprecated, ' + 'please use the "#page=' + hash + '" form instead.');
+                this.page = hash | 0;
+              }
               dest = unescape(hash);
               try {
                 dest = JSON.parse(dest);
+                if (!(dest instanceof Array)) {
+                  // Avoid incorrectly rejecting a valid named destination, such as
+                  // e.g. "4.3" or "true", because `JSON.parse` converted its type.
+                  dest = dest.toString();
+                }
               } catch (ex) {
               }
               if (typeof dest === 'string' || isValidExplicitDestination(dest)) {
@@ -1919,6 +1935,10 @@
           cachePageRef: function PDFLinkService_cachePageRef(pageNum, pageRef) {
             var refStr = pageRef.num + ' ' + pageRef.gen + ' R';
             this._pagesRefCache[refStr] = pageNum;
+          },
+          _cachedPageNumber: function PDFLinkService_cachedPageNumber(pageRef) {
+            var refStr = pageRef.num + ' ' + pageRef.gen + ' R';
+            return this._pagesRefCache && this._pagesRefCache[refStr] || null;
           }
         };
         function isValidExplicitDestination(dest) {
@@ -2076,6 +2096,7 @@
           var renderInteractiveForms = options.renderInteractiveForms || false;
           this.id = id;
           this.renderingId = 'page' + id;
+          this.pageLabel = null;
           this.rotation = 0;
           this.scale = scale || DEFAULT_SCALE;
           this.viewport = defaultViewport;
@@ -2474,6 +2495,17 @@
               self.onBeforeDraw();
             }
             return promise;
+          },
+          /**
+           * @param {string|null} label
+           */
+          setPageLabel: function PDFView_setPageLabel(label) {
+            this.pageLabel = typeof label === 'string' ? label : null;
+            if (this.pageLabel !== null) {
+              this.div.setAttribute('data-page-label', this.pageLabel);
+            } else {
+              this.div.removeAttribute('data-page-label');
+            }
           }
         };
         return PDFPageView;
@@ -3080,7 +3112,8 @@
             }
             var arg = {
               source: this,
-              pageNumber: val
+              pageNumber: val,
+              pageLabel: this._pageLabels && this._pageLabels[val - 1]
             };
             this._currentPageNumber = val;
             this.eventBus.dispatch('pagechanging', arg);
@@ -3088,6 +3121,27 @@
             if (resetCurrentPageView) {
               this._resetCurrentPageView();
             }
+          },
+          /**
+           * @returns {string|null} Returns the current page label,
+           *                        or `null` if no page labels exist.
+           */
+          get currentPageLabel() {
+            return this._pageLabels && this._pageLabels[this._currentPageNumber - 1];
+          },
+          /**
+           * @param {string} val - The page label.
+           */
+          set currentPageLabel(val) {
+            var pageNumber = val | 0;
+            // Fallback page number.
+            if (this._pageLabels) {
+              var i = this._pageLabels.indexOf(val);
+              if (i >= 0) {
+                pageNumber = i + 1;
+              }
+            }
+            this.currentPageNumber = pageNumber;
           },
           /**
            * @returns {number}
@@ -3259,11 +3313,34 @@
               }
             }.bind(this));
           },
+          /**
+           * @param {Array|null} labels
+           */
+          setPageLabels: function PDFViewer_setPageLabels(labels) {
+            if (!this.pdfDocument) {
+              return;
+            }
+            if (!labels) {
+              this._pageLabels = null;
+            } else if (!(labels instanceof Array && this.pdfDocument.numPages === labels.length)) {
+              this._pageLabels = null;
+              console.error('PDFViewer_setPageLabels: Invalid page labels.');
+            } else {
+              this._pageLabels = labels;
+            }
+            // Update all the `PDFPageView` instances.
+            for (var i = 0, ii = this._pages.length; i < ii; i++) {
+              var pageView = this._pages[i];
+              var label = this._pageLabels && this._pageLabels[i];
+              pageView.setPageLabel(label);
+            }
+          },
           _resetView: function () {
             this._pages = [];
             this._currentPageNumber = 1;
             this._currentScale = UNKNOWN_SCALE;
             this._currentScaleValue = null;
+            this._pageLabels = null;
             this._buffer = new PDFPageViewBuffer(DEFAULT_CACHE_SIZE);
             this._location = null;
             this._pagesRotation = 0;

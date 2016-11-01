@@ -314,7 +314,7 @@ var AjaxSubscriber = (function (_super) {
     };
     AjaxSubscriber.prototype.unsubscribe = function () {
         var _a = this, done = _a.done, xhr = _a.xhr;
-        if (!done && xhr && xhr.readyState !== 4) {
+        if (!done && xhr && xhr.readyState !== 4 && typeof xhr.abort === 'function') {
             xhr.abort();
         }
         _super.prototype.unsubscribe.call(this);

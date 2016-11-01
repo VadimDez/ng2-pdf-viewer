@@ -26,7 +26,4 @@ import { Observable } from '../Observable';
  * @method pluck
  * @owner Observable
  */
-export declare function pluck<R>(...properties: string[]): Observable<R>;
-export interface PluckSignature<T> {
-    <R>(...properties: string[]): Observable<R>;
-}
+export declare function pluck<T, R>(this: Observable<T>, ...properties: string[]): Observable<R>;

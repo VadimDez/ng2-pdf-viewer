@@ -8,8 +8,5 @@ import { Observable } from '../Observable';
  * @method distinctUntilChanged
  * @owner Observable
  */
-export declare function distinctUntilChanged<T, K>(compare?: (x: K, y: K) => boolean, keySelector?: (x: T) => K): Observable<T>;
-export interface DistinctUntilChangedSignature<T> {
-    (compare?: (x: T, y: T) => boolean): Observable<T>;
-    <K>(compare: (x: K, y: K) => boolean, keySelector: (x: T) => K): Observable<T>;
-}
+export declare function distinctUntilChanged<T>(this: Observable<T>, compare?: (x: T, y: T) => boolean): Observable<T>;
+export declare function distinctUntilChanged<T, K>(this: Observable<T>, compare: (x: K, y: K) => boolean, keySelector: (x: T) => K): Observable<T>;

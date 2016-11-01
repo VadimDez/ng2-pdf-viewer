@@ -22,7 +22,7 @@ export declare class DomElementSchemaRegistry extends ElementSchemaRegistry {
      * 'NONE' security context, i.e. that they are safe inert string values. Only specific well known
      * attack vectors are assigned their appropriate context.
      */
-    securityContext(tagName: string, propName: string): SecurityContext;
+    securityContext(tagName: string, propName: string, isAttribute: boolean): SecurityContext;
     getMappedPropName(propName: string): string;
     getDefaultComponentElementName(): string;
     validateProperty(name: string): {
@@ -33,4 +33,5 @@ export declare class DomElementSchemaRegistry extends ElementSchemaRegistry {
         error: boolean;
         msg?: string;
     };
+    allKnownElementNames(): string[];
 }

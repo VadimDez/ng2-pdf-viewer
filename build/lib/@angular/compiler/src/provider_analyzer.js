@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { CompileDiDependencyMetadata, CompileProviderMetadata, CompileTokenMetadata, CompileTypeMetadata } from './compile_metadata';
-import { ListWrapper, MapWrapper } from './facade/collection';
-import { isBlank, isPresent, normalizeBlank } from './facade/lang';
+import { MapWrapper } from './facade/collection';
+import { isBlank, isPresent } from './facade/lang';
 import { Identifiers, resolveIdentifierToken } from './identifiers';
 import { ParseError } from './parse_util';
 import { ProviderAst, ProviderAstType } from './template_parser/template_ast';
@@ -89,8 +89,8 @@ export var ProviderElementContext = (function () {
     Object.defineProperty(ProviderElementContext.prototype, "transformedDirectiveAsts", {
         get: function () {
             var sortedProviderTypes = this.transformProviders.map(function (provider) { return provider.token.identifier; });
-            var sortedDirectives = ListWrapper.clone(this._directiveAsts);
-            ListWrapper.sort(sortedDirectives, function (dir1, dir2) { return sortedProviderTypes.indexOf(dir1.directive.type) -
+            var sortedDirectives = this._directiveAsts.slice();
+            sortedDirectives.sort(function (dir1, dir2) { return sortedProviderTypes.indexOf(dir1.directive.type) -
                 sortedProviderTypes.indexOf(dir2.directive.type); });
             return sortedDirectives;
         },
@@ -118,7 +118,7 @@ export var ProviderElementContext = (function () {
         while (currentEl !== null) {
             queries = currentEl._contentQueries.get(token.reference);
             if (isPresent(queries)) {
-                ListWrapper.addAll(result, queries.filter(function (query) { return query.descendants || distance <= 1; }));
+                result.push.apply(result, queries.filter(function (query) { return query.descendants || distance <= 1; }));
             }
             if (currentEl._directiveAsts.length > 0) {
                 distance++;
@@ -127,7 +127,7 @@ export var ProviderElementContext = (function () {
         }
         queries = this.viewContext.viewQueries.get(token.reference);
         if (isPresent(queries)) {
-            ListWrapper.addAll(result, queries);
+            result.push.apply(result, queries);
         }
         return result;
     };
@@ -190,7 +190,7 @@ export var ProviderElementContext = (function () {
         if (eager === void 0) { eager = null; }
         if (dep.isAttribute) {
             var attrValue = this._attrs[dep.token.value];
-            return new CompileDiDependencyMetadata({ isValue: true, value: normalizeBlank(attrValue) });
+            return new CompileDiDependencyMetadata({ isValue: true, value: attrValue == null ? null : attrValue });
         }
         if (isPresent(dep.query) || isPresent(dep.viewQuery)) {
             return dep;
@@ -442,7 +442,7 @@ function _resolveProviders(providers, providerType, eager, sourceSpan, targetErr
         }
         else {
             if (!provider.multi) {
-                ListWrapper.clear(resolvedProvider.providers);
+                resolvedProvider.providers.length = 0;
             }
             resolvedProvider.providers.push(provider);
         }

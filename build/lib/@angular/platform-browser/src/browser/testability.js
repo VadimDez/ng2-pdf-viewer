@@ -7,7 +7,6 @@
  */
 import { setTestabilityGetter } from '@angular/core';
 import { getDOM } from '../dom/dom_adapter';
-import { ListWrapper } from '../facade/collection';
 import { global, isPresent } from '../facade/lang';
 export var BrowserGetTestability = (function () {
     function BrowserGetTestability() {
@@ -40,7 +39,7 @@ export var BrowserGetTestability = (function () {
             });
         };
         if (!global['frameworkStabilizers']) {
-            global['frameworkStabilizers'] = ListWrapper.createGrowableSize(0);
+            global['frameworkStabilizers'] = [];
         }
         global['frameworkStabilizers'].push(whenAllStable);
     };

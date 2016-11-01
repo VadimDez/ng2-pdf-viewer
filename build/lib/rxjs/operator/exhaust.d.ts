@@ -35,7 +35,4 @@ import { Observable } from '../Observable';
  * @method exhaust
  * @owner Observable
  */
-export declare function exhaust<T>(): Observable<T>;
-export interface SwitchFirstSignature<T> {
-    (): T;
-}
+export declare function exhaust<T>(this: Observable<T>): Observable<T>;

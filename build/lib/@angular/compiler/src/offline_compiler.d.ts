@@ -8,16 +8,21 @@ import { StyleCompiler } from './style_compiler';
 import { TemplateParser } from './template_parser/template_parser';
 import { ViewCompiler } from './view_compiler/view_compiler';
 export declare class SourceModule {
+    fileUrl: string;
     moduleUrl: string;
     source: string;
-    constructor(moduleUrl: string, source: string);
+    constructor(fileUrl: string, moduleUrl: string, source: string);
 }
-export declare class NgModulesSummary {
-    ngModuleByDirective: Map<StaticSymbol, CompileNgModuleMetadata>;
-    ngModules: CompileNgModuleMetadata[];
-    constructor(ngModuleByDirective: Map<StaticSymbol, CompileNgModuleMetadata>, ngModules: CompileNgModuleMetadata[]);
-}
-export declare function analyzeModules(ngModules: StaticSymbol[], metadataResolver: CompileMetadataResolver): NgModulesSummary;
+export declare function analyzeNgModules(programStaticSymbols: StaticSymbol[], options: {
+    transitiveModules: boolean;
+}, metadataResolver: CompileMetadataResolver): {
+    ngModuleByPipeOrDirective: Map<StaticSymbol, CompileNgModuleMetadata>;
+    files: Array<{
+        srcUrl: string;
+        directives: StaticSymbol[];
+        ngModules: StaticSymbol[];
+    }>;
+};
 export declare class OfflineCompiler {
     private _metadataResolver;
     private _directiveNormalizer;
@@ -32,13 +37,15 @@ export declare class OfflineCompiler {
     private _animationParser;
     private _animationCompiler;
     constructor(_metadataResolver: CompileMetadataResolver, _directiveNormalizer: DirectiveNormalizer, _templateParser: TemplateParser, _styleCompiler: StyleCompiler, _viewCompiler: ViewCompiler, _dirWrapperCompiler: DirectiveWrapperCompiler, _ngModuleCompiler: NgModuleCompiler, _outputEmitter: OutputEmitter, _localeId: string, _translationFormat: string);
-    analyzeModules(ngModules: StaticSymbol[]): NgModulesSummary;
     clearCache(): void;
-    compile(moduleUrl: string, ngModulesSummary: NgModulesSummary, directives: StaticSymbol[], ngModules: StaticSymbol[]): Promise<SourceModule[]>;
+    compileModules(staticSymbols: StaticSymbol[], options: {
+        transitiveModules: boolean;
+    }): Promise<SourceModule[]>;
+    private _compileSrcFile(srcFileUrl, ngModuleByPipeOrDirective, directives, ngModules);
     private _compileModule(ngModuleType, targetStatements);
     private _compileDirectiveWrapper(directiveType, targetStatements);
     private _compileComponentFactory(compMeta, fileSuffix, targetStatements);
     private _compileComponent(compMeta, directives, pipes, schemas, componentStyles, fileSuffix, targetStatements);
-    private _codgenStyles(stylesCompileResult, fileSuffix);
-    private _codegenSourceModule(moduleUrl, statements, exportedVars);
+    private _codgenStyles(fileUrl, stylesCompileResult, fileSuffix);
+    private _codegenSourceModule(fileUrl, moduleUrl, statements, exportedVars);
 }

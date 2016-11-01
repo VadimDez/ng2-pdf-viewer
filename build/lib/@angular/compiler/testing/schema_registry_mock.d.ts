@@ -28,7 +28,8 @@ export declare class MockSchemaRegistry implements ElementSchemaRegistry {
     }, invalidProperties: Array<string>, invalidAttributes: Array<string>);
     hasProperty(tagName: string, property: string, schemas: SchemaMetadata[]): boolean;
     hasElement(tagName: string, schemaMetas: SchemaMetadata[]): boolean;
-    securityContext(tagName: string, property: string): SecurityContext;
+    allKnownElementNames(): string[];
+    securityContext(selector: string, property: string, isAttribute: boolean): SecurityContext;
     getMappedPropName(attrName: string): string;
     getDefaultComponentElementName(): string;
     validateProperty(name: string): {

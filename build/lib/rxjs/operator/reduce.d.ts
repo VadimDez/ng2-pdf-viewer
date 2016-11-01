@@ -46,12 +46,9 @@ import { Subscriber } from '../Subscriber';
  * @method reduce
  * @owner Observable
  */
-export declare function reduce<T, R>(accumulator: (acc: R, value: T) => R, seed?: R): Observable<R>;
-export interface ReduceSignature<T> {
-    (accumulator: (acc: T, value: T, index: number) => T, seed?: T): Observable<T>;
-    (accumulator: (acc: T[], value: T, index: number) => T[], seed?: T[]): Observable<T[]>;
-    <R>(accumulator: (acc: R, value: T, index: number) => R, seed?: R): Observable<R>;
-}
+export declare function reduce<T>(this: Observable<T>, accumulator: (acc: T, value: T, index: number) => T, seed?: T): Observable<T>;
+export declare function reduce<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed?: T[]): Observable<T[]>;
+export declare function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed?: R): Observable<R>;
 export declare class ReduceOperator<T, R> implements Operator<T, R> {
     private accumulator;
     private seed;

@@ -10,27 +10,7 @@ var Observable_1 = require('../Observable');
 var Subject_1 = require('../Subject');
 var Map_1 = require('../util/Map');
 var FastMap_1 = require('../util/FastMap');
-/**
- * Groups the items emitted by an Observable according to a specified criterion,
- * and emits these grouped items as `GroupedObservables`, one
- * {@link GroupedObservable} per group.
- *
- * <img src="./img/groupBy.png" width="100%">
- *
- * @param {function(value: T): K} keySelector a function that extracts the key
- * for each item.
- * @param {function(value: T): R} [elementSelector] a function that extracts the
- * return element for each item.
- * @param {function(grouped: GroupedObservable<K,R>): Observable<any>} [durationSelector]
- * a function that returns an Observable to determine how long each group should
- * exist.
- * @return {Observable<GroupedObservable<K,R>>} an Observable that emits
- * GroupedObservables, each of which corresponds to a unique key value and each
- * of which emits those items from the source Observable that share that key
- * value.
- * @method groupBy
- * @owner Observable
- */
+/* tslint:disable:max-line-length */
 function groupBy(keySelector, elementSelector, durationSelector) {
     return this.lift(new GroupByOperator(this, keySelector, elementSelector, durationSelector));
 }

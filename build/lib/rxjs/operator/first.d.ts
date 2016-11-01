@@ -48,9 +48,8 @@ import { Observable } from '../Observable';
  * @method first
  * @owner Observable
  */
-export declare function first<T, R>(predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R, defaultValue?: R): Observable<T | R>;
-export interface FirstSignature<T> {
-    (predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
-    (predicate: (value: T, index: number, source: Observable<T>) => boolean, resultSelector: void, defaultValue?: T): Observable<T>;
-    <R>(predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R, defaultValue?: R): Observable<R>;
-}
+export declare function first<T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
+export declare function first<T, S extends T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => value is S): Observable<S>;
+export declare function first<T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => boolean, resultSelector: void, defaultValue?: T): Observable<T>;
+export declare function first<T, S extends T>(this: Observable<T>, predicate: (value: T, index: number, source: Observable<T>) => value is S, resultSelector: void, defaultValue?: S): Observable<S>;
+export declare function first<T, R>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean, resultSelector?: (value: T, index: number) => R, defaultValue?: R): Observable<R>;

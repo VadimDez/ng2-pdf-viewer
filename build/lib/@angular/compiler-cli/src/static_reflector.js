@@ -46,8 +46,7 @@ var StaticReflector = (function () {
         return staticSymbol ? staticSymbol.filePath : null;
     };
     StaticReflector.prototype.resolveIdentifier = function (name, moduleUrl, runtime) {
-        var result = this.host.findDeclaration(moduleUrl, name, '');
-        return result;
+        return this.host.findDeclaration(moduleUrl, name, '');
     };
     StaticReflector.prototype.resolveEnum = function (enumIdentifier, name) {
         var staticSymbol = enumIdentifier;
@@ -194,7 +193,6 @@ var StaticReflector = (function () {
                 return staticSymbol;
             }
             function resolveReferenceValue(staticSymbol) {
-                var result = staticSymbol;
                 var moduleMetadata = _this.getModuleMetadata(staticSymbol.filePath);
                 var declarationValue = moduleMetadata ? moduleMetadata['metadata'][staticSymbol.name] : null;
                 return declarationValue;
@@ -486,8 +484,7 @@ var StaticReflector = (function () {
         if (!moduleMetadata) {
             moduleMetadata = this.host.getMetadataFor(module);
             if (Array.isArray(moduleMetadata)) {
-                moduleMetadata = moduleMetadata
-                    .find(function (element) { return element.version === SUPPORTED_SCHEMA_VERSION; }) ||
+                moduleMetadata = moduleMetadata.find(function (md) { return md['version'] === SUPPORTED_SCHEMA_VERSION; }) ||
                     moduleMetadata[0];
             }
             if (!moduleMetadata) {
@@ -503,11 +500,7 @@ var StaticReflector = (function () {
     };
     StaticReflector.prototype.getTypeMetadata = function (type) {
         var moduleMetadata = this.getModuleMetadata(type.filePath);
-        var result = moduleMetadata['metadata'][type.name];
-        if (!result) {
-            result = { __symbolic: 'class' };
-        }
-        return result;
+        return moduleMetadata['metadata'][type.name] || { __symbolic: 'class' };
     };
     return StaticReflector;
 }());
@@ -562,7 +555,6 @@ var BindingScope = (function () {
     }
     BindingScope.build = function () {
         var current = new Map();
-        var parent = undefined;
         return {
             define: function (name, value) {
                 current.set(name, value);

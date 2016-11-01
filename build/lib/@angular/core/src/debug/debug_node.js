@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { ListWrapper, MapWrapper } from '../facade/collection';
+import { MapWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 export var EventListener = (function () {
     function EventListener(name, callback) {
@@ -105,8 +105,7 @@ export var DebugElement = (function (_super) {
         if (siblingIndex !== -1) {
             var previousChildren = this.childNodes.slice(0, siblingIndex + 1);
             var nextChildren = this.childNodes.slice(siblingIndex + 1);
-            this.childNodes =
-                ListWrapper.concat(ListWrapper.concat(previousChildren, newChildren), nextChildren);
+            this.childNodes = previousChildren.concat(newChildren, nextChildren);
             for (var i = 0; i < newChildren.length; ++i) {
                 var newChild = newChildren[i];
                 if (isPresent(newChild.parent)) {

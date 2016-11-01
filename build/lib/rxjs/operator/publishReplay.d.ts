@@ -1,3 +1,4 @@
+import { Observable } from '../Observable';
 import { Scheduler } from '../Scheduler';
 import { ConnectableObservable } from '../observable/ConnectableObservable';
 /**
@@ -8,7 +9,4 @@ import { ConnectableObservable } from '../observable/ConnectableObservable';
  * @method publishReplay
  * @owner Observable
  */
-export declare function publishReplay<T>(bufferSize?: number, windowTime?: number, scheduler?: Scheduler): ConnectableObservable<T>;
-export interface PublishReplaySignature<T> {
-    (bufferSize?: number, windowTime?: number, scheduler?: Scheduler): ConnectableObservable<T>;
-}
+export declare function publishReplay<T>(this: Observable<T>, bufferSize?: number, windowTime?: number, scheduler?: Scheduler): ConnectableObservable<T>;

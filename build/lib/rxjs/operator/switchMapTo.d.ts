@@ -43,8 +43,5 @@ import { Observable, ObservableInput } from '../Observable';
  * @method switchMapTo
  * @owner Observable
  */
-export declare function switchMapTo<T, I, R>(innerObservable: Observable<I>, resultSelector?: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-export interface SwitchMapToSignature<T> {
-    <R>(observable: ObservableInput<R>): Observable<R>;
-    <I, R>(observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-}
+export declare function switchMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>): Observable<R>;
+export declare function switchMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
