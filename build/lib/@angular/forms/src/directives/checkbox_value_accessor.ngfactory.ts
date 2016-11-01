@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './checkbox_value_accessor';
+import * as import0 from '@angular/forms/src/directives/checkbox_value_accessor';
 import * as import1 from '@angular/core/src/linker/view';
 export class Wrapper_CheckboxControlValueAccessor {
   context:import0.CheckboxControlValueAccessor;

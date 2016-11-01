@@ -10,19 +10,13 @@ var Subscriber_1 = require('../Subscriber');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 var iterator_1 = require('../symbol/iterator');
-/**
- * @param observables
- * @return {Observable<R>}
- * @method zip
- * @owner Observable
- */
+/* tslint:disable:max-line-length */
 function zipProto() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i - 0] = arguments[_i];
     }
-    observables.unshift(this);
-    return zipStatic.apply(this, observables);
+    return this.lift.call(zipStatic.apply(void 0, [this].concat(observables)));
 }
 exports.zipProto = zipProto;
 /* tslint:enable:max-line-length */

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.0
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -45,19 +45,10 @@
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isFunction(obj) {
-        return typeof obj === 'function';
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
+        return obj == null;
     }
     function stringify(token) {
         if (typeof token === 'string') {
@@ -76,55 +67,9 @@
         var newLineIndex = res.indexOf('\n');
         return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
     // JS has NaN !== NaN
     function looseIdentical(a, b) {
         return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
-    }
-    // JS considers NaN is the same as NaN for map Key (while NaN !== NaN otherwise)
-    // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-    function getMapKey(value) {
-        return value;
     }
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
@@ -137,8 +82,8 @@
     }
     var _symbolIterator = null;
     function getSymbolIterator() {
-        if (isBlank(_symbolIterator)) {
-            if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
+        if (!_symbolIterator) {
+            if (globalScope.Symbol && Symbol.iterator) {
                 _symbolIterator = Symbol.iterator;
             }
             else {
@@ -350,7 +295,7 @@
         return DecoratorFactory;
     }
     function makeMetadataCtor(props) {
-        function ctor() {
+        return function ctor() {
             var _this = this;
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -360,17 +305,16 @@
                 var argVal = args[i];
                 if (Array.isArray(prop)) {
                     // plain parameter
-                    _this[prop[0]] = !argVal || argVal === undefined ? prop[1] : argVal;
+                    _this[prop[0]] = argVal === undefined ? prop[1] : argVal;
                 }
                 else {
                     for (var propName in prop) {
                         _this[propName] =
-                            !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
+                            argVal && argVal.hasOwnProperty(propName) ? argVal[propName] : prop[propName];
                     }
                 }
             });
-        }
-        return ctor;
+        };
     }
     function makeParamDecorator(name, props, parentClass) {
         var metaCtor = makeMetadataCtor(props);
@@ -421,7 +365,7 @@
             var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
             return function PropDecorator(target, name) {
                 var meta = Reflect.getOwnMetadata('propMetadata', target.constructor) || {};
-                meta[name] = meta[name] || [];
+                meta[name] = meta.hasOwnProperty(name) && meta[name] || [];
                 meta[name].unshift(decoratorInstance);
                 Reflect.defineMetadata('propMetadata', meta, target.constructor);
             };
@@ -1125,7 +1069,7 @@
      * @experimental
      */
     function resolveForwardRef(type) {
-        if (isFunction(type) && type.hasOwnProperty('__forward_ref__') &&
+        if (typeof type === 'function' && type.hasOwnProperty('__forward_ref__') &&
             type.__forward_ref__ === forwardRef) {
             return type();
         }
@@ -1250,283 +1194,6 @@
         return Injector;
     }());
 
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
-    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
-    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
-    var _arrayFromMap = (function () {
-        try {
-            if ((new Map()).values().next) {
-                return function createArrayFromMap(m, getValues) {
-                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
-                };
-            }
-        }
-        catch (e) {
-        }
-        return function createArrayFromMapWithForeach(m, getValues) {
-            var res = new Array(m.size), i = 0;
-            m.forEach(function (v, k) {
-                res[i] = getValues ? v : k;
-                i++;
-            });
-            return res;
-        };
-    })();
-    var MapWrapper = (function () {
-        function MapWrapper() {
-        }
-        MapWrapper.createFromStringMap = function (stringMap) {
-            var result = new Map();
-            for (var prop in stringMap) {
-                result.set(prop, stringMap[prop]);
-            }
-            return result;
-        };
-        MapWrapper.toStringMap = function (m) {
-            var r = {};
-            m.forEach(function (v, k) { return r[k] = v; });
-            return r;
-        };
-        MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-        MapWrapper.iterable = function (m) { return m; };
-        MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
-        MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
-        return MapWrapper;
-    }());
-    /**
-     * Wraps Javascript Objects
-     */
-    var StringMapWrapper = (function () {
-        function StringMapWrapper() {
-        }
-        StringMapWrapper.merge = function (m1, m2) {
-            var m = {};
-            for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
-                var k = _a[_i];
-                m[k] = m1[k];
-            }
-            for (var _b = 0, _c = Object.keys(m2); _b < _c.length; _b++) {
-                var k = _c[_b];
-                m[k] = m2[k];
-            }
-            return m;
-        };
-        StringMapWrapper.equals = function (m1, m2) {
-            var k1 = Object.keys(m1);
-            var k2 = Object.keys(m2);
-            if (k1.length != k2.length) {
-                return false;
-            }
-            for (var i = 0; i < k1.length; i++) {
-                var key = k1[i];
-                if (m1[key] !== m2[key]) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        return StringMapWrapper;
-    }());
-    var ListWrapper = (function () {
-        function ListWrapper() {
-        }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
-        ListWrapper.removeAll = function (list, items) {
-            for (var i = 0; i < items.length; ++i) {
-                var index = list.indexOf(items[i]);
-                list.splice(index, 1);
-            }
-        };
-        ListWrapper.remove = function (list, el) {
-            var index = list.indexOf(el);
-            if (index > -1) {
-                list.splice(index, 1);
-                return true;
-            }
-            return false;
-        };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
-        ListWrapper.equals = function (a, b) {
-            if (a.length != b.length)
-                return false;
-            for (var i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (isBlank(candidate)) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
-        ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
-        return ListWrapper;
-    }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
-    function isListLikeIterable(obj) {
-        if (!isJsObject(obj))
-            return false;
-        return isArray(obj) ||
-            (!(obj instanceof Map) &&
-                getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
-    }
-    function areIterablesEqual(a, b, comparator) {
-        var iterator1 = a[getSymbolIterator()]();
-        var iterator2 = b[getSymbolIterator()]();
-        while (true) {
-            var item1 = iterator1.next();
-            var item2 = iterator2.next();
-            if (item1.done && item2.done)
-                return true;
-            if (item1.done || item2.done)
-                return false;
-            if (!comparator(item1.value, item2.value))
-                return false;
-        }
-    }
-    function iterateListLike(obj, fn) {
-        if (isArray(obj)) {
-            for (var i = 0; i < obj.length; i++) {
-                fn(obj[i]);
-            }
-        }
-        else {
-            var iterator = obj[getSymbolIterator()]();
-            var item;
-            while (!((item = iterator.next()).done)) {
-                fn(item.value);
-            }
-        }
-    }
-
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -1542,7 +1209,7 @@
     function findFirstClosedCycle(keys) {
         var res = [];
         for (var i = 0; i < keys.length; ++i) {
-            if (ListWrapper.contains(res, keys[i])) {
+            if (res.indexOf(keys[i]) > -1) {
                 res.push(keys[i]);
                 return res;
             }
@@ -1552,7 +1219,7 @@
     }
     function constructResolvingPath(keys) {
         if (keys.length > 1) {
-            var reversed = findFirstClosedCycle(ListWrapper.reversed(keys));
+            var reversed = findFirstClosedCycle(keys.slice().reverse());
             var tokenStrs = reversed.map(function (k) { return stringify(k.token); });
             return ' (' + tokenStrs.join(' -> ') + ')';
         }
@@ -1597,7 +1264,7 @@
         __extends$1(NoProviderError, _super);
         function NoProviderError(injector, key) {
             _super.call(this, injector, key, function (keys) {
-                var first = stringify(ListWrapper.first(keys).token);
+                var first = stringify(keys[0].token);
                 return "No provider for " + first + "!" + constructResolvingPath(keys);
             });
         }
@@ -1669,7 +1336,7 @@
         };
         Object.defineProperty(InstantiationError.prototype, "message", {
             get: function () {
-                var first = stringify(ListWrapper.first(this.keys).token);
+                var first = stringify(this.keys[0].token);
                 return this.originalError.message + ": Error during instantiation of " + first + "!" + constructResolvingPath(this.keys) + ".";
             },
             enumerable: true,
@@ -1872,6 +1539,177 @@
     }());
     var _globalKeyRegistry = new KeyRegistry();
 
+    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
+    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
+    var _arrayFromMap = (function () {
+        try {
+            if ((new Map()).values().next) {
+                return function createArrayFromMap(m, getValues) {
+                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
+                };
+            }
+        }
+        catch (e) {
+        }
+        return function createArrayFromMapWithForeach(m, getValues) {
+            var res = new Array(m.size), i = 0;
+            m.forEach(function (v, k) {
+                res[i] = getValues ? v : k;
+                i++;
+            });
+            return res;
+        };
+    })();
+    var MapWrapper = (function () {
+        function MapWrapper() {
+        }
+        MapWrapper.createFromStringMap = function (stringMap) {
+            var result = new Map();
+            for (var prop in stringMap) {
+                result.set(prop, stringMap[prop]);
+            }
+            return result;
+        };
+        MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
+        MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
+        return MapWrapper;
+    }());
+    /**
+     * Wraps Javascript Objects
+     */
+    var StringMapWrapper = (function () {
+        function StringMapWrapper() {
+        }
+        StringMapWrapper.merge = function (m1, m2) {
+            var m = {};
+            for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
+                var k = _a[_i];
+                m[k] = m1[k];
+            }
+            for (var _b = 0, _c = Object.keys(m2); _b < _c.length; _b++) {
+                var k = _c[_b];
+                m[k] = m2[k];
+            }
+            return m;
+        };
+        StringMapWrapper.equals = function (m1, m2) {
+            var k1 = Object.keys(m1);
+            var k2 = Object.keys(m2);
+            if (k1.length != k2.length) {
+                return false;
+            }
+            for (var i = 0; i < k1.length; i++) {
+                var key = k1[i];
+                if (m1[key] !== m2[key]) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        return StringMapWrapper;
+    }());
+    var ListWrapper = (function () {
+        function ListWrapper() {
+        }
+        ListWrapper.removeAll = function (list, items) {
+            for (var i = 0; i < items.length; ++i) {
+                var index = list.indexOf(items[i]);
+                list.splice(index, 1);
+            }
+        };
+        ListWrapper.remove = function (list, el) {
+            var index = list.indexOf(el);
+            if (index > -1) {
+                list.splice(index, 1);
+                return true;
+            }
+            return false;
+        };
+        ListWrapper.equals = function (a, b) {
+            if (a.length != b.length)
+                return false;
+            for (var i = 0; i < a.length; ++i) {
+                if (a[i] !== b[i])
+                    return false;
+            }
+            return true;
+        };
+        ListWrapper.maximum = function (list, predicate) {
+            if (list.length == 0) {
+                return null;
+            }
+            var solution = null;
+            var maxValue = -Infinity;
+            for (var index = 0; index < list.length; index++) {
+                var candidate = list[index];
+                if (candidate == null) {
+                    continue;
+                }
+                var candidateValue = predicate(candidate);
+                if (candidateValue > maxValue) {
+                    solution = candidate;
+                    maxValue = candidateValue;
+                }
+            }
+            return solution;
+        };
+        ListWrapper.flatten = function (list) {
+            var target = [];
+            _flattenArray(list, target);
+            return target;
+        };
+        return ListWrapper;
+    }());
+    function _flattenArray(source, target) {
+        if (isPresent(source)) {
+            for (var i = 0; i < source.length; i++) {
+                var item = source[i];
+                if (Array.isArray(item)) {
+                    _flattenArray(item, target);
+                }
+                else {
+                    target.push(item);
+                }
+            }
+        }
+        return target;
+    }
+    function isListLikeIterable(obj) {
+        if (!isJsObject(obj))
+            return false;
+        return Array.isArray(obj) ||
+            (!(obj instanceof Map) &&
+                getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
+    }
+    function areIterablesEqual(a, b, comparator) {
+        var iterator1 = a[getSymbolIterator()]();
+        var iterator2 = b[getSymbolIterator()]();
+        while (true) {
+            var item1 = iterator1.next();
+            var item2 = iterator2.next();
+            if (item1.done && item2.done)
+                return true;
+            if (item1.done || item2.done)
+                return false;
+            if (!comparator(item1.value, item2.value))
+                return false;
+        }
+    }
+    function iterateListLike(obj, fn) {
+        if (Array.isArray(obj)) {
+            for (var i = 0; i < obj.length; i++) {
+                fn(obj[i]);
+            }
+        }
+        else {
+            var iterator = obj[getSymbolIterator()]();
+            var item = void 0;
+            while (!((item = iterator.next()).done)) {
+                fn(item.value);
+            }
+        }
+    }
+
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -1960,7 +1798,7 @@
             // Prefer the direct API.
             if (typeOrFunc.annotations) {
                 var annotations = typeOrFunc.annotations;
-                if (isFunction(annotations) && annotations.annotations) {
+                if (typeof annotations === 'function' && annotations.annotations) {
                     annotations = annotations.annotations;
                 }
                 return annotations;
@@ -1981,7 +1819,7 @@
             // Prefer the direct API.
             if (typeOrFunc.propMetadata) {
                 var propMetadata = typeOrFunc.propMetadata;
-                if (isFunction(propMetadata) && propMetadata.propMetadata) {
+                if (typeof propMetadata === 'function' && propMetadata.propMetadata) {
                     propMetadata = propMetadata.propMetadata;
                 }
                 return propMetadata;
@@ -2003,15 +1841,8 @@
             }
             return {};
         };
-        // Note: JavaScript does not support to query for interfaces during runtime.
-        // However, we can't throw here as the reflector will always call this method
-        // when asked for a lifecycle interface as this is what we check in Dart.
-        ReflectionCapabilities.prototype.interfaces = function (type) { return []; };
-        ReflectionCapabilities.prototype.hasLifecycleHook = function (type, lcInterface, lcProperty) {
-            if (!(type instanceof Type))
-                return false;
-            var proto = type.prototype;
-            return !!proto[lcProperty];
+        ReflectionCapabilities.prototype.hasLifecycleHook = function (type, lcProperty) {
+            return type instanceof Type && lcProperty in type.prototype;
         };
         ReflectionCapabilities.prototype.getter = function (name) { return new Function('o', 'return o.' + name + ';'); };
         ReflectionCapabilities.prototype.setter = function (name) {
@@ -2084,103 +1915,24 @@
         function Reflector(reflectionCapabilities) {
             _super.call(this);
             this.reflectionCapabilities = reflectionCapabilities;
-            /** @internal */
-            this._injectableInfo = new Map();
-            /** @internal */
-            this._getters = new Map();
-            /** @internal */
-            this._setters = new Map();
-            /** @internal */
-            this._methods = new Map();
-            /** @internal */
-            this._usedKeys = null;
         }
         Reflector.prototype.updateCapabilities = function (caps) { this.reflectionCapabilities = caps; };
-        Reflector.prototype.isReflectionEnabled = function () { return this.reflectionCapabilities.isReflectionEnabled(); };
-        /**
-         * Causes `this` reflector to track keys used to access
-         * {@link ReflectionInfo} objects.
-         */
-        Reflector.prototype.trackUsage = function () { this._usedKeys = new Set(); };
-        /**
-         * Lists types for which reflection information was not requested since
-         * {@link #trackUsage} was called. This list could later be audited as
-         * potential dead code.
-         */
-        Reflector.prototype.listUnusedKeys = function () {
-            var _this = this;
-            if (!this._usedKeys) {
-                throw new Error('Usage tracking is disabled');
-            }
-            var allTypes = MapWrapper.keys(this._injectableInfo);
-            return allTypes.filter(function (key) { return !_this._usedKeys.has(key); });
-        };
-        Reflector.prototype.registerFunction = function (func, funcInfo) {
-            this._injectableInfo.set(func, funcInfo);
-        };
-        Reflector.prototype.registerType = function (type, typeInfo) {
-            this._injectableInfo.set(type, typeInfo);
-        };
-        Reflector.prototype.registerGetters = function (getters) { _mergeMaps(this._getters, getters); };
-        Reflector.prototype.registerSetters = function (setters) { _mergeMaps(this._setters, setters); };
-        Reflector.prototype.registerMethods = function (methods) { _mergeMaps(this._methods, methods); };
-        Reflector.prototype.factory = function (type) {
-            if (this._containsReflectionInfo(type)) {
-                return this._getReflectionInfo(type).factory || null;
-            }
-            return this.reflectionCapabilities.factory(type);
-        };
+        Reflector.prototype.factory = function (type) { return this.reflectionCapabilities.factory(type); };
         Reflector.prototype.parameters = function (typeOrFunc) {
-            if (this._injectableInfo.has(typeOrFunc)) {
-                return this._getReflectionInfo(typeOrFunc).parameters || [];
-            }
             return this.reflectionCapabilities.parameters(typeOrFunc);
         };
         Reflector.prototype.annotations = function (typeOrFunc) {
-            if (this._injectableInfo.has(typeOrFunc)) {
-                return this._getReflectionInfo(typeOrFunc).annotations || [];
-            }
             return this.reflectionCapabilities.annotations(typeOrFunc);
         };
         Reflector.prototype.propMetadata = function (typeOrFunc) {
-            if (this._injectableInfo.has(typeOrFunc)) {
-                return this._getReflectionInfo(typeOrFunc).propMetadata || {};
-            }
             return this.reflectionCapabilities.propMetadata(typeOrFunc);
         };
-        Reflector.prototype.interfaces = function (type) {
-            if (this._injectableInfo.has(type)) {
-                return this._getReflectionInfo(type).interfaces || [];
-            }
-            return this.reflectionCapabilities.interfaces(type);
+        Reflector.prototype.hasLifecycleHook = function (type, lcProperty) {
+            return this.reflectionCapabilities.hasLifecycleHook(type, lcProperty);
         };
-        Reflector.prototype.hasLifecycleHook = function (type, lcInterface, lcProperty) {
-            if (this.interfaces(type).indexOf(lcInterface) !== -1) {
-                return true;
-            }
-            return this.reflectionCapabilities.hasLifecycleHook(type, lcInterface, lcProperty);
-        };
-        Reflector.prototype.getter = function (name) {
-            return this._getters.has(name) ? this._getters.get(name) :
-                this.reflectionCapabilities.getter(name);
-        };
-        Reflector.prototype.setter = function (name) {
-            return this._setters.has(name) ? this._setters.get(name) :
-                this.reflectionCapabilities.setter(name);
-        };
-        Reflector.prototype.method = function (name) {
-            return this._methods.has(name) ? this._methods.get(name) :
-                this.reflectionCapabilities.method(name);
-        };
-        /** @internal */
-        Reflector.prototype._getReflectionInfo = function (typeOrFunc) {
-            if (this._usedKeys) {
-                this._usedKeys.add(typeOrFunc);
-            }
-            return this._injectableInfo.get(typeOrFunc);
-        };
-        /** @internal */
-        Reflector.prototype._containsReflectionInfo = function (typeOrFunc) { return this._injectableInfo.has(typeOrFunc); };
+        Reflector.prototype.getter = function (name) { return this.reflectionCapabilities.getter(name); };
+        Reflector.prototype.setter = function (name) { return this.reflectionCapabilities.setter(name); };
+        Reflector.prototype.method = function (name) { return this.reflectionCapabilities.method(name); };
         Reflector.prototype.importUri = function (type) { return this.reflectionCapabilities.importUri(type); };
         Reflector.prototype.resolveIdentifier = function (name, moduleUrl, runtime) {
             return this.reflectionCapabilities.resolveIdentifier(name, moduleUrl, runtime);
@@ -2190,9 +1942,6 @@
         };
         return Reflector;
     }(ReflectorReader));
-    function _mergeMaps(target, config) {
-        Object.keys(config).forEach(function (k) { target.set(k, config[k]); });
-    }
 
     /**
      * The {@link Reflector} used internally in Angular to access metadata
@@ -2318,7 +2067,7 @@
             else {
                 var resolvedProvider;
                 if (provider.multiProvider) {
-                    resolvedProvider = new ResolvedReflectiveProvider_(provider.key, ListWrapper.clone(provider.resolvedFactories), provider.multiProvider);
+                    resolvedProvider = new ResolvedReflectiveProvider_(provider.key, provider.resolvedFactories.slice(), provider.multiProvider);
                 }
                 else {
                     resolvedProvider = provider;
@@ -2367,7 +2116,7 @@
         var depProps = [];
         var token = null;
         var optional = false;
-        if (!isArray(metadata)) {
+        if (!Array.isArray(metadata)) {
             if (metadata instanceof Inject) {
                 return _createDependency(metadata.token, optional, null, null, depProps);
             }
@@ -2410,7 +2159,6 @@
         return new ReflectiveDependency(ReflectiveKey.get(token), optional, lowerBoundVisibility, upperBoundVisibility, depProps);
     }
 
-    // avoid unused import when Type union types are erased
     // Threshold for the dynamic version
     var _MAX_CONSTRUCTION_COUNTER = 10;
     var UNDEFINED = new Object();
@@ -2655,8 +2403,7 @@
         function ReflectiveInjectorDynamicStrategy(protoStrategy, injector) {
             this.protoStrategy = protoStrategy;
             this.injector = injector;
-            this.objs = new Array(protoStrategy.providers.length);
-            ListWrapper.fill(this.objs, UNDEFINED);
+            this.objs = new Array(protoStrategy.providers.length).fill(UNDEFINED);
         }
         ReflectiveInjectorDynamicStrategy.prototype.resetConstructionCounter = function () { this.injector._constructionCounter = 0; };
         ReflectiveInjectorDynamicStrategy.prototype.instantiateProvider = function (provider) {
@@ -3685,20 +3432,20 @@
             var index;
             var item;
             var itemTrackBy;
-            if (isArray(collection)) {
+            if (Array.isArray(collection)) {
                 var list = collection;
                 this._length = collection.length;
-                for (index = 0; index < this._length; index++) {
-                    item = list[index];
-                    itemTrackBy = this._trackByFn(index, item);
+                for (var index_1 = 0; index_1 < this._length; index_1++) {
+                    item = list[index_1];
+                    itemTrackBy = this._trackByFn(index_1, item);
                     if (record === null || !looseIdentical(record.trackById, itemTrackBy)) {
-                        record = this._mismatch(record, item, itemTrackBy, index);
+                        record = this._mismatch(record, item, itemTrackBy, index_1);
                         mayBeDirty = true;
                     }
                     else {
                         if (mayBeDirty) {
                             // TODO(misko): can we limit this to duplicates only?
-                            record = this._verifyReinsertion(record, item, itemTrackBy, index);
+                            record = this._verifyReinsertion(record, item, itemTrackBy, index_1);
                         }
                         if (!looseIdentical(record.item, item))
                             this._addIdentityChange(record, item);
@@ -4184,10 +3931,9 @@
             this.map = new Map();
         }
         _DuplicateMap.prototype.put = function (record) {
-            // todo(vicb) handle corner cases
-            var key = getMapKey(record.trackById);
+            var key = record.trackById;
             var duplicates = this.map.get(key);
-            if (!isPresent(duplicates)) {
+            if (!duplicates) {
                 duplicates = new _DuplicateItemRecordList();
                 this.map.set(key, duplicates);
             }
@@ -4202,7 +3948,7 @@
          */
         _DuplicateMap.prototype.get = function (trackById, afterIndex) {
             if (afterIndex === void 0) { afterIndex = null; }
-            var key = getMapKey(trackById);
+            var key = trackById;
             var recordList = this.map.get(key);
             return recordList ? recordList.get(trackById, afterIndex) : null;
         };
@@ -4212,9 +3958,7 @@
          * The list of duplicates also is removed from the map if it gets empty.
          */
         _DuplicateMap.prototype.remove = function (record) {
-            var key = getMapKey(record.trackById);
-            // todo(vicb)
-            // assert(this.map.containsKey(key));
+            var key = record.trackById;
             var recordList = this.map.get(key);
             // Remove the list of duplicates when it gets empty
             if (recordList.remove(record)) {
@@ -4548,7 +4292,7 @@
         }
         IterableDiffers.create = function (factories, parent) {
             if (isPresent(parent)) {
-                var copied = ListWrapper.clone(parent.factories);
+                var copied = parent.factories.slice();
                 factories = factories.concat(copied);
                 return new IterableDiffers(factories);
             }
@@ -4613,7 +4357,7 @@
         }
         KeyValueDiffers.create = function (factories, parent) {
             if (isPresent(parent)) {
-                var copied = ListWrapper.clone(parent.factories);
+                var copied = parent.factories.slice();
                 factories = factories.concat(copied);
                 return new KeyValueDiffers(factories);
             }
@@ -5133,7 +4877,7 @@
             return wtfLeave(s, viewRef_);
         };
         ViewContainerRef_.prototype.indexOf = function (viewRef) {
-            return ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
+            return this._element.nestedViews.indexOf(viewRef.internalView);
         };
         // TODO(i): rename to destroy
         ViewContainerRef_.prototype.remove = function (index) {
@@ -5243,8 +4987,8 @@
                 nestedViews = [];
                 this.nestedViews = nestedViews;
             }
-            ListWrapper.removeAt(nestedViews, previousIndex);
-            ListWrapper.insert(nestedViews, currentIndex, view);
+            nestedViews.splice(previousIndex, 1);
+            nestedViews.splice(currentIndex, 0, view);
             var refRenderNode;
             if (currentIndex > 0) {
                 var prevView = nestedViews[currentIndex - 1];
@@ -5267,7 +5011,7 @@
                 nestedViews = [];
                 this.nestedViews = nestedViews;
             }
-            ListWrapper.insert(nestedViews, viewIndex, view);
+            nestedViews.splice(viewIndex, 0, view);
             var refRenderNode;
             if (viewIndex > 0) {
                 var prevView = nestedViews[viewIndex - 1];
@@ -5282,7 +5026,7 @@
             view.addToContentChildren(this);
         };
         AppElement.prototype.detachView = function (viewIndex) {
-            var view = ListWrapper.removeAt(this.nestedViews, viewIndex);
+            var view = this.nestedViews.splice(viewIndex, 1)[0];
             if (view.type === ViewType.COMPONENT) {
                 throw new Error("Component views can't be moved!");
             }
@@ -5679,6 +5423,239 @@
             return result;
         };
     }
+    function setBindingDebugInfoForChanges(renderer, el, changes) {
+        Object.keys(changes).forEach(function (propName) {
+            setBindingDebugInfo(renderer, el, propName, changes[propName].currentValue);
+        });
+    }
+    function setBindingDebugInfo(renderer, el, propName, value) {
+        try {
+            renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), value ? value.toString() : null);
+        }
+        catch (e) {
+            renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), '[ERROR] Exception while trying to serialize the value');
+        }
+    }
+    var CAMEL_CASE_REGEXP = /([A-Z])/g;
+    function camelCaseToDashCase(input) {
+        return input.replace(CAMEL_CASE_REGEXP, function () {
+            var m = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                m[_i - 0] = arguments[_i];
+            }
+            return '-' + m[1].toLowerCase();
+        });
+    }
+    function createRenderElement(renderer, parentElement, name, attrs, debugInfo) {
+        var el = renderer.createElement(parentElement, name, debugInfo);
+        for (var i = 0; i < attrs.length; i += 2) {
+            renderer.setElementAttribute(el, attrs.get(i), attrs.get(i + 1));
+        }
+        return el;
+    }
+    function selectOrCreateRenderHostElement(renderer, elementName, attrs, rootSelectorOrNode, debugInfo) {
+        var hostElement;
+        if (isPresent(rootSelectorOrNode)) {
+            hostElement = renderer.selectRootElement(rootSelectorOrNode, debugInfo);
+        }
+        else {
+            hostElement = createRenderElement(renderer, null, elementName, attrs, debugInfo);
+        }
+        return hostElement;
+    }
+    var InlineArray0 = (function () {
+        function InlineArray0() {
+            this.length = 0;
+        }
+        InlineArray0.prototype.get = function (index) { return undefined; };
+        return InlineArray0;
+    }());
+    var InlineArray2 = (function () {
+        function InlineArray2(length, _v0, _v1) {
+            this.length = length;
+            this._v0 = _v0;
+            this._v1 = _v1;
+        }
+        InlineArray2.prototype.get = function (index) {
+            switch (index) {
+                case 0:
+                    return this._v0;
+                case 1:
+                    return this._v1;
+                default:
+                    return undefined;
+            }
+        };
+        return InlineArray2;
+    }());
+    var InlineArray4 = (function () {
+        function InlineArray4(length, _v0, _v1, _v2, _v3) {
+            this.length = length;
+            this._v0 = _v0;
+            this._v1 = _v1;
+            this._v2 = _v2;
+            this._v3 = _v3;
+        }
+        InlineArray4.prototype.get = function (index) {
+            switch (index) {
+                case 0:
+                    return this._v0;
+                case 1:
+                    return this._v1;
+                case 2:
+                    return this._v2;
+                case 3:
+                    return this._v3;
+                default:
+                    return undefined;
+            }
+        };
+        return InlineArray4;
+    }());
+    var InlineArray8 = (function () {
+        function InlineArray8(length, _v0, _v1, _v2, _v3, _v4, _v5, _v6, _v7) {
+            this.length = length;
+            this._v0 = _v0;
+            this._v1 = _v1;
+            this._v2 = _v2;
+            this._v3 = _v3;
+            this._v4 = _v4;
+            this._v5 = _v5;
+            this._v6 = _v6;
+            this._v7 = _v7;
+        }
+        InlineArray8.prototype.get = function (index) {
+            switch (index) {
+                case 0:
+                    return this._v0;
+                case 1:
+                    return this._v1;
+                case 2:
+                    return this._v2;
+                case 3:
+                    return this._v3;
+                case 4:
+                    return this._v4;
+                case 5:
+                    return this._v5;
+                case 6:
+                    return this._v6;
+                case 7:
+                    return this._v7;
+                default:
+                    return undefined;
+            }
+        };
+        return InlineArray8;
+    }());
+    var InlineArray16 = (function () {
+        function InlineArray16(length, _v0, _v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9, _v10, _v11, _v12, _v13, _v14, _v15) {
+            this.length = length;
+            this._v0 = _v0;
+            this._v1 = _v1;
+            this._v2 = _v2;
+            this._v3 = _v3;
+            this._v4 = _v4;
+            this._v5 = _v5;
+            this._v6 = _v6;
+            this._v7 = _v7;
+            this._v8 = _v8;
+            this._v9 = _v9;
+            this._v10 = _v10;
+            this._v11 = _v11;
+            this._v12 = _v12;
+            this._v13 = _v13;
+            this._v14 = _v14;
+            this._v15 = _v15;
+        }
+        InlineArray16.prototype.get = function (index) {
+            switch (index) {
+                case 0:
+                    return this._v0;
+                case 1:
+                    return this._v1;
+                case 2:
+                    return this._v2;
+                case 3:
+                    return this._v3;
+                case 4:
+                    return this._v4;
+                case 5:
+                    return this._v5;
+                case 6:
+                    return this._v6;
+                case 7:
+                    return this._v7;
+                case 8:
+                    return this._v8;
+                case 9:
+                    return this._v9;
+                case 10:
+                    return this._v10;
+                case 11:
+                    return this._v11;
+                case 12:
+                    return this._v12;
+                case 13:
+                    return this._v13;
+                case 14:
+                    return this._v14;
+                case 15:
+                    return this._v15;
+                default:
+                    return undefined;
+            }
+        };
+        return InlineArray16;
+    }());
+    var InlineArrayDynamic = (function () {
+        // Note: We still take the length argument so this class can be created
+        // in the same ways as the other classes!
+        function InlineArrayDynamic(length) {
+            var values = [];
+            for (var _i = 1; _i < arguments.length; _i++) {
+                values[_i - 1] = arguments[_i];
+            }
+            this.length = length;
+            this._values = values;
+        }
+        InlineArrayDynamic.prototype.get = function (index) { return this._values[index]; };
+        return InlineArrayDynamic;
+    }());
+    var EMPTY_INLINE_ARRAY = new InlineArray0();
+
+
+    var view_utils = Object.freeze({
+        ViewUtils: ViewUtils,
+        flattenNestedViewRenderNodes: flattenNestedViewRenderNodes,
+        ensureSlotCount: ensureSlotCount,
+        MAX_INTERPOLATION_VALUES: MAX_INTERPOLATION_VALUES,
+        interpolate: interpolate,
+        checkBinding: checkBinding,
+        castByValue: castByValue,
+        EMPTY_ARRAY: EMPTY_ARRAY,
+        EMPTY_MAP: EMPTY_MAP,
+        pureProxy1: pureProxy1,
+        pureProxy2: pureProxy2,
+        pureProxy3: pureProxy3,
+        pureProxy4: pureProxy4,
+        pureProxy5: pureProxy5,
+        pureProxy6: pureProxy6,
+        pureProxy7: pureProxy7,
+        pureProxy8: pureProxy8,
+        pureProxy9: pureProxy9,
+        pureProxy10: pureProxy10,
+        setBindingDebugInfoForChanges: setBindingDebugInfoForChanges,
+        setBindingDebugInfo: setBindingDebugInfo,
+        createRenderElement: createRenderElement,
+        selectOrCreateRenderHostElement: selectOrCreateRenderHostElement,
+        InlineArray2: InlineArray2,
+        InlineArray4: InlineArray4,
+        InlineArray8: InlineArray8,
+        InlineArray16: InlineArray16,
+        InlineArrayDynamic: InlineArrayDynamic,
+        EMPTY_INLINE_ARRAY: EMPTY_INLINE_ARRAY
+    });
 
     /**
      * @license
@@ -7280,7 +7257,7 @@
      */
     var _queuedAnimations = [];
     /** @internal */
-    function queueAnimation(player) {
+    function queueAnimationGlobally(player) {
         _queuedAnimations.push(player);
     }
     /** @internal */
@@ -7536,8 +7513,7 @@
             if (siblingIndex !== -1) {
                 var previousChildren = this.childNodes.slice(0, siblingIndex + 1);
                 var nextChildren = this.childNodes.slice(siblingIndex + 1);
-                this.childNodes =
-                    ListWrapper.concat(ListWrapper.concat(previousChildren, newChildren), nextChildren);
+                this.childNodes = previousChildren.concat(newChildren, nextChildren);
                 for (var i = 0; i < newChildren.length; ++i) {
                     var newChild = newChildren[i];
                     if (isPresent(newChild.parent)) {
@@ -7704,8 +7680,6 @@
     var DEFAULT_STATE = '*';
     var EMPTY_STATE = 'void';
 
-    var Math$1 = global$1.Math;
-
     var AnimationGroupPlayer = (function () {
         function AnimationGroupPlayer(_players) {
             var _this = this;
@@ -7774,7 +7748,7 @@
             var min = 0;
             this._players.forEach(function (player) {
                 var p = player.getPosition();
-                min = Math$1.min(p, min);
+                min = Math.min(p, min);
             });
             return min;
         };
@@ -8300,11 +8274,11 @@
     function style(tokens) {
         var input;
         var offset = null;
-        if (isString(tokens)) {
+        if (typeof tokens === 'string') {
             input = [tokens];
         }
         else {
-            if (isArray(tokens)) {
+            if (Array.isArray(tokens)) {
                 input = tokens;
             }
             else {
@@ -8533,8 +8507,7 @@
      * @experimental Animation support is experimental.
      */
     function transition(stateChangeExpr, steps) {
-        var animationData = isArray(steps) ? new AnimationSequenceMetadata(steps) :
-            steps;
+        var animationData = Array.isArray(steps) ? new AnimationSequenceMetadata(steps) : steps;
         return new AnimationStateTransitionMetadata(stateChangeExpr, animationData);
     }
     /**
@@ -8631,7 +8604,7 @@
         var keyframeCollectedStyles = StringMapWrapper.merge({}, flatenedFirstKeyframeStyles);
         // phase 2: normalize the final keyframe
         var finalKeyframe = keyframes[limit];
-        ListWrapper.insert(finalKeyframe.styles.styles, 0, finalStateStyles);
+        finalKeyframe.styles.styles.unshift(finalStateStyles);
         var flatenedFinalKeyframeStyles = flattenStyles(finalKeyframe.styles.styles);
         var extraFinalKeyframeStyles = {};
         var hasExtraFinalStyles = false;
@@ -8700,6 +8673,81 @@
             this.styles = styles;
         }
         return AnimationStyles;
+    }());
+
+    /**
+     * @license
+     * Copyright Google Inc. All Rights Reserved.
+     *
+     * Use of this source code is governed by an MIT-style license that can be
+     * found in the LICENSE file at https://angular.io/license
+     */
+    /**
+     * An instance of this class is returned as an event parameter when an animation
+     * callback is captured for an animation either during the start or done phase.
+     *
+     * ```typescript
+     * @Component({
+     *   host: {
+     *     '[@myAnimationTrigger]': 'someExpression',
+     *     '(@myAnimationTrigger.start)': 'captureStartEvent($event)',
+     *     '(@myAnimationTrigger.done)': 'captureDoneEvent($event)',
+     *   },
+     *   animations: [
+     *     trigger("myAnimationTrigger", [
+     *        // ...
+     *     ])
+     *   ]
+     * })
+     * class MyComponent {
+     *   someExpression: any = false;
+     *   captureStartEvent(event: AnimationTransitionEvent) {
+     *     // the toState, fromState and totalTime data is accessible from the event variable
+     *   }
+     *
+     *   captureDoneEvent(event: AnimationTransitionEvent) {
+     *     // the toState, fromState and totalTime data is accessible from the event variable
+     *   }
+     * }
+     * ```
+     *
+     * @experimental Animation support is experimental.
+     */
+    var AnimationTransitionEvent = (function () {
+        function AnimationTransitionEvent(_a) {
+            var fromState = _a.fromState, toState = _a.toState, totalTime = _a.totalTime, phaseName = _a.phaseName;
+            this.fromState = fromState;
+            this.toState = toState;
+            this.totalTime = totalTime;
+            this.phaseName = phaseName;
+        }
+        return AnimationTransitionEvent;
+    }());
+
+    var AnimationTransition = (function () {
+        function AnimationTransition(_player, _fromState, _toState, _totalTime) {
+            this._player = _player;
+            this._fromState = _fromState;
+            this._toState = _toState;
+            this._totalTime = _totalTime;
+        }
+        AnimationTransition.prototype._createEvent = function (phaseName) {
+            return new AnimationTransitionEvent({
+                fromState: this._fromState,
+                toState: this._toState,
+                totalTime: this._totalTime,
+                phaseName: phaseName
+            });
+        };
+        AnimationTransition.prototype.onStart = function (callback) {
+            var event = this._createEvent('start');
+            this._player.onStart(function () { return callback(event); });
+        };
+        AnimationTransition.prototype.onDone = function (callback) {
+            var event = this._createEvent('done');
+            this._player.onDone(function () { return callback(event); });
+        };
+        return AnimationTransition;
     }());
 
     var DebugDomRootRenderer = (function () {
@@ -8936,64 +8984,11 @@
         return DebugContext;
     }());
 
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    /**
-     * An instance of this class is returned as an event parameter when an animation
-     * callback is captured for an animation either during the start or done phase.
-     *
-     * ```typescript
-     * @Component({
-     *   host: {
-     *     '[@myAnimationTrigger]': 'someExpression',
-     *     '(@myAnimationTrigger.start)': 'captureStartEvent($event)',
-     *     '(@myAnimationTrigger.done)': 'captureDoneEvent($event)',
-     *   },
-     *   animations: [
-     *     trigger("myAnimationTrigger", [
-     *        // ...
-     *     ])
-     *   ]
-     * })
-     * class MyComponent {
-     *   someExpression: any = false;
-     *   captureStartEvent(event: AnimationTransitionEvent) {
-     *     // the toState, fromState and totalTime data is accessible from the event variable
-     *   }
-     *
-     *   captureDoneEvent(event: AnimationTransitionEvent) {
-     *     // the toState, fromState and totalTime data is accessible from the event variable
-     *   }
-     * }
-     * ```
-     *
-     * @experimental Animation support is experimental.
-     */
-    var AnimationTransitionEvent = (function () {
-        function AnimationTransitionEvent(_a) {
-            var fromState = _a.fromState, toState = _a.toState, totalTime = _a.totalTime;
-            this.fromState = fromState;
-            this.toState = toState;
-            this.totalTime = totalTime;
-        }
-        return AnimationTransitionEvent;
-    }());
-
     var ViewAnimationMap = (function () {
         function ViewAnimationMap() {
             this._map = new Map();
             this._allPlayers = [];
         }
-        Object.defineProperty(ViewAnimationMap.prototype, "length", {
-            get: function () { return this.getAllPlayers().length; },
-            enumerable: true,
-            configurable: true
-        });
         ViewAnimationMap.prototype.find = function (element, animationName) {
             var playersByAnimation = this._map.get(element);
             if (isPresent(playersByAnimation)) {
@@ -9031,6 +9026,40 @@
             }
         };
         return ViewAnimationMap;
+    }());
+
+    var AnimationViewContext = (function () {
+        function AnimationViewContext() {
+            this._players = new ViewAnimationMap();
+        }
+        AnimationViewContext.prototype.onAllActiveAnimationsDone = function (callback) {
+            var activeAnimationPlayers = this._players.getAllPlayers();
+            // we check for the length to avoid having GroupAnimationPlayer
+            // issue an unnecessary microtask when zero players are passed in
+            if (activeAnimationPlayers.length) {
+                new AnimationGroupPlayer(activeAnimationPlayers).onDone(function () { return callback(); });
+            }
+            else {
+                callback();
+            }
+        };
+        AnimationViewContext.prototype.queueAnimation = function (element, animationName, player) {
+            queueAnimationGlobally(player);
+            this._players.set(element, animationName, player);
+        };
+        AnimationViewContext.prototype.cancelActiveAnimation = function (element, animationName, removeAllAnimations) {
+            if (removeAllAnimations === void 0) { removeAllAnimations = false; }
+            if (removeAllAnimations) {
+                this._players.findAllPlayersByElement(element).forEach(function (player) { return player.destroy(); });
+            }
+            else {
+                var player = this._players.find(element, animationName);
+                if (player) {
+                    player.destroy();
+                }
+            }
+        };
+        return AnimationViewContext;
     }());
 
     /**
@@ -9097,8 +9126,6 @@
             this.viewChildren = [];
             this.viewContainerElement = null;
             this.numberOfChecks = 0;
-            this.animationPlayers = new ViewAnimationMap();
-            this._animationListeners = new Map();
             this.ref = new ViewRef_(this);
             if (type === ViewType.COMPONENT || type === ViewType.HOST) {
                 this.renderer = viewUtils.renderComponent(componentType);
@@ -9107,56 +9134,21 @@
                 this.renderer = declarationAppElement.parentView.renderer;
             }
         }
+        Object.defineProperty(AppView.prototype, "animationContext", {
+            get: function () {
+                if (!this._animationContext) {
+                    this._animationContext = new AnimationViewContext();
+                }
+                return this._animationContext;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(AppView.prototype, "destroyed", {
             get: function () { return this.cdMode === ChangeDetectorStatus.Destroyed; },
             enumerable: true,
             configurable: true
         });
-        AppView.prototype.cancelActiveAnimation = function (element, animationName, removeAllAnimations) {
-            if (removeAllAnimations === void 0) { removeAllAnimations = false; }
-            if (removeAllAnimations) {
-                this.animationPlayers.findAllPlayersByElement(element).forEach(function (player) { return player.destroy(); });
-            }
-            else {
-                var player = this.animationPlayers.find(element, animationName);
-                if (isPresent(player)) {
-                    player.destroy();
-                }
-            }
-        };
-        AppView.prototype.queueAnimation = function (element, animationName, player, totalTime, fromState, toState) {
-            var _this = this;
-            queueAnimation(player);
-            var event = new AnimationTransitionEvent({ 'fromState': fromState, 'toState': toState, 'totalTime': totalTime });
-            this.animationPlayers.set(element, animationName, player);
-            player.onDone(function () {
-                // TODO: make this into a datastructure for done|start
-                _this.triggerAnimationOutput(element, animationName, 'done', event);
-                _this.animationPlayers.remove(element, animationName);
-            });
-            player.onStart(function () { _this.triggerAnimationOutput(element, animationName, 'start', event); });
-        };
-        AppView.prototype.triggerAnimationOutput = function (element, animationName, phase, event) {
-            var listeners = this._animationListeners.get(element);
-            if (isPresent(listeners) && listeners.length) {
-                for (var i = 0; i < listeners.length; i++) {
-                    var listener = listeners[i];
-                    // we check for both the name in addition to the phase in the event
-                    // that there may be more than one @trigger on the same element
-                    if (listener.eventName === animationName && listener.eventPhase === phase) {
-                        listener.handler(event);
-                        break;
-                    }
-                }
-            }
-        };
-        AppView.prototype.registerAnimationOutput = function (element, eventName, eventPhase, eventHandler) {
-            var animations = this._animationListeners.get(element);
-            if (!isPresent(animations)) {
-                this._animationListeners.set(element, animations = []);
-            }
-            animations.push(new _AnimationOutputHandler(eventName, eventPhase, eventHandler));
-        };
         AppView.prototype.create = function (context, givenProjectableNodes, rootSelectorOrNode) {
             this.context = context;
             var projectableNodes;
@@ -9193,16 +9185,6 @@
                 this.declarationAppElement.parentView.viewChildren.push(this);
                 this.dirtyParentQueriesInternal();
             }
-        };
-        AppView.prototype.selectOrCreateHostElement = function (elementName, rootSelectorOrNode, debugInfo) {
-            var hostElement;
-            if (isPresent(rootSelectorOrNode)) {
-                hostElement = this.renderer.selectRootElement(rootSelectorOrNode, debugInfo);
-            }
-            else {
-                hostElement = this.renderer.createElement(null, elementName, debugInfo);
-            }
-            return hostElement;
         };
         AppView.prototype.injectorGet = function (token, nodeIndex, notFoundResult) {
             return this.injectorGetInternal(token, nodeIndex, notFoundResult);
@@ -9256,12 +9238,11 @@
             }
             this.destroyInternal();
             this.dirtyParentQueriesInternal();
-            if (this.animationPlayers.length == 0) {
-                this.renderer.destroyView(hostElement, this.allNodes);
+            if (this._animationContext) {
+                this._animationContext.onAllActiveAnimationsDone(function () { return _this.renderer.destroyView(hostElement, _this.allNodes); });
             }
             else {
-                var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
-                player.onDone(function () { _this.renderer.destroyView(hostElement, _this.allNodes); });
+                this.renderer.destroyView(hostElement, this.allNodes);
             }
         };
         /**
@@ -9275,12 +9256,11 @@
         AppView.prototype.detach = function () {
             var _this = this;
             this.detachInternal();
-            if (this.animationPlayers.length == 0) {
-                this.renderer.detachView(this.flatRootNodes);
+            if (this._animationContext) {
+                this._animationContext.onAllActiveAnimationsDone(function () { return _this.renderer.detachView(_this.flatRootNodes); });
             }
             else {
-                var player = new AnimationGroupPlayer(this.animationPlayers.getAllPlayers());
-                player.onDone(function () { _this.renderer.detachView(_this.flatRootNodes); });
+                this.renderer.detachView(this.flatRootNodes);
             }
         };
         Object.defineProperty(AppView.prototype, "changeDetectorRef", {
@@ -9484,14 +9464,6 @@
         }
         return lastNode;
     }
-    var _AnimationOutputHandler = (function () {
-        function _AnimationOutputHandler(eventName, eventPhase, handler) {
-            this.eventName = eventName;
-            this.eventPhase = eventPhase;
-            this.handler = handler;
-        }
-        return _AnimationOutputHandler;
-    }());
 
     var __core_private__ = {
         isDefaultChangeDetectionStrategy: isDefaultChangeDetectionStrategy,
@@ -9507,11 +9479,7 @@
         NgModuleInjector: NgModuleInjector,
         registerModuleFactory: registerModuleFactory,
         ViewType: ViewType,
-        MAX_INTERPOLATION_VALUES: MAX_INTERPOLATION_VALUES,
-        checkBinding: checkBinding,
-        flattenNestedViewRenderNodes: flattenNestedViewRenderNodes,
-        interpolate: interpolate,
-        ViewUtils: ViewUtils,
+        view_utils: view_utils,
         ViewMetadata: ViewMetadata,
         DebugContext: DebugContext,
         StaticNodeDebugInfo: StaticNodeDebugInfo,
@@ -9523,19 +9491,6 @@
         ReflectionCapabilities: ReflectionCapabilities,
         makeDecorator: makeDecorator,
         DebugDomRootRenderer: DebugDomRootRenderer,
-        EMPTY_ARRAY: EMPTY_ARRAY,
-        EMPTY_MAP: EMPTY_MAP,
-        pureProxy1: pureProxy1,
-        pureProxy2: pureProxy2,
-        pureProxy3: pureProxy3,
-        pureProxy4: pureProxy4,
-        pureProxy5: pureProxy5,
-        pureProxy6: pureProxy6,
-        pureProxy7: pureProxy7,
-        pureProxy8: pureProxy8,
-        pureProxy9: pureProxy9,
-        pureProxy10: pureProxy10,
-        castByValue: castByValue,
         Console: Console,
         reflector: reflector,
         Reflector: Reflector,
@@ -9556,7 +9511,8 @@
         EMPTY_STATE: EMPTY_STATE,
         FILL_STYLE_FLAG: FILL_STYLE_FLAG,
         ComponentStillLoadingError: ComponentStillLoadingError,
-        isPromise: isPromise
+        isPromise: isPromise,
+        AnimationTransition: AnimationTransition
     };
 
     exports.createPlatform = createPlatform;

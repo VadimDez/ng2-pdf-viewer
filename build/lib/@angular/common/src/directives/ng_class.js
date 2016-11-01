@@ -26,11 +26,11 @@ import { isPresent } from '../facade/lang';
  *
  * @description
  *
- * The CSS classes are updated as follow depending on the type of the expression evaluation:
- * - `string` - the CSS classes listed in a string (space delimited) are added,
- * - `Array` - the CSS classes (Array elements) are added,
- * - `Object` - keys are CSS class names that get added when the expression given in the value
- *              evaluates to a truthy value, otherwise class are removed.
+ * The CSS classes are updated as follows, depending on the type of the expression evaluation:
+ * - `string` - the CSS classes listed in the string (space delimited) are added,
+ * - `Array` - the CSS classes declared as Array elements are added,
+ * - `Object` - keys are CSS classes that get added when the expression given in the value
+ *              evaluates to a truthy value, otherwise they are removed.
  *
  * @stable
  */

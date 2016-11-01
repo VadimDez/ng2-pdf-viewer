@@ -5,8 +5,8 @@
  /* tslint:disable */
 
 import * as import0 from '@angular/core/src/linker/ng_module_factory';
-import * as import1 from './common_module';
-import * as import2 from './localization';
+import * as import1 from '@angular/common/src/common_module';
+import * as import2 from '@angular/common/src/localization';
 import * as import3 from '@angular/core/src/di/injector';
 import * as import4 from '@angular/core/src/i18n/tokens';
 class CommonModuleInjector extends import0.NgModuleInjector<import1.CommonModule> {

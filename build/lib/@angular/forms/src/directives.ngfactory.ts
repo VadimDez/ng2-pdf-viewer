@@ -5,7 +5,7 @@
  /* tslint:disable */
 
 import * as import0 from '@angular/core/src/linker/ng_module_factory';
-import * as import1 from './directives';
+import * as import1 from '@angular/forms/src/directives';
 import * as import2 from '@angular/core/src/di/injector';
 class InternalFormsSharedModuleInjector extends import0.NgModuleInjector<import1.InternalFormsSharedModule> {
   _InternalFormsSharedModule_0:import1.InternalFormsSharedModule;

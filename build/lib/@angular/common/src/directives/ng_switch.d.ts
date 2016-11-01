@@ -30,7 +30,7 @@ export declare class SwitchView {
  *         <inner-element></inner-element>
  *         <inner-other-element></inner-other-element>
  *       </ng-container>
- *       <some-element *ngSwitchDefault>...</p>
+ *       <some-element *ngSwitchDefault>...</some-element>
  *     </container-element>
  * ```
  * @description
@@ -45,8 +45,7 @@ export declare class SwitchView {
  * root elements.
  *
  * Elements within `NgSwitch` but outside of a `NgSwitchCase` or `NgSwitchDefault` directives will
- * be
- * preserved at the location.
+ * be preserved at the location.
  *
  * The `ngSwitchCase` directive informs the parent `NgSwitch` of which view to display when the
  * expression is evaluated.
@@ -62,7 +61,7 @@ export declare class NgSwitch {
     private _activeViews;
     ngSwitch: any;
     private _emptyAllActiveViews();
-    private _activateViews(views);
+    private _activateViews(views?);
     private _deregisterView(value, view);
 }
 /**

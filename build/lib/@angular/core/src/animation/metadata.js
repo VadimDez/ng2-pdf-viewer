@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { isArray, isPresent, isString } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 /**
  * @experimental Animation support is experimental.
  */
@@ -374,11 +374,11 @@ export function sequence(steps) {
 export function style(tokens) {
     var input;
     var offset = null;
-    if (isString(tokens)) {
+    if (typeof tokens === 'string') {
         input = [tokens];
     }
     else {
-        if (isArray(tokens)) {
+        if (Array.isArray(tokens)) {
             input = tokens;
         }
         else {
@@ -607,8 +607,7 @@ export function keyframes(steps) {
  * @experimental Animation support is experimental.
  */
 export function transition(stateChangeExpr, steps) {
-    var animationData = isArray(steps) ? new AnimationSequenceMetadata(steps) :
-        steps;
+    var animationData = Array.isArray(steps) ? new AnimationSequenceMetadata(steps) : steps;
     return new AnimationStateTransitionMetadata(stateChangeExpr, animationData);
 }
 /**

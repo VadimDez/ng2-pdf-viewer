@@ -5,11 +5,11 @@
  /* tslint:disable */
 
 import * as import0 from '@angular/core/src/linker/ng_module_factory';
-import * as import1 from './form_providers';
-import * as import2 from './directives';
-import * as import3 from './directives/radio_control_value_accessor';
+import * as import1 from '@angular/forms/src/form_providers';
+import * as import2 from '@angular/forms/src/directives';
+import * as import3 from '@angular/forms/src/directives/radio_control_value_accessor';
 import * as import4 from '@angular/core/src/di/injector';
-import * as import5 from './form_builder';
+import * as import5 from '@angular/forms/src/form_builder';
 class FormsModuleInjector extends import0.NgModuleInjector<import1.FormsModule> {
   _InternalFormsSharedModule_0:import2.InternalFormsSharedModule;
   _FormsModule_1:import1.FormsModule;

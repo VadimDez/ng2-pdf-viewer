@@ -13,7 +13,4 @@ import { Observable } from '../Observable';
  * @method repeat
  * @owner Observable
  */
-export declare function repeat<T>(count?: number): Observable<T>;
-export interface RepeatSignature<T> {
-    (count?: number): Observable<T>;
-}
+export declare function repeat<T>(this: Observable<T>, count?: number): Observable<T>;

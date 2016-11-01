@@ -21,11 +21,12 @@ export declare class CompileEventListener {
     private _actionResultExprs;
     static getOrCreate(compileElement: CompileElement, eventTarget: string, eventName: string, eventPhase: string, targetEventListeners: CompileEventListener[]): CompileEventListener;
     methodName: string;
+    isAnimation: boolean;
     constructor(compileElement: CompileElement, eventTarget: string, eventName: string, eventPhase: string, listenerIndex: number);
     addAction(hostEvent: BoundEventAst, directive: CompileDirectiveMetadata, directiveInstance: o.Expression): void;
     finishMethod(): void;
     listenToRenderer(): void;
-    listenToAnimation(): void;
+    listenToAnimation(animationTransitionVar: o.ReadVarExpr): o.Statement;
     listenToDirective(directiveInstance: o.Expression, observablePropName: string): void;
 }
 export declare function collectEventListeners(hostEvents: BoundEventAst[], dirs: DirectiveAst[], compileElement: CompileElement): CompileEventListener[];

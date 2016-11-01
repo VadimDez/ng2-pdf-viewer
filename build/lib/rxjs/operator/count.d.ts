@@ -44,7 +44,4 @@ import { Observable } from '../Observable';
  * @method count
  * @owner Observable
  */
-export declare function count<T>(predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<number>;
-export interface CountSignature<T> {
-    (predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<number>;
-}
+export declare function count<T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<number>;

@@ -8,7 +8,4 @@ import { Observable } from '../Observable';
  * @method timeout
  * @owner Observable
  */
-export declare function timeout<T>(due: number | Date, errorToSend?: any, scheduler?: Scheduler): Observable<T>;
-export interface TimeoutSignature<T> {
-    (due: number | Date, errorToSend?: any, scheduler?: Scheduler): Observable<T>;
-}
+export declare function timeout<T>(this: Observable<T>, due: number | Date, errorToSend?: any, scheduler?: Scheduler): Observable<T>;

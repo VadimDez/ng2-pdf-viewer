@@ -50,11 +50,8 @@ import { InnerSubscriber } from '../InnerSubscriber';
  * @method expand
  * @owner Observable
  */
-export declare function expand<T, R>(project: (value: T, index: number) => Observable<R>, concurrent?: number, scheduler?: Scheduler): Observable<R>;
-export interface ExpandSignature<T> {
-    (project: (value: T, index: number) => Observable<T>, concurrent?: number, scheduler?: Scheduler): Observable<T>;
-    <R>(project: (value: T, index: number) => Observable<R>, concurrent?: number, scheduler?: Scheduler): Observable<R>;
-}
+export declare function expand<T>(this: Observable<T>, project: (value: T, index: number) => Observable<T>, concurrent?: number, scheduler?: Scheduler): Observable<T>;
+export declare function expand<T, R>(this: Observable<T>, project: (value: T, index: number) => Observable<R>, concurrent?: number, scheduler?: Scheduler): Observable<R>;
 export declare class ExpandOperator<T, R> implements Operator<T, R> {
     private project;
     private concurrent;

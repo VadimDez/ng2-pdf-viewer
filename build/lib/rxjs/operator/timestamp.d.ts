@@ -6,10 +6,7 @@ import { Scheduler } from '../Scheduler';
  * @method timestamp
  * @owner Observable
  */
-export declare function timestamp<T>(scheduler?: Scheduler): Observable<Timestamp<T>>;
-export interface TimestampSignature<T> {
-    (scheduler?: Scheduler): Observable<Timestamp<T>>;
-}
+export declare function timestamp<T>(this: Observable<T>, scheduler?: Scheduler): Observable<Timestamp<T>>;
 export declare class Timestamp<T> {
     value: T;
     timestamp: number;

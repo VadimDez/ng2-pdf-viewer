@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isBlank, isPresent, isString } from '../facade/lang';
+import { isBlank, isPresent } from '../facade/lang';
 import * as o from './output_ast';
 var _SINGLE_QUOTE_ESCAPE_STRING_RE = /'|\\|\n|\r|\$/g;
 var _LEGAL_IDENTIFIER_RE = /^[$A-Z_][0-9A-Z_$]*$/i;
@@ -241,7 +241,7 @@ export var AbstractEmitterVisitor = (function () {
     AbstractEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx, absentValue) {
         if (absentValue === void 0) { absentValue = 'null'; }
         var value = ast.value;
-        if (isString(value)) {
+        if (typeof value === 'string') {
             ctx.print(escapeIdentifier(value, this._escapeDollarInStrings));
         }
         else if (isBlank(value)) {

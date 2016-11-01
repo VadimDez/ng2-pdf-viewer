@@ -12,6 +12,7 @@ export declare class CompileMethod {
     private _updateDebugContext(newState);
     resetDebugInfoExpr(nodeIndex: number, templateAst: TemplateAst): o.Expression;
     resetDebugInfo(nodeIndex: number, templateAst: TemplateAst): void;
+    push(...stmts: o.Statement[]): void;
     addStmt(stmt: o.Statement): void;
     addStmts(stmts: o.Statement[]): void;
     finish(): o.Statement[];

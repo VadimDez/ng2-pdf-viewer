@@ -7,14 +7,15 @@
  */
 import { Injectable } from '@angular/core';
 import { CompileDiDependencyMetadata, CompileIdentifierMetadata } from './compile_metadata';
+import { createDiTokenExpression } from './compiler_util/identifier_util';
 import { isPresent } from './facade/lang';
 import { Identifiers, resolveIdentifier, resolveIdentifierToken } from './identifiers';
+import { createClassStmt } from './output/class_builder';
 import * as o from './output/output_ast';
 import { convertValueToOutputAst } from './output/value_util';
 import { ParseLocation, ParseSourceFile, ParseSourceSpan } from './parse_util';
 import { LifecycleHooks } from './private_import_core';
 import { NgModuleProviderAnalyzer } from './provider_analyzer';
-import { createDiTokenExpression } from './util';
 export var ComponentFactoryDependency = (function () {
     function ComponentFactoryDependency(comp, placeholder) {
         this.comp = comp;
@@ -80,12 +81,14 @@ var _InjectorBuilder = (function () {
         this._entryComponentFactories = _entryComponentFactories;
         this._bootstrapComponentFactories = _bootstrapComponentFactories;
         this._sourceSpan = _sourceSpan;
+        this.fields = [];
+        this.getters = [];
+        this.methods = [];
+        this.ctorStmts = [];
         this._tokens = [];
         this._instances = new Map();
-        this._fields = [];
         this._createStmts = [];
         this._destroyStmts = [];
-        this._getters = [];
     }
     _InjectorBuilder.prototype.addProvider = function (resolvedProvider) {
         var _this = this;
@@ -112,15 +115,19 @@ var _InjectorBuilder = (function () {
             ], getMethodStmts.concat([new o.ReturnStatement(InjectMethodVars.notFoundResult)]), o.DYNAMIC_TYPE),
             new o.ClassMethod('destroyInternal', [], this._destroyStmts),
         ];
-        var ctor = new o.ClassMethod(null, [new o.FnParam(InjectorProps.parent.name, o.importType(resolveIdentifier(Identifiers.Injector)))], [o.SUPER_EXPR
-                .callFn([
-                o.variable(InjectorProps.parent.name),
-                o.literalArr(this._entryComponentFactories.map(function (componentFactory) { return o.importExpr(componentFactory); })),
-                o.literalArr(this._bootstrapComponentFactories.map(function (componentFactory) { return o.importExpr(componentFactory); }))
-            ])
-                .toStmt()]);
+        var parentArgs = [
+            o.variable(InjectorProps.parent.name),
+            o.literalArr(this._entryComponentFactories.map(function (componentFactory) { return o.importExpr(componentFactory); })),
+            o.literalArr(this._bootstrapComponentFactories.map(function (componentFactory) { return o.importExpr(componentFactory); }))
+        ];
         var injClassName = this._ngModuleMeta.type.name + "Injector";
-        return new o.ClassStmt(injClassName, o.importExpr(resolveIdentifier(Identifiers.NgModuleInjector), [o.importType(this._ngModuleMeta.type)]), this._fields, this._getters, ctor, methods);
+        return createClassStmt({
+            name: injClassName,
+            ctorParams: [new o.FnParam(InjectorProps.parent.name, o.importType(resolveIdentifier(Identifiers.Injector)))],
+            parent: o.importExpr(resolveIdentifier(Identifiers.NgModuleInjector), [o.importType(this._ngModuleMeta.type)]),
+            parentArgs: parentArgs,
+            builders: [{ methods: methods }, this]
+        });
     };
     _InjectorBuilder.prototype._getProviderValue = function (provider) {
         var _this = this;
@@ -159,18 +166,18 @@ var _InjectorBuilder = (function () {
             type = o.DYNAMIC_TYPE;
         }
         if (isEager) {
-            this._fields.push(new o.ClassField(propName, type));
+            this.fields.push(new o.ClassField(propName, type));
             this._createStmts.push(o.THIS_EXPR.prop(propName).set(resolvedProviderValueExpr).toStmt());
         }
         else {
             var internalField = "_" + propName;
-            this._fields.push(new o.ClassField(internalField, type));
+            this.fields.push(new o.ClassField(internalField, type));
             // Note: Equals is important for JS so that it also checks the undefined case!
             var getterStmts = [
                 new o.IfStmt(o.THIS_EXPR.prop(internalField).isBlank(), [o.THIS_EXPR.prop(internalField).set(resolvedProviderValueExpr).toStmt()]),
                 new o.ReturnStatement(o.THIS_EXPR.prop(internalField))
             ];
-            this._getters.push(new o.ClassGetter(propName, getterStmts, type));
+            this.getters.push(new o.ClassGetter(propName, getterStmts, type));
         }
         return o.THIS_EXPR.prop(propName);
     };

@@ -39,7 +39,4 @@ import { Observable } from '../Observable';
  * @method throttleTime
  * @owner Observable
  */
-export declare function throttleTime<T>(duration: number, scheduler?: Scheduler): Observable<T>;
-export interface ThrottleTimeSignature<T> {
-    (duration: number, scheduler?: Scheduler): Observable<T>;
-}
+export declare function throttleTime<T>(this: Observable<T>, duration: number, scheduler?: Scheduler): Observable<T>;

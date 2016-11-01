@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.0
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -60,19 +60,10 @@
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isNumber(obj) {
-        return typeof obj === 'number';
-    }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
+        return obj == null;
     }
     function stringify(token) {
         if (typeof token === 'string') {
@@ -91,58 +82,6 @@
         var newLineIndex = res.indexOf('\n');
         return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
-    // Can't be all uppercase as our transpiler would think it is a special directive...
-    var Json = (function () {
-        function Json() {
-        }
-        Json.parse = function (s) { return global$1.JSON.parse(s); };
-        Json.stringify = function (data) {
-            // Dart doesn't take 3 arguments
-            return global$1.JSON.stringify(data, null, 2);
-        };
-        return Json;
-    }());
     function setValueOnPath(global, path, value) {
         var parts = path.split('.');
         var obj = global;
@@ -378,7 +317,7 @@
     function _resolveStyleUnit(val, userProvidedProp, formattedProp) {
         var unit = '';
         if (_isPixelDimensionStyle(formattedProp) && val != 0 && val != '0') {
-            if (isNumber(val)) {
+            if (typeof val === 'number') {
                 unit = 'px';
             }
             else if (_findDimensionalSuffix(val.toString()).length == 0) {
@@ -1001,22 +940,86 @@
         return BrowserPlatformLocation;
     }(_angular_common.PlatformLocation));
 
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
+    var BrowserGetTestability = (function () {
+        function BrowserGetTestability() {
+        }
+        BrowserGetTestability.init = function () { _angular_core.setTestabilityGetter(new BrowserGetTestability()); };
+        BrowserGetTestability.prototype.addToWindow = function (registry) {
+            global$1.getAngularTestability = function (elem, findInAncestors) {
+                if (findInAncestors === void 0) { findInAncestors = true; }
+                var testability = registry.findTestabilityInTree(elem, findInAncestors);
+                if (testability == null) {
+                    throw new Error('Could not find testability for element.');
                 }
+                return testability;
             };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
+            global$1.getAllAngularTestabilities = function () { return registry.getAllTestabilities(); };
+            global$1.getAllAngularRootElements = function () { return registry.getAllRootElements(); };
+            var whenAllStable = function (callback /** TODO #9100 */) {
+                var testabilities = global$1.getAllAngularTestabilities();
+                var count = testabilities.length;
+                var didWork = false;
+                var decrement = function (didWork_ /** TODO #9100 */) {
+                    didWork = didWork || didWork_;
+                    count--;
+                    if (count == 0) {
+                        callback(didWork);
+                    }
+                };
+                testabilities.forEach(function (testability /** TODO #9100 */) {
+                    testability.whenStable(decrement);
+                });
             };
+            if (!global$1['frameworkStabilizers']) {
+                global$1['frameworkStabilizers'] = [];
+            }
+            global$1['frameworkStabilizers'].push(whenAllStable);
+        };
+        BrowserGetTestability.prototype.findTestabilityInTree = function (registry, elem, findInAncestors) {
+            if (elem == null) {
+                return null;
+            }
+            var t = registry.getTestability(elem);
+            if (isPresent(t)) {
+                return t;
+            }
+            else if (!findInAncestors) {
+                return null;
+            }
+            if (getDOM().isShadowRoot(elem)) {
+                return this.findTestabilityInTree(registry, getDOM().getHost(elem), true);
+            }
+            return this.findTestabilityInTree(registry, getDOM().parentElement(elem), true);
+        };
+        return BrowserGetTestability;
+    }());
+
+    /**
+     * A service that can be used to get and set the title of a current HTML document.
+     *
+     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
+     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
+     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
+     * title value.
+     *
+     * @experimental
+     */
+    var Title = (function () {
+        function Title() {
         }
-    })();
+        /**
+         * Get the title of the current HTML document.
+         * @returns {string}
+         */
+        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
+        /**
+         * Set the title of the current HTML document.
+         * @param newTitle
+         */
+        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
+        return Title;
+    }());
+
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -1075,42 +1078,6 @@
     var ListWrapper = (function () {
         function ListWrapper() {
         }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
@@ -1125,13 +1092,6 @@
             }
             return false;
         };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
         ListWrapper.equals = function (a, b) {
             if (a.length != b.length)
                 return false;
@@ -1141,22 +1101,6 @@
             }
             return true;
         };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
         ListWrapper.maximum = function (list, predicate) {
             if (list.length == 0) {
                 return null;
@@ -1165,7 +1109,7 @@
             var maxValue = -Infinity;
             for (var index = 0; index < list.length; index++) {
                 var candidate = list[index];
-                if (isBlank(candidate)) {
+                if (candidate == null) {
                     continue;
                 }
                 var candidateValue = predicate(candidate);
@@ -1181,18 +1125,13 @@
             _flattenArray(list, target);
             return target;
         };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
         return ListWrapper;
     }());
     function _flattenArray(source, target) {
         if (isPresent(source)) {
             for (var i = 0; i < source.length; i++) {
                 var item = source[i];
-                if (isArray(item)) {
+                if (Array.isArray(item)) {
                     _flattenArray(item, target);
                 }
                 else {
@@ -1202,86 +1141,6 @@
         }
         return target;
     }
-
-    var BrowserGetTestability = (function () {
-        function BrowserGetTestability() {
-        }
-        BrowserGetTestability.init = function () { _angular_core.setTestabilityGetter(new BrowserGetTestability()); };
-        BrowserGetTestability.prototype.addToWindow = function (registry) {
-            global$1.getAngularTestability = function (elem, findInAncestors) {
-                if (findInAncestors === void 0) { findInAncestors = true; }
-                var testability = registry.findTestabilityInTree(elem, findInAncestors);
-                if (testability == null) {
-                    throw new Error('Could not find testability for element.');
-                }
-                return testability;
-            };
-            global$1.getAllAngularTestabilities = function () { return registry.getAllTestabilities(); };
-            global$1.getAllAngularRootElements = function () { return registry.getAllRootElements(); };
-            var whenAllStable = function (callback /** TODO #9100 */) {
-                var testabilities = global$1.getAllAngularTestabilities();
-                var count = testabilities.length;
-                var didWork = false;
-                var decrement = function (didWork_ /** TODO #9100 */) {
-                    didWork = didWork || didWork_;
-                    count--;
-                    if (count == 0) {
-                        callback(didWork);
-                    }
-                };
-                testabilities.forEach(function (testability /** TODO #9100 */) {
-                    testability.whenStable(decrement);
-                });
-            };
-            if (!global$1['frameworkStabilizers']) {
-                global$1['frameworkStabilizers'] = ListWrapper.createGrowableSize(0);
-            }
-            global$1['frameworkStabilizers'].push(whenAllStable);
-        };
-        BrowserGetTestability.prototype.findTestabilityInTree = function (registry, elem, findInAncestors) {
-            if (elem == null) {
-                return null;
-            }
-            var t = registry.getTestability(elem);
-            if (isPresent(t)) {
-                return t;
-            }
-            else if (!findInAncestors) {
-                return null;
-            }
-            if (getDOM().isShadowRoot(elem)) {
-                return this.findTestabilityInTree(registry, getDOM().getHost(elem), true);
-            }
-            return this.findTestabilityInTree(registry, getDOM().parentElement(elem), true);
-        };
-        return BrowserGetTestability;
-    }());
-
-    /**
-     * A service that can be used to get and set the title of a current HTML document.
-     *
-     * Since an Angular 2 application can't be bootstrapped on the entire HTML document (`<html>` tag)
-     * it is not possible to bind to the `text` property of the `HTMLTitleElement` elements
-     * (representing the `<title>` tag). Instead, this service can be used to set and get the current
-     * title value.
-     *
-     * @experimental
-     */
-    var Title = (function () {
-        function Title() {
-        }
-        /**
-         * Get the title of the current HTML document.
-         * @returns {string}
-         */
-        Title.prototype.getTitle = function () { return getDOM().getTitle(); };
-        /**
-         * Set the title of the current HTML document.
-         * @param newTitle
-         */
-        Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
-        return Title;
-    }());
 
     /**
      * A DI Token representing the main rendering context. In a browser this is the DOM Document.
@@ -1498,7 +1357,7 @@
         }
         DomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
             var el;
-            if (isString(selectorOrNode)) {
+            if (typeof selectorOrNode === 'string') {
                 el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
                 if (isBlank(el)) {
                     throw new Error("The selector \"" + selectorOrNode + "\" did not match any elements");
@@ -1607,9 +1466,9 @@
             var dashCasedPropertyName = camelCaseToDashCase(propertyName);
             if (getDOM().isCommentNode(renderElement)) {
                 var existingBindings = getDOM().getText(renderElement).replace(/\n/g, '').match(TEMPLATE_BINDINGS_EXP);
-                var parsedBindings = Json.parse(existingBindings[1]);
+                var parsedBindings = JSON.parse(existingBindings[1]);
                 parsedBindings[dashCasedPropertyName] = propertyValue;
-                getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', Json.stringify(parsedBindings)));
+                getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', JSON.stringify(parsedBindings, null, 2)));
             }
             else {
                 this.setElementAttribute(renderElement, propertyName, propertyValue);
@@ -1683,7 +1542,7 @@
     function _flattenStyles(compId, styles, target) {
         for (var i = 0; i < styles.length; i++) {
             var style = styles[i];
-            if (isArray(style)) {
+            if (Array.isArray(style)) {
                 _flattenStyles(compId, style, target);
             }
             else {
@@ -1981,7 +1840,7 @@
             var key = KeyEventsPlugin._normalizeKey(parts.pop());
             var fullKey = '';
             modifierKeys.forEach(function (modifierName) {
-                if (ListWrapper.contains(parts, modifierName)) {
+                if (parts.indexOf(modifierName) > -1) {
                     ListWrapper.remove(parts, modifierName);
                     fullKey += modifierName + '.';
                 }
@@ -2708,7 +2567,7 @@
          * ```
          */
         AngularProfiler.prototype.timeChangeDetection = function (config) {
-            var record = isPresent(config) && config['record'];
+            var record = config && config['record'];
             var profileName = 'Change Detection';
             // Profiler is not available in Android browsers, nor in IE 9 without dev tools opened
             var isProfilerAvailable = isPresent(win.console.profile);
@@ -2731,7 +2590,7 @@
             }
             var msPerTick = (end - start) / numTicks;
             win.console.log("ran " + numTicks + " change detection cycles");
-            win.console.log(NumberWrapper.toFixed(msPerTick, 2) + " ms per check");
+            win.console.log(msPerTick.toFixed(2) + " ms per check");
             return new ChangeDetectionPerfRecord(msPerTick, numTicks);
         };
         return AngularProfiler;

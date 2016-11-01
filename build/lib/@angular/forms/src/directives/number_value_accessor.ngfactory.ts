@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './number_value_accessor';
+import * as import0 from '@angular/forms/src/directives/number_value_accessor';
 import * as import1 from '@angular/core/src/linker/view';
 export class Wrapper_NumberValueAccessor {
   context:import0.NumberValueAccessor;

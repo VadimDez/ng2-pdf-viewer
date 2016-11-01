@@ -36,4 +36,6 @@ import { Observable } from '../Observable';
  * @method scan
  * @owner Observable
  */
-export declare function scan<T, R>(accumulator: (acc: R, value: T, index: number) => R, seed?: T | R): Observable<R>;
+export declare function scan<T>(this: Observable<T>, accumulator: (acc: T, value: T, index: number) => T, seed?: T): Observable<T>;
+export declare function scan<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed?: T[]): Observable<T[]>;
+export declare function scan<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed?: R): Observable<R>;

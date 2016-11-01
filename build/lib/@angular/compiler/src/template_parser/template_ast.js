@@ -48,10 +48,11 @@ export var AttrAst = (function () {
  * `[@trigger]="stateExp"`)
  */
 export var BoundElementPropertyAst = (function () {
-    function BoundElementPropertyAst(name, type, securityContext, value, unit, sourceSpan) {
+    function BoundElementPropertyAst(name, type, securityContext, needsRuntimeSecurityContext, value, unit, sourceSpan) {
         this.name = name;
         this.type = type;
         this.securityContext = securityContext;
+        this.needsRuntimeSecurityContext = needsRuntimeSecurityContext;
         this.value = value;
         this.unit = unit;
         this.sourceSpan = sourceSpan;

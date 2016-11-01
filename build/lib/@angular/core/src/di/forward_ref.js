@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { isFunction, stringify } from '../facade/lang';
+import { stringify } from '../facade/lang';
 /**
  * Allows to refer to references which are not yet defined.
  *
@@ -36,7 +36,7 @@ export function forwardRef(forwardRefFn) {
  * @experimental
  */
 export function resolveForwardRef(type) {
-    if (isFunction(type) && type.hasOwnProperty('__forward_ref__') &&
+    if (typeof type === 'function' && type.hasOwnProperty('__forward_ref__') &&
         type.__forward_ref__ === forwardRef) {
         return type();
     }

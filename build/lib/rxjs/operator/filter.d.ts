@@ -39,7 +39,5 @@ import { Observable } from '../Observable';
  * @method filter
  * @owner Observable
  */
-export declare function filter<T>(predicate: (value: T, index: number) => boolean, thisArg?: any): Observable<T>;
-export interface FilterSignature<T> {
-    (predicate: (value: T, index: number) => boolean, thisArg?: any): Observable<T>;
-}
+export declare function filter<T>(this: Observable<T>, predicate: (value: T, index: number) => boolean, thisArg?: any): Observable<T>;
+export declare function filter<T, S extends T>(this: Observable<T>, predicate: (value: T, index: number) => value is S, thisArg?: any): Observable<S>;

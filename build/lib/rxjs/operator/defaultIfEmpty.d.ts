@@ -29,8 +29,5 @@ import { Observable } from '../Observable';
  * @method defaultIfEmpty
  * @owner Observable
  */
-export declare function defaultIfEmpty<T, R>(defaultValue?: R): Observable<T | R>;
-export interface DefaultIfEmptySignature<T> {
-    (defaultValue?: T): Observable<T>;
-    <R>(defaultValue?: R): Observable<T | R>;
-}
+export declare function defaultIfEmpty<T>(this: Observable<T>, defaultValue?: T): Observable<T>;
+export declare function defaultIfEmpty<T, R>(this: Observable<T>, defaultValue?: R): Observable<T | R>;

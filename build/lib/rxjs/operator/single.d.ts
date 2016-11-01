@@ -15,7 +15,4 @@ import { Observable } from '../Observable';
  * @method single
  * @owner Observable
  */
-export declare function single<T>(predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
-export interface SingleSignature<T> {
-    (predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;
-}
+export declare function single<T>(this: Observable<T>, predicate?: (value: T, index: number, source: Observable<T>) => boolean): Observable<T>;

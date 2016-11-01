@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Inject, Injectable, ViewEncapsulation } from '@angular/core';
-import { Json, isArray, isBlank, isPresent, isString, stringify } from '../facade/lang';
+import { isBlank, isPresent, stringify } from '../facade/lang';
 import { AnimationDriver } from './animation_driver';
 import { getDOM } from './dom_adapter';
 import { DOCUMENT } from './dom_tokens';
@@ -80,7 +80,7 @@ export var DomRenderer = (function () {
     }
     DomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
         var el;
-        if (isString(selectorOrNode)) {
+        if (typeof selectorOrNode === 'string') {
             el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
             if (isBlank(el)) {
                 throw new Error("The selector \"" + selectorOrNode + "\" did not match any elements");
@@ -189,9 +189,9 @@ export var DomRenderer = (function () {
         var dashCasedPropertyName = camelCaseToDashCase(propertyName);
         if (getDOM().isCommentNode(renderElement)) {
             var existingBindings = getDOM().getText(renderElement).replace(/\n/g, '').match(TEMPLATE_BINDINGS_EXP);
-            var parsedBindings = Json.parse(existingBindings[1]);
+            var parsedBindings = JSON.parse(existingBindings[1]);
             parsedBindings[dashCasedPropertyName] = propertyValue;
-            getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', Json.stringify(parsedBindings)));
+            getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', JSON.stringify(parsedBindings, null, 2)));
         }
         else {
             this.setElementAttribute(renderElement, propertyName, propertyValue);
@@ -265,7 +265,7 @@ function _shimHostAttribute(componentShortId) {
 function _flattenStyles(compId, styles, target) {
     for (var i = 0; i < styles.length; i++) {
         var style = styles[i];
-        if (isArray(style)) {
+        if (Array.isArray(style)) {
             _flattenStyles(compId, style, target);
         }
         else {

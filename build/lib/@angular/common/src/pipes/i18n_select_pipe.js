@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Pipe } from '@angular/core';
-import { isBlank, isStringMap } from '../facade/lang';
+import { isBlank } from '../facade/lang';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
 /**
  * @ngModule CommonModule
@@ -30,10 +30,10 @@ export var I18nSelectPipe = (function () {
     I18nSelectPipe.prototype.transform = function (value, mapping) {
         if (isBlank(value))
             return '';
-        if (!isStringMap(mapping)) {
+        if (typeof mapping !== 'object' || mapping === null) {
             throw new InvalidPipeArgumentError(I18nSelectPipe, mapping);
         }
-        return mapping.hasOwnProperty(value) ? mapping[value] : '';
+        return mapping[value] || '';
     };
     I18nSelectPipe.decorators = [
         { type: Pipe, args: [{ name: 'i18nSelect', pure: true },] },

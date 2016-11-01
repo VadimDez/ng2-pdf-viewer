@@ -5,7 +5,7 @@
  /* tslint:disable */
 
 import * as import0 from '@angular/core/src/linker/ng_module_factory';
-import * as import1 from './browser';
+import * as import1 from '@angular/platform-browser/testing/browser';
 import * as import2 from '@angular/common/src/common_module';
 import * as import3 from '@angular/core/src/application_module';
 import * as import4 from '@angular/platform-browser/src/browser';
@@ -26,7 +26,7 @@ import * as import18 from '@angular/platform-browser/src/dom/events/dom_events';
 import * as import19 from '@angular/platform-browser/src/dom/events/key_events';
 import * as import20 from '@angular/platform-browser/src/dom/animation_driver';
 import * as import21 from '@angular/platform-browser/src/dom/debug/ng_probe';
-import * as import22 from './browser_util';
+import * as import22 from '@angular/platform-browser/testing/browser_util';
 import * as import23 from '@angular/core/src/console';
 import * as import24 from '@angular/core/src/i18n/tokens';
 import * as import25 from '@angular/core/src/zone/ng_zone';

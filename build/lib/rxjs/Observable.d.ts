@@ -7,7 +7,7 @@ import { ErrorObservable } from './observable/ErrorObservable';
 export interface Subscribable<T> {
     subscribe(observerOrNext?: PartialObserver<T> | ((value: T) => void), error?: (error: any) => void, complete?: () => void): AnonymousSubscription;
 }
-export declare type SubscribableOrPromise<T> = Subscribable<T> | Promise<T>;
+export declare type SubscribableOrPromise<T> = Subscribable<T> | PromiseLike<T>;
 export declare type ObservableInput<T> = SubscribableOrPromise<T> | ArrayLike<T>;
 /**
  * A representation of any set of values over any amount of time. This the most basic building block
@@ -55,7 +55,9 @@ export declare class Observable<T> implements Subscribable<T> {
      * @param {Function} complete (optional) a handler for a terminal event resulting from successful completion.
      * @return {ISubscription} a subscription reference to the registered handlers
      */
-    subscribe(observerOrNext?: PartialObserver<T> | ((value: T) => void), error?: (error: any) => void, complete?: () => void): Subscription;
+    subscribe(): Subscription;
+    subscribe(observer: PartialObserver<T>): Subscription;
+    subscribe(next?: (value: T) => void, error?: (error: any) => void, complete?: () => void): Subscription;
     /**
      * @method forEach
      * @param {Function} next a handler for each value emitted by the observable

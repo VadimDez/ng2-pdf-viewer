@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 export var StylesCollectionEntry = (function () {
     function StylesCollectionEntry(time, value) {
@@ -36,7 +35,7 @@ export var StylesCollection = (function () {
                 break;
             }
         }
-        ListWrapper.insert(entries, insertionIndex, tuple);
+        entries.splice(insertionIndex, 0, tuple);
     };
     StylesCollection.prototype.getByIndex = function (property, index) {
         var items = this.styles[property];

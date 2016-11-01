@@ -11,9 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { CompileAnimationAnimateMetadata, CompileAnimationGroupMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationSequenceMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStyleMetadata, CompileAnimationWithStepsMetadata } from '../compile_metadata';
-import { ListWrapper, StringMapWrapper } from '../facade/collection';
-import { isArray, isBlank, isPresent, isString, isStringMap } from '../facade/lang';
-import { Math } from '../facade/math';
+import { StringMapWrapper } from '../facade/collection';
+import { isBlank, isPresent } from '../facade/lang';
 import { ParseError } from '../parse_util';
 import { ANY_STATE, FILL_STYLE_FLAG } from '../private_import_core';
 import { AnimationEntryAst, AnimationGroupAst, AnimationKeyframeAst, AnimationSequenceAst, AnimationStateDeclarationAst, AnimationStateTransitionAst, AnimationStateTransitionExpression, AnimationStepAst, AnimationStylesAst, AnimationWithStepsAst } from './animation_ast';
@@ -93,7 +92,7 @@ function _parseAnimationDeclarationStates(stateMetadata, errors) {
     var styleValues = [];
     stateMetadata.styles.styles.forEach(function (stylesEntry) {
         // TODO (matsko): change this when we get CSS class integration support
-        if (isStringMap(stylesEntry)) {
+        if (typeof stylesEntry === 'object' && stylesEntry !== null) {
             styleValues.push(stylesEntry);
         }
         else {
@@ -152,14 +151,13 @@ function _parseAnimationTransitionExpr(eventStr, errors) {
     return expressions;
 }
 function _normalizeAnimationEntry(entry) {
-    return isArray(entry) ? new CompileAnimationSequenceMetadata(entry) :
-        entry;
+    return Array.isArray(entry) ? new CompileAnimationSequenceMetadata(entry) : entry;
 }
 function _normalizeStyleMetadata(entry, stateStyles, errors) {
     var normalizedStyles = [];
     entry.styles.forEach(function (styleEntry) {
-        if (isString(styleEntry)) {
-            ListWrapper.addAll(normalizedStyles, _resolveStylesFromState(styleEntry, stateStyles, errors));
+        if (typeof styleEntry === 'string') {
+            normalizedStyles.push.apply(normalizedStyles, _resolveStylesFromState(styleEntry, stateStyles, errors));
         }
         else {
             normalizedStyles.push(styleEntry);
@@ -174,10 +172,10 @@ function _normalizeStyleSteps(entry, stateStyles, errors) {
         new CompileAnimationSequenceMetadata(steps);
 }
 function _mergeAnimationStyles(stylesList, newItem) {
-    if (isStringMap(newItem) && stylesList.length > 0) {
+    if (typeof newItem === 'object' && newItem !== null && stylesList.length > 0) {
         var lastIndex = stylesList.length - 1;
         var lastItem = stylesList[lastIndex];
-        if (isStringMap(lastItem)) {
+        if (typeof lastItem === 'object' && lastItem !== null) {
             stylesList[lastIndex] = StringMapWrapper.merge(lastItem, newItem);
             return;
         }
@@ -255,7 +253,7 @@ function _resolveStylesFromState(stateName, stateStyles, errors) {
         }
         else {
             value.styles.forEach(function (stylesEntry) {
-                if (isStringMap(stylesEntry)) {
+                if (typeof stylesEntry === 'object' && stylesEntry !== null) {
                     styles.push(stylesEntry);
                 }
             });
@@ -306,11 +304,11 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
         index++;
     });
     if (doSortKeyframes) {
-        ListWrapper.sort(rawKeyframes, function (a, b) { return a[0] <= b[0] ? -1 : 1; });
+        rawKeyframes.sort(function (a, b) { return a[0] <= b[0] ? -1 : 1; });
     }
     var firstKeyframe = rawKeyframes[0];
     if (firstKeyframe[0] != _INITIAL_KEYFRAME) {
-        ListWrapper.insert(rawKeyframes, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
+        rawKeyframes.splice(0, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
     }
     var firstKeyframeStyles = firstKeyframe[1];
     limit = rawKeyframes.length - 1;
@@ -372,7 +370,7 @@ function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateSty
                 }
                 else {
                     var innerStep = innerAst;
-                    ListWrapper.addAll(innerStep.startingStyles.styles, previousStyles);
+                    (_a = innerStep.startingStyles.styles).push.apply(_a, previousStyles);
                 }
                 previousStyles = null;
             }
@@ -381,6 +379,7 @@ function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateSty
             playTime += astDuration;
             maxDuration = Math.max(astDuration, maxDuration);
             steps.push(innerAst);
+            var _a;
         });
         if (isPresent(previousStyles)) {
             var startingStyles = new AnimationStylesAst(previousStyles);
@@ -444,7 +443,7 @@ function _parseTimeExpression(exp, errors) {
     var duration;
     var delay = 0;
     var easing = null;
-    if (isString(exp)) {
+    if (typeof exp === 'string') {
         var matches = exp.match(regex);
         if (matches === null) {
             errors.push(new AnimationParseError("The provided timing value \"" + exp + "\" is invalid."));

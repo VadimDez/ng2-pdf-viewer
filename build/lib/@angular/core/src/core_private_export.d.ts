@@ -12,6 +12,7 @@ import { AnimationPlayer as AnimationPlayer_, NoOpAnimationPlayer as NoOpAnimati
 import { AnimationSequencePlayer as AnimationSequencePlayer_ } from './animation/animation_sequence_player';
 import * as animationUtils from './animation/animation_style_util';
 import { AnimationStyles as AnimationStyles_ } from './animation/animation_styles';
+import { AnimationTransition } from './animation/animation_transition';
 import * as change_detection_util from './change_detection/change_detection_util';
 import * as constants from './change_detection/constants';
 import * as console from './console';
@@ -62,12 +63,6 @@ export declare var __core_private__: {
     registerModuleFactory: typeof ng_module_factory_loader.registerModuleFactory;
     ViewType: typeof view_type.ViewType;
     _ViewType?: view_type.ViewType;
-    MAX_INTERPOLATION_VALUES: typeof view_utils.MAX_INTERPOLATION_VALUES;
-    checkBinding: typeof view_utils.checkBinding;
-    flattenNestedViewRenderNodes: typeof view_utils.flattenNestedViewRenderNodes;
-    interpolate: typeof view_utils.interpolate;
-    ViewUtils: typeof view_utils.ViewUtils;
-    _ViewUtils?: view_utils.ViewUtils;
     ViewMetadata: typeof metadata_view.ViewMetadata;
     _ViewMetadata?: metadata_view.ViewMetadata;
     DebugContext: typeof debug_context.DebugContext;
@@ -87,19 +82,6 @@ export declare var __core_private__: {
     makeDecorator: typeof decorators.makeDecorator;
     DebugDomRootRenderer: typeof debug.DebugDomRootRenderer;
     _DebugDomRootRenderer?: debug.DebugDomRootRenderer;
-    EMPTY_ARRAY: typeof view_utils.EMPTY_ARRAY;
-    EMPTY_MAP: typeof view_utils.EMPTY_MAP;
-    pureProxy1: typeof view_utils.pureProxy1;
-    pureProxy2: typeof view_utils.pureProxy2;
-    pureProxy3: typeof view_utils.pureProxy3;
-    pureProxy4: typeof view_utils.pureProxy4;
-    pureProxy5: typeof view_utils.pureProxy5;
-    pureProxy6: typeof view_utils.pureProxy6;
-    pureProxy7: typeof view_utils.pureProxy7;
-    pureProxy8: typeof view_utils.pureProxy8;
-    pureProxy9: typeof view_utils.pureProxy9;
-    pureProxy10: typeof view_utils.pureProxy10;
-    castByValue: typeof view_utils.castByValue;
     Console: typeof console.Console;
     _Console?: console.Console;
     reflector: typeof reflection.reflector;
@@ -130,4 +112,6 @@ export declare var __core_private__: {
     _ComponentStillLoadingError?: ComponentStillLoadingError;
     ComponentStillLoadingError: typeof ComponentStillLoadingError;
     isPromise: typeof isPromise;
+    AnimationTransition: typeof AnimationTransition;
+    view_utils: typeof view_utils;
 };

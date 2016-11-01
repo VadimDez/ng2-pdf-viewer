@@ -49,7 +49,4 @@ import { Observable } from '../Observable';
  * @method windowTime
  * @owner Observable
  */
-export declare function windowTime<T>(windowTimeSpan: number, windowCreationInterval?: number, scheduler?: Scheduler): Observable<Observable<T>>;
-export interface WindowTimeSignature<T> {
-    (windowTimeSpan: number, windowCreationInterval?: number, scheduler?: Scheduler): Observable<Observable<T>>;
-}
+export declare function windowTime<T>(this: Observable<T>, windowTimeSpan: number, windowCreationInterval?: number, scheduler?: Scheduler): Observable<Observable<T>>;

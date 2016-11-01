@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injectable } from '@angular/core';
-import { isArray, isPresent } from './facade/lang';
+import { isPresent } from './facade/lang';
 import { FormArray, FormControl, FormGroup } from './model';
 /**
  * @whatItDoes Creates an {@link AbstractControl} from a user-specified configuration.
@@ -83,7 +83,7 @@ export var FormBuilder = (function () {
             controlConfig instanceof FormArray) {
             return controlConfig;
         }
-        else if (isArray(controlConfig)) {
+        else if (Array.isArray(controlConfig)) {
             var value = controlConfig[0];
             var validator = controlConfig.length > 1 ? controlConfig[1] : null;
             var asyncValidator = controlConfig.length > 2 ? controlConfig[2] : null;

@@ -9,7 +9,4 @@ import { Observable } from '../Observable';
  * @method ignoreElements
  * @owner Observable
  */
-export declare function ignoreElements<T>(): Observable<T>;
-export interface IgnoreElementsSignature<T> {
-    (): Observable<T>;
-}
+export declare function ignoreElements<T>(this: Observable<T>): Observable<T>;

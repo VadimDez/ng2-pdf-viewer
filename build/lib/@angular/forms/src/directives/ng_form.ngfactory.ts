@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './ng_form';
+import * as import0 from '@angular/forms/src/directives/ng_form';
 import * as import1 from '@angular/core/src/linker/view';
 export class Wrapper_NgForm {
   context:import0.NgForm;

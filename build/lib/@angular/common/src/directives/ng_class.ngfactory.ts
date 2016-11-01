@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './ng_class';
+import * as import0 from '@angular/common/src/directives/ng_class';
 import * as import1 from '@angular/core/src/change_detection/change_detection';
 import * as import2 from '@angular/core/src/linker/view_utils';
 import * as import3 from '@angular/core/src/linker/view';

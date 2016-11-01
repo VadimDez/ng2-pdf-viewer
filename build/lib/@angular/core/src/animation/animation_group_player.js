@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { isPresent, scheduleMicroTask } from '../facade/lang';
-import { Math } from '../facade/math';
 export var AnimationGroupPlayer = (function () {
     function AnimationGroupPlayer(_players) {
         var _this = this;

@@ -1,6 +1,6 @@
 import * as o from './output_ast';
-export declare var CATCH_ERROR_VAR: o.ReadVarExpr;
-export declare var CATCH_STACK_VAR: o.ReadVarExpr;
+export declare const CATCH_ERROR_VAR: o.ReadVarExpr;
+export declare const CATCH_STACK_VAR: o.ReadVarExpr;
 export declare abstract class OutputEmitter {
     abstract emitStatements(moduleUrl: string, stmts: o.Statement[], exportedVars: string[]): string;
 }

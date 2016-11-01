@@ -12,11 +12,8 @@ import { InnerSubscriber } from '../InnerSubscriber';
  * @method race
  * @owner Observable
  */
-export declare function race<T>(...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
-export interface RaceSignature<T> {
-    (...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
-    <R>(...observables: Array<Observable<any> | Array<Observable<T>>>): Observable<R>;
-}
+export declare function race<T>(this: Observable<T>, ...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
+export declare function race<T, R>(this: Observable<T>, ...observables: Array<Observable<any> | Array<Observable<T>>>): Observable<R>;
 /**
  * Returns an Observable that mirrors the first source Observable to emit an item.
  * @param {...Observables} ...observables sources used to race for which Observable emits first.

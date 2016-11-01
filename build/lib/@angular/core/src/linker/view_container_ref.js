@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
 import { unimplemented } from '../facade/errors';
 import { isPresent } from '../facade/lang';
 import { wtfCreateScope, wtfLeave } from '../profile/profile';
@@ -134,7 +133,7 @@ export var ViewContainerRef_ = (function () {
         return wtfLeave(s, viewRef_);
     };
     ViewContainerRef_.prototype.indexOf = function (viewRef) {
-        return ListWrapper.indexOf(this._element.nestedViews, viewRef.internalView);
+        return this._element.nestedViews.indexOf(viewRef.internalView);
     };
     // TODO(i): rename to destroy
     ViewContainerRef_.prototype.remove = function (index) {

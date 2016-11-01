@@ -585,7 +585,7 @@ export declare class FormGroup extends AbstractControl {
      * ### Example
      *
      * ```ts
-     * this.form.reset({first: 'name', last; 'last name'});
+     * this.form.reset({first: 'name', last: 'last name'});
      *
      * console.log(this.form.value);  // {first: 'name', last: 'last name'}
      * ```

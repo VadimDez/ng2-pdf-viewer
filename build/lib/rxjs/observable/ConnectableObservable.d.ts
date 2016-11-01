@@ -17,3 +17,4 @@ export declare class ConnectableObservable<T> extends Observable<T> {
     connect(): Subscription;
     refCount(): Observable<T>;
 }
+export declare const connectableObservableDescriptor: PropertyDescriptorMap;

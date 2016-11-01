@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './default_value_accessor';
+import * as import0 from '@angular/forms/src/directives/default_value_accessor';
 import * as import1 from '@angular/core/src/linker/view';
 export class Wrapper_DefaultValueAccessor {
   context:import0.DefaultValueAccessor;

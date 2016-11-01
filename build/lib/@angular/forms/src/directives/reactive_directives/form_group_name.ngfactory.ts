@@ -4,7 +4,7 @@
  */
  /* tslint:disable */
 
-import * as import0 from './form_group_name';
+import * as import0 from '@angular/forms/src/directives/reactive_directives/form_group_name';
 import * as import1 from '@angular/core/src/change_detection/change_detection';
 import * as import2 from '@angular/core/src/linker/view_utils';
 import * as import3 from '@angular/core/src/linker/view';

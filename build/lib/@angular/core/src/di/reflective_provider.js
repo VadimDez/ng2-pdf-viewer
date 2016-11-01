@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper, MapWrapper } from '../facade/collection';
-import { isArray, isBlank, isPresent } from '../facade/lang';
+import { MapWrapper } from '../facade/collection';
+import { isBlank, isPresent } from '../facade/lang';
 import { reflector } from '../reflection/reflection';
 import { Type } from '../type';
 import { resolveForwardRef } from './forward_ref';
@@ -131,7 +131,7 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
         else {
             var resolvedProvider;
             if (provider.multiProvider) {
-                resolvedProvider = new ResolvedReflectiveProvider_(provider.key, ListWrapper.clone(provider.resolvedFactories), provider.multiProvider);
+                resolvedProvider = new ResolvedReflectiveProvider_(provider.key, provider.resolvedFactories.slice(), provider.multiProvider);
             }
             else {
                 resolvedProvider = provider;
@@ -180,7 +180,7 @@ function _extractToken(typeOrFunc /** TODO #9100 */, metadata /** TODO #9100 */ 
     var depProps = [];
     var token = null;
     var optional = false;
-    if (!isArray(metadata)) {
+    if (!Array.isArray(metadata)) {
         if (metadata instanceof Inject) {
             return _createDependency(metadata.token, optional, null, null, depProps);
         }

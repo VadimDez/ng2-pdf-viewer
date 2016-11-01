@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Optional, SkipSelf } from '../../di';
-import { ListWrapper } from '../../facade/collection';
 import { isPresent } from '../../facade/lang';
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
@@ -18,7 +17,7 @@ export var KeyValueDiffers = (function () {
     }
     KeyValueDiffers.create = function (factories, parent) {
         if (isPresent(parent)) {
-            var copied = ListWrapper.clone(parent.factories);
+            var copied = parent.factories.slice();
             factories = factories.concat(copied);
             return new KeyValueDiffers(factories);
         }

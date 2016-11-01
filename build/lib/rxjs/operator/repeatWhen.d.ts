@@ -15,7 +15,4 @@ import { Observable } from '../Observable';
  * @method repeatWhen
  * @owner Observable
  */
-export declare function repeatWhen<T>(notifier: (notifications: Observable<any>) => Observable<any>): Observable<T>;
-export interface RepeatWhenSignature<T> {
-    (notifier: (notifications: Observable<any>) => Observable<any>): Observable<T>;
-}
+export declare function repeatWhen<T>(this: Observable<T>, notifier: (notifications: Observable<any>) => Observable<any>): Observable<T>;

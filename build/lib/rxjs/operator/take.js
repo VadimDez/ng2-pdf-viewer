@@ -75,9 +75,10 @@ var TakeSubscriber = (function (_super) {
     }
     TakeSubscriber.prototype._next = function (value) {
         var total = this.total;
-        if (++this.count <= total) {
+        var count = ++this.count;
+        if (count <= total) {
             this.destination.next(value);
-            if (this.count === total) {
+            if (count === total) {
                 this.destination.complete();
                 this.unsubscribe();
             }

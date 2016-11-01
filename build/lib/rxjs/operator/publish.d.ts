@@ -13,9 +13,6 @@ import { ConnectableObservable } from '../observable/ConnectableObservable';
  * @method publish
  * @owner Observable
  */
-export declare function publish<T>(selector?: (source: Observable<T>) => Observable<T>): Observable<T> | ConnectableObservable<T>;
+export declare function publish<T>(this: Observable<T>): ConnectableObservable<T>;
+export declare function publish<T>(this: Observable<T>, selector: selector<T>): Observable<T>;
 export declare type selector<T> = (source: Observable<T>) => Observable<T>;
-export interface PublishSignature<T> {
-    (): ConnectableObservable<T>;
-    (selector: selector<T>): Observable<T>;
-}

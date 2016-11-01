@@ -39,7 +39,4 @@ import { Observable, SubscribableOrPromise } from '../Observable';
  * @method audit
  * @owner Observable
  */
-export declare function audit<T>(durationSelector: (value: T) => SubscribableOrPromise<any>): Observable<T>;
-export interface AuditSignature<T> {
-    (durationSelector: (value: T) => SubscribableOrPromise<any>): Observable<T>;
-}
+export declare function audit<T>(this: Observable<T>, durationSelector: (value: T) => SubscribableOrPromise<any>): Observable<T>;

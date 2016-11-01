@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ListWrapper } from '../facade/collection';
 import { isPresent } from '../facade/lang';
 import { ElementRef } from './element_ref';
 import { ViewContainerRef_ } from './view_container_ref';
@@ -70,8 +69,8 @@ export var AppElement = (function () {
             nestedViews = [];
             this.nestedViews = nestedViews;
         }
-        ListWrapper.removeAt(nestedViews, previousIndex);
-        ListWrapper.insert(nestedViews, currentIndex, view);
+        nestedViews.splice(previousIndex, 1);
+        nestedViews.splice(currentIndex, 0, view);
         var refRenderNode;
         if (currentIndex > 0) {
             var prevView = nestedViews[currentIndex - 1];
@@ -94,7 +93,7 @@ export var AppElement = (function () {
             nestedViews = [];
             this.nestedViews = nestedViews;
         }
-        ListWrapper.insert(nestedViews, viewIndex, view);
+        nestedViews.splice(viewIndex, 0, view);
         var refRenderNode;
         if (viewIndex > 0) {
             var prevView = nestedViews[viewIndex - 1];
@@ -109,7 +108,7 @@ export var AppElement = (function () {
         view.addToContentChildren(this);
     };
     AppElement.prototype.detachView = function (viewIndex) {
-        var view = ListWrapper.removeAt(this.nestedViews, viewIndex);
+        var view = this.nestedViews.splice(viewIndex, 1)[0];
         if (view.type === ViewType.COMPONENT) {
             throw new Error("Component views can't be moved!");
         }

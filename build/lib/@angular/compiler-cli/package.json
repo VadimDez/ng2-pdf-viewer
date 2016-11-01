@@ -1,0 +1,109 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "@angular/compiler-cli",
+        "scope": "@angular",
+        "escapedName": "@angular%2fcompiler-cli",
+        "name": "@angular/compiler-cli",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
+  "_from": "@angular/compiler-cli@latest",
+  "_id": "@angular/compiler-cli@2.1.2",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/@angular/compiler-cli",
+  "_nodeVersion": "6.7.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/compiler-cli-2.1.2.tgz_1477593262964_0.9359697939362377"
+  },
+  "_npmUser": {
+    "name": "angular",
+    "email": "angular-core+npm@google.com"
+  },
+  "_npmVersion": "3.10.3",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "@angular/compiler-cli",
+    "scope": "@angular",
+    "escapedName": "@angular%2fcompiler-cli",
+    "name": "@angular/compiler-cli",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz",
+  "_shasum": "9c34433af2183f294b9c63a035c785e002edc792",
+  "_shrinkwrap": null,
+  "_spec": "@angular/compiler-cli",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "bin": {
+    "ngc": "./src/main.js",
+    "ng-xi18n": "./src/extract_i18n.js"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
+  "contributors": [
+    {
+      "name": "Tobias Bosch",
+      "email": "tbosch@google.com",
+      "url": "https://angular.io/"
+    },
+    {
+      "name": "Alex Eagle",
+      "email": "alexeagle@google.com",
+      "url": "https://angular.io/"
+    }
+  ],
+  "dependencies": {
+    "@angular/tsc-wrapped": "^0.3.0",
+    "minimist": "^1.2.0",
+    "reflect-metadata": "^0.1.2"
+  },
+  "description": "Angular - the compiler CLI for Node.js",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "9c34433af2183f294b9c63a035c785e002edc792",
+    "tarball": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz"
+  },
+  "homepage": "https://github.com/angular/angular/tree/master/modules/@angular/compiler-cli",
+  "keywords": [
+    "angular",
+    "compiler"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "angular",
+      "email": "angular-core+npm@google.com"
+    }
+  ],
+  "name": "@angular/compiler-cli",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "typescript": "^2.0.2",
+    "@angular/compiler": "2.1.2",
+    "@angular/core": "2.1.2"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
+  "scripts": {},
+  "typings": "index.d.ts",
+  "version": "2.1.2"
+}

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.0
+ * @license Angular v2.1.2
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -143,16 +143,10 @@
         // TODO: to be fixed properly via #2830, noop for now
     };
     function isPresent(obj) {
-        return obj !== undefined && obj !== null;
+        return obj != null;
     }
     function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isStringMap(obj) {
-        return typeof obj === 'object' && obj !== null;
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
+        return obj == null;
     }
     function isDate(obj) {
         return obj instanceof Date && !isNaN(obj.valueOf());
@@ -177,8 +171,6 @@
     var NumberWrapper = (function () {
         function NumberWrapper() {
         }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
         NumberWrapper.parseIntAutoRadix = function (text) {
             var result = parseInt(text);
             if (isNaN(result)) {
@@ -205,34 +197,16 @@
             }
             throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
         NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
         return NumberWrapper;
     }());
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
     }
-    // Can't be all uppercase as our transpiler would think it is a special directive...
-    var Json = (function () {
-        function Json() {
-        }
-        Json.parse = function (s) { return _global.JSON.parse(s); };
-        Json.stringify = function (data) {
-            // Dart doesn't take 3 arguments
-            return _global.JSON.stringify(data, null, 2);
-        };
-        return Json;
-    }());
     var _symbolIterator = null;
     function getSymbolIterator() {
-        if (isBlank(_symbolIterator)) {
-            if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
+        if (!_symbolIterator) {
+            if (globalScope.Symbol && Symbol.iterator) {
                 _symbolIterator = Symbol.iterator;
             }
             else {
@@ -1093,22 +1067,6 @@
         }
     }
 
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -1133,42 +1091,6 @@
     var ListWrapper = (function () {
         function ListWrapper() {
         }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
@@ -1183,13 +1105,6 @@
             }
             return false;
         };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
         ListWrapper.equals = function (a, b) {
             if (a.length != b.length)
                 return false;
@@ -1199,22 +1114,6 @@
             }
             return true;
         };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
         ListWrapper.maximum = function (list, predicate) {
             if (list.length == 0) {
                 return null;
@@ -1223,7 +1122,7 @@
             var maxValue = -Infinity;
             for (var index = 0; index < list.length; index++) {
                 var candidate = list[index];
-                if (isBlank(candidate)) {
+                if (candidate == null) {
                     continue;
                 }
                 var candidateValue = predicate(candidate);
@@ -1239,18 +1138,13 @@
             _flattenArray(list, target);
             return target;
         };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
         return ListWrapper;
     }());
     function _flattenArray(source, target) {
         if (isPresent(source)) {
             for (var i = 0; i < source.length; i++) {
                 var item = source[i];
-                if (isArray(item)) {
+                if (Array.isArray(item)) {
                     _flattenArray(item, target);
                 }
                 else {
@@ -1263,7 +1157,7 @@
     function isListLikeIterable(obj) {
         if (!isJsObject(obj))
             return false;
-        return isArray(obj) ||
+        return Array.isArray(obj) ||
             (!(obj instanceof Map) &&
                 getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
     }
@@ -1286,11 +1180,11 @@
      *
      * @description
      *
-     * The CSS classes are updated as follow depending on the type of the expression evaluation:
-     * - `string` - the CSS classes listed in a string (space delimited) are added,
-     * - `Array` - the CSS classes (Array elements) are added,
-     * - `Object` - keys are CSS class names that get added when the expression given in the value
-     *              evaluates to a truthy value, otherwise class are removed.
+     * The CSS classes are updated as follows, depending on the type of the expression evaluation:
+     * - `string` - the CSS classes listed in the string (space delimited) are added,
+     * - `Array` - the CSS classes declared as Array elements are added,
+     * - `Object` - keys are CSS classes that get added when the expression given in the value
+     *              evaluates to a truthy value, otherwise they are removed.
      *
      * @stable
      */
@@ -1598,14 +1492,14 @@
     /**
      * Removes or recreates a portion of the DOM tree based on an {expression}.
      *
-     * If the expression assigned to `ngIf` evaluates to a false value then the element
+     * If the expression assigned to `ngIf` evaluates to a falsy value then the element
      * is removed from the DOM, otherwise a clone of the element is reinserted into the DOM.
      *
      * ### Example ([live demo](http://plnkr.co/edit/fe0kgemFBtmQOY31b4tw?p=preview)):
      *
      * ```
      * <div *ngIf="errorCount > 0" class="error">
-     *   <!-- Error message displayed when the errorCount property on the current context is greater
+     *   <!-- Error message displayed when the errorCount property in the current context is greater
      * than 0. -->
      *   {{errorCount}} errors detected
      * </div>
@@ -1653,7 +1547,7 @@
         return NgIf;
     }());
 
-    var _CASE_DEFAULT = new Object();
+    var _CASE_DEFAULT = {};
     var SwitchView = (function () {
         function SwitchView(_viewContainerRef, _templateRef) {
             this._viewContainerRef = _viewContainerRef;
@@ -1680,7 +1574,7 @@
      *         <inner-element></inner-element>
      *         <inner-other-element></inner-other-element>
      *       </ng-container>
-     *       <some-element *ngSwitchDefault>...</p>
+     *       <some-element *ngSwitchDefault>...</some-element>
      *     </container-element>
      * ```
      * @description
@@ -1695,8 +1589,7 @@
      * root elements.
      *
      * Elements within `NgSwitch` but outside of a `NgSwitchCase` or `NgSwitchDefault` directives will
-     * be
-     * preserved at the location.
+     * be preserved at the location.
      *
      * The `ngSwitchCase` directive informs the parent `NgSwitch` of which view to display when the
      * expression is evaluated.
@@ -1713,15 +1606,21 @@
         }
         Object.defineProperty(NgSwitch.prototype, "ngSwitch", {
             set: function (value) {
-                // Empty the currently active ViewContainers
-                this._emptyAllActiveViews();
-                // Add the ViewContainers matching the value (with a fallback to default)
-                this._useDefault = false;
+                // Set of views to display for this value
                 var views = this._valueViews.get(value);
-                if (!views) {
-                    this._useDefault = true;
-                    views = this._valueViews.get(_CASE_DEFAULT) || null;
+                if (views) {
+                    this._useDefault = false;
                 }
+                else {
+                    // No view to display for the current value -> default case
+                    // Nothing to do if the default case was already active
+                    if (this._useDefault) {
+                        return;
+                    }
+                    this._useDefault = true;
+                    views = this._valueViews.get(_CASE_DEFAULT);
+                }
+                this._emptyAllActiveViews();
                 this._activateViews(views);
                 this._switchValue = value;
             },
@@ -2675,7 +2574,7 @@
         I18nPluralPipe.prototype.transform = function (value, pluralMap) {
             if (isBlank(value))
                 return '';
-            if (!isStringMap(pluralMap)) {
+            if (typeof pluralMap !== 'object' || pluralMap === null) {
                 throw new InvalidPipeArgumentError(I18nPluralPipe, pluralMap);
             }
             var key = getPluralCategory(value, Object.keys(pluralMap), this._localization);
@@ -2713,10 +2612,10 @@
         I18nSelectPipe.prototype.transform = function (value, mapping) {
             if (isBlank(value))
                 return '';
-            if (!isStringMap(mapping)) {
+            if (typeof mapping !== 'object' || mapping === null) {
                 throw new InvalidPipeArgumentError(I18nSelectPipe, mapping);
             }
-            return mapping.hasOwnProperty(value) ? mapping[value] : '';
+            return mapping[value] || '';
         };
         I18nSelectPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'i18nSelect', pure: true },] },
@@ -2742,7 +2641,7 @@
     var JsonPipe = (function () {
         function JsonPipe() {
         }
-        JsonPipe.prototype.transform = function (value) { return Json.stringify(value); };
+        JsonPipe.prototype.transform = function (value) { return JSON.stringify(value, null, 2); };
         JsonPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'json', pure: false },] },
         ];
