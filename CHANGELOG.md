@@ -6,6 +6,7 @@ Re-installing of package may be required.
 
 * [[#20](https://github.com/VadimDez/ng2-pdf-viewer/issues/20)] - Unable to declare in App Module
 * Systemjs integration was changed, now you need to link ```dist/index.js``` file. See [[SYSTEMJS.md](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md)]
+* Support for AoT
 
 ## 0.0.13
 * [[#22](https://github.com/VadimDez/ng2-pdf-viewer/issues/22)] - Support zoom
