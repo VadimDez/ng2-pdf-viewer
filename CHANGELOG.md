@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.15
+* [[#26](https://github.com/VadimDez/ng2-pdf-viewer/issues/26)] - Re-added pdfjs as dependency
+
 ## 0.0.14
 
 Re-installing of package may be required.
