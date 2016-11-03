@@ -7,7 +7,7 @@ var AppComponent = (function () {
         this.zoom = 1.0;
         this.originalSize = false;
         this.showAll = true;
-        this.onLoadComplete = this.onLoadComplete.bind(this);
+        this.afterLoadComplete = this.afterLoadComplete.bind(this);
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
@@ -15,7 +15,7 @@ var AppComponent = (function () {
     AppComponent.prototype.incrementZoom = function (amount) {
         this.zoom += amount;
     };
-    AppComponent.prototype.onLoadComplete = function (pdf) {
+    AppComponent.prototype.afterLoadComplete = function (pdf) {
         this.pdf = pdf;
     };
     AppComponent.decorators = [

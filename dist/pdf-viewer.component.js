@@ -81,8 +81,8 @@ var PdfViewerComponent = (function () {
         var _this = this;
         window.PDFJS.getDocument(this._src).then(function (pdf) {
             _this._pdf = pdf;
-            if (_this.onLoadComplete && typeof _this.onLoadComplete === 'function') {
-                _this.onLoadComplete(pdf);
+            if (_this.afterLoadComplete && typeof _this.afterLoadComplete === 'function') {
+                _this.afterLoadComplete(pdf);
             }
             if (!_this.isValidPageNumber(_this._page)) {
                 _this._page = 1;
@@ -145,7 +145,7 @@ var PdfViewerComponent = (function () {
         { type: core_1.ElementRef, },
     ];
     PdfViewerComponent.propDecorators = {
-        'onLoadComplete': [{ type: core_1.Input, args: ['on-load-complete',] },],
+        'afterLoadComplete': [{ type: core_1.Input, args: ['after-load-complete',] },],
         'src': [{ type: core_1.Input },],
         'page': [{ type: core_1.Input },],
         'pageChange': [{ type: core_1.Output },],

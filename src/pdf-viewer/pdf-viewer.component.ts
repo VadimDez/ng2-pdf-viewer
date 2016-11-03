@@ -24,7 +24,7 @@ export class PdfViewerComponent {
   private _page: number = 1;
   private _zoom: number = 1;
   private wasInvalidPage: boolean = false;
-  @Input('on-load-complete') onLoadComplete: Function;
+  @Input('after-load-complete') afterLoadComplete: Function;
 
   constructor(private element: ElementRef) {}
 
@@ -96,8 +96,8 @@ export class PdfViewerComponent {
     (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
 
-      if (this.onLoadComplete && typeof this.onLoadComplete === 'function') {
-        this.onLoadComplete(pdf);
+      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
+        this.afterLoadComplete(pdf);
       }
 
       if (!this.isValidPageNumber(this._page)) {

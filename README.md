@@ -74,7 +74,7 @@ export class AppComponent {
 * [zoom](#zoom)
 * [original-size](#original-size)
 * [show-all](#show-all)
-* [on-load-complete](#on-load-complete)
+* [after-load-complete](#after-load-complete)
 
 #### [src]
 
@@ -133,7 +133,7 @@ Show single or all pages altogether
 [show-all]="true"
 ```
 
-#### [on-load-complete]
+#### [after-load-complete]
 
 Get PDF information with callback
 
@@ -146,7 +146,7 @@ callBackFn(pdf: any) {
 
 And then use it in your template:
 ``` 
-[on-load-complete]="callBackFn"
+[after-load-complete]="callBackFn"
 ```
 ## Develop
 ```

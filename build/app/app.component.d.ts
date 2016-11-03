@@ -8,5 +8,5 @@ export declare class AppComponent {
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
-    onLoadComplete(pdf: any): void;
+    afterLoadComplete(pdf: any): void;
 }
