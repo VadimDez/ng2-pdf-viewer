@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0
+
+### Breaking changes
+* [[#25](https://github.com/VadimDez/ng2-pdf-viewer/issues/25)] - Renamed "on-load-complete" to "after-load-complete"
+
+
+## 0.0.15
+* [[#26](https://github.com/VadimDez/ng2-pdf-viewer/issues/26)] - Re-added pdfjs as dependency
+
 ## 0.0.14
 
 Re-installing of package may be required.

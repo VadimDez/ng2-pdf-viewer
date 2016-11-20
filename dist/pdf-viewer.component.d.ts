@@ -9,7 +9,7 @@ export declare class PdfViewerComponent {
     private _page;
     private _zoom;
     private wasInvalidPage;
-    onLoadComplete: Function;
+    afterLoadComplete: Function;
     constructor(element: ElementRef);
     src: any;
     page: any;

@@ -29,7 +29,7 @@ export class AppComponent {
   pdf: any;
 
   constructor() {
-    this.onLoadComplete = this.onLoadComplete.bind(this);
+    this.afterLoadComplete = this.afterLoadComplete.bind(this);
   }
 
   incrementPage(amount: number) {
@@ -41,10 +41,27 @@ export class AppComponent {
   }
 
   /**
+   * Render PDF preview on selecting file
+   */
+  onFileSelected() {
+    var $img: any = document.querySelector('#file');
+
+    if (typeof (FileReader) !== 'undefined') {
+      var reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        this.pdfSrc = e.target.result;
+      };
+
+      reader.readAsArrayBuffer($img.files[0]);
+    }
+  }
+
+  /**
    * Get pdf information after it's loaded
    * @param pdf
    */
-  onLoadComplete(pdf: any) {
+  afterLoadComplete(pdf: any) {
     this.pdf = pdf;
   }
 }

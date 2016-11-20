@@ -9,7 +9,14 @@
 
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
-                <label class="mdl-textfield__label" for="pdf-src">PDF path</label>
+                <label class="mdl-textfield__label" for="pdf-src">Set URL of the PDF file</label>
+            </div>
+
+            <div class="select-file__container">
+                <p>
+                    Or render preview by just selecting PDF file (no upload required)
+                </p>
+                <input (change)="onFileSelected()" type="file" id="file">
             </div>
 
             <div>
@@ -66,16 +73,17 @@
                     <label class="mdl-textfield__label" for="pdf-page">Page</label>
                     <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
-                <span>of {{ pdf?.numPages }}</span>
+                <span *ngIf="pdf">of {{ pdf.numPages }}</span>
                 <button (click)="incrementPage(1)" class="mdl-button mdl-js-button">
                     Next
                 </button>
             </div>
+
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
                         [original-size]="originalSize"
                         [show-all]="showAll"
-                        [on-load-complete]="onLoadComplete"
+                        [after-load-complete]="afterLoadComplete"
                         [zoom]="zoom"
             ></pdf-viewer>
 
