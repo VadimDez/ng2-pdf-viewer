@@ -76,7 +76,7 @@
     "systemjs-builder": "^0.15.34",
     "ts-node": "^1.7.0",
     "tslint": "^3.15.1",
-    "typescript": "^2.1.1",
+    "typescript": "~2.0.8",
     "typings": "^2.0.0",
     "uglifyjs": "^2.4.10",
     "zone.js": "^0.6.26"
