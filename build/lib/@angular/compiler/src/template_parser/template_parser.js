@@ -11,7 +11,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Inject, Injectable, OpaqueToken, Optional } from '@angular/core';
-import { removeIdentifierDuplicates } from '../compile_metadata';
 import { Parser } from '../expression_parser/parser';
 import { isPresent } from '../facade/lang';
 import { I18NHtmlParser } from '../i18n/i18n_html_parser';
@@ -106,8 +105,8 @@ export var TemplateParser = (function () {
         var result;
         var errors = htmlAstWithErrors.errors;
         if (htmlAstWithErrors.rootNodes.length > 0) {
-            var uniqDirectives = removeIdentifierDuplicates(directives);
-            var uniqPipes = removeIdentifierDuplicates(pipes);
+            var uniqDirectives = removeSummaryDuplicates(directives);
+            var uniqPipes = removeSummaryDuplicates(pipes);
             var providerViewContext = new ProviderViewContext(component, htmlAstWithErrors.rootNodes[0].sourceSpan);
             var interpolationConfig = void 0;
             if (component.template && component.template.interpolation) {
@@ -241,13 +240,14 @@ var TemplateParseVisitor = (function () {
         var isTemplateElement = lcElName == TEMPLATE_ELEMENT;
         element.attrs.forEach(function (attr) {
             var hasBinding = _this._parseAttr(isTemplateElement, attr, matchableAttrs, elementOrDirectiveProps, events, elementOrDirectiveRefs, elementVars);
-            var templateBindingsSource;
+            var templateBindingsSource = undefined;
+            var prefixToken = undefined;
             if (_this._normalizeAttributeName(attr.name) == TEMPLATE_ATTR) {
                 templateBindingsSource = attr.value;
             }
             else if (attr.name.startsWith(TEMPLATE_ATTR_PREFIX)) {
-                var key = attr.name.substring(TEMPLATE_ATTR_PREFIX.length); // remove the star
-                templateBindingsSource = (attr.value.length == 0) ? key : key + ' ' + attr.value;
+                templateBindingsSource = attr.value;
+                prefixToken = attr.name.substring(TEMPLATE_ATTR_PREFIX.length); // remove the star
             }
             var hasTemplateBinding = isPresent(templateBindingsSource);
             if (hasTemplateBinding) {
@@ -255,7 +255,7 @@ var TemplateParseVisitor = (function () {
                     _this._reportError("Can't have multiple template bindings on one element. Use only one attribute named 'template' or prefixed with *", attr.sourceSpan);
                 }
                 hasInlineTemplates = true;
-                _this._bindingParser.parseInlineTemplateBinding(attr.name, templateBindingsSource, attr.sourceSpan, templateMatchableAttrs, templateElementOrDirectiveProps, templateElementVars);
+                _this._bindingParser.parseInlineTemplateBinding(attr.name, prefixToken, templateBindingsSource, attr.sourceSpan, templateMatchableAttrs, templateElementOrDirectiveProps, templateElementVars);
             }
             if (!hasBinding && !hasTemplateBinding) {
                 // don't include the bindings as attributes as well in the AST
@@ -297,7 +297,7 @@ var TemplateParseVisitor = (function () {
             this._findComponentDirectives(directiveAsts)
                 .forEach(function (componentDirectiveAst) { return _this._validateElementAnimationInputOutputs(componentDirectiveAst.hostProperties, componentDirectiveAst.hostEvents, componentDirectiveAst.directive.template); });
             var componentTemplate = providerContext.viewContext.component.template;
-            this._validateElementAnimationInputOutputs(elementProps, events, componentTemplate);
+            this._validateElementAnimationInputOutputs(elementProps, events, componentTemplate.toSummary());
         }
         if (hasInlineTemplates) {
             var templateCssSelector = createElementCssSelector(TEMPLATE_ELEMENT, templateMatchableAttrs);
@@ -314,7 +314,7 @@ var TemplateParseVisitor = (function () {
     TemplateParseVisitor.prototype._validateElementAnimationInputOutputs = function (inputs, outputs, template) {
         var _this = this;
         var triggerLookup = new Set();
-        template.animations.forEach(function (entry) { triggerLookup.add(entry.name); });
+        template.animations.forEach(function (entry) { triggerLookup.add(entry); });
         var animationInputs = inputs.filter(function (input) { return input.isAnimation; });
         animationInputs.forEach(function (input) {
             var name = input.name;
@@ -507,7 +507,9 @@ var TemplateParseVisitor = (function () {
     TemplateParseVisitor.prototype._assertOnlyOneComponent = function (directives, sourceSpan) {
         var componentTypeNames = this._findComponentDirectiveNames(directives);
         if (componentTypeNames.length > 1) {
-            this._reportError("More than one component: " + componentTypeNames.join(','), sourceSpan);
+            this._reportError("More than one component matched on this element.\n" +
+                "Make sure that only one component's selector can match a given element.\n" +
+                ("Conflicting components: " + componentTypeNames.join(',')), sourceSpan);
         }
     };
     /**
@@ -672,5 +674,14 @@ var EMPTY_ELEMENT_CONTEXT = new ElementContext(true, new SelectorMatcher(), null
 var NON_BINDABLE_VISITOR = new NonBindableVisitor();
 function _isEmptyTextNode(node) {
     return node instanceof html.Text && node.value.trim().length == 0;
+}
+export function removeSummaryDuplicates(items) {
+    var map = new Map();
+    items.forEach(function (item) {
+        if (!map.get(item.type.reference)) {
+            map.set(item.type.reference, item);
+        }
+    });
+    return Array.from(map.values());
 }
 //# sourceMappingURL=template_parser.js.map

@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, OnDestroy, Renderer } from '@angular/core';
+import { ElementRef, OnDestroy, Provider, Renderer } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
-export declare const SELECT_VALUE_ACCESSOR: any;
+export declare const SELECT_VALUE_ACCESSOR: Provider;
 /**
  * @whatItDoes Writes values and listens to changes on a select element.
  *

@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, ElementRef, Renderer, forwardRef } from '@angular/core';
-import { isBlank } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var NUMBER_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
@@ -31,7 +30,7 @@ export var NumberValueAccessor = (function () {
     }
     NumberValueAccessor.prototype.writeValue = function (value) {
         // The value needs to be normalized for IE9, otherwise it is set to 'null' when null
-        var normalizedValue = isBlank(value) ? '' : value;
+        var normalizedValue = value == null ? '' : value;
         this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
     };
     NumberValueAccessor.prototype.registerOnChange = function (fn) {

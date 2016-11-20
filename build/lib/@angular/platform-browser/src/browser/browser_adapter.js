@@ -78,13 +78,27 @@ export var BrowserDomAdapter = (function (_super) {
     BrowserDomAdapter.prototype.getProperty = function (el, name) { return el[name]; };
     BrowserDomAdapter.prototype.invoke = function (el, methodName, args) { (_a = el)[methodName].apply(_a, args); var _a; };
     // TODO(tbosch): move this into a separate environment class once we have it
-    BrowserDomAdapter.prototype.logError = function (error) { (window.console.error || window.console.log)(error); };
-    BrowserDomAdapter.prototype.log = function (error) { window.console.log(error); };
-    BrowserDomAdapter.prototype.logGroup = function (error) {
-        window.console.group && window.console.group(error);
-        this.logError(error);
+    BrowserDomAdapter.prototype.logError = function (error) {
+        if (window.console) {
+            (window.console.error || window.console.log)(error);
+        }
     };
-    BrowserDomAdapter.prototype.logGroupEnd = function () { window.console.groupEnd && window.console.groupEnd(); };
+    BrowserDomAdapter.prototype.log = function (error) {
+        if (window.console) {
+            window.console.log && window.console.log(error);
+        }
+    };
+    BrowserDomAdapter.prototype.logGroup = function (error) {
+        if (window.console) {
+            window.console.group && window.console.group(error);
+            this.logError(error);
+        }
+    };
+    BrowserDomAdapter.prototype.logGroupEnd = function () {
+        if (window.console) {
+            window.console.groupEnd && window.console.groupEnd();
+        }
+    };
     Object.defineProperty(BrowserDomAdapter.prototype, "attrToPropMap", {
         get: function () { return _attrToPropMap; },
         enumerable: true,

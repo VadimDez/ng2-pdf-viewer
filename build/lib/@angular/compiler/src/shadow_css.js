@@ -376,7 +376,11 @@ export var ShadowCss = (function () {
         if (_polyfillHostRe.test(selector)) {
             var replaceBy_1 = this.strictStyling ? "[" + hostSelector + "]" : scopeSelector;
             return selector
-                .replace(_polyfillHostNoCombinatorRe, function (hnc, selector) { return selector[0] === ':' ? replaceBy_1 + selector : selector + replaceBy_1; })
+                .replace(_polyfillHostNoCombinatorRe, function (hnc, selector) {
+                return selector.replace(/([^:]*)(:*)(.*)/, function (_, before, colon, after) {
+                    return before + replaceBy_1 + colon + after;
+                });
+            })
                 .replace(_polyfillHostRe, replaceBy_1 + ' ');
         }
         return scopeSelector + ' ' + selector;
@@ -407,23 +411,15 @@ export var ShadowCss = (function () {
                 var t = p.replace(_polyfillHostRe, '');
                 if (t.length > 0) {
                     var matches = t.match(/([^:]*)(:*)(.*)/);
-                    if (matches !== null) {
+                    if (matches) {
                         scopedP = matches[1] + attrName + matches[2] + matches[3];
                     }
                 }
             }
             return scopedP;
         };
-        var attrSelectorIndex = 0;
-        var attrSelectors = [];
-        // replace attribute selectors with placeholders to avoid issue with white space being treated
-        // as separator
-        selector = selector.replace(/\[[^\]]*\]/g, function (attrSelector) {
-            var replaceBy = "__attr_sel_" + attrSelectorIndex + "__";
-            attrSelectors.push(attrSelector);
-            attrSelectorIndex++;
-            return replaceBy;
-        });
+        var safeContent = new SafeSelector(selector);
+        selector = safeContent.content();
         var scopedSelector = '';
         var startIndex = 0;
         var res;
@@ -440,13 +436,43 @@ export var ShadowCss = (function () {
         }
         scopedSelector += _scopeSelectorPart(selector.substring(startIndex));
         // replace the placeholders with their original values
-        return scopedSelector.replace(/__attr_sel_(\d+)__/g, function (ph, index) { return attrSelectors[+index]; });
+        return safeContent.restore(scopedSelector);
     };
     ShadowCss.prototype._insertPolyfillHostInCssText = function (selector) {
         return selector.replace(_colonHostContextRe, _polyfillHostContext)
             .replace(_colonHostRe, _polyfillHost);
     };
     return ShadowCss;
+}());
+var SafeSelector = (function () {
+    function SafeSelector(selector) {
+        var _this = this;
+        this.placeholders = [];
+        this.index = 0;
+        // Replaces attribute selectors with placeholders.
+        // The WS in [attr="va lue"] would otherwise be interpreted as a selector separator.
+        selector = selector.replace(/(\[[^\]]*\])/g, function (_, keep) {
+            var replaceBy = "__ph-" + _this.index + "__";
+            _this.placeholders.push(keep);
+            _this.index++;
+            return replaceBy;
+        });
+        // Replaces the expression in `:nth-child(2n + 1)` with a placeholder.
+        // WS and "+" would otherwise be interpreted as selector separators.
+        this._content = selector.replace(/(:nth-[-\w]+)(\([^)]+\))/g, function (_, pseudo, exp) {
+            var replaceBy = "__ph-" + _this.index + "__";
+            _this.placeholders.push(exp);
+            _this.index++;
+            return pseudo + replaceBy;
+        });
+    }
+    ;
+    SafeSelector.prototype.restore = function (content) {
+        var _this = this;
+        return content.replace(/__ph-(\d+)__/g, function (ph, index) { return _this.placeholders[+index]; });
+    };
+    SafeSelector.prototype.content = function () { return this._content; };
+    return SafeSelector;
 }());
 var _cssContentNextSelectorRe = /polyfill-next-selector[^}]*content:[\s]*?(['"])(.*?)\1[;\s]*}([^{]*?){/gim;
 var _cssContentRuleRe = /(polyfill-rule)[^}]*(content:[\s]*(['"])(.*?)\3)[;\s]*[^}]*}/gim;

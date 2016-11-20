@@ -23,7 +23,7 @@ export declare class Parser {
     private _reportError(message, input, errLocation, ctxLocation?);
     private _parseBindingAst(input, location, interpolationConfig);
     private _parseQuote(input, location);
-    parseTemplateBindings(input: string, location: any): TemplateBindingParseResult;
+    parseTemplateBindings(prefixToken: string, input: string, location: any): TemplateBindingParseResult;
     parseInterpolation(input: string, location: any, interpolationConfig?: InterpolationConfig): ASTWithSource;
     splitInterpolation(input: string, location: string, interpolationConfig?: InterpolationConfig): SplitInterpolation;
     wrapLiteralPrimitive(input: string, location: any): ASTWithSource;

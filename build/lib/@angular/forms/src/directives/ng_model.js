@@ -26,6 +26,23 @@ export var formControlBinding = {
     provide: NgControl,
     useExisting: forwardRef(function () { return NgModel; })
 };
+/**
+ * `ngModel` forces an additional change detection run when its inputs change:
+ * E.g.:
+ * ```
+ * <div>{{myModel.valid}}</div>
+ * <input [(ngModel)]="myValue" #myModel="ngModel">
+ * ```
+ * I.e. `ngModel` can export itself on the element and then be used in the template.
+ * Normally, this would result in expressions before the `input` that use the exported directive
+ * to have and old value as they have been
+ * dirty checked before. As this is a very common case for `ngModel`, we added this second change
+ * detection run.
+ *
+ * Notes:
+ * - this is just one extra run no matter how many `ngModel` have been changed.
+ * - this is a general problem when using `exportAs` for directives!
+ */
 var resolvedPromise = Promise.resolve(null);
 /**
  * @whatItDoes Creates a {@link FormControl} instance from a domain model and binds it

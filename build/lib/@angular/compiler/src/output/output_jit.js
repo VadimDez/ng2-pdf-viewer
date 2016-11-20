@@ -50,8 +50,8 @@ var JitEmitterVisitor = (function (_super) {
         if (id === -1) {
             id = this._evalArgValues.length;
             this._evalArgValues.push(value);
-            var name = isPresent(ast.value.name) ? sanitizeIdentifier(ast.value.name) : 'val';
-            this._evalArgNames.push(sanitizeIdentifier("jit_" + name + id));
+            var name_1 = isPresent(ast.value.name) ? sanitizeIdentifier(ast.value.name) : 'val';
+            this._evalArgNames.push(sanitizeIdentifier("jit_" + name_1 + id));
         }
         ctx.print(this._evalArgNames[id]);
         return null;

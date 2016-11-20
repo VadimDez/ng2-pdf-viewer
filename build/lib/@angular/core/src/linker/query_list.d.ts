@@ -49,6 +49,11 @@ export declare class QueryList<T> {
     filter(fn: (item: T, index: number, array: T[]) => boolean): T[];
     /**
      * See
+     * [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
+     */
+    find(fn: (item: T, index: number, array: T[]) => boolean): T;
+    /**
+     * See
      * [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
      */
     reduce<U>(fn: (prevValue: U, curValue: T, curIndex: number, array: T[]) => U, init: U): U;

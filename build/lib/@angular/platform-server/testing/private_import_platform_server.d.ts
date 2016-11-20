@@ -7,3 +7,4 @@
  */
 import { __platform_server_private__ as _ } from '@angular/platform-server';
 export declare var INTERNAL_SERVER_PLATFORM_PROVIDERS: typeof _.INTERNAL_SERVER_PLATFORM_PROVIDERS;
+export declare var SERVER_RENDER_PROVIDERS: typeof _.SERVER_RENDER_PROVIDERS;

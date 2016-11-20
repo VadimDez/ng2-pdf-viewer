@@ -12,5 +12,5 @@ import { AnimationKeyframe, AnimationStyles } from '../private_import_core';
  */
 export declare abstract class AnimationDriver {
     static NOOP: AnimationDriver;
-    abstract animate(element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[], duration: number, delay: number, easing: string): AnimationPlayer;
+    abstract animate(element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[], duration: number, delay: number, easing: string, previousPlayers?: AnimationPlayer[]): AnimationPlayer;
 }

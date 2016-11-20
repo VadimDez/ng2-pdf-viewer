@@ -18,5 +18,5 @@ export declare class KeyEventsPlugin extends EventManagerPlugin {
         [key: string]: string;
     };
     static getEventFullKey(event: KeyboardEvent): string;
-    static eventCallback(element: HTMLElement, fullKey: any, handler: Function, zone: NgZone): Function;
+    static eventCallback(fullKey: any, handler: Function, zone: NgZone): Function;
 }

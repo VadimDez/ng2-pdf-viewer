@@ -5,8 +5,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import { DirectiveWrapperExpressions } from '../directive_wrapper_compiler';
 import * as o from '../output/output_ast';
 import { LifecycleHooks } from '../private_import_core';
+import { ProviderAstType } from '../template_parser/template_ast';
 import { DetectChangesVars } from './constants';
 var STATE_IS_NEVER_CHECKED = o.THIS_EXPR.prop('numberOfChecks').identical(new o.LiteralExpr(0));
 var NOT_THROW_ON_CHANGES = o.not(DetectChangesVars.throwOnChange);
@@ -34,10 +36,16 @@ export function bindDirectiveAfterViewLifecycleCallbacks(directiveMeta, directiv
         afterViewLifecycleCallbacksMethod.addStmt(directiveInstance.callMethod('ngAfterViewChecked', []).toStmt());
     }
 }
+export function bindDirectiveWrapperLifecycleCallbacks(dir, directiveWrapperIntance, compileElement) {
+    compileElement.view.destroyMethod.addStmts(DirectiveWrapperExpressions.ngOnDestroy(dir.directive, directiveWrapperIntance));
+    compileElement.view.detachMethod.addStmts(DirectiveWrapperExpressions.ngOnDetach(dir.hostProperties, directiveWrapperIntance, o.THIS_EXPR, compileElement.compViewExpr || o.THIS_EXPR, compileElement.renderNode));
+}
 export function bindInjectableDestroyLifecycleCallbacks(provider, providerInstance, compileElement) {
     var onDestroyMethod = compileElement.view.destroyMethod;
     onDestroyMethod.resetDebugInfo(compileElement.nodeIndex, compileElement.sourceAst);
-    if (provider.lifecycleHooks.indexOf(LifecycleHooks.OnDestroy) !== -1) {
+    if (provider.providerType !== ProviderAstType.Directive &&
+        provider.providerType !== ProviderAstType.Component &&
+        provider.lifecycleHooks.indexOf(LifecycleHooks.OnDestroy) !== -1) {
         onDestroyMethod.addStmt(providerInstance.callMethod('ngOnDestroy', []).toStmt());
     }
 }

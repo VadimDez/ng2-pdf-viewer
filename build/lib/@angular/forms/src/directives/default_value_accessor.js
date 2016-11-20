@@ -6,7 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, ElementRef, Renderer, forwardRef } from '@angular/core';
-import { isBlank } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var DEFAULT_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
@@ -32,7 +31,7 @@ export var DefaultValueAccessor = (function () {
         this.onTouched = function () { };
     }
     DefaultValueAccessor.prototype.writeValue = function (value) {
-        var normalizedValue = isBlank(value) ? '' : value;
+        var normalizedValue = value == null ? '' : value;
         this._renderer.setElementProperty(this._elementRef.nativeElement, 'value', normalizedValue);
     };
     DefaultValueAccessor.prototype.registerOnChange = function (fn) { this.onChange = fn; };

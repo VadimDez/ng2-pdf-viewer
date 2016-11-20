@@ -33,4 +33,6 @@ export declare abstract class AbstractControlDirective {
     valueChanges: Observable<any>;
     path: string[];
     reset(value?: any): void;
+    hasError(errorCode: string, path?: string[]): boolean;
+    getError(errorCode: string, path?: string[]): any;
 }

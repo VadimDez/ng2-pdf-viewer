@@ -8,20 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var core_1 = require("@angular/core");
+var core_1 = require('@angular/core');
 var MDL = (function () {
     function MDL() {
     }
     MDL.prototype.ngAfterViewInit = function () {
         componentHandler.upgradeAllRegistered();
     };
+    MDL = __decorate([
+        core_1.Directive({
+            selector: '[mdl]'
+        }), 
+        __metadata('design:paramtypes', [])
+    ], MDL);
     return MDL;
 }());
-MDL = __decorate([
-    core_1.Directive({
-        selector: '[mdl]'
-    }),
-    __metadata("design:paramtypes", [])
-], MDL);
 exports.MDL = MDL;
+
 //# sourceMappingURL=mdl.js.map

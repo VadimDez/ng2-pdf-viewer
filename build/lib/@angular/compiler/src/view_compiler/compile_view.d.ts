@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { AnimationEntryCompileResult } from '../animation/animation_compiler';
-import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metadata';
+import { CompileDirectiveMetadata, CompilePipeSummary } from '../compile_metadata';
 import { NameResolver } from '../compiler_util/expression_converter';
 import { CompilerConfig } from '../config';
 import * as o from '../output/output_ast';
@@ -15,10 +15,21 @@ import { CompileElement, CompileNode } from './compile_element';
 import { CompileMethod } from './compile_method';
 import { CompilePipe } from './compile_pipe';
 import { CompileQuery } from './compile_query';
+export declare enum CompileViewRootNodeType {
+    Node = 0,
+    ViewContainer = 1,
+    NgContent = 2,
+}
+export declare class CompileViewRootNode {
+    type: CompileViewRootNodeType;
+    expr: o.Expression;
+    ngContentIndex: number;
+    constructor(type: CompileViewRootNodeType, expr: o.Expression, ngContentIndex?: number);
+}
 export declare class CompileView implements NameResolver {
     component: CompileDirectiveMetadata;
     genConfig: CompilerConfig;
-    pipeMetas: CompilePipeMetadata[];
+    pipeMetas: CompilePipeSummary[];
     styles: o.Expression;
     animations: AnimationEntryCompileResult[];
     viewIndex: number;
@@ -26,8 +37,11 @@ export declare class CompileView implements NameResolver {
     templateVariableBindings: string[][];
     viewType: ViewType;
     viewQueries: Map<any, CompileQuery[]>;
+    viewChildren: o.Expression[];
     nodes: CompileNode[];
-    rootNodesOrAppElements: o.Expression[];
+    rootNodes: CompileViewRootNode[];
+    lastRenderNode: o.Expression;
+    viewContainers: o.Expression[];
     createMethod: CompileMethod;
     animationBindingsMethod: CompileMethod;
     injectorGetMethod: CompileMethod;
@@ -45,19 +59,18 @@ export declare class CompileView implements NameResolver {
     fields: o.ClassField[];
     getters: o.ClassGetter[];
     disposables: o.Expression[];
-    subscriptions: o.Expression[];
     componentView: CompileView;
     purePipes: Map<string, CompilePipe>;
     pipes: CompilePipe[];
     locals: Map<string, o.Expression>;
     className: string;
     classType: o.Type;
-    viewFactory: o.ReadVarExpr;
+    classExpr: o.ReadVarExpr;
     literalArrayCount: number;
     literalMapCount: number;
     pipeCount: number;
     componentContext: o.Expression;
-    constructor(component: CompileDirectiveMetadata, genConfig: CompilerConfig, pipeMetas: CompilePipeMetadata[], styles: o.Expression, animations: AnimationEntryCompileResult[], viewIndex: number, declarationElement: CompileElement, templateVariableBindings: string[][]);
+    constructor(component: CompileDirectiveMetadata, genConfig: CompilerConfig, pipeMetas: CompilePipeSummary[], styles: o.Expression, animations: AnimationEntryCompileResult[], viewIndex: number, declarationElement: CompileElement, templateVariableBindings: string[][]);
     callPipe(name: string, input: o.Expression, args: o.Expression[]): o.Expression;
     getLocal(name: string): o.Expression;
     afterNodes(): void;

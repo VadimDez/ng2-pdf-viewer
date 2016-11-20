@@ -18,7 +18,7 @@ var reflector_host_1 = require('./reflector_host');
 var static_reflection_capabilities_1 = require('./static_reflection_capabilities');
 var static_reflector_1 = require('./static_reflector');
 var Extractor = (function () {
-    function Extractor(options, program, host, staticReflector, messageBundle, reflectorHost, metadataResolver, directiveNormalizer) {
+    function Extractor(options, program, host, staticReflector, messageBundle, reflectorHost, metadataResolver) {
         this.options = options;
         this.program = program;
         this.host = host;
@@ -26,38 +26,32 @@ var Extractor = (function () {
         this.messageBundle = messageBundle;
         this.reflectorHost = reflectorHost;
         this.metadataResolver = metadataResolver;
-        this.directiveNormalizer = directiveNormalizer;
     }
     Extractor.prototype.extract = function () {
         var _this = this;
         var programSymbols = codegen_1.extractProgramSymbols(this.program, this.staticReflector, this.reflectorHost, this.options);
-        var files = compiler.analyzeNgModules(programSymbols, { transitiveModules: true }, this.metadataResolver)
-            .files;
-        var errors = [];
-        var filePromises = [];
-        files.forEach(function (file) {
-            var cmpPromises = [];
-            file.directives.forEach(function (directiveType) {
-                var dirMeta = _this.metadataResolver.getDirectiveMetadata(directiveType);
-                if (dirMeta.isComponent) {
-                    cmpPromises.push(_this.directiveNormalizer.normalizeDirective(dirMeta).asyncResult);
-                }
-            });
-            if (cmpPromises.length) {
-                var done = Promise.all(cmpPromises).then(function (compMetas) {
-                    compMetas.forEach(function (compMeta) {
-                        var html = compMeta.template.template;
-                        var interpolationConfig = compiler.InterpolationConfig.fromArray(compMeta.template.interpolation);
-                        errors.push.apply(errors, _this.messageBundle.updateFromTemplate(html, file.srcUrl, interpolationConfig));
-                    });
+        var _a = compiler.analyzeAndValidateNgModules(programSymbols, { transitiveModules: true }, this.metadataResolver), ngModules = _a.ngModules, files = _a.files;
+        return compiler.loadNgModuleDirectives(ngModules).then(function () {
+            var errors = [];
+            files.forEach(function (file) {
+                var compMetas = [];
+                file.directives.forEach(function (directiveType) {
+                    var dirMeta = _this.metadataResolver.getDirectiveMetadata(directiveType);
+                    if (dirMeta && dirMeta.isComponent) {
+                        compMetas.push(dirMeta);
+                    }
                 });
-                filePromises.push(done);
+                compMetas.forEach(function (compMeta) {
+                    var html = compMeta.template.template;
+                    var interpolationConfig = compiler.InterpolationConfig.fromArray(compMeta.template.interpolation);
+                    errors.push.apply(errors, _this.messageBundle.updateFromTemplate(html, file.srcUrl, interpolationConfig));
+                });
+            });
+            if (errors.length) {
+                throw new Error(errors.map(function (e) { return e.toString(); }).join('\n'));
             }
+            return _this.messageBundle;
         });
-        if (errors.length) {
-            throw new Error(errors.map(function (e) { return e.toString(); }).join('\n'));
-        }
-        return Promise.all(filePromises).then(function (_) { return _this.messageBundle; });
     };
     Extractor.create = function (options, translationsFormat, program, compilerHost, resourceLoader, reflectorHost) {
         var htmlParser = new compiler.I18NHtmlParser(new compiler.HtmlParser());
@@ -74,10 +68,10 @@ var Extractor = (function () {
         });
         var normalizer = new compiler.DirectiveNormalizer(resourceLoader, urlResolver, htmlParser, config);
         var elementSchemaRegistry = new compiler.DomElementSchemaRegistry();
-        var resolver = new compiler.CompileMetadataResolver(new compiler.NgModuleResolver(staticReflector), new compiler.DirectiveResolver(staticReflector), new compiler.PipeResolver(staticReflector), elementSchemaRegistry, staticReflector);
+        var resolver = new compiler.CompileMetadataResolver(new compiler.NgModuleResolver(staticReflector), new compiler.DirectiveResolver(staticReflector), new compiler.PipeResolver(staticReflector), elementSchemaRegistry, normalizer, staticReflector);
         // TODO(vicb): implicit tags & attributes
         var messageBundle = new compiler.MessageBundle(htmlParser, [], {});
-        return new Extractor(options, program, compilerHost, staticReflector, messageBundle, reflectorHost, resolver, normalizer);
+        return new Extractor(options, program, compilerHost, staticReflector, messageBundle, reflectorHost, resolver);
     };
     return Extractor;
 }());

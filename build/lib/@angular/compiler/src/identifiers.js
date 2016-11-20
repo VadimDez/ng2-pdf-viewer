@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ANALYZE_FOR_ENTRY_COMPONENTS, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ElementRef, Injector, LOCALE_ID, NgModuleFactory, QueryList, RenderComponentType, Renderer, SecurityContext, SimpleChange, TRANSLATIONS_FORMAT, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { ANALYZE_FOR_ENTRY_COMPONENTS, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, ElementRef, Injector, LOCALE_ID, NgModuleFactory, QueryList, RenderComponentType, Renderer, SecurityContext, SimpleChange, TRANSLATIONS_FORMAT, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { CompileIdentifierMetadata, CompileTokenMetadata } from './compile_metadata';
-import { AnimationGroupPlayer, AnimationKeyframe, AnimationSequencePlayer, AnimationStyles, AnimationTransition, AppElement, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, DebugAppView, DebugContext, NgModuleInjector, NoOpAnimationPlayer, StaticNodeDebugInfo, TemplateRef_, UNINITIALIZED, ValueUnwrapper, ViewType, balanceAnimationKeyframes, clearStyles, collectAndResolveStyles, devModeEqual, prepareFinalAnimationStyles, reflector, registerModuleFactory, renderStyles, view_utils } from './private_import_core';
+import { AnimationGroupPlayer, AnimationKeyframe, AnimationSequencePlayer, AnimationStyles, AnimationTransition, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, ComponentRef_, DebugAppView, DebugContext, NgModuleInjector, NoOpAnimationPlayer, StaticNodeDebugInfo, TemplateRef_, UNINITIALIZED, ValueUnwrapper, ViewContainer, ViewType, balanceAnimationKeyframes, clearStyles, collectAndResolveStyles, devModeEqual, prepareFinalAnimationStyles, reflector, registerModuleFactory, renderStyles, view_utils } from './private_import_core';
 var APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
 var VIEW_UTILS_MODULE_URL = assetUrl('core', 'linker/view_utils');
 var CD_MODULE_URL = assetUrl('core', 'change_detection/change_detection');
@@ -31,10 +31,10 @@ export var Identifiers = (function () {
         moduleUrl: APP_VIEW_MODULE_URL,
         runtime: DebugAppView
     };
-    Identifiers.AppElement = {
-        name: 'AppElement',
-        moduleUrl: assetUrl('core', 'linker/element'),
-        runtime: AppElement
+    Identifiers.ViewContainer = {
+        name: 'ViewContainer',
+        moduleUrl: assetUrl('core', 'linker/view_container'),
+        runtime: ViewContainer
     };
     Identifiers.ElementRef = {
         name: 'ElementRef',
@@ -84,6 +84,16 @@ export var Identifiers = (function () {
     Identifiers.ComponentFactory = {
         name: 'ComponentFactory',
         runtime: ComponentFactory,
+        moduleUrl: assetUrl('core', 'linker/component_factory')
+    };
+    Identifiers.ComponentRef_ = {
+        name: 'ComponentRef_',
+        runtime: ComponentRef_,
+        moduleUrl: assetUrl('core', 'linker/component_factory')
+    };
+    Identifiers.ComponentRef = {
+        name: 'ComponentRef',
+        runtime: ComponentRef,
         moduleUrl: assetUrl('core', 'linker/component_factory')
     };
     Identifiers.NgModuleFactory = {
@@ -149,12 +159,12 @@ export var Identifiers = (function () {
         moduleUrl: VIEW_UTILS_MODULE_URL,
         runtime: view_utils.checkBinding
     };
-    Identifiers.flattenNestedViewRenderNodes = {
-        name: 'flattenNestedViewRenderNodes',
-        moduleUrl: VIEW_UTILS_MODULE_URL,
-        runtime: view_utils.flattenNestedViewRenderNodes
-    };
     Identifiers.devModeEqual = { name: 'devModeEqual', moduleUrl: CD_MODULE_URL, runtime: devModeEqual };
+    Identifiers.inlineInterpolate = {
+        name: 'inlineInterpolate',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.inlineInterpolate
+    };
     Identifiers.interpolate = {
         name: 'interpolate',
         moduleUrl: VIEW_UTILS_MODULE_URL,
@@ -297,6 +307,17 @@ export var Identifiers = (function () {
         moduleUrl: VIEW_UTILS_MODULE_URL,
         runtime: view_utils.InlineArrayDynamic
     };
+    Identifiers.subscribeToRenderElement = {
+        name: 'subscribeToRenderElement',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.subscribeToRenderElement
+    };
+    Identifiers.createRenderComponentType = {
+        name: 'createRenderComponentType',
+        moduleUrl: VIEW_UTILS_MODULE_URL,
+        runtime: view_utils.createRenderComponentType
+    };
+    Identifiers.noop = { name: 'noop', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.noop };
     return Identifiers;
 }());
 export function assetUrl(pkg, path, type) {

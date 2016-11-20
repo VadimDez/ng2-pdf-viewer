@@ -1,5 +1,7 @@
 import { PlatformRef, Provider } from '@angular/core';
 export declare const INTERNAL_SERVER_PLATFORM_PROVIDERS: Array<any>;
+export declare function _createConditionalRootRenderer(rootRenderer: any): any;
+export declare const SERVER_RENDER_PROVIDERS: Provider[];
 /**
  * The ng module for the server.
  *

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.2
+ * @license Angular v2.2.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -50,6 +50,10 @@
                 return { error: false };
             }
         };
+        MockSchemaRegistry.prototype.normalizeAnimationStyleProperty = function (propName) { return propName; };
+        MockSchemaRegistry.prototype.normalizeAnimationStyleValue = function (camelCaseProp, userProvidedProp, val) {
+            return { error: null, value: val.toString() };
+        };
         return MockSchemaRegistry;
     }());
 
@@ -60,7 +64,7 @@
         if (typeof token === 'string') {
             return token;
         }
-        if (token === undefined || token === null) {
+        if (token == null) {
             return '' + token;
         }
         if (token.overriddenName) {

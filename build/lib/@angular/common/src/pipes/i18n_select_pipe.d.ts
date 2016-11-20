@@ -12,9 +12,10 @@ import { PipeTransform } from '@angular/core';
  * @howToUse `expression | i18nSelect:mapping`
  * @description
  *
- *  Where:
- *  - `mapping`: is an object that indicates the text that should be displayed
+ *  Where `mapping` is an object that indicates the text that should be displayed
  *  for different values of the provided `expression`.
+ *  If none of the keys of the mapping match the value of the `expression`, then the content
+ *  of the `other` key is returned when present, otherwise an empty string is returned.
  *
  *  ## Example
  *

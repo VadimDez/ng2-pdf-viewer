@@ -1,20 +1,26 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { isPresent } from './facade/lang';
+import { AUTO_STYLE } from '@angular/core';
 export var MockAnimationPlayer = (function () {
-    function MockAnimationPlayer() {
+    function MockAnimationPlayer(startingStyles, keyframes, previousPlayers) {
+        var _this = this;
+        if (startingStyles === void 0) { startingStyles = {}; }
+        if (keyframes === void 0) { keyframes = []; }
+        if (previousPlayers === void 0) { previousPlayers = []; }
+        this.startingStyles = startingStyles;
+        this.keyframes = keyframes;
         this._onDoneFns = [];
         this._onStartFns = [];
         this._finished = false;
         this._destroyed = false;
         this._started = false;
         this.parentPlayer = null;
+        this.previousStyles = {};
         this.log = [];
+        previousPlayers.forEach(function (player) {
+            if (player instanceof MockAnimationPlayer) {
+                var styles_1 = player._captureStyles();
+                Object.keys(styles_1).forEach(function (prop) { return _this.previousStyles[prop] = styles_1[prop]; });
+            }
+        });
     }
     MockAnimationPlayer.prototype._onFinish = function () {
         if (!this._finished) {
@@ -22,9 +28,6 @@ export var MockAnimationPlayer = (function () {
             this.log.push('finish');
             this._onDoneFns.forEach(function (fn) { return fn(); });
             this._onDoneFns = [];
-            if (!isPresent(this.parentPlayer)) {
-                this.destroy();
-            }
         }
     };
     MockAnimationPlayer.prototype.init = function () { this.log.push('init'); };
@@ -42,7 +45,12 @@ export var MockAnimationPlayer = (function () {
     MockAnimationPlayer.prototype.pause = function () { this.log.push('pause'); };
     MockAnimationPlayer.prototype.restart = function () { this.log.push('restart'); };
     MockAnimationPlayer.prototype.finish = function () { this._onFinish(); };
-    MockAnimationPlayer.prototype.reset = function () { this.log.push('reset'); };
+    MockAnimationPlayer.prototype.reset = function () {
+        this.log.push('reset');
+        this._destroyed = false;
+        this._finished = false;
+        this._started = false;
+    };
     MockAnimationPlayer.prototype.destroy = function () {
         if (!this._destroyed) {
             this._destroyed = true;
@@ -50,8 +58,29 @@ export var MockAnimationPlayer = (function () {
             this.log.push('destroy');
         }
     };
-    MockAnimationPlayer.prototype.setPosition = function (p /** TODO #9100 */) { };
+    MockAnimationPlayer.prototype.setPosition = function (p) { };
     MockAnimationPlayer.prototype.getPosition = function () { return 0; };
+    MockAnimationPlayer.prototype._captureStyles = function () {
+        var _this = this;
+        var captures = {};
+        if (this.hasStarted()) {
+            // when assembling the captured styles, it's important that
+            // we build the keyframe styles in the following order:
+            // {startingStyles, ... other styles within keyframes, ... previousStyles }
+            Object.keys(this.startingStyles).forEach(function (prop) {
+                captures[prop] = _this.startingStyles[prop];
+            });
+            this.keyframes.forEach(function (kf) {
+                var offset = kf[0], styles = kf[1];
+                var newStyles = {};
+                Object.keys(styles).forEach(function (prop) { captures[prop] = _this._finished ? styles[prop] : AUTO_STYLE; });
+            });
+        }
+        Object.keys(this.previousStyles).forEach(function (prop) {
+            captures[prop] = _this.previousStyles[prop];
+        });
+        return captures;
+    };
     return MockAnimationPlayer;
 }());
 //# sourceMappingURL=mock_animation_player.js.map

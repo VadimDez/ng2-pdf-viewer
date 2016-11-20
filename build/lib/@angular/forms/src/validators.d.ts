@@ -62,7 +62,7 @@ export declare class Validators {
     /**
      * Validator that requires a control to match a regex to its value.
      */
-    static pattern(pattern: string): ValidatorFn;
+    static pattern(pattern: string | RegExp): ValidatorFn;
     /**
      * No-op validator.
      */

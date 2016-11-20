@@ -11,12 +11,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Injectable } from '@angular/core';
-import { ListWrapper } from '../../facade/collection';
-import { isPresent } from '../../facade/lang';
 import { getDOM } from '../dom_adapter';
 import { EventManagerPlugin } from './event_manager';
-var modifierKeys = ['alt', 'control', 'meta', 'shift'];
-var modifierKeyGetters = {
+var MODIFIER_KEYS = ['alt', 'control', 'meta', 'shift'];
+var MODIFIER_KEY_GETTERS = {
     'alt': function (event) { return event.altKey; },
     'control': function (event) { return event.ctrlKey; },
     'meta': function (event) { return event.metaKey; },
@@ -30,12 +28,10 @@ export var KeyEventsPlugin = (function (_super) {
     function KeyEventsPlugin() {
         _super.call(this);
     }
-    KeyEventsPlugin.prototype.supports = function (eventName) {
-        return isPresent(KeyEventsPlugin.parseEventName(eventName));
-    };
+    KeyEventsPlugin.prototype.supports = function (eventName) { return KeyEventsPlugin.parseEventName(eventName) != null; };
     KeyEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
         var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
-        var outsideHandler = KeyEventsPlugin.eventCallback(element, parsedEvent['fullKey'], handler, this.manager.getZone());
+        var outsideHandler = KeyEventsPlugin.eventCallback(parsedEvent['fullKey'], handler, this.manager.getZone());
         return this.manager.getZone().runOutsideAngular(function () {
             return getDOM().onAndCancel(element, parsedEvent['domEventName'], outsideHandler);
         });
@@ -48,9 +44,10 @@ export var KeyEventsPlugin = (function (_super) {
         }
         var key = KeyEventsPlugin._normalizeKey(parts.pop());
         var fullKey = '';
-        modifierKeys.forEach(function (modifierName) {
-            if (parts.indexOf(modifierName) > -1) {
-                ListWrapper.remove(parts, modifierName);
+        MODIFIER_KEYS.forEach(function (modifierName) {
+            var index = parts.indexOf(modifierName);
+            if (index > -1) {
+                parts.splice(index, 1);
                 fullKey += modifierName + '.';
             }
         });
@@ -74,9 +71,9 @@ export var KeyEventsPlugin = (function (_super) {
         else if (key === '.') {
             key = 'dot'; // because '.' is used as a separator in event names
         }
-        modifierKeys.forEach(function (modifierName) {
+        MODIFIER_KEYS.forEach(function (modifierName) {
             if (modifierName != key) {
-                var modifierGetter = modifierKeyGetters[modifierName];
+                var modifierGetter = MODIFIER_KEY_GETTERS[modifierName];
                 if (modifierGetter(event)) {
                     fullKey += modifierName + '.';
                 }
@@ -85,7 +82,7 @@ export var KeyEventsPlugin = (function (_super) {
         fullKey += key;
         return fullKey;
     };
-    KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
+    KeyEventsPlugin.eventCallback = function (fullKey, handler, zone) {
         return function (event /** TODO #9100 */) {
             if (KeyEventsPlugin.getEventFullKey(event) === fullKey) {
                 zone.runGuarded(function () { return handler(event); });
@@ -94,7 +91,7 @@ export var KeyEventsPlugin = (function (_super) {
     };
     /** @internal */
     KeyEventsPlugin._normalizeKey = function (keyName) {
-        // TODO: switch to a StringMap if the mapping grows too much
+        // TODO: switch to a Map if the mapping grows too much
         switch (keyName) {
             case 'esc':
                 return 'escape';

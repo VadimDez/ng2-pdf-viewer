@@ -47,6 +47,10 @@ export declare abstract class AbstractControl {
      */
     value: any;
     /**
+     * The parent control.
+     */
+    parent: FormGroup | FormArray;
+    /**
      * The validation status of the control. There are four possible
      * validation statuses:
      *
@@ -419,8 +423,9 @@ export declare class FormControl extends AbstractControl {
      * console.log(this.control.status);  // 'DISABLED'
      * ```
      */
-    reset(formState?: any, {onlySelf}?: {
+    reset(formState?: any, {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      * Register a listener for change events.
@@ -541,8 +546,9 @@ export declare class FormGroup extends AbstractControl {
      */
     setValue(value: {
         [key: string]: any;
-    }, {onlySelf}?: {
+    }, {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      *  Patches the value of the {@link FormGroup}. It accepts an object with control
@@ -567,8 +573,9 @@ export declare class FormGroup extends AbstractControl {
      */
     patchValue(value: {
         [key: string]: any;
-    }, {onlySelf}?: {
+    }, {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      * Resets the {@link FormGroup}. This means by default:
@@ -602,8 +609,9 @@ export declare class FormGroup extends AbstractControl {
      * console.log(this.form.get('first').status);  // 'DISABLED'
      * ```
      */
-    reset(value?: any, {onlySelf}?: {
+    reset(value?: any, {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      * The aggregate value of the {@link FormGroup}, including any disabled controls.
@@ -611,7 +619,7 @@ export declare class FormGroup extends AbstractControl {
      * If you'd like to include all values regardless of disabled status, use this method.
      * Otherwise, the `value` property is the best way to get the value of the group.
      */
-    getRawValue(): Object;
+    getRawValue(): any;
 }
 /**
  * @whatItDoes Tracks the value and validity state of an array of {@link FormControl}
@@ -705,8 +713,9 @@ export declare class FormArray extends AbstractControl {
      *  console.log(arr.value);   // ['Nancy', 'Drew']
      *  ```
      */
-    setValue(value: any[], {onlySelf}?: {
+    setValue(value: any[], {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      *  Patches the value of the {@link FormArray}. It accepts an array that matches the
@@ -728,8 +737,9 @@ export declare class FormArray extends AbstractControl {
      *  console.log(arr.value);   // ['Nancy', null]
      *  ```
      */
-    patchValue(value: any[], {onlySelf}?: {
+    patchValue(value: any[], {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      * Resets the {@link FormArray}. This means by default:
@@ -762,8 +772,9 @@ export declare class FormArray extends AbstractControl {
      * console.log(this.arr.get(0).status);  // 'DISABLED'
      * ```
      */
-    reset(value?: any, {onlySelf}?: {
+    reset(value?: any, {onlySelf, emitEvent}?: {
         onlySelf?: boolean;
+        emitEvent?: boolean;
     }): void;
     /**
      * The aggregate value of the array, including any disabled controls.

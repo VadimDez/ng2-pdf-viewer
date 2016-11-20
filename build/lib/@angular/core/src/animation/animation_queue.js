@@ -12,6 +12,14 @@ export function queueAnimation(player) {
 }
 /** @internal */
 export function triggerQueuedAnimations() {
+    // this code is wrapped into a single promise such that the
+    // onStart and onDone player callbacks are triggered outside
+    // of the digest cycle of animations
+    if (_queuedAnimations.length) {
+        Promise.resolve(null).then(_triggerAnimations);
+    }
+}
+function _triggerAnimations() {
     for (var i = 0; i < _queuedAnimations.length; i++) {
         var player = _queuedAnimations[i];
         player.play();

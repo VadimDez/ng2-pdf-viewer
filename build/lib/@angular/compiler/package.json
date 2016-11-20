@@ -2,49 +2,48 @@
   "_args": [
     [
       {
-        "raw": "@angular/compiler@^2.1.1",
+        "raw": "@angular/compiler@^2.2.1",
         "scope": "@angular",
         "escapedName": "@angular%2fcompiler",
         "name": "@angular/compiler",
-        "rawSpec": "^2.1.1",
-        "spec": ">=2.1.1 <3.0.0",
+        "rawSpec": "^2.2.1",
+        "spec": ">=2.2.1 <3.0.0",
         "type": "range"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/compiler@>=2.1.1 <3.0.0",
-  "_id": "@angular/compiler@2.1.2",
+  "_from": "@angular/compiler@>=2.2.1 <3.0.0",
+  "_id": "@angular/compiler@2.2.1",
   "_inCache": true,
-  "_installable": true,
   "_location": "/@angular/compiler",
-  "_nodeVersion": "6.7.0",
+  "_nodeVersion": "6.9.1",
   "_npmOperationalInternal": {
     "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/compiler-2.1.2.tgz_1477593257580_0.1431256786454469"
+    "tmp": "tmp/compiler-2.2.1.tgz_1479411121108_0.15765118156559765"
   },
   "_npmUser": {
     "name": "angular",
     "email": "angular-core+npm@google.com"
   },
-  "_npmVersion": "3.10.3",
+  "_npmVersion": "3.10.8",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/compiler@^2.1.1",
+    "raw": "@angular/compiler@^2.2.1",
     "scope": "@angular",
     "escapedName": "@angular%2fcompiler",
     "name": "@angular/compiler",
-    "rawSpec": "^2.1.1",
-    "spec": ">=2.1.1 <3.0.0",
+    "rawSpec": "^2.2.1",
+    "spec": ">=2.2.1 <3.0.0",
     "type": "range"
   },
   "_requiredBy": [
-    "/"
+    "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.1.2.tgz",
-  "_shasum": "bd2a6c558de5350bdd43aa8e8de757943ac01d2a",
+  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.2.1.tgz",
+  "_shasum": "16e7faf588cf9121a0f6c16d0bae2830f4cafdc1",
   "_shrinkwrap": null,
-  "_spec": "@angular/compiler@^2.1.1",
+  "_spec": "@angular/compiler@^2.2.1",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -57,8 +56,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "bd2a6c558de5350bdd43aa8e8de757943ac01d2a",
-    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.1.2.tgz"
+    "shasum": "16e7faf588cf9121a0f6c16d0bae2830f4cafdc1",
+    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-2.2.1.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
   "license": "MIT",
@@ -73,7 +72,7 @@
   "name": "@angular/compiler",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/core": "2.1.2"
+    "@angular/core": "2.2.1"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -82,5 +81,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.1.2"
+  "version": "2.2.1"
 }

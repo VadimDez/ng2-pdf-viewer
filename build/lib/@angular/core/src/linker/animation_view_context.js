@@ -1,5 +1,6 @@
 import { AnimationGroupPlayer } from '../animation/animation_group_player';
 import { queueAnimation as queueAnimationGlobally } from '../animation/animation_queue';
+import { AnimationSequencePlayer } from '../animation/animation_sequence_player';
 import { ViewAnimationMap } from '../animation/view_animation_map';
 export var AnimationViewContext = (function () {
     function AnimationViewContext() {
@@ -20,18 +21,28 @@ export var AnimationViewContext = (function () {
         queueAnimationGlobally(player);
         this._players.set(element, animationName, player);
     };
-    AnimationViewContext.prototype.cancelActiveAnimation = function (element, animationName, removeAllAnimations) {
+    AnimationViewContext.prototype.getAnimationPlayers = function (element, animationName, removeAllAnimations) {
         if (removeAllAnimations === void 0) { removeAllAnimations = false; }
+        var players = [];
         if (removeAllAnimations) {
-            this._players.findAllPlayersByElement(element).forEach(function (player) { return player.destroy(); });
+            this._players.findAllPlayersByElement(element).forEach(function (player) { _recursePlayers(player, players); });
         }
         else {
-            var player = this._players.find(element, animationName);
-            if (player) {
-                player.destroy();
+            var currentPlayer = this._players.find(element, animationName);
+            if (currentPlayer) {
+                _recursePlayers(currentPlayer, players);
             }
         }
+        return players;
     };
     return AnimationViewContext;
 }());
+function _recursePlayers(player, collectedPlayers) {
+    if ((player instanceof AnimationGroupPlayer) || (player instanceof AnimationSequencePlayer)) {
+        player.players.forEach(function (player) { return _recursePlayers(player, collectedPlayers); });
+    }
+    else {
+        collectedPlayers.push(player);
+    }
+}
 //# sourceMappingURL=animation_view_context.js.map

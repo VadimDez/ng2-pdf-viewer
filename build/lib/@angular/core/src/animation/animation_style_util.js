@@ -65,6 +65,7 @@ export function balanceAnimationKeyframes(collectedStyles, finalStateStyles, key
     if (hasExtraFirstStyles) {
         firstKeyframe.styles.styles.push(extraFirstKeyframeStyles);
     }
+    collectAndResolveStyles(collectedStyles, [finalStateStyles]);
     return keyframes;
 }
 export function clearStyles(styles) {

@@ -5,13 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, OnDestroy, OpaqueToken, Renderer, Type } from '@angular/core';
+import { ElementRef, OnDestroy, Provider, Renderer } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
-export declare const SELECT_MULTIPLE_VALUE_ACCESSOR: {
-    provide: OpaqueToken;
-    useExisting: Type<any>;
-    multi: boolean;
-};
+export declare const SELECT_MULTIPLE_VALUE_ACCESSOR: Provider;
 /**
  * The accessor for writing a value and listening to changes on a select element.
  *
@@ -50,4 +46,3 @@ export declare class NgSelectMultipleOption implements OnDestroy {
     value: any;
     ngOnDestroy(): void;
 }
-export declare const SELECT_DIRECTIVES: (typeof SelectMultipleControlValueAccessor | typeof NgSelectMultipleOption)[];

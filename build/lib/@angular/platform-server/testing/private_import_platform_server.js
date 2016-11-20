@@ -7,4 +7,5 @@
  */
 import { __platform_server_private__ as _ } from '@angular/platform-server';
 export var INTERNAL_SERVER_PLATFORM_PROVIDERS = _.INTERNAL_SERVER_PLATFORM_PROVIDERS;
+export var SERVER_RENDER_PROVIDERS = _.SERVER_RENDER_PROVIDERS;
 //# sourceMappingURL=private_import_platform_server.js.map

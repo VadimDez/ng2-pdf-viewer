@@ -53,8 +53,11 @@ export var ReflectionCapabilities = (function () {
             return type.parameters;
         }
         // API of tsickle for lowering decorators to properties on the class.
-        if (type.ctorParameters) {
-            var ctorParameters = type.ctorParameters;
+        var tsickleCtorParams = type.ctorParameters;
+        if (tsickleCtorParams) {
+            // Newer tsickle uses a function closure
+            // Retain the non-function case for compatibility with older tsickle
+            var ctorParameters = typeof tsickleCtorParams === 'function' ? tsickleCtorParams() : tsickleCtorParams;
             var paramTypes = ctorParameters.map(function (ctorParam) { return ctorParam && ctorParam.type; });
             var paramAnnotations = ctorParameters.map(function (ctorParam) {
                 return ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators);
