@@ -8,5 +8,6 @@ export declare class AppComponent {
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
+    onFileSelected(): void;
     afterLoadComplete(pdf: any): void;
 }
