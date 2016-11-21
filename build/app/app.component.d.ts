@@ -1,6 +1,7 @@
 export declare class AppComponent {
     pdfSrc: string;
     page: number;
+    rotation: number;
     zoom: number;
     originalSize: boolean;
     showAll: boolean;
@@ -8,6 +9,7 @@ export declare class AppComponent {
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
+    rotate(): void;
     onFileSelected(): void;
     afterLoadComplete(pdf: any): void;
 }

@@ -79,8 +79,13 @@
                 </button>
             </div>
 
+            <div mdl>
+                <button (click)="rotate()" class="mdl-button mdl-js-button">Rotate</button>
+            </div>
+
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
+                        [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
                         [after-load-complete]="afterLoadComplete"

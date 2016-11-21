@@ -9,6 +9,7 @@ export declare class PdfViewerComponent {
     private _page;
     private _zoom;
     private wasInvalidPage;
+    private _rotation;
     afterLoadComplete: Function;
     constructor(element: ElementRef);
     src: any;
@@ -17,6 +18,7 @@ export declare class PdfViewerComponent {
     originalSize: boolean;
     showAll: boolean;
     zoom: number;
+    rotation: number;
     private fn();
     private renderMultiplePages();
     private isValidPageNumber(page);
