@@ -16,13 +16,8 @@ var AppComponent = (function () {
     AppComponent.prototype.incrementZoom = function (amount) {
         this.zoom += amount;
     };
-    AppComponent.prototype.rotate = function () {
-        if (this.rotation >= 270) {
-            this.rotation = 0;
-        }
-        else {
-            this.rotation += 90;
-        }
+    AppComponent.prototype.rotate = function (angle) {
+        this.rotation += angle;
     };
     AppComponent.prototype.onFileSelected = function () {
         var _this = this;

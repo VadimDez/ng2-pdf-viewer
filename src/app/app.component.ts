@@ -41,12 +41,8 @@ export class AppComponent {
     this.zoom += amount;
   }
 
-  rotate() {
-    if (this.rotation >= 270) {
-      this.rotation = 0;
-    } else {
-      this.rotation += 90;
-    }
+  rotate(angle: number) {
+    this.rotation += angle;
   }
 
   /**

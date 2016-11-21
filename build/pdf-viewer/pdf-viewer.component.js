@@ -125,11 +125,9 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.renderPage = function (page) {
         var _this = this;
         return this._pdf.getPage(page).then(function (page) {
-            var viewport = page.getViewport(_this._zoom);
+            var viewport = page.getViewport(_this._zoom, _this._rotation);
             var container = _this.element.nativeElement.querySelector('div');
             var canvas = document.createElement('canvas');
-            console.log('rotation');
-            console.log(_this._rotation);
             if (!_this._originalSize) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
             }

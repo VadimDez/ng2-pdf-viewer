@@ -147,12 +147,10 @@ export class PdfViewerComponent {
 
   private renderPage(page: number) {
     return this._pdf.getPage(page).then((page: any) => {
-      let viewport = page.getViewport(this._zoom);
+      let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 
-      console.log('rotation');
-      console.log(this._rotation);
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
       }

@@ -9,7 +9,7 @@ export declare class AppComponent {
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
-    rotate(): void;
+    rotate(angle: number): void;
     onFileSelected(): void;
     afterLoadComplete(pdf: any): void;
 }
