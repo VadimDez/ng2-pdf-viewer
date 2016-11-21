@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var core_1 = require('@angular/core');
 require('pdfjs-dist/build/pdf.combined');
 var PdfViewerComponent = (function () {
@@ -148,28 +157,55 @@ var PdfViewerComponent = (function () {
             element.removeChild(element.firstChild);
         }
     };
-    PdfViewerComponent.decorators = [
-        { type: core_1.Component, args: [{
-                    selector: 'pdf-viewer',
-                    template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
-                    styles: ["\n    .ng2-pdf-viewer--zoom {\n        overflow-x: scroll;\n    }"
-                    ]
-                },] },
-    ];
-    PdfViewerComponent.ctorParameters = [
-        { type: core_1.ElementRef, },
-    ];
-    PdfViewerComponent.propDecorators = {
-        'afterLoadComplete': [{ type: core_1.Input, args: ['after-load-complete',] },],
-        'src': [{ type: core_1.Input },],
-        'page': [{ type: core_1.Input },],
-        'pageChange': [{ type: core_1.Output },],
-        'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
-        'showAll': [{ type: core_1.Input, args: ['show-all',] },],
-        'zoom': [{ type: core_1.Input, args: ['zoom',] },],
-        'rotation': [{ type: core_1.Input, args: ['rotation',] },],
-    };
+    __decorate([
+        core_1.Input('after-load-complete'), 
+        __metadata('design:type', Function)
+    ], PdfViewerComponent.prototype, "afterLoadComplete", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object), 
+        __metadata('design:paramtypes', [Object])
+    ], PdfViewerComponent.prototype, "src", null);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object), 
+        __metadata('design:paramtypes', [Object])
+    ], PdfViewerComponent.prototype, "page", null);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', core_1.EventEmitter)
+    ], PdfViewerComponent.prototype, "pageChange", void 0);
+    __decorate([
+        core_1.Input('original-size'), 
+        __metadata('design:type', Boolean), 
+        __metadata('design:paramtypes', [Boolean])
+    ], PdfViewerComponent.prototype, "originalSize", null);
+    __decorate([
+        core_1.Input('show-all'), 
+        __metadata('design:type', Boolean), 
+        __metadata('design:paramtypes', [Boolean])
+    ], PdfViewerComponent.prototype, "showAll", null);
+    __decorate([
+        core_1.Input('zoom'), 
+        __metadata('design:type', Number), 
+        __metadata('design:paramtypes', [Number])
+    ], PdfViewerComponent.prototype, "zoom", null);
+    __decorate([
+        core_1.Input('rotation'), 
+        __metadata('design:type', Number), 
+        __metadata('design:paramtypes', [Number])
+    ], PdfViewerComponent.prototype, "rotation", null);
+    PdfViewerComponent = __decorate([
+        core_1.Component({
+            selector: 'pdf-viewer',
+            template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
+            styles: ["\n    .ng2-pdf-viewer--zoom {\n        overflow-x: scroll;\n    }"
+            ]
+        }), 
+        __metadata('design:paramtypes', [core_1.ElementRef])
+    ], PdfViewerComponent);
     return PdfViewerComponent;
 }());
 exports.PdfViewerComponent = PdfViewerComponent;
+
 //# sourceMappingURL=pdf-viewer.component.js.map
