@@ -24,6 +24,7 @@ export class PdfViewerComponent {
   private _page: number = 1;
   private _zoom: number = 1;
   private wasInvalidPage: boolean = false;
+  private _rotation: number = 0;
   @Input('after-load-complete') afterLoadComplete: Function;
 
   constructor(private element: ElementRef) {}
@@ -92,6 +93,20 @@ export class PdfViewerComponent {
     return this._zoom;
   }
 
+  @Input('rotation')
+  set rotation(value: number) {
+    if (!(typeof value === 'number' && value % 90 === 0)) {
+      console.warn('Invalid pages rotation angle.');
+      return;
+    }
+
+    this._rotation = value;
+
+    if (this._pdf) {
+      this.fn();
+    }
+  }
+
   private fn() {
     (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
       this._pdf = pdf;
@@ -132,12 +147,12 @@ export class PdfViewerComponent {
 
   private renderPage(page: number) {
     return this._pdf.getPage(page).then((page: any) => {
-      let viewport = page.getViewport(this._zoom);
+      let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
 
       if (!this._originalSize) {
-        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width);
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
       }
 
       if (!this._showAll) {

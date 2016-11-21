@@ -79,8 +79,22 @@
                 </button>
             </div>
 
+            <div mdl>
+                <button (click)="rotate(-90)" class="mdl-button mdl-js-button">Rotate left</button>
+                <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input [value]="rotation"
+                           class="mdl-textfield__input"
+                           type="number"
+                           disabled
+                    >
+                    <label class="mdl-textfield__label" for="pdf-page">Angle</label>
+                </div>
+                <button (click)="rotate(90)" class="mdl-button mdl-js-button">Rotate right</button>
+            </div>
+
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
+                        [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
                         [after-load-complete]="afterLoadComplete"

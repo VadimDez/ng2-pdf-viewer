@@ -71,6 +71,7 @@ export class AppComponent {
 
 * [src](#src)
 * [page](#page)
+* [rotation](#rotation)
 * [zoom](#zoom)
 * [original-size](#original-size)
 * [show-all](#show-all)
@@ -107,6 +108,14 @@ Page number
 supports two way data binding as well
 ```
 [(page)]="pageVariable"
+```
+
+#### [rotation]
+Rotate PDF
+
+*Allowed step is 90 degree, ex. 0, 90, 180*
+```
+[rotation]="90"
 ```
 
 #### [zoom]
