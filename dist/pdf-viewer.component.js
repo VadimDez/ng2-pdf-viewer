@@ -9,6 +9,7 @@ var PdfViewerComponent = (function () {
         this._page = 1;
         this._zoom = 1;
         this.wasInvalidPage = false;
+        this._rotation = 0;
         this.pageChange = new core_1.EventEmitter(true);
     }
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
@@ -77,6 +78,20 @@ var PdfViewerComponent = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(PdfViewerComponent.prototype, "rotation", {
+        set: function (value) {
+            if (!(typeof value === 'number' && value % 90 === 0)) {
+                console.warn('Invalid pages rotation angle.');
+                return;
+            }
+            this._rotation = value;
+            if (this._pdf) {
+                this.fn();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     PdfViewerComponent.prototype.fn = function () {
         var _this = this;
         window.PDFJS.getDocument(this._src).then(function (pdf) {
@@ -110,11 +125,11 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.renderPage = function (page) {
         var _this = this;
         return this._pdf.getPage(page).then(function (page) {
-            var viewport = page.getViewport(_this._zoom);
+            var viewport = page.getViewport(_this._zoom, _this._rotation);
             var container = _this.element.nativeElement.querySelector('div');
             var canvas = document.createElement('canvas');
             if (!_this._originalSize) {
-                viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width);
+                viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
             }
             if (!_this._showAll) {
                 _this.removeAllChildNodes(container);
@@ -152,6 +167,7 @@ var PdfViewerComponent = (function () {
         'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
         'showAll': [{ type: core_1.Input, args: ['show-all',] },],
         'zoom': [{ type: core_1.Input, args: ['zoom',] },],
+        'rotation': [{ type: core_1.Input, args: ['rotation',] },],
     };
     return PdfViewerComponent;
 }());
