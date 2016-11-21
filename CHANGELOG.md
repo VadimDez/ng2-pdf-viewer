@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.1
+* [[#27](https://github.com/VadimDez/ng2-pdf-viewer/issues/27)] - Added support for rotating
+
 ## 0.1.0
 
 ### Breaking changes

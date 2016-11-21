@@ -113,7 +113,7 @@ supports two way data binding as well
 #### [rotation]
 Rotate PDF
 
-*Allowed step is 90 degree*
+*Allowed step is 90 degree, ex. 0, 90, 180*
 ```
 [rotation]="90"
 ```
