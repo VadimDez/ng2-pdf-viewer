@@ -11,6 +11,7 @@ export declare class PdfViewerComponent extends OnInit {
     private wasInvalidPage;
     private _rotation;
     private isInitialised;
+    private lastLoaded;
     afterLoadComplete: Function;
     constructor(element: ElementRef);
     ngOnInit(): void;
@@ -21,7 +22,9 @@ export declare class PdfViewerComponent extends OnInit {
     showAll: boolean;
     zoom: number;
     rotation: number;
-    private fn();
+    private main();
+    private loadPDF(src);
+    private onRender();
     private renderMultiplePages();
     private isValidPageNumber(page);
     private renderPage(page);

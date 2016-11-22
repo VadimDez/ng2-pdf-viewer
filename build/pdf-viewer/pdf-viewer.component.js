@@ -21,14 +21,14 @@ var PdfViewerComponent = (function (_super) {
         this.pageChange = new core_1.EventEmitter(true);
     }
     PdfViewerComponent.prototype.ngOnInit = function () {
-        this.fn();
+        this.main();
         this.isInitialised = true;
     };
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
         set: function (_src) {
             this._src = _src;
             if (this.isInitialised) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -61,7 +61,7 @@ var PdfViewerComponent = (function (_super) {
         set: function (originalSize) {
             this._originalSize = originalSize;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -71,7 +71,7 @@ var PdfViewerComponent = (function (_super) {
         set: function (value) {
             this._showAll = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -87,7 +87,7 @@ var PdfViewerComponent = (function (_super) {
             }
             this._zoom = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -101,27 +101,37 @@ var PdfViewerComponent = (function (_super) {
             }
             this._rotation = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
         configurable: true
     });
-    PdfViewerComponent.prototype.fn = function () {
+    PdfViewerComponent.prototype.main = function () {
+        if (this._pdf && this.lastLoaded === this._src) {
+            return this.onRender();
+        }
+        this.loadPDF(this._src);
+    };
+    PdfViewerComponent.prototype.loadPDF = function (src) {
         var _this = this;
-        window.PDFJS.getDocument(this._src).then(function (pdf) {
+        window.PDFJS.getDocument(src).then(function (pdf) {
             _this._pdf = pdf;
+            _this.lastLoaded = src;
             if (_this.afterLoadComplete && typeof _this.afterLoadComplete === 'function') {
                 _this.afterLoadComplete(pdf);
             }
-            if (!_this.isValidPageNumber(_this._page)) {
-                _this._page = 1;
-            }
-            if (!_this._showAll) {
-                return _this.renderPage(_this._page);
-            }
-            return _this.renderMultiplePages();
+            _this.onRender();
         });
+    };
+    PdfViewerComponent.prototype.onRender = function () {
+        if (!this.isValidPageNumber(this._page)) {
+            this._page = 1;
+        }
+        if (!this._showAll) {
+            return this.renderPage(this._page);
+        }
+        this.renderMultiplePages();
     };
     PdfViewerComponent.prototype.renderMultiplePages = function () {
         var _this = this;

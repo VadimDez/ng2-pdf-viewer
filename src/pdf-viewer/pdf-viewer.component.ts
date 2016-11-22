@@ -26,6 +26,7 @@ export class PdfViewerComponent extends OnInit {
   private wasInvalidPage: boolean = false;
   private _rotation: number = 0;
   private isInitialised: boolean = false;
+  private lastLoaded: string;
   @Input('after-load-complete') afterLoadComplete: Function;
 
   constructor(private element: ElementRef) {
@@ -33,7 +34,7 @@ export class PdfViewerComponent extends OnInit {
   }
 
   ngOnInit() {
-    this.fn();
+    this.main();
     this.isInitialised = true;
   }
 
@@ -42,7 +43,7 @@ export class PdfViewerComponent extends OnInit {
     this._src = _src;
 
     if (this.isInitialised) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -74,7 +75,7 @@ export class PdfViewerComponent extends OnInit {
     this._originalSize = originalSize;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -83,7 +84,7 @@ export class PdfViewerComponent extends OnInit {
     this._showAll = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -96,7 +97,7 @@ export class PdfViewerComponent extends OnInit {
     this._zoom = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -114,28 +115,41 @@ export class PdfViewerComponent extends OnInit {
     this._rotation = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
-  private fn() {
-    (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
+  private main() {
+    if (this._pdf && this.lastLoaded === this._src) {
+      return this.onRender();
+    }
+
+    this.loadPDF(this._src);
+  }
+
+  private loadPDF(src) {
+    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
       this._pdf = pdf;
+      this.lastLoaded = src;
 
       if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
         this.afterLoadComplete(pdf);
       }
 
-      if (!this.isValidPageNumber(this._page)) {
-        this._page = 1;
-      }
-
-      if (!this._showAll) {
-        return this.renderPage(this._page);
-      }
-
-      return this.renderMultiplePages();
+      this.onRender();
     });
+  }
+
+  private onRender() {
+    if (!this.isValidPageNumber(this._page)) {
+      this._page = 1;
+    }
+
+    if (!this._showAll) {
+      return this.renderPage(this._page);
+    }
+
+    this.renderMultiplePages();
   }
 
   private renderMultiplePages() {
