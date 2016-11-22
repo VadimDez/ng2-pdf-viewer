@@ -1,8 +1,15 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var core_1 = require('@angular/core');
 require('pdfjs-dist/build/pdf.combined');
-var PdfViewerComponent = (function () {
+var PdfViewerComponent = (function (_super) {
+    __extends(PdfViewerComponent, _super);
     function PdfViewerComponent(element) {
+        _super.call(this);
         this.element = element;
         this._showAll = false;
         this._originalSize = true;
@@ -10,12 +17,19 @@ var PdfViewerComponent = (function () {
         this._zoom = 1;
         this.wasInvalidPage = false;
         this._rotation = 0;
+        this.isInitialised = false;
         this.pageChange = new core_1.EventEmitter(true);
     }
+    PdfViewerComponent.prototype.ngOnInit = function () {
+        this.main();
+        this.isInitialised = true;
+    };
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
         set: function (_src) {
             this._src = _src;
-            this.fn();
+            if (this.isInitialised) {
+                this.main();
+            }
         },
         enumerable: true,
         configurable: true
@@ -24,6 +38,7 @@ var PdfViewerComponent = (function () {
         set: function (_page) {
             _page = parseInt(_page, 10);
             if (!this._pdf) {
+                this._page = _page;
                 return;
             }
             if (this.isValidPageNumber(_page)) {
@@ -46,7 +61,7 @@ var PdfViewerComponent = (function () {
         set: function (originalSize) {
             this._originalSize = originalSize;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -56,7 +71,7 @@ var PdfViewerComponent = (function () {
         set: function (value) {
             this._showAll = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -72,7 +87,7 @@ var PdfViewerComponent = (function () {
             }
             this._zoom = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
@@ -86,27 +101,37 @@ var PdfViewerComponent = (function () {
             }
             this._rotation = value;
             if (this._pdf) {
-                this.fn();
+                this.main();
             }
         },
         enumerable: true,
         configurable: true
     });
-    PdfViewerComponent.prototype.fn = function () {
+    PdfViewerComponent.prototype.main = function () {
+        if (this._pdf && this.lastLoaded === this._src) {
+            return this.onRender();
+        }
+        this.loadPDF(this._src);
+    };
+    PdfViewerComponent.prototype.loadPDF = function (src) {
         var _this = this;
-        window.PDFJS.getDocument(this._src).then(function (pdf) {
+        window.PDFJS.getDocument(src).then(function (pdf) {
             _this._pdf = pdf;
+            _this.lastLoaded = src;
             if (_this.afterLoadComplete && typeof _this.afterLoadComplete === 'function') {
                 _this.afterLoadComplete(pdf);
             }
-            if (!_this.isValidPageNumber(_this._page)) {
-                _this._page = 1;
-            }
-            if (!_this._showAll) {
-                return _this.renderPage(_this._page);
-            }
-            return _this.renderMultiplePages();
+            _this.onRender();
         });
+    };
+    PdfViewerComponent.prototype.onRender = function () {
+        if (!this.isValidPageNumber(this._page)) {
+            this._page = 1;
+        }
+        if (!this._showAll) {
+            return this.renderPage(this._page);
+        }
+        this.renderMultiplePages();
     };
     PdfViewerComponent.prototype.renderMultiplePages = function () {
         var _this = this;
@@ -170,6 +195,6 @@ var PdfViewerComponent = (function () {
         'rotation': [{ type: core_1.Input, args: ['rotation',] },],
     };
     return PdfViewerComponent;
-}());
+}(core_1.OnInit));
 exports.PdfViewerComponent = PdfViewerComponent;
 //# sourceMappingURL=pdf-viewer.component.js.map

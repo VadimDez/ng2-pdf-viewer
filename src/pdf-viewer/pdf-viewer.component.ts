@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter
+  Component, Input, Output, ElementRef, EventEmitter, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -16,7 +16,7 @@ import 'pdfjs-dist/build/pdf.combined';
   ]
 })
 
-export class PdfViewerComponent {
+export class PdfViewerComponent extends OnInit {
   private _showAll: boolean = false;
   private _originalSize: boolean = true;
   private _src: any;
@@ -25,15 +25,26 @@ export class PdfViewerComponent {
   private _zoom: number = 1;
   private wasInvalidPage: boolean = false;
   private _rotation: number = 0;
+  private isInitialised: boolean = false;
+  private lastLoaded: string;
   @Input('after-load-complete') afterLoadComplete: Function;
 
-  constructor(private element: ElementRef) {}
+  constructor(private element: ElementRef) {
+    super();
+  }
+
+  ngOnInit() {
+    this.main();
+    this.isInitialised = true;
+  }
 
   @Input()
   set src(_src) {
     this._src = _src;
 
-    this.fn();
+    if (this.isInitialised) {
+      this.main();
+    }
   }
 
   @Input()
@@ -41,6 +52,7 @@ export class PdfViewerComponent {
     _page = parseInt(_page, 10);
 
     if (!this._pdf) {
+      this._page = _page;
       return;
     }
 
@@ -63,7 +75,7 @@ export class PdfViewerComponent {
     this._originalSize = originalSize;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -72,7 +84,7 @@ export class PdfViewerComponent {
     this._showAll = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -85,7 +97,7 @@ export class PdfViewerComponent {
     this._zoom = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
@@ -103,28 +115,41 @@ export class PdfViewerComponent {
     this._rotation = value;
 
     if (this._pdf) {
-      this.fn();
+      this.main();
     }
   }
 
-  private fn() {
-    (<any>window).PDFJS.getDocument(this._src).then((pdf: any) => {
+  private main() {
+    if (this._pdf && this.lastLoaded === this._src) {
+      return this.onRender();
+    }
+
+    this.loadPDF(this._src);
+  }
+
+  private loadPDF(src) {
+    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
       this._pdf = pdf;
+      this.lastLoaded = src;
 
       if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
         this.afterLoadComplete(pdf);
       }
 
-      if (!this.isValidPageNumber(this._page)) {
-        this._page = 1;
-      }
-
-      if (!this._showAll) {
-        return this.renderPage(this._page);
-      }
-
-      return this.renderMultiplePages();
+      this.onRender();
     });
+  }
+
+  private onRender() {
+    if (!this.isValidPageNumber(this._page)) {
+      this._page = 1;
+    }
+
+    if (!this._showAll) {
+      return this.renderPage(this._page);
+    }
+
+    this.renderMultiplePages();
   }
 
   private renderMultiplePages() {
