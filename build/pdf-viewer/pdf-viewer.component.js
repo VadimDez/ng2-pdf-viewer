@@ -1,8 +1,15 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var core_1 = require('@angular/core');
 require('pdfjs-dist/build/pdf.combined');
-var PdfViewerComponent = (function () {
+var PdfViewerComponent = (function (_super) {
+    __extends(PdfViewerComponent, _super);
     function PdfViewerComponent(element) {
+        _super.call(this);
         this.element = element;
         this._showAll = false;
         this._originalSize = true;
@@ -10,12 +17,19 @@ var PdfViewerComponent = (function () {
         this._zoom = 1;
         this.wasInvalidPage = false;
         this._rotation = 0;
+        this.isInitialised = false;
         this.pageChange = new core_1.EventEmitter(true);
     }
+    PdfViewerComponent.prototype.ngOnInit = function () {
+        this.fn();
+        this.isInitialised = true;
+    };
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
         set: function (_src) {
             this._src = _src;
-            this.fn();
+            if (this.isInitialised) {
+                this.fn();
+            }
         },
         enumerable: true,
         configurable: true
@@ -24,6 +38,7 @@ var PdfViewerComponent = (function () {
         set: function (_page) {
             _page = parseInt(_page, 10);
             if (!this._pdf) {
+                this._page = _page;
                 return;
             }
             if (this.isValidPageNumber(_page)) {
@@ -170,6 +185,6 @@ var PdfViewerComponent = (function () {
         'rotation': [{ type: core_1.Input, args: ['rotation',] },],
     };
     return PdfViewerComponent;
-}());
+}(core_1.OnInit));
 exports.PdfViewerComponent = PdfViewerComponent;
 //# sourceMappingURL=pdf-viewer.component.js.map

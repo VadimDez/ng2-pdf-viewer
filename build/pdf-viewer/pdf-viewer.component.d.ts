@@ -1,6 +1,6 @@
-import { ElementRef, EventEmitter } from '@angular/core';
+import { ElementRef, EventEmitter, OnInit } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-export declare class PdfViewerComponent {
+export declare class PdfViewerComponent extends OnInit {
     private element;
     private _showAll;
     private _originalSize;
@@ -10,8 +10,10 @@ export declare class PdfViewerComponent {
     private _zoom;
     private wasInvalidPage;
     private _rotation;
+    private isInitialised;
     afterLoadComplete: Function;
     constructor(element: ElementRef);
+    ngOnInit(): void;
     src: any;
     page: any;
     pageChange: EventEmitter<number>;

@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter
+  Component, Input, Output, ElementRef, EventEmitter, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -16,7 +16,7 @@ import 'pdfjs-dist/build/pdf.combined';
   ]
 })
 
-export class PdfViewerComponent {
+export class PdfViewerComponent extends OnInit {
   private _showAll: boolean = false;
   private _originalSize: boolean = true;
   private _src: any;
@@ -25,15 +25,25 @@ export class PdfViewerComponent {
   private _zoom: number = 1;
   private wasInvalidPage: boolean = false;
   private _rotation: number = 0;
+  private isInitialised: boolean = false;
   @Input('after-load-complete') afterLoadComplete: Function;
 
-  constructor(private element: ElementRef) {}
+  constructor(private element: ElementRef) {
+    super();
+  }
+
+  ngOnInit() {
+    this.fn();
+    this.isInitialised = true;
+  }
 
   @Input()
   set src(_src) {
     this._src = _src;
 
-    this.fn();
+    if (this.isInitialised) {
+      this.fn();
+    }
   }
 
   @Input()
@@ -41,6 +51,7 @@ export class PdfViewerComponent {
     _page = parseInt(_page, 10);
 
     if (!this._pdf) {
+      this._page = _page;
       return;
     }
 
