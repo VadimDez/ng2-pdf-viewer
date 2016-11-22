@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+* [[#28](https://github.com/VadimDez/ng2-pdf-viewer/issues/28)] - Fixed set initial page
+* [[#30](https://github.com/VadimDez/ng2-pdf-viewer/issues/30)] - Do not reload PDF several times
+
 ## 0.1.1
 * [[#27](https://github.com/VadimDez/ng2-pdf-viewer/issues/27)] - Added support for rotating
 
