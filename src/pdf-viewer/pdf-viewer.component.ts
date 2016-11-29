@@ -8,16 +8,15 @@ import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
-  styles: [`
-    .ng2-pdf-viewer--zoom {
-        overflow-x: scroll;
-    }`
-  ]
+  template: `<div class="ng2-pdf-viewer-container"
+  [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}">
+            </div>`,
+  styleUrls: ['./pdf-viewer.component.css']
 })
 
 export class PdfViewerComponent extends OnInit {
   private _showAll: boolean = false;
+  private _renderText: boolean = true;
   private _originalSize: boolean = true;
   private _src: any;
   private _pdf: any;
@@ -69,6 +68,11 @@ export class PdfViewerComponent extends OnInit {
   }
 
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
+
+  @Input('render-text')
+  set renderText(renderText) {
+    this._renderText = renderText;
+  }
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {
@@ -170,8 +174,43 @@ export class PdfViewerComponent extends OnInit {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private renderPage(page: number) {
-    return this._pdf.getPage(page).then((page: any) => {
+  private buildSVG(viewport, textContent) {
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(SVG_NS, 'svg:svg');
+
+    svg.setAttribute('width', viewport.width + 'px');
+    svg.setAttribute('height', viewport.height + 'px');
+    svg.setAttribute('font-size', '1');
+    svg.setAttribute('class', 'textLayer');
+    textContent.items.forEach(function (textItem) {
+      const tx = (<any>window).PDFJS.Util.transform(
+          (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
+          [1, 0, 0, -1, 0, 0]
+      );
+      const style = textContent.styles[textItem.fontName];
+      const text = document.createElementNS(SVG_NS, 'svg:text');
+      text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
+      text.setAttribute('font-family', style.fontFamily);
+      text.setAttribute('style', `
+                position: absolute;
+                fill: transparent;
+                line-height: 1;
+                white-space: pre;
+                cursor: text;
+            `);
+      text.textContent = textItem.str;
+      svg.appendChild(text);
+    });
+  }
+
+  private renderPageOverlay(page: any, viewport: any) {
+    page.getTextContent().then((textContent) => {
+      this.buildSVG(viewport, textContent);
+    });
+  }
+
+  private renderPage(pageNumber: number) {
+    return this._pdf.getPage(pageNumber).then((page: any) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
@@ -193,6 +232,10 @@ export class PdfViewerComponent extends OnInit {
         canvasContext: canvas.getContext('2d'),
         viewport: viewport
       });
+
+      if (this._renderText) {
+        this.renderPageOverlay(page, viewport);
+      }
     });
   }
 
