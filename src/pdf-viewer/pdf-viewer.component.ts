@@ -201,11 +201,13 @@ export class PdfViewerComponent extends OnInit {
       text.textContent = textItem.str;
       svg.appendChild(text);
     });
+    return svg;
   }
 
-  private renderPageOverlay(page: any, viewport: any) {
+  private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
     page.getTextContent().then((textContent) => {
-      this.buildSVG(viewport, textContent);
+      const svg = this.buildSVG(viewport, textContent);
+      container.appendChild(svg);
     });
   }
 
@@ -234,7 +236,7 @@ export class PdfViewerComponent extends OnInit {
       });
 
       if (this._renderText) {
-        this.renderPageOverlay(page, viewport);
+        this.renderPageOverlay(page, viewport, container);
       }
     });
   }
