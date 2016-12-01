@@ -8,10 +8,29 @@ import 'pdfjs-dist/build/pdf.combined';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container"
-  [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}">
-            </div>`,
-  styleUrls: ['./pdf-viewer.component.css']
+  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
+  styles: [`
+.ng2-pdf-viewer--zoom {
+  overflow-x: scroll;
+}
+
+:host >>> .ng2-pdf-viewer-container > div {
+  position: relative;
+}
+
+:host >>> .textLayer {
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  color: #000;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+  `]
 })
 
 export class PdfViewerComponent extends OnInit {
@@ -182,6 +201,7 @@ export class PdfViewerComponent extends OnInit {
     svg.setAttribute('height', viewport.height + 'px');
     svg.setAttribute('font-size', '1');
     svg.setAttribute('class', 'textLayer');
+
     textContent.items.forEach(function (textItem) {
       const tx = (<any>window).PDFJS.Util.transform(
           (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
@@ -205,9 +225,9 @@ export class PdfViewerComponent extends OnInit {
   }
 
   private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
-    page.getTextContent().then((textContent) => {
-      const svg = this.buildSVG(viewport, textContent);
-      container.appendChild(svg);
+    page.getTextContent().then(textContent => {
+      let canvas = container.querySelectorAll('canvas')[page.pageIndex];
+      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas.nextSibling);
     });
   }
 
@@ -216,6 +236,7 @@ export class PdfViewerComponent extends OnInit {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
+      let div: HTMLElement = document.createElement('div');
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
@@ -225,7 +246,8 @@ export class PdfViewerComponent extends OnInit {
         this.removeAllChildNodes(container);
       }
 
-      container.appendChild(canvas);
+      div.appendChild(canvas);
+      container.appendChild(div);
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;
