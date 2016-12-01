@@ -161,6 +161,10 @@ And then use it in your template:
 ```
 npm start
 ```
+and open
+```
+http://localhost:8000/
+```
 
 ## License
 
