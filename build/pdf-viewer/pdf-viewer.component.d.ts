@@ -19,11 +19,12 @@ export declare class PdfViewerComponent extends OnInit {
     src: any;
     page: any;
     pageChange: EventEmitter<number>;
-    renderText: any;
+    renderText: boolean;
     originalSize: boolean;
     showAll: boolean;
     zoom: number;
     rotation: number;
+    private update();
     private main();
     private loadPDF(src);
     private onRender();

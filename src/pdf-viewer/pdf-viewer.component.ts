@@ -26,7 +26,6 @@ import 'pdfjs-dist/build/pdf.combined';
   top: 0;
   right: 0;
   bottom: 0;
-  color: #000;
   font-family: sans-serif;
   overflow: hidden;
 }
@@ -89,26 +88,24 @@ export class PdfViewerComponent extends OnInit {
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
   @Input('render-text')
-  set renderText(renderText) {
+  set renderText(renderText: boolean) {
     this._renderText = renderText;
+
+    this.update();
   }
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   @Input('show-all')
   set showAll(value: boolean) {
     this._showAll = value;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   @Input('zoom')
@@ -119,9 +116,7 @@ export class PdfViewerComponent extends OnInit {
 
     this._zoom = value;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   get zoom() {
@@ -137,6 +132,10 @@ export class PdfViewerComponent extends OnInit {
 
     this._rotation = value;
 
+    this.update();
+  }
+
+  private update() {
     if (this._pdf) {
       this.main();
     }
@@ -207,17 +206,18 @@ export class PdfViewerComponent extends OnInit {
           (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
           [1, 0, 0, -1, 0, 0]
       );
+
       const style = textContent.styles[textItem.fontName];
       const text = document.createElementNS(SVG_NS, 'svg:text');
       text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
-      text.setAttribute('font-family', style.fontFamily);
       text.setAttribute('style', `
-                position: absolute;
-                fill: transparent;
-                line-height: 1;
-                white-space: pre;
-                cursor: text;
-            `);
+      position: absolute;
+      fill: transparent;
+      line-height: 1;
+      white-space: pre;
+      cursor: text;
+      font-family: ${ textItem.fontName }, ${ style.fontFamily };
+      `);
       text.textContent = textItem.str;
       svg.appendChild(text);
     });

@@ -61,6 +61,7 @@ var PdfViewerComponent = (function (_super) {
     Object.defineProperty(PdfViewerComponent.prototype, "renderText", {
         set: function (renderText) {
             this._renderText = renderText;
+            this.update();
         },
         enumerable: true,
         configurable: true
@@ -68,9 +69,7 @@ var PdfViewerComponent = (function (_super) {
     Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
         set: function (originalSize) {
             this._originalSize = originalSize;
-            if (this._pdf) {
-                this.main();
-            }
+            this.update();
         },
         enumerable: true,
         configurable: true
@@ -78,9 +77,7 @@ var PdfViewerComponent = (function (_super) {
     Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
         set: function (value) {
             this._showAll = value;
-            if (this._pdf) {
-                this.main();
-            }
+            this.update();
         },
         enumerable: true,
         configurable: true
@@ -94,9 +91,7 @@ var PdfViewerComponent = (function (_super) {
                 return;
             }
             this._zoom = value;
-            if (this._pdf) {
-                this.main();
-            }
+            this.update();
         },
         enumerable: true,
         configurable: true
@@ -108,13 +103,16 @@ var PdfViewerComponent = (function (_super) {
                 return;
             }
             this._rotation = value;
-            if (this._pdf) {
-                this.main();
-            }
+            this.update();
         },
         enumerable: true,
         configurable: true
     });
+    PdfViewerComponent.prototype.update = function () {
+        if (this._pdf) {
+            this.main();
+        }
+    };
     PdfViewerComponent.prototype.main = function () {
         if (this._pdf && this.lastLoaded === this._src) {
             return this.onRender();
@@ -167,8 +165,7 @@ var PdfViewerComponent = (function (_super) {
             var style = textContent.styles[textItem.fontName];
             var text = document.createElementNS(SVG_NS, 'svg:text');
             text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
-            text.setAttribute('font-family', style.fontFamily);
-            text.setAttribute('style', "\n                position: absolute;\n                fill: transparent;\n                line-height: 1;\n                white-space: pre;\n                cursor: text;\n            ");
+            text.setAttribute('style', "\n      position: absolute;\n      fill: transparent;\n      line-height: 1;\n      white-space: pre;\n      cursor: text;\n      font-family: " + textItem.fontName + ", " + style.fontFamily + ";\n      ");
             text.textContent = textItem.str;
             svg.appendChild(text);
         });
@@ -216,7 +213,7 @@ var PdfViewerComponent = (function (_super) {
         { type: core_1.Component, args: [{
                     selector: 'pdf-viewer',
                     template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
-                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n}\n\n:host >>> .textLayer {\n  position: absolute;\n  margin-left: auto;\n  margin-right: auto;\n  left: 0;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  color: #000;\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
+                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n}\n\n:host >>> .textLayer {\n  position: absolute;\n  margin-left: auto;\n  margin-right: auto;\n  left: 0;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
                 },] },
     ];
     PdfViewerComponent.ctorParameters = [

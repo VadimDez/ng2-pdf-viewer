@@ -8,6 +8,7 @@ var AppComponent = (function () {
         this.zoom = 1.0;
         this.originalSize = false;
         this.showAll = true;
+        this.renderText = true;
         this.afterLoadComplete = this.afterLoadComplete.bind(this);
     }
     AppComponent.prototype.incrementPage = function (amount) {

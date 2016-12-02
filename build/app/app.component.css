@@ -17,6 +17,10 @@
     width: 50px;
 }
 
+.mb {
+    margin-bottom: 10px;
+}
+
 pdf-viewer {
     display: block;
 }
