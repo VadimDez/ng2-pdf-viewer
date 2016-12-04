@@ -175,7 +175,11 @@ var PdfViewerComponent = (function (_super) {
         var _this = this;
         page.getTextContent().then(function (textContent) {
             var canvas = container.querySelectorAll('canvas')[page.pageIndex];
-            canvas.parentNode.insertBefore(_this.buildSVG(viewport, textContent), canvas.nextSibling);
+            canvas.parentNode.insertBefore(_this.buildSVG(viewport, textContent), canvas);
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.zIndex = '-1';
         });
     };
     PdfViewerComponent.prototype.renderPage = function (pageNumber) {
@@ -213,7 +217,7 @@ var PdfViewerComponent = (function (_super) {
         { type: core_1.Component, args: [{
                     selector: 'pdf-viewer',
                     template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
-                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n}\n\n:host >>> .textLayer {\n  position: absolute;\n  margin-left: auto;\n  margin-right: auto;\n  left: 0;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
+                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n}\n\n:host >>> .textLayer {\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
                 },] },
     ];
     PdfViewerComponent.ctorParameters = [
