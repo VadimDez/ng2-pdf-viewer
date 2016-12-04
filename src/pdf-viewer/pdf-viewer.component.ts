@@ -10,14 +10,24 @@ import 'pdfjs-dist/build/pdf.combined';
   selector: 'pdf-viewer',
   template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
   styles: [`
-    .ng2-pdf-viewer--zoom {
-        overflow-x: scroll;
-    }`
-  ]
+.ng2-pdf-viewer--zoom {
+  overflow-x: scroll;
+}
+
+:host >>> .ng2-pdf-viewer-container > div {
+  position: relative;
+}
+
+:host >>> .textLayer {
+  font-family: sans-serif;
+  overflow: hidden;
+}
+  `]
 })
 
 export class PdfViewerComponent extends OnInit {
   private _showAll: boolean = false;
+  private _renderText: boolean = true;
   private _originalSize: boolean = true;
   private _src: any;
   private _pdf: any;
@@ -70,22 +80,25 @@ export class PdfViewerComponent extends OnInit {
 
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
+  @Input('render-text')
+  set renderText(renderText: boolean) {
+    this._renderText = renderText;
+
+    this.update();
+  }
+
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   @Input('show-all')
   set showAll(value: boolean) {
     this._showAll = value;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   @Input('zoom')
@@ -96,9 +109,7 @@ export class PdfViewerComponent extends OnInit {
 
     this._zoom = value;
 
-    if (this._pdf) {
-      this.main();
-    }
+    this.update();
   }
 
   get zoom() {
@@ -114,6 +125,10 @@ export class PdfViewerComponent extends OnInit {
 
     this._rotation = value;
 
+    this.update();
+  }
+
+  private update() {
     if (this._pdf) {
       this.main();
     }
@@ -170,11 +185,55 @@ export class PdfViewerComponent extends OnInit {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private renderPage(page: number) {
-    return this._pdf.getPage(page).then((page: any) => {
+  private buildSVG(viewport, textContent) {
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(SVG_NS, 'svg:svg');
+
+    svg.setAttribute('width', viewport.width + 'px');
+    svg.setAttribute('height', viewport.height + 'px');
+    svg.setAttribute('font-size', '1');
+    svg.setAttribute('class', 'textLayer');
+
+    textContent.items.forEach(function (textItem) {
+      const tx = (<any>window).PDFJS.Util.transform(
+          (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
+          [1, 0, 0, -1, 0, 0]
+      );
+
+      const style = textContent.styles[textItem.fontName];
+      const text = document.createElementNS(SVG_NS, 'svg:text');
+      text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
+      text.setAttribute('style', `
+      position: absolute;
+      fill: transparent;
+      line-height: 1;
+      white-space: pre;
+      cursor: text;
+      font-family: ${ textItem.fontName }, ${ style.fontFamily };
+      `);
+      text.textContent = textItem.str;
+      svg.appendChild(text);
+    });
+    return svg;
+  }
+
+  private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
+    page.getTextContent().then(textContent => {
+      let canvas = container.querySelectorAll('canvas')[page.pageIndex];
+      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.zIndex = '-1';
+    });
+  }
+
+  private renderPage(pageNumber: number) {
+    return this._pdf.getPage(pageNumber).then((page: any) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
+      let div: HTMLElement = document.createElement('div');
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
@@ -184,7 +243,8 @@ export class PdfViewerComponent extends OnInit {
         this.removeAllChildNodes(container);
       }
 
-      container.appendChild(canvas);
+      div.appendChild(canvas);
+      container.appendChild(div);
 
       canvas.height = viewport.height;
       canvas.width = viewport.width;
@@ -193,6 +253,10 @@ export class PdfViewerComponent extends OnInit {
         canvasContext: canvas.getContext('2d'),
         viewport: viewport
       });
+
+      if (this._renderText) {
+        this.renderPageOverlay(page, viewport, container);
+      }
     });
   }
 

@@ -3,6 +3,7 @@ import 'pdfjs-dist/build/pdf.combined';
 export declare class PdfViewerComponent extends OnInit {
     private element;
     private _showAll;
+    private _renderText;
     private _originalSize;
     private _src;
     private _pdf;
@@ -18,15 +19,19 @@ export declare class PdfViewerComponent extends OnInit {
     src: any;
     page: any;
     pageChange: EventEmitter<number>;
+    renderText: boolean;
     originalSize: boolean;
     showAll: boolean;
     zoom: number;
     rotation: number;
+    private update();
     private main();
     private loadPDF(src);
     private onRender();
     private renderMultiplePages();
     private isValidPageNumber(page);
-    private renderPage(page);
+    private buildSVG(viewport, textContent);
+    private renderPageOverlay(page, viewport, container);
+    private renderPage(pageNumber);
     private removeAllChildNodes(element);
 }

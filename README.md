@@ -71,6 +71,7 @@ export class AppComponent {
 
 * [src](#src)
 * [page](#page)
+* [render-text](#render-text)
 * [rotation](#rotation)
 * [zoom](#zoom)
 * [original-size](#original-size)
@@ -108,6 +109,12 @@ Page number
 supports two way data binding as well
 ```
 [(page)]="pageVariable"
+```
+
+#### [render-text]
+Enable text rendering, allows to select text
+```
+[render-text]="true"
 ```
 
 #### [rotation]
@@ -160,6 +167,10 @@ And then use it in your template:
 ## Develop
 ```
 npm start
+```
+and open
+```
+http://localhost:8000/
 ```
 
 ## License

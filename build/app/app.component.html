@@ -19,7 +19,7 @@
                 <input (change)="onFileSelected()" type="file" id="file">
             </div>
 
-            <div>
+            <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="original-size">
                     <input type="checkbox" id="original-size" class="mdl-switch__input"
                            [checked]="originalSize"
@@ -28,7 +28,16 @@
                 </label>
             </div>
 
-            <div>
+            <div class="mb">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
+                    <input type="checkbox" id="render-text" class="mdl-switch__input"
+                           [checked]="renderText"
+                           [(ngModel)]="renderText">
+                    <span class="mdl-switch__label">Render text</span>
+                </label>
+            </div>
+
+            <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="show-all">
                     <input type="checkbox" id="show-all" class="mdl-switch__input"
                            [checked]="showAll"
@@ -99,6 +108,7 @@
                         [show-all]="showAll"
                         [after-load-complete]="afterLoadComplete"
                         [zoom]="zoom"
+                        [render-text]="renderText"
             ></pdf-viewer>
 
         </div>

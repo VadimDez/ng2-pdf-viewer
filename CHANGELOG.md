@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.3
+* [[#29](https://github.com/VadimDez/ng2-pdf-viewer/issues/29)] - Make text selectable
+
 ## 0.1.2
 * [[#28](https://github.com/VadimDez/ng2-pdf-viewer/issues/28)] - Fixed set initial page
 * [[#30](https://github.com/VadimDez/ng2-pdf-viewer/issues/30)] - Do not reload PDF several times

@@ -28,6 +28,7 @@ export class AppComponent {
   originalSize: boolean = false;
   showAll: boolean = true;
   pdf: any;
+  renderText: boolean = true;
 
   constructor() {
     this.afterLoadComplete = this.afterLoadComplete.bind(this);

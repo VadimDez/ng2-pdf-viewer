@@ -6,6 +6,7 @@ export declare class AppComponent {
     originalSize: boolean;
     showAll: boolean;
     pdf: any;
+    renderText: boolean;
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
