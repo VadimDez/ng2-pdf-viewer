@@ -23,8 +23,8 @@
  }
 }(this, function (exports) {
  'use strict';
- var pdfjsVersion = '1.6.329';
- var pdfjsBuild = '9c3419d';
+ var pdfjsVersion = '1.6.348';
+ var pdfjsBuild = 'ce416eb';
  var pdfjsFilePath = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : null;
  var pdfjsLibs = {};
  (function pdfjsWrapper() {
@@ -6745,7 +6745,7 @@
        return;
       }
       var name = fontObj.loadedName || 'sans-serif';
-      var bold = fontObj.black ? fontObj.bold ? '900' : 'bold' : fontObj.bold ? 'bold' : 'normal';
+      var bold = fontObj.black ? '900' : fontObj.bold ? 'bold' : 'normal';
       var italic = fontObj.italic ? 'italic' : 'normal';
       var typeface = '"' + name + '", ' + fontObj.fallbackName;
       var browserFontSize = size < MIN_FONT_SIZE ? MIN_FONT_SIZE : size > MAX_FONT_SIZE ? MAX_FONT_SIZE : size;
@@ -7858,6 +7858,9 @@
      },
      get ref() {
       return this.pageInfo.ref;
+     },
+     get userUnit() {
+      return this.pageInfo.userUnit;
      },
      get view() {
       return this.pageInfo.view;
