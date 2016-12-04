@@ -19,13 +19,6 @@ import 'pdfjs-dist/build/pdf.combined';
 }
 
 :host >>> .textLayer {
-  position: absolute;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
   font-family: sans-serif;
   overflow: hidden;
 }
@@ -227,7 +220,11 @@ export class PdfViewerComponent extends OnInit {
   private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
     page.getTextContent().then(textContent => {
       let canvas = container.querySelectorAll('canvas')[page.pageIndex];
-      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas.nextSibling);
+      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.zIndex = '-1';
     });
   }
 
