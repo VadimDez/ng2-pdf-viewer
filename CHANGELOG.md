@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.4
+* [[#35](https://github.com/VadimDez/ng2-pdf-viewer/issues/35)] - New release causing blank pdf
+
 ## 0.1.3
 * [[#29](https://github.com/VadimDez/ng2-pdf-viewer/issues/29)] - Make text selectable
 
