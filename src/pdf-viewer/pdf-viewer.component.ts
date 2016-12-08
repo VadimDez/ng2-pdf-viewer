@@ -219,7 +219,8 @@ export class PdfViewerComponent extends OnInit {
 
   private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
     page.getTextContent().then(textContent => {
-      let canvas = container.querySelectorAll('canvas')[page.pageIndex];
+      let index = this._showAll ? page.pageIndex : 0;
+      let canvas = container.querySelectorAll('canvas')[index];
       canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
       canvas.style.position = 'absolute';
       canvas.style.top = '0';
