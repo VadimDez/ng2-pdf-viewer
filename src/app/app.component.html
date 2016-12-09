@@ -5,7 +5,7 @@
         </div>
     </header>
     <main class="mdl-layout__content">
-        <div class="page-content">
+        <div class="page-content" [ngStyle]="stylePageContent" (window:resize)="onPageResize($event)">
 
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
@@ -27,26 +27,7 @@
                     <span class="mdl-switch__label">Original size</span>
                 </label>
             </div>
-
-            <div class="mb">
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
-                    <input type="checkbox" id="render-text" class="mdl-switch__input"
-                           [checked]="renderText"
-                           [(ngModel)]="renderText">
-                    <span class="mdl-switch__label">Render text</span>
-                </label>
-            </div>
-
-            <div class="mb">
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="show-all">
-                    <input type="checkbox" id="show-all" class="mdl-switch__input"
-                           [checked]="showAll"
-                           [(ngModel)]="showAll"
-                    >
-                    <span class="mdl-switch__label">Show all pages</span>
-                </label>
-            </div>
-
+          
             <div mdl>
                 <button (click)="incrementZoom(-0.1)" class="mdl-button mdl-js-button">
                     -
@@ -67,7 +48,18 @@
                 </button>
             </div>
 
-            <div mdl *ngIf="!showAll">
+
+            <div>
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="stick-to-page">
+                <input type="checkbox" id="stick-to-page" class="mdl-switch__input"
+                       [checked]="stickToPage"
+                       [(ngModel)]="stickToPage"
+                >
+                <span class="mdl-switch__label">Stick to page</span>
+              </label>
+            </div>
+
+            <div mdl *ngIf="!showAll || stickToPage">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
                     Previous
                 </button>
@@ -101,14 +93,59 @@
                 <button (click)="rotate(90)" class="mdl-button mdl-js-button">Rotate right</button>
             </div>
 
-            <pdf-viewer [src]="pdfSrc"
+            <div>
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
+                <input type="checkbox" id="render-text" class="mdl-switch__input"
+                       [checked]="renderText"
+                       [(ngModel)]="renderText"
+                >
+                <span class="mdl-switch__label">Render text layer</span>
+              </label>
+            </div>
+
+            <div>
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-link">
+                <input type="checkbox" id="render-link" class="mdl-switch__input"
+                       [checked]="renderLink"
+                       [(ngModel)]="renderLink"
+                >
+                <span class="mdl-switch__label">Render hyperlinks</span>
+              </label>
+            </div>
+
+            <div>
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enhance-text-selection">
+                <input type="checkbox" id="enhance-text-selection" class="mdl-switch__input"
+                       [checked]="enhanceTextSelection"
+                       [(ngModel)]="enhanceTextSelection"
+                >
+                <span class="mdl-switch__label">Enhance text selection</span>
+              </label>
+            </div>
+
+            <div>
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="page-border">
+                <input type="checkbox" id="page-border" class="mdl-switch__input"
+                       [checked]="pageBorder"
+                       [(ngModel)]="pageBorder"
+                >
+                <span class="mdl-switch__label">Enable page border</span>
+              </label>
+            </div>
+
+            <pdf-viewer #myPdfViewer
+                        [src]="pdfSrc"
                         [(page)]="page"
                         [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
                         [after-load-complete]="afterLoadComplete"
                         [zoom]="zoom"
+                        [stick-to-page]="stickToPage"
                         [render-text]="renderText"
+                        [render-link]="renderLink"
+                        [enhance-text-selection]="enhanceTextSelection"
+                        [page-border]="pageBorder"
             ></pdf-viewer>
 
         </div>

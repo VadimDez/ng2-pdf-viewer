@@ -5,10 +5,11 @@ import {
   Component, Input, Output, ElementRef, EventEmitter, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
+import 'pdfjs-dist/web/pdf_viewer';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
+  template: `<div class="ng2-pdf-viewer-container"><div id="viewer" class="pdfViewer"></div></div>`,
   styles: [`
 .ng2-pdf-viewer--zoom {
   overflow-x: scroll;
@@ -26,8 +27,12 @@ import 'pdfjs-dist/build/pdf.combined';
 })
 
 export class PdfViewerComponent extends OnInit {
-  private _showAll: boolean = false;
+  private static CSS_UNITS: number = 96.0 / 72.0;
+
+  private _showAll: boolean = true; // TODO : _showAll is not working
   private _renderText: boolean = true;
+  private _renderLink: boolean = true;
+  private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
   private _src: any;
   private _pdf: any;
@@ -37,6 +42,10 @@ export class PdfViewerComponent extends OnInit {
   private _rotation: number = 0;
   private isInitialised: boolean = false;
   private lastLoaded: string;
+  private _enhanceTextSelection: boolean = false;
+  private _pageBorder: boolean = false;
+  private _pdfViewer: any;
+  private _pdfLinkService: any;
   @Input('after-load-complete') afterLoadComplete: Function;
 
   constructor(private element: ElementRef) {
@@ -44,20 +53,20 @@ export class PdfViewerComponent extends OnInit {
   }
 
   ngOnInit() {
-    this.main();
+    this.setupViewer();
     this.isInitialised = true;
   }
 
-  @Input()
+  @Input('src')
   set src(_src) {
     this._src = _src;
 
     if (this.isInitialised) {
-      this.main();
+      this.loadPDF();
     }
   }
 
-  @Input()
+  @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10);
 
@@ -68,7 +77,7 @@ export class PdfViewerComponent extends OnInit {
 
     if (this.isValidPageNumber(_page)) {
       this._page = _page;
-      this.renderPage(_page);
+      this.render();
       this.wasInvalidPage = false;
     } else if (isNaN(_page)) {
       this.pageChange.emit(null);
@@ -83,22 +92,43 @@ export class PdfViewerComponent extends OnInit {
   @Input('render-text')
   set renderText(renderText: boolean) {
     this._renderText = renderText;
+    if (this._pdf) {
+      this.setupViewer();
+    }
+  }
 
-    this.update();
+  @Input('render-link')
+  set renderLink(renderLink) {
+    this._renderLink = renderLink;
+    if (this._pdf) {
+      this.setupViewer();
+    }
   }
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
-
-    this.update();
+    if (this._pdf) {
+      this.updateSize();
+    }
   }
 
   @Input('show-all')
   set showAll(value: boolean) {
     this._showAll = value;
 
-    this.update();
+    if (this._pdf) {
+      this.render();
+    }
+  }
+
+  @Input('stick-to-page')
+  set stickToPage(value: boolean) {
+    this._stickToPage = value;
+
+    if (this._pdf) {
+      this.render();
+    }
   }
 
   @Input('zoom')
@@ -109,7 +139,9 @@ export class PdfViewerComponent extends OnInit {
 
     this._zoom = value;
 
-    this.update();
+    if (this._pdf) {
+      this.updateSize();
+    }
   }
 
   get zoom() {
@@ -130,140 +162,118 @@ export class PdfViewerComponent extends OnInit {
 
   private update() {
     if (this._pdf) {
-      this.main();
+      this.render();
     }
   }
 
-  private main() {
-    if (this._pdf && this.lastLoaded === this._src) {
-      return this.onRender();
+  @Input('page-border')
+  set pageBorder(value: boolean) {
+    this._pageBorder = value;
+    if (this._pdf) {
+      this.setupViewer();
     }
-
-    this.loadPDF(this._src);
   }
 
-  private loadPDF(src) {
-    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
-      this._pdf = pdf;
-      this.lastLoaded = src;
+  @Input('enhance-text-selection')
+  set enhanceTextSelection(value: boolean) {
+    this._enhanceTextSelection = value;
+    if (this._pdf) {
+      this.setupViewer();
+    }
+  }
 
-      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-        this.afterLoadComplete(pdf);
-      }
+  public setupViewer() {
 
-      this.onRender();
+    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+    //PDFJS.disableWorker = true;
+
+    PDFJS.disableTextLayer = !this._renderText;
+
+    let container = this.element.nativeElement.querySelector('div');
+
+    var pdfOptions = {
+      container: container
+    };
+
+    if (this._renderLink) {
+      this._pdfLinkService = new PDFJS.PDFLinkService();
+      pdfOptions['linkService'] = this._pdfLinkService;
+    }
+
+    if (!this._pageBorder) {
+      pdfOptions['removePageBorders'] = true;
+    }
+
+    if (this._enhanceTextSelection) {
+      pdfOptions['enhanceTextSelection'] = this._enhanceTextSelection;
+    }
+
+    this._pdfViewer = new PDFJS.PDFViewer({
+      container: container
     });
+
+    if (this._renderLink) {
+      this._pdfLinkService.setViewer(this._pdfViewer);
+    }
+
+    if (this._src) {
+      this.loadPDF();
+    }
   }
 
-  private onRender() {
+  public loadPDF(src?) {
+
+    if (!src) {
+      src = this._src;
+    }
+
+    if (src) {
+
+      PDFJS.getDocument(src).then((pdf: PDFDocumentProxy) => {
+
+        this._pdf = pdf;
+        this.lastLoaded = src;
+
+        if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
+          this.afterLoadComplete(pdf);
+        }
+
+        this._pdfViewer.setDocument(this._pdf);
+        this._pdfLinkService.setDocument(this._pdf, null);
+
+        this.render();
+      });
+    }
+  }
+
+  public render() {
     if (!this.isValidPageNumber(this._page)) {
       this._page = 1;
     }
 
-    if (!this._showAll) {
-      return this.renderPage(this._page);
+    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+      this._pdfViewer.pagesRotation = this._rotation;
     }
 
-    this.renderMultiplePages();
-  }
-
-  private renderMultiplePages() {
-    let container = this.element.nativeElement.querySelector('div');
-    let page = 1;
-    const renderPageFn = (page: number) => () => this.renderPage(page);
-
-    this.removeAllChildNodes(container);
-
-    let d = this.renderPage(page++);
-
-    for (page; page <= this._pdf.numPages; page++) {
-      d = d.then(renderPageFn(page));
+    if (this._stickToPage) {
+      this._pdfViewer.currentPageNumber = this._page;
     }
+
+    this.updateSize();
   }
 
-  private isValidPageNumber(page: number) {
-    return this._pdf.numPages >= page && page >= 1;
-  }
-
-  private buildSVG(viewport, textContent) {
-    const SVG_NS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(SVG_NS, 'svg:svg');
-
-    svg.setAttribute('width', viewport.width + 'px');
-    svg.setAttribute('height', viewport.height + 'px');
-    svg.setAttribute('font-size', '1');
-    svg.setAttribute('class', 'textLayer');
-
-    textContent.items.forEach(function (textItem) {
-      const tx = (<any>window).PDFJS.Util.transform(
-          (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
-          [1, 0, 0, -1, 0, 0]
-      );
-
-      const style = textContent.styles[textItem.fontName];
-      const text = document.createElementNS(SVG_NS, 'svg:text');
-      text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
-      text.setAttribute('style', `
-      position: absolute;
-      fill: transparent;
-      line-height: 1;
-      white-space: pre;
-      cursor: text;
-      font-family: ${ textItem.fontName }, ${ style.fontFamily };
-      `);
-      text.textContent = textItem.str;
-      svg.appendChild(text);
-    });
-    return svg;
-  }
-
-  private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
-    page.getTextContent().then(textContent => {
-      let index = this._showAll ? page.pageIndex : 0;
-      let canvas = container.querySelectorAll('canvas')[index];
-      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
-      canvas.style.position = 'absolute';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
-      canvas.style.zIndex = '-1';
-    });
-  }
-
-  private renderPage(pageNumber: number) {
-    return this._pdf.getPage(pageNumber).then((page: any) => {
-      let viewport = page.getViewport(this._zoom, this._rotation);
-      let container = this.element.nativeElement.querySelector('div');
-      let canvas: HTMLCanvasElement = document.createElement('canvas');
-      let div: HTMLElement = document.createElement('div');
-
-      if (!this._originalSize) {
-        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
-      }
-
-      if (!this._showAll) {
-        this.removeAllChildNodes(container);
-      }
-
-      div.appendChild(canvas);
-      container.appendChild(div);
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      page.render({
-        canvasContext: canvas.getContext('2d'),
-        viewport: viewport
+  public updateSize() {
+    if (!this._originalSize) {
+      this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
+        let scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+        this._pdfViewer._setScale(scale, !this._stickToPage);
       });
-
-      if (this._renderText) {
-        this.renderPageOverlay(page, viewport, container);
-      }
-    });
+    } else {
+      this._pdfViewer._setScale(this._zoom, !this._stickToPage);
+    }
   }
 
-  private removeAllChildNodes(element: HTMLElement) {
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
+  public isValidPageNumber(page: number) {
+    return this._pdf.numPages >= page && page >= 1;
   }
 }
