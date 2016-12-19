@@ -143,18 +143,20 @@ export class PdfViewerComponent extends OnInit {
   }
 
   private loadPDF(src) {
-    if (src) {
-        (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
-          this._pdf = pdf;
-          this.lastLoaded = src;
-
-          if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-            this.afterLoadComplete(pdf);
-          }
-
-          this.onRender();
-        });
+    if (!src) {
+      return;
     }
+
+    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
+      this._pdf = pdf;
+      this.lastLoaded = src;
+
+      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
+        this.afterLoadComplete(pdf);
+      }
+
+      this.onRender();
+    });
   }
 
   private onRender() {
