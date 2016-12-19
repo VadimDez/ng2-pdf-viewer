@@ -52,7 +52,7 @@ export class PdfViewerComponent extends OnInit {
   set src(_src) {
     this._src = _src;
 
-    if (this.isInitialised) {
+    if (this.isInitialised && this._src) {
       this.main();
     }
   }
@@ -143,16 +143,18 @@ export class PdfViewerComponent extends OnInit {
   }
 
   private loadPDF(src) {
-    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
-      this._pdf = pdf;
-      this.lastLoaded = src;
+    if (src) {
+        (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
+          this._pdf = pdf;
+          this.lastLoaded = src;
 
-      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-        this.afterLoadComplete(pdf);
-      }
+          if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
+            this.afterLoadComplete(pdf);
+          }
 
-      this.onRender();
-    });
+          this.onRender();
+        });
+    }
   }
 
   private onRender() {
