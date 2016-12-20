@@ -164,6 +164,12 @@ And then use it in your template:
 ``` 
 [after-load-complete]="callBackFn"
 ```
+If you are looking to use `this` inside callback function you have to bind callback to your class in constructor:
+```ts
+constructor() {
+  this.callBackFn = this.callBackFn.bind(this);
+}
+```
 ## Develop
 ```
 npm start
