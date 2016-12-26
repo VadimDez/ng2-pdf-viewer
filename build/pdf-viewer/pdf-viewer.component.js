@@ -37,7 +37,7 @@ var PdfViewerComponent = (function (_super) {
     Object.defineProperty(PdfViewerComponent.prototype, "src", {
         set: function (_src) {
             this._src = _src;
-            if (this.isInitialised) {
+            if (this.isInitialised && this._src) {
                 this.main();
             }
         },
@@ -130,6 +130,9 @@ var PdfViewerComponent = (function (_super) {
     };
     PdfViewerComponent.prototype.loadPDF = function (src) {
         var _this = this;
+        if (!src) {
+            return;
+        }
         window.PDFJS.getDocument(src).then(function (pdf) {
             _this._pdf = pdf;
             _this.lastLoaded = src;

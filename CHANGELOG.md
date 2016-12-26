@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.5
+* [[#37](https://github.com/VadimDez/ng2-pdf-viewer/issues/37)] - Fix the case where src is still not having a value
+
 ## 0.1.4
 * [[#35](https://github.com/VadimDez/ng2-pdf-viewer/issues/35)] - New release causing blank pdf
 

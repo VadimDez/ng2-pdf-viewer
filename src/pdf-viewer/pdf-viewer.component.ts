@@ -52,7 +52,7 @@ export class PdfViewerComponent extends OnInit {
   set src(_src) {
     this._src = _src;
 
-    if (this.isInitialised) {
+    if (this.isInitialised && this._src) {
       this.main();
     }
   }
@@ -143,6 +143,10 @@ export class PdfViewerComponent extends OnInit {
   }
 
   private loadPDF(src) {
+    if (!src) {
+      return;
+    }
+
     (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
       this._pdf = pdf;
       this.lastLoaded = src;
