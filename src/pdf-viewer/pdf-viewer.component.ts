@@ -16,6 +16,7 @@ import 'pdfjs-dist/build/pdf.combined';
 
 :host >>> .ng2-pdf-viewer-container > div {
   position: relative;
+  z-index: 0;
 }
 
 :host >>> .textLayer {
