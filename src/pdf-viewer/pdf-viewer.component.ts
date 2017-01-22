@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnInit, OnChanges, SimpleChanges
+  Component, Input, Output, ElementRef, EventEmitter, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -25,7 +25,7 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent implements OnInit, OnChanges {
+export class PdfViewerComponent implements OnInit {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
