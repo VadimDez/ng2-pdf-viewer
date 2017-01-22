@@ -30,10 +30,6 @@ export class AppComponent {
   pdf: any;
   renderText: boolean = true;
 
-  constructor() {
-    this.afterLoadComplete = this.afterLoadComplete.bind(this);
-  }
-
   incrementPage(amount: number) {
     this.page += amount;
   }
@@ -67,7 +63,7 @@ export class AppComponent {
    * Get pdf information after it's loaded
    * @param pdf
    */
-  afterLoadComplete(pdf: any) {
+  afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
   }
 }

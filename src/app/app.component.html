@@ -106,7 +106,7 @@
                         [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
-                        [after-load-complete]="afterLoadComplete"
+                        (after-load-complete])="afterLoadComplete($event)"
                         [zoom]="zoom"
                         [render-text]="renderText"
             ></pdf-viewer>
