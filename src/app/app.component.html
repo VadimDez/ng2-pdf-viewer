@@ -6,7 +6,9 @@
     </header>
     <main class="mdl-layout__content">
         <div class="page-content">
-
+            <div>
+                <h2>Angular 2 PDF Viewer</h2>
+            </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
                 <label class="mdl-textfield__label" for="pdf-src">Set URL of the PDF file</label>
@@ -106,7 +108,7 @@
                         [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
-                        (after-load-complete])="afterLoadComplete($event)"
+                        (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
                         [render-text]="renderText"
             ></pdf-viewer>

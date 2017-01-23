@@ -46,10 +46,10 @@ export class AppComponent {
    * Render PDF preview on selecting file
    */
   onFileSelected() {
-    var $img: any = document.querySelector('#file');
+    let $img: any = document.querySelector('#file');
 
     if (typeof (FileReader) !== 'undefined') {
-      var reader = new FileReader();
+      let reader = new FileReader();
 
       reader.onload = (e: any) => {
         this.pdfSrc = e.target.result;
