@@ -44,6 +44,7 @@ export class PdfViewerComponent extends OnInit {
   private lastLoaded: string;
   private _enhanceTextSelection: boolean = false;
   private _pageBorder: boolean = false;
+  private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
   @Input('after-load-complete') afterLoadComplete: Function;
@@ -166,6 +167,14 @@ export class PdfViewerComponent extends OnInit {
     }
   }
 
+  @Input('external-link-target')
+  set externalLinkTarget(value: string) {
+    this._externalLinkTarget = value;
+    if (this._pdf) {
+      this.setupViewer();
+    }
+  }
+
   @Input('page-border')
   set pageBorder(value: boolean) {
     this._pageBorder = value;
@@ -188,6 +197,24 @@ export class PdfViewerComponent extends OnInit {
     //PDFJS.disableWorker = true;
 
     PDFJS.disableTextLayer = !this._renderText;
+
+    switch (this._externalLinkTarget) {
+      case 'blank':
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
+        break;
+      case 'none':
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.NONE;
+        break;
+      case 'self':
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.SELF;
+        break;
+      case 'parent':
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.PARENT;
+        break;
+      case 'top':
+        PDFJS.externalLinkTarget = PDFJS.LinkTarget.TOP;
+        break;
+    }
 
     let container = this.element.nativeElement.querySelector('div');
 
