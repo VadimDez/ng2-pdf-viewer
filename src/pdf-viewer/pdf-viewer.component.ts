@@ -97,7 +97,7 @@ export class PdfViewerComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if ('src' in changes) {
       this.loadPDF();
-    } else if(this._pdf) {
+    } else if (this._pdf) {
       /*
         TODO Opti
         I'm not sure we really need to do a full update for all input changes:
