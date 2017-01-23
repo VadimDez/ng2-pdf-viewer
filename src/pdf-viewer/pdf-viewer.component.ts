@@ -26,7 +26,7 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent extends OnInit {
+export class PdfViewerComponent implements OnInit {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
@@ -38,11 +38,10 @@ export class PdfViewerComponent extends OnInit {
   private _rotation: number = 0;
   private isInitialised: boolean = false;
   private lastLoaded: string;
-  @Input('after-load-complete') afterLoadComplete: Function;
 
-  constructor(private element: ElementRef) {
-    super();
-  }
+  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+
+  constructor(private element: ElementRef) { }
 
   ngOnInit() {
     this.main();
@@ -152,9 +151,7 @@ export class PdfViewerComponent extends OnInit {
       this._pdf = pdf;
       this.lastLoaded = src;
 
-      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-        this.afterLoadComplete(pdf);
-      }
+      this.afterLoadComplete.emit(pdf);
 
       this.onRender();
     });

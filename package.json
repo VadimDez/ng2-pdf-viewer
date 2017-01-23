@@ -42,6 +42,7 @@
     "pdfjs-dist": "^1.6.329"
   },
   "dependencies": {
+    "@types/pdf": "0.0.31",
     "pdfjs-dist": "^1.6.329"
   },
   "devDependencies": {
