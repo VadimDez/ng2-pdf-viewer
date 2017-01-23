@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0
+
+#### Breaking changes
+* [[#47](https://github.com/VadimDez/ng2-pdf-viewer/issues/47)] - Use @Output for after load events
+
+Use `(after-load-complete)="afterLoadComplete($event)` instead of `[after-load-complete]="afterLoadComplete($event)` on `<pdf-viewer>`.
+
+You do not need to bind your callback anymore.
+
+Example of `afterLoadComplete` callback:
+
+```ts
+afterLoadComplete(pdf: PDFDocumentProxy) {
+  this.pdf = pdf;
+}
+```
+
 ## 0.1.6
 * [[#39](https://github.com/VadimDez/ng2-pdf-viewer/issues/39)] - background-color css causes PDF text to become invisible.
 * [[#43](https://github.com/VadimDez/ng2-pdf-viewer/issues/43)] - PDF is drawn behind the container
