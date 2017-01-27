@@ -156,26 +156,20 @@ Show single or all pages altogether
 [show-all]="true"
 ```
 
-#### [after-load-complete]
+#### (after-load-complete)
 
 Get PDF information with callback
 
 First define callback function "callBackFn" in your controller,
 ```
-callBackFn(pdf: any) {
+callBackFn(pdf: PDFDocumentProxy) {
    // do anything with "pdf"
 }
 ```
 
 And then use it in your template:
 ``` 
-[after-load-complete]="callBackFn"
-```
-If you are looking to use `this` inside callback function you have to bind callback to your class in constructor:
-```ts
-constructor() {
-  this.callBackFn = this.callBackFn.bind(this);
-}
+(after-load-complete)="callBackFn"
 ```
 ## Develop
 ```
