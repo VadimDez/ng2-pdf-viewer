@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnInit, OnChanges, SimpleChanges
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -26,7 +26,7 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent implements OnInit, OnChanges {
+export class PdfViewerComponent implements OnChanges {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
@@ -34,17 +34,10 @@ export class PdfViewerComponent implements OnInit, OnChanges {
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
-  private isInitialised: boolean = false;
-  private lastLoaded: string;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
   constructor(private element: ElementRef) { }
-
-  ngOnInit() {
-    this.main();
-    this.isInitialised = true;
-  }
 
   @Input()
   src: string | Uint8Array | PDFSource;
@@ -107,33 +100,25 @@ export class PdfViewerComponent implements OnInit, OnChanges {
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {
-      /*
-        TODO Opti
-        I'm not sure we really need to do a full update for all input changes:
-
-        - If only render-text changed, we could just renderPageOverlay() or clear svg
-        - If only showAll changed we could just add missing pages if it goes true
-          and just discard pages if it goes false
-      */
-
       this.update();
     }
   }
 
   private loadPDF() {
-    if (this.src) {
-      PDFJS.getDocument(this.src).then(pdf => {
-        this._pdf = pdf;
-
-        this.afterLoadComplete.emit(pdf);
-
-        this.update();
-      });
+    if (!this.src) {
+      return;
     }
+
+    PDFJS.getDocument(this.src).then(pdf => {
+      this._pdf = pdf;
+
+      this.afterLoadComplete.emit(pdf);
+
+      this.update();
+    });
   }
 
   private update() {
-    //this will trigger page check and reset it if not valid
     this.page = this._page;
 
     if (!this._showAll) {
@@ -149,7 +134,7 @@ export class PdfViewerComponent implements OnInit, OnChanges {
 
     this.removeAllChildNodes(container);
 
-    this.renderPage(page++).then( () => {
+    this.renderPage(page++).then(() => {
       if (page <= this._pdf.numPages) {
         return this.renderPage(page++);
       }
