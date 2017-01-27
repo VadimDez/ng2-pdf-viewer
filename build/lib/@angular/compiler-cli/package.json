@@ -2,50 +2,48 @@
   "_args": [
     [
       {
-        "raw": "@angular/compiler-cli",
+        "raw": "@angular/compiler-cli@^2.2.1",
         "scope": "@angular",
         "escapedName": "@angular%2fcompiler-cli",
         "name": "@angular/compiler-cli",
-        "rawSpec": "",
-        "spec": "latest",
-        "type": "tag"
+        "rawSpec": "^2.2.1",
+        "spec": ">=2.2.1 <3.0.0",
+        "type": "range"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/compiler-cli@latest",
-  "_id": "@angular/compiler-cli@2.1.2",
+  "_from": "@angular/compiler-cli@>=2.2.1 <3.0.0",
+  "_id": "@angular/compiler-cli@2.2.1",
   "_inCache": true,
-  "_installable": true,
   "_location": "/@angular/compiler-cli",
-  "_nodeVersion": "6.7.0",
+  "_nodeVersion": "6.9.1",
   "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/compiler-cli-2.1.2.tgz_1477593262964_0.9359697939362377"
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/compiler-cli-2.2.1.tgz_1479411127251_0.48815956781618297"
   },
   "_npmUser": {
     "name": "angular",
     "email": "angular-core+npm@google.com"
   },
-  "_npmVersion": "3.10.3",
+  "_npmVersion": "3.10.8",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/compiler-cli",
+    "raw": "@angular/compiler-cli@^2.2.1",
     "scope": "@angular",
     "escapedName": "@angular%2fcompiler-cli",
     "name": "@angular/compiler-cli",
-    "rawSpec": "",
-    "spec": "latest",
-    "type": "tag"
+    "rawSpec": "^2.2.1",
+    "spec": ">=2.2.1 <3.0.0",
+    "type": "range"
   },
   "_requiredBy": [
-    "#USER",
-    "/"
+    "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz",
-  "_shasum": "9c34433af2183f294b9c63a035c785e002edc792",
+  "_resolved": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.2.1.tgz",
+  "_shasum": "166469b881d63946cc3e45c47a87d2b6cd902386",
   "_shrinkwrap": null,
-  "_spec": "@angular/compiler-cli",
+  "_spec": "@angular/compiler-cli@^2.2.1",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "bin": {
     "ngc": "./src/main.js",
@@ -75,8 +73,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "9c34433af2183f294b9c63a035c785e002edc792",
-    "tarball": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.1.2.tgz"
+    "shasum": "166469b881d63946cc3e45c47a87d2b6cd902386",
+    "tarball": "https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-2.2.1.tgz"
   },
   "homepage": "https://github.com/angular/angular/tree/master/modules/@angular/compiler-cli",
   "keywords": [
@@ -95,8 +93,8 @@
   "optionalDependencies": {},
   "peerDependencies": {
     "typescript": "^2.0.2",
-    "@angular/compiler": "2.1.2",
-    "@angular/core": "2.1.2"
+    "@angular/compiler": "2.2.1",
+    "@angular/core": "2.2.1"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -105,5 +103,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.1.2"
+  "version": "2.2.1"
 }

@@ -135,8 +135,13 @@ export var ViewRef_ = (function () {
         this._view.cdMode = this._originalMode;
         this.markForCheck();
     };
-    ViewRef_.prototype.onDestroy = function (callback) { this._view.disposables.push(callback); };
-    ViewRef_.prototype.destroy = function () { this._view.destroy(); };
+    ViewRef_.prototype.onDestroy = function (callback) {
+        if (!this._view.disposables) {
+            this._view.disposables = [];
+        }
+        this._view.disposables.push(callback);
+    };
+    ViewRef_.prototype.destroy = function () { this._view.detachAndDestroy(); };
     return ViewRef_;
 }());
 //# sourceMappingURL=view_ref.js.map

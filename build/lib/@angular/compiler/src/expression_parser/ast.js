@@ -332,7 +332,8 @@ export var ASTWithSource = (function (_super) {
     return ASTWithSource;
 }(AST));
 export var TemplateBinding = (function () {
-    function TemplateBinding(key, keyIsVar, name, expression) {
+    function TemplateBinding(span, key, keyIsVar, name, expression) {
+        this.span = span;
         this.key = key;
         this.keyIsVar = keyIsVar;
         this.name = name;

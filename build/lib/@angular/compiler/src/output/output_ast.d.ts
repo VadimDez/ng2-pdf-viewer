@@ -22,6 +22,7 @@ export declare enum BuiltinTypeName {
     Int = 3,
     Number = 4,
     Function = 5,
+    Null = 6,
 }
 export declare class BuiltinType extends Type {
     name: BuiltinTypeName;
@@ -50,6 +51,7 @@ export declare var INT_TYPE: BuiltinType;
 export declare var NUMBER_TYPE: BuiltinType;
 export declare var STRING_TYPE: BuiltinType;
 export declare var FUNCTION_TYPE: BuiltinType;
+export declare var NULL_TYPE: BuiltinType;
 export interface TypeVisitor {
     visitBuiltintType(type: BuiltinType, context: any): any;
     visitExternalType(type: ExternalType, context: any): any;
@@ -258,6 +260,7 @@ export declare var SUPER_EXPR: ReadVarExpr;
 export declare var CATCH_ERROR_VAR: ReadVarExpr;
 export declare var CATCH_STACK_VAR: ReadVarExpr;
 export declare var NULL_EXPR: LiteralExpr;
+export declare var TYPED_NULL_EXPR: LiteralExpr;
 export declare enum StmtModifier {
     Final = 0,
     Private = 1,

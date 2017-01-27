@@ -8,8 +8,8 @@
 import { ChangeDetectorRef } from '../change_detection/change_detection';
 import { Injector } from '../di/injector';
 import { Type } from '../type';
-import { AppElement } from './element';
 import { ElementRef } from './element_ref';
+import { AppView } from './view';
 import { ViewRef } from './view_ref';
 /**
  * Represents an instance of a Component created via a {@link ComponentFactory}.
@@ -54,9 +54,11 @@ export declare abstract class ComponentRef<C> {
     abstract onDestroy(callback: Function): void;
 }
 export declare class ComponentRef_<C> extends ComponentRef<C> {
-    private _hostElement;
-    private _componentType;
-    constructor(_hostElement: AppElement, _componentType: Type<any>);
+    private _index;
+    private _parentView;
+    private _nativeElement;
+    private _component;
+    constructor(_index: number, _parentView: AppView<any>, _nativeElement: any, _component: C);
     location: ElementRef;
     injector: Injector;
     instance: C;
@@ -71,9 +73,9 @@ export declare class ComponentRef_<C> extends ComponentRef<C> {
  */
 export declare class ComponentFactory<C> {
     selector: string;
-    private _viewFactory;
+    private _viewClass;
     private _componentType;
-    constructor(selector: string, _viewFactory: Function, _componentType: Type<any>);
+    constructor(selector: string, _viewClass: Type<AppView<any>>, _componentType: Type<any>);
     componentType: Type<any>;
     /**
      * Creates a new component.

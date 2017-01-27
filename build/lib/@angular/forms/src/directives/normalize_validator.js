@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 export function normalizeValidator(validator) {
-    if (validator.validate !== undefined) {
+    if (validator.validate) {
         return function (c) { return validator.validate(c); };
     }
     else {
@@ -14,7 +14,7 @@ export function normalizeValidator(validator) {
     }
 }
 export function normalizeAsyncValidator(validator) {
-    if (validator.validate !== undefined) {
+    if (validator.validate) {
         return function (c) { return validator.validate(c); };
     }
     else {

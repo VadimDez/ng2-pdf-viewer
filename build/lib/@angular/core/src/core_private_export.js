@@ -13,19 +13,21 @@ import { AnimationSequencePlayer as AnimationSequencePlayer_ } from './animation
 import * as animationUtils from './animation/animation_style_util';
 import { AnimationStyles as AnimationStyles_ } from './animation/animation_styles';
 import { AnimationTransition } from './animation/animation_transition';
+import * as application_tokens from './application_tokens';
 import * as change_detection_util from './change_detection/change_detection_util';
 import * as constants from './change_detection/constants';
 import * as console from './console';
 import * as debug from './debug/debug_renderer';
 import * as reflective_provider from './di/reflective_provider';
 import { ComponentStillLoadingError } from './linker/compiler';
+import * as component_factory from './linker/component_factory';
 import * as component_factory_resolver from './linker/component_factory_resolver';
 import * as debug_context from './linker/debug_context';
-import * as element from './linker/element';
 import * as ng_module_factory from './linker/ng_module_factory';
 import * as ng_module_factory_loader from './linker/ng_module_factory_loader';
 import * as template_ref from './linker/template_ref';
 import * as view from './linker/view';
+import * as view_container from './linker/view_container';
 import * as view_type from './linker/view_type';
 import * as view_utils from './linker/view_utils';
 import * as lifecycle_hooks from './metadata/lifecycle_hooks';
@@ -44,7 +46,8 @@ export var __core_private__ = {
     LIFECYCLE_HOOKS_VALUES: lifecycle_hooks.LIFECYCLE_HOOKS_VALUES,
     ReflectorReader: reflector_reader.ReflectorReader,
     CodegenComponentFactoryResolver: component_factory_resolver.CodegenComponentFactoryResolver,
-    AppElement: element.AppElement,
+    ComponentRef_: component_factory.ComponentRef_,
+    ViewContainer: view_container.ViewContainer,
     AppView: view.AppView,
     DebugAppView: view.DebugAppView,
     NgModuleInjector: ng_module_factory.NgModuleInjector,
@@ -76,6 +79,7 @@ export var __core_private__ = {
     clearStyles: animationUtils.clearStyles,
     renderStyles: animationUtils.renderStyles,
     collectAndResolveStyles: animationUtils.collectAndResolveStyles,
+    APP_ID_RANDOM_PROVIDER: application_tokens.APP_ID_RANDOM_PROVIDER,
     AnimationStyles: AnimationStyles_,
     ANY_STATE: ANY_STATE_,
     DEFAULT_STATE: DEFAULT_STATE_,

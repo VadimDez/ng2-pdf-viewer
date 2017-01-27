@@ -23,6 +23,10 @@ export var PipeResolver = (function () {
         if (_reflector === void 0) { _reflector = reflector; }
         this._reflector = _reflector;
     }
+    PipeResolver.prototype.isPipe = function (type) {
+        var typeMetadata = this._reflector.annotations(resolveForwardRef(type));
+        return typeMetadata && typeMetadata.some(_isPipeMetadata);
+    };
     /**
      * Return {@link Pipe} for a given `Type`.
      */

@@ -98,6 +98,10 @@ function _expandDefaultForm(ast, errors) {
     var children = ast.cases.map(function (c) {
         var expansionResult = expandNodes(c.expression);
         errors.push.apply(errors, expansionResult.errors);
+        if (c.value === 'other') {
+            // other is the default case when no values match
+            return new html.Element("template", [new html.Attribute('ngSwitchDefault', '', c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
+        }
         return new html.Element("template", [new html.Attribute('ngSwitchCase', "" + c.value, c.valueSourceSpan)], expansionResult.nodes, c.sourceSpan, c.sourceSpan, c.sourceSpan);
     });
     var switchAttr = new html.Attribute('[ngSwitch]', ast.switchValue, ast.switchValueSourceSpan);

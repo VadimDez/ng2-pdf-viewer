@@ -40,4 +40,9 @@ export declare class MockSchemaRegistry implements ElementSchemaRegistry {
         error: boolean;
         msg?: string;
     };
+    normalizeAnimationStyleProperty(propName: string): string;
+    normalizeAnimationStyleValue(camelCaseProp: string, userProvidedProp: string, val: string | number): {
+        error: string;
+        value: string;
+    };
 }

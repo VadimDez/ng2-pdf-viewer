@@ -10,8 +10,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { MapWrapper } from '../facade/collection';
-import { isPresent } from '../facade/lang';
 export var EventListener = (function () {
     function EventListener(name, callback) {
         this.name = name;
@@ -27,7 +25,7 @@ export var DebugNode = (function () {
     function DebugNode(nativeNode, parent, _debugInfo) {
         this._debugInfo = _debugInfo;
         this.nativeNode = nativeNode;
-        if (isPresent(parent) && parent instanceof DebugElement) {
+        if (parent && parent instanceof DebugElement) {
             parent.addChild(this);
         }
         else {
@@ -36,38 +34,34 @@ export var DebugNode = (function () {
         this.listeners = [];
     }
     Object.defineProperty(DebugNode.prototype, "injector", {
-        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.injector : null; },
+        get: function () { return this._debugInfo ? this._debugInfo.injector : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "componentInstance", {
-        get: function () {
-            return isPresent(this._debugInfo) ? this._debugInfo.component : null;
-        },
+        get: function () { return this._debugInfo ? this._debugInfo.component : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "context", {
-        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.context : null; },
+        get: function () { return this._debugInfo ? this._debugInfo.context : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "references", {
         get: function () {
-            return isPresent(this._debugInfo) ? this._debugInfo.references : null;
+            return this._debugInfo ? this._debugInfo.references : null;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "providerTokens", {
-        get: function () {
-            return isPresent(this._debugInfo) ? this._debugInfo.providerTokens : null;
-        },
+        get: function () { return this._debugInfo ? this._debugInfo.providerTokens : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(DebugNode.prototype, "source", {
-        get: function () { return isPresent(this._debugInfo) ? this._debugInfo.source : null; },
+        get: function () { return this._debugInfo ? this._debugInfo.source : null; },
         enumerable: true,
         configurable: true
     });
@@ -88,7 +82,7 @@ export var DebugElement = (function (_super) {
         this.nativeElement = nativeNode;
     }
     DebugElement.prototype.addChild = function (child) {
-        if (isPresent(child)) {
+        if (child) {
             this.childNodes.push(child);
             child.parent = this;
         }
@@ -108,7 +102,7 @@ export var DebugElement = (function (_super) {
             this.childNodes = previousChildren.concat(newChildren, nextChildren);
             for (var i = 0; i < newChildren.length; ++i) {
                 var newChild = newChildren[i];
-                if (isPresent(newChild.parent)) {
+                if (newChild.parent) {
                     newChild.parent.removeChild(newChild);
                 }
                 newChild.parent = this;
@@ -117,7 +111,7 @@ export var DebugElement = (function (_super) {
     };
     DebugElement.prototype.query = function (predicate) {
         var results = this.queryAll(predicate);
-        return results.length > 0 ? results[0] : null;
+        return results[0] || null;
     };
     DebugElement.prototype.queryAll = function (predicate) {
         var matches = [];
@@ -131,13 +125,7 @@ export var DebugElement = (function (_super) {
     };
     Object.defineProperty(DebugElement.prototype, "children", {
         get: function () {
-            var children = [];
-            this.childNodes.forEach(function (node) {
-                if (node instanceof DebugElement) {
-                    children.push(node);
-                }
-            });
-            return children;
+            return this.childNodes.filter(function (node) { return node instanceof DebugElement; });
         },
         enumerable: true,
         configurable: true
@@ -188,7 +176,7 @@ export function getDebugNode(nativeNode) {
     return _nativeNodeToDebugNode.get(nativeNode);
 }
 export function getAllDebugNodes() {
-    return MapWrapper.values(_nativeNodeToDebugNode);
+    return Array.from(_nativeNodeToDebugNode.values());
 }
 export function indexDebugNode(node) {
     _nativeNodeToDebugNode.set(node.nativeNode, node);

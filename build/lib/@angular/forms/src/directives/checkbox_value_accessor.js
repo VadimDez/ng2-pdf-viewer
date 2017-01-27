@@ -10,7 +10,7 @@ import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var CHECKBOX_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(function () { return CheckboxControlValueAccessor; }),
-    multi: true
+    multi: true,
 };
 /**
  * The accessor for writing a value and listening to changes on a checkbox input element.

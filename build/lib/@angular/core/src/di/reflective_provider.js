@@ -5,8 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { MapWrapper } from '../facade/collection';
-import { isBlank, isPresent } from '../facade/lang';
 import { reflector } from '../reflection/reflection';
 import { Type } from '../type';
 import { resolveForwardRef } from './forward_ref';
@@ -70,16 +68,16 @@ export var ResolvedReflectiveFactory = (function () {
 function resolveReflectiveFactory(provider) {
     var factoryFn;
     var resolvedDeps;
-    if (isPresent(provider.useClass)) {
+    if (provider.useClass) {
         var useClass = resolveForwardRef(provider.useClass);
         factoryFn = reflector.factory(useClass);
         resolvedDeps = _dependenciesFor(useClass);
     }
-    else if (isPresent(provider.useExisting)) {
+    else if (provider.useExisting) {
         factoryFn = function (aliasInstance) { return aliasInstance; };
         resolvedDeps = [ReflectiveDependency.fromKey(ReflectiveKey.get(provider.useExisting))];
     }
-    else if (isPresent(provider.useFactory)) {
+    else if (provider.useFactory) {
         factoryFn = provider.useFactory;
         resolvedDeps = constructDependencies(provider.useFactory, provider.deps);
     }
@@ -104,7 +102,8 @@ function resolveReflectiveProvider(provider) {
 export function resolveReflectiveProviders(providers) {
     var normalized = _normalizeProviders(providers, []);
     var resolved = normalized.map(resolveReflectiveProvider);
-    return MapWrapper.values(mergeResolvedReflectiveProviders(resolved, new Map()));
+    var resolvedProviderMap = mergeResolvedReflectiveProviders(resolved, new Map());
+    return Array.from(resolvedProviderMap.values());
 }
 /**
  * Merges a list of ResolvedProviders into a list where
@@ -115,7 +114,7 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
     for (var i = 0; i < providers.length; i++) {
         var provider = providers[i];
         var existing = normalizedProvidersMap.get(provider.key.id);
-        if (isPresent(existing)) {
+        if (existing) {
             if (provider.multiProvider !== existing.multiProvider) {
                 throw new MixingMultiProvidersWithRegularProvidersError(existing, provider);
             }
@@ -129,7 +128,7 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
             }
         }
         else {
-            var resolvedProvider;
+            var resolvedProvider = void 0;
             if (provider.multiProvider) {
                 resolvedProvider = new ResolvedReflectiveProvider_(provider.key, provider.resolvedFactories.slice(), provider.multiProvider);
             }
@@ -163,20 +162,20 @@ export function constructDependencies(typeOrFunc, dependencies) {
         return _dependenciesFor(typeOrFunc);
     }
     else {
-        var params = dependencies.map(function (t) { return [t]; });
-        return dependencies.map(function (t) { return _extractToken(typeOrFunc, t, params); });
+        var params_1 = dependencies.map(function (t) { return [t]; });
+        return dependencies.map(function (t) { return _extractToken(typeOrFunc, t, params_1); });
     }
 }
 function _dependenciesFor(typeOrFunc) {
     var params = reflector.parameters(typeOrFunc);
     if (!params)
         return [];
-    if (params.some(isBlank)) {
+    if (params.some(function (p) { return p == null; })) {
         throw new NoAnnotationError(typeOrFunc, params);
     }
     return params.map(function (p) { return _extractToken(typeOrFunc, p, params); });
 }
-function _extractToken(typeOrFunc /** TODO #9100 */, metadata /** TODO #9100 */ /*any[] | any*/, params) {
+function _extractToken(typeOrFunc, metadata, params) {
     var depProps = [];
     var token = null;
     var optional = false;
@@ -212,14 +211,14 @@ function _extractToken(typeOrFunc /** TODO #9100 */, metadata /** TODO #9100 */ 
         }
     }
     token = resolveForwardRef(token);
-    if (isPresent(token)) {
+    if (token != null) {
         return _createDependency(token, optional, lowerBoundVisibility, upperBoundVisibility, depProps);
     }
     else {
         throw new NoAnnotationError(typeOrFunc, params);
     }
 }
-function _createDependency(token /** TODO #9100 */, optional /** TODO #9100 */, lowerBoundVisibility /** TODO #9100 */, upperBoundVisibility /** TODO #9100 */, depProps /** TODO #9100 */) {
+function _createDependency(token, optional, lowerBoundVisibility, upperBoundVisibility, depProps) {
     return new ReflectiveDependency(ReflectiveKey.get(token), optional, lowerBoundVisibility, upperBoundVisibility, depProps);
 }
 //# sourceMappingURL=reflective_provider.js.map

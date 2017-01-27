@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, Injectable, NgZone, OpaqueToken } from '@angular/core';
+import { getDOM } from '../dom_adapter';
 /**
  * @stable
  */
@@ -17,6 +18,7 @@ export var EventManager = (function () {
     function EventManager(plugins, _zone) {
         var _this = this;
         this._zone = _zone;
+        this._eventNameToPlugin = new Map();
         plugins.forEach(function (p) { return p.manager = _this; });
         this._plugins = plugins.slice().reverse();
     }
@@ -31,11 +33,16 @@ export var EventManager = (function () {
     EventManager.prototype.getZone = function () { return this._zone; };
     /** @internal */
     EventManager.prototype._findPluginFor = function (eventName) {
+        var plugin = this._eventNameToPlugin.get(eventName);
+        if (plugin) {
+            return plugin;
+        }
         var plugins = this._plugins;
         for (var i = 0; i < plugins.length; i++) {
-            var plugin = plugins[i];
-            if (plugin.supports(eventName)) {
-                return plugin;
+            var plugin_1 = plugins[i];
+            if (plugin_1.supports(eventName)) {
+                this._eventNameToPlugin.set(eventName, plugin_1);
+                return plugin_1;
             }
         }
         throw new Error("No event manager plugin found for event " + eventName);
@@ -53,14 +60,14 @@ export var EventManager = (function () {
 export var EventManagerPlugin = (function () {
     function EventManagerPlugin() {
     }
-    // That is equivalent to having supporting $event.target
-    EventManagerPlugin.prototype.supports = function (eventName) { return false; };
-    EventManagerPlugin.prototype.addEventListener = function (element, eventName, handler) {
-        throw 'not implemented';
-    };
     EventManagerPlugin.prototype.addGlobalEventListener = function (element, eventName, handler) {
-        throw 'not implemented';
+        var target = getDOM().getGlobalEventTarget(element);
+        if (!target) {
+            throw new Error("Unsupported event target " + target + " for event " + eventName);
+        }
+        return this.addEventListener(target, eventName, handler);
     };
+    ;
     return EventManagerPlugin;
 }());
 //# sourceMappingURL=event_manager.js.map

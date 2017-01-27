@@ -35,6 +35,7 @@ export var BuiltinTypeName;
     BuiltinTypeName[BuiltinTypeName["Int"] = 3] = "Int";
     BuiltinTypeName[BuiltinTypeName["Number"] = 4] = "Number";
     BuiltinTypeName[BuiltinTypeName["Function"] = 5] = "Function";
+    BuiltinTypeName[BuiltinTypeName["Null"] = 6] = "Null";
 })(BuiltinTypeName || (BuiltinTypeName = {}));
 export var BuiltinType = (function (_super) {
     __extends(BuiltinType, _super);
@@ -90,6 +91,7 @@ export var INT_TYPE = new BuiltinType(BuiltinTypeName.Int);
 export var NUMBER_TYPE = new BuiltinType(BuiltinTypeName.Number);
 export var STRING_TYPE = new BuiltinType(BuiltinTypeName.String);
 export var FUNCTION_TYPE = new BuiltinType(BuiltinTypeName.Function);
+export var NULL_TYPE = new BuiltinType(BuiltinTypeName.Null);
 ///// Expressions
 export var BinaryOperator;
 (function (BinaryOperator) {
@@ -177,7 +179,8 @@ export var Expression = (function () {
     };
     Expression.prototype.isBlank = function () {
         // Note: We use equals by purpose here to compare to null and undefined in JS.
-        return this.equals(NULL_EXPR);
+        // We use the typed null to allow strictNullChecks to narrow types.
+        return this.equals(TYPED_NULL_EXPR);
     };
     Expression.prototype.cast = function (type) { return new CastExpr(this, type); };
     Expression.prototype.toStmt = function () { return new ExpressionStatement(this); };
@@ -475,6 +478,7 @@ export var SUPER_EXPR = new ReadVarExpr(BuiltinVar.Super);
 export var CATCH_ERROR_VAR = new ReadVarExpr(BuiltinVar.CatchError);
 export var CATCH_STACK_VAR = new ReadVarExpr(BuiltinVar.CatchStack);
 export var NULL_EXPR = new LiteralExpr(null, null);
+export var TYPED_NULL_EXPR = new LiteralExpr(null, NULL_TYPE);
 //// Statements
 export var StmtModifier;
 (function (StmtModifier) {

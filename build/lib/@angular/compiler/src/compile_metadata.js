@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
-import { ListWrapper, MapWrapper } from './facade/collection';
+import { ListWrapper } from './facade/collection';
 import { isPresent } from './facade/lang';
 import { CssSelector } from './selector';
 import { sanitizeIdentifier, splitAtColon } from './util';
@@ -143,15 +143,13 @@ export var CompileIdentifierMetadata = (function () {
 }());
 export var CompileDiDependencyMetadata = (function () {
     function CompileDiDependencyMetadata(_a) {
-        var _b = _a === void 0 ? {} : _a, isAttribute = _b.isAttribute, isSelf = _b.isSelf, isHost = _b.isHost, isSkipSelf = _b.isSkipSelf, isOptional = _b.isOptional, isValue = _b.isValue, query = _b.query, viewQuery = _b.viewQuery, token = _b.token, value = _b.value;
+        var _b = _a === void 0 ? {} : _a, isAttribute = _b.isAttribute, isSelf = _b.isSelf, isHost = _b.isHost, isSkipSelf = _b.isSkipSelf, isOptional = _b.isOptional, isValue = _b.isValue, token = _b.token, value = _b.value;
         this.isAttribute = !!isAttribute;
         this.isSelf = !!isSelf;
         this.isHost = !!isHost;
         this.isSkipSelf = !!isSkipSelf;
         this.isOptional = !!isOptional;
         this.isValue = !!isValue;
-        this.query = query;
-        this.viewQuery = viewQuery;
         this.token = token;
         this.value = value;
     }
@@ -263,6 +261,14 @@ export var CompileTemplateMetadata = (function () {
         }
         this.interpolation = interpolation;
     }
+    CompileTemplateMetadata.prototype.toSummary = function () {
+        return {
+            isSummary: true,
+            animations: this.animations.map(function (anim) { return anim.name; }),
+            ngContentSelectors: this.ngContentSelectors,
+            encapsulation: this.encapsulation
+        };
+    };
     return CompileTemplateMetadata;
 }());
 /**
@@ -347,6 +353,26 @@ export var CompileDirectiveMetadata = (function () {
         enumerable: true,
         configurable: true
     });
+    CompileDirectiveMetadata.prototype.toSummary = function () {
+        return {
+            isSummary: true,
+            type: this.type,
+            isComponent: this.isComponent,
+            selector: this.selector,
+            exportAs: this.exportAs,
+            inputs: this.inputs,
+            outputs: this.outputs,
+            hostListeners: this.hostListeners,
+            hostProperties: this.hostProperties,
+            hostAttributes: this.hostAttributes,
+            providers: this.providers,
+            viewProviders: this.viewProviders,
+            queries: this.queries,
+            entryComponents: this.entryComponents,
+            changeDetection: this.changeDetection,
+            template: this.template && this.template.toSummary()
+        };
+    };
     return CompileDirectiveMetadata;
 }());
 /**
@@ -394,6 +420,9 @@ export var CompilePipeMetadata = (function () {
         enumerable: true,
         configurable: true
     });
+    CompilePipeMetadata.prototype.toSummary = function () {
+        return { isSummary: true, type: this.type, name: this.name, pure: this.pure };
+    };
     return CompilePipeMetadata;
 }());
 /**
@@ -421,20 +450,54 @@ export var CompileNgModuleMetadata = (function () {
         enumerable: true,
         configurable: true
     });
+    CompileNgModuleMetadata.prototype.toSummary = function () {
+        return {
+            isSummary: true,
+            type: this.type,
+            entryComponents: this.entryComponents,
+            providers: this.providers,
+            importedModules: this.importedModules,
+            exportedModules: this.exportedModules,
+            exportedDirectives: this.exportedDirectives,
+            exportedPipes: this.exportedPipes,
+            directiveLoaders: this.transitiveModule.directiveLoaders
+        };
+    };
+    CompileNgModuleMetadata.prototype.toInjectorSummary = function () {
+        return {
+            isSummary: true,
+            type: this.type,
+            entryComponents: this.entryComponents,
+            providers: this.providers,
+            importedModules: this.importedModules,
+            exportedModules: this.exportedModules
+        };
+    };
+    CompileNgModuleMetadata.prototype.toDirectiveSummary = function () {
+        return {
+            isSummary: true,
+            type: this.type,
+            exportedDirectives: this.exportedDirectives,
+            exportedPipes: this.exportedPipes,
+            exportedModules: this.exportedModules,
+            directiveLoaders: this.transitiveModule.directiveLoaders
+        };
+    };
     return CompileNgModuleMetadata;
 }());
 export var TransitiveCompileNgModuleMetadata = (function () {
-    function TransitiveCompileNgModuleMetadata(modules, providers, entryComponents, directives, pipes) {
+    function TransitiveCompileNgModuleMetadata(modules, providers, entryComponents, directives, pipes, directiveLoaders) {
         var _this = this;
         this.modules = modules;
         this.providers = providers;
         this.entryComponents = entryComponents;
         this.directives = directives;
         this.pipes = pipes;
+        this.directiveLoaders = directiveLoaders;
         this.directivesSet = new Set();
         this.pipesSet = new Set();
-        directives.forEach(function (dir) { return _this.directivesSet.add(dir.type.reference); });
-        pipes.forEach(function (pipe) { return _this.pipesSet.add(pipe.type.reference); });
+        directives.forEach(function (dir) { return _this.directivesSet.add(dir.reference); });
+        pipes.forEach(function (pipe) { return _this.pipesSet.add(pipe.reference); });
     }
     return TransitiveCompileNgModuleMetadata;
 }());
@@ -445,7 +508,7 @@ export function removeIdentifierDuplicates(items) {
             map.set(item.identifier.reference, item);
         }
     });
-    return MapWrapper.values(map);
+    return Array.from(map.values());
 }
 function _normalizeArray(obj) {
     return obj || [];

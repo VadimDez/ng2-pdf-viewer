@@ -12,11 +12,11 @@ import { CompileElement } from './compile_element';
 import { CompileView } from './compile_view';
 import { bindView } from './view_binder';
 import { buildView, finishView } from './view_builder';
-export { ComponentFactoryDependency, DirectiveWrapperDependency, ViewFactoryDependency } from './deps';
+export { ComponentFactoryDependency, DirectiveWrapperDependency, ViewClassDependency } from './deps';
 export var ViewCompileResult = (function () {
-    function ViewCompileResult(statements, viewFactoryVar, dependencies) {
+    function ViewCompileResult(statements, viewClassVar, dependencies) {
         this.statements = statements;
-        this.viewFactoryVar = viewFactoryVar;
+        this.viewClassVar = viewClassVar;
         this.dependencies = dependencies;
     }
     return ViewCompileResult;
@@ -35,7 +35,7 @@ export var ViewCompiler = (function () {
         // variables that have been declared after usage.
         bindView(view, template, this._schemaRegistry);
         finishView(view, statements);
-        return new ViewCompileResult(statements, view.viewFactory.name, dependencies);
+        return new ViewCompileResult(statements, view.classExpr.name, dependencies);
     };
     ViewCompiler.decorators = [
         { type: Injectable },

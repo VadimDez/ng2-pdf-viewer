@@ -2,23 +2,19 @@ import { SimpleChange } from '../change_detection/change_detection';
 import { ViewEncapsulation } from '../metadata/view';
 import { RenderComponentType, RenderDebugInfo, Renderer, RootRenderer } from '../render/api';
 import { Sanitizer } from '../security';
+import { AppView } from './view';
 export declare class ViewUtils {
     private _renderer;
-    private _appId;
     sanitizer: Sanitizer;
     private _nextCompTypeId;
-    constructor(_renderer: RootRenderer, _appId: string, sanitizer: Sanitizer);
-    /**
-     * Used by the generated code
-     */
-    createRenderComponentType(templateUrl: string, slotCount: number, encapsulation: ViewEncapsulation, styles: Array<string | any[]>, animations: {
-        [key: string]: Function;
-    }): RenderComponentType;
+    constructor(_renderer: RootRenderer, sanitizer: Sanitizer);
 }
-export declare function flattenNestedViewRenderNodes(nodes: any[]): any[];
-export declare function ensureSlotCount(projectableNodes: any[][], expectedSlotCount: number): any[][];
-export declare const MAX_INTERPOLATION_VALUES: number;
-export declare function interpolate(valueCount: number, c0: string, a1: any, c1: string, a2?: any, c2?: string, a3?: any, c3?: string, a4?: any, c4?: string, a5?: any, c5?: string, a6?: any, c6?: string, a7?: any, c7?: string, a8?: any, c8?: string, a9?: any, c9?: string): string;
+export declare function createRenderComponentType(templateUrl: string, slotCount: number, encapsulation: ViewEncapsulation, styles: Array<string | any[]>, animations: {
+    [key: string]: Function;
+}): RenderComponentType;
+export declare function addToArray(e: any, array: any[]): void;
+export declare function interpolate(valueCount: number, constAndInterp: string[]): string;
+export declare function inlineInterpolate(valueCount: number, c0: string, a1: any, c1: string, a2?: any, c2?: string, a3?: any, c3?: string, a4?: any, c4?: string, a5?: any, c5?: string, a6?: any, c6?: string, a7?: any, c7?: string, a8?: any, c8?: string, a9?: any, c9?: string): string;
 export declare function checkBinding(throwOnChange: boolean, oldValue: any, newValue: any): boolean;
 export declare function castByValue<T>(input: any, value: T): T;
 export declare const EMPTY_ARRAY: any[];
@@ -39,9 +35,12 @@ export declare function setBindingDebugInfoForChanges(renderer: Renderer, el: an
 export declare function setBindingDebugInfo(renderer: Renderer, el: any, propName: string, value: any): void;
 export declare function createRenderElement(renderer: Renderer, parentElement: any, name: string, attrs: InlineArray<string>, debugInfo?: RenderDebugInfo): any;
 export declare function selectOrCreateRenderHostElement(renderer: Renderer, elementName: string, attrs: InlineArray<string>, rootSelectorOrNode: string | any, debugInfo?: RenderDebugInfo): any;
+export declare function subscribeToRenderElement(view: AppView<any>, element: any, eventNamesAndTargets: InlineArray<string>, listener: (eventName: string, event: any) => any): any;
+export declare function noop(): void;
 export interface InlineArray<T> {
     length: number;
     get(index: number): T;
+    set(index: number, value: T): void;
 }
 export declare class InlineArray2<T> implements InlineArray<T> {
     length: number;
@@ -49,6 +48,7 @@ export declare class InlineArray2<T> implements InlineArray<T> {
     private _v1;
     constructor(length: number, _v0?: T, _v1?: T);
     get(index: number): T;
+    set(index: number, value: T): void;
 }
 export declare class InlineArray4<T> implements InlineArray<T> {
     length: number;
@@ -58,6 +58,7 @@ export declare class InlineArray4<T> implements InlineArray<T> {
     private _v3;
     constructor(length: number, _v0?: T, _v1?: T, _v2?: T, _v3?: T);
     get(index: number): T;
+    set(index: number, value: T): void;
 }
 export declare class InlineArray8<T> implements InlineArray<T> {
     length: number;
@@ -71,6 +72,7 @@ export declare class InlineArray8<T> implements InlineArray<T> {
     private _v7;
     constructor(length: number, _v0?: T, _v1?: T, _v2?: T, _v3?: T, _v4?: T, _v5?: T, _v6?: T, _v7?: T);
     get(index: number): T;
+    set(index: number, value: T): void;
 }
 export declare class InlineArray16<T> implements InlineArray<T> {
     length: number;
@@ -92,11 +94,13 @@ export declare class InlineArray16<T> implements InlineArray<T> {
     private _v15;
     constructor(length: number, _v0?: T, _v1?: T, _v2?: T, _v3?: T, _v4?: T, _v5?: T, _v6?: T, _v7?: T, _v8?: T, _v9?: T, _v10?: T, _v11?: T, _v12?: T, _v13?: T, _v14?: T, _v15?: T);
     get(index: number): T;
+    set(index: number, value: T): void;
 }
 export declare class InlineArrayDynamic<T> implements InlineArray<T> {
     length: number;
     private _values;
     constructor(length: number, ...values: any[]);
     get(index: number): any;
+    set(index: number, value: T): void;
 }
 export declare const EMPTY_INLINE_ARRAY: InlineArray<any>;

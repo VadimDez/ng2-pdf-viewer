@@ -228,8 +228,8 @@ export var DefaultIterableDiffer = (function () {
      */
     DefaultIterableDiffer.prototype._reset = function () {
         if (this.isDirty) {
-            var record;
-            var nextRecord;
+            var record = void 0;
+            var nextRecord = void 0;
             for (record = this._previousItHead = this._itHead; record !== null; record = record._next) {
                 record._nextPrevious = record._next;
             }

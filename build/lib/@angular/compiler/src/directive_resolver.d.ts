@@ -10,6 +10,7 @@ import { ReflectorReader } from './private_import_core';
 export declare class DirectiveResolver {
     private _reflector;
     constructor(_reflector?: ReflectorReader);
+    isDirective(type: Type<any>): boolean;
     /**
      * Return {@link Directive} for a given `Type`.
      */

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.2
+ * @license Angular v2.2.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -44,16 +44,33 @@
     function isBlank(obj) {
         return obj == null;
     }
+    function stringify(token) {
+        if (typeof token === 'string') {
+            return token;
+        }
+        if (token == null) {
+            return '' + token;
+        }
+        if (token.overriddenName) {
+            return token.overriddenName;
+        }
+        if (token.name) {
+            return token.name;
+        }
+        var res = token.toString();
+        var newLineIndex = res.indexOf('\n');
+        return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
+    }
     function setValueOnPath(global, path, value) {
         var parts = path.split('.');
         var obj = global;
         while (parts.length > 1) {
-            var name = parts.shift();
-            if (obj.hasOwnProperty(name) && isPresent(obj[name])) {
-                obj = obj[name];
+            var name_1 = parts.shift();
+            if (obj.hasOwnProperty(name_1) && obj[name_1] != null) {
+                obj = obj[name_1];
             }
             else {
-                obj = obj[name] = {};
+                obj = obj[name_1] = {};
             }
         }
         if (obj === undefined || obj === null) {
@@ -62,34 +79,15 @@
         obj[parts.shift()] = value;
     }
 
-    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
-    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
-    var _arrayFromMap = (function () {
-        try {
-            if ((new Map()).values().next) {
-                return function createArrayFromMap(m, getValues) {
-                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
-                };
-            }
-        }
-        catch (e) {
-        }
-        return function createArrayFromMapWithForeach(m, getValues) {
-            var res = new Array(m.size), i = 0;
-            m.forEach(function (v, k) {
-                res[i] = getValues ? v : k;
-                i++;
-            });
-            return res;
-        };
-    })();
     var ListWrapper = (function () {
         function ListWrapper() {
         }
         ListWrapper.removeAll = function (list, items) {
             for (var i = 0; i < items.length; ++i) {
                 var index = list.indexOf(items[i]);
-                list.splice(index, 1);
+                if (index > -1) {
+                    list.splice(index, 1);
+                }
             }
         };
         ListWrapper.remove = function (list, el) {
@@ -109,49 +107,25 @@
             }
             return true;
         };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (candidate == null) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
         ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
+            return list.reduce(function (flat, item) {
+                var flatItem = Array.isArray(item) ? ListWrapper.flatten(item) : item;
+                return flat.concat(flatItem);
+            }, []);
         };
         return ListWrapper;
     }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (Array.isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
 
     var DomAdapter = _angular_platformBrowser.__platform_browser_private__.DomAdapter;
     var setRootDomAdapter = _angular_platformBrowser.__platform_browser_private__.setRootDomAdapter;
+    var getDOM = _angular_platformBrowser.__platform_browser_private__.getDOM;
+    var SharedStylesHost = _angular_platformBrowser.__platform_browser_private__.SharedStylesHost;
+    var NAMESPACE_URIS = _angular_platformBrowser.__platform_browser_private__.NAMESPACE_URIS;
+    var shimContentAttribute = _angular_platformBrowser.__platform_browser_private__.shimContentAttribute;
+    var shimHostAttribute = _angular_platformBrowser.__platform_browser_private__.shimHostAttribute;
+    var flattenStyles = _angular_platformBrowser.__platform_browser_private__.flattenStyles;
+    var splitNamespace = _angular_platformBrowser.__platform_browser_private__.splitNamespace;
+    var isNamespaced = _angular_platformBrowser.__platform_browser_private__.isNamespaced;
 
     /**
      * @license
@@ -913,6 +887,223 @@
         '__jsaction',
     ];
 
+    var DebugDomRootRenderer = _angular_core.__core_private__.DebugDomRootRenderer;
+
+    var TEMPLATE_COMMENT_TEXT = 'template bindings={}';
+    var TEMPLATE_BINDINGS_EXP = /^template bindings=(.*)$/;
+    var ServerRootRenderer = (function () {
+        function ServerRootRenderer(document, sharedStylesHost, animationDriver, appId, _zone) {
+            this.document = document;
+            this.sharedStylesHost = sharedStylesHost;
+            this.animationDriver = animationDriver;
+            this.appId = appId;
+            this._zone = _zone;
+            this.registeredComponents = new Map();
+        }
+        ServerRootRenderer.prototype.renderComponent = function (componentProto) {
+            var renderer = this.registeredComponents.get(componentProto.id);
+            if (!renderer) {
+                renderer = new ServerRenderer(this, componentProto, this.animationDriver, this.appId + "-" + componentProto.id, this._zone);
+                this.registeredComponents.set(componentProto.id, renderer);
+            }
+            return renderer;
+        };
+        ServerRootRenderer.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        ServerRootRenderer.ctorParameters = [
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_platformBrowser.DOCUMENT,] },] },
+            { type: SharedStylesHost, },
+            { type: _angular_platformBrowser.AnimationDriver, },
+            { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.APP_ID,] },] },
+            { type: _angular_core.NgZone, },
+        ];
+        return ServerRootRenderer;
+    }());
+    var ServerRenderer = (function () {
+        function ServerRenderer(_rootRenderer, componentProto, _animationDriver, styleShimId, _zone) {
+            this._rootRenderer = _rootRenderer;
+            this.componentProto = componentProto;
+            this._animationDriver = _animationDriver;
+            this._zone = _zone;
+            this._styles = flattenStyles(styleShimId, componentProto.styles, []);
+            if (componentProto.encapsulation === _angular_core.ViewEncapsulation.Native) {
+                throw new Error('Native encapsulation is not supported on the server!');
+            }
+            if (this.componentProto.encapsulation === _angular_core.ViewEncapsulation.Emulated) {
+                this._contentAttr = shimContentAttribute(styleShimId);
+                this._hostAttr = shimHostAttribute(styleShimId);
+            }
+            else {
+                this._contentAttr = null;
+                this._hostAttr = null;
+            }
+        }
+        ServerRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
+            var el;
+            if (typeof selectorOrNode === 'string') {
+                el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
+                if (isBlank(el)) {
+                    throw new Error("The selector \"" + selectorOrNode + "\" did not match any elements");
+                }
+            }
+            else {
+                el = selectorOrNode;
+            }
+            getDOM().clearNodes(el);
+            return el;
+        };
+        ServerRenderer.prototype.createElement = function (parent, name, debugInfo) {
+            var el;
+            if (isNamespaced(name)) {
+                var nsAndName = splitNamespace(name);
+                el = getDOM().createElementNS(NAMESPACE_URIS[nsAndName[0]], nsAndName[1]);
+            }
+            else {
+                el = getDOM().createElement(name);
+            }
+            if (isPresent(this._contentAttr)) {
+                getDOM().setAttribute(el, this._contentAttr, '');
+            }
+            if (isPresent(parent)) {
+                getDOM().appendChild(parent, el);
+            }
+            return el;
+        };
+        ServerRenderer.prototype.createViewRoot = function (hostElement) {
+            var nodesParent;
+            if (isPresent(this._hostAttr)) {
+                getDOM().setAttribute(hostElement, this._hostAttr, '');
+            }
+            nodesParent = hostElement;
+            return nodesParent;
+        };
+        ServerRenderer.prototype.createTemplateAnchor = function (parentElement, debugInfo) {
+            var comment = getDOM().createComment(TEMPLATE_COMMENT_TEXT);
+            if (isPresent(parentElement)) {
+                getDOM().appendChild(parentElement, comment);
+            }
+            return comment;
+        };
+        ServerRenderer.prototype.createText = function (parentElement, value, debugInfo) {
+            var node = getDOM().createTextNode(value);
+            if (isPresent(parentElement)) {
+                getDOM().appendChild(parentElement, node);
+            }
+            return node;
+        };
+        ServerRenderer.prototype.projectNodes = function (parentElement, nodes) {
+            if (isBlank(parentElement))
+                return;
+            appendNodes(parentElement, nodes);
+        };
+        ServerRenderer.prototype.attachViewAfter = function (node, viewRootNodes) { moveNodesAfterSibling(node, viewRootNodes); };
+        ServerRenderer.prototype.detachView = function (viewRootNodes) {
+            for (var i = 0; i < viewRootNodes.length; i++) {
+                getDOM().remove(viewRootNodes[i]);
+            }
+        };
+        ServerRenderer.prototype.destroyView = function (hostElement, viewAllNodes) { };
+        ServerRenderer.prototype.listen = function (renderElement, name, callback) {
+            var _this = this;
+            // Note: We are not using the EventsPlugin here as this is not needed
+            // to run our tests.
+            var outsideHandler = function (event) { return _this._zone.runGuarded(function () { return callback(event); }); };
+            return this._zone.runOutsideAngular(function () { return getDOM().onAndCancel(renderElement, name, outsideHandler); });
+        };
+        ServerRenderer.prototype.listenGlobal = function (target, name, callback) {
+            var renderElement = getDOM().getGlobalEventTarget(target);
+            return this.listen(renderElement, name, callback);
+        };
+        ServerRenderer.prototype.setElementProperty = function (renderElement, propertyName, propertyValue) {
+            getDOM().setProperty(renderElement, propertyName, propertyValue);
+        };
+        ServerRenderer.prototype.setElementAttribute = function (renderElement, attributeName, attributeValue) {
+            var attrNs;
+            var attrNameWithoutNs = attributeName;
+            if (isNamespaced(attributeName)) {
+                var nsAndName = splitNamespace(attributeName);
+                attrNameWithoutNs = nsAndName[1];
+                attributeName = nsAndName[0] + ':' + nsAndName[1];
+                attrNs = NAMESPACE_URIS[nsAndName[0]];
+            }
+            if (isPresent(attributeValue)) {
+                if (isPresent(attrNs)) {
+                    getDOM().setAttributeNS(renderElement, attrNs, attributeName, attributeValue);
+                }
+                else {
+                    getDOM().setAttribute(renderElement, attributeName, attributeValue);
+                }
+            }
+            else {
+                if (isPresent(attrNs)) {
+                    getDOM().removeAttributeNS(renderElement, attrNs, attrNameWithoutNs);
+                }
+                else {
+                    getDOM().removeAttribute(renderElement, attributeName);
+                }
+            }
+        };
+        ServerRenderer.prototype.setBindingDebugInfo = function (renderElement, propertyName, propertyValue) {
+            if (getDOM().isCommentNode(renderElement)) {
+                var existingBindings = getDOM().getText(renderElement).replace(/\n/g, '').match(TEMPLATE_BINDINGS_EXP);
+                var parsedBindings = JSON.parse(existingBindings[1]);
+                parsedBindings[propertyName] = propertyValue;
+                getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', JSON.stringify(parsedBindings, null, 2)));
+            }
+            else {
+                this.setElementAttribute(renderElement, propertyName, propertyValue);
+            }
+        };
+        ServerRenderer.prototype.setElementClass = function (renderElement, className, isAdd) {
+            if (isAdd) {
+                getDOM().addClass(renderElement, className);
+            }
+            else {
+                getDOM().removeClass(renderElement, className);
+            }
+        };
+        ServerRenderer.prototype.setElementStyle = function (renderElement, styleName, styleValue) {
+            if (isPresent(styleValue)) {
+                getDOM().setStyle(renderElement, styleName, stringify(styleValue));
+            }
+            else {
+                getDOM().removeStyle(renderElement, styleName);
+            }
+        };
+        ServerRenderer.prototype.invokeElementMethod = function (renderElement, methodName, args) {
+            getDOM().invoke(renderElement, methodName, args);
+        };
+        ServerRenderer.prototype.setText = function (renderNode, text) { getDOM().setText(renderNode, text); };
+        ServerRenderer.prototype.animate = function (element, startingStyles, keyframes, duration, delay, easing, previousPlayers) {
+            if (previousPlayers === void 0) { previousPlayers = []; }
+            return this._animationDriver.animate(element, startingStyles, keyframes, duration, delay, easing, previousPlayers);
+        };
+        return ServerRenderer;
+    }());
+    function moveNodesAfterSibling(sibling /** TODO #9100 */, nodes /** TODO #9100 */) {
+        var parent = getDOM().parentElement(sibling);
+        if (nodes.length > 0 && isPresent(parent)) {
+            var nextSibling = getDOM().nextSibling(sibling);
+            if (isPresent(nextSibling)) {
+                for (var i = 0; i < nodes.length; i++) {
+                    getDOM().insertBefore(nextSibling, nodes[i]);
+                }
+            }
+            else {
+                for (var i = 0; i < nodes.length; i++) {
+                    getDOM().appendChild(parent, nodes[i]);
+                }
+            }
+        }
+    }
+    function appendNodes(parent /** TODO #9100 */, nodes /** TODO #9100 */) {
+        for (var i = 0; i < nodes.length; i++) {
+            getDOM().appendChild(parent, nodes[i]);
+        }
+    }
+
     /**
      * @license
      * Copyright Google Inc. All Rights Reserved.
@@ -971,6 +1162,18 @@
     function initParse5Adapter() {
         Parse5DomAdapter.makeCurrent();
     }
+    function _createConditionalRootRenderer(rootRenderer) {
+        if (_angular_core.isDevMode()) {
+            return new DebugDomRootRenderer(rootRenderer);
+        }
+        return rootRenderer;
+    }
+    var SERVER_RENDER_PROVIDERS = [
+        ServerRootRenderer,
+        { provide: _angular_core.RootRenderer, useFactory: _createConditionalRootRenderer, deps: [ServerRootRenderer] },
+        // use plain SharedStylesHost, not the DomSharedStylesHost
+        SharedStylesHost
+    ];
     /**
      * The ng module for the server.
      *
@@ -980,7 +1183,7 @@
         function ServerModule() {
         }
         ServerModule.decorators = [
-            { type: _angular_core.NgModule, args: [{ imports: [_angular_platformBrowser.BrowserModule] },] },
+            { type: _angular_core.NgModule, args: [{ exports: [_angular_platformBrowser.BrowserModule], providers: SERVER_RENDER_PROVIDERS },] },
         ];
         /** @nocollapse */
         ServerModule.ctorParameters = [];
@@ -998,7 +1201,8 @@
     var platformDynamicServer = _angular_core.createPlatformFactory(_angular_compiler.platformCoreDynamic, 'serverDynamic', INTERNAL_SERVER_PLATFORM_PROVIDERS);
 
     var __platform_server_private__ = {
-        INTERNAL_SERVER_PLATFORM_PROVIDERS: INTERNAL_SERVER_PLATFORM_PROVIDERS
+        INTERNAL_SERVER_PLATFORM_PROVIDERS: INTERNAL_SERVER_PLATFORM_PROVIDERS,
+        SERVER_RENDER_PROVIDERS: SERVER_RENDER_PROVIDERS,
     };
 
     exports.ServerModule = ServerModule;

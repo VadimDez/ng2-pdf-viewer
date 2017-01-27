@@ -9,44 +9,19 @@ var PdfViewerComponent = (function () {
         this._originalSize = true;
         this._page = 1;
         this._zoom = 1;
-        this.wasInvalidPage = false;
         this._rotation = 0;
-        this.isInitialised = false;
         this.afterLoadComplete = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
     }
-    PdfViewerComponent.prototype.ngOnInit = function () {
-        this.main();
-        this.isInitialised = true;
-    };
-    Object.defineProperty(PdfViewerComponent.prototype, "src", {
-        set: function (_src) {
-            this._src = _src;
-            if (this.isInitialised && this._src) {
-                this.main();
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
         set: function (_page) {
             _page = parseInt(_page, 10);
-            if (!this._pdf) {
+            if (this._pdf && !this.isValidPageNumber(_page)) {
+                _page = 1;
+            }
+            if (this._page !== _page) {
                 this._page = _page;
-                return;
-            }
-            if (this.isValidPageNumber(_page)) {
-                this._page = _page;
-                this.renderPage(_page);
-                this.wasInvalidPage = false;
-            }
-            else if (isNaN(_page)) {
-                this.pageChange.emit(null);
-            }
-            else if (!this.wasInvalidPage) {
-                this.wasInvalidPage = true;
-                this.pageChange.emit(this._page);
+                this.pageChange.emit(_page);
             }
         },
         enumerable: true,
@@ -55,7 +30,6 @@ var PdfViewerComponent = (function () {
     Object.defineProperty(PdfViewerComponent.prototype, "renderText", {
         set: function (renderText) {
             this._renderText = renderText;
-            this.update();
         },
         enumerable: true,
         configurable: true
@@ -63,7 +37,6 @@ var PdfViewerComponent = (function () {
     Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
         set: function (originalSize) {
             this._originalSize = originalSize;
-            this.update();
         },
         enumerable: true,
         configurable: true
@@ -71,7 +44,6 @@ var PdfViewerComponent = (function () {
     Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
         set: function (value) {
             this._showAll = value;
-            this.update();
         },
         enumerable: true,
         configurable: true
@@ -85,7 +57,6 @@ var PdfViewerComponent = (function () {
                 return;
             }
             this._zoom = value;
-            this.update();
         },
         enumerable: true,
         configurable: true
@@ -97,53 +68,48 @@ var PdfViewerComponent = (function () {
                 return;
             }
             this._rotation = value;
-            this.update();
         },
         enumerable: true,
         configurable: true
     });
-    PdfViewerComponent.prototype.update = function () {
-        if (this._pdf) {
-            this.main();
+    PdfViewerComponent.prototype.ngOnChanges = function (changes) {
+        if ('src' in changes) {
+            this.loadPDF();
+        }
+        else if (this._pdf) {
+            this.update();
         }
     };
-    PdfViewerComponent.prototype.main = function () {
-        if (this._pdf && this.lastLoaded === this._src) {
-            return this.onRender();
-        }
-        this.loadPDF(this._src);
-    };
-    PdfViewerComponent.prototype.loadPDF = function (src) {
+    PdfViewerComponent.prototype.loadPDF = function () {
         var _this = this;
-        if (!src) {
+        if (!this.src) {
             return;
         }
-        window.PDFJS.getDocument(src).then(function (pdf) {
+        PDFJS.getDocument(this.src).then(function (pdf) {
             _this._pdf = pdf;
-            _this.lastLoaded = src;
             _this.afterLoadComplete.emit(pdf);
-            _this.onRender();
+            _this.update();
         });
     };
-    PdfViewerComponent.prototype.onRender = function () {
-        if (!this.isValidPageNumber(this._page)) {
-            this._page = 1;
-        }
+    PdfViewerComponent.prototype.update = function () {
+        this.page = this._page;
         if (!this._showAll) {
-            return this.renderPage(this._page);
+            this.renderPage(this._page);
         }
-        this.renderMultiplePages();
+        else {
+            this.renderMultiplePages();
+        }
     };
     PdfViewerComponent.prototype.renderMultiplePages = function () {
         var _this = this;
         var container = this.element.nativeElement.querySelector('div');
         var page = 1;
-        var renderPageFn = function (page) { return function () { return _this.renderPage(page); }; };
         this.removeAllChildNodes(container);
-        var d = this.renderPage(page++);
-        for (page; page <= this._pdf.numPages; page++) {
-            d = d.then(renderPageFn(page));
-        }
+        this.renderPage(page++).then(function () {
+            if (page <= _this._pdf.numPages) {
+                return _this.renderPage(page++);
+            }
+        });
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
         return this._pdf.numPages >= page && page >= 1;

@@ -6,8 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { templateVisitAll } from '../template_parser/template_ast';
-import { bindDirectiveOutputs, bindRenderOutputs, collectEventListeners } from './event_binder';
-import { bindDirectiveAfterContentLifecycleCallbacks, bindDirectiveAfterViewLifecycleCallbacks, bindInjectableDestroyLifecycleCallbacks, bindPipeDestroyLifecycleCallbacks } from './lifecycle_binder';
+import { bindOutputs } from './event_binder';
+import { bindDirectiveAfterContentLifecycleCallbacks, bindDirectiveAfterViewLifecycleCallbacks, bindDirectiveWrapperLifecycleCallbacks, bindInjectableDestroyLifecycleCallbacks, bindPipeDestroyLifecycleCallbacks } from './lifecycle_binder';
 import { bindDirectiveHostProps, bindDirectiveInputs, bindRenderInputs, bindRenderText } from './property_binder';
 export function bindView(view, parsedTemplate, schemaRegistry) {
     var visitor = new ViewBinderVisitor(view, schemaRegistry);
@@ -33,26 +33,22 @@ var ViewBinderVisitor = (function () {
     ViewBinderVisitor.prototype.visitElement = function (ast, parent) {
         var _this = this;
         var compileElement = this.view.nodes[this._nodeIndex++];
-        var eventListeners = [];
-        collectEventListeners(ast.outputs, ast.directives, compileElement).forEach(function (entry) {
-            eventListeners.push(entry);
-        });
-        bindRenderInputs(ast.inputs, compileElement, eventListeners);
-        bindRenderOutputs(eventListeners);
+        var hasEvents = bindOutputs(ast.outputs, ast.directives, compileElement, true);
+        bindRenderInputs(ast.inputs, hasEvents, compileElement);
         ast.directives.forEach(function (directiveAst, dirIndex) {
-            var directiveInstance = compileElement.instances.get(directiveAst.directive.type.reference);
             var directiveWrapperInstance = compileElement.directiveWrapperInstance.get(directiveAst.directive.type.reference);
             bindDirectiveInputs(directiveAst, directiveWrapperInstance, dirIndex, compileElement);
-            bindDirectiveHostProps(directiveAst, directiveWrapperInstance, compileElement, eventListeners, ast.name, _this._schemaRegistry);
-            bindDirectiveOutputs(directiveAst, directiveInstance, eventListeners);
+            bindDirectiveHostProps(directiveAst, directiveWrapperInstance, compileElement, ast.name, _this._schemaRegistry);
         });
         templateVisitAll(this, ast.children, compileElement);
         // afterContent and afterView lifecycles need to be called bottom up
         // so that children are notified before parents
         ast.directives.forEach(function (directiveAst) {
             var directiveInstance = compileElement.instances.get(directiveAst.directive.type.reference);
+            var directiveWrapperInstance = compileElement.directiveWrapperInstance.get(directiveAst.directive.type.reference);
             bindDirectiveAfterContentLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
             bindDirectiveAfterViewLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
+            bindDirectiveWrapperLifecycleCallbacks(directiveAst, directiveWrapperInstance, compileElement);
         });
         ast.providers.forEach(function (providerAst) {
             var providerInstance = compileElement.instances.get(providerAst.token.reference);
@@ -62,14 +58,14 @@ var ViewBinderVisitor = (function () {
     };
     ViewBinderVisitor.prototype.visitEmbeddedTemplate = function (ast, parent) {
         var compileElement = this.view.nodes[this._nodeIndex++];
-        var eventListeners = collectEventListeners(ast.outputs, ast.directives, compileElement);
+        bindOutputs(ast.outputs, ast.directives, compileElement, false);
         ast.directives.forEach(function (directiveAst, dirIndex) {
             var directiveInstance = compileElement.instances.get(directiveAst.directive.type.reference);
             var directiveWrapperInstance = compileElement.directiveWrapperInstance.get(directiveAst.directive.type.reference);
             bindDirectiveInputs(directiveAst, directiveWrapperInstance, dirIndex, compileElement);
-            bindDirectiveOutputs(directiveAst, directiveInstance, eventListeners);
             bindDirectiveAfterContentLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
             bindDirectiveAfterViewLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
+            bindDirectiveWrapperLifecycleCallbacks(directiveAst, directiveWrapperInstance, compileElement);
         });
         ast.providers.forEach(function (providerAst) {
             var providerInstance = compileElement.instances.get(providerAst.token.reference);

@@ -12,7 +12,7 @@ import { PipeTransform } from '@angular/core';
  * @howToUse `expression | uppercase`
  * @description
  *
- * Converts value into lowercase string using `String.prototype.toUpperCase()`.
+ * Converts value into an uppercase string using `String.prototype.toUpperCase()`.
  *
  * ### Example
  *

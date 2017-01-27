@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.1.2
+ * @license Angular v2.2.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -155,7 +155,7 @@
         if (typeof token === 'string') {
             return token;
         }
-        if (token === undefined || token === null) {
+        if (token == null) {
             return '' + token;
         }
         if (token.overriddenName) {
@@ -177,25 +177,6 @@
                 throw new Error('Invalid integer literal when parsing ' + text);
             }
             return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
         };
         NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
         return NumberWrapper;
@@ -1067,93 +1048,6 @@
         }
     }
 
-    // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
-    // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
-    var _arrayFromMap = (function () {
-        try {
-            if ((new Map()).values().next) {
-                return function createArrayFromMap(m, getValues) {
-                    return getValues ? Array.from(m.values()) : Array.from(m.keys());
-                };
-            }
-        }
-        catch (e) {
-        }
-        return function createArrayFromMapWithForeach(m, getValues) {
-            var res = new Array(m.size), i = 0;
-            m.forEach(function (v, k) {
-                res[i] = getValues ? v : k;
-                i++;
-            });
-            return res;
-        };
-    })();
-    var ListWrapper = (function () {
-        function ListWrapper() {
-        }
-        ListWrapper.removeAll = function (list, items) {
-            for (var i = 0; i < items.length; ++i) {
-                var index = list.indexOf(items[i]);
-                list.splice(index, 1);
-            }
-        };
-        ListWrapper.remove = function (list, el) {
-            var index = list.indexOf(el);
-            if (index > -1) {
-                list.splice(index, 1);
-                return true;
-            }
-            return false;
-        };
-        ListWrapper.equals = function (a, b) {
-            if (a.length != b.length)
-                return false;
-            for (var i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (candidate == null) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
-        ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
-        };
-        return ListWrapper;
-    }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (Array.isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
     function isListLikeIterable(obj) {
         if (!isJsObject(obj))
             return false;
@@ -1254,7 +1148,14 @@
         };
         NgClass.prototype._applyIterableChanges = function (changes) {
             var _this = this;
-            changes.forEachAddedItem(function (record) { return _this._toggleClass(record.item, true); });
+            changes.forEachAddedItem(function (record) {
+                if (typeof record.item === 'string') {
+                    _this._toggleClass(record.item, true);
+                }
+                else {
+                    throw new Error("NgClass can only toggle CSS classes expressed as strings, got " + stringify(record.item));
+                }
+            });
             changes.forEachRemovedItem(function (record) { return _this._toggleClass(record.item, false); });
         };
         NgClass.prototype._applyInitialClasses = function (isCleanup) {
@@ -1547,14 +1448,28 @@
         return NgIf;
     }());
 
-    var _CASE_DEFAULT = {};
     var SwitchView = (function () {
         function SwitchView(_viewContainerRef, _templateRef) {
             this._viewContainerRef = _viewContainerRef;
             this._templateRef = _templateRef;
+            this._created = false;
         }
-        SwitchView.prototype.create = function () { this._viewContainerRef.createEmbeddedView(this._templateRef); };
-        SwitchView.prototype.destroy = function () { this._viewContainerRef.clear(); };
+        SwitchView.prototype.create = function () {
+            this._created = true;
+            this._viewContainerRef.createEmbeddedView(this._templateRef);
+        };
+        SwitchView.prototype.destroy = function () {
+            this._created = false;
+            this._viewContainerRef.clear();
+        };
+        SwitchView.prototype.enforceState = function (created) {
+            if (created && !this._created) {
+                this.create();
+            }
+            else if (!created && this._created) {
+                this.destroy();
+            }
+        };
         return SwitchView;
     }());
     /**
@@ -1600,89 +1515,49 @@
      */
     var NgSwitch = (function () {
         function NgSwitch() {
-            this._useDefault = false;
-            this._valueViews = new Map();
-            this._activeViews = [];
+            this._defaultUsed = false;
+            this._caseCount = 0;
+            this._lastCaseCheckIndex = 0;
+            this._lastCasesMatched = false;
         }
         Object.defineProperty(NgSwitch.prototype, "ngSwitch", {
-            set: function (value) {
-                // Set of views to display for this value
-                var views = this._valueViews.get(value);
-                if (views) {
-                    this._useDefault = false;
+            set: function (newValue) {
+                this._ngSwitch = newValue;
+                if (this._caseCount === 0) {
+                    this._updateDefaultCases(true);
                 }
-                else {
-                    // No view to display for the current value -> default case
-                    // Nothing to do if the default case was already active
-                    if (this._useDefault) {
-                        return;
-                    }
-                    this._useDefault = true;
-                    views = this._valueViews.get(_CASE_DEFAULT);
-                }
-                this._emptyAllActiveViews();
-                this._activateViews(views);
-                this._switchValue = value;
             },
             enumerable: true,
             configurable: true
         });
         /** @internal */
-        NgSwitch.prototype._onCaseValueChanged = function (oldCase, newCase, view) {
-            this._deregisterView(oldCase, view);
-            this._registerView(newCase, view);
-            if (oldCase === this._switchValue) {
-                view.destroy();
-                ListWrapper.remove(this._activeViews, view);
+        NgSwitch.prototype._addCase = function () { return this._caseCount++; };
+        /** @internal */
+        NgSwitch.prototype._addDefault = function (view) {
+            if (!this._defaultViews) {
+                this._defaultViews = [];
             }
-            else if (newCase === this._switchValue) {
-                if (this._useDefault) {
-                    this._useDefault = false;
-                    this._emptyAllActiveViews();
-                }
-                view.create();
-                this._activeViews.push(view);
-            }
-            // Switch to default when there is no more active ViewContainers
-            if (this._activeViews.length === 0 && !this._useDefault) {
-                this._useDefault = true;
-                this._activateViews(this._valueViews.get(_CASE_DEFAULT));
-            }
-        };
-        NgSwitch.prototype._emptyAllActiveViews = function () {
-            var activeContainers = this._activeViews;
-            for (var i = 0; i < activeContainers.length; i++) {
-                activeContainers[i].destroy();
-            }
-            this._activeViews = [];
-        };
-        NgSwitch.prototype._activateViews = function (views) {
-            if (views) {
-                for (var i = 0; i < views.length; i++) {
-                    views[i].create();
-                }
-                this._activeViews = views;
-            }
+            this._defaultViews.push(view);
         };
         /** @internal */
-        NgSwitch.prototype._registerView = function (value, view) {
-            var views = this._valueViews.get(value);
-            if (!views) {
-                views = [];
-                this._valueViews.set(value, views);
+        NgSwitch.prototype._matchCase = function (value) {
+            var matched = value == this._ngSwitch;
+            this._lastCasesMatched = this._lastCasesMatched || matched;
+            this._lastCaseCheckIndex++;
+            if (this._lastCaseCheckIndex === this._caseCount) {
+                this._updateDefaultCases(!this._lastCasesMatched);
+                this._lastCaseCheckIndex = 0;
+                this._lastCasesMatched = false;
             }
-            views.push(view);
+            return matched;
         };
-        NgSwitch.prototype._deregisterView = function (value, view) {
-            // `_CASE_DEFAULT` is used a marker for non-registered cases
-            if (value === _CASE_DEFAULT)
-                return;
-            var views = this._valueViews.get(value);
-            if (views.length == 1) {
-                this._valueViews.delete(value);
-            }
-            else {
-                ListWrapper.remove(views, view);
+        NgSwitch.prototype._updateDefaultCases = function (useDefault) {
+            if (this._defaultViews && useDefault !== this._defaultUsed) {
+                this._defaultUsed = useDefault;
+                for (var i = 0; i < this._defaultViews.length; i++) {
+                    var defaultView = this._defaultViews[i];
+                    defaultView.enforceState(useDefault);
+                }
             }
         };
         NgSwitch.decorators = [
@@ -1721,19 +1596,11 @@
      */
     var NgSwitchCase = (function () {
         function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
-            // `_CASE_DEFAULT` is used as a marker for a not yet initialized value
-            this._value = _CASE_DEFAULT;
-            this._switch = ngSwitch;
+            this.ngSwitch = ngSwitch;
+            ngSwitch._addCase();
             this._view = new SwitchView(viewContainer, templateRef);
         }
-        Object.defineProperty(NgSwitchCase.prototype, "ngSwitchCase", {
-            set: function (value) {
-                this._switch._onCaseValueChanged(this._value, value, this._view);
-                this._value = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        NgSwitchCase.prototype.ngDoCheck = function () { this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase)); };
         NgSwitchCase.decorators = [
             { type: _angular_core.Directive, args: [{ selector: '[ngSwitchCase]' },] },
         ];
@@ -1772,8 +1639,8 @@
      * @stable
      */
     var NgSwitchDefault = (function () {
-        function NgSwitchDefault(viewContainer, templateRef, sswitch) {
-            sswitch._registerView(_CASE_DEFAULT, new SwitchView(viewContainer, templateRef));
+        function NgSwitchDefault(viewContainer, templateRef, ngSwitch) {
+            ngSwitch._addDefault(new SwitchView(viewContainer, templateRef));
         }
         NgSwitchDefault.decorators = [
             { type: _angular_core.Directive, args: [{ selector: '[ngSwitchDefault]' },] },
@@ -1914,7 +1781,7 @@
      * @description
      *
      * The styles are updated according to the value of the expression evaluation:
-     * - keys are style names with an option `.<unit>` suffix (ie 'top.px', 'font-style.em'),
+     * - keys are style names with an optional `.<unit>` suffix (ie 'top.px', 'font-style.em'),
      * - values are the values assigned to those properties (expressed in the given unit).
      *
      * @stable
@@ -2311,12 +2178,13 @@
         MM: datePartGetterFactory(digitCondition('month', 2)),
         M: datePartGetterFactory(digitCondition('month', 1)),
         LLLL: datePartGetterFactory(nameCondition('month', 4)),
+        L: datePartGetterFactory(nameCondition('month', 1)),
         dd: datePartGetterFactory(digitCondition('day', 2)),
         d: datePartGetterFactory(digitCondition('day', 1)),
-        HH: digitModifier(hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false)))),
-        H: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), false))),
-        hh: digitModifier(hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true)))),
-        h: hourExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
+        HH: digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false)))),
+        H: hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), false))),
+        hh: digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true)))),
+        h: hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
         jj: datePartGetterFactory(digitCondition('hour', 2)),
         j: datePartGetterFactory(digitCondition('hour', 1)),
         mm: digitModifier(datePartGetterFactory(digitCondition('minute', 2))),
@@ -2331,7 +2199,7 @@
         EEE: datePartGetterFactory(nameCondition('weekday', 3)),
         EE: datePartGetterFactory(nameCondition('weekday', 2)),
         E: datePartGetterFactory(nameCondition('weekday', 1)),
-        a: hourClockExtracter(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
+        a: hourClockExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
         Z: timeZoneGetter('short'),
         z: timeZoneGetter('long'),
         ww: datePartGetterFactory({}),
@@ -2349,17 +2217,11 @@
             return result.length == 1 ? '0' + result : result;
         };
     }
-    function hourClockExtracter(inner) {
-        return function (date, locale) {
-            var result = inner(date, locale);
-            return result.split(' ')[1];
-        };
+    function hourClockExtractor(inner) {
+        return function (date, locale) { return inner(date, locale).split(' ')[1]; };
     }
-    function hourExtracter(inner) {
-        return function (date, locale) {
-            var result = inner(date, locale);
-            return result.split(' ')[0];
-        };
+    function hourExtractor(inner) {
+        return function (date, locale) { return inner(date, locale).split(' ')[0]; };
     }
     function intlDateFormat(date, locale, options) {
         return new Intl.DateTimeFormat(locale, options).format(date).replace(/[\u200e\u200f]/g, '');
@@ -2379,40 +2241,40 @@
     }
     function digitCondition(prop, len) {
         var result = {};
-        result[prop] = len == 2 ? '2-digit' : 'numeric';
+        result[prop] = len === 2 ? '2-digit' : 'numeric';
         return result;
     }
     function nameCondition(prop, len) {
         var result = {};
-        result[prop] = len < 4 ? 'short' : 'long';
+        if (len < 4) {
+            result[prop] = len > 1 ? 'short' : 'narrow';
+        }
+        else {
+            result[prop] = 'long';
+        }
         return result;
     }
     function combine(options) {
-        var result = {};
-        options.forEach(function (option) { Object.assign(result, option); });
-        return result;
+        return (_a = Object).assign.apply(_a, [{}].concat(options));
+        var _a;
     }
     function datePartGetterFactory(ret) {
         return function (date, locale) { return intlDateFormat(date, locale, ret); };
     }
-    var datePartsFormatterCache = new Map();
+    var DATE_FORMATTER_CACHE = new Map();
     function dateFormatter(format, date, locale) {
-        var text = '';
-        var match;
-        var fn;
-        var parts = [];
-        if (PATTERN_ALIASES[format]) {
-            return PATTERN_ALIASES[format](date, locale);
-        }
-        if (datePartsFormatterCache.has(format)) {
-            parts = datePartsFormatterCache.get(format);
-        }
-        else {
-            var matches = DATE_FORMATS_SPLIT.exec(format);
+        var fn = PATTERN_ALIASES[format];
+        if (fn)
+            return fn(date, locale);
+        var parts = DATE_FORMATTER_CACHE.get(format);
+        if (!parts) {
+            parts = [];
+            var match = void 0;
+            DATE_FORMATS_SPLIT.exec(format);
             while (format) {
                 match = DATE_FORMATS_SPLIT.exec(format);
                 if (match) {
-                    parts = concat(parts, match, 1);
+                    parts = parts.concat(match.slice(1));
                     format = parts.pop();
                 }
                 else {
@@ -2420,18 +2282,15 @@
                     format = null;
                 }
             }
-            datePartsFormatterCache.set(format, parts);
+            DATE_FORMATTER_CACHE.set(format, parts);
         }
-        parts.forEach(function (part) {
-            fn = DATE_FORMATS[part];
-            text += fn ? fn(date, locale) :
-                part === '\'\'' ? '\'' : part.replace(/(^'|'$)/g, '').replace(/''/g, '\'');
-        });
-        return text;
+        return parts.reduce(function (text, part) {
+            var fn = DATE_FORMATS[part];
+            return text + (fn ? fn(date, locale) : partToTime(part));
+        }, '');
     }
-    var slice = [].slice;
-    function concat(array1 /** TODO #9100 */, array2 /** TODO #9100 */, index /** TODO #9100 */) {
-        return array1.concat(slice.call(array2, index));
+    function partToTime(part) {
+        return part === '\'\'' ? '\'' : part.replace(/(^'|'$)/g, '').replace(/''/g, '\'');
     }
     var DateFormatter = (function () {
         function DateFormatter() {
@@ -2463,26 +2322,29 @@
      *   - `'shortTime'`: equivalent to `'jm'` (e.g. `12:05 PM` for `en-US`)
      *
      *
-     *  | Component | Symbol | Short Form   | Long Form         | Numeric   | 2-digit   |
-     *  |-----------|:------:|--------------|-------------------|-----------|-----------|
-     *  | era       |   G    | G (AD)       | GGGG (Anno Domini)| -         | -         |
-     *  | year      |   y    | -            | -                 | y (2015)  | yy (15)   |
-     *  | month     |   M    | MMM (Sep)    | MMMM (September)  | M (9)     | MM (09)   |
-     *  | day       |   d    | -            | -                 | d (3)     | dd (03)   |
-     *  | weekday   |   E    | EEE (Sun)    | EEEE (Sunday)     | -         | -         |
-     *  | hour      |   j    | -            | -                 | j (13)    | jj (13)   |
-     *  | hour12    |   h    | -            | -                 | h (1 PM)  | hh (01 PM)|
-     *  | hour24    |   H    | -            | -                 | H (13)    | HH (13)   |
-     *  | minute    |   m    | -            | -                 | m (5)     | mm (05)   |
-     *  | second    |   s    | -            | -                 | s (9)     | ss (09)   |
-     *  | timezone  |   z    | -            | z (Pacific Standard Time)| -  | -         |
-     *  | timezone  |   Z    | Z (GMT-8:00) | -                 | -         | -         |
-     *  | timezone  |   a    | a (PM)       | -                 | -         | -         |
+     *  | Component | Symbol | Narrow | Short Form   | Long Form         | Numeric   | 2-digit   |
+     *  |-----------|:------:|--------|--------------|-------------------|-----------|-----------|
+     *  | era       |   G    | G (A)  | GGG (AD)     | GGGG (Anno Domini)| -         | -         |
+     *  | year      |   y    | -      | -            | -                 | y (2015)  | yy (15)   |
+     *  | month     |   M    | L (S)  | MMM (Sep)    | MMMM (September)  | M (9)     | MM (09)   |
+     *  | day       |   d    | -      | -            | -                 | d (3)     | dd (03)   |
+     *  | weekday   |   E    | E (S)  | EEE (Sun)    | EEEE (Sunday)     | -         | -         |
+     *  | hour      |   j    | -      | -            | -                 | j (13)    | jj (13)   |
+     *  | hour12    |   h    | -      | -            | -                 | h (1 PM)  | hh (01 PM)|
+     *  | hour24    |   H    | -      | -            | -                 | H (13)    | HH (13)   |
+     *  | minute    |   m    | -      | -            | -                 | m (5)     | mm (05)   |
+     *  | second    |   s    | -      | -            | -                 | s (9)     | ss (09)   |
+     *  | timezone  |   z    | -      | -            | z (Pacific Standard Time)| -  | -         |
+     *  | timezone  |   Z    | -      | Z (GMT-8:00) | -                 | -         | -         |
+     *  | timezone  |   a    | -      | a (PM)       | -                 | -         | -         |
      *
      * In javascript, only the components specified will be respected (not the ordering,
      * punctuations, ...) and details of the formatting will be dependent on the locale.
      *
      * Timezone of the formatted text will be the local system timezone of the end-user's machine.
+     *
+     * When the expression is a ISO string without time (e.g. 2016-09-19) the time zone offset is not
+     * applied and the formatted text will have the same day, month and year of the expression.
      *
      * WARNINGS:
      * - this pipe is marked as pure hence it will not be re-evaluated when the input is mutated.
@@ -2514,19 +2376,38 @@
         }
         DatePipe.prototype.transform = function (value, pattern) {
             if (pattern === void 0) { pattern = 'mediumDate'; }
-            if (isBlank(value))
+            var date;
+            if (isBlank$1(value))
                 return null;
-            if (!this.supports(value)) {
+            if (typeof value === 'string') {
+                value = value.trim();
+            }
+            if (isDate(value)) {
+                date = value;
+            }
+            else if (NumberWrapper.isNumeric(value)) {
+                date = new Date(parseFloat(value));
+            }
+            else if (typeof value === 'string' && /^(\d{4}-\d{1,2}-\d{1,2})$/.test(value)) {
+                /**
+                * For ISO Strings without time the day, month and year must be extracted from the ISO String
+                * before Date creation to avoid time offset and errors in the new Date.
+                * If we only replace '-' with ',' in the ISO String ("2015,01,01"), and try to create a new
+                * date, some browsers (e.g. IE 9) will throw an invalid Date error
+                * If we leave the '-' ("2015-01-01") and try to create a new Date("2015-01-01") the timeoffset
+                * is applied
+                * Note: ISO months are 0 for January, 1 for February, ...
+                */
+                var _a = value.split('-').map(function (val) { return parseInt(val, 10); }), y = _a[0], m = _a[1], d = _a[2];
+                date = new Date(y, m - 1, d);
+            }
+            else {
+                date = new Date(value);
+            }
+            if (!isDate(date)) {
                 throw new InvalidPipeArgumentError(DatePipe, value);
             }
-            if (NumberWrapper.isNumeric(value)) {
-                value = parseFloat(value);
-            }
-            return DateFormatter.format(new Date(value), this._locale, DatePipe._ALIASES[pattern] || pattern);
-        };
-        DatePipe.prototype.supports = function (obj) {
-            return isDate(obj) || NumberWrapper.isNumeric(obj) ||
-                (typeof obj === 'string' && isDate(new Date(obj)));
+            return DateFormatter.format(date, this._locale, DatePipe._ALIASES[pattern] || pattern);
         };
         /** @internal */
         DatePipe._ALIASES = {
@@ -2548,6 +2429,9 @@
         ];
         return DatePipe;
     }());
+    function isBlank$1(obj) {
+        return obj == null || obj === '';
+    }
 
     var _INTERPOLATION_REGEXP = /#/g;
     /**
@@ -2596,9 +2480,10 @@
      * @howToUse `expression | i18nSelect:mapping`
      * @description
      *
-     *  Where:
-     *  - `mapping`: is an object that indicates the text that should be displayed
+     *  Where `mapping` is an object that indicates the text that should be displayed
      *  for different values of the provided `expression`.
+     *  If none of the keys of the mapping match the value of the `expression`, then the content
+     *  of the `other` key is returned when present, otherwise an empty string is returned.
      *
      *  ## Example
      *
@@ -2610,12 +2495,18 @@
         function I18nSelectPipe() {
         }
         I18nSelectPipe.prototype.transform = function (value, mapping) {
-            if (isBlank(value))
+            if (value == null)
                 return '';
-            if (typeof mapping !== 'object' || mapping === null) {
+            if (typeof mapping !== 'object' || typeof value !== 'string') {
                 throw new InvalidPipeArgumentError(I18nSelectPipe, mapping);
             }
-            return mapping[value] || '';
+            if (mapping.hasOwnProperty(value)) {
+                return mapping[value];
+            }
+            if (mapping.hasOwnProperty('other')) {
+                return mapping['other'];
+            }
+            return '';
         };
         I18nSelectPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'i18nSelect', pure: true },] },
@@ -2656,7 +2547,7 @@
      * @howToUse `expression | lowercase`
      * @description
      *
-     * Converts value into lowercase string using `String.prototype.toLowerCase()`.
+     * Converts value into a lowercase string using `String.prototype.toLowerCase()`.
      *
      * ### Example
      *
@@ -2921,7 +2812,7 @@
      * @howToUse `expression | uppercase`
      * @description
      *
-     * Converts value into lowercase string using `String.prototype.toUpperCase()`.
+     * Converts value into an uppercase string using `String.prototype.toUpperCase()`.
      *
      * ### Example
      *

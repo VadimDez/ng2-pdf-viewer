@@ -7,9 +7,9 @@
  */
 import { Injector } from '../di/injector';
 import { ComponentFactory, ComponentRef } from './component_factory';
-import { AppElement } from './element';
 import { ElementRef } from './element_ref';
 import { TemplateRef } from './template_ref';
+import { ViewContainer } from './view_container';
 import { EmbeddedViewRef, ViewRef } from './view_ref';
 /**
  * Represents a container where one or more Views can be attached.
@@ -106,7 +106,7 @@ export declare abstract class ViewContainerRef {
 }
 export declare class ViewContainerRef_ implements ViewContainerRef {
     private _element;
-    constructor(_element: AppElement);
+    constructor(_element: ViewContainer);
     get(index: number): ViewRef;
     length: number;
     element: ElementRef;

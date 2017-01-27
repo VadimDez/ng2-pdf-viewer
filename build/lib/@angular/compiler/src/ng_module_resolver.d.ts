@@ -13,5 +13,6 @@ import { ReflectorReader } from './private_import_core';
 export declare class NgModuleResolver {
     private _reflector;
     constructor(_reflector?: ReflectorReader);
+    isNgModule(type: any): boolean;
     resolve(type: Type<any>, throwIfNotFound?: boolean): NgModule;
 }

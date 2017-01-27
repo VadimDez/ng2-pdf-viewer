@@ -22,6 +22,10 @@ export var DirectiveResolver = (function () {
         if (_reflector === void 0) { _reflector = reflector; }
         this._reflector = _reflector;
     }
+    DirectiveResolver.prototype.isDirective = function (type) {
+        var typeMetadata = this._reflector.annotations(resolveForwardRef(type));
+        return typeMetadata && typeMetadata.some(isDirectiveMetadata);
+    };
     /**
      * Return {@link Directive} for a given `Type`.
      */

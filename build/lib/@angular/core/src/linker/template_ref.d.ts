@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { AppElement } from './element';
 import { ElementRef } from './element_ref';
+import { AppView } from './view';
 import { EmbeddedViewRef } from './view_ref';
 /**
  * Represents an Embedded Template that can be used to instantiate Embedded Views.
@@ -37,9 +37,10 @@ export declare abstract class TemplateRef<C> {
     abstract createEmbeddedView(context: C): EmbeddedViewRef<C>;
 }
 export declare class TemplateRef_<C> extends TemplateRef<C> {
-    private _appElement;
-    private _viewFactory;
-    constructor(_appElement: AppElement, _viewFactory: Function);
+    private _parentView;
+    private _nodeIndex;
+    private _nativeElement;
+    constructor(_parentView: AppView<any>, _nodeIndex: number, _nativeElement: any);
     createEmbeddedView(context: C): EmbeddedViewRef<C>;
     elementRef: ElementRef;
 }
