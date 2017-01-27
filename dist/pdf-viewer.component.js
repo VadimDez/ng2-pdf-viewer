@@ -1,15 +1,8 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var core_1 = require('@angular/core');
 require('pdfjs-dist/build/pdf.combined');
-var PdfViewerComponent = (function (_super) {
-    __extends(PdfViewerComponent, _super);
+var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
-        _super.call(this);
         this.element = element;
         this._showAll = false;
         this._renderText = true;
@@ -19,6 +12,7 @@ var PdfViewerComponent = (function (_super) {
         this.wasInvalidPage = false;
         this._rotation = 0;
         this.isInitialised = false;
+        this.afterLoadComplete = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
     }
     PdfViewerComponent.prototype.ngOnInit = function () {
@@ -127,9 +121,7 @@ var PdfViewerComponent = (function (_super) {
         window.PDFJS.getDocument(src).then(function (pdf) {
             _this._pdf = pdf;
             _this.lastLoaded = src;
-            if (_this.afterLoadComplete && typeof _this.afterLoadComplete === 'function') {
-                _this.afterLoadComplete(pdf);
-            }
+            _this.afterLoadComplete.emit(pdf);
             _this.onRender();
         });
     };
@@ -221,14 +213,14 @@ var PdfViewerComponent = (function (_super) {
         { type: core_1.Component, args: [{
                     selector: 'pdf-viewer',
                     template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
-                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n}\n\n:host >>> .textLayer {\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
+                    styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container > div {\n  position: relative;\n  z-index: 0;\n}\n\n:host >>> .textLayer {\n  font-family: sans-serif;\n  overflow: hidden;\n}\n  "]
                 },] },
     ];
     PdfViewerComponent.ctorParameters = [
         { type: core_1.ElementRef, },
     ];
     PdfViewerComponent.propDecorators = {
-        'afterLoadComplete': [{ type: core_1.Input, args: ['after-load-complete',] },],
+        'afterLoadComplete': [{ type: core_1.Output, args: ['after-load-complete',] },],
         'src': [{ type: core_1.Input },],
         'page': [{ type: core_1.Input },],
         'pageChange': [{ type: core_1.Output },],
@@ -239,6 +231,6 @@ var PdfViewerComponent = (function (_super) {
         'rotation': [{ type: core_1.Input, args: ['rotation',] },],
     };
     return PdfViewerComponent;
-}(core_1.OnInit));
+}());
 exports.PdfViewerComponent = PdfViewerComponent;
 //# sourceMappingURL=pdf-viewer.component.js.map

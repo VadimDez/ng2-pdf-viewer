@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
+  Component, Input, Output, ElementRef, EventEmitter, OnInit, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -16,6 +16,7 @@ import 'pdfjs-dist/build/pdf.combined';
 
 :host >>> .ng2-pdf-viewer-container > div {
   position: relative;
+  z-index: 0;
 }
 
 :host >>> .textLayer {
@@ -25,7 +26,7 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent implements OnChanges {
+export class PdfViewerComponent implements OnInit, OnChanges {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
@@ -33,9 +34,17 @@ export class PdfViewerComponent implements OnChanges {
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
-  @Input('after-load-complete') afterLoadComplete: Function;
+  private isInitialised: boolean = false;
+  private lastLoaded: string;
+
+  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
   constructor(private element: ElementRef) { }
+
+  ngOnInit() {
+    this.main();
+    this.isInitialised = true;
+  }
 
   @Input()
   src: string | Uint8Array | PDFSource;
@@ -116,9 +125,7 @@ export class PdfViewerComponent implements OnChanges {
       PDFJS.getDocument(this.src).then(pdf => {
         this._pdf = pdf;
 
-        if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-          this.afterLoadComplete(pdf);
-        }
+        this.afterLoadComplete.emit(pdf);
 
         this.update();
       });

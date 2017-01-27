@@ -30,10 +30,6 @@ export class AppComponent {
   pdf: any;
   renderText: boolean = true;
 
-  constructor() {
-    this.afterLoadComplete = this.afterLoadComplete.bind(this);
-  }
-
   incrementPage(amount: number) {
     this.page += amount;
   }
@@ -50,10 +46,10 @@ export class AppComponent {
    * Render PDF preview on selecting file
    */
   onFileSelected() {
-    var $img: any = document.querySelector('#file');
+    let $img: any = document.querySelector('#file');
 
     if (typeof (FileReader) !== 'undefined') {
-      var reader = new FileReader();
+      let reader = new FileReader();
 
       reader.onload = (e: any) => {
         this.pdfSrc = e.target.result;
@@ -67,7 +63,7 @@ export class AppComponent {
    * Get pdf information after it's loaded
    * @param pdf
    */
-  afterLoadComplete(pdf: any) {
+  afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
   }
 }

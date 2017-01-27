@@ -1,6 +1,7 @@
+/// <reference types="pdf" />
 import { ElementRef, EventEmitter, OnInit } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-export declare class PdfViewerComponent extends OnInit {
+export declare class PdfViewerComponent implements OnInit {
     private element;
     private _showAll;
     private _renderText;
@@ -13,7 +14,7 @@ export declare class PdfViewerComponent extends OnInit {
     private _rotation;
     private isInitialised;
     private lastLoaded;
-    afterLoadComplete: Function;
+    afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     constructor(element: ElementRef);
     ngOnInit(): void;
     src: any;
