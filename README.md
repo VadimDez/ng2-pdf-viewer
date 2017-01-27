@@ -169,7 +169,7 @@ callBackFn(pdf: PDFDocumentProxy) {
 
 And then use it in your template:
 ``` 
-(after-load-complete)="callBackFn"
+(after-load-complete)="callBackFn($event)"
 ```
 ## Develop
 ```
