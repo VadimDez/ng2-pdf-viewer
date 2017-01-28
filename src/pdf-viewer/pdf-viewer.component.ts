@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnInit
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 
@@ -16,6 +16,7 @@ import 'pdfjs-dist/build/pdf.combined';
 
 :host >>> .ng2-pdf-viewer-container > div {
   position: relative;
+  z-index: 0;
 }
 
 :host >>> .textLayer {
@@ -25,56 +26,33 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent extends OnInit {
+export class PdfViewerComponent implements OnChanges {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
-  private _src: any;
-  private _pdf: any;
+  private _pdf: PDFDocumentProxy;
   private _page: number = 1;
   private _zoom: number = 1;
-  private wasInvalidPage: boolean = false;
   private _rotation: number = 0;
-  private isInitialised: boolean = false;
-  private lastLoaded: string;
-  @Input('after-load-complete') afterLoadComplete: Function;
 
-  constructor(private element: ElementRef) {
-    super();
-  }
+  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
-  ngOnInit() {
-    this.main();
-    this.isInitialised = true;
-  }
+  constructor(private element: ElementRef) { }
 
   @Input()
-  set src(_src) {
-    this._src = _src;
-
-    if (this.isInitialised && this._src) {
-      this.main();
-    }
-  }
+  src: string | Uint8Array | PDFSource;
 
   @Input()
   set page(_page) {
     _page = parseInt(_page, 10);
 
-    if (!this._pdf) {
-      this._page = _page;
-      return;
+    if (this._pdf && !this.isValidPageNumber(_page)) {
+      _page = 1;
     }
 
-    if (this.isValidPageNumber(_page)) {
+    if (this._page !== _page) {
       this._page = _page;
-      this.renderPage(_page);
-      this.wasInvalidPage = false;
-    } else if (isNaN(_page)) {
-      this.pageChange.emit(null);
-    } else if (!this.wasInvalidPage) {
-      this.wasInvalidPage = true;
-      this.pageChange.emit(this._page);
+      this.pageChange.emit(_page);
     }
   }
 
@@ -83,22 +61,16 @@ export class PdfViewerComponent extends OnInit {
   @Input('render-text')
   set renderText(renderText: boolean) {
     this._renderText = renderText;
-
-    this.update();
   }
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
-
-    this.update();
   }
 
   @Input('show-all')
   set showAll(value: boolean) {
     this._showAll = value;
-
-    this.update();
   }
 
   @Input('zoom')
@@ -108,8 +80,6 @@ export class PdfViewerComponent extends OnInit {
     }
 
     this._zoom = value;
-
-    this.update();
   }
 
   get zoom() {
@@ -124,65 +94,51 @@ export class PdfViewerComponent extends OnInit {
     }
 
     this._rotation = value;
-
-    this.update();
   }
 
-  private update() {
-    if (this._pdf) {
-      this.main();
+  ngOnChanges(changes: SimpleChanges) {
+    if ('src' in changes) {
+      this.loadPDF();
+    } else if (this._pdf) {
+      this.update();
     }
   }
 
-  private main() {
-    if (this._pdf && this.lastLoaded === this._src) {
-      return this.onRender();
-    }
-
-    this.loadPDF(this._src);
-  }
-
-  private loadPDF(src) {
-    if (!src) {
+  private loadPDF() {
+    if (!this.src) {
       return;
     }
 
-    (<any>window).PDFJS.getDocument(src).then((pdf: any) => {
+    PDFJS.getDocument(this.src).then(pdf => {
       this._pdf = pdf;
-      this.lastLoaded = src;
 
-      if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-        this.afterLoadComplete(pdf);
-      }
+      this.afterLoadComplete.emit(pdf);
 
-      this.onRender();
+      this.update();
     });
   }
 
-  private onRender() {
-    if (!this.isValidPageNumber(this._page)) {
-      this._page = 1;
-    }
+  private update() {
+    this.page = this._page;
 
     if (!this._showAll) {
-      return this.renderPage(this._page);
+      this.renderPage(this._page);
+    } else {
+      this.renderMultiplePages();
     }
-
-    this.renderMultiplePages();
   }
 
   private renderMultiplePages() {
     let container = this.element.nativeElement.querySelector('div');
     let page = 1;
-    const renderPageFn = (page: number) => () => this.renderPage(page);
 
     this.removeAllChildNodes(container);
 
-    let d = this.renderPage(page++);
-
-    for (page; page <= this._pdf.numPages; page++) {
-      d = d.then(renderPageFn(page));
-    }
+    this.renderPage(page++).then(() => {
+      if (page <= this._pdf.numPages) {
+        return this.renderPage(page++);
+      }
+    });
   }
 
   private isValidPageNumber(page: number) {
@@ -233,8 +189,8 @@ export class PdfViewerComponent extends OnInit {
     });
   }
 
-  private renderPage(pageNumber: number) {
-    return this._pdf.getPage(pageNumber).then((page: any) => {
+  private renderPage(pageNumber: number): PDFPromise<void> {
+    return this._pdf.getPage(pageNumber).then( page => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');

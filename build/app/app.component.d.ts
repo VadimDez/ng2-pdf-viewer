@@ -1,3 +1,4 @@
+/// <reference types="pdf" />
 export declare class AppComponent {
     pdfSrc: string;
     page: number;
@@ -7,10 +8,9 @@ export declare class AppComponent {
     showAll: boolean;
     pdf: any;
     renderText: boolean;
-    constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
     rotate(angle: number): void;
     onFileSelected(): void;
-    afterLoadComplete(pdf: any): void;
+    afterLoadComplete(pdf: PDFDocumentProxy): void;
 }

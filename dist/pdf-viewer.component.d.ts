@@ -1,22 +1,18 @@
-import { ElementRef, EventEmitter, OnInit } from '@angular/core';
+/// <reference types="pdf" />
+import { ElementRef, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-export declare class PdfViewerComponent extends OnInit {
+export declare class PdfViewerComponent implements OnChanges {
     private element;
     private _showAll;
     private _renderText;
     private _originalSize;
-    private _src;
     private _pdf;
     private _page;
     private _zoom;
-    private wasInvalidPage;
     private _rotation;
-    private isInitialised;
-    private lastLoaded;
-    afterLoadComplete: Function;
+    afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     constructor(element: ElementRef);
-    ngOnInit(): void;
-    src: any;
+    src: string | Uint8Array | PDFSource;
     page: any;
     pageChange: EventEmitter<number>;
     renderText: boolean;
@@ -24,10 +20,9 @@ export declare class PdfViewerComponent extends OnInit {
     showAll: boolean;
     zoom: number;
     rotation: number;
+    ngOnChanges(changes: SimpleChanges): void;
+    private loadPDF();
     private update();
-    private main();
-    private loadPDF(src);
-    private onRender();
     private renderMultiplePages();
     private isValidPageNumber(page);
     private buildSVG(viewport, textContent);
