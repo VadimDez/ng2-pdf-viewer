@@ -347,8 +347,9 @@
       b = q;
      }
     }
+    var result;
     if (x_ - a / b < c / d - x_) {
-     return x_ === x ? [
+     result = x_ === x ? [
       a,
       b
      ] : [
@@ -356,7 +357,7 @@
       a
      ];
     } else {
-     return x_ === x ? [
+     result = x_ === x ? [
       c,
       d
      ] : [
@@ -364,6 +365,7 @@
       c
      ];
     }
+    return result;
    }
    function roundToDivide(x, div) {
     var r = x % div;
@@ -462,7 +464,7 @@
    });
    var localized = new Promise(function (resolve, reject) {
     if (!mozL10n) {
-     reject(new Error('mozL10n service is not available.'));
+     resolve();
      return;
     }
     if (mozL10n.getReadyState() !== 'loading') {
@@ -989,17 +991,16 @@
        offset.matchIdx = previous ? numMatches - 1 : 0;
        this.updateMatch(true);
        return true;
-      } else {
-       this.advanceOffsetPage(previous);
-       if (offset.wrapped) {
-        offset.matchIdx = null;
-        if (this.pagesToSearch < 0) {
-         this.updateMatch(false);
-         return true;
-        }
-       }
-       return false;
       }
+      this.advanceOffsetPage(previous);
+      if (offset.wrapped) {
+       offset.matchIdx = null;
+       if (this.pagesToSearch < 0) {
+        this.updateMatch(false);
+        return true;
+       }
+      }
+      return false;
      },
      updateMatchPosition: function PDFFindController_updateMatchPosition(pageIndex, index, elements, beginIdx) {
       if (this.selected.matchIdx === index && this.selected.pageIdx === pageIndex) {
@@ -1131,7 +1132,7 @@
       } else {
        updateHistoryWithCurrentHash();
       }
-     }, false);
+     });
      function updateHistoryWithCurrentHash() {
       self.previousHash = window.location.hash.slice(1);
       self._pushToHistory({ hash: self.previousHash }, false, true);
@@ -1162,12 +1163,12 @@
        self._pushToHistory(previousParams, false, replacePrevious);
        self._updatePreviousBookmark();
       }
-      window.removeEventListener('beforeunload', pdfHistoryBeforeUnload, false);
+      window.removeEventListener('beforeunload', pdfHistoryBeforeUnload);
      }
-     window.addEventListener('beforeunload', pdfHistoryBeforeUnload, false);
+     window.addEventListener('beforeunload', pdfHistoryBeforeUnload);
      window.addEventListener('pageshow', function pdfHistoryPageShow(evt) {
-      window.addEventListener('beforeunload', pdfHistoryBeforeUnload, false);
-     }, false);
+      window.addEventListener('beforeunload', pdfHistoryBeforeUnload);
+     });
      self.eventBus.on('presentationmodechanged', function (e) {
       self.isViewerInPresentationMode = e.active;
      });
@@ -1237,9 +1238,8 @@
        this.nextHashParam = null;
        this.updatePreviousBookmark = true;
        return;
-      } else {
-       this.nextHashParam = null;
       }
+      this.nextHashParam = null;
      }
      if (params.hash) {
       if (this.current.hash) {
@@ -1439,7 +1439,6 @@
          goToDestination(destRef);
         }).catch(function () {
          console.error('PDFLinkService_navigateTo: "' + destRef + '" is not a valid page reference.');
-         return;
         });
        }
       };
@@ -1737,7 +1736,7 @@
      this.annotationLayerFactory = annotationLayerFactory;
      this.renderer = options.renderer || RendererType.CANVAS;
      this.paintTask = null;
-     this.paintedViewport = null;
+     this.paintedViewportMap = new WeakMap();
      this.renderingState = RenderingStates.INITIAL;
      this.resume = null;
      this.error = null;
@@ -1747,7 +1746,6 @@
      this.zoomLayer = null;
      this.annotationLayer = null;
      var div = document.createElement('div');
-     div.id = 'pageContainer' + this.id;
      div.className = 'page';
      div.style.width = Math.floor(this.viewport.width) + 'px';
      div.style.height = Math.floor(this.viewport.height) + 'px';
@@ -1793,15 +1791,14 @@
        this.annotationLayer = null;
       }
       if (this.canvas && !currentZoomLayerNode) {
+       this.paintedViewportMap.delete(this.canvas);
        this.canvas.width = 0;
        this.canvas.height = 0;
        delete this.canvas;
       }
       if (this.svg) {
+       this.paintedViewportMap.delete(this.svg);
        delete this.svg;
-      }
-      if (!currentZoomLayerNode) {
-       this.paintedViewport = null;
       }
       this.loadingIconDiv = document.createElement('div');
       this.loadingIconDiv.className = 'loadingIcon';
@@ -1877,7 +1874,7 @@
       var div = this.div;
       target.style.width = target.parentNode.style.width = div.style.width = Math.floor(width) + 'px';
       target.style.height = target.parentNode.style.height = div.style.height = Math.floor(height) + 'px';
-      var relativeRotation = this.viewport.rotation - this.paintedViewport.rotation;
+      var relativeRotation = this.viewport.rotation - this.paintedViewportMap.get(target).rotation;
       var absRotation = Math.abs(relativeRotation);
       var scaleX = 1, scaleY = 1;
       if (absRotation === 90 || absRotation === 270) {
@@ -1986,7 +1983,7 @@
        }
        if (error === 'cancelled') {
         self.error = null;
-        return;
+        return Promise.resolve(undefined);
        }
        self.renderingState = RenderingStates.FINISHED;
        if (self.loadingIconDiv) {
@@ -1995,6 +1992,7 @@
        }
        if (self.zoomLayer) {
         var zoomLayerCanvas = self.zoomLayer.firstChild;
+        self.paintedViewportMap.delete(zoomLayerCanvas);
         zoomLayerCanvas.width = 0;
         zoomLayerCanvas.height = 0;
         if (div.contains(self.zoomLayer)) {
@@ -2012,21 +2010,25 @@
         pageNumber: self.id,
         cssTransform: false
        });
+       if (error) {
+        return Promise.reject(error);
+       }
+       return Promise.resolve(undefined);
       };
       var paintTask = this.renderer === RendererType.SVG ? this.paintOnSvg(canvasWrapper) : this.paintOnCanvas(canvasWrapper);
       paintTask.onRenderContinue = renderContinueCallback;
       this.paintTask = paintTask;
       var resultPromise = paintTask.promise.then(function () {
-       finishPaintTask(null);
-       if (textLayer) {
-        pdfPage.getTextContent({ normalizeWhitespace: true }).then(function textContentResolved(textContent) {
-         textLayer.setTextContent(textContent);
-         textLayer.render(TEXT_LAYER_RENDER_DELAY);
-        });
-       }
+       return finishPaintTask(null).then(function () {
+        if (textLayer) {
+         pdfPage.getTextContent({ normalizeWhitespace: true }).then(function textContentResolved(textContent) {
+          textLayer.setTextContent(textContent);
+          textLayer.render(TEXT_LAYER_RENDER_DELAY);
+         });
+        }
+       });
       }, function (reason) {
-       finishPaintTask(reason);
-       throw reason;
+       return finishPaintTask(reason);
       });
       if (this.annotationLayerFactory) {
        if (!this.annotationLayer) {
@@ -2098,7 +2100,7 @@
       canvas.height = roundToDivide(viewport.height * outputScale.sy, sfy[0]);
       canvas.style.width = roundToDivide(viewport.width, sfx[1]) + 'px';
       canvas.style.height = roundToDivide(viewport.height, sfy[1]) + 'px';
-      this.paintedViewport = viewport;
+      this.paintedViewportMap.set(canvas, viewport);
       var transform = !outputScale.scaled ? null : [
        outputScale.sx,
        0,
@@ -2148,7 +2150,7 @@
        return svgGfx.getSVG(opList, actualSizeViewport).then(function (svg) {
         ensureNotCancelled();
         self.svg = svg;
-        self.paintedViewport = actualSizeViewport;
+        self.paintedViewportMap.set(svg, actualSizeViewport);
         svg.style.width = wrapper.style.width;
         svg.style.height = wrapper.style.height;
         self.renderingState = RenderingStates.FINISHED;
@@ -3100,19 +3102,18 @@
      _getVisiblePages: function () {
       if (!this.isInPresentationMode) {
        return getVisibleElements(this.container, this._pages, true);
-      } else {
-       var visible = [];
-       var currentPage = this._pages[this._currentPageNumber - 1];
-       visible.push({
-        id: currentPage.id,
-        view: currentPage
-       });
-       return {
-        first: currentPage,
-        last: currentPage,
-        views: visible
-       };
       }
+      var visible = [];
+      var currentPage = this._pages[this._currentPageNumber - 1];
+      visible.push({
+       id: currentPage.id,
+       view: currentPage
+      });
+      return {
+       first: currentPage,
+       last: currentPage,
+       views: visible
+      };
      },
      cleanup: function () {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {

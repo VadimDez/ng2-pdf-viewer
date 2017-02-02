@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint strict: ["error", "function"] */
+/* eslint-disable no-extend-native */
 /* globals VBArray, PDFJS */
 
 (function compatibilityWrapper() {
@@ -200,9 +202,8 @@ if (typeof PDFJS === 'undefined') {
       get: function xmlHttpRequestResponseGet() {
         if (this.responseType === 'arraybuffer') {
           return new Uint8Array(new VBArray(this.responseBody).toArray());
-        } else {
-          return this.responseText;
         }
+        return this.responseText;
       }
     });
     return;
@@ -270,7 +271,7 @@ if (typeof PDFJS === 'undefined') {
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
       // get next character
-      buffer = input.charAt(idx++);
+      (buffer = input.charAt(idx++));
       // character found in table?
       // initialize bit storage and add its ascii value
       ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
@@ -590,6 +591,46 @@ if (typeof PDFJS === 'undefined') {
       var scripts = document.getElementsByTagName('script');
       return scripts[scripts.length - 1];
     },
+    enumerable: true,
+    configurable: true
+  });
+})();
+
+// Provides `input.type = 'type'` runtime failure protection.
+// Support: IE9,10.
+(function checkInputTypeNumberAssign() {
+  var el = document.createElement('input');
+  try {
+    el.type = 'number';
+  } catch (ex) {
+    var inputProto = el.constructor.prototype;
+    var typeProperty = Object.getOwnPropertyDescriptor(inputProto, 'type');
+    Object.defineProperty(inputProto, 'type', {
+      get: function () { return typeProperty.get.call(this); },
+      set: function (value) {
+        typeProperty.set.call(this, value === 'number' ? 'text' : value);
+      },
+      enumerable: true,
+      configurable: true
+    });
+  }
+})();
+
+// Provides correct document.readyState value for legacy browsers.
+// Support: IE9,10.
+(function checkDocumentReadyState() {
+  if (!document.attachEvent) {
+    return;
+  }
+  var documentProto = document.constructor.prototype;
+  var readyStateProto = Object.getOwnPropertyDescriptor(documentProto,
+                                                        'readyState');
+  Object.defineProperty(documentProto, 'readyState', {
+    get: function () {
+      var value = readyStateProto.get.call(this);
+      return value === 'interactive' ? 'loading' : value;
+    },
+    set: function (value) { readyStateProto.set.call(this, value); },
     enumerable: true,
     configurable: true
   });
