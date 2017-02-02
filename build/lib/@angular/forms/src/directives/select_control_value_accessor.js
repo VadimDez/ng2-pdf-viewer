@@ -6,8 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Directive, ElementRef, Host, Input, Optional, Renderer, forwardRef } from '@angular/core';
-import { MapWrapper } from '../facade/collection';
-import { isBlank, isPresent, isPrimitive, looseIdentical } from '../facade/lang';
+import { isPrimitive, looseIdentical } from '../facade/lang';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 export var SELECT_VALUE_ACCESSOR = {
     provide: NG_VALUE_ACCESSOR,
@@ -15,7 +14,7 @@ export var SELECT_VALUE_ACCESSOR = {
     multi: true
 };
 function _buildValueString(id, value) {
-    if (isBlank(id))
+    if (id == null)
         return "" + value;
     if (!isPrimitive(value))
         value = 'Object';
@@ -93,7 +92,7 @@ export var SelectControlValueAccessor = (function () {
     SelectControlValueAccessor.prototype._registerOption = function () { return (this._idCounter++).toString(); };
     /** @internal */
     SelectControlValueAccessor.prototype._getOptionId = function (value) {
-        for (var _i = 0, _a = MapWrapper.keys(this._optionMap); _i < _a.length; _i++) {
+        for (var _i = 0, _a = Array.from(this._optionMap.keys()); _i < _a.length; _i++) {
             var id = _a[_i];
             if (looseIdentical(this._optionMap.get(id), value))
                 return id;
@@ -102,8 +101,8 @@ export var SelectControlValueAccessor = (function () {
     };
     /** @internal */
     SelectControlValueAccessor.prototype._getOptionValue = function (valueString) {
-        var value = this._optionMap.get(_extractId(valueString));
-        return isPresent(value) ? value : valueString;
+        var id = _extractId(valueString);
+        return this._optionMap.has(id) ? this._optionMap.get(id) : valueString;
     };
     SelectControlValueAccessor.decorators = [
         { type: Directive, args: [{
@@ -133,7 +132,7 @@ export var NgSelectOption = (function () {
         this._element = _element;
         this._renderer = _renderer;
         this._select = _select;
-        if (isPresent(this._select))
+        if (this._select)
             this.id = this._select._registerOption();
     }
     Object.defineProperty(NgSelectOption.prototype, "ngValue", {
@@ -150,7 +149,7 @@ export var NgSelectOption = (function () {
     Object.defineProperty(NgSelectOption.prototype, "value", {
         set: function (value) {
             this._setElementValue(value);
-            if (isPresent(this._select))
+            if (this._select)
                 this._select.writeValue(this._select.value);
         },
         enumerable: true,
@@ -161,7 +160,7 @@ export var NgSelectOption = (function () {
         this._renderer.setElementProperty(this._element.nativeElement, 'value', value);
     };
     NgSelectOption.prototype.ngOnDestroy = function () {
-        if (isPresent(this._select)) {
+        if (this._select) {
             this._select._optionMap.delete(this.id);
             this._select.writeValue(this._select.value);
         }

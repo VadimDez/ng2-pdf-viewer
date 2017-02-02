@@ -23,7 +23,7 @@ import { DoCheck, ElementRef, KeyValueDiffers, Renderer } from '@angular/core';
  * @description
  *
  * The styles are updated according to the value of the expression evaluation:
- * - keys are style names with an option `.<unit>` suffix (ie 'top.px', 'font-style.em'),
+ * - keys are style names with an optional `.<unit>` suffix (ie 'top.px', 'font-style.em'),
  * - values are the values assigned to those properties (expressed in the given unit).
  *
  * @stable

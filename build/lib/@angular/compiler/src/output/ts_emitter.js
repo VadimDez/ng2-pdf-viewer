@@ -71,7 +71,12 @@ var _TsEmitterVisitor = (function (_super) {
         }
     };
     _TsEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
-        _super.prototype.visitLiteralExpr.call(this, ast, ctx, '(null as any)');
+        var value = ast.value;
+        if (isBlank(value) && ast.type != o.NULL_TYPE) {
+            ctx.print("(" + value + " as any)");
+            return null;
+        }
+        return _super.prototype.visitLiteralExpr.call(this, ast, ctx);
     };
     // Temporary workaround to support strictNullCheck enabled consumers of ngc emit.
     // In SNC mode, [] have the type never[], so we cast here to any[].

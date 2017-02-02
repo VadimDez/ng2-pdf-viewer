@@ -50,7 +50,7 @@ export var NoOpAnimationPlayer = (function () {
     NoOpAnimationPlayer.prototype.finish = function () { this._onFinish(); };
     NoOpAnimationPlayer.prototype.destroy = function () { };
     NoOpAnimationPlayer.prototype.reset = function () { };
-    NoOpAnimationPlayer.prototype.setPosition = function (p /** TODO #9100 */) { };
+    NoOpAnimationPlayer.prototype.setPosition = function (p) { };
     NoOpAnimationPlayer.prototype.getPosition = function () { return 0; };
     return NoOpAnimationPlayer;
 }());

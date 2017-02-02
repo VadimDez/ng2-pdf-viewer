@@ -87,8 +87,16 @@ export var Parser = (function () {
         var uninterpretedExpression = input.substring(prefixSeparatorIndex + 1);
         return new Quote(new ParseSpan(0, input.length), prefix, uninterpretedExpression, location);
     };
-    Parser.prototype.parseTemplateBindings = function (input, location) {
+    Parser.prototype.parseTemplateBindings = function (prefixToken, input, location) {
         var tokens = this._lexer.tokenize(input);
+        if (prefixToken) {
+            // Prefix the tokens with the tokens from prefixToken but have them take no space (0 index).
+            var prefixTokens = this._lexer.tokenize(prefixToken).map(function (t) {
+                t.index = 0;
+                return t;
+            });
+            tokens.unshift.apply(tokens, prefixTokens);
+        }
         return new _ParseAST(input, location, tokens, input.length, false, this.errors, 0)
             .parseTemplateBindings();
     };
@@ -134,6 +142,8 @@ export var Parser = (function () {
             }
             else {
                 this._reportError('Blank expressions are not allowed in interpolated strings', input, "at column " + this._findInterpolationErrorColumn(parts, i, interpolationConfig) + " in", location);
+                expressions.push('$implict');
+                offsets.push(offset);
             }
         }
         return new SplitInterpolation(strings, expressions, offsets);
@@ -296,12 +306,12 @@ export var _ParseAST = (function () {
                 this.error('Cannot have a pipe in an action expression');
             }
             do {
-                var name = this.expectIdentifierOrKeyword();
+                var name_1 = this.expectIdentifierOrKeyword();
                 var args = [];
                 while (this.optionalCharacter(chars.$COLON)) {
                     args.push(this.parseExpression());
                 }
-                result = new BindingPipe(this.span(result.span.start - this.offset), result, name, args);
+                result = new BindingPipe(this.span(result.span.start - this.offset), result, name_1, args);
             } while (this.optionalOperator('|'));
         }
         return result;
@@ -629,6 +639,7 @@ export var _ParseAST = (function () {
         var prefix = null;
         var warnings = [];
         while (this.index < this.tokens.length) {
+            var start = this.inputIndex;
             var keyIsVar = this.peekKeywordLet();
             if (keyIsVar) {
                 this.advance();
@@ -643,23 +654,23 @@ export var _ParseAST = (function () {
                 }
             }
             this.optionalCharacter(chars.$COLON);
-            var name = null;
+            var name_2 = null;
             var expression = null;
             if (keyIsVar) {
                 if (this.optionalOperator('=')) {
-                    name = this.expectTemplateBindingKey();
+                    name_2 = this.expectTemplateBindingKey();
                 }
                 else {
-                    name = '\$implicit';
+                    name_2 = '\$implicit';
                 }
             }
             else if (this.next !== EOF && !this.peekKeywordLet()) {
-                var start = this.inputIndex;
+                var start_1 = this.inputIndex;
                 var ast = this.parsePipe();
-                var source = this.input.substring(start, this.inputIndex);
+                var source = this.input.substring(start_1 - this.offset, this.inputIndex - this.offset);
                 expression = new ASTWithSource(ast, source, this.location, this.errors);
             }
-            bindings.push(new TemplateBinding(key, keyIsVar, name, expression));
+            bindings.push(new TemplateBinding(this.span(start), key, keyIsVar, name_2, expression));
             if (!this.optionalCharacter(chars.$SEMICOLON)) {
                 this.optionalCharacter(chars.$COMMA);
             }

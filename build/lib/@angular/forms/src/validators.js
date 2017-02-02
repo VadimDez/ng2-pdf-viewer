@@ -87,15 +87,25 @@ export var Validators = (function () {
      * Validator that requires a control to match a regex to its value.
      */
     Validators.pattern = function (pattern) {
+        if (!pattern)
+            return Validators.nullValidator;
+        var regex;
+        var regexStr;
+        if (typeof pattern === 'string') {
+            regexStr = "^" + pattern + "$";
+            regex = new RegExp(regexStr);
+        }
+        else {
+            regexStr = pattern.toString();
+            regex = pattern;
+        }
         return function (control) {
             if (isEmptyInputValue(control.value)) {
                 return null; // don't validate empty values to allow optional controls
             }
-            var regex = new RegExp("^" + pattern + "$");
             var value = control.value;
-            return regex.test(value) ?
-                null :
-                { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': value } };
+            return regex.test(value) ? null :
+                { 'pattern': { 'requiredPattern': regexStr, 'actualValue': value } };
         };
     };
     /**

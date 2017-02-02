@@ -152,13 +152,13 @@ var StatementInterpreter = (function () {
         if (isPresent(expr.builtin)) {
             switch (expr.builtin) {
                 case o.BuiltinMethod.ConcatArray:
-                    result = receiver.concat(args[0]);
+                    result = receiver.concat.apply(receiver, args);
                     break;
                 case o.BuiltinMethod.SubscribeObservable:
                     result = receiver.subscribe({ next: args[0] });
                     break;
                 case o.BuiltinMethod.Bind:
-                    result = receiver.bind(args[0]);
+                    result = receiver.bind.apply(receiver, args);
                     break;
                 default:
                     throw new Error("Unknown builtin method " + expr.builtin);

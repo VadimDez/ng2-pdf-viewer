@@ -161,11 +161,12 @@ export declare class ASTWithSource extends AST {
     toString(): string;
 }
 export declare class TemplateBinding {
+    span: ParseSpan;
     key: string;
     keyIsVar: boolean;
     name: string;
     expression: ASTWithSource;
-    constructor(key: string, keyIsVar: boolean, name: string, expression: ASTWithSource);
+    constructor(span: ParseSpan, key: string, keyIsVar: boolean, name: string, expression: ASTWithSource);
 }
 export interface AstVisitor {
     visitBinary(ast: Binary, context: any): any;

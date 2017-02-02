@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { Directive, Inject, Optional, Self, forwardRef } from '@angular/core';
 import { EventEmitter } from '../facade/async';
-import { isPresent } from '../facade/lang';
 import { FormGroup } from '../model';
 import { NG_ASYNC_VALIDATORS, NG_VALIDATORS } from '../validators';
 import { ControlContainer } from './control_container';
@@ -101,7 +100,7 @@ export var NgForm = (function (_super) {
         var _this = this;
         resolvedPromise.then(function () {
             var container = _this._findContainer(dir.path);
-            if (isPresent(container)) {
+            if (container) {
                 container.removeControl(dir.name);
             }
         });
@@ -120,7 +119,7 @@ export var NgForm = (function (_super) {
         var _this = this;
         resolvedPromise.then(function () {
             var container = _this._findContainer(dir.path);
-            if (isPresent(container)) {
+            if (container) {
                 container.removeControl(dir.name);
             }
         });

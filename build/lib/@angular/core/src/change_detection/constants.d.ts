@@ -18,7 +18,7 @@ export declare enum ChangeDetectionStrategy {
  */
 export declare enum ChangeDetectorStatus {
     /**
-     * `CheckedOnce` means that after calling detectChanges the mode of the change detector
+     * `CheckOnce` means that after calling detectChanges the mode of the change detector
      * will become `Checked`.
      */
     CheckOnce = 0,

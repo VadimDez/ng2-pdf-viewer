@@ -12,6 +12,7 @@ import { DefaultValueAccessor } from './default_value_accessor';
 import { normalizeAsyncValidator, normalizeValidator } from './normalize_validator';
 import { NumberValueAccessor } from './number_value_accessor';
 import { RadioControlValueAccessor } from './radio_control_value_accessor';
+import { RangeValueAccessor } from './range_value_accessor';
 import { SelectControlValueAccessor } from './select_control_value_accessor';
 import { SelectMultipleControlValueAccessor } from './select_multiple_control_value_accessor';
 export function controlPath(name, parent) {
@@ -56,8 +57,16 @@ export function setUpControl(control, dir) {
 export function cleanUpControl(control, dir) {
     dir.valueAccessor.registerOnChange(function () { return _noControlError(dir); });
     dir.valueAccessor.registerOnTouched(function () { return _noControlError(dir); });
-    dir._rawValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
-    dir._rawAsyncValidators.forEach(function (validator) { return validator.registerOnValidatorChange(null); });
+    dir._rawValidators.forEach(function (validator) {
+        if (validator.registerOnValidatorChange) {
+            validator.registerOnValidatorChange(null);
+        }
+    });
+    dir._rawAsyncValidators.forEach(function (validator) {
+        if (validator.registerOnValidatorChange) {
+            validator.registerOnValidatorChange(null);
+        }
+    });
     if (control)
         control._clearChangeFns();
 }
@@ -100,6 +109,7 @@ export function isPropertyUpdated(changes, viewModel) {
 }
 var BUILTIN_ACCESSORS = [
     CheckboxControlValueAccessor,
+    RangeValueAccessor,
     NumberValueAccessor,
     SelectControlValueAccessor,
     SelectMultipleControlValueAccessor,

@@ -19,6 +19,7 @@ export var NgModuleResolver = (function () {
         if (_reflector === void 0) { _reflector = reflector; }
         this._reflector = _reflector;
     }
+    NgModuleResolver.prototype.isNgModule = function (type) { return this._reflector.annotations(type).some(_isNgModuleMetadata); };
     NgModuleResolver.prototype.resolve = function (type, throwIfNotFound) {
         if (throwIfNotFound === void 0) { throwIfNotFound = true; }
         var ngModuleMeta = this._reflector.annotations(type).find(_isNgModuleMetadata);

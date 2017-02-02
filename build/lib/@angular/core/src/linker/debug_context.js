@@ -48,13 +48,10 @@ export var DebugContext = (function () {
     Object.defineProperty(DebugContext.prototype, "componentRenderElement", {
         get: function () {
             var componentView = this._view;
-            while (isPresent(componentView.declarationAppElement) &&
-                componentView.type !== ViewType.COMPONENT) {
-                componentView = componentView.declarationAppElement.parentView;
+            while (isPresent(componentView.parentView) && componentView.type !== ViewType.COMPONENT) {
+                componentView = componentView.parentView;
             }
-            return isPresent(componentView.declarationAppElement) ?
-                componentView.declarationAppElement.nativeElement :
-                null;
+            return componentView.parentElement;
         },
         enumerable: true,
         configurable: true
@@ -97,9 +94,9 @@ export var DebugContext = (function () {
             var varValues = {};
             var staticNodeInfo = this._staticNodeInfo;
             if (isPresent(staticNodeInfo)) {
-                var refs = staticNodeInfo.refTokens;
-                Object.keys(refs).forEach(function (refName) {
-                    var refToken = refs[refName];
+                var refs_1 = staticNodeInfo.refTokens;
+                Object.keys(refs_1).forEach(function (refName) {
+                    var refToken = refs_1[refName];
                     var varValue;
                     if (isBlank(refToken)) {
                         varValue = _this._view.allNodes ? _this._view.allNodes[_this._nodeIndex] : null;

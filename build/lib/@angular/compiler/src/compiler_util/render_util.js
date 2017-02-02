@@ -2,7 +2,8 @@ import { SecurityContext } from '@angular/core';
 import { isPresent } from '../facade/lang';
 import { Identifiers, resolveIdentifier } from '../identifiers';
 import * as o from '../output/output_ast';
-import { PropertyBindingType } from '../template_parser/template_ast';
+import { EMPTY_STATE as EMPTY_ANIMATION_STATE } from '../private_import_core';
+import { BoundEventAst, PropertyBindingType } from '../template_parser/template_ast';
 import { createEnumExpression } from './identifier_util';
 export function writeToRenderer(view, boundProp, renderElement, renderValue, logBindingUpdate, securityContextExpression) {
     var updateStmts = [];
@@ -60,5 +61,37 @@ function sanitizedValue(view, boundProp, renderValue, securityContextExpression)
     var ctx = view.prop('viewUtils').prop('sanitizer');
     var args = [securityContextExpression, renderValue];
     return ctx.callMethod('sanitize', args);
+}
+export function triggerAnimation(view, componentView, boundProp, eventListener, renderElement, renderValue, lastRenderValue) {
+    var detachStmts = [];
+    var updateStmts = [];
+    var animationName = boundProp.name;
+    var animationFnExpr = componentView.prop('componentType').prop('animations').key(o.literal(animationName));
+    // it's important to normalize the void value as `void` explicitly
+    // so that the styles data can be obtained from the stringmap
+    var emptyStateValue = o.literal(EMPTY_ANIMATION_STATE);
+    var unitializedValue = o.importExpr(resolveIdentifier(Identifiers.UNINITIALIZED));
+    var animationTransitionVar = o.variable('animationTransition_' + animationName);
+    updateStmts.push(animationTransitionVar
+        .set(animationFnExpr.callFn([
+        view, renderElement,
+        lastRenderValue.equals(unitializedValue).conditional(emptyStateValue, lastRenderValue),
+        renderValue.equals(unitializedValue).conditional(emptyStateValue, renderValue)
+    ]))
+        .toDeclStmt());
+    detachStmts.push(animationTransitionVar
+        .set(animationFnExpr.callFn([view, renderElement, lastRenderValue, emptyStateValue]))
+        .toDeclStmt());
+    var registerStmts = [
+        animationTransitionVar
+            .callMethod('onStart', [eventListener.callMethod(o.BuiltinMethod.Bind, [view, o.literal(BoundEventAst.calcFullName(animationName, null, 'start'))])])
+            .toStmt(),
+        animationTransitionVar
+            .callMethod('onDone', [eventListener.callMethod(o.BuiltinMethod.Bind, [view, o.literal(BoundEventAst.calcFullName(animationName, null, 'done'))])])
+            .toStmt(),
+    ];
+    updateStmts.push.apply(updateStmts, registerStmts);
+    detachStmts.push.apply(detachStmts, registerStmts);
+    return { updateStmts: updateStmts, detachStmts: detachStmts };
 }
 //# sourceMappingURL=render_util.js.map

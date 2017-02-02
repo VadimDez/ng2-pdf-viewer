@@ -10,6 +10,7 @@ export declare class AbstractControlStatus {
     ngClassDirty: boolean;
     ngClassValid: boolean;
     ngClassInvalid: boolean;
+    ngClassPending: boolean;
 }
 export declare const ngControlStatusHost: {
     '[class.ng-untouched]': string;
@@ -18,6 +19,7 @@ export declare const ngControlStatusHost: {
     '[class.ng-dirty]': string;
     '[class.ng-valid]': string;
     '[class.ng-invalid]': string;
+    '[class.ng-pending]': string;
 };
 /**
  * Directive automatically applied to Angular form controls that sets CSS classes

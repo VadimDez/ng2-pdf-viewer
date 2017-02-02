@@ -71,6 +71,11 @@ export var QueryList = (function () {
     };
     /**
      * See
+     * [Array.find](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
+     */
+    QueryList.prototype.find = function (fn) { return this._results.find(fn); };
+    /**
+     * See
      * [Array.reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
      */
     QueryList.prototype.reduce = function (fn, init) {

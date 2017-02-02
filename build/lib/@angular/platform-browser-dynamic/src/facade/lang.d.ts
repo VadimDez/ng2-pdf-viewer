@@ -38,7 +38,6 @@ export declare function isDate(obj: any): obj is Date;
 export declare function stringify(token: any): string;
 export declare class NumberWrapper {
     static parseIntAutoRadix(text: string): number;
-    static parseInt(text: string, radix: number): number;
     static isNumeric(value: any): boolean;
 }
 export declare function looseIdentical(a: any, b: any): boolean;

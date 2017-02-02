@@ -24,13 +24,12 @@ export var RadioControlRegistry = (function () {
         this._accessors.push([control, accessor]);
     };
     RadioControlRegistry.prototype.remove = function (accessor) {
-        var indexToRemove = -1;
-        for (var i = 0; i < this._accessors.length; ++i) {
+        for (var i = this._accessors.length - 1; i >= 0; --i) {
             if (this._accessors[i][1] === accessor) {
-                indexToRemove = i;
+                this._accessors.splice(i, 1);
+                return;
             }
         }
-        this._accessors.splice(indexToRemove, 1);
     };
     RadioControlRegistry.prototype.select = function (accessor) {
         var _this = this;

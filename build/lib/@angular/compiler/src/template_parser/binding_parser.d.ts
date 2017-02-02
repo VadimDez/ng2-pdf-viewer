@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { SecurityContext } from '@angular/core';
-import { CompileDirectiveMetadata, CompilePipeMetadata } from '../compile_metadata';
+import { CompileDirectiveSummary, CompilePipeSummary } from '../compile_metadata';
 import { ASTWithSource, BindingPipe, RecursiveAstVisitor } from '../expression_parser/ast';
 import { Parser } from '../expression_parser/parser';
 import { InterpolationConfig } from '../ml_parser/interpolation_config';
@@ -38,13 +38,13 @@ export declare class BindingParser {
     private _interpolationConfig;
     private _schemaRegistry;
     private _targetErrors;
-    pipesByName: Map<string, CompilePipeMetadata>;
-    constructor(_exprParser: Parser, _interpolationConfig: InterpolationConfig, _schemaRegistry: ElementSchemaRegistry, pipes: CompilePipeMetadata[], _targetErrors: ParseError[]);
-    createDirectiveHostPropertyAsts(dirMeta: CompileDirectiveMetadata, sourceSpan: ParseSourceSpan): BoundElementPropertyAst[];
-    createDirectiveHostEventAsts(dirMeta: CompileDirectiveMetadata, sourceSpan: ParseSourceSpan): BoundEventAst[];
+    pipesByName: Map<string, CompilePipeSummary>;
+    constructor(_exprParser: Parser, _interpolationConfig: InterpolationConfig, _schemaRegistry: ElementSchemaRegistry, pipes: CompilePipeSummary[], _targetErrors: ParseError[]);
+    createDirectiveHostPropertyAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundElementPropertyAst[];
+    createDirectiveHostEventAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundEventAst[];
     parseInterpolation(value: string, sourceSpan: ParseSourceSpan): ASTWithSource;
-    parseInlineTemplateBinding(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[], targetVars: VariableAst[]): void;
-    private _parseTemplateBindings(value, sourceSpan);
+    parseInlineTemplateBinding(name: string, prefixToken: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[], targetVars: VariableAst[]): void;
+    private _parseTemplateBindings(prefixToken, value, sourceSpan);
     parseLiteralAttr(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
     parsePropertyBinding(name: string, expression: string, isHost: boolean, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
     parsePropertyInterpolation(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): boolean;

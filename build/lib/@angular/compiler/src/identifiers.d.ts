@@ -9,7 +9,7 @@ export declare class Identifiers {
     static ViewUtils: IdentifierSpec;
     static AppView: IdentifierSpec;
     static DebugAppView: IdentifierSpec;
-    static AppElement: IdentifierSpec;
+    static ViewContainer: IdentifierSpec;
     static ElementRef: IdentifierSpec;
     static ViewContainerRef: IdentifierSpec;
     static ChangeDetectorRef: IdentifierSpec;
@@ -20,6 +20,8 @@ export declare class Identifiers {
     static CodegenComponentFactoryResolver: IdentifierSpec;
     static ComponentFactoryResolver: IdentifierSpec;
     static ComponentFactory: IdentifierSpec;
+    static ComponentRef_: IdentifierSpec;
+    static ComponentRef: IdentifierSpec;
     static NgModuleFactory: IdentifierSpec;
     static NgModuleInjector: IdentifierSpec;
     static RegisterModuleFactoryFn: IdentifierSpec;
@@ -35,8 +37,8 @@ export declare class Identifiers {
     static UNINITIALIZED: IdentifierSpec;
     static ChangeDetectorStatus: IdentifierSpec;
     static checkBinding: IdentifierSpec;
-    static flattenNestedViewRenderNodes: IdentifierSpec;
     static devModeEqual: IdentifierSpec;
+    static inlineInterpolate: IdentifierSpec;
     static interpolate: IdentifierSpec;
     static castByValue: IdentifierSpec;
     static EMPTY_ARRAY: IdentifierSpec;
@@ -64,6 +66,9 @@ export declare class Identifiers {
     static inlineArrays: IdentifierSpec[];
     static EMPTY_INLINE_ARRAY: IdentifierSpec;
     static InlineArrayDynamic: IdentifierSpec;
+    static subscribeToRenderElement: IdentifierSpec;
+    static createRenderComponentType: IdentifierSpec;
+    static noop: IdentifierSpec;
 }
 export declare function assetUrl(pkg: string, path?: string, type?: string): string;
 export declare function resolveIdentifier(identifier: IdentifierSpec): CompileIdentifierMetadata;

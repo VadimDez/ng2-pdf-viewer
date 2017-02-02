@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { createDiTokenExpression } from '../compiler_util/identifier_util';
 import { isPresent } from '../facade/lang';
 import * as o from '../output/output_ast';
+import { ViewType } from '../private_import_core';
 export function getPropertyInView(property, callingView, definedView) {
     if (callingView === definedView) {
         return property;
@@ -22,7 +23,7 @@ export function getPropertyInView(property, callingView, definedView) {
         var currView = callingView;
         while (currView !== definedView && isPresent(currView.declarationElement.view)) {
             currView = currView.declarationElement.view;
-            viewProp = viewProp.prop('parent');
+            viewProp = viewProp.prop('parentView');
         }
         if (currView !== definedView) {
             throw new Error("Internal error: Could not calculate a property in a parent view: " + property);
@@ -55,37 +56,24 @@ var _ReplaceViewTransformer = (function (_super) {
     };
     return _ReplaceViewTransformer;
 }(o.ExpressionTransformer));
-export function injectFromViewParentInjector(token, optional) {
-    var args = [createDiTokenExpression(token)];
+export function injectFromViewParentInjector(view, token, optional) {
+    var viewExpr;
+    if (view.viewType === ViewType.HOST) {
+        viewExpr = o.THIS_EXPR;
+    }
+    else {
+        viewExpr = o.THIS_EXPR.prop('parentView');
+    }
+    var args = [createDiTokenExpression(token), o.THIS_EXPR.prop('parentIndex')];
     if (optional) {
         args.push(o.NULL_EXPR);
     }
-    return o.THIS_EXPR.prop('parentInjector').callMethod('get', args);
+    return viewExpr.callMethod('injectorGet', args);
 }
-export function getViewFactoryName(component, embeddedTemplateIndex) {
-    return "viewFactory_" + component.type.name + embeddedTemplateIndex;
+export function getViewClassName(component, embeddedTemplateIndex) {
+    return "View_" + component.type.name + embeddedTemplateIndex;
 }
-export function createFlatArray(expressions) {
-    var lastNonArrayExpressions = [];
-    var result = o.literalArr([]);
-    for (var i = 0; i < expressions.length; i++) {
-        var expr = expressions[i];
-        if (expr.type instanceof o.ArrayType) {
-            if (lastNonArrayExpressions.length > 0) {
-                result =
-                    result.callMethod(o.BuiltinMethod.ConcatArray, [o.literalArr(lastNonArrayExpressions)]);
-                lastNonArrayExpressions = [];
-            }
-            result = result.callMethod(o.BuiltinMethod.ConcatArray, [expr]);
-        }
-        else {
-            lastNonArrayExpressions.push(expr);
-        }
-    }
-    if (lastNonArrayExpressions.length > 0) {
-        result =
-            result.callMethod(o.BuiltinMethod.ConcatArray, [o.literalArr(lastNonArrayExpressions)]);
-    }
-    return result;
+export function getHandleEventMethodName(elementIndex) {
+    return "handleEvent_" + elementIndex;
 }
 //# sourceMappingURL=util.js.map

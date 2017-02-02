@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "0.1.5",
+  "version": "1.0.1",
   "description": "Angular2 component for rendering PDF",
   "main": "dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -42,6 +42,7 @@
     "pdfjs-dist": "^1.6.329"
   },
   "dependencies": {
+    "@types/pdf": "0.0.31",
     "pdfjs-dist": "^1.6.366"
   },
   "devDependencies": {
@@ -55,7 +56,6 @@
     "@angular/platform-server": "^2.2.1",
     "@types/jasmine": "^2.5.38",
     "@types/node": "^6.0.48",
-    "types-pdf": "git://github.com/Vi-dot/types-pdf.git",
     "@types/systemjs": "^0.19.31",
     "codelyzer": "^1.0.0-beta.4",
     "concurrently": "^3.1.0",

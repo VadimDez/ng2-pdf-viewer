@@ -40,8 +40,9 @@ export var SystemJsNgModuleLoader = (function () {
     SystemJsNgModuleLoader.prototype.loadAndCompile = function (path) {
         var _this = this;
         var _a = path.split(_SEPARATOR), module = _a[0], exportName = _a[1];
-        if (exportName === undefined)
+        if (exportName === undefined) {
             exportName = 'default';
+        }
         return System.import(module)
             .then(function (module) { return module[exportName]; })
             .then(function (type) { return checkNotEmpty(type, module, exportName); })

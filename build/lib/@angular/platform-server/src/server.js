@@ -12,9 +12,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { PlatformLocation } from '@angular/common';
 import { platformCoreDynamic } from '@angular/compiler';
-import { NgModule, PLATFORM_INITIALIZER, createPlatformFactory, platformCore } from '@angular/core';
+import { NgModule, PLATFORM_INITIALIZER, RootRenderer, createPlatformFactory, isDevMode, platformCore } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Parse5DomAdapter } from './parse5_adapter';
+import { DebugDomRootRenderer } from './private_import_core';
+import { SharedStylesHost } from './private_import_platform-browser';
+import { ServerRootRenderer } from './server_renderer';
 function notSupported(feature) {
     throw new Error("platform-server does not support '" + feature + "'.");
 }
@@ -61,6 +64,18 @@ export var INTERNAL_SERVER_PLATFORM_PROVIDERS = [
 function initParse5Adapter() {
     Parse5DomAdapter.makeCurrent();
 }
+export function _createConditionalRootRenderer(rootRenderer) {
+    if (isDevMode()) {
+        return new DebugDomRootRenderer(rootRenderer);
+    }
+    return rootRenderer;
+}
+export var SERVER_RENDER_PROVIDERS = [
+    ServerRootRenderer,
+    { provide: RootRenderer, useFactory: _createConditionalRootRenderer, deps: [ServerRootRenderer] },
+    // use plain SharedStylesHost, not the DomSharedStylesHost
+    SharedStylesHost
+];
 /**
  * The ng module for the server.
  *
@@ -70,7 +85,7 @@ export var ServerModule = (function () {
     function ServerModule() {
     }
     ServerModule.decorators = [
-        { type: NgModule, args: [{ imports: [BrowserModule] },] },
+        { type: NgModule, args: [{ exports: [BrowserModule], providers: SERVER_RENDER_PROVIDERS },] },
     ];
     /** @nocollapse */
     ServerModule.ctorParameters = [];

@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnInit
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 import 'pdfjs-dist/web/pdf_viewer';
@@ -17,6 +17,7 @@ import 'pdfjs-dist/web/pdf_viewer';
 
 :host >>> .ng2-pdf-viewer-container > div {
   position: relative;
+  z-index: 0;
 }
 
 :host >>> .textLayer {
@@ -26,65 +27,50 @@ import 'pdfjs-dist/web/pdf_viewer';
   `]
 })
 
-export class PdfViewerComponent extends OnInit {
+export class PdfViewerComponent implements OnChanges, OnInit {
   private static CSS_UNITS: number = 96.0 / 72.0;
-
   private _showAll: boolean = true; // TODO : _showAll is not working
+
   private _renderText: boolean = true;
   private _renderLink: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
-  private _src: any;
-  private _pdf: any;
+  private _pdf: PDFDocumentProxy;
   private _page: number = 1;
   private _zoom: number = 1;
-  private wasInvalidPage: boolean = false;
   private _rotation: number = 0;
-  private isInitialised: boolean = false;
-  private lastLoaded: string;
+
   private _enhanceTextSelection: boolean = false;
   private _pageBorder: boolean = false;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
-  @Input('after-load-complete') afterLoadComplete: Function;
+
+  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
   constructor(private element: ElementRef) {
-    super();
+    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+    //PDFJS.disableWorker = true;
   }
 
   ngOnInit() {
     this.setupViewer();
-    this.isInitialised = true;
   }
 
-  @Input('src')
-  set src(_src) {
-    this._src = _src;
-
-    if (this.isInitialised && this._src) {
-      this.loadPDF();
-    }
-  }
+  @Input()
+  src: string | Uint8Array | PDFSource;
 
   @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10);
 
-    if (!this._pdf) {
-      this._page = _page;
-      return;
+    if (this._pdf && !this.isValidPageNumber(_page)) {
+      _page = 1;
     }
 
-    if (this.isValidPageNumber(_page)) {
+    if (this._page !== _page) {
       this._page = _page;
-      this.render();
-      this.wasInvalidPage = false;
-    } else if (isNaN(_page)) {
-      this.pageChange.emit(null);
-    } else if (!this.wasInvalidPage) {
-      this.wasInvalidPage = true;
-      this.pageChange.emit(this._page);
+      this.pageChange.emit(_page);
     }
   }
 
@@ -117,19 +103,11 @@ export class PdfViewerComponent extends OnInit {
   @Input('show-all')
   set showAll(value: boolean) {
     this._showAll = value;
-
-    if (this._pdf) {
-      this.render();
-    }
   }
 
   @Input('stick-to-page')
   set stickToPage(value: boolean) {
     this._stickToPage = value;
-
-    if (this._pdf) {
-      this.render();
-    }
   }
 
   @Input('zoom')
@@ -157,15 +135,8 @@ export class PdfViewerComponent extends OnInit {
     }
 
     this._rotation = value;
-
-    this.update();
   }
 
-  private update() {
-    if (this._pdf) {
-      this.render();
-    }
-  }
 
   @Input('external-link-target')
   set externalLinkTarget(value: string) {
@@ -193,9 +164,6 @@ export class PdfViewerComponent extends OnInit {
 
   public setupViewer() {
 
-    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-    //PDFJS.disableWorker = true;
-
     PDFJS.disableTextLayer = !this._renderText;
 
     switch (this._externalLinkTarget) {
@@ -216,62 +184,65 @@ export class PdfViewerComponent extends OnInit {
         break;
     }
 
-    let container = this.element.nativeElement.querySelector('div');
-
-    var pdfOptions = {
-      container: container
+    let pdfOptions: any = {
+      container: this.element.nativeElement.querySelector('div')
     };
 
     if (this._renderLink) {
       this._pdfLinkService = new PDFJS.PDFLinkService();
-      pdfOptions['linkService'] = this._pdfLinkService;
+      pdfOptions.linkService = this._pdfLinkService;
     }
 
     if (!this._pageBorder) {
-      pdfOptions['removePageBorders'] = true;
+      pdfOptions.removePageBorders = true;
     }
 
     if (this._enhanceTextSelection) {
-      pdfOptions['enhanceTextSelection'] = this._enhanceTextSelection;
+      pdfOptions.enhanceTextSelection = this._enhanceTextSelection;
     }
 
-    this._pdfViewer = new PDFJS.PDFViewer({
-      container: container
-    });
+    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
 
     if (this._renderLink) {
       this._pdfLinkService.setViewer(this._pdfViewer);
     }
 
-    if (this._src) {
+    if (this.src) {
       this.loadPDF();
     }
   }
 
-  public loadPDF(src?) {
-
-    if (!src) {
-      src = this._src;
-    }
-
-    if (src) {
-
-      PDFJS.getDocument(src).then((pdf: PDFDocumentProxy) => {
-
-        this._pdf = pdf;
-        this.lastLoaded = src;
-
-        if (this.afterLoadComplete && typeof this.afterLoadComplete === 'function') {
-          this.afterLoadComplete(pdf);
-        }
-
-        this._pdfViewer.setDocument(this._pdf);
-        this._pdfLinkService.setDocument(this._pdf, null);
-
-        this.render();
-      });
+  ngOnChanges(changes: SimpleChanges) {
+    if ('src' in changes) {
+      this.loadPDF();
+    } else if (this._pdf) {
+      this.update();
     }
   }
+
+  private loadPDF() {
+    if (!this.src) {
+      return;
+    }
+
+    PDFJS.getDocument(this.src).then(pdf => {
+      this._pdf = pdf;
+
+      this.afterLoadComplete.emit(pdf);
+
+      this._pdfViewer.setDocument(this._pdf);
+      this._pdfLinkService.setDocument(this._pdf, null);
+
+      this.update();
+    });
+  }
+
+  private update() {
+    this.page = this._page;
+
+    this.render();
+  }
+
 
   public render() {
     if (!this.isValidPageNumber(this._page)) {
@@ -301,6 +272,6 @@ export class PdfViewerComponent extends OnInit {
   }
 
   public isValidPageNumber(page: number) {
-    return this._pdf.numPages >= page && page >= 1;
-  }
+      return this._pdf.numPages >= page && page >= 1;
+    }
 }
