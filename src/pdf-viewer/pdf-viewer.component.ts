@@ -164,23 +164,23 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   public setupViewer() {
 
-    PDFJS.disableTextLayer = !this._renderText;
+    (<any>PDFJS).disableTextLayer = !this._renderText;
 
     switch (this._externalLinkTarget) {
       case 'blank':
-        PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
+        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
         break;
       case 'none':
-        PDFJS.externalLinkTarget = PDFJS.LinkTarget.NONE;
+        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.NONE;
         break;
       case 'self':
-        PDFJS.externalLinkTarget = PDFJS.LinkTarget.SELF;
+        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.SELF;
         break;
       case 'parent':
-        PDFJS.externalLinkTarget = PDFJS.LinkTarget.PARENT;
+        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.PARENT;
         break;
       case 'top':
-        PDFJS.externalLinkTarget = PDFJS.LinkTarget.TOP;
+        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
         break;
     }
 
@@ -189,7 +189,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     };
 
     if (this._renderLink) {
-      this._pdfLinkService = new PDFJS.PDFLinkService();
+      this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
       pdfOptions.linkService = this._pdfLinkService;
     }
 
@@ -230,8 +230,12 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
       this.afterLoadComplete.emit(pdf);
 
-      this._pdfViewer.setDocument(this._pdf);
-      this._pdfLinkService.setDocument(this._pdf, null);
+      if (this._pdfViewer) {
+        this._pdfViewer.setDocument(this._pdf);
+      }
+      if (this._pdfLinkService) {
+        this._pdfLinkService.setDocument(this._pdf, null);
+      }
 
       this.update();
     });
