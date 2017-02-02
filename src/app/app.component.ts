@@ -1,7 +1,8 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import {PdfViewerComponent} from "../pdf-viewer/pdf-viewer.component";
 
 @Component({
   moduleId: module.id,
@@ -11,6 +12,9 @@ import { Component } from '@angular/core';
 })
 
 export class AppComponent {
+
+  @ViewChild('myPdfViewer') pdfViewer:PdfViewerComponent;
+
   pdfSrc: string = './pdf-test.pdf';
 
   // or pass options as object
@@ -29,6 +33,10 @@ export class AppComponent {
   showAll: boolean = true;
   pdf: any;
   renderText: boolean = true;
+
+  ngOnInit() {
+    this.updateStylePageContent();
+  }
 
   incrementPage(amount: number) {
     this.page += amount;
@@ -65,5 +73,17 @@ export class AppComponent {
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
+  }
+
+  stylePageContent:any;
+  updateStylePageContent() {
+    this.stylePageContent = {
+      'width': 0.5 * window.innerWidth + 'px'
+    };
+  }
+
+  onPageResize() {
+    this.updateStylePageContent();
+    this.pdfViewer.updateSize();
   }
 }

@@ -20,7 +20,7 @@
       "systemjs",
       "jasmine",
       "node",
-      "pdf"
+      "types-pdf"
     ]
   },
   "exclude": [
