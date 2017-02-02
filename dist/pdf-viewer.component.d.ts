@@ -1,4 +1,3 @@
-/// <reference types="types-pdf" />
 import { ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
 import 'pdfjs-dist/web/pdf_viewer';
