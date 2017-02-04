@@ -9,22 +9,7 @@ import 'pdfjs-dist/web/pdf_viewer';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container"><div id="viewer" class="pdfViewer"></div></div>`,
-  styles: [`
-.ng2-pdf-viewer--zoom {
-  overflow-x: scroll;
-}
-
-:host >>> .ng2-pdf-viewer-container > div {
-  position: relative;
-  z-index: 0;
-}
-
-:host >>> .textLayer {
-  font-family: sans-serif;
-  overflow: hidden;
-}
-  `]
+  template: `<div class="ng2-pdf-viewer-container"><div id="viewer" class="pdfViewer"></div></div>`
 })
 
 export class PdfViewerComponent implements OnChanges, OnInit {
@@ -41,10 +26,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _rotation: number = 0;
 
   private _enhanceTextSelection: boolean = false;
-  private _pageBorder: boolean = false;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
+  private lastLoaded: string | Uint8Array | PDFSource;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
@@ -79,17 +64,17 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('render-text')
   set renderText(renderText: boolean) {
     this._renderText = renderText;
-    if (this._pdf) {
-      this.setupViewer();
-    }
+    // if (this._pdf) {
+    //   this.setupViewer();
+    // }
   }
 
   @Input('render-link')
   set renderLink(renderLink) {
     this._renderLink = renderLink;
-    if (this._pdf) {
-      this.setupViewer();
-    }
+    // if (this._pdf) {
+    //   this.setupViewer();
+    // }
   }
 
   @Input('original-size')
@@ -141,25 +126,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('external-link-target')
   set externalLinkTarget(value: string) {
     this._externalLinkTarget = value;
-    if (this._pdf) {
-      this.setupViewer();
-    }
-  }
-
-  @Input('page-border')
-  set pageBorder(value: boolean) {
-    this._pageBorder = value;
-    if (this._pdf) {
-      this.setupViewer();
-    }
   }
 
   @Input('enhance-text-selection')
   set enhanceTextSelection(value: boolean) {
     this._enhanceTextSelection = value;
-    if (this._pdf) {
-      this.setupViewer();
-    }
   }
 
   public setupViewer() {
@@ -185,7 +156,9 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     let pdfOptions: any = {
-      container: this.element.nativeElement.querySelector('div')
+      container: this.element.nativeElement.querySelector('div'),
+      removePageBorders: true,
+      enhanceTextSelection: this._enhanceTextSelection
     };
 
     if (this._renderLink) {
@@ -193,22 +166,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       pdfOptions.linkService = this._pdfLinkService;
     }
 
-    if (!this._pageBorder) {
-      pdfOptions.removePageBorders = true;
-    }
-
-    if (this._enhanceTextSelection) {
-      pdfOptions.enhanceTextSelection = this._enhanceTextSelection;
-    }
-
     this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
 
     if (this._renderLink) {
       this._pdfLinkService.setViewer(this._pdfViewer);
-    }
-
-    if (this.src) {
-      this.loadPDF();
     }
   }
 
@@ -216,6 +177,9 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {
+      if ('renderText' in changes || 'renderLink' in changes || 'enhanceTextSelection' in changes) {
+        this.setupViewer();
+      }
       this.update();
     }
   }
@@ -225,23 +189,30 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    PDFJS.getDocument(this.src).then(pdf => {
+    if (this.lastLoaded === this.src) {
+      this.update();
+      return;
+    }
+
+    const src = this.src;
+    PDFJS.getDocument(src).then(pdf => {
       this._pdf = pdf;
+      this.lastLoaded = src;
 
       this.afterLoadComplete.emit(pdf);
-
-      if (this._pdfViewer) {
-        this._pdfViewer.setDocument(this._pdf);
-      }
-      if (this._pdfLinkService) {
-        this._pdfLinkService.setDocument(this._pdf, null);
-      }
 
       this.update();
     });
   }
 
   private update() {
+    if (this._pdfViewer) {
+      this._pdfViewer.setDocument(this._pdf);
+    }
+    if (this._pdfLinkService) {
+      this._pdfLinkService.setDocument(this._pdf, null);
+    }
+
     this.page = this._page;
 
     this.render();
@@ -267,7 +238,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   public updateSize() {
     if (!this._originalSize) {
       this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-        let scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+        const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
         this._pdfViewer._setScale(scale, !this._stickToPage);
       });
     } else {
@@ -276,6 +247,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   public isValidPageNumber(page: number) {
-      return this._pdf.numPages >= page && page >= 1;
-    }
+    return this._pdf.numPages >= page && page >= 1;
+  }
 }

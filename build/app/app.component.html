@@ -126,16 +126,6 @@
               </label>
             </div>
 
-            <div>
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="page-border">
-                <input type="checkbox" id="page-border" class="mdl-switch__input"
-                       [checked]="pageBorder"
-                       [(ngModel)]="pageBorder"
-                >
-                <span class="mdl-switch__label">Enable page border</span>
-              </label>
-            </div>
-
             <pdf-viewer #myPdfViewer
                         [src]="pdfSrc"
                         [(page)]="page"
@@ -148,7 +138,6 @@
                         [render-text]="renderText"
                         [render-link]="renderLink"
                         [enhance-text-selection]="enhanceTextSelection"
-                        [page-border]="pageBorder"
             ></pdf-viewer>
 
         </div>

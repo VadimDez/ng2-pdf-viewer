@@ -15,10 +15,10 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     private _zoom;
     private _rotation;
     private _enhanceTextSelection;
-    private _pageBorder;
     private _externalLinkTarget;
     private _pdfViewer;
     private _pdfLinkService;
+    private lastLoaded;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     constructor(element: ElementRef);
     ngOnInit(): void;
@@ -33,7 +33,6 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     zoom: number;
     rotation: number;
     externalLinkTarget: string;
-    pageBorder: boolean;
     enhanceTextSelection: boolean;
     setupViewer(): void;
     ngOnChanges(changes: SimpleChanges): void;
