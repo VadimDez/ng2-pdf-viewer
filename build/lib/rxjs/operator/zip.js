@@ -11,6 +11,12 @@ var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 var iterator_1 = require('../symbol/iterator');
 /* tslint:disable:max-line-length */
+/**
+ * @param observables
+ * @return {Observable<R>}
+ * @method zip
+ * @owner Observable
+ */
 function zipProto() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -21,6 +27,30 @@ function zipProto() {
 exports.zipProto = zipProto;
 /* tslint:enable:max-line-length */
 /**
+ * Combines multiple Observables to create an Observable whose values are calculated from the values, in order, of each
+ * of its input Observables.
+ *
+ * If the latest parameter is a function, this function is used to compute the created value from the input values.
+ * Otherwise, an array of the input values is returned.
+ *
+ * @example <caption>Combine age and name from different sources</caption>
+ *
+ * let age$ = Observable.of<number>(27, 25, 29);
+ * let name$ = Observable.of<string>('Foo', 'Bar', 'Beer');
+ * let isDev$ = Observable.of<boolean>(true, true, false);
+ *
+ * Observable
+ *     .zip(age$,
+ *          name$,
+ *          isDev$,
+ *          (age: number, name: string, isDev: boolean) => ({ age, name, isDev }))
+ *     .subscribe(x => console.log(x));
+ *
+ * // outputs
+ * // { age: 7, name: 'Foo', isDev: true }
+ * // { age: 5, name: 'Bar', isDev: true }
+ * // { age: 9, name: 'Beer', isDev: false }
+ *
  * @param observables
  * @return {Observable<R>}
  * @static true
@@ -44,7 +74,7 @@ var ZipOperator = (function () {
         this.project = project;
     }
     ZipOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ZipSubscriber(subscriber, this.project));
+        return source.subscribe(new ZipSubscriber(subscriber, this.project));
     };
     return ZipOperator;
 }());
@@ -59,7 +89,6 @@ var ZipSubscriber = (function (_super) {
     function ZipSubscriber(destination, project, values) {
         if (values === void 0) { values = Object.create(null); }
         _super.call(this, destination);
-        this.index = 0;
         this.iterators = [];
         this.active = 0;
         this.project = (typeof project === 'function') ? project : null;
@@ -67,7 +96,6 @@ var ZipSubscriber = (function (_super) {
     }
     ZipSubscriber.prototype._next = function (value) {
         var iterators = this.iterators;
-        var index = this.index++;
         if (isArray_1.isArray(value)) {
             iterators.push(new StaticArrayIterator(value));
         }
@@ -75,7 +103,7 @@ var ZipSubscriber = (function (_super) {
             iterators.push(new StaticIterator(value[iterator_1.$$iterator]()));
         }
         else {
-            iterators.push(new ZipBufferIterator(this.destination, this, value, index));
+            iterators.push(new ZipBufferIterator(this.destination, this, value));
         }
     };
     ZipSubscriber.prototype._complete = function () {
@@ -198,11 +226,10 @@ var StaticArrayIterator = (function () {
  */
 var ZipBufferIterator = (function (_super) {
     __extends(ZipBufferIterator, _super);
-    function ZipBufferIterator(destination, parent, observable, index) {
+    function ZipBufferIterator(destination, parent, observable) {
         _super.call(this, destination);
         this.parent = parent;
         this.observable = observable;
-        this.index = index;
         this.stillUnsubscribed = true;
         this.buffer = [];
         this.isComplete = false;

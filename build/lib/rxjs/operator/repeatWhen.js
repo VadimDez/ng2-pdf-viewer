@@ -14,28 +14,27 @@ var subscribeToResult_1 = require('../util/subscribeToResult');
  * A `complete` will cause the emission of the Throwable that cause the complete to the Observable returned from
  * notificationHandler. If that Observable calls onComplete or `complete` then retry will call `complete` or `error`
  * on the child subscription. Otherwise, this Observable will resubscribe to the source observable, on a particular
- * Scheduler.
+ * IScheduler.
  *
  * <img src="./img/repeatWhen.png" width="100%">
  *
  * @param {notificationHandler} receives an Observable of notifications with which a user can `complete` or `error`,
  * aborting the retry.
- * @param {scheduler} the Scheduler on which to subscribe to the source Observable.
+ * @param {scheduler} the IScheduler on which to subscribe to the source Observable.
  * @return {Observable} the source Observable modified with retry logic.
  * @method repeatWhen
  * @owner Observable
  */
 function repeatWhen(notifier) {
-    return this.lift(new RepeatWhenOperator(notifier, this));
+    return this.lift(new RepeatWhenOperator(notifier));
 }
 exports.repeatWhen = repeatWhen;
 var RepeatWhenOperator = (function () {
-    function RepeatWhenOperator(notifier, source) {
+    function RepeatWhenOperator(notifier) {
         this.notifier = notifier;
-        this.source = source;
     }
     RepeatWhenOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RepeatWhenSubscriber(subscriber, this.notifier, this.source));
+        return source.subscribe(new RepeatWhenSubscriber(subscriber, this.notifier, source));
     };
     return RepeatWhenOperator;
 }());
@@ -50,30 +49,28 @@ var RepeatWhenSubscriber = (function (_super) {
         _super.call(this, destination);
         this.notifier = notifier;
         this.source = source;
+        this.sourceIsBeingSubscribedTo = true;
     }
+    RepeatWhenSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+        this.source.subscribe(this);
+        this.sourceIsBeingSubscribedTo = true;
+    };
+    RepeatWhenSubscriber.prototype.notifyComplete = function (innerSub) {
+        if (this.sourceIsBeingSubscribedTo === false) {
+            return _super.prototype.complete.call(this);
+        }
+    };
     RepeatWhenSubscriber.prototype.complete = function () {
+        this.sourceIsBeingSubscribedTo = false;
         if (!this.isStopped) {
-            var notifications = this.notifications;
-            var retries = this.retries;
-            var retriesSubscription = this.retriesSubscription;
-            if (!retries) {
-                notifications = new Subject_1.Subject();
-                retries = tryCatch_1.tryCatch(this.notifier)(notifications);
-                if (retries === errorObject_1.errorObject) {
-                    return _super.prototype.complete.call(this);
-                }
-                retriesSubscription = subscribeToResult_1.subscribeToResult(this, retries);
+            if (!this.retries) {
+                this.subscribeToRetries();
             }
-            else {
-                this.notifications = null;
-                this.retriesSubscription = null;
+            else if (this.retriesSubscription.closed) {
+                return _super.prototype.complete.call(this);
             }
-            this.unsubscribe();
-            this.closed = false;
-            this.notifications = notifications;
-            this.retries = retries;
-            this.retriesSubscription = retriesSubscription;
-            notifications.next();
+            this.temporarilyUnsubscribe();
+            this.notifications.next();
         }
     };
     RepeatWhenSubscriber.prototype._unsubscribe = function () {
@@ -88,7 +85,16 @@ var RepeatWhenSubscriber = (function (_super) {
         }
         this.retries = null;
     };
-    RepeatWhenSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+    RepeatWhenSubscriber.prototype.subscribeToRetries = function () {
+        this.notifications = new Subject_1.Subject();
+        var retries = tryCatch_1.tryCatch(this.notifier)(this.notifications);
+        if (retries === errorObject_1.errorObject) {
+            return _super.prototype.complete.call(this);
+        }
+        this.retries = retries;
+        this.retriesSubscription = subscribeToResult_1.subscribeToResult(this, retries);
+    };
+    RepeatWhenSubscriber.prototype.temporarilyUnsubscribe = function () {
         var _a = this, notifications = _a.notifications, retries = _a.retries, retriesSubscription = _a.retriesSubscription;
         this.notifications = null;
         this.retries = null;
@@ -99,7 +105,6 @@ var RepeatWhenSubscriber = (function (_super) {
         this.notifications = notifications;
         this.retries = retries;
         this.retriesSubscription = retriesSubscription;
-        this.source.subscribe(this);
     };
     return RepeatWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));

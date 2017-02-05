@@ -49,7 +49,7 @@ var ErrorObservable = (function (_super) {
      * @see {@link of}
      *
      * @param {any} error The particular Error to pass to the error notification.
-     * @param {Scheduler} [scheduler] A {@link Scheduler} to use for scheduling
+     * @param {Scheduler} [scheduler] A {@link IScheduler} to use for scheduling
      * the emission of the error notification.
      * @return {Observable} An error Observable: emits only the error notification
      * using the given error argument.

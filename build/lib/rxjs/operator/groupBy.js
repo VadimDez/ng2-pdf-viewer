@@ -11,19 +11,40 @@ var Subject_1 = require('../Subject');
 var Map_1 = require('../util/Map');
 var FastMap_1 = require('../util/FastMap');
 /* tslint:disable:max-line-length */
-function groupBy(keySelector, elementSelector, durationSelector) {
-    return this.lift(new GroupByOperator(this, keySelector, elementSelector, durationSelector));
+/**
+ * Groups the items emitted by an Observable according to a specified criterion,
+ * and emits these grouped items as `GroupedObservables`, one
+ * {@link GroupedObservable} per group.
+ *
+ * <img src="./img/groupBy.png" width="100%">
+ *
+ * @param {function(value: T): K} keySelector a function that extracts the key
+ * for each item.
+ * @param {function(value: T): R} [elementSelector] a function that extracts the
+ * return element for each item.
+ * @param {function(grouped: GroupedObservable<K,R>): Observable<any>} [durationSelector]
+ * a function that returns an Observable to determine how long each group should
+ * exist.
+ * @return {Observable<GroupedObservable<K,R>>} an Observable that emits
+ * GroupedObservables, each of which corresponds to a unique key value and each
+ * of which emits those items from the source Observable that share that key
+ * value.
+ * @method groupBy
+ * @owner Observable
+ */
+function groupBy(keySelector, elementSelector, durationSelector, subjectSelector) {
+    return this.lift(new GroupByOperator(keySelector, elementSelector, durationSelector, subjectSelector));
 }
 exports.groupBy = groupBy;
 var GroupByOperator = (function () {
-    function GroupByOperator(source, keySelector, elementSelector, durationSelector) {
-        this.source = source;
+    function GroupByOperator(keySelector, elementSelector, durationSelector, subjectSelector) {
         this.keySelector = keySelector;
         this.elementSelector = elementSelector;
         this.durationSelector = durationSelector;
+        this.subjectSelector = subjectSelector;
     }
     GroupByOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new GroupBySubscriber(subscriber, this.keySelector, this.elementSelector, this.durationSelector));
+        return source.subscribe(new GroupBySubscriber(subscriber, this.keySelector, this.elementSelector, this.durationSelector, this.subjectSelector));
     };
     return GroupByOperator;
 }());
@@ -34,11 +55,12 @@ var GroupByOperator = (function () {
  */
 var GroupBySubscriber = (function (_super) {
     __extends(GroupBySubscriber, _super);
-    function GroupBySubscriber(destination, keySelector, elementSelector, durationSelector) {
+    function GroupBySubscriber(destination, keySelector, elementSelector, durationSelector, subjectSelector) {
         _super.call(this, destination);
         this.keySelector = keySelector;
         this.elementSelector = elementSelector;
         this.durationSelector = durationSelector;
+        this.subjectSelector = subjectSelector;
         this.groups = null;
         this.attemptedToUnsubscribe = false;
         this.count = 0;
@@ -73,7 +95,8 @@ var GroupBySubscriber = (function (_super) {
             element = value;
         }
         if (!group) {
-            groups.set(key, group = new Subject_1.Subject());
+            group = this.subjectSelector ? this.subjectSelector() : new Subject_1.Subject();
+            groups.set(key, group);
             var groupedObservable = new GroupedObservable(key, group, this);
             this.destination.next(groupedObservable);
             if (this.durationSelector) {
@@ -116,7 +139,7 @@ var GroupBySubscriber = (function (_super) {
         this.groups.delete(key);
     };
     GroupBySubscriber.prototype.unsubscribe = function () {
-        if (!this.closed && !this.attemptedToUnsubscribe) {
+        if (!this.closed) {
             this.attemptedToUnsubscribe = true;
             if (this.count === 0) {
                 _super.prototype.unsubscribe.call(this);

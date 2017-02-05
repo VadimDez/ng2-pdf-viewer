@@ -25,7 +25,7 @@ var SkipOperator = (function () {
         this.total = total;
     }
     SkipOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SkipSubscriber(subscriber, this.total));
+        return source.subscribe(new SkipSubscriber(subscriber, this.total));
     };
     return SkipOperator;
 }());

@@ -9,6 +9,14 @@ var ArrayObservable_1 = require('../observable/ArrayObservable');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 /* tslint:disable:max-line-length */
+/**
+ * Returns an Observable that mirrors the first source Observable to emit an item
+ * from the combination of this Observable and supplied Observables
+ * @param {...Observables} ...observables sources used to race for which Observable emits first.
+ * @return {Observable} an Observable that mirrors the output of the first Observable to emit an item.
+ * @method race
+ * @owner Observable
+ */
 function race() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -44,7 +52,7 @@ var RaceOperator = (function () {
     function RaceOperator() {
     }
     RaceOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RaceSubscriber(subscriber));
+        return source.subscribe(new RaceSubscriber(subscriber));
     };
     return RaceOperator;
 }());
@@ -72,13 +80,13 @@ var RaceSubscriber = (function (_super) {
             this.destination.complete();
         }
         else {
-            for (var i = 0; i < len; i++) {
+            for (var i = 0; i < len && !this.hasFirst; i++) {
                 var observable = observables[i];
                 var subscription = subscribeToResult_1.subscribeToResult(this, observable, observable, i);
                 if (this.subscriptions) {
                     this.subscriptions.push(subscription);
-                    this.add(subscription);
                 }
+                this.add(subscription);
             }
             this.observables = null;
         }

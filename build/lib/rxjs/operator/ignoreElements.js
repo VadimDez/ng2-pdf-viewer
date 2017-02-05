@@ -25,7 +25,7 @@ var IgnoreElementsOperator = (function () {
     function IgnoreElementsOperator() {
     }
     IgnoreElementsOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new IgnoreElementsSubscriber(subscriber));
+        return source.subscribe(new IgnoreElementsSubscriber(subscriber));
     };
     return IgnoreElementsOperator;
 }());

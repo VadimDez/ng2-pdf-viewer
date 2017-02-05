@@ -1,4 +1,4 @@
-import { Scheduler } from '../Scheduler';
+import { IScheduler } from '../Scheduler';
 import { Observable } from '../Observable';
 import { TeardownLogic } from '../Subscription';
 export interface DispatchArg {
@@ -10,8 +10,8 @@ export interface DispatchArg {
  * @extends {Ignored}
  * @hide true
  */
-export declare class ErrorObservable extends Observable<any> {
-    error: any;
+export declare class ErrorObservable<T> extends Observable<any> {
+    error: T;
     private scheduler;
     /**
      * Creates an Observable that emits no items to the Observer and immediately
@@ -45,7 +45,7 @@ export declare class ErrorObservable extends Observable<any> {
      * @see {@link of}
      *
      * @param {any} error The particular Error to pass to the error notification.
-     * @param {Scheduler} [scheduler] A {@link Scheduler} to use for scheduling
+     * @param {Scheduler} [scheduler] A {@link IScheduler} to use for scheduling
      * the emission of the error notification.
      * @return {Observable} An error Observable: emits only the error notification
      * using the given error argument.
@@ -53,8 +53,8 @@ export declare class ErrorObservable extends Observable<any> {
      * @name throw
      * @owner Observable
      */
-    static create<T>(error: any, scheduler?: Scheduler): ErrorObservable;
+    static create<T>(error: T, scheduler?: IScheduler): ErrorObservable<T>;
     static dispatch(arg: DispatchArg): void;
-    constructor(error: any, scheduler?: Scheduler);
+    constructor(error: T, scheduler?: IScheduler);
     protected _subscribe(subscriber: any): TeardownLogic;
 }

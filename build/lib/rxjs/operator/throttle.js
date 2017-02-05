@@ -53,7 +53,7 @@ var ThrottleOperator = (function () {
         this.durationSelector = durationSelector;
     }
     ThrottleOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ThrottleSubscriber(subscriber, this.durationSelector));
+        return source.subscribe(new ThrottleSubscriber(subscriber, this.durationSelector));
     };
     return ThrottleOperator;
 }());

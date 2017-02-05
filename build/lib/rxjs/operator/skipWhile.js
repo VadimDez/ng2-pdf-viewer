@@ -26,7 +26,7 @@ var SkipWhileOperator = (function () {
         this.predicate = predicate;
     }
     SkipWhileOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SkipWhileSubscriber(subscriber, this.predicate));
+        return source.subscribe(new SkipWhileSubscriber(subscriber, this.predicate));
     };
     return SkipWhileOperator;
 }());

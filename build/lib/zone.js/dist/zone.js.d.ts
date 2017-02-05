@@ -1,4 +1,11 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
  * Zone is a mechanism for intercepting and keeping track of asynchronous work.
  *
  * A Zone is a global object which is configured with rules about how to intercept and keep track
@@ -83,7 +90,7 @@
  *
  * ### [TimerTask]
  *
- * [TimerTask]s represents work which will be done after some delay. (Sometimes the delay is
+ * [TimerTask]s represent work which will be done after some delay. (Sometimes the delay is
  * approximate such as on next available animation frame). Typically these methods include:
  * `setTimeout`, `setImmediate`, `setInterval`, `requestAnimationFrame`, and all browser specif
  * variants.
@@ -91,8 +98,8 @@
  *
  * ### [EventTask]
  *
- * [EventTask]s represents a request to create a listener on an event. Unlike the other task
- * events may never be executed, but typically execute more then once. There is no queue of
+ * [EventTask]s represent a request to create a listener on an event. Unlike the other task
+ * events may never be executed, but typically execute more than once. There is no queue of
  * events, rather their callbacks are unpredictable both in order and time.
  *
  *
@@ -168,7 +175,7 @@ interface Zone {
      * @param source A unique debug location of the API being wrapped.
      * @returns {function(): *} A function which will invoke the `callback` through [Zone.runGuarded].
      */
-    wrap(callback: Function, source: string): Function;
+    wrap<F extends Function>(callback: F, source: string): F;
     /**
      * Invokes a function in a given zone.
      *
@@ -458,5 +465,18 @@ interface MicroTask extends Task {
 interface MacroTask extends Task {
 }
 interface EventTask extends Task {
+}
+/**
+ * Extend the Error with additional fields for rewritten stack frames
+ */
+interface Error {
+    /**
+     * Stack trace where extra frames have been removed and zone names added.
+     */
+    zoneAwareStack?: string;
+    /**
+     * Original stack trace with no modiffications
+     */
+    originalStack?: string;
 }
 declare const Zone: ZoneType;

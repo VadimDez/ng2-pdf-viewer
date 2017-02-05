@@ -4,6 +4,11 @@ import { Observable } from '../Observable';
 import { PartialObserver } from '../Observer';
 import { TeardownLogic } from '../Subscription';
 
+/* tslint:disable:max-line-length */
+export function _do<T>(this: Observable<T>, next: (x: T) => void, error?: (e: any) => void, complete?: () => void): Observable<T>;
+export function _do<T>(this: Observable<T>, observer: PartialObserver<T>): Observable<T>;
+/* tslint:disable:max-line-length */
+
 /**
  * Perform a side effect for every emission on the source Observable, but return
  * an Observable that is identical to the source.
@@ -47,10 +52,6 @@ import { TeardownLogic } from '../Subscription';
  * @name do
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function _do<T>(next: (x: T) => void, error?: (e: any) => void, complete?: (this: Observable<T>) => void): Observable<T>;
-export function _do<T>(this: Observable<T>, observer: PartialObserver<T>): Observable<T>;
-/* tslint:disable:max-line-length */
 export function _do<T>(this: Observable<T>, nextOrObserver?: PartialObserver<T> | ((x: T) => void),
                        error?: (e: any) => void,
                        complete?: () => void): Observable<T> {
@@ -63,7 +64,7 @@ class DoOperator<T> implements Operator<T, T> {
               private complete?: () => void) {
   }
   call(subscriber: Subscriber<T>, source: any): TeardownLogic {
-    return source._subscribe(new DoSubscriber(subscriber, this.nextOrObserver, this.error, this.complete));
+    return source.subscribe(new DoSubscriber(subscriber, this.nextOrObserver, this.error, this.complete));
   }
 }
 

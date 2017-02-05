@@ -32,7 +32,7 @@ var SingleOperator = (function () {
         this.source = source;
     }
     SingleOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SingleSubscriber(subscriber, this.predicate, this.source));
+        return source.subscribe(new SingleSubscriber(subscriber, this.predicate, this.source));
     };
     return SingleOperator;
 }());

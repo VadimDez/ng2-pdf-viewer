@@ -45,7 +45,36 @@ var WebSocketSubject = (function (_super) {
         return JSON.parse(e.data);
     };
     /**
-     * @param urlConfigOrSource
+     * Wrapper around the w3c-compatible WebSocket object provided by the browser.
+     *
+     * @example <caption>Wraps browser WebSocket</caption>
+     *
+     * let subject = Observable.webSocket('ws://localhost:8081');
+     * subject.subscribe(
+     *    (msg) => console.log('message received: ' + msg),
+     *    (err) => console.log(err),
+     *    () => console.log('complete')
+     *  );
+     * subject.next(JSON.stringify({ op: 'hello' }));
+     *
+     * @example <caption>Wraps WebSocket from nodejs-websocket (using node.js)</caption>
+     *
+     * import { w3cwebsocket } from 'websocket';
+     *
+     * let socket = new WebSocketSubject({
+     *   url: 'ws://localhost:8081',
+     *   WebSocketCtor: w3cwebsocket
+     * });
+     *
+     * let subject = Observable.webSocket('ws://localhost:8081');
+     * subject.subscribe(
+     *    (msg) => console.log('message received: ' + msg),
+     *    (err) => console.log(err),
+     *    () => console.log('complete')
+     *  );
+     * subject.next(JSON.stringify({ op: 'hello' }));
+     *
+     * @param {string | WebSocketSubjectConfig} urlConfigOrSource the source of the websocket as an url or a structure defining the websocket object
      * @return {WebSocketSubject}
      * @static true
      * @name webSocket
@@ -190,10 +219,12 @@ var WebSocketSubject = (function (_super) {
         subscription.add(this._output.subscribe(subscriber));
         subscription.add(function () {
             var socket = _this.socket;
-            if (_this._output.observers.length === 0 && socket && socket.readyState === 1) {
-                socket.close();
+            if (_this._output.observers.length === 0) {
+                if (socket && socket.readyState === 1) {
+                    socket.close();
+                }
+                _this._resetState();
             }
-            _this._resetState();
         });
         return subscription;
     };

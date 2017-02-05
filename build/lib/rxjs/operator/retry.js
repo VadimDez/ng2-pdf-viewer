@@ -33,7 +33,7 @@ var RetryOperator = (function () {
         this.source = source;
     }
     RetryOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RetrySubscriber(subscriber, this.count, this.source));
+        return source.subscribe(new RetrySubscriber(subscriber, this.count, this.source));
     };
     return RetryOperator;
 }());

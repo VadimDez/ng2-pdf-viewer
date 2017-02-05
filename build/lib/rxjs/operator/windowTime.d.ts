@@ -1,4 +1,4 @@
-import { Scheduler } from '../Scheduler';
+import { IScheduler } from '../Scheduler';
 import { Observable } from '../Observable';
 /**
  * Branch out the source Observable values as a nested Observable periodically
@@ -49,4 +49,4 @@ import { Observable } from '../Observable';
  * @method windowTime
  * @owner Observable
  */
-export declare function windowTime<T>(this: Observable<T>, windowTimeSpan: number, windowCreationInterval?: number, scheduler?: Scheduler): Observable<Observable<T>>;
+export declare function windowTime<T>(this: Observable<T>, windowTimeSpan: number, windowCreationInterval?: number, scheduler?: IScheduler): Observable<Observable<T>>;

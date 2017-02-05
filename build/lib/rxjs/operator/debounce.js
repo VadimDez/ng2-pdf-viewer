@@ -57,7 +57,7 @@ var DebounceOperator = (function () {
         this.durationSelector = durationSelector;
     }
     DebounceOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new DebounceSubscriber(subscriber, this.durationSelector));
+        return source.subscribe(new DebounceSubscriber(subscriber, this.durationSelector));
     };
     return DebounceOperator;
 }());

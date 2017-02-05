@@ -5,6 +5,18 @@ var EmptyObservable_1 = require('../observable/EmptyObservable');
 var concat_1 = require('./concat');
 var isScheduler_1 = require('../util/isScheduler');
 /* tslint:disable:max-line-length */
+/**
+ * Returns an Observable that emits the items in a specified Iterable before it begins to emit items emitted by the
+ * source Observable.
+ *
+ * <img src="./img/startWith.png" width="100%">
+ *
+ * @param {Values} an Iterable that contains the items you want the modified Observable to emit first.
+ * @return {Observable} an Observable that emits the items in the specified Iterable and then emits the items
+ * emitted by the source Observable.
+ * @method startWith
+ * @owner Observable
+ */
 function startWith() {
     var array = [];
     for (var _i = 0; _i < arguments.length; _i++) {

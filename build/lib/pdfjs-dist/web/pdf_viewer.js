@@ -1608,6 +1608,14 @@
        action: action
       });
      },
+     onFileAttachmentAnnotation: function (params) {
+      this.eventBus.dispatch('fileattachmentannotation', {
+       source: this,
+       id: params.id,
+       filename: params.filename,
+       content: params.content
+      });
+     },
      cachePageRef: function PDFLinkService_cachePageRef(pageNum, pageRef) {
       var refStr = pageRef.num + ' ' + pageRef.gen + ' R';
       this._pagesRefCache[refStr] = pageNum;
@@ -1689,6 +1697,8 @@
      setHash: function (hash) {
      },
      executeNamedAction: function (action) {
+     },
+     onFileAttachmentAnnotation: function (params) {
      },
      cachePageRef: function (pageNum, pageRef) {
      }
@@ -1937,7 +1947,6 @@
       this.renderingState = RenderingStates.RUNNING;
       var self = this;
       var pdfPage = this.pdfPage;
-      var viewport = this.viewport;
       var div = this.div;
       var canvasWrapper = document.createElement('div');
       canvasWrapper.style.width = div.style.width;
@@ -2057,8 +2066,6 @@
         renderTask.cancel();
        }
       };
-      var self = this;
-      var pdfPage = this.pdfPage;
       var viewport = this.viewport;
       var canvas = document.createElement('canvas');
       canvas.id = 'page' + this.id;
@@ -2928,6 +2935,8 @@
        this._setScale(this._currentScaleValue, true);
       }
       var pageView = this._pages[this._currentPageNumber - 1];
+      console.log(this._pages);
+      console.log(this._pages[0]);
       scrollIntoView(pageView.div);
      },
      scrollPageIntoView: function PDFViewer_scrollPageIntoView(params) {

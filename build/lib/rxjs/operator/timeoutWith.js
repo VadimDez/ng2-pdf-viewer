@@ -9,6 +9,14 @@ var isDate_1 = require('../util/isDate');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 /* tslint:disable:max-line-length */
+/**
+ * @param due
+ * @param withObservable
+ * @param scheduler
+ * @return {Observable<R>|WebSocketSubject<T>|Observable<T>}
+ * @method timeoutWith
+ * @owner Observable
+ */
 function timeoutWith(due, withObservable, scheduler) {
     if (scheduler === void 0) { scheduler = async_1.async; }
     var absoluteTimeout = isDate_1.isDate(due);
@@ -24,7 +32,7 @@ var TimeoutWithOperator = (function () {
         this.scheduler = scheduler;
     }
     TimeoutWithOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new TimeoutWithSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.withObservable, this.scheduler));
+        return source.subscribe(new TimeoutWithSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.withObservable, this.scheduler));
     };
     return TimeoutWithOperator;
 }());

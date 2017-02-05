@@ -1,6 +1,11 @@
 import { MergeMapOperator } from './mergeMap';
 import { Observable, ObservableInput } from '../Observable';
 
+/* tslint:disable:max-line-length */
+export function concatMap<T, R>(this: Observable<T>, project: (value: T, index: number) =>  ObservableInput<R>): Observable<R>;
+export function concatMap<T, I, R>(this: Observable<T>, project: (value: T, index: number) =>  ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
+/* tslint:disable:max-line-length */
+
 /**
  * Projects each source value to an Observable which is merged in the output
  * Observable, in a serialized fashion waiting for each one to complete before
@@ -28,6 +33,12 @@ import { Observable, ObservableInput } from '../Observable';
  * var clicks = Rx.Observable.fromEvent(document, 'click');
  * var result = clicks.concatMap(ev => Rx.Observable.interval(1000).take(4));
  * result.subscribe(x => console.log(x));
+ *
+ * // Results in the following:
+ * // (results are not concurrent)
+ * // For every click on the "document" it will emit values 0 to 3 spaced
+ * // on a 1000ms interval
+ * // one click = 1000ms-> 0 -1000ms-> 1 -1000ms-> 2 -1000ms-> 3
  *
  * @see {@link concat}
  * @see {@link concatAll}
@@ -57,10 +68,6 @@ import { Observable, ObservableInput } from '../Observable';
  * @method concatMap
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function concatMap<T, R>(this: Observable<T>, project: (value: T, index: number) =>  ObservableInput<R>): Observable<R>;
-export function concatMap<T, I, R>(this: Observable<T>, project: (value: T, index: number) =>  ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-/* tslint:disable:max-line-length */
 export function concatMap<T, I, R>(this: Observable<T>, project: (value: T, index: number) =>  ObservableInput<I>,
                                    resultSelector?: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R) {
   return this.lift(new MergeMapOperator(project, resultSelector, 1));

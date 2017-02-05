@@ -8,6 +8,23 @@ import { InnerSubscriber } from '../InnerSubscriber';
 import { subscribeToResult } from '../util/subscribeToResult';
 const none = {};
 
+/* tslint:disable:max-line-length */
+export function combineLatest<T, R>(this: Observable<T>, project: (v1: T) => R): Observable<R>;
+export function combineLatest<T, T2, R>(this: Observable<T>, v2: ObservableInput<T2>, project: (v1: T, v2: T2) => R): Observable<R>;
+export function combineLatest<T, T2, T3, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, project: (v1: T, v2: T2, v3: T3) => R): Observable<R>;
+export function combineLatest<T, T2, T3, T4, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, project: (v1: T, v2: T2, v3: T3, v4: T4) => R): Observable<R>;
+export function combineLatest<T, T2, T3, T4, T5, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, project: (v1: T, v2: T2, v3: T3, v4: T4, v5: T5) => R): Observable<R>;
+export function combineLatest<T, T2, T3, T4, T5, T6, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, v6: ObservableInput<T6>, project: (v1: T, v2: T2, v3: T3, v4: T4, v5: T5, v6: T6) => R): Observable<R> ;
+export function combineLatest<T, T2>(this: Observable<T>, v2: ObservableInput<T2>): Observable<[T, T2]>;
+export function combineLatest<T, T2, T3>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>): Observable<[T, T2, T3]>;
+export function combineLatest<T, T2, T3, T4>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>): Observable<[T, T2, T3, T4]>;
+export function combineLatest<T, T2, T3, T4, T5>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>): Observable<[T, T2, T3, T4, T5]>;
+export function combineLatest<T, T2, T3, T4, T5, T6>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, v6: ObservableInput<T6>): Observable<[T, T2, T3, T4, T5, T6]> ;
+export function combineLatest<T, R>(this: Observable<T>, ...observables: Array<ObservableInput<T> | ((...values: Array<T>) => R)>): Observable<R>;
+export function combineLatest<T, R>(this: Observable<T>, array: ObservableInput<T>[]): Observable<Array<T>>;
+export function combineLatest<T, TOther, R>(this: Observable<T>, array: ObservableInput<TOther>[], project: (v1: T, ...values: Array<TOther>) => R): Observable<R>;
+/* tslint:disable:max-line-length */
+
 /**
  * Combines multiple Observables to create an Observable whose values are
  * calculated from the latest values of each of its input Observables.
@@ -32,6 +49,11 @@ const none = {};
  * var bmi = weight.combineLatest(height, (w, h) => w / (h * h));
  * bmi.subscribe(x => console.log('BMI is ' + x));
  *
+ * // With output to console:
+ * // BMI is 24.212293388429753
+ * // BMI is 23.93948099205209
+ * // BMI is 23.671253629592222
+ *
  * @see {@link combineAll}
  * @see {@link merge}
  * @see {@link withLatestFrom}
@@ -46,22 +68,6 @@ const none = {};
  * @method combineLatest
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function combineLatest<T, R>(this: Observable<T>, project: (v1: T) => R): Observable<R>;
-export function combineLatest<T, T2, R>(this: Observable<T>, v2: ObservableInput<T2>, project: (v1: T, v2: T2) => R): Observable<R>;
-export function combineLatest<T, T2, T3, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, project: (v1: T, v2: T2, v3: T3) => R): Observable<R>;
-export function combineLatest<T, T2, T3, T4, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, project: (v1: T, v2: T2, v3: T3, v4: T4) => R): Observable<R>;
-export function combineLatest<T, T2, T3, T4, T5, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, project: (v1: T, v2: T2, v3: T3, v4: T4, v5: T5) => R): Observable<R>;
-export function combineLatest<T, T2, T3, T4, T5, T6, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, v6: ObservableInput<T6>, project: (v1: T, v2: T2, v3: T3, v4: T4, v5: T5, v6: T6) => R): Observable<R> ;
-export function combineLatest<T, T2>(this: Observable<T>, v2: ObservableInput<T2>): Observable<[T, T2]>;
-export function combineLatest<T, T2, T3>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>): Observable<[T, T2, T3]>;
-export function combineLatest<T, T2, T3, T4>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>): Observable<[T, T2, T3, T4]>;
-export function combineLatest<T, T2, T3, T4, T5>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>): Observable<[T, T2, T3, T4, T5]>;
-export function combineLatest<T, T2, T3, T4, T5, T6>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, v4: ObservableInput<T4>, v5: ObservableInput<T5>, v6: ObservableInput<T6>): Observable<[T, T2, T3, T4, T5, T6]> ;
-export function combineLatest<T, R>(this: Observable<T>, ...observables: Array<ObservableInput<T> | ((...values: Array<T>) => R)>): Observable<R>;
-export function combineLatest<T, R>(this: Observable<T>, array: ObservableInput<T>[]): Observable<Array<T>>;
-export function combineLatest<T, TOther, R>(this: Observable<T>, array: ObservableInput<TOther>[], project: (v1: T, ...values: Array<TOther>) => R): Observable<R>;
-/* tslint:disable:max-line-length */
 export function combineLatest<T, R>(this: Observable<T>, ...observables: Array<ObservableInput<any> |
                                                        Array<ObservableInput<any>> |
                                                        ((...values: Array<any>) => R)>): Observable<R> {
@@ -73,7 +79,7 @@ export function combineLatest<T, R>(this: Observable<T>, ...observables: Array<O
   // if the first and only other argument besides the resultSelector is an array
   // assume it's been called with `combineLatest([obs1, obs2, obs3], project)`
   if (observables.length === 1 && isArray(observables[0])) {
-    observables = <any>observables[0];
+    observables = (<any>observables[0]).slice();
   }
 
   observables.unshift(this);
@@ -86,7 +92,7 @@ export class CombineLatestOperator<T, R> implements Operator<T, R> {
   }
 
   call(subscriber: Subscriber<R>, source: any): any {
-    return source._subscribe(new CombineLatestSubscriber(subscriber, this.project));
+    return source.subscribe(new CombineLatestSubscriber(subscriber, this.project));
   }
 }
 

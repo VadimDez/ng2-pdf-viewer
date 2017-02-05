@@ -28,6 +28,11 @@ var combineLatest_1 = require('../operator/combineLatest');
  * var bmi = Rx.Observable.combineLatest(weight, height, (w, h) => w / (h * h));
  * bmi.subscribe(x => console.log('BMI is ' + x));
  *
+ * // With output to console:
+ * // BMI is 24.212293388429753
+ * // BMI is 23.93948099205209
+ * // BMI is 23.671253629592222
+ *
  * @see {@link combineAll}
  * @see {@link merge}
  * @see {@link withLatestFrom}
@@ -38,7 +43,7 @@ var combineLatest_1 = require('../operator/combineLatest');
  * source Observable. More than one input Observables may be given as argument.
  * @param {function} [project] An optional function to project the values from
  * the combined latest values into a new value on the output Observable.
- * @param {Scheduler} [scheduler=null] The Scheduler to use for subscribing to
+ * @param {Scheduler} [scheduler=null] The IScheduler to use for subscribing to
  * each input Observable.
  * @return {Observable} An Observable of projected values from the most recent
  * values from each input Observable, or an array of the most recent values from

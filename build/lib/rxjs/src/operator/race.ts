@@ -8,6 +8,11 @@ import { OuterSubscriber } from '../OuterSubscriber';
 import { InnerSubscriber } from '../InnerSubscriber';
 import { subscribeToResult } from '../util/subscribeToResult';
 
+/* tslint:disable:max-line-length */
+export function race<T>(this: Observable<T>, ...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
+export function race<T, R>(this: Observable<T>, ...observables: Array<Observable<any> | Array<Observable<T>>>): Observable<R>;
+/* tslint:disable:max-line-length */
+
 /**
  * Returns an Observable that mirrors the first source Observable to emit an item
  * from the combination of this Observable and supplied Observables
@@ -16,10 +21,6 @@ import { subscribeToResult } from '../util/subscribeToResult';
  * @method race
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function race<T>(this: Observable<T>, ...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T>;
-export function race<T, R>(this: Observable<T>, ...observables: Array<Observable<any> | Array<Observable<T>>>): Observable<R>;
-/* tslint:disable:max-line-length */
 export function race<T>(this: Observable<T>, ...observables: Array<Observable<T> | Array<Observable<T>>>): Observable<T> {
   // if the only argument is an array, it was most likely called with
   // `pair([obs1, obs2, ...])`
@@ -55,7 +56,7 @@ export function raceStatic<T>(...observables: Array<Observable<any> | Array<Obse
 
 export class RaceOperator<T> implements Operator<T, T> {
   call(subscriber: Subscriber<T>, source: any): TeardownLogic {
-    return source._subscribe(new RaceSubscriber(subscriber));
+    return source.subscribe(new RaceSubscriber(subscriber));
   }
 }
 
@@ -84,14 +85,14 @@ export class RaceSubscriber<T> extends OuterSubscriber<T, T> {
     if (len === 0) {
       this.destination.complete();
     } else {
-      for (let i = 0; i < len; i++) {
+      for (let i = 0; i < len && !this.hasFirst; i++) {
         let observable = observables[i];
         let subscription = subscribeToResult(this, observable, observable, i);
 
         if (this.subscriptions) {
           this.subscriptions.push(subscription);
-          this.add(subscription);
         }
+        this.add(subscription);
       }
       this.observables = null;
     }

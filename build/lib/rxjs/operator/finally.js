@@ -23,7 +23,7 @@ var FinallyOperator = (function () {
         this.callback = callback;
     }
     FinallyOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new FinallySubscriber(subscriber, this.callback));
+        return source.subscribe(new FinallySubscriber(subscriber, this.callback));
     };
     return FinallyOperator;
 }());

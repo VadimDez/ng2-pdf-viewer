@@ -1,14 +1,14 @@
-import { Scheduler } from '../Scheduler';
+import { IScheduler } from '../Scheduler';
 import { Observable } from '../Observable';
 /**
- * Asynchronously subscribes Observers to this Observable on the specified Scheduler.
+ * Asynchronously subscribes Observers to this Observable on the specified IScheduler.
  *
  * <img src="./img/subscribeOn.png" width="100%">
  *
- * @param {Scheduler} the Scheduler to perform subscription actions on.
- * @return {Observable<T>} the source Observable modified so that its subscriptions happen on the specified Scheduler
+ * @param {Scheduler} the IScheduler to perform subscription actions on.
+ * @return {Observable<T>} the source Observable modified so that its subscriptions happen on the specified IScheduler
  .
  * @method subscribeOn
  * @owner Observable
  */
-export declare function subscribeOn<T>(this: Observable<T>, scheduler: Scheduler, delay?: number): Observable<T>;
+export declare function subscribeOn<T>(this: Observable<T>, scheduler: IScheduler, delay?: number): Observable<T>;

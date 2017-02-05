@@ -1,6 +1,6 @@
 /**
  * material-design-lite - Material Design Components in CSS, JS and HTML
- * @version v1.2.1
+ * @version v1.3.0
  * @license Apache-2.0
  * @copyright 2015 Google, Inc.
  * @link https://github.com/google/material-design-lite
@@ -4275,6 +4275,8 @@ input.mdl-button[type="submit"] {
   overflow: hidden;
   padding: 16px 16px;
   width: 90%; }
+  .mdl-card__supporting-text.mdl-card--border {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
 
 .mdl-card__actions {
   font-size: 16px;
@@ -7471,7 +7473,6 @@ input.mdl-button[type="submit"] {
             flex-direction: column;
     -webkit-align-items: stretch;
         -ms-flex-align: stretch;
-                -ms-grid-row-align: stretch;
             align-items: stretch;
     padding-top: 16px; }
     .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
@@ -7675,7 +7676,6 @@ input.mdl-button[type="submit"] {
             flex-direction: row;
     -webkit-align-items: center;
         -ms-flex-align: center;
-                -ms-grid-row-align: center;
             align-items: center; }
     @media screen and (max-width: 1024px) {
       .mdl-layout__header-row .mdl-navigation {
@@ -8083,7 +8083,9 @@ input.mdl-button[type="submit"] {
   font-size: 16px;
   line-height: 24px;
   display: inline-block;
+  vertical-align: middle;
   box-sizing: border-box;
+  height: 24px;
   margin: 0;
   padding-left: 0; }
   .mdl-radio.is-upgraded {
@@ -8139,13 +8141,13 @@ input.mdl-button[type="submit"] {
   transition-property: -webkit-transform;
   transition-property: transform;
   transition-property: transform, -webkit-transform;
-  -webkit-transform: scale3d(0, 0, 0);
-          transform: scale3d(0, 0, 0);
+  -webkit-transform: scale(0, 0);
+          transform: scale(0, 0);
   border-radius: 50%;
   background: rgb(63,81,181); }
   .mdl-radio.is-checked .mdl-radio__inner-circle {
-    -webkit-transform: scale3d(1, 1, 1);
-            transform: scale3d(1, 1, 1); }
+    -webkit-transform: scale(1, 1);
+            transform: scale(1, 1); }
   fieldset[disabled] .mdl-radio .mdl-radio__inner-circle,
   .mdl-radio.is-disabled .mdl-radio__inner-circle {
     background: rgba(0,0,0, 0.26);
@@ -8372,6 +8374,7 @@ _:-ms-input-placeholder, :root .mdl-slider.mdl-slider.is-upgraded {
     color: rgb(63,81,181);
     -webkit-align-self: center;
         -ms-flex-item-align: center;
+                -ms-grid-row-align: center;
             align-self: center;
     z-index: 1;
     cursor: pointer;
@@ -8842,6 +8845,7 @@ _:-ms-input-placeholder, :root .mdl-slider.mdl-slider.is-upgraded {
     text-align: center;
     -webkit-align-self: center;
         -ms-flex-item-align: center;
+                -ms-grid-row-align: center;
             align-self: center; }
     .mdl-snackbar__action::-moz-focus-inner {
       border: 0; }
@@ -9264,6 +9268,10 @@ _:-ms-input-placeholder, :root .mdl-slider.mdl-slider.is-upgraded {
   height: 100%;
   overflow: hidden;
   border-color: inherit; }
+  .mdl-spinner__circle-clipper.mdl-spinner__left {
+    float: left; }
+  .mdl-spinner__circle-clipper.mdl-spinner__right {
+    float: right; }
   .mdl-spinner__circle-clipper .mdl-spinner__circle {
     width: 200%; }
 
@@ -10871,6 +10879,7 @@ _:-ms-input-placeholder, :root .mdl-slider.mdl-slider.is-upgraded {
 .mdl-cell--middle {
   -webkit-align-self: center;
       -ms-flex-item-align: center;
+              -ms-grid-row-align: center;
           align-self: center; }
 
 .mdl-cell--bottom {
@@ -10881,6 +10890,7 @@ _:-ms-input-placeholder, :root .mdl-slider.mdl-slider.is-upgraded {
 .mdl-cell--stretch {
   -webkit-align-self: stretch;
       -ms-flex-item-align: stretch;
+              -ms-grid-row-align: stretch;
           align-self: stretch; }
 
 .mdl-grid.mdl-grid--no-spacing > .mdl-cell {

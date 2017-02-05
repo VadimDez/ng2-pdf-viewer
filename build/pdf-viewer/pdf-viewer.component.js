@@ -7,13 +7,11 @@ var PdfViewerComponent = (function () {
         this.element = element;
         this._showAll = true;
         this._renderText = true;
-        this._renderLink = true;
         this._stickToPage = false;
         this._originalSize = true;
         this._page = 1;
         this._zoom = 1;
         this._rotation = 0;
-        this._enhanceTextSelection = false;
         this._externalLinkTarget = 'blank';
         this.afterLoadComplete = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
@@ -43,19 +41,9 @@ var PdfViewerComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(PdfViewerComponent.prototype, "renderLink", {
-        set: function (renderLink) {
-            this._renderLink = renderLink;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
         set: function (originalSize) {
             this._originalSize = originalSize;
-            if (this._pdf) {
-                this.updateSize();
-            }
         },
         enumerable: true,
         configurable: true
@@ -75,17 +63,11 @@ var PdfViewerComponent = (function () {
         configurable: true
     });
     Object.defineProperty(PdfViewerComponent.prototype, "zoom", {
-        get: function () {
-            return this._zoom;
-        },
         set: function (value) {
             if (value <= 0) {
                 return;
             }
             this._zoom = value;
-            if (this._pdf) {
-                this.updateSize();
-            }
         },
         enumerable: true,
         configurable: true
@@ -108,16 +90,20 @@ var PdfViewerComponent = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(PdfViewerComponent.prototype, "enhanceTextSelection", {
-        set: function (value) {
-            this._enhanceTextSelection = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
     PdfViewerComponent.prototype.setupViewer = function () {
         PDFJS.disableTextLayer = !this._renderText;
-        switch (this._externalLinkTarget) {
+        this.setExternalLinkTarget(this._externalLinkTarget);
+        this._pdfLinkService = new PDFJS.PDFLinkService();
+        var pdfOptions = {
+            container: this.element.nativeElement.querySelector('div'),
+            removePageBorders: true,
+            linkService: this._pdfLinkService
+        };
+        this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
+        this._pdfLinkService.setViewer(this._pdfViewer);
+    };
+    PdfViewerComponent.prototype.setExternalLinkTarget = function (type) {
+        switch (type) {
             case 'blank':
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
                 break;
@@ -134,26 +120,13 @@ var PdfViewerComponent = (function () {
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.TOP;
                 break;
         }
-        var pdfOptions = {
-            container: this.element.nativeElement.querySelector('div'),
-            removePageBorders: true,
-            enhanceTextSelection: this._enhanceTextSelection
-        };
-        if (this._renderLink) {
-            this._pdfLinkService = new PDFJS.PDFLinkService();
-            pdfOptions.linkService = this._pdfLinkService;
-        }
-        this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-        if (this._renderLink) {
-            this._pdfLinkService.setViewer(this._pdfViewer);
-        }
     };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
         if ('src' in changes) {
             this.loadPDF();
         }
         else if (this._pdf) {
-            if ('renderText' in changes || 'renderLink' in changes || 'enhanceTextSelection' in changes) {
+            if ('renderText' in changes) {
                 this.setupViewer();
             }
             this.update();
@@ -187,14 +160,19 @@ var PdfViewerComponent = (function () {
         this.render();
     };
     PdfViewerComponent.prototype.render = function () {
+        var _this = this;
         if (!this.isValidPageNumber(this._page)) {
             this._page = 1;
         }
         if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
-            this._pdfViewer.pagesRotation = this._rotation;
+            setTimeout(function () {
+                _this._pdfViewer.pagesRotation = _this._rotation;
+            });
         }
         if (this._stickToPage) {
-            this._pdfViewer.currentPageNumber = this._page;
+            setTimeout(function () {
+                _this._pdfViewer.currentPageNumber = _this._page;
+            });
         }
         this.updateSize();
     };
@@ -229,14 +207,12 @@ var PdfViewerComponent = (function () {
         'page': [{ type: core_1.Input, args: ['page',] },],
         'pageChange': [{ type: core_1.Output },],
         'renderText': [{ type: core_1.Input, args: ['render-text',] },],
-        'renderLink': [{ type: core_1.Input, args: ['render-link',] },],
         'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
         'showAll': [{ type: core_1.Input, args: ['show-all',] },],
         'stickToPage': [{ type: core_1.Input, args: ['stick-to-page',] },],
         'zoom': [{ type: core_1.Input, args: ['zoom',] },],
         'rotation': [{ type: core_1.Input, args: ['rotation',] },],
         'externalLinkTarget': [{ type: core_1.Input, args: ['external-link-target',] },],
-        'enhanceTextSelection': [{ type: core_1.Input, args: ['enhance-text-selection',] },],
     };
     return PdfViewerComponent;
 }());

@@ -1,12 +1,6 @@
 import { Observable, ObservableInput } from '../Observable';
 import { Operator } from '../Operator';
 import { Subscriber } from '../Subscriber';
-/**
- * @param observables
- * @return {Observable<R>}
- * @method zip
- * @owner Observable
- */
 export declare function zipProto<T, R>(this: Observable<T>, project: (v1: T) => R): Observable<R>;
 export declare function zipProto<T, T2, R>(this: Observable<T>, v2: ObservableInput<T2>, project: (v1: T, v2: T2) => R): Observable<R>;
 export declare function zipProto<T, T2, T3, R>(this: Observable<T>, v2: ObservableInput<T2>, v3: ObservableInput<T3>, project: (v1: T, v2: T2, v3: T3) => R): Observable<R>;
@@ -50,7 +44,6 @@ export declare class ZipOperator<T, R> implements Operator<T, R> {
  * @extends {Ignored}
  */
 export declare class ZipSubscriber<T, R> extends Subscriber<T> {
-    private index;
     private values;
     private project;
     private iterators;

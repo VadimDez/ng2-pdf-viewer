@@ -192,7 +192,12 @@ var AjaxSubscriber = (function (_super) {
         }
         else {
             this.xhr = xhr;
-            // open XHR first
+            // set up the events before open XHR
+            // https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+            // You need to add the event listeners before calling open() on the request.
+            // Otherwise the progress events will not fire.
+            this.setupEvents(xhr, request);
+            // open XHR
             var result = void 0;
             if (user) {
                 result = tryCatch_1.tryCatch(xhr.open).call(xhr, method, url, async, user, password);
@@ -209,14 +214,11 @@ var AjaxSubscriber = (function (_super) {
             xhr.responseType = request.responseType;
             // set headers
             this.setHeaders(xhr, headers);
-            // now set up the events
-            this.setupEvents(xhr, request);
             // finally send the request
-            if (body) {
-                xhr.send(body);
-            }
-            else {
-                xhr.send();
+            result = body ? tryCatch_1.tryCatch(xhr.send).call(xhr, body) : tryCatch_1.tryCatch(xhr.send).call(xhr);
+            if (result === errorObject_1.errorObject) {
+                this.error(errorObject_1.errorObject.e);
+                return null;
             }
         }
         return xhr;
@@ -252,36 +254,47 @@ var AjaxSubscriber = (function (_super) {
     };
     AjaxSubscriber.prototype.setupEvents = function (xhr, request) {
         var progressSubscriber = request.progressSubscriber;
-        xhr.ontimeout = function xhrTimeout(e) {
+        function xhrTimeout(e) {
             var _a = xhrTimeout, subscriber = _a.subscriber, progressSubscriber = _a.progressSubscriber, request = _a.request;
             if (progressSubscriber) {
                 progressSubscriber.error(e);
             }
             subscriber.error(new AjaxTimeoutError(this, request)); //TODO: Make betterer.
-        };
-        xhr.ontimeout.request = request;
-        xhr.ontimeout.subscriber = this;
-        xhr.ontimeout.progressSubscriber = progressSubscriber;
-        if (xhr.upload && 'withCredentials' in xhr && root_1.root.XDomainRequest) {
+        }
+        ;
+        xhr.ontimeout = xhrTimeout;
+        xhrTimeout.request = request;
+        xhrTimeout.subscriber = this;
+        xhrTimeout.progressSubscriber = progressSubscriber;
+        if (xhr.upload && 'withCredentials' in xhr) {
             if (progressSubscriber) {
-                xhr.onprogress = function xhrProgress(e) {
-                    var progressSubscriber = xhrProgress.progressSubscriber;
+                var xhrProgress_1;
+                xhrProgress_1 = function (e) {
+                    var progressSubscriber = xhrProgress_1.progressSubscriber;
                     progressSubscriber.next(e);
                 };
-                xhr.onprogress.progressSubscriber = progressSubscriber;
+                if (root_1.root.XDomainRequest) {
+                    xhr.onprogress = xhrProgress_1;
+                }
+                else {
+                    xhr.upload.onprogress = xhrProgress_1;
+                }
+                xhrProgress_1.progressSubscriber = progressSubscriber;
             }
-            xhr.onerror = function xhrError(e) {
-                var _a = xhrError, progressSubscriber = _a.progressSubscriber, subscriber = _a.subscriber, request = _a.request;
+            var xhrError_1;
+            xhrError_1 = function (e) {
+                var _a = xhrError_1, progressSubscriber = _a.progressSubscriber, subscriber = _a.subscriber, request = _a.request;
                 if (progressSubscriber) {
                     progressSubscriber.error(e);
                 }
                 subscriber.error(new AjaxError('ajax error', this, request));
             };
-            xhr.onerror.request = request;
-            xhr.onerror.subscriber = this;
-            xhr.onerror.progressSubscriber = progressSubscriber;
+            xhr.onerror = xhrError_1;
+            xhrError_1.request = request;
+            xhrError_1.subscriber = this;
+            xhrError_1.progressSubscriber = progressSubscriber;
         }
-        xhr.onreadystatechange = function xhrReadyStateChange(e) {
+        function xhrReadyStateChange(e) {
             var _a = xhrReadyStateChange, subscriber = _a.subscriber, progressSubscriber = _a.progressSubscriber, request = _a.request;
             if (this.readyState === 4) {
                 // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
@@ -307,10 +320,12 @@ var AjaxSubscriber = (function (_super) {
                     subscriber.error(new AjaxError('ajax error ' + status_1, this, request));
                 }
             }
-        };
-        xhr.onreadystatechange.subscriber = this;
-        xhr.onreadystatechange.progressSubscriber = progressSubscriber;
-        xhr.onreadystatechange.request = request;
+        }
+        ;
+        xhr.onreadystatechange = xhrReadyStateChange;
+        xhrReadyStateChange.subscriber = this;
+        xhrReadyStateChange.progressSubscriber = progressSubscriber;
+        xhrReadyStateChange.request = request;
     };
     AjaxSubscriber.prototype.unsubscribe = function () {
         var _a = this, done = _a.done, xhr = _a.xhr;

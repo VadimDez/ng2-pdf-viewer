@@ -27,7 +27,7 @@ var SkipUntilOperator = (function () {
         this.notifier = notifier;
     }
     SkipUntilOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SkipUntilSubscriber(subscriber, this.notifier));
+        return source.subscribe(new SkipUntilSubscriber(subscriber, this.notifier));
     };
     return SkipUntilOperator;
 }());

@@ -22,7 +22,7 @@ var IsEmptyOperator = (function () {
     function IsEmptyOperator() {
     }
     IsEmptyOperator.prototype.call = function (observer, source) {
-        return source._subscribe(new IsEmptySubscriber(observer));
+        return source.subscribe(new IsEmptySubscriber(observer));
     };
     return IsEmptyOperator;
 }());

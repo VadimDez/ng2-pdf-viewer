@@ -39,6 +39,9 @@ var IteratorObservable = (function (_super) {
         subscriber.next(result.value);
         state.index = index + 1;
         if (subscriber.closed) {
+            if (typeof iterator.return === 'function') {
+                iterator.return();
+            }
             return;
         }
         this.schedule(state);
@@ -62,6 +65,9 @@ var IteratorObservable = (function (_super) {
                     subscriber.next(result.value);
                 }
                 if (subscriber.closed) {
+                    if (typeof iterator.return === 'function') {
+                        iterator.return();
+                    }
                     break;
                 }
             } while (true);

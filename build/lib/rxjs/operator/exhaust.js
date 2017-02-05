@@ -50,7 +50,7 @@ var SwitchFirstOperator = (function () {
     function SwitchFirstOperator() {
     }
     SwitchFirstOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SwitchFirstSubscriber(subscriber));
+        return source.subscribe(new SwitchFirstSubscriber(subscriber));
     };
     return SwitchFirstOperator;
 }());

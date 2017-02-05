@@ -57,7 +57,7 @@ var AuditOperator = (function () {
         this.durationSelector = durationSelector;
     }
     AuditOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new AuditSubscriber(subscriber, this.durationSelector));
+        return source.subscribe(new AuditSubscriber(subscriber, this.durationSelector));
     };
     return AuditOperator;
 }());

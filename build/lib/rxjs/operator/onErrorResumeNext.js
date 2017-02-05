@@ -39,7 +39,7 @@ var OnErrorResumeNextOperator = (function () {
         this.nextSources = nextSources;
     }
     OnErrorResumeNextOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new OnErrorResumeNextSubscriber(subscriber, this.nextSources));
+        return source.subscribe(new OnErrorResumeNextSubscriber(subscriber, this.nextSources));
     };
     return OnErrorResumeNextOperator;
 }());

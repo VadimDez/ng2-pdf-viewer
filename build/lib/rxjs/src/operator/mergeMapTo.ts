@@ -7,6 +7,11 @@ import { OuterSubscriber } from '../OuterSubscriber';
 import { InnerSubscriber } from '../InnerSubscriber';
 import { subscribeToResult } from '../util/subscribeToResult';
 
+/* tslint:disable:max-line-length */
+export function mergeMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>, concurrent?: number): Observable<R>;
+export function mergeMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R, concurrent?: number): Observable<R>;
+/* tslint:disable:max-line-length */
+
 /**
  * Projects each source value to the same Observable which is merged multiple
  * times in the output Observable.
@@ -50,10 +55,6 @@ import { subscribeToResult } from '../util/subscribeToResult';
  * @method mergeMapTo
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function mergeMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>, concurrent?: number): Observable<R>;
-export function mergeMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R, concurrent?: number): Observable<R>;
-/* tslint:disable:max-line-length */
 export function mergeMapTo<T, I, R>(this: Observable<T>, innerObservable: Observable<I>,
                                     resultSelector?: ((outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R) | number,
                                     concurrent: number = Number.POSITIVE_INFINITY): Observable<R> {
@@ -73,7 +74,7 @@ export class MergeMapToOperator<T, I, R> implements Operator<Observable<T>, R> {
   }
 
   call(observer: Subscriber<R>, source: any): any {
-    return source._subscribe(new MergeMapToSubscriber(observer, this.ish, this.resultSelector, this.concurrent));
+    return source.subscribe(new MergeMapToSubscriber(observer, this.ish, this.resultSelector, this.concurrent));
   }
 }
 

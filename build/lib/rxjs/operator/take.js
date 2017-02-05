@@ -57,7 +57,7 @@ var TakeOperator = (function () {
         }
     }
     TakeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new TakeSubscriber(subscriber, this.total));
+        return source.subscribe(new TakeSubscriber(subscriber, this.total));
     };
     return TakeOperator;
 }());

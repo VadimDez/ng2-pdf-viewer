@@ -58,8 +58,16 @@ var VirtualAction = (function (_super) {
     }
     VirtualAction.prototype.schedule = function (state, delay) {
         if (delay === void 0) { delay = 0; }
-        return !this.id ?
-            _super.prototype.schedule.call(this, state, delay) : this.add(new VirtualAction(this.scheduler, this.work)).schedule(state, delay);
+        if (!this.id) {
+            return _super.prototype.schedule.call(this, state, delay);
+        }
+        // If an action is rescheduled, we save allocations by mutating its state,
+        // pushing it to the end of the scheduler queue, and recycling the action.
+        // But since the VirtualTimeScheduler is used for testing, VirtualActions
+        // must be immutable so they can be inspected later.
+        var action = new VirtualAction(this.scheduler, this.work);
+        this.add(action);
+        return action.schedule(state, delay);
     };
     VirtualAction.prototype.requestAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
