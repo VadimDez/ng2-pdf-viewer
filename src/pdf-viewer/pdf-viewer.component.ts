@@ -17,7 +17,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _showAll: boolean = true; // TODO : _showAll is not working
 
   private _renderText: boolean = true;
-  private _renderLink: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
   private _pdf: PDFDocumentProxy;
@@ -25,7 +24,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _zoom: number = 1;
   private _rotation: number = 0;
 
-  private _enhanceTextSelection: boolean = false;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
@@ -64,25 +62,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('render-text')
   set renderText(renderText: boolean) {
     this._renderText = renderText;
-    // if (this._pdf) {
-    //   this.setupViewer();
-    // }
-  }
-
-  @Input('render-link')
-  set renderLink(renderLink) {
-    this._renderLink = renderLink;
-    // if (this._pdf) {
-    //   this.setupViewer();
-    // }
   }
 
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
-    if (this._pdf) {
-      this.updateSize();
-    }
   }
 
   @Input('show-all')
@@ -102,14 +86,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     this._zoom = value;
-
-    if (this._pdf) {
-      this.updateSize();
-    }
-  }
-
-  get zoom() {
-    return this._zoom;
   }
 
   @Input('rotation')
@@ -122,22 +98,29 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._rotation = value;
   }
 
-
   @Input('external-link-target')
   set externalLinkTarget(value: string) {
     this._externalLinkTarget = value;
   }
 
-  @Input('enhance-text-selection')
-  set enhanceTextSelection(value: boolean) {
-    this._enhanceTextSelection = value;
-  }
-
   public setupViewer() {
-
     (<any>PDFJS).disableTextLayer = !this._renderText;
 
-    switch (this._externalLinkTarget) {
+    this.setExternalLinkTarget(this._externalLinkTarget);
+
+    this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
+    let pdfOptions: any = {
+      container: this.element.nativeElement.querySelector('div'),
+      removePageBorders: true,
+      linkService: this._pdfLinkService
+    };
+
+    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
+    this._pdfLinkService.setViewer(this._pdfViewer);
+  }
+
+  private setExternalLinkTarget(type: string) {
+    switch (type) {
       case 'blank':
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
         break;
@@ -154,30 +137,13 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
         break;
     }
-
-    let pdfOptions: any = {
-      container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
-      enhanceTextSelection: this._enhanceTextSelection
-    };
-
-    if (this._renderLink) {
-      this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-      pdfOptions.linkService = this._pdfLinkService;
-    }
-
-    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-
-    if (this._renderLink) {
-      this._pdfLinkService.setViewer(this._pdfViewer);
-    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {
-      if ('renderText' in changes || 'renderLink' in changes || 'enhanceTextSelection' in changes) {
+      if ('renderText' in changes) {
         this.setupViewer();
       }
       this.update();
@@ -195,7 +161,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     const src = this.src;
-    PDFJS.getDocument(src).then(pdf => {
+    PDFJS.getDocument(src).then((pdf: PDFDocumentProxy) => {
       this._pdf = pdf;
       this.lastLoaded = src;
 
@@ -218,18 +184,21 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.render();
   }
 
-
   public render() {
     if (!this.isValidPageNumber(this._page)) {
       this._page = 1;
     }
 
     if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
-      this._pdfViewer.pagesRotation = this._rotation;
+      setTimeout(() => {
+        this._pdfViewer.pagesRotation = this._rotation;
+      });
     }
 
     if (this._stickToPage) {
-      this._pdfViewer.currentPageNumber = this._page;
+      setTimeout(() => {
+        this._pdfViewer.currentPageNumber = this._page;
+      });
     }
 
     this.updateSize();

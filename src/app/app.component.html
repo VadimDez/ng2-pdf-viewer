@@ -106,26 +106,6 @@
               </label>
             </div>
 
-            <div>
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-link">
-                <input type="checkbox" id="render-link" class="mdl-switch__input"
-                       [checked]="renderLink"
-                       [(ngModel)]="renderLink"
-                >
-                <span class="mdl-switch__label">Render hyperlinks</span>
-              </label>
-            </div>
-
-            <div>
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="enhance-text-selection">
-                <input type="checkbox" id="enhance-text-selection" class="mdl-switch__input"
-                       [checked]="enhanceTextSelection"
-                       [(ngModel)]="enhanceTextSelection"
-                >
-                <span class="mdl-switch__label">Enhance text selection</span>
-              </label>
-            </div>
-
             <pdf-viewer #myPdfViewer
                         [src]="pdfSrc"
                         [(page)]="page"
@@ -136,8 +116,6 @@
                         [zoom]="zoom"
                         [stick-to-page]="stickToPage"
                         [render-text]="renderText"
-                        [render-link]="renderLink"
-                        [enhance-text-selection]="enhanceTextSelection"
             ></pdf-viewer>
 
         </div>
