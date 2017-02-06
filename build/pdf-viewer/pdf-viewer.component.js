@@ -26,10 +26,8 @@ var PdfViewerComponent = (function () {
             if (this._pdf && !this.isValidPageNumber(_page)) {
                 _page = 1;
             }
-            if (this._page !== _page) {
-                this._page = _page;
-                this.pageChange.emit(_page);
-            }
+            this._page = _page;
+            this.pageChange.emit(_page);
         },
         enumerable: true,
         configurable: true

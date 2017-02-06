@@ -51,10 +51,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       _page = 1;
     }
 
-    if (this._page !== _page) {
-      this._page = _page;
-      this.pageChange.emit(_page);
-    }
+    this._page = _page;
+    this.pageChange.emit(_page);
   }
 
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
