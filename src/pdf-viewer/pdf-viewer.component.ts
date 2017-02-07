@@ -203,14 +203,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   public updateSize() {
-    if (!this._originalSize) {
-      this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-        const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-        this._pdfViewer._setScale(scale, !this._stickToPage);
-      });
-    } else {
-      this._pdfViewer._setScale(this._zoom, !this._stickToPage);
-    }
+    this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
+      const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+      this._pdfViewer._setScale(scale, !this._stickToPage);
+    });
   }
 
   public isValidPageNumber(page: number) {

@@ -176,15 +176,10 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
-        if (!this._originalSize) {
-            this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
-                var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-                _this._pdfViewer._setScale(scale, !_this._stickToPage);
-            });
-        }
-        else {
-            this._pdfViewer._setScale(this._zoom, !this._stickToPage);
-        }
+        this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
+            var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+            _this._pdfViewer._setScale(scale, !_this._stickToPage);
+        });
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
         return this._pdf.numPages >= page && page >= 1;
