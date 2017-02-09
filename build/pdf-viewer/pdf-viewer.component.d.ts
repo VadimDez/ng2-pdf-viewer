@@ -20,6 +20,7 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     constructor(element: ElementRef);
     ngOnInit(): void;
+    ngOnChanges(changes: SimpleChanges): void;
     src: string | Uint8Array | PDFSource;
     page: any;
     pageChange: EventEmitter<number>;
@@ -31,11 +32,10 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     rotation: number;
     externalLinkTarget: string;
     setupViewer(): void;
-    private setExternalLinkTarget(type);
-    ngOnChanges(changes: SimpleChanges): void;
-    private loadPDF();
-    private update();
     render(): void;
     updateSize(): void;
     isValidPageNumber(page: number): boolean;
+    private setExternalLinkTarget(type);
+    private loadPDF();
+    private update();
 }

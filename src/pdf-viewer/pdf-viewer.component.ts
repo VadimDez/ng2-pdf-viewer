@@ -40,6 +40,17 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.setupViewer();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if ('src' in changes) {
+      this.loadPDF();
+    } else if (this._pdf) {
+      if ('renderText' in changes) {
+        this.setupViewer();
+      }
+      this.update();
+    }
+  }
+
   @Input()
   src: string | Uint8Array | PDFSource;
 
@@ -117,6 +128,37 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._pdfLinkService.setViewer(this._pdfViewer);
   }
 
+  public render() {
+    if (!this.isValidPageNumber(this._page)) {
+      this._page = 1;
+    }
+
+    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+      setTimeout(() => {
+        this._pdfViewer.pagesRotation = this._rotation;
+      });
+    }
+
+    if (this._stickToPage) {
+      setTimeout(() => {
+        this._pdfViewer.currentPageNumber = this._page;
+      });
+    }
+
+    this.updateSize();
+  }
+
+  public updateSize() {
+    this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
+      const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+      this._pdfViewer._setScale(scale, !this._stickToPage);
+    });
+  }
+
+  public isValidPageNumber(page: number) {
+    return this._pdf.numPages >= page && page >= 1;
+  }
+
   private setExternalLinkTarget(type: string) {
     switch (type) {
       case 'blank':
@@ -134,17 +176,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       case 'top':
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
         break;
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('src' in changes) {
-      this.loadPDF();
-    } else if (this._pdf) {
-      if ('renderText' in changes) {
-        this.setupViewer();
-      }
-      this.update();
     }
   }
 
@@ -180,36 +211,5 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.page = this._page;
 
     this.render();
-  }
-
-  public render() {
-    if (!this.isValidPageNumber(this._page)) {
-      this._page = 1;
-    }
-
-    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
-      setTimeout(() => {
-        this._pdfViewer.pagesRotation = this._rotation;
-      });
-    }
-
-    if (this._stickToPage) {
-      setTimeout(() => {
-        this._pdfViewer.currentPageNumber = this._page;
-      });
-    }
-
-    this.updateSize();
-  }
-
-  public updateSize() {
-    this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-      const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-      this._pdfViewer._setScale(scale, !this._stickToPage);
-    });
-  }
-
-  public isValidPageNumber(page: number) {
-    return this._pdf.numPages >= page && page >= 1;
   }
 }
