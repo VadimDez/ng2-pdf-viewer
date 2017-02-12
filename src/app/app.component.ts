@@ -34,10 +34,6 @@ export class AppComponent {
   pdf: any;
   renderText: boolean = true;
 
-  ngOnInit() {
-    this.updateStylePageContent();
-  }
-
   incrementPage(amount: number) {
     this.page += amount;
   }
@@ -73,17 +69,5 @@ export class AppComponent {
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
-  }
-
-  stylePageContent:any;
-  updateStylePageContent() {
-    this.stylePageContent = {
-      'width': 0.5 * window.innerWidth + 'px'
-    };
-  }
-
-  onPageResize() {
-    this.updateStylePageContent();
-    this.pdfViewer.updateSize();
   }
 }

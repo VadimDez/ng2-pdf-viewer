@@ -20,6 +20,15 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.ngOnInit = function () {
         this.setupViewer();
     };
+    PdfViewerComponent.prototype.onPageResize = function () {
+        var _this = this;
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        this.resizeTimeout = setTimeout(function () {
+            _this.updateSize();
+        }, 100);
+    };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
         if ('src' in changes) {
             this.loadPDF();
@@ -188,7 +197,7 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.decorators = [
         { type: core_1.Component, args: [{
                     selector: 'pdf-viewer',
-                    template: "<div class=\"ng2-pdf-viewer-container\"><div id=\"viewer\" class=\"pdfViewer\"></div></div>"
+                    template: "<div class=\"ng2-pdf-viewer-container\" (window:resize)=\"onPageResize($event)\"><div id=\"viewer\" class=\"pdfViewer\"></div></div>"
                 },] },
     ];
     PdfViewerComponent.ctorParameters = [

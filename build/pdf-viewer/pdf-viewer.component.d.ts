@@ -17,9 +17,11 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     private _pdfViewer;
     private _pdfLinkService;
     private lastLoaded;
+    private resizeTimeout;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     constructor(element: ElementRef);
     ngOnInit(): void;
+    onPageResize(): void;
     ngOnChanges(changes: SimpleChanges): void;
     src: string | Uint8Array | PDFSource;
     page: any;

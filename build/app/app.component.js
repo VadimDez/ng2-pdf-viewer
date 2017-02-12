@@ -10,9 +10,6 @@ var AppComponent = (function () {
         this.showAll = true;
         this.renderText = true;
     }
-    AppComponent.prototype.ngOnInit = function () {
-        this.updateStylePageContent();
-    };
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
     };
@@ -35,15 +32,6 @@ var AppComponent = (function () {
     };
     AppComponent.prototype.afterLoadComplete = function (pdf) {
         this.pdf = pdf;
-    };
-    AppComponent.prototype.updateStylePageContent = function () {
-        this.stylePageContent = {
-            'width': 0.5 * window.innerWidth + 'px'
-        };
-    };
-    AppComponent.prototype.onPageResize = function () {
-        this.updateStylePageContent();
-        this.pdfViewer.updateSize();
     };
     AppComponent.decorators = [
         { type: core_1.Component, args: [{

@@ -1,7 +1,16 @@
 .page-content {
     padding-top: 10px;
+    width: 50%;
     margin-left: auto;
     margin-right: auto;
+}
+
+@media all and (max-width: 480px) {
+    .page-content {
+        width: 100%;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
 }
 
 .select-file__container {

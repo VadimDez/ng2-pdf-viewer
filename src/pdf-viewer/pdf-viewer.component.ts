@@ -9,7 +9,7 @@ import 'pdfjs-dist/web/pdf_viewer';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container"><div id="viewer" class="pdfViewer"></div></div>`
+  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div id="viewer" class="pdfViewer"></div></div>`
 })
 
 export class PdfViewerComponent implements OnChanges, OnInit {
@@ -28,6 +28,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _pdfViewer: any;
   private _pdfLinkService: any;
   private lastLoaded: string | Uint8Array | PDFSource;
+  private resizeTimeout: any;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
@@ -38,6 +39,16 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   ngOnInit() {
     this.setupViewer();
+  }
+
+  onPageResize() {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.resizeTimeout = setTimeout(() => {
+      this.updateSize();
+    }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges) {
