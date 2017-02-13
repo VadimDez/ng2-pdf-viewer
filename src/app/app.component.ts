@@ -30,7 +30,6 @@ export class AppComponent {
   rotation: number = 0;
   zoom: number = 1.0;
   originalSize: boolean = false;
-  showAll: boolean = true;
   pdf: any;
   renderText: boolean = true;
 

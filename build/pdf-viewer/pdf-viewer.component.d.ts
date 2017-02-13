@@ -5,7 +5,6 @@ import 'pdfjs-dist/web/pdf_viewer';
 export declare class PdfViewerComponent implements OnChanges, OnInit {
     private element;
     private static CSS_UNITS;
-    private _showAll;
     private _renderText;
     private _stickToPage;
     private _originalSize;
@@ -28,7 +27,6 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     pageChange: EventEmitter<number>;
     renderText: boolean;
     originalSize: boolean;
-    showAll: boolean;
     stickToPage: boolean;
     zoom: number;
     rotation: number;

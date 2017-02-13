@@ -62,15 +62,13 @@ import { Component } from '@angular/core';
       <input type="number" placeholder="Page" [(ngModel)]="page">
   </div>
   <pdf-viewer [src]="pdfSrc" 
-              [page]="page" 
-              [original-size]="true" 
+              [render-text]="true"
               style="display: block;"
   ></pdf-viewer>
   `
 })
 export class AppComponent {
   pdfSrc: string = '/pdf-test.pdf';
-  page: number = 1;
 }
 ```
 
@@ -78,11 +76,12 @@ export class AppComponent {
 
 * [src](#src)
 * [page](#page)
+* [stick-to-page](#stick-to-page)
 * [render-text](#render-text)
+* [external-link-target](#external-link-target)
 * [rotation](#rotation)
 * [zoom](#zoom)
 * [original-size](#original-size)
-* [show-all](#show-all)
 * [after-load-complete](#after-load-complete)
 
 #### [src]
@@ -118,10 +117,29 @@ supports two way data binding as well
 [(page)]="pageVariable"
 ```
 
+#### [stick-to-page]
+Works in combination with `page` and sticks view to the page
+
+```
+[stick-to-page]="true"
+
+```
+
 #### [render-text]
 Enable text rendering, allows to select text
 ```
 [render-text]="true"
+```
+
+#### [external-link-target]
+Link target
+* `blank`
+* `none`
+* `self`
+* `parent`
+* `top`
+```
+[external-link-target]="'blank'"
 ```
 
 #### [rotation]
@@ -146,14 +164,6 @@ if set to *false* - size will be as same as container block
 
 ```
 [original-size]="true"
-```
-
-#### [show-all]
-
-Show single or all pages altogether
-
-```
-[show-all]="true"
 ```
 
 #### (after-load-complete)

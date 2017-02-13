@@ -7,7 +7,6 @@ export declare class AppComponent {
     rotation: number;
     zoom: number;
     originalSize: boolean;
-    showAll: boolean;
     pdf: any;
     renderText: boolean;
     incrementPage(amount: number): void;

@@ -62,7 +62,7 @@
               </label>
             </div>
 
-            <div mdl *ngIf="!showAll || stickToPage">
+            <div mdl *ngIf="stickToPage">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
                     Previous
                 </button>
@@ -111,11 +111,11 @@
                         [(page)]="page"
                         [rotation]="rotation"
                         [original-size]="originalSize"
-                        [show-all]="showAll"
                         (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
                         [stick-to-page]="stickToPage"
                         [render-text]="renderText"
+                        [external-link-target]="'none'"
             ></pdf-viewer>
 
         </div>

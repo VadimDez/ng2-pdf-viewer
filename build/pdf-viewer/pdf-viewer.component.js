@@ -14,7 +14,6 @@ require("pdfjs-dist/web/pdf_viewer");
 var PdfViewerComponent = PdfViewerComponent_1 = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
-        this._showAll = true;
         this._renderText = true;
         this._stickToPage = false;
         this._originalSize = true;
@@ -71,13 +70,6 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
     Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
         set: function (originalSize) {
             this._originalSize = originalSize;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
-        set: function (value) {
-            this._showAll = value;
         },
         enumerable: true,
         configurable: true
@@ -157,6 +149,7 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
         return this._pdf.numPages >= page && page >= 1;
     };
     PdfViewerComponent.prototype.setExternalLinkTarget = function (type) {
+        console.log(type);
         switch (type) {
             case 'blank':
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
@@ -174,6 +167,7 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.TOP;
                 break;
         }
+        console.log(PDFJS.externalLinkTarget);
     };
     PdfViewerComponent.prototype.loadPDF = function () {
         var _this = this;
@@ -232,11 +226,6 @@ __decorate([
     __metadata("design:type", Boolean),
     __metadata("design:paramtypes", [Boolean])
 ], PdfViewerComponent.prototype, "originalSize", null);
-__decorate([
-    core_1.Input('show-all'),
-    __metadata("design:type", Boolean),
-    __metadata("design:paramtypes", [Boolean])
-], PdfViewerComponent.prototype, "showAll", null);
 __decorate([
     core_1.Input('stick-to-page'),
     __metadata("design:type", Boolean),

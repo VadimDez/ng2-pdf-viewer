@@ -14,7 +14,6 @@ import 'pdfjs-dist/web/pdf_viewer';
 
 export class PdfViewerComponent implements OnChanges, OnInit {
   private static CSS_UNITS: number = 96.0 / 72.0;
-  private _showAll: boolean = true; // TODO : _showAll is not working
 
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
@@ -86,11 +85,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
-  }
-
-  @Input('show-all')
-  set showAll(value: boolean) {
-    this._showAll = value;
   }
 
   @Input('stick-to-page')
@@ -170,6 +164,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private setExternalLinkTarget(type: string) {
+    console.log(type);
     switch (type) {
       case 'blank':
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
@@ -187,6 +182,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
         break;
     }
+
+    console.log((<any>PDFJS).externalLinkTarget);
   }
 
   private loadPDF() {

@@ -17,7 +17,6 @@ var AppComponent = (function () {
         this.rotation = 0;
         this.zoom = 1.0;
         this.originalSize = false;
-        this.showAll = true;
         this.renderText = true;
     }
     AppComponent.prototype.incrementPage = function (amount) {
