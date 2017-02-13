@@ -1,8 +1,17 @@
 "use strict";
-var core_1 = require('@angular/core');
-require('pdfjs-dist/build/pdf.combined');
-require('pdfjs-dist/web/pdf_viewer');
-var PdfViewerComponent = (function () {
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var core_1 = require("@angular/core");
+require("pdfjs-dist/build/pdf.combined");
+require("pdfjs-dist/web/pdf_viewer");
+var PdfViewerComponent = PdfViewerComponent_1 = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
         this._showAll = true;
@@ -140,7 +149,7 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
         this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
-            var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+            var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent_1.CSS_UNITS;
             _this._pdfViewer._setScale(scale, !_this._stickToPage);
         });
     };
@@ -193,30 +202,68 @@ var PdfViewerComponent = (function () {
         this.page = this._page;
         this.render();
     };
-    PdfViewerComponent.CSS_UNITS = 96.0 / 72.0;
-    PdfViewerComponent.decorators = [
-        { type: core_1.Component, args: [{
-                    selector: 'pdf-viewer',
-                    template: "<div class=\"ng2-pdf-viewer-container\" (window:resize)=\"onPageResize($event)\"><div id=\"viewer\" class=\"pdfViewer\"></div></div>"
-                },] },
-    ];
-    PdfViewerComponent.ctorParameters = [
-        { type: core_1.ElementRef, },
-    ];
-    PdfViewerComponent.propDecorators = {
-        'afterLoadComplete': [{ type: core_1.Output, args: ['after-load-complete',] },],
-        'src': [{ type: core_1.Input },],
-        'page': [{ type: core_1.Input, args: ['page',] },],
-        'pageChange': [{ type: core_1.Output },],
-        'renderText': [{ type: core_1.Input, args: ['render-text',] },],
-        'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
-        'showAll': [{ type: core_1.Input, args: ['show-all',] },],
-        'stickToPage': [{ type: core_1.Input, args: ['stick-to-page',] },],
-        'zoom': [{ type: core_1.Input, args: ['zoom',] },],
-        'rotation': [{ type: core_1.Input, args: ['rotation',] },],
-        'externalLinkTarget': [{ type: core_1.Input, args: ['external-link-target',] },],
-    };
     return PdfViewerComponent;
 }());
+PdfViewerComponent.CSS_UNITS = 96.0 / 72.0;
+__decorate([
+    core_1.Output('after-load-complete'),
+    __metadata("design:type", Object)
+], PdfViewerComponent.prototype, "afterLoadComplete", void 0);
+__decorate([
+    core_1.Input(),
+    __metadata("design:type", Object)
+], PdfViewerComponent.prototype, "src", void 0);
+__decorate([
+    core_1.Input('page'),
+    __metadata("design:type", Object),
+    __metadata("design:paramtypes", [Object])
+], PdfViewerComponent.prototype, "page", null);
+__decorate([
+    core_1.Output(),
+    __metadata("design:type", core_1.EventEmitter)
+], PdfViewerComponent.prototype, "pageChange", void 0);
+__decorate([
+    core_1.Input('render-text'),
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [Boolean])
+], PdfViewerComponent.prototype, "renderText", null);
+__decorate([
+    core_1.Input('original-size'),
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [Boolean])
+], PdfViewerComponent.prototype, "originalSize", null);
+__decorate([
+    core_1.Input('show-all'),
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [Boolean])
+], PdfViewerComponent.prototype, "showAll", null);
+__decorate([
+    core_1.Input('stick-to-page'),
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [Boolean])
+], PdfViewerComponent.prototype, "stickToPage", null);
+__decorate([
+    core_1.Input('zoom'),
+    __metadata("design:type", Number),
+    __metadata("design:paramtypes", [Number])
+], PdfViewerComponent.prototype, "zoom", null);
+__decorate([
+    core_1.Input('rotation'),
+    __metadata("design:type", Number),
+    __metadata("design:paramtypes", [Number])
+], PdfViewerComponent.prototype, "rotation", null);
+__decorate([
+    core_1.Input('external-link-target'),
+    __metadata("design:type", String),
+    __metadata("design:paramtypes", [String])
+], PdfViewerComponent.prototype, "externalLinkTarget", null);
+PdfViewerComponent = PdfViewerComponent_1 = __decorate([
+    core_1.Component({
+        selector: 'pdf-viewer',
+        template: "<div class=\"ng2-pdf-viewer-container\" (window:resize)=\"onPageResize($event)\"><div id=\"viewer\" class=\"pdfViewer\"></div></div>"
+    }),
+    __metadata("design:paramtypes", [core_1.ElementRef])
+], PdfViewerComponent);
 exports.PdfViewerComponent = PdfViewerComponent;
+var PdfViewerComponent_1;
 //# sourceMappingURL=pdf-viewer.component.js.map

@@ -56,7 +56,7 @@
     "@angular/platform-server": "^2.2.1",
     "@types/jasmine": "^2.5.41",
     "@types/node": "^7.0.5",
-    "@types/systemjs": "^0.19.33",
+    "@types/systemjs": "^0.20.0",
     "codelyzer": "^2.0.0-beta.4",
     "concurrently": "^3.1.0",
     "del": "^2.2.2",
@@ -76,7 +76,7 @@
     "systemjs-builder": "^0.16.2",
     "ts-node": "^2.0.0",
     "tslint": "^4.4.2",
-    "typescript": "~2.0.0",
+    "typescript": "^2.1.6",
     "typings": "^2.1.0",
     "uglifyjs": "^2.4.10",
     "zone.js": "^0.7.6"

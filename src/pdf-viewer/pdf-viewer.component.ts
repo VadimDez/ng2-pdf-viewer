@@ -34,7 +34,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   constructor(private element: ElementRef) {
     PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-    //PDFJS.disableWorker = true;
   }
 
   ngOnInit() {
