@@ -29,13 +29,6 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
         this.setupViewer();
     };
     PdfViewerComponent.prototype.onPageResize = function () {
-        var _this = this;
-        if (this.resizeTimeout) {
-            clearTimeout(this.resizeTimeout);
-        }
-        this.resizeTimeout = setTimeout(function () {
-            _this.updateSize();
-        }, 100);
     };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
         if ('src' in changes) {
@@ -140,16 +133,20 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
     };
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
-        this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
-            var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent_1.CSS_UNITS;
-            _this._pdfViewer._setScale(scale, !_this._stickToPage);
-        });
+        if (!this._originalSize) {
+            this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
+                var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent_1.CSS_UNITS;
+                _this._pdfViewer._setScale(scale, !_this._stickToPage);
+            });
+        }
+        else {
+            this._pdfViewer._setScale(this._zoom, true);
+        }
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
         return this._pdf.numPages >= page && page >= 1;
     };
     PdfViewerComponent.prototype.setExternalLinkTarget = function (type) {
-        console.log(type);
         switch (type) {
             case 'blank':
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
@@ -167,7 +164,6 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.TOP;
                 break;
         }
-        console.log(PDFJS.externalLinkTarget);
     };
     PdfViewerComponent.prototype.loadPDF = function () {
         var _this = this;

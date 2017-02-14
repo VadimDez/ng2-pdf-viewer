@@ -32,21 +32,24 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
   constructor(private element: ElementRef) {
+    // PDFJS.disableWorker = true;
     PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+
   }
 
   ngOnInit() {
+    // require('pdfjs-dist/web/pdf_viewer');
     this.setupViewer();
   }
 
   onPageResize() {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-
-    this.resizeTimeout = setTimeout(() => {
-      this.updateSize();
-    }, 100);
+    // if (this.resizeTimeout) {
+    //   clearTimeout(this.resizeTimeout);
+    // }
+    //
+    // this.resizeTimeout = setTimeout(() => {
+    //   this.updateSize();
+    // }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -153,10 +156,14 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   public updateSize() {
-    this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-      const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-      this._pdfViewer._setScale(scale, !this._stickToPage);
-    });
+    if (!this._originalSize) {
+      this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
+        const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+        this._pdfViewer._setScale(scale, !this._stickToPage);
+      });
+    } else {
+      this._pdfViewer._setScale(this._zoom, true);
+    }
   }
 
   public isValidPageNumber(page: number) {
@@ -164,7 +171,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private setExternalLinkTarget(type: string) {
-    console.log(type);
     switch (type) {
       case 'blank':
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
@@ -182,8 +188,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
         break;
     }
-
-    console.log((<any>PDFJS).externalLinkTarget);
   }
 
   private loadPDF() {
