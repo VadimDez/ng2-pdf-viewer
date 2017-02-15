@@ -5,7 +5,6 @@ import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-import 'pdfjs-dist/web/pdf_viewer';
 
 @Component({
   selector: 'pdf-viewer',
@@ -32,24 +31,22 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
   constructor(private element: ElementRef) {
-    // PDFJS.disableWorker = true;
-    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-
+    PDFJS.disableWorker = true;
   }
 
   ngOnInit() {
-    // require('pdfjs-dist/web/pdf_viewer');
+    require('pdfjs-dist/web/pdf_viewer');
     this.setupViewer();
   }
 
   onPageResize() {
-    // if (this.resizeTimeout) {
-    //   clearTimeout(this.resizeTimeout);
-    // }
-    //
-    // this.resizeTimeout = setTimeout(() => {
-    //   this.updateSize();
-    // }, 100);
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.resizeTimeout = setTimeout(() => {
+      this.updateSize();
+    }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges) {

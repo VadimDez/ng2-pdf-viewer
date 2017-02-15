@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require("@angular/core");
 require("pdfjs-dist/build/pdf.combined");
-require("pdfjs-dist/web/pdf_viewer");
 var PdfViewerComponent = PdfViewerComponent_1 = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
@@ -23,12 +22,20 @@ var PdfViewerComponent = PdfViewerComponent_1 = (function () {
         this._externalLinkTarget = 'blank';
         this.afterLoadComplete = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
-        PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        PDFJS.disableWorker = true;
     }
     PdfViewerComponent.prototype.ngOnInit = function () {
+        require('pdfjs-dist/web/pdf_viewer');
         this.setupViewer();
     };
     PdfViewerComponent.prototype.onPageResize = function () {
+        var _this = this;
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        this.resizeTimeout = setTimeout(function () {
+            _this.updateSize();
+        }, 100);
     };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
         if ('src' in changes) {
