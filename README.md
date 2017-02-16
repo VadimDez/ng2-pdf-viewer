@@ -107,6 +107,8 @@ Options object for loading protected PDF would be
 
 
 #### [page]
+_number_
+
 Page number
 
 ```
@@ -118,6 +120,8 @@ supports two way data binding as well
 ```
 
 #### [stick-to-page]
+_boolean_
+
 Works in combination with `page` and sticks view to the page
 
 ```
@@ -126,12 +130,16 @@ Works in combination with `page` and sticks view to the page
 ```
 
 #### [render-text]
+_boolean_
+
 Enable text rendering, allows to select text
 ```
 [render-text]="true"
 ```
 
 #### [external-link-target]
+_string_
+
 Link target
 * `blank`
 * `none`
@@ -143,6 +151,8 @@ Link target
 ```
 
 #### [rotation]
+_number_
+
 Rotate PDF
 
 *Allowed step is 90 degree, ex. 0, 90, 180*
@@ -151,12 +161,15 @@ Rotate PDF
 ```
 
 #### [zoom]
+_number_
+
 Zoom pdf
 ```
 [zoom]="0.5"
 ```
 
 #### [original-size]
+_boolean_
 
 if set to *true* - size will be as same as original document
 
