@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.2
+* [[#54](https://github.com/VadimDez/ng2-pdf-viewer/issues/54)] - [show-all] is showing first two page only.
+
 ## 1.0.1
 * [[#48](https://github.com/VadimDez/ng2-pdf-viewer/issues/48)] - Use ngOnchanges() instead of update() inside setters
 
