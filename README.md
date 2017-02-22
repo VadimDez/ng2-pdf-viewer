@@ -173,6 +173,7 @@ And then use it in your template:
 ```
 ## Develop
 ```
+gulp build
 npm start
 ```
 and open
