@@ -130,15 +130,12 @@ export class PdfViewerComponent implements OnChanges {
 
   private renderMultiplePages() {
     let container = this.element.nativeElement.querySelector('div');
-    let page = 1;
 
     this.removeAllChildNodes(container);
 
-    this.renderPage(page++).then(() => {
-      if (page <= this._pdf.numPages) {
-        return this.renderPage(page++);
-      }
-    });
+    for (let page = 1; page <= this._pdf.numPages; page++) {
+      this.renderPage(page);
+    }
   }
 
   private isValidPageNumber(page: number) {
