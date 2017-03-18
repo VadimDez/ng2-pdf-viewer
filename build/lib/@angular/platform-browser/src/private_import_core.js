@@ -6,18 +6,18 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { __core_private__ as r } from '@angular/core';
-export var RenderDebugInfo = r.RenderDebugInfo;
-export var ReflectionCapabilities = r.ReflectionCapabilities;
-export var DebugDomRootRenderer = r.DebugDomRootRenderer;
-export var reflector = r.reflector;
-export var NoOpAnimationPlayer = r.NoOpAnimationPlayer;
-export var AnimationPlayer = r.AnimationPlayer;
-export var AnimationSequencePlayer = r.AnimationSequencePlayer;
-export var AnimationGroupPlayer = r.AnimationGroupPlayer;
-export var AnimationKeyframe = r.AnimationKeyframe;
-export var AnimationStyles = r.AnimationStyles;
-export var prepareFinalAnimationStyles = r.prepareFinalAnimationStyles;
-export var balanceAnimationKeyframes = r.balanceAnimationKeyframes;
-export var clearStyles = r.clearStyles;
-export var collectAndResolveStyles = r.collectAndResolveStyles;
+export var /** @type {?} */ RenderDebugInfo = r.RenderDebugInfo;
+export var /** @type {?} */ ReflectionCapabilities = r.ReflectionCapabilities;
+export var /** @type {?} */ DebugDomRootRenderer = r.DebugDomRootRenderer;
+export var /** @type {?} */ reflector = r.reflector;
+export var /** @type {?} */ NoOpAnimationPlayer = r.NoOpAnimationPlayer;
+export var /** @type {?} */ AnimationPlayer = r.AnimationPlayer;
+export var /** @type {?} */ AnimationSequencePlayer = r.AnimationSequencePlayer;
+export var /** @type {?} */ AnimationGroupPlayer = r.AnimationGroupPlayer;
+export var /** @type {?} */ AnimationKeyframe = r.AnimationKeyframe;
+export var /** @type {?} */ AnimationStyles = r.AnimationStyles;
+export var /** @type {?} */ prepareFinalAnimationStyles = r.prepareFinalAnimationStyles;
+export var /** @type {?} */ balanceAnimationKeyframes = r.balanceAnimationKeyframes;
+export var /** @type {?} */ clearStyles = r.clearStyles;
+export var /** @type {?} */ collectAndResolveStyles = r.collectAndResolveStyles;
 //# sourceMappingURL=private_import_core.js.map

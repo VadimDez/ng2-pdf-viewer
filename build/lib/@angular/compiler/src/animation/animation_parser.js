@@ -10,46 +10,78 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { Injectable } from '@angular/core';
-import { CompileAnimationAnimateMetadata, CompileAnimationGroupMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationSequenceMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStyleMetadata, CompileAnimationWithStepsMetadata } from '../compile_metadata';
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { CompileAnimationAnimateMetadata, CompileAnimationGroupMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationSequenceMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStyleMetadata, CompileAnimationWithStepsMetadata, identifierName } from '../compile_metadata';
 import { StringMapWrapper } from '../facade/collection';
 import { isBlank, isPresent } from '../facade/lang';
+import { CompilerInjectable } from '../injectable';
 import { ParseError } from '../parse_util';
 import { ANY_STATE, FILL_STYLE_FLAG } from '../private_import_core';
 import { ElementSchemaRegistry } from '../schema/element_schema_registry';
 import { AnimationEntryAst, AnimationGroupAst, AnimationKeyframeAst, AnimationSequenceAst, AnimationStateDeclarationAst, AnimationStateTransitionAst, AnimationStateTransitionExpression, AnimationStepAst, AnimationStylesAst, AnimationWithStepsAst } from './animation_ast';
 import { StylesCollection } from './styles_collection';
-var _INITIAL_KEYFRAME = 0;
-var _TERMINAL_KEYFRAME = 1;
-var _ONE_SECOND = 1000;
+var /** @type {?} */ _INITIAL_KEYFRAME = 0;
+var /** @type {?} */ _TERMINAL_KEYFRAME = 1;
+var /** @type {?} */ _ONE_SECOND = 1000;
 export var AnimationParseError = (function (_super) {
     __extends(AnimationParseError, _super);
+    /**
+     * @param {?} message
+     */
     function AnimationParseError(message) {
         _super.call(this, null, message);
     }
+    /**
+     * @return {?}
+     */
     AnimationParseError.prototype.toString = function () { return "" + this.msg; };
     return AnimationParseError;
 }(ParseError));
 export var AnimationEntryParseResult = (function () {
+    /**
+     * @param {?} ast
+     * @param {?} errors
+     */
     function AnimationEntryParseResult(ast, errors) {
         this.ast = ast;
         this.errors = errors;
     }
     return AnimationEntryParseResult;
 }());
+function AnimationEntryParseResult_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationEntryParseResult.prototype.ast;
+    /** @type {?} */
+    AnimationEntryParseResult.prototype.errors;
+}
 export var AnimationParser = (function () {
+    /**
+     * @param {?} _schema
+     */
     function AnimationParser(_schema) {
         this._schema = _schema;
     }
+    /**
+     * @param {?} component
+     * @return {?}
+     */
     AnimationParser.prototype.parseComponent = function (component) {
         var _this = this;
-        var errors = [];
-        var componentName = component.type.name;
-        var animationTriggerNames = new Set();
-        var asts = component.template.animations.map(function (entry) {
-            var result = _this.parseEntry(entry);
-            var ast = result.ast;
-            var triggerName = ast.name;
+        var /** @type {?} */ errors = [];
+        var /** @type {?} */ componentName = identifierName(component.type);
+        var /** @type {?} */ animationTriggerNames = new Set();
+        var /** @type {?} */ asts = component.template.animations.map(function (entry) {
+            var /** @type {?} */ result = _this.parseEntry(entry);
+            var /** @type {?} */ ast = result.ast;
+            var /** @type {?} */ triggerName = ast.name;
             if (animationTriggerNames.has(triggerName)) {
                 result.errors.push(new AnimationParseError("The animation trigger \"" + triggerName + "\" has already been registered for the " + componentName + " component"));
             }
@@ -57,24 +89,28 @@ export var AnimationParser = (function () {
                 animationTriggerNames.add(triggerName);
             }
             if (result.errors.length > 0) {
-                var errorMessage_1 = "- Unable to parse the animation sequence for \"" + triggerName + "\" on the " + componentName + " component due to the following errors:";
+                var /** @type {?} */ errorMessage_1 = "- Unable to parse the animation sequence for \"" + triggerName + "\" on the " + componentName + " component due to the following errors:";
                 result.errors.forEach(function (error) { errorMessage_1 += '\n-- ' + error.msg; });
                 errors.push(errorMessage_1);
             }
             return ast;
         });
         if (errors.length > 0) {
-            var errorString = errors.join('\n');
+            var /** @type {?} */ errorString = errors.join('\n');
             throw new Error("Animation parse errors:\n" + errorString);
         }
         return asts;
     };
+    /**
+     * @param {?} entry
+     * @return {?}
+     */
     AnimationParser.prototype.parseEntry = function (entry) {
         var _this = this;
-        var errors = [];
-        var stateStyles = {};
-        var transitions = [];
-        var stateDeclarationAsts = [];
+        var /** @type {?} */ errors = [];
+        var /** @type {?} */ stateStyles = {};
+        var /** @type {?} */ transitions = [];
+        var /** @type {?} */ stateDeclarationAsts = [];
         entry.definitions.forEach(function (def) {
             if (def instanceof CompileAnimationStateDeclarationMetadata) {
                 _parseAnimationDeclarationStates(def, _this._schema, errors).forEach(function (ast) {
@@ -83,44 +119,63 @@ export var AnimationParser = (function () {
                 });
             }
             else {
-                transitions.push(def);
+                transitions.push(/** @type {?} */ (def));
             }
         });
-        var stateTransitionAsts = transitions.map(function (transDef) { return _parseAnimationStateTransition(transDef, stateStyles, _this._schema, errors); });
-        var ast = new AnimationEntryAst(entry.name, stateDeclarationAsts, stateTransitionAsts);
+        var /** @type {?} */ stateTransitionAsts = transitions.map(function (transDef) { return _parseAnimationStateTransition(transDef, stateStyles, _this._schema, errors); });
+        var /** @type {?} */ ast = new AnimationEntryAst(entry.name, stateDeclarationAsts, stateTransitionAsts);
         return new AnimationEntryParseResult(ast, errors);
     };
-    AnimationParser.decorators = [
-        { type: Injectable },
-    ];
-    /** @nocollapse */
-    AnimationParser.ctorParameters = [
-        { type: ElementSchemaRegistry, },
-    ];
+    AnimationParser = __decorate([
+        CompilerInjectable(), 
+        __metadata('design:paramtypes', [ElementSchemaRegistry])
+    ], AnimationParser);
     return AnimationParser;
 }());
+function AnimationParser_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationParser.prototype._schema;
+}
+/**
+ * @param {?} stateMetadata
+ * @param {?} schema
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseAnimationDeclarationStates(stateMetadata, schema, errors) {
-    var normalizedStyles = _normalizeStyleMetadata(stateMetadata.styles, {}, schema, errors, false);
-    var defStyles = new AnimationStylesAst(normalizedStyles);
-    var states = stateMetadata.stateNameExpr.split(/\s*,\s*/);
+    var /** @type {?} */ normalizedStyles = _normalizeStyleMetadata(stateMetadata.styles, {}, schema, errors, false);
+    var /** @type {?} */ defStyles = new AnimationStylesAst(normalizedStyles);
+    var /** @type {?} */ states = stateMetadata.stateNameExpr.split(/\s*,\s*/);
     return states.map(function (state) { return new AnimationStateDeclarationAst(state, defStyles); });
 }
+/**
+ * @param {?} transitionStateMetadata
+ * @param {?} stateStyles
+ * @param {?} schema
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseAnimationStateTransition(transitionStateMetadata, stateStyles, schema, errors) {
-    var styles = new StylesCollection();
-    var transitionExprs = [];
-    var transitionStates = transitionStateMetadata.stateChangeExpr.split(/\s*,\s*/);
+    var /** @type {?} */ styles = new StylesCollection();
+    var /** @type {?} */ transitionExprs = [];
+    var /** @type {?} */ transitionStates = transitionStateMetadata.stateChangeExpr.split(/\s*,\s*/);
     transitionStates.forEach(function (expr) { transitionExprs.push.apply(transitionExprs, _parseAnimationTransitionExpr(expr, errors)); });
-    var entry = _normalizeAnimationEntry(transitionStateMetadata.steps);
-    var animation = _normalizeStyleSteps(entry, stateStyles, schema, errors);
-    var animationAst = _parseTransitionAnimation(animation, 0, styles, stateStyles, errors);
+    var /** @type {?} */ entry = _normalizeAnimationEntry(transitionStateMetadata.steps);
+    var /** @type {?} */ animation = _normalizeStyleSteps(entry, stateStyles, schema, errors);
+    var /** @type {?} */ animationAst = _parseTransitionAnimation(animation, 0, styles, stateStyles, errors);
     if (errors.length == 0) {
         _fillAnimationAstStartingKeyframes(animationAst, styles, errors);
     }
-    var stepsAst = (animationAst instanceof AnimationWithStepsAst) ?
+    var /** @type {?} */ stepsAst = (animationAst instanceof AnimationWithStepsAst) ?
         animationAst :
         new AnimationSequenceAst([animationAst]);
     return new AnimationStateTransitionAst(transitionExprs, stepsAst);
 }
+/**
+ * @param {?} alias
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseAnimationAlias(alias, errors) {
     switch (alias) {
         case ':enter':
@@ -132,47 +187,68 @@ function _parseAnimationAlias(alias, errors) {
             return '* => *';
     }
 }
+/**
+ * @param {?} eventStr
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseAnimationTransitionExpr(eventStr, errors) {
-    var expressions = [];
+    var /** @type {?} */ expressions = [];
     if (eventStr[0] == ':') {
         eventStr = _parseAnimationAlias(eventStr, errors);
     }
-    var match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
+    var /** @type {?} */ match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
     if (!isPresent(match) || match.length < 4) {
         errors.push(new AnimationParseError("the provided " + eventStr + " is not of a supported format"));
         return expressions;
     }
-    var fromState = match[1];
-    var separator = match[2];
-    var toState = match[3];
+    var /** @type {?} */ fromState = match[1];
+    var /** @type {?} */ separator = match[2];
+    var /** @type {?} */ toState = match[3];
     expressions.push(new AnimationStateTransitionExpression(fromState, toState));
-    var isFullAnyStateExpr = fromState == ANY_STATE && toState == ANY_STATE;
+    var /** @type {?} */ isFullAnyStateExpr = fromState == ANY_STATE && toState == ANY_STATE;
     if (separator[0] == '<' && !isFullAnyStateExpr) {
         expressions.push(new AnimationStateTransitionExpression(toState, fromState));
     }
     return expressions;
 }
+/**
+ * @param {?} entry
+ * @return {?}
+ */
 function _normalizeAnimationEntry(entry) {
     return Array.isArray(entry) ? new CompileAnimationSequenceMetadata(entry) : entry;
 }
+/**
+ * @param {?} entry
+ * @param {?} stateStyles
+ * @param {?} schema
+ * @param {?} errors
+ * @param {?} permitStateReferences
+ * @return {?}
+ */
 function _normalizeStyleMetadata(entry, stateStyles, schema, errors, permitStateReferences) {
-    var normalizedStyles = [];
+    var /** @type {?} */ offset = entry.offset;
+    if (offset > 1 || offset < 0) {
+        errors.push(new AnimationParseError("Offset values for animations must be between 0 and 1"));
+    }
+    var /** @type {?} */ normalizedStyles = [];
     entry.styles.forEach(function (styleEntry) {
         if (typeof styleEntry === 'string') {
             if (permitStateReferences) {
-                normalizedStyles.push.apply(normalizedStyles, _resolveStylesFromState(styleEntry, stateStyles, errors));
+                normalizedStyles.push.apply(normalizedStyles, _resolveStylesFromState(/** @type {?} */ (styleEntry), stateStyles, errors));
             }
             else {
                 errors.push(new AnimationParseError("State based animations cannot contain references to other states"));
             }
         }
         else {
-            var stylesObj_1 = styleEntry;
-            var normalizedStylesObj_1 = {};
+            var /** @type {?} */ stylesObj_1 = (styleEntry);
+            var /** @type {?} */ normalizedStylesObj_1 = {};
             Object.keys(stylesObj_1).forEach(function (propName) {
-                var normalizedProp = schema.normalizeAnimationStyleProperty(propName);
-                var normalizedOutput = schema.normalizeAnimationStyleValue(normalizedProp, propName, stylesObj_1[propName]);
-                var normalizationError = normalizedOutput['error'];
+                var /** @type {?} */ normalizedProp = schema.normalizeAnimationStyleProperty(propName);
+                var /** @type {?} */ normalizedOutput = schema.normalizeAnimationStyleValue(normalizedProp, propName, stylesObj_1[propName]);
+                var /** @type {?} */ normalizationError = normalizedOutput['error'];
                 if (normalizationError) {
                     errors.push(new AnimationParseError(normalizationError));
                 }
@@ -183,33 +259,52 @@ function _normalizeStyleMetadata(entry, stateStyles, schema, errors, permitState
     });
     return normalizedStyles;
 }
+/**
+ * @param {?} entry
+ * @param {?} stateStyles
+ * @param {?} schema
+ * @param {?} errors
+ * @return {?}
+ */
 function _normalizeStyleSteps(entry, stateStyles, schema, errors) {
-    var steps = _normalizeStyleStepEntry(entry, stateStyles, schema, errors);
+    var /** @type {?} */ steps = _normalizeStyleStepEntry(entry, stateStyles, schema, errors);
     return (entry instanceof CompileAnimationGroupMetadata) ?
         new CompileAnimationGroupMetadata(steps) :
         new CompileAnimationSequenceMetadata(steps);
 }
+/**
+ * @param {?} stylesList
+ * @param {?} newItem
+ * @return {?}
+ */
 function _mergeAnimationStyles(stylesList, newItem) {
     if (typeof newItem === 'object' && newItem !== null && stylesList.length > 0) {
-        var lastIndex = stylesList.length - 1;
-        var lastItem = stylesList[lastIndex];
+        var /** @type {?} */ lastIndex = stylesList.length - 1;
+        var /** @type {?} */ lastItem = stylesList[lastIndex];
         if (typeof lastItem === 'object' && lastItem !== null) {
-            stylesList[lastIndex] = StringMapWrapper.merge(lastItem, newItem);
+            stylesList[lastIndex] = StringMapWrapper.merge(/** @type {?} */ (lastItem), /** @type {?} */ (newItem));
             return;
         }
     }
     stylesList.push(newItem);
 }
+/**
+ * @param {?} entry
+ * @param {?} stateStyles
+ * @param {?} schema
+ * @param {?} errors
+ * @return {?}
+ */
 function _normalizeStyleStepEntry(entry, stateStyles, schema, errors) {
-    var steps;
+    var /** @type {?} */ steps;
     if (entry instanceof CompileAnimationWithStepsMetadata) {
         steps = entry.steps;
     }
     else {
         return [entry];
     }
-    var newSteps = [];
-    var combinedStyles;
+    var /** @type {?} */ newSteps = [];
+    var /** @type {?} */ combinedStyles;
     steps.forEach(function (step) {
         if (step instanceof CompileAnimationStyleMetadata) {
             // this occurs when a style step is followed by a previous style step
@@ -219,7 +314,7 @@ function _normalizeStyleStepEntry(entry, stateStyles, schema, errors) {
             if (!isPresent(combinedStyles)) {
                 combinedStyles = [];
             }
-            _normalizeStyleMetadata(step, stateStyles, schema, errors, true)
+            _normalizeStyleMetadata(/** @type {?} */ (step), stateStyles, schema, errors, true)
                 .forEach(function (entry) { _mergeAnimationStyles(combinedStyles, entry); });
         }
         else {
@@ -234,7 +329,7 @@ function _normalizeStyleStepEntry(entry, stateStyles, schema, errors) {
             if (step instanceof CompileAnimationAnimateMetadata) {
                 // we do not recurse into CompileAnimationAnimateMetadata since
                 // those style steps are not going to be squashed
-                var animateStyleValue = step.styles;
+                var /** @type {?} */ animateStyleValue = ((step)).styles;
                 if (animateStyleValue instanceof CompileAnimationStyleMetadata) {
                     animateStyleValue.styles =
                         _normalizeStyleMetadata(animateStyleValue, stateStyles, schema, errors, true);
@@ -246,7 +341,7 @@ function _normalizeStyleStepEntry(entry, stateStyles, schema, errors) {
                 }
             }
             else if (step instanceof CompileAnimationWithStepsMetadata) {
-                var innerSteps = _normalizeStyleStepEntry(step, stateStyles, schema, errors);
+                var /** @type {?} */ innerSteps = _normalizeStyleStepEntry(step, stateStyles, schema, errors);
                 step = step instanceof CompileAnimationGroupMetadata ?
                     new CompileAnimationGroupMetadata(innerSteps) :
                     new CompileAnimationSequenceMetadata(innerSteps);
@@ -260,21 +355,27 @@ function _normalizeStyleStepEntry(entry, stateStyles, schema, errors) {
     }
     return newSteps;
 }
+/**
+ * @param {?} stateName
+ * @param {?} stateStyles
+ * @param {?} errors
+ * @return {?}
+ */
 function _resolveStylesFromState(stateName, stateStyles, errors) {
-    var styles = [];
+    var /** @type {?} */ styles = [];
     if (stateName[0] != ':') {
         errors.push(new AnimationParseError("Animation states via styles must be prefixed with a \":\""));
     }
     else {
-        var normalizedStateName = stateName.substring(1);
-        var value = stateStyles[normalizedStateName];
+        var /** @type {?} */ normalizedStateName = stateName.substring(1);
+        var /** @type {?} */ value = stateStyles[normalizedStateName];
         if (!isPresent(value)) {
             errors.push(new AnimationParseError("Unable to apply styles due to missing a state: \"" + normalizedStateName + "\""));
         }
         else {
             value.styles.forEach(function (stylesEntry) {
                 if (typeof stylesEntry === 'object' && stylesEntry !== null) {
-                    styles.push(stylesEntry);
+                    styles.push(/** @type {?} */ (stylesEntry));
                 }
             });
         }
@@ -282,6 +383,11 @@ function _resolveStylesFromState(stateName, stateStyles, errors) {
     return styles;
 }
 var _AnimationTimings = (function () {
+    /**
+     * @param {?} duration
+     * @param {?} delay
+     * @param {?} easing
+     */
     function _AnimationTimings(duration, delay, easing) {
         this.duration = duration;
         this.delay = delay;
@@ -289,27 +395,43 @@ var _AnimationTimings = (function () {
     }
     return _AnimationTimings;
 }());
+function _AnimationTimings_tsickle_Closure_declarations() {
+    /** @type {?} */
+    _AnimationTimings.prototype.duration;
+    /** @type {?} */
+    _AnimationTimings.prototype.delay;
+    /** @type {?} */
+    _AnimationTimings.prototype.easing;
+}
+/**
+ * @param {?} keyframeSequence
+ * @param {?} currentTime
+ * @param {?} collectedStyles
+ * @param {?} stateStyles
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles, stateStyles, errors) {
-    var totalEntries = keyframeSequence.steps.length;
-    var totalOffsets = 0;
+    var /** @type {?} */ totalEntries = keyframeSequence.steps.length;
+    var /** @type {?} */ totalOffsets = 0;
     keyframeSequence.steps.forEach(function (step) { return totalOffsets += (isPresent(step.offset) ? 1 : 0); });
     if (totalOffsets > 0 && totalOffsets < totalEntries) {
         errors.push(new AnimationParseError("Not all style() entries contain an offset for the provided keyframe()"));
         totalOffsets = totalEntries;
     }
-    var limit = totalEntries - 1;
-    var margin = totalOffsets == 0 ? (1 / limit) : 0;
-    var rawKeyframes = [];
-    var index = 0;
-    var doSortKeyframes = false;
-    var lastOffset = 0;
+    var /** @type {?} */ limit = totalEntries - 1;
+    var /** @type {?} */ margin = totalOffsets == 0 ? (1 / limit) : 0;
+    var /** @type {?} */ rawKeyframes = [];
+    var /** @type {?} */ index = 0;
+    var /** @type {?} */ doSortKeyframes = false;
+    var /** @type {?} */ lastOffset = 0;
     keyframeSequence.steps.forEach(function (styleMetadata) {
-        var offset = styleMetadata.offset;
-        var keyframeStyles = {};
+        var /** @type {?} */ offset = styleMetadata.offset;
+        var /** @type {?} */ keyframeStyles = {};
         styleMetadata.styles.forEach(function (entry) {
             Object.keys(entry).forEach(function (prop) {
                 if (prop != 'offset') {
-                    keyframeStyles[prop] = entry[prop];
+                    keyframeStyles[prop] = ((entry))[prop];
                 }
             });
         });
@@ -326,21 +448,21 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
     if (doSortKeyframes) {
         rawKeyframes.sort(function (a, b) { return a[0] <= b[0] ? -1 : 1; });
     }
-    var firstKeyframe = rawKeyframes[0];
+    var /** @type {?} */ firstKeyframe = rawKeyframes[0];
     if (firstKeyframe[0] != _INITIAL_KEYFRAME) {
         rawKeyframes.splice(0, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
     }
-    var firstKeyframeStyles = firstKeyframe[1];
+    var /** @type {?} */ firstKeyframeStyles = firstKeyframe[1];
     limit = rawKeyframes.length - 1;
-    var lastKeyframe = rawKeyframes[limit];
+    var /** @type {?} */ lastKeyframe = rawKeyframes[limit];
     if (lastKeyframe[0] != _TERMINAL_KEYFRAME) {
         rawKeyframes.push(lastKeyframe = [_TERMINAL_KEYFRAME, {}]);
         limit++;
     }
-    var lastKeyframeStyles = lastKeyframe[1];
-    for (var i = 1; i <= limit; i++) {
-        var entry = rawKeyframes[i];
-        var styles = entry[1];
+    var /** @type {?} */ lastKeyframeStyles = lastKeyframe[1];
+    for (var /** @type {?} */ i = 1; i <= limit; i++) {
+        var /** @type {?} */ entry = rawKeyframes[i];
+        var /** @type {?} */ styles = entry[1];
         Object.keys(styles).forEach(function (prop) {
             if (!isPresent(firstKeyframeStyles[prop])) {
                 firstKeyframeStyles[prop] = FILL_STYLE_FLAG;
@@ -348,53 +470,61 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
         });
     }
     var _loop_1 = function(i) {
-        var entry = rawKeyframes[i];
-        var styles = entry[1];
+        var /** @type {?} */ entry = rawKeyframes[i];
+        var /** @type {?} */ styles = entry[1];
         Object.keys(styles).forEach(function (prop) {
             if (!isPresent(lastKeyframeStyles[prop])) {
                 lastKeyframeStyles[prop] = styles[prop];
             }
         });
     };
-    for (var i = limit - 1; i >= 0; i--) {
+    for (var /** @type {?} */ i = limit - 1; i >= 0; i--) {
         _loop_1(i);
     }
     return rawKeyframes.map(function (entry) { return new AnimationKeyframeAst(entry[0], new AnimationStylesAst([entry[1]])); });
 }
+/**
+ * @param {?} entry
+ * @param {?} currentTime
+ * @param {?} collectedStyles
+ * @param {?} stateStyles
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateStyles, errors) {
-    var ast;
-    var playTime = 0;
-    var startingTime = currentTime;
+    var /** @type {?} */ ast;
+    var /** @type {?} */ playTime = 0;
+    var /** @type {?} */ startingTime = currentTime;
     if (entry instanceof CompileAnimationWithStepsMetadata) {
-        var maxDuration_1 = 0;
-        var steps_1 = [];
-        var isGroup_1 = entry instanceof CompileAnimationGroupMetadata;
-        var previousStyles_1;
+        var /** @type {?} */ maxDuration_1 = 0;
+        var /** @type {?} */ steps_1 = [];
+        var /** @type {?} */ isGroup_1 = entry instanceof CompileAnimationGroupMetadata;
+        var /** @type {?} */ previousStyles_1;
         entry.steps.forEach(function (entry) {
             // these will get picked up by the next step...
-            var time = isGroup_1 ? startingTime : currentTime;
+            var /** @type {?} */ time = isGroup_1 ? startingTime : currentTime;
             if (entry instanceof CompileAnimationStyleMetadata) {
                 entry.styles.forEach(function (stylesEntry) {
                     // by this point we know that we only have stringmap values
-                    var map = stylesEntry;
+                    var /** @type {?} */ map = (stylesEntry);
                     Object.keys(map).forEach(function (prop) { collectedStyles.insertAtTime(prop, time, map[prop]); });
                 });
                 previousStyles_1 = entry.styles;
                 return;
             }
-            var innerAst = _parseTransitionAnimation(entry, time, collectedStyles, stateStyles, errors);
+            var /** @type {?} */ innerAst = _parseTransitionAnimation(entry, time, collectedStyles, stateStyles, errors);
             if (isPresent(previousStyles_1)) {
                 if (entry instanceof CompileAnimationWithStepsMetadata) {
-                    var startingStyles = new AnimationStylesAst(previousStyles_1);
+                    var /** @type {?} */ startingStyles = new AnimationStylesAst(previousStyles_1);
                     steps_1.push(new AnimationStepAst(startingStyles, [], 0, 0, ''));
                 }
                 else {
-                    var innerStep = innerAst;
+                    var /** @type {?} */ innerStep = (innerAst);
                     (_a = innerStep.startingStyles.styles).push.apply(_a, previousStyles_1);
                 }
                 previousStyles_1 = null;
             }
-            var astDuration = innerAst.playTime;
+            var /** @type {?} */ astDuration = innerAst.playTime;
             currentTime += astDuration;
             playTime += astDuration;
             maxDuration_1 = Math.max(astDuration, maxDuration_1);
@@ -402,7 +532,7 @@ function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateSty
             var _a;
         });
         if (isPresent(previousStyles_1)) {
-            var startingStyles = new AnimationStylesAst(previousStyles_1);
+            var /** @type {?} */ startingStyles = new AnimationStylesAst(previousStyles_1);
             steps_1.push(new AnimationStepAst(startingStyles, [], 0, 0, ''));
         }
         if (isGroup_1) {
@@ -415,18 +545,18 @@ function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateSty
         }
     }
     else if (entry instanceof CompileAnimationAnimateMetadata) {
-        var timings = _parseTimeExpression(entry.timings, errors);
-        var styles = entry.styles;
-        var keyframes = void 0;
+        var /** @type {?} */ timings = _parseTimeExpression(entry.timings, errors);
+        var /** @type {?} */ styles = entry.styles;
+        var /** @type {?} */ keyframes = void 0;
         if (styles instanceof CompileAnimationKeyframesSequenceMetadata) {
             keyframes =
                 _parseAnimationKeyframes(styles, currentTime, collectedStyles, stateStyles, errors);
         }
         else {
-            var styleData = styles;
-            var offset = _TERMINAL_KEYFRAME;
-            var styleAst = new AnimationStylesAst(styleData.styles);
-            var keyframe = new AnimationKeyframeAst(offset, styleAst);
+            var /** @type {?} */ styleData = (styles);
+            var /** @type {?} */ offset = _TERMINAL_KEYFRAME;
+            var /** @type {?} */ styleAst = new AnimationStylesAst(/** @type {?} */ (styleData.styles));
+            var /** @type {?} */ keyframe = new AnimationKeyframeAst(offset, styleAst);
             keyframes = [keyframe];
         }
         ast = new AnimationStepAst(new AnimationStylesAst([]), keyframes, timings.duration, timings.delay, timings.easing);
@@ -444,13 +574,19 @@ function _parseTransitionAnimation(entry, currentTime, collectedStyles, stateSty
     ast.startTime = startingTime;
     return ast;
 }
+/**
+ * @param {?} ast
+ * @param {?} collectedStyles
+ * @param {?} errors
+ * @return {?}
+ */
 function _fillAnimationAstStartingKeyframes(ast, collectedStyles, errors) {
     // steps that only contain style will not be filled
     if ((ast instanceof AnimationStepAst) && ast.keyframes.length > 0) {
-        var keyframes = ast.keyframes;
+        var /** @type {?} */ keyframes = ast.keyframes;
         if (keyframes.length == 1) {
-            var endKeyframe = keyframes[0];
-            var startKeyframe = _createStartKeyframeFromEndKeyframe(endKeyframe, ast.startTime, ast.playTime, collectedStyles, errors);
+            var /** @type {?} */ endKeyframe = keyframes[0];
+            var /** @type {?} */ startKeyframe = _createStartKeyframeFromEndKeyframe(endKeyframe, ast.startTime, ast.playTime, collectedStyles, errors);
             ast.keyframes = [startKeyframe, endKeyframe];
         }
     }
@@ -458,52 +594,65 @@ function _fillAnimationAstStartingKeyframes(ast, collectedStyles, errors) {
         ast.steps.forEach(function (entry) { return _fillAnimationAstStartingKeyframes(entry, collectedStyles, errors); });
     }
 }
+/**
+ * @param {?} exp
+ * @param {?} errors
+ * @return {?}
+ */
 function _parseTimeExpression(exp, errors) {
-    var regex = /^([\.\d]+)(m?s)(?:\s+([\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?/i;
-    var duration;
-    var delay = 0;
-    var easing = null;
+    var /** @type {?} */ regex = /^([\.\d]+)(m?s)(?:\s+([\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?/i;
+    var /** @type {?} */ duration;
+    var /** @type {?} */ delay = 0;
+    var /** @type {?} */ easing = null;
     if (typeof exp === 'string') {
-        var matches = exp.match(regex);
+        var /** @type {?} */ matches = exp.match(regex);
         if (matches === null) {
             errors.push(new AnimationParseError("The provided timing value \"" + exp + "\" is invalid."));
             return new _AnimationTimings(0, 0, null);
         }
-        var durationMatch = parseFloat(matches[1]);
-        var durationUnit = matches[2];
+        var /** @type {?} */ durationMatch = parseFloat(matches[1]);
+        var /** @type {?} */ durationUnit = matches[2];
         if (durationUnit == 's') {
             durationMatch *= _ONE_SECOND;
         }
         duration = Math.floor(durationMatch);
-        var delayMatch = matches[3];
-        var delayUnit = matches[4];
+        var /** @type {?} */ delayMatch = matches[3];
+        var /** @type {?} */ delayUnit = matches[4];
         if (isPresent(delayMatch)) {
-            var delayVal = parseFloat(delayMatch);
+            var /** @type {?} */ delayVal = parseFloat(delayMatch);
             if (isPresent(delayUnit) && delayUnit == 's') {
                 delayVal *= _ONE_SECOND;
             }
             delay = Math.floor(delayVal);
         }
-        var easingVal = matches[5];
+        var /** @type {?} */ easingVal = matches[5];
         if (!isBlank(easingVal)) {
             easing = easingVal;
         }
     }
     else {
-        duration = exp;
+        duration = (exp);
     }
     return new _AnimationTimings(duration, delay, easing);
 }
+/**
+ * @param {?} endKeyframe
+ * @param {?} startTime
+ * @param {?} duration
+ * @param {?} collectedStyles
+ * @param {?} errors
+ * @return {?}
+ */
 function _createStartKeyframeFromEndKeyframe(endKeyframe, startTime, duration, collectedStyles, errors) {
-    var values = {};
-    var endTime = startTime + duration;
+    var /** @type {?} */ values = {};
+    var /** @type {?} */ endTime = startTime + duration;
     endKeyframe.styles.styles.forEach(function (styleData) {
         Object.keys(styleData).forEach(function (prop) {
-            var val = styleData[prop];
+            var /** @type {?} */ val = styleData[prop];
             if (prop == 'offset')
                 return;
-            var resultIndex = collectedStyles.indexOfAtOrBeforeTime(prop, startTime);
-            var resultEntry /** TODO #9100 */, nextEntry /** TODO #9100 */, value;
+            var /** @type {?} */ resultIndex = collectedStyles.indexOfAtOrBeforeTime(prop, startTime);
+            var /** @type {?} */ resultEntry /** TODO #9100 */, /** @type {?} */ nextEntry /** TODO #9100 */, /** @type {?} */ value;
             if (isPresent(resultIndex)) {
                 resultEntry = collectedStyles.getByIndex(prop, resultIndex);
                 value = resultEntry.value;

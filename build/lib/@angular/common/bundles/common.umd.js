@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.2.1
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.7
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -10,80 +10,178 @@
 }(this, function (exports,_angular_core) { 'use strict';
 
     /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    /**
      * This class should not be used directly by an application developer. Instead, use
-     * {@link Location}.
+     * {\@link Location}.
      *
      * `PlatformLocation` encapsulates all calls to DOM apis, which allows the Router to be platform
      * agnostic.
      * This means that we can have different implementation of `PlatformLocation` for the different
      * platforms
-     * that angular supports. For example, the default `PlatformLocation` is {@link
+     * that angular supports. For example, the default `PlatformLocation` is {\@link
      * BrowserPlatformLocation},
-     * however when you run your app in a WebWorker you use {@link WebWorkerPlatformLocation}.
+     * however when you run your app in a WebWorker you use {\@link WebWorkerPlatformLocation}.
      *
-     * The `PlatformLocation` class is used directly by all implementations of {@link LocationStrategy}
+     * The `PlatformLocation` class is used directly by all implementations of {\@link LocationStrategy}
      * when
      * they need to interact with the DOM apis like pushState, popState, etc...
      *
-     * {@link LocationStrategy} in turn is used by the {@link Location} service which is used directly
+     * {\@link LocationStrategy} in turn is used by the {\@link Location} service which is used directly
      * by
-     * the {@link Router} in order to navigate between routes. Since all interactions between {@link
+     * the {\@link Router} in order to navigate between routes. Since all interactions between {\@link
      * Router} /
-     * {@link Location} / {@link LocationStrategy} and DOM apis flow through the `PlatformLocation`
+     * {\@link Location} / {\@link LocationStrategy} and DOM apis flow through the `PlatformLocation`
      * class
      * they are all platform independent.
      *
-     * @stable
+     * \@stable
+     * @abstract
      */
     var PlatformLocation = (function () {
         function PlatformLocation() {
         }
+        /**
+         * @abstract
+         * @return {?}
+         */
+        PlatformLocation.prototype.getBaseHrefFromDOM = function () { };
+        /**
+         * @abstract
+         * @param {?} fn
+         * @return {?}
+         */
+        PlatformLocation.prototype.onPopState = function (fn) { };
+        /**
+         * @abstract
+         * @param {?} fn
+         * @return {?}
+         */
+        PlatformLocation.prototype.onHashChange = function (fn) { };
         Object.defineProperty(PlatformLocation.prototype, "pathname", {
+            /**
+             * @return {?}
+             */
             get: function () { return null; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(PlatformLocation.prototype, "search", {
+            /**
+             * @return {?}
+             */
             get: function () { return null; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(PlatformLocation.prototype, "hash", {
+            /**
+             * @return {?}
+             */
             get: function () { return null; },
             enumerable: true,
             configurable: true
         });
+        /**
+         * @abstract
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @return {?}
+         */
+        PlatformLocation.prototype.replaceState = function (state, title, url) { };
+        /**
+         * @abstract
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @return {?}
+         */
+        PlatformLocation.prototype.pushState = function (state, title, url) { };
+        /**
+         * @abstract
+         * @return {?}
+         */
+        PlatformLocation.prototype.forward = function () { };
+        /**
+         * @abstract
+         * @return {?}
+         */
+        PlatformLocation.prototype.back = function () { };
         return PlatformLocation;
     }());
 
     /**
      * `LocationStrategy` is responsible for representing and reading route state
      * from the browser's URL. Angular provides two strategies:
-     * {@link HashLocationStrategy} and {@link PathLocationStrategy} (default).
+     * {\@link HashLocationStrategy} and {\@link PathLocationStrategy}.
      *
-     * This is used under the hood of the {@link Location} service.
+     * This is used under the hood of the {\@link Location} service.
      *
-     * Applications should use the {@link Router} or {@link Location} services to
+     * Applications should use the {\@link Router} or {\@link Location} services to
      * interact with application route state.
      *
-     * For instance, {@link HashLocationStrategy} produces URLs like
-     * `http://example.com#/foo`, and {@link PathLocationStrategy} produces
+     * For instance, {\@link HashLocationStrategy} produces URLs like
+     * `http://example.com#/foo`, and {\@link PathLocationStrategy} produces
      * `http://example.com/foo` as an equivalent URL.
      *
      * See these two classes for more.
      *
-     * @stable
+     * \@stable
+     * @abstract
      */
     var LocationStrategy = (function () {
         function LocationStrategy() {
         }
+        /**
+         * @abstract
+         * @param {?=} includeHash
+         * @return {?}
+         */
+        LocationStrategy.prototype.path = function (includeHash) { };
+        /**
+         * @abstract
+         * @param {?} internal
+         * @return {?}
+         */
+        LocationStrategy.prototype.prepareExternalUrl = function (internal) { };
+        /**
+         * @abstract
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @param {?} queryParams
+         * @return {?}
+         */
+        LocationStrategy.prototype.pushState = function (state, title, url, queryParams) { };
+        /**
+         * @abstract
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @param {?} queryParams
+         * @return {?}
+         */
+        LocationStrategy.prototype.replaceState = function (state, title, url, queryParams) { };
+        /**
+         * @abstract
+         * @return {?}
+         */
+        LocationStrategy.prototype.forward = function () { };
+        /**
+         * @abstract
+         * @return {?}
+         */
+        LocationStrategy.prototype.back = function () { };
+        /**
+         * @abstract
+         * @param {?} fn
+         * @return {?}
+         */
+        LocationStrategy.prototype.onPopState = function (fn) { };
+        /**
+         * @abstract
+         * @return {?}
+         */
+        LocationStrategy.prototype.getBaseHref = function () { };
         return LocationStrategy;
     }());
     /**
@@ -108,7 +206,7 @@
      *
      * @stable
      */
-    var APP_BASE_HREF = new _angular_core.OpaqueToken('appBaseHref');
+    var /** @type {?} */ APP_BASE_HREF = new _angular_core.OpaqueToken('appBaseHref');
 
     /**
      * @license
@@ -117,22 +215,26 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var globalScope;
+    var /** @type {?} */ globalScope;
     if (typeof window === 'undefined') {
         if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
             // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
-            globalScope = self;
+            globalScope = (self);
         }
         else {
-            globalScope = global;
+            globalScope = (global);
         }
     }
     else {
-        globalScope = window;
+        globalScope = (window);
     }
     // Need to declare a new variable for global here since TypeScript
     // exports the original value of the symbol.
-    var _global = globalScope;
+    var /** @type {?} */ _global = globalScope;
+    /**
+     * @param {?} type
+     * @return {?}
+     */
     function getTypeNameForDebugging(type) {
         return type['name'] || typeof type;
     }
@@ -142,15 +244,24 @@
     _global.assert = function assert(condition) {
         // TODO: to be fixed properly via #2830, noop for now
     };
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     function isPresent(obj) {
         return obj != null;
     }
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     function isBlank(obj) {
         return obj == null;
     }
-    function isDate(obj) {
-        return obj instanceof Date && !isNaN(obj.valueOf());
-    }
+    /**
+     * @param {?} token
+     * @return {?}
+     */
     function stringify(token) {
         if (typeof token === 'string') {
             return token;
@@ -159,44 +270,59 @@
             return '' + token;
         }
         if (token.overriddenName) {
-            return token.overriddenName;
+            return "" + token.overriddenName;
         }
         if (token.name) {
-            return token.name;
+            return "" + token.name;
         }
-        var res = token.toString();
-        var newLineIndex = res.indexOf('\n');
+        var /** @type {?} */ res = token.toString();
+        var /** @type {?} */ newLineIndex = res.indexOf('\n');
         return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
     var NumberWrapper = (function () {
         function NumberWrapper() {
         }
+        /**
+         * @param {?} text
+         * @return {?}
+         */
         NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
+            var /** @type {?} */ result = parseInt(text);
             if (isNaN(result)) {
                 throw new Error('Invalid integer literal when parsing ' + text);
             }
             return result;
         };
+        /**
+         * @param {?} value
+         * @return {?}
+         */
         NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
         return NumberWrapper;
     }());
+    /**
+     * @param {?} o
+     * @return {?}
+     */
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
     }
-    var _symbolIterator = null;
+    var /** @type {?} */ _symbolIterator = null;
+    /**
+     * @return {?}
+     */
     function getSymbolIterator() {
         if (!_symbolIterator) {
-            if (globalScope.Symbol && Symbol.iterator) {
+            if (((globalScope)).Symbol && Symbol.iterator) {
                 _symbolIterator = Symbol.iterator;
             }
             else {
                 // es6-shim specific logic
-                var keys = Object.getOwnPropertyNames(Map.prototype);
-                for (var i = 0; i < keys.length; ++i) {
-                    var key = keys[i];
+                var /** @type {?} */ keys = Object.getOwnPropertyNames(Map.prototype);
+                for (var /** @type {?} */ i = 0; i < keys.length; ++i) {
+                    var /** @type {?} */ key = keys[i];
                     if (key !== 'entries' && key !== 'size' &&
-                        Map.prototype[key] === Map.prototype['entries']) {
+                        ((Map)).prototype[key] === Map.prototype['entries']) {
                         _symbolIterator = key;
                     }
                 }
@@ -206,11 +332,12 @@
     }
 
     /**
-     * `Location` is a service that applications can use to interact with a browser's URL.
-     * Depending on which {@link LocationStrategy} is used, `Location` will either persist
+     * \@whatItDoes `Location` is a service that applications can use to interact with a browser's URL.
+     * \@description
+     * Depending on which {\@link LocationStrategy} is used, `Location` will either persist
      * to the URL's path or the URL's hash segment.
      *
-     * Note: it's better to use {@link Router#navigate} service to trigger route changes. Use
+     * Note: it's better to use {\@link Router#navigate} service to trigger route changes. Use
      * `Location` only if you need to interact with or create normalized URLs outside of
      * routing.
      *
@@ -222,22 +349,13 @@
      * - `/my/app/user/123/` **is not** normalized
      *
      * ### Example
-     *
-     * ```
-     * import {Component} from '@angular/core';
-     * import {Location} from '@angular/common';
-     *
-     * @Component({selector: 'app-component'})
-     * class AppCmp {
-     *   constructor(location: Location) {
-     *     location.go('/foo');
-     *   }
-     * }
-     * ```
-     *
-     * @stable
+     * {\@example common/location/ts/path_location_component.ts region='LocationComponent'}
+     * \@stable
      */
     var Location = (function () {
+        /**
+         * @param {?} platformStrategy
+         */
         function Location(platformStrategy) {
             var _this = this;
             /** @internal */
@@ -254,16 +372,18 @@
             });
         }
         /**
-         * Returns the normalized URL path.
+         * @param {?=} includeHash
+         * @return {?}
          */
-        // TODO: vsavkin. Remove the boolean flag and always include hash once the deprecated router is
-        // removed.
         Location.prototype.path = function (includeHash) {
             if (includeHash === void 0) { includeHash = false; }
             return this.normalize(this._platformStrategy.path(includeHash));
         };
         /**
          * Normalizes the given path and compares to the current normalized path.
+         * @param {?} path
+         * @param {?=} query
+         * @return {?}
          */
         Location.prototype.isCurrentPathEqualTo = function (path, query) {
             if (query === void 0) { query = ''; }
@@ -272,6 +392,8 @@
         /**
          * Given a string representing a URL, returns the normalized URL path without leading or
          * trailing slashes.
+         * @param {?} url
+         * @return {?}
          */
         Location.prototype.normalize = function (url) {
             return Location.stripTrailingSlash(_stripBaseHref(this._baseHref, _stripIndexHtml(url)));
@@ -281,17 +403,21 @@
          * If the given URL doesn't begin with a leading slash (`'/'`), this method adds one
          * before normalizing. This method will also add a hash if `HashLocationStrategy` is
          * used, or the `APP_BASE_HREF` if the `PathLocationStrategy` is in use.
+         * @param {?} url
+         * @return {?}
          */
         Location.prototype.prepareExternalUrl = function (url) {
-            if (url.length > 0 && !url.startsWith('/')) {
+            if (url && url[0] !== '/') {
                 url = '/' + url;
             }
             return this._platformStrategy.prepareExternalUrl(url);
         };
-        // TODO: rename this method to pushState
         /**
          * Changes the browsers URL to the normalized version of the given URL, and pushes a
          * new item onto the platform's history.
+         * @param {?} path
+         * @param {?=} query
+         * @return {?}
          */
         Location.prototype.go = function (path, query) {
             if (query === void 0) { query = ''; }
@@ -300,6 +426,9 @@
         /**
          * Changes the browsers URL to the normalized version of the given URL, and replaces
          * the top item on the platform's history stack.
+         * @param {?} path
+         * @param {?=} query
+         * @return {?}
          */
         Location.prototype.replaceState = function (path, query) {
             if (query === void 0) { query = ''; }
@@ -307,14 +436,20 @@
         };
         /**
          * Navigates forward in the platform's history.
+         * @return {?}
          */
         Location.prototype.forward = function () { this._platformStrategy.forward(); };
         /**
          * Navigates back in the platform's history.
+         * @return {?}
          */
         Location.prototype.back = function () { this._platformStrategy.back(); };
         /**
          * Subscribe to the platform's `popState` events.
+         * @param {?} onNext
+         * @param {?=} onThrow
+         * @param {?=} onReturn
+         * @return {?}
          */
         Location.prototype.subscribe = function (onNext, onThrow, onReturn) {
             if (onThrow === void 0) { onThrow = null; }
@@ -324,12 +459,17 @@
         /**
          * Given a string of url parameters, prepend with '?' if needed, otherwise return parameters as
          * is.
+         * @param {?} params
+         * @return {?}
          */
         Location.normalizeQueryParams = function (params) {
-            return (params.length > 0 && params.substring(0, 1) != '?') ? ('?' + params) : params;
+            return params && params[0] !== '?' ? '?' + params : params;
         };
         /**
          * Given 2 parts of a url, join them with a slash if needed.
+         * @param {?} start
+         * @param {?} end
+         * @return {?}
          */
         Location.joinWithSlash = function (start, end) {
             if (start.length == 0) {
@@ -338,7 +478,7 @@
             if (end.length == 0) {
                 return start;
             }
-            var slashes = 0;
+            var /** @type {?} */ slashes = 0;
             if (start.endsWith('/')) {
                 slashes++;
             }
@@ -355,34 +495,33 @@
         };
         /**
          * If url has a trailing slash, remove it, otherwise return url as is.
+         * @param {?} url
+         * @return {?}
          */
-        Location.stripTrailingSlash = function (url) {
-            if (/\/$/g.test(url)) {
-                url = url.substring(0, url.length - 1);
-            }
-            return url;
-        };
+        Location.stripTrailingSlash = function (url) { return url.replace(/\/$/, ''); };
         Location.decorators = [
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        Location.ctorParameters = [
+        Location.ctorParameters = function () { return [
             { type: LocationStrategy, },
-        ];
+        ]; };
         return Location;
     }());
+    /**
+     * @param {?} baseHref
+     * @param {?} url
+     * @return {?}
+     */
     function _stripBaseHref(baseHref, url) {
-        if (baseHref.length > 0 && url.startsWith(baseHref)) {
-            return url.substring(baseHref.length);
-        }
-        return url;
+        return baseHref && url.startsWith(baseHref) ? url.substring(baseHref.length) : url;
     }
+    /**
+     * @param {?} url
+     * @return {?}
+     */
     function _stripIndexHtml(url) {
-        if (/\/index.html$/g.test(url)) {
-            // '/index.html'.length == 11
-            return url.substring(0, url.length - 11);
-        }
-        return url;
+        return url.replace(/\/index.html$/, '');
     }
 
     /**
@@ -398,8 +537,10 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     /**
-     * `HashLocationStrategy` is a {@link LocationStrategy} used to configure the
-     * {@link Location} service to represent its state in the
+     * \@whatItDoes Use URL hash for storing application location data.
+     * \@description
+     * `HashLocationStrategy` is a {\@link LocationStrategy} used to configure the
+     * {\@link Location} service to represent its state in the
      * [hash fragment](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax)
      * of the browser's URL.
      *
@@ -408,23 +549,16 @@
      *
      * ### Example
      *
-     * ```
-     * import {Component, NgModule} from '@angular/core';
-     * import {
-     *   LocationStrategy,
-     *   HashLocationStrategy
-     * } from '@angular/common';
+     * {\@example common/location/ts/hash_location_component.ts region='LocationComponent'}
      *
-     * @NgModule({
-     *   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
-     * })
-     * class AppModule {}
-     * ```
-     *
-     * @stable
+     * \@stable
      */
     var HashLocationStrategy = (function (_super) {
         __extends(HashLocationStrategy, _super);
+        /**
+         * @param {?} _platformLocation
+         * @param {?=} _baseHref
+         */
         function HashLocationStrategy(_platformLocation, _baseHref) {
             _super.call(this);
             this._platformLocation = _platformLocation;
@@ -433,48 +567,83 @@
                 this._baseHref = _baseHref;
             }
         }
+        /**
+         * @param {?} fn
+         * @return {?}
+         */
         HashLocationStrategy.prototype.onPopState = function (fn) {
             this._platformLocation.onPopState(fn);
             this._platformLocation.onHashChange(fn);
         };
+        /**
+         * @return {?}
+         */
         HashLocationStrategy.prototype.getBaseHref = function () { return this._baseHref; };
+        /**
+         * @param {?=} includeHash
+         * @return {?}
+         */
         HashLocationStrategy.prototype.path = function (includeHash) {
             if (includeHash === void 0) { includeHash = false; }
             // the hash value is always prefixed with a `#`
             // and if it is empty then it will stay empty
-            var path = this._platformLocation.hash;
+            var /** @type {?} */ path = this._platformLocation.hash;
             if (!isPresent(path))
                 path = '#';
             return path.length > 0 ? path.substring(1) : path;
         };
+        /**
+         * @param {?} internal
+         * @return {?}
+         */
         HashLocationStrategy.prototype.prepareExternalUrl = function (internal) {
-            var url = Location.joinWithSlash(this._baseHref, internal);
+            var /** @type {?} */ url = Location.joinWithSlash(this._baseHref, internal);
             return url.length > 0 ? ('#' + url) : url;
         };
+        /**
+         * @param {?} state
+         * @param {?} title
+         * @param {?} path
+         * @param {?} queryParams
+         * @return {?}
+         */
         HashLocationStrategy.prototype.pushState = function (state, title, path, queryParams) {
-            var url = this.prepareExternalUrl(path + Location.normalizeQueryParams(queryParams));
+            var /** @type {?} */ url = this.prepareExternalUrl(path + Location.normalizeQueryParams(queryParams));
             if (url.length == 0) {
                 url = this._platformLocation.pathname;
             }
             this._platformLocation.pushState(state, title, url);
         };
+        /**
+         * @param {?} state
+         * @param {?} title
+         * @param {?} path
+         * @param {?} queryParams
+         * @return {?}
+         */
         HashLocationStrategy.prototype.replaceState = function (state, title, path, queryParams) {
-            var url = this.prepareExternalUrl(path + Location.normalizeQueryParams(queryParams));
+            var /** @type {?} */ url = this.prepareExternalUrl(path + Location.normalizeQueryParams(queryParams));
             if (url.length == 0) {
                 url = this._platformLocation.pathname;
             }
             this._platformLocation.replaceState(state, title, url);
         };
+        /**
+         * @return {?}
+         */
         HashLocationStrategy.prototype.forward = function () { this._platformLocation.forward(); };
+        /**
+         * @return {?}
+         */
         HashLocationStrategy.prototype.back = function () { this._platformLocation.back(); };
         HashLocationStrategy.decorators = [
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        HashLocationStrategy.ctorParameters = [
+        HashLocationStrategy.ctorParameters = function () { return [
             { type: PlatformLocation, },
             { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
-        ];
+        ]; };
         return HashLocationStrategy;
     }(LocationStrategy));
 
@@ -491,15 +660,14 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     /**
-     * `PathLocationStrategy` is a {@link LocationStrategy} used to configure the
-     * {@link Location} service to represent its state in the
+     * \@whatItDoes Use URL for storing application location data.
+     * \@description
+     * `PathLocationStrategy` is a {\@link LocationStrategy} used to configure the
+     * {\@link Location} service to represent its state in the
      * [path](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax) of the
      * browser's URL.
      *
-     * `PathLocationStrategy` is the default binding for {@link LocationStrategy}
-     * provided in {@link ROUTER_PROVIDERS}.
-     *
-     * If you're using `PathLocationStrategy`, you must provide a {@link APP_BASE_HREF}
+     * If you're using `PathLocationStrategy`, you must provide a {\@link APP_BASE_HREF}
      * or add a base element to the document. This URL prefix that will be preserved
      * when generating and recognizing URLs.
      *
@@ -511,10 +679,18 @@
      * `location.go('/foo')`, the browser's URL will become
      * `example.com/my/app/foo`.
      *
-     * @stable
+     * ### Example
+     *
+     * {\@example common/location/ts/path_location_component.ts region='LocationComponent'}
+     *
+     * \@stable
      */
     var PathLocationStrategy = (function (_super) {
         __extends$1(PathLocationStrategy, _super);
+        /**
+         * @param {?} _platformLocation
+         * @param {?=} href
+         */
         function PathLocationStrategy(_platformLocation, href) {
             _super.call(this);
             this._platformLocation = _platformLocation;
@@ -526,39 +702,74 @@
             }
             this._baseHref = href;
         }
+        /**
+         * @param {?} fn
+         * @return {?}
+         */
         PathLocationStrategy.prototype.onPopState = function (fn) {
             this._platformLocation.onPopState(fn);
             this._platformLocation.onHashChange(fn);
         };
+        /**
+         * @return {?}
+         */
         PathLocationStrategy.prototype.getBaseHref = function () { return this._baseHref; };
+        /**
+         * @param {?} internal
+         * @return {?}
+         */
         PathLocationStrategy.prototype.prepareExternalUrl = function (internal) {
             return Location.joinWithSlash(this._baseHref, internal);
         };
+        /**
+         * @param {?=} includeHash
+         * @return {?}
+         */
         PathLocationStrategy.prototype.path = function (includeHash) {
             if (includeHash === void 0) { includeHash = false; }
-            var pathname = this._platformLocation.pathname +
+            var /** @type {?} */ pathname = this._platformLocation.pathname +
                 Location.normalizeQueryParams(this._platformLocation.search);
-            var hash = this._platformLocation.hash;
+            var /** @type {?} */ hash = this._platformLocation.hash;
             return hash && includeHash ? "" + pathname + hash : pathname;
         };
+        /**
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @param {?} queryParams
+         * @return {?}
+         */
         PathLocationStrategy.prototype.pushState = function (state, title, url, queryParams) {
-            var externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
+            var /** @type {?} */ externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
             this._platformLocation.pushState(state, title, externalUrl);
         };
+        /**
+         * @param {?} state
+         * @param {?} title
+         * @param {?} url
+         * @param {?} queryParams
+         * @return {?}
+         */
         PathLocationStrategy.prototype.replaceState = function (state, title, url, queryParams) {
-            var externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
+            var /** @type {?} */ externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
             this._platformLocation.replaceState(state, title, externalUrl);
         };
+        /**
+         * @return {?}
+         */
         PathLocationStrategy.prototype.forward = function () { this._platformLocation.forward(); };
+        /**
+         * @return {?}
+         */
         PathLocationStrategy.prototype.back = function () { this._platformLocation.back(); };
         PathLocationStrategy.decorators = [
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        PathLocationStrategy.ctorParameters = [
+        PathLocationStrategy.ctorParameters = function () { return [
             { type: PlatformLocation, },
             { type: undefined, decorators: [{ type: _angular_core.Optional }, { type: _angular_core.Inject, args: [APP_BASE_HREF,] },] },
-        ];
+        ]; };
         return PathLocationStrategy;
     }(LocationStrategy));
 
@@ -575,11 +786,18 @@
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     /**
-     * @experimental
+     * \@experimental
+     * @abstract
      */
     var NgLocalization = (function () {
         function NgLocalization() {
         }
+        /**
+         * @abstract
+         * @param {?} value
+         * @return {?}
+         */
+        NgLocalization.prototype.getPluralCategory = function (value) { };
         return NgLocalization;
     }());
     /**
@@ -587,25 +805,46 @@
      * - "=value" when the case exists,
      * - the plural category otherwise
      *
-     * @internal
+     * \@internal
+     * @param {?} value
+     * @param {?} cases
+     * @param {?} ngLocalization
+     * @return {?}
      */
     function getPluralCategory(value, cases, ngLocalization) {
-        var nbCase = "=" + value;
-        return cases.indexOf(nbCase) > -1 ? nbCase : ngLocalization.getPluralCategory(value);
+        var /** @type {?} */ key = "=" + value;
+        if (cases.indexOf(key) > -1) {
+            return key;
+        }
+        key = ngLocalization.getPluralCategory(value);
+        if (cases.indexOf(key) > -1) {
+            return key;
+        }
+        if (cases.indexOf('other') > -1) {
+            return 'other';
+        }
+        throw new Error("No plural message found for value \"" + value + "\"");
     }
     /**
      * Returns the plural case based on the locale
      *
-     * @experimental
+     * \@experimental
      */
     var NgLocaleLocalization = (function (_super) {
         __extends$2(NgLocaleLocalization, _super);
+        /**
+         * @param {?} _locale
+         */
         function NgLocaleLocalization(_locale) {
             _super.call(this);
             this._locale = _locale;
         }
+        /**
+         * @param {?} value
+         * @return {?}
+         */
         NgLocaleLocalization.prototype.getPluralCategory = function (value) {
-            var plural = getPluralCase(this._locale, value);
+            var /** @type {?} */ plural = getPluralCase(this._locale, value);
             switch (plural) {
                 case Plural.Zero:
                     return 'zero';
@@ -625,40 +864,44 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        NgLocaleLocalization.ctorParameters = [
+        NgLocaleLocalization.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
-        ];
+        ]; };
         return NgLocaleLocalization;
     }(NgLocalization));
-    // This is generated code DO NOT MODIFY
-    // see angular2/script/cldr/gen_plural_rules.js
-    /** @experimental */
-    var Plural;
-    (function (Plural) {
-        Plural[Plural["Zero"] = 0] = "Zero";
-        Plural[Plural["One"] = 1] = "One";
-        Plural[Plural["Two"] = 2] = "Two";
-        Plural[Plural["Few"] = 3] = "Few";
-        Plural[Plural["Many"] = 4] = "Many";
-        Plural[Plural["Other"] = 5] = "Other";
-    })(Plural || (Plural = {}));
+    var Plural = {};
+    Plural.Zero = 0;
+    Plural.One = 1;
+    Plural.Two = 2;
+    Plural.Few = 3;
+    Plural.Many = 4;
+    Plural.Other = 5;
+    Plural[Plural.Zero] = "Zero";
+    Plural[Plural.One] = "One";
+    Plural[Plural.Two] = "Two";
+    Plural[Plural.Few] = "Few";
+    Plural[Plural.Many] = "Many";
+    Plural[Plural.Other] = "Other";
     /**
      * Returns the plural case based on the locale
      *
-     * @experimental
+     * \@experimental
+     * @param {?} locale
+     * @param {?} nLike
+     * @return {?}
      */
     function getPluralCase(locale, nLike) {
         // TODO(vicb): lazy compute
         if (typeof nLike === 'string') {
-            nLike = parseInt(nLike, 10);
+            nLike = parseInt(/** @type {?} */ (nLike), 10);
         }
-        var n = nLike;
-        var nDecimal = n.toString().replace(/^[^.]*\.?/, '');
-        var i = Math.floor(Math.abs(n));
-        var v = nDecimal.length;
-        var f = parseInt(nDecimal, 10);
-        var t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
-        var lang = locale.split('-')[0].toLowerCase();
+        var /** @type {?} */ n = (nLike);
+        var /** @type {?} */ nDecimal = n.toString().replace(/^[^.]*\.?/, '');
+        var /** @type {?} */ i = Math.floor(Math.abs(n));
+        var /** @type {?} */ v = nDecimal.length;
+        var /** @type {?} */ f = parseInt(nDecimal, 10);
+        var /** @type {?} */ t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
+        var /** @type {?} */ lang = locale.split('-')[0].toLowerCase();
         switch (lang) {
             case 'af':
             case 'asa':
@@ -1048,6 +1291,10 @@
         }
     }
 
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     function isListLikeIterable(obj) {
         if (!isJsObject(obj))
             return false;
@@ -1057,11 +1304,11 @@
     }
 
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Adds and removes CSS classes on an HTML element.
+     * \@whatItDoes Adds and removes CSS classes on an HTML element.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      *     <some-element [ngClass]="'first second'">...</some-element>
      *
@@ -1070,9 +1317,11 @@
      *     <some-element [ngClass]="{'first': true, 'second': true, 'third': false}">...</some-element>
      *
      *     <some-element [ngClass]="stringExp|arrayExp|objExp">...</some-element>
+     *
+     *     <some-element [ngClass]="{'class1 class2 class3' : true}">...</some-element>
      * ```
      *
-     * @description
+     * \@description
      *
      * The CSS classes are updated as follows, depending on the type of the expression evaluation:
      * - `string` - the CSS classes listed in the string (space delimited) are added,
@@ -1080,9 +1329,15 @@
      * - `Object` - keys are CSS classes that get added when the expression given in the value
      *              evaluates to a truthy value, otherwise they are removed.
      *
-     * @stable
+     * \@stable
      */
     var NgClass = (function () {
+        /**
+         * @param {?} _iterableDiffers
+         * @param {?} _keyValueDiffers
+         * @param {?} _ngEl
+         * @param {?} _renderer
+         */
         function NgClass(_iterableDiffers, _keyValueDiffers, _ngEl, _renderer) {
             this._iterableDiffers = _iterableDiffers;
             this._keyValueDiffers = _keyValueDiffers;
@@ -1091,6 +1346,10 @@
             this._initialClasses = [];
         }
         Object.defineProperty(NgClass.prototype, "klass", {
+            /**
+             * @param {?} v
+             * @return {?}
+             */
             set: function (v) {
                 this._applyInitialClasses(true);
                 this._initialClasses = typeof v === 'string' ? v.split(/\s+/) : [];
@@ -1101,6 +1360,10 @@
             configurable: true
         });
         Object.defineProperty(NgClass.prototype, "ngClass", {
+            /**
+             * @param {?} v
+             * @return {?}
+             */
             set: function (v) {
                 this._cleanupClasses(this._rawClass);
                 this._iterableDiffer = null;
@@ -1118,24 +1381,35 @@
             enumerable: true,
             configurable: true
         });
+        /**
+         * @return {?}
+         */
         NgClass.prototype.ngDoCheck = function () {
             if (this._iterableDiffer) {
-                var changes = this._iterableDiffer.diff(this._rawClass);
+                var /** @type {?} */ changes = this._iterableDiffer.diff(this._rawClass);
                 if (changes) {
                     this._applyIterableChanges(changes);
                 }
             }
             else if (this._keyValueDiffer) {
-                var changes = this._keyValueDiffer.diff(this._rawClass);
+                var /** @type {?} */ changes = this._keyValueDiffer.diff(this._rawClass);
                 if (changes) {
                     this._applyKeyValueChanges(changes);
                 }
             }
         };
+        /**
+         * @param {?} rawClassVal
+         * @return {?}
+         */
         NgClass.prototype._cleanupClasses = function (rawClassVal) {
             this._applyClasses(rawClassVal, true);
             this._applyInitialClasses(false);
         };
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgClass.prototype._applyKeyValueChanges = function (changes) {
             var _this = this;
             changes.forEachAddedItem(function (record) { return _this._toggleClass(record.key, record.currentValue); });
@@ -1146,6 +1420,10 @@
                 }
             });
         };
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgClass.prototype._applyIterableChanges = function (changes) {
             var _this = this;
             changes.forEachAddedItem(function (record) {
@@ -1158,24 +1436,38 @@
             });
             changes.forEachRemovedItem(function (record) { return _this._toggleClass(record.item, false); });
         };
+        /**
+         * @param {?} isCleanup
+         * @return {?}
+         */
         NgClass.prototype._applyInitialClasses = function (isCleanup) {
             var _this = this;
             this._initialClasses.forEach(function (klass) { return _this._toggleClass(klass, !isCleanup); });
         };
+        /**
+         * @param {?} rawClassVal
+         * @param {?} isCleanup
+         * @return {?}
+         */
         NgClass.prototype._applyClasses = function (rawClassVal, isCleanup) {
             var _this = this;
             if (rawClassVal) {
                 if (Array.isArray(rawClassVal) || rawClassVal instanceof Set) {
-                    rawClassVal.forEach(function (klass) { return _this._toggleClass(klass, !isCleanup); });
+                    ((rawClassVal)).forEach(function (klass) { return _this._toggleClass(klass, !isCleanup); });
                 }
                 else {
                     Object.keys(rawClassVal).forEach(function (klass) {
-                        if (isPresent(rawClassVal[klass]))
+                        if (rawClassVal[klass] != null)
                             _this._toggleClass(klass, !isCleanup);
                     });
                 }
             }
         };
+        /**
+         * @param {?} klass
+         * @param {?} enabled
+         * @return {?}
+         */
         NgClass.prototype._toggleClass = function (klass, enabled) {
             var _this = this;
             klass = klass.trim();
@@ -1187,12 +1479,12 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngClass]' },] },
         ];
         /** @nocollapse */
-        NgClass.ctorParameters = [
+        NgClass.ctorParameters = function () { return [
             { type: _angular_core.IterableDiffers, },
             { type: _angular_core.KeyValueDiffers, },
             { type: _angular_core.ElementRef, },
             { type: _angular_core.Renderer, },
-        ];
+        ]; };
         NgClass.propDecorators = {
             'klass': [{ type: _angular_core.Input, args: ['class',] },],
             'ngClass': [{ type: _angular_core.Input },],
@@ -1201,27 +1493,44 @@
     }());
 
     var NgForRow = (function () {
+        /**
+         * @param {?} $implicit
+         * @param {?} index
+         * @param {?} count
+         */
         function NgForRow($implicit, index, count) {
             this.$implicit = $implicit;
             this.index = index;
             this.count = count;
         }
         Object.defineProperty(NgForRow.prototype, "first", {
+            /**
+             * @return {?}
+             */
             get: function () { return this.index === 0; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NgForRow.prototype, "last", {
+            /**
+             * @return {?}
+             */
             get: function () { return this.index === this.count - 1; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NgForRow.prototype, "even", {
+            /**
+             * @return {?}
+             */
             get: function () { return this.index % 2 === 0; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NgForRow.prototype, "odd", {
+            /**
+             * @return {?}
+             */
             get: function () { return !this.even; },
             enumerable: true,
             configurable: true
@@ -1290,9 +1599,15 @@
      * See a [live demo](http://plnkr.co/edit/KVuXxDp0qinGDyo307QW?p=preview) for a more detailed
      * example.
      *
-     * @stable
+     * \@stable
      */
     var NgFor = (function () {
+        /**
+         * @param {?} _viewContainer
+         * @param {?} _template
+         * @param {?} _differs
+         * @param {?} _cdr
+         */
         function NgFor(_viewContainer, _template, _differs, _cdr) {
             this._viewContainer = _viewContainer;
             this._template = _template;
@@ -1300,7 +1615,33 @@
             this._cdr = _cdr;
             this._differ = null;
         }
+        Object.defineProperty(NgFor.prototype, "ngForTrackBy", {
+            /**
+             * @return {?}
+             */
+            get: function () { return this._trackByFn; },
+            /**
+             * @param {?} fn
+             * @return {?}
+             */
+            set: function (fn) {
+                if (_angular_core.isDevMode() && fn != null && typeof fn !== 'function') {
+                    // TODO(vicb): use a log service once there is a public one available
+                    if ((console) && (console.warn)) {
+                        console.warn(("trackBy must be a function, but received " + JSON.stringify(fn) + ". ") +
+                            "See https://angular.io/docs/ts/latest/api/common/index/NgFor-directive.html#!#change-propagation for more information.");
+                    }
+                }
+                this._trackByFn = fn;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(NgFor.prototype, "ngForTemplate", {
+            /**
+             * @param {?} value
+             * @return {?}
+             */
             set: function (value) {
                 if (value) {
                     this._template = value;
@@ -1309,10 +1650,14 @@
             enumerable: true,
             configurable: true
         });
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgFor.prototype.ngOnChanges = function (changes) {
             if ('ngForOf' in changes) {
                 // React on ngForOf changes only once all inputs have been initialized
-                var value = changes['ngForOf'].currentValue;
+                var /** @type {?} */ value = changes['ngForOf'].currentValue;
                 if (!this._differ && value) {
                     try {
                         this._differ = this._differs.find(value).create(this._cdr, this.ngForTrackBy);
@@ -1323,45 +1668,57 @@
                 }
             }
         };
+        /**
+         * @return {?}
+         */
         NgFor.prototype.ngDoCheck = function () {
             if (this._differ) {
-                var changes = this._differ.diff(this.ngForOf);
+                var /** @type {?} */ changes = this._differ.diff(this.ngForOf);
                 if (changes)
                     this._applyChanges(changes);
             }
         };
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgFor.prototype._applyChanges = function (changes) {
             var _this = this;
-            var insertTuples = [];
+            var /** @type {?} */ insertTuples = [];
             changes.forEachOperation(function (item, adjustedPreviousIndex, currentIndex) {
                 if (item.previousIndex == null) {
-                    var view = _this._viewContainer.createEmbeddedView(_this._template, new NgForRow(null, null, null), currentIndex);
-                    var tuple = new RecordViewTuple(item, view);
+                    var /** @type {?} */ view = _this._viewContainer.createEmbeddedView(_this._template, new NgForRow(null, null, null), currentIndex);
+                    var /** @type {?} */ tuple = new RecordViewTuple(item, view);
                     insertTuples.push(tuple);
                 }
                 else if (currentIndex == null) {
                     _this._viewContainer.remove(adjustedPreviousIndex);
                 }
                 else {
-                    var view = _this._viewContainer.get(adjustedPreviousIndex);
+                    var /** @type {?} */ view = _this._viewContainer.get(adjustedPreviousIndex);
                     _this._viewContainer.move(view, currentIndex);
-                    var tuple = new RecordViewTuple(item, view);
+                    var /** @type {?} */ tuple = new RecordViewTuple(item, /** @type {?} */ (view));
                     insertTuples.push(tuple);
                 }
             });
-            for (var i = 0; i < insertTuples.length; i++) {
+            for (var /** @type {?} */ i = 0; i < insertTuples.length; i++) {
                 this._perViewChange(insertTuples[i].view, insertTuples[i].record);
             }
-            for (var i = 0, ilen = this._viewContainer.length; i < ilen; i++) {
-                var viewRef = this._viewContainer.get(i);
+            for (var /** @type {?} */ i = 0, /** @type {?} */ ilen = this._viewContainer.length; i < ilen; i++) {
+                var /** @type {?} */ viewRef = (this._viewContainer.get(i));
                 viewRef.context.index = i;
                 viewRef.context.count = ilen;
             }
             changes.forEachIdentityChange(function (record) {
-                var viewRef = _this._viewContainer.get(record.currentIndex);
+                var /** @type {?} */ viewRef = (_this._viewContainer.get(record.currentIndex));
                 viewRef.context.$implicit = record.item;
             });
         };
+        /**
+         * @param {?} view
+         * @param {?} record
+         * @return {?}
+         */
         NgFor.prototype._perViewChange = function (view, record) {
             view.context.$implicit = record.item;
         };
@@ -1369,12 +1726,12 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngFor][ngForOf]' },] },
         ];
         /** @nocollapse */
-        NgFor.ctorParameters = [
+        NgFor.ctorParameters = function () { return [
             { type: _angular_core.ViewContainerRef, },
             { type: _angular_core.TemplateRef, },
             { type: _angular_core.IterableDiffers, },
             { type: _angular_core.ChangeDetectorRef, },
-        ];
+        ]; };
         NgFor.propDecorators = {
             'ngForOf': [{ type: _angular_core.Input },],
             'ngForTrackBy': [{ type: _angular_core.Input },],
@@ -1383,6 +1740,10 @@
         return NgFor;
     }());
     var RecordViewTuple = (function () {
+        /**
+         * @param {?} record
+         * @param {?} view
+         */
         function RecordViewTuple(record, view) {
             this.record = record;
             this.view = view;
@@ -1412,15 +1773,23 @@
      * - `<div template="ngIf condition">...</div>`
      * - `<template [ngIf]="condition"><div>...</div></template>`
      *
-     * @stable
+     * \@stable
      */
     var NgIf = (function () {
+        /**
+         * @param {?} _viewContainer
+         * @param {?} _template
+         */
         function NgIf(_viewContainer, _template) {
             this._viewContainer = _viewContainer;
             this._template = _template;
             this._hasView = false;
         }
         Object.defineProperty(NgIf.prototype, "ngIf", {
+            /**
+             * @param {?} condition
+             * @return {?}
+             */
             set: function (condition) {
                 if (condition && !this._hasView) {
                     this._hasView = true;
@@ -1438,10 +1807,10 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngIf]' },] },
         ];
         /** @nocollapse */
-        NgIf.ctorParameters = [
+        NgIf.ctorParameters = function () { return [
             { type: _angular_core.ViewContainerRef, },
             { type: _angular_core.TemplateRef, },
-        ];
+        ]; };
         NgIf.propDecorators = {
             'ngIf': [{ type: _angular_core.Input },],
         };
@@ -1449,19 +1818,33 @@
     }());
 
     var SwitchView = (function () {
+        /**
+         * @param {?} _viewContainerRef
+         * @param {?} _templateRef
+         */
         function SwitchView(_viewContainerRef, _templateRef) {
             this._viewContainerRef = _viewContainerRef;
             this._templateRef = _templateRef;
             this._created = false;
         }
+        /**
+         * @return {?}
+         */
         SwitchView.prototype.create = function () {
             this._created = true;
             this._viewContainerRef.createEmbeddedView(this._templateRef);
         };
+        /**
+         * @return {?}
+         */
         SwitchView.prototype.destroy = function () {
             this._created = false;
             this._viewContainerRef.clear();
         };
+        /**
+         * @param {?} created
+         * @return {?}
+         */
         SwitchView.prototype.enforceState = function (created) {
             if (created && !this._created) {
                 this.create();
@@ -1473,12 +1856,12 @@
         return SwitchView;
     }());
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Adds / removes DOM sub-trees when the nest match expressions matches the switch
+     * \@whatItDoes Adds / removes DOM sub-trees when the nest match expressions matches the switch
      *             expression.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      *     <container-element [ngSwitch]="switch_expression">
      *       <some-element *ngSwitchCase="match_expression_1">...</some-element>
@@ -1492,7 +1875,7 @@
      *       <some-element *ngSwitchDefault>...</some-element>
      *     </container-element>
      * ```
-     * @description
+     * \@description
      *
      * `NgSwitch` stamps out nested views when their match expression value matches the value of the
      * switch expression.
@@ -1511,7 +1894,7 @@
      * When no matching expression is found on a `ngSwitchCase` view, the `ngSwitchDefault` view is
      * stamped out.
      *
-     * @stable
+     * \@stable
      */
     var NgSwitch = (function () {
         function NgSwitch() {
@@ -1521,6 +1904,10 @@
             this._lastCasesMatched = false;
         }
         Object.defineProperty(NgSwitch.prototype, "ngSwitch", {
+            /**
+             * @param {?} newValue
+             * @return {?}
+             */
             set: function (newValue) {
                 this._ngSwitch = newValue;
                 if (this._caseCount === 0) {
@@ -1530,18 +1917,29 @@
             enumerable: true,
             configurable: true
         });
-        /** @internal */
+        /**
+         * \@internal
+         * @return {?}
+         */
         NgSwitch.prototype._addCase = function () { return this._caseCount++; };
-        /** @internal */
+        /**
+         * \@internal
+         * @param {?} view
+         * @return {?}
+         */
         NgSwitch.prototype._addDefault = function (view) {
             if (!this._defaultViews) {
                 this._defaultViews = [];
             }
             this._defaultViews.push(view);
         };
-        /** @internal */
+        /**
+         * \@internal
+         * @param {?} value
+         * @return {?}
+         */
         NgSwitch.prototype._matchCase = function (value) {
-            var matched = value == this._ngSwitch;
+            var /** @type {?} */ matched = value == this._ngSwitch;
             this._lastCasesMatched = this._lastCasesMatched || matched;
             this._lastCaseCheckIndex++;
             if (this._lastCaseCheckIndex === this._caseCount) {
@@ -1551,11 +1949,15 @@
             }
             return matched;
         };
+        /**
+         * @param {?} useDefault
+         * @return {?}
+         */
         NgSwitch.prototype._updateDefaultCases = function (useDefault) {
             if (this._defaultViews && useDefault !== this._defaultUsed) {
                 this._defaultUsed = useDefault;
-                for (var i = 0; i < this._defaultViews.length; i++) {
-                    var defaultView = this._defaultViews[i];
+                for (var /** @type {?} */ i = 0; i < this._defaultViews.length; i++) {
+                    var /** @type {?} */ defaultView = this._defaultViews[i];
                     defaultView.enforceState(useDefault);
                 }
             }
@@ -1564,64 +1966,72 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngSwitch]' },] },
         ];
         /** @nocollapse */
-        NgSwitch.ctorParameters = [];
+        NgSwitch.ctorParameters = function () { return []; };
         NgSwitch.propDecorators = {
             'ngSwitch': [{ type: _angular_core.Input },],
         };
         return NgSwitch;
     }());
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Creates a view that will be added/removed from the parent {@link NgSwitch} when the
+     * \@whatItDoes Creates a view that will be added/removed from the parent {\@link NgSwitch} when the
      *             given expression evaluate to respectively the same/different value as the switch
      *             expression.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <container-element [ngSwitch]="switch_expression">
      *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
      * </container-element>
-     *```
-     * @description
+     * ```
+     * \@description
      *
      * Insert the sub-tree when the expression evaluates to the same value as the enclosing switch
      * expression.
      *
      * If multiple match expressions match the switch expression value, all of them are displayed.
      *
-     * See {@link NgSwitch} for more details and example.
+     * See {\@link NgSwitch} for more details and example.
      *
-     * @stable
+     * \@stable
      */
     var NgSwitchCase = (function () {
+        /**
+         * @param {?} viewContainer
+         * @param {?} templateRef
+         * @param {?} ngSwitch
+         */
         function NgSwitchCase(viewContainer, templateRef, ngSwitch) {
             this.ngSwitch = ngSwitch;
             ngSwitch._addCase();
             this._view = new SwitchView(viewContainer, templateRef);
         }
+        /**
+         * @return {?}
+         */
         NgSwitchCase.prototype.ngDoCheck = function () { this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase)); };
         NgSwitchCase.decorators = [
             { type: _angular_core.Directive, args: [{ selector: '[ngSwitchCase]' },] },
         ];
         /** @nocollapse */
-        NgSwitchCase.ctorParameters = [
+        NgSwitchCase.ctorParameters = function () { return [
             { type: _angular_core.ViewContainerRef, },
             { type: _angular_core.TemplateRef, },
             { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
-        ];
+        ]; };
         NgSwitchCase.propDecorators = {
             'ngSwitchCase': [{ type: _angular_core.Input },],
         };
         return NgSwitchCase;
     }());
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Creates a view that is added to the parent {@link NgSwitch} when no case expressions
+     * \@ngModule CommonModule
+     * \@whatItDoes Creates a view that is added to the parent {\@link NgSwitch} when no case expressions
      * match the
      *             switch expression.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <container-element [ngSwitch]="switch_expression">
      *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
@@ -1629,16 +2039,21 @@
      * </container-element>
      * ```
      *
-     * @description
+     * \@description
      *
      * Insert the sub-tree when no case expressions evaluate to the same value as the enclosing switch
      * expression.
      *
-     * See {@link NgSwitch} for more details and example.
+     * See {\@link NgSwitch} for more details and example.
      *
-     * @stable
+     * \@stable
      */
     var NgSwitchDefault = (function () {
+        /**
+         * @param {?} viewContainer
+         * @param {?} templateRef
+         * @param {?} ngSwitch
+         */
         function NgSwitchDefault(viewContainer, templateRef, ngSwitch) {
             ngSwitch._addDefault(new SwitchView(viewContainer, templateRef));
         }
@@ -1646,30 +2061,29 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngSwitchDefault]' },] },
         ];
         /** @nocollapse */
-        NgSwitchDefault.ctorParameters = [
+        NgSwitchDefault.ctorParameters = function () { return [
             { type: _angular_core.ViewContainerRef, },
             { type: _angular_core.TemplateRef, },
             { type: NgSwitch, decorators: [{ type: _angular_core.Host },] },
-        ];
+        ]; };
         return NgSwitchDefault;
     }());
 
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Adds / removes DOM sub-trees based on a numeric value. Tailored for pluralization.
+     * \@whatItDoes Adds / removes DOM sub-trees based on a numeric value. Tailored for pluralization.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <some-element [ngPlural]="value">
-     *   <ng-container *ngPluralCase="'=0'">there is nothing</ng-container>
-     *   <ng-container *ngPluralCase="'=1'">there is one</ng-container>
-     *   <ng-container *ngPluralCase="'few'">there are a few</ng-container>
-     *   <ng-container *ngPluralCase="'other'">there are exactly #</ng-container>
+     *   <template ngPluralCase="=0">there is nothing</template>
+     *   <template ngPluralCase="=1">there is one</template>
+     *   <template ngPluralCase="few">there are a few</template>
      * </some-element>
      * ```
      *
-     * @description
+     * \@description
      *
      * Displays DOM sub-trees that match the switch expression value, or failing that, DOM sub-trees
      * that match the switch expression's pluralization category.
@@ -1684,14 +2098,21 @@
      *
      * See http://cldr.unicode.org/index/cldr-spec/plural-rules
      *
-     * @experimental
+     * \@experimental
      */
     var NgPlural = (function () {
+        /**
+         * @param {?} _localization
+         */
         function NgPlural(_localization) {
             this._localization = _localization;
             this._caseViews = {};
         }
         Object.defineProperty(NgPlural.prototype, "ngPlural", {
+            /**
+             * @param {?} value
+             * @return {?}
+             */
             set: function (value) {
                 this._switchValue = value;
                 this._updateView();
@@ -1699,17 +2120,32 @@
             enumerable: true,
             configurable: true
         });
+        /**
+         * @param {?} value
+         * @param {?} switchView
+         * @return {?}
+         */
         NgPlural.prototype.addCase = function (value, switchView) { this._caseViews[value] = switchView; };
+        /**
+         * @return {?}
+         */
         NgPlural.prototype._updateView = function () {
             this._clearViews();
-            var cases = Object.keys(this._caseViews);
-            var key = getPluralCategory(this._switchValue, cases, this._localization);
+            var /** @type {?} */ cases = Object.keys(this._caseViews);
+            var /** @type {?} */ key = getPluralCategory(this._switchValue, cases, this._localization);
             this._activateView(this._caseViews[key]);
         };
+        /**
+         * @return {?}
+         */
         NgPlural.prototype._clearViews = function () {
             if (this._activeView)
                 this._activeView.destroy();
         };
+        /**
+         * @param {?} view
+         * @return {?}
+         */
         NgPlural.prototype._activateView = function (view) {
             if (view) {
                 this._activeView = view;
@@ -1720,56 +2156,63 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngPlural]' },] },
         ];
         /** @nocollapse */
-        NgPlural.ctorParameters = [
+        NgPlural.ctorParameters = function () { return [
             { type: NgLocalization, },
-        ];
+        ]; };
         NgPlural.propDecorators = {
             'ngPlural': [{ type: _angular_core.Input },],
         };
         return NgPlural;
     }());
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Creates a view that will be added/removed from the parent {@link NgPlural} when the
+     * \@whatItDoes Creates a view that will be added/removed from the parent {\@link NgPlural} when the
      *             given expression matches the plural expression according to CLDR rules.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <some-element [ngPlural]="value">
-     *   <ng-container *ngPluralCase="'=0'">...</ng-container>
-     *   <ng-container *ngPluralCase="'other'">...</ng-container>
+     *   <template ngPluralCase="=0">...</template>
+     *   <template ngPluralCase="other">...</template>
      * </some-element>
-     *```
+     * ```
      *
-     * See {@link NgPlural} for more details and example.
+     * See {\@link NgPlural} for more details and example.
      *
-     * @experimental
+     * \@experimental
      */
     var NgPluralCase = (function () {
+        /**
+         * @param {?} value
+         * @param {?} template
+         * @param {?} viewContainer
+         * @param {?} ngPlural
+         */
         function NgPluralCase(value, template, viewContainer, ngPlural) {
             this.value = value;
-            ngPlural.addCase(value, new SwitchView(viewContainer, template));
+            var isANumber = !isNaN(Number(value));
+            ngPlural.addCase(isANumber ? "=" + value : value, new SwitchView(viewContainer, template));
         }
         NgPluralCase.decorators = [
             { type: _angular_core.Directive, args: [{ selector: '[ngPluralCase]' },] },
         ];
         /** @nocollapse */
-        NgPluralCase.ctorParameters = [
+        NgPluralCase.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Attribute, args: ['ngPluralCase',] },] },
             { type: _angular_core.TemplateRef, },
             { type: _angular_core.ViewContainerRef, },
             { type: NgPlural, decorators: [{ type: _angular_core.Host },] },
-        ];
+        ]; };
         return NgPluralCase;
     }());
 
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Update an HTML element styles.
+     * \@whatItDoes Update an HTML element styles.
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <some-element [ngStyle]="{'font-style': styleExp}">...</some-element>
      *
@@ -1778,21 +2221,30 @@
      * <some-element [ngStyle]="objExp">...</some-element>
      * ```
      *
-     * @description
+     * \@description
      *
      * The styles are updated according to the value of the expression evaluation:
      * - keys are style names with an optional `.<unit>` suffix (ie 'top.px', 'font-style.em'),
      * - values are the values assigned to those properties (expressed in the given unit).
      *
-     * @stable
+     * \@stable
      */
     var NgStyle = (function () {
+        /**
+         * @param {?} _differs
+         * @param {?} _ngEl
+         * @param {?} _renderer
+         */
         function NgStyle(_differs, _ngEl, _renderer) {
             this._differs = _differs;
             this._ngEl = _ngEl;
             this._renderer = _renderer;
         }
         Object.defineProperty(NgStyle.prototype, "ngStyle", {
+            /**
+             * @param {?} v
+             * @return {?}
+             */
             set: function (v) {
                 this._ngStyle = v;
                 if (!this._differ && v) {
@@ -1802,20 +2254,32 @@
             enumerable: true,
             configurable: true
         });
+        /**
+         * @return {?}
+         */
         NgStyle.prototype.ngDoCheck = function () {
             if (this._differ) {
-                var changes = this._differ.diff(this._ngStyle);
+                var /** @type {?} */ changes = this._differ.diff(this._ngStyle);
                 if (changes) {
                     this._applyChanges(changes);
                 }
             }
         };
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgStyle.prototype._applyChanges = function (changes) {
             var _this = this;
             changes.forEachRemovedItem(function (record) { return _this._setStyle(record.key, null); });
             changes.forEachAddedItem(function (record) { return _this._setStyle(record.key, record.currentValue); });
             changes.forEachChangedItem(function (record) { return _this._setStyle(record.key, record.currentValue); });
         };
+        /**
+         * @param {?} nameAndUnit
+         * @param {?} value
+         * @return {?}
+         */
         NgStyle.prototype._setStyle = function (nameAndUnit, value) {
             var _a = nameAndUnit.split('.'), name = _a[0], unit = _a[1];
             value = value && unit ? "" + value + unit : value;
@@ -1825,11 +2289,11 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngStyle]' },] },
         ];
         /** @nocollapse */
-        NgStyle.ctorParameters = [
+        NgStyle.ctorParameters = function () { return [
             { type: _angular_core.KeyValueDiffers, },
             { type: _angular_core.ElementRef, },
             { type: _angular_core.Renderer, },
-        ];
+        ]; };
         NgStyle.propDecorators = {
             'ngStyle': [{ type: _angular_core.Input },],
         };
@@ -1837,18 +2301,18 @@
     }());
 
     /**
-     * @ngModule CommonModule
+     * \@ngModule CommonModule
      *
-     * @whatItDoes Inserts an embedded view from a prepared `TemplateRef`
+     * \@whatItDoes Inserts an embedded view from a prepared `TemplateRef`
      *
-     * @howToUse
+     * \@howToUse
      * ```
      * <template [ngTemplateOutlet]="templateRefExpression"
      *           [ngOutletContext]="objectExpression">
      * </template>
      * ```
      *
-     * @description
+     * \@description
      *
      * You can attach a context object to the `EmbeddedViewRef` by setting `[ngOutletContext]`.
      * `[ngOutletContext]` should be an object, the object's keys will be the local template variables
@@ -1856,22 +2320,37 @@
      *
      * Note: using the key `$implicit` in the context object will set it's value as default.
      *
-     * @experimental
+     * \@experimental
      */
     var NgTemplateOutlet = (function () {
+        /**
+         * @param {?} _viewContainerRef
+         */
         function NgTemplateOutlet(_viewContainerRef) {
             this._viewContainerRef = _viewContainerRef;
         }
         Object.defineProperty(NgTemplateOutlet.prototype, "ngOutletContext", {
+            /**
+             * @param {?} context
+             * @return {?}
+             */
             set: function (context) { this._context = context; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(NgTemplateOutlet.prototype, "ngTemplateOutlet", {
+            /**
+             * @param {?} templateRef
+             * @return {?}
+             */
             set: function (templateRef) { this._templateRef = templateRef; },
             enumerable: true,
             configurable: true
         });
+        /**
+         * @param {?} changes
+         * @return {?}
+         */
         NgTemplateOutlet.prototype.ngOnChanges = function (changes) {
             if (this._viewRef) {
                 this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
@@ -1884,9 +2363,9 @@
             { type: _angular_core.Directive, args: [{ selector: '[ngTemplateOutlet]' },] },
         ];
         /** @nocollapse */
-        NgTemplateOutlet.ctorParameters = [
+        NgTemplateOutlet.ctorParameters = function () { return [
             { type: _angular_core.ViewContainerRef, },
-        ];
+        ]; };
         NgTemplateOutlet.propDecorators = {
             'ngOutletContext': [{ type: _angular_core.Input },],
             'ngTemplateOutlet': [{ type: _angular_core.Input },],
@@ -1898,7 +2377,7 @@
      * A collection of Angular directives that are likely to be used in each and every Angular
      * application.
      */
-    var COMMON_DIRECTIVES = [
+    var /** @type {?} */ COMMON_DIRECTIVES = [
         NgClass,
         NgFor,
         NgIf,
@@ -1911,63 +2390,90 @@
         NgPluralCase,
     ];
 
-    var isPromise = _angular_core.__core_private__.isPromise;
+    var /** @type {?} */ isPromise = _angular_core.__core_private__.isPromise;
+    var /** @type {?} */ isObservable = _angular_core.__core_private__.isObservable;
 
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
     var __extends$4 = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     /**
-     * @stable
+     * \@stable
      */
     var BaseError = (function (_super) {
         __extends$4(BaseError, _super);
+        /**
+         * @param {?} message
+         */
         function BaseError(message) {
+            _super.call(this, message);
             // Errors don't use current this, instead they create a new instance.
             // We have to do forward all of our api to the nativeInstance.
-            var nativeError = _super.call(this, message);
+            // TODO(bradfordcsmith): Remove this hack when
+            //     google/closure-compiler/issues/2102 is fixed.
+            var nativeError = new Error(message);
             this._nativeError = nativeError;
         }
         Object.defineProperty(BaseError.prototype, "message", {
+            /**
+             * @return {?}
+             */
             get: function () { return this._nativeError.message; },
+            /**
+             * @param {?} message
+             * @return {?}
+             */
             set: function (message) { this._nativeError.message = message; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(BaseError.prototype, "name", {
+            /**
+             * @return {?}
+             */
             get: function () { return this._nativeError.name; },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(BaseError.prototype, "stack", {
-            get: function () { return this._nativeError.stack; },
-            set: function (value) { this._nativeError.stack = value; },
+            /**
+             * @return {?}
+             */
+            get: function () { return ((this._nativeError)).stack; },
+            /**
+             * @param {?} value
+             * @return {?}
+             */
+            set: function (value) { ((this._nativeError)).stack = value; },
             enumerable: true,
             configurable: true
         });
+        /**
+         * @return {?}
+         */
         BaseError.prototype.toString = function () { return this._nativeError.toString(); };
         return BaseError;
     }(Error));
     /**
-     * @stable
+     * \@stable
      */
     var WrappedError = (function (_super) {
         __extends$4(WrappedError, _super);
+        /**
+         * @param {?} message
+         * @param {?} error
+         */
         function WrappedError(message, error) {
             _super.call(this, message + " caused by: " + (error instanceof Error ? error.message : error));
             this.originalError = error;
         }
         Object.defineProperty(WrappedError.prototype, "stack", {
+            /**
+             * @return {?}
+             */
             get: function () {
-                return (this.originalError instanceof Error ? this.originalError : this._nativeError)
+                return (((this.originalError instanceof Error ? this.originalError : this._nativeError)))
                     .stack;
             },
             enumerable: true,
@@ -1990,6 +2496,10 @@
     };
     var InvalidPipeArgumentError = (function (_super) {
         __extends$3(InvalidPipeArgumentError, _super);
+        /**
+         * @param {?} type
+         * @param {?} value
+         */
         function InvalidPipeArgumentError(type, value) {
             _super.call(this, "Invalid argument '" + value + "' for pipe '" + stringify(type) + "'");
         }
@@ -1999,30 +2509,56 @@
     var ObservableStrategy = (function () {
         function ObservableStrategy() {
         }
+        /**
+         * @param {?} async
+         * @param {?} updateLatestValue
+         * @return {?}
+         */
         ObservableStrategy.prototype.createSubscription = function (async, updateLatestValue) {
             return async.subscribe({ next: updateLatestValue, error: function (e) { throw e; } });
         };
+        /**
+         * @param {?} subscription
+         * @return {?}
+         */
         ObservableStrategy.prototype.dispose = function (subscription) { subscription.unsubscribe(); };
+        /**
+         * @param {?} subscription
+         * @return {?}
+         */
         ObservableStrategy.prototype.onDestroy = function (subscription) { subscription.unsubscribe(); };
         return ObservableStrategy;
     }());
     var PromiseStrategy = (function () {
         function PromiseStrategy() {
         }
+        /**
+         * @param {?} async
+         * @param {?} updateLatestValue
+         * @return {?}
+         */
         PromiseStrategy.prototype.createSubscription = function (async, updateLatestValue) {
             return async.then(updateLatestValue, function (e) { throw e; });
         };
+        /**
+         * @param {?} subscription
+         * @return {?}
+         */
         PromiseStrategy.prototype.dispose = function (subscription) { };
+        /**
+         * @param {?} subscription
+         * @return {?}
+         */
         PromiseStrategy.prototype.onDestroy = function (subscription) { };
         return PromiseStrategy;
     }());
-    var _promiseStrategy = new PromiseStrategy();
-    var _observableStrategy = new ObservableStrategy();
+    var /** @type {?} */ _promiseStrategy = new PromiseStrategy();
+    var /** @type {?} */ _observableStrategy = new ObservableStrategy();
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Unwraps a value from an asynchronous primitive.
-     * @howToUse `observable_or_promise_expression | async`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Unwraps a value from an asynchronous primitive.
+     * \@howToUse `observable_or_promise_expression | async`
+     * \@description
      * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
      * emitted. When a new value is emitted, the `async` pipe marks the component to be checked for
      * changes. When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
@@ -2034,16 +2570,19 @@
      * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
      * promise.
      *
-     * {@example common/pipes/ts/async_pipe.ts region='AsyncPipePromise'}
+     * {\@example common/pipes/ts/async_pipe.ts region='AsyncPipePromise'}
      *
      * It's also possible to use `async` with Observables. The example below binds the `time` Observable
-     * to the view. The Observable continuesly updates the view with the current time.
+     * to the view. The Observable continuously updates the view with the current time.
      *
-     * {@example common/pipes/ts/async_pipe.ts region='AsyncPipeObservable'}
+     * {\@example common/pipes/ts/async_pipe.ts region='AsyncPipeObservable'}
      *
-     * @stable
+     * \@stable
      */
     var AsyncPipe = (function () {
+        /**
+         * @param {?} _ref
+         */
         function AsyncPipe(_ref) {
             this._ref = _ref;
             this._latestValue = null;
@@ -2052,11 +2591,18 @@
             this._obj = null;
             this._strategy = null;
         }
+        /**
+         * @return {?}
+         */
         AsyncPipe.prototype.ngOnDestroy = function () {
             if (this._subscription) {
                 this._dispose();
             }
         };
+        /**
+         * @param {?} obj
+         * @return {?}
+         */
         AsyncPipe.prototype.transform = function (obj) {
             if (!this._obj) {
                 if (obj) {
@@ -2075,21 +2621,32 @@
             this._latestReturnedValue = this._latestValue;
             return _angular_core.WrappedValue.wrap(this._latestValue);
         };
+        /**
+         * @param {?} obj
+         * @return {?}
+         */
         AsyncPipe.prototype._subscribe = function (obj) {
             var _this = this;
             this._obj = obj;
             this._strategy = this._selectStrategy(obj);
             this._subscription = this._strategy.createSubscription(obj, function (value) { return _this._updateLatestValue(obj, value); });
         };
+        /**
+         * @param {?} obj
+         * @return {?}
+         */
         AsyncPipe.prototype._selectStrategy = function (obj) {
             if (isPromise(obj)) {
                 return _promiseStrategy;
             }
-            if (obj.subscribe) {
+            if (isObservable(obj)) {
                 return _observableStrategy;
             }
             throw new InvalidPipeArgumentError(AsyncPipe, obj);
         };
+        /**
+         * @return {?}
+         */
         AsyncPipe.prototype._dispose = function () {
             this._strategy.dispose(this._subscription);
             this._latestValue = null;
@@ -2097,6 +2654,11 @@
             this._subscription = null;
             this._obj = null;
         };
+        /**
+         * @param {?} async
+         * @param {?} value
+         * @return {?}
+         */
         AsyncPipe.prototype._updateLatestValue = function (async, value) {
             if (async === this._obj) {
                 this._latestValue = value;
@@ -2107,31 +2669,32 @@
             { type: _angular_core.Pipe, args: [{ name: 'async', pure: false },] },
         ];
         /** @nocollapse */
-        AsyncPipe.ctorParameters = [
+        AsyncPipe.ctorParameters = function () { return [
             { type: _angular_core.ChangeDetectorRef, },
-        ];
+        ]; };
         return AsyncPipe;
     }());
 
-    /**
-     * @license
-     * Copyright Google Inc. All Rights Reserved.
-     *
-     * Use of this source code is governed by an MIT-style license that can be
-     * found in the LICENSE file at https://angular.io/license
-     */
-    var NumberFormatStyle;
-    (function (NumberFormatStyle) {
-        NumberFormatStyle[NumberFormatStyle["Decimal"] = 0] = "Decimal";
-        NumberFormatStyle[NumberFormatStyle["Percent"] = 1] = "Percent";
-        NumberFormatStyle[NumberFormatStyle["Currency"] = 2] = "Currency";
-    })(NumberFormatStyle || (NumberFormatStyle = {}));
+    var NumberFormatStyle = {};
+    NumberFormatStyle.Decimal = 0;
+    NumberFormatStyle.Percent = 1;
+    NumberFormatStyle.Currency = 2;
+    NumberFormatStyle[NumberFormatStyle.Decimal] = "Decimal";
+    NumberFormatStyle[NumberFormatStyle.Percent] = "Percent";
+    NumberFormatStyle[NumberFormatStyle.Currency] = "Currency";
     var NumberFormatter = (function () {
         function NumberFormatter() {
         }
+        /**
+         * @param {?} num
+         * @param {?} locale
+         * @param {?} style
+         * @param {?=} __3
+         * @return {?}
+         */
         NumberFormatter.format = function (num, locale, style, _a) {
             var _b = _a === void 0 ? {} : _a, minimumIntegerDigits = _b.minimumIntegerDigits, minimumFractionDigits = _b.minimumFractionDigits, maximumFractionDigits = _b.maximumFractionDigits, currency = _b.currency, _c = _b.currencyAsSymbol, currencyAsSymbol = _c === void 0 ? false : _c;
-            var options = {
+            var /** @type {?} */ options = {
                 minimumIntegerDigits: minimumIntegerDigits,
                 minimumFractionDigits: minimumFractionDigits,
                 maximumFractionDigits: maximumFractionDigits,
@@ -2145,9 +2708,10 @@
         };
         return NumberFormatter;
     }());
-    var DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsazZEwGjJ']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|J+|j+|m+|s+|a|z|Z|G+|w+))(.*)/;
-    var PATTERN_ALIASES = {
-        yMMMdjms: datePartGetterFactory(combine([
+    var /** @type {?} */ DATE_FORMATS_SPLIT = /((?:[^yMLdHhmsazZEwGjJ']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|L+|d+|H+|h+|J+|j+|m+|s+|a|z|Z|G+|w+))(.*)/;
+    var /** @type {?} */ PATTERN_ALIASES = {
+        // Keys are quoted so they do not get renamed during closure compilation.
+        'yMMMdjms': datePartGetterFactory(combine([
             digitCondition('year', 1),
             nameCondition('month', 3),
             digitCondition('day', 1),
@@ -2155,97 +2719,135 @@
             digitCondition('minute', 1),
             digitCondition('second', 1),
         ])),
-        yMdjm: datePartGetterFactory(combine([
+        'yMdjm': datePartGetterFactory(combine([
             digitCondition('year', 1), digitCondition('month', 1), digitCondition('day', 1),
             digitCondition('hour', 1), digitCondition('minute', 1)
         ])),
-        yMMMMEEEEd: datePartGetterFactory(combine([
+        'yMMMMEEEEd': datePartGetterFactory(combine([
             digitCondition('year', 1), nameCondition('month', 4), nameCondition('weekday', 4),
             digitCondition('day', 1)
         ])),
-        yMMMMd: datePartGetterFactory(combine([digitCondition('year', 1), nameCondition('month', 4), digitCondition('day', 1)])),
-        yMMMd: datePartGetterFactory(combine([digitCondition('year', 1), nameCondition('month', 3), digitCondition('day', 1)])),
-        yMd: datePartGetterFactory(combine([digitCondition('year', 1), digitCondition('month', 1), digitCondition('day', 1)])),
-        jms: datePartGetterFactory(combine([digitCondition('hour', 1), digitCondition('second', 1), digitCondition('minute', 1)])),
-        jm: datePartGetterFactory(combine([digitCondition('hour', 1), digitCondition('minute', 1)]))
+        'yMMMMd': datePartGetterFactory(combine([digitCondition('year', 1), nameCondition('month', 4), digitCondition('day', 1)])),
+        'yMMMd': datePartGetterFactory(combine([digitCondition('year', 1), nameCondition('month', 3), digitCondition('day', 1)])),
+        'yMd': datePartGetterFactory(combine([digitCondition('year', 1), digitCondition('month', 1), digitCondition('day', 1)])),
+        'jms': datePartGetterFactory(combine([digitCondition('hour', 1), digitCondition('second', 1), digitCondition('minute', 1)])),
+        'jm': datePartGetterFactory(combine([digitCondition('hour', 1), digitCondition('minute', 1)]))
     };
-    var DATE_FORMATS = {
-        yyyy: datePartGetterFactory(digitCondition('year', 4)),
-        yy: datePartGetterFactory(digitCondition('year', 2)),
-        y: datePartGetterFactory(digitCondition('year', 1)),
-        MMMM: datePartGetterFactory(nameCondition('month', 4)),
-        MMM: datePartGetterFactory(nameCondition('month', 3)),
-        MM: datePartGetterFactory(digitCondition('month', 2)),
-        M: datePartGetterFactory(digitCondition('month', 1)),
-        LLLL: datePartGetterFactory(nameCondition('month', 4)),
-        L: datePartGetterFactory(nameCondition('month', 1)),
-        dd: datePartGetterFactory(digitCondition('day', 2)),
-        d: datePartGetterFactory(digitCondition('day', 1)),
-        HH: digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false)))),
-        H: hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), false))),
-        hh: digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true)))),
-        h: hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
-        jj: datePartGetterFactory(digitCondition('hour', 2)),
-        j: datePartGetterFactory(digitCondition('hour', 1)),
-        mm: digitModifier(datePartGetterFactory(digitCondition('minute', 2))),
-        m: datePartGetterFactory(digitCondition('minute', 1)),
-        ss: digitModifier(datePartGetterFactory(digitCondition('second', 2))),
-        s: datePartGetterFactory(digitCondition('second', 1)),
+    var /** @type {?} */ DATE_FORMATS = {
+        // Keys are quoted so they do not get renamed.
+        'yyyy': datePartGetterFactory(digitCondition('year', 4)),
+        'yy': datePartGetterFactory(digitCondition('year', 2)),
+        'y': datePartGetterFactory(digitCondition('year', 1)),
+        'MMMM': datePartGetterFactory(nameCondition('month', 4)),
+        'MMM': datePartGetterFactory(nameCondition('month', 3)),
+        'MM': datePartGetterFactory(digitCondition('month', 2)),
+        'M': datePartGetterFactory(digitCondition('month', 1)),
+        'LLLL': datePartGetterFactory(nameCondition('month', 4)),
+        'L': datePartGetterFactory(nameCondition('month', 1)),
+        'dd': datePartGetterFactory(digitCondition('day', 2)),
+        'd': datePartGetterFactory(digitCondition('day', 1)),
+        'HH': digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), false)))),
+        'H': hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), false))),
+        'hh': digitModifier(hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 2), true)))),
+        'h': hourExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
+        'jj': datePartGetterFactory(digitCondition('hour', 2)),
+        'j': datePartGetterFactory(digitCondition('hour', 1)),
+        'mm': digitModifier(datePartGetterFactory(digitCondition('minute', 2))),
+        'm': datePartGetterFactory(digitCondition('minute', 1)),
+        'ss': digitModifier(datePartGetterFactory(digitCondition('second', 2))),
+        's': datePartGetterFactory(digitCondition('second', 1)),
         // while ISO 8601 requires fractions to be prefixed with `.` or `,`
         // we can be just safely rely on using `sss` since we currently don't support single or two digit
         // fractions
-        sss: datePartGetterFactory(digitCondition('second', 3)),
-        EEEE: datePartGetterFactory(nameCondition('weekday', 4)),
-        EEE: datePartGetterFactory(nameCondition('weekday', 3)),
-        EE: datePartGetterFactory(nameCondition('weekday', 2)),
-        E: datePartGetterFactory(nameCondition('weekday', 1)),
-        a: hourClockExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
-        Z: timeZoneGetter('short'),
-        z: timeZoneGetter('long'),
-        ww: datePartGetterFactory({}),
+        'sss': datePartGetterFactory(digitCondition('second', 3)),
+        'EEEE': datePartGetterFactory(nameCondition('weekday', 4)),
+        'EEE': datePartGetterFactory(nameCondition('weekday', 3)),
+        'EE': datePartGetterFactory(nameCondition('weekday', 2)),
+        'E': datePartGetterFactory(nameCondition('weekday', 1)),
+        'a': hourClockExtractor(datePartGetterFactory(hour12Modify(digitCondition('hour', 1), true))),
+        'Z': timeZoneGetter('short'),
+        'z': timeZoneGetter('long'),
+        'ww': datePartGetterFactory({}),
         // first Thursday of the year. not support ?
-        w: datePartGetterFactory({}),
+        'w': datePartGetterFactory({}),
         // of the year not support ?
-        G: datePartGetterFactory(nameCondition('era', 1)),
-        GG: datePartGetterFactory(nameCondition('era', 2)),
-        GGG: datePartGetterFactory(nameCondition('era', 3)),
-        GGGG: datePartGetterFactory(nameCondition('era', 4))
+        'G': datePartGetterFactory(nameCondition('era', 1)),
+        'GG': datePartGetterFactory(nameCondition('era', 2)),
+        'GGG': datePartGetterFactory(nameCondition('era', 3)),
+        'GGGG': datePartGetterFactory(nameCondition('era', 4))
     };
+    /**
+     * @param {?} inner
+     * @return {?}
+     */
     function digitModifier(inner) {
         return function (date, locale) {
-            var result = inner(date, locale);
+            var /** @type {?} */ result = inner(date, locale);
             return result.length == 1 ? '0' + result : result;
         };
     }
+    /**
+     * @param {?} inner
+     * @return {?}
+     */
     function hourClockExtractor(inner) {
         return function (date, locale) { return inner(date, locale).split(' ')[1]; };
     }
+    /**
+     * @param {?} inner
+     * @return {?}
+     */
     function hourExtractor(inner) {
         return function (date, locale) { return inner(date, locale).split(' ')[0]; };
     }
+    /**
+     * @param {?} date
+     * @param {?} locale
+     * @param {?} options
+     * @return {?}
+     */
     function intlDateFormat(date, locale, options) {
         return new Intl.DateTimeFormat(locale, options).format(date).replace(/[\u200e\u200f]/g, '');
     }
+    /**
+     * @param {?} timezone
+     * @return {?}
+     */
     function timeZoneGetter(timezone) {
         // To workaround `Intl` API restriction for single timezone let format with 24 hours
-        var options = { hour: '2-digit', hour12: false, timeZoneName: timezone };
+        var /** @type {?} */ options = { hour: '2-digit', hour12: false, timeZoneName: timezone };
         return function (date, locale) {
-            var result = intlDateFormat(date, locale, options);
+            var /** @type {?} */ result = intlDateFormat(date, locale, options);
             // Then extract first 3 letters that related to hours
             return result ? result.substring(3) : '';
         };
     }
+    /**
+     * @param {?} options
+     * @param {?} value
+     * @return {?}
+     */
     function hour12Modify(options, value) {
         options.hour12 = value;
         return options;
     }
+    /**
+     * @param {?} prop
+     * @param {?} len
+     * @return {?}
+     */
     function digitCondition(prop, len) {
-        var result = {};
+        var /** @type {?} */ result = {};
         result[prop] = len === 2 ? '2-digit' : 'numeric';
         return result;
     }
+    /**
+     * @param {?} prop
+     * @param {?} len
+     * @return {?}
+     */
     function nameCondition(prop, len) {
-        var result = {};
+        var /** @type {?} */ result = {};
         if (len < 4) {
             result[prop] = len > 1 ? 'short' : 'narrow';
         }
@@ -2254,22 +2856,37 @@
         }
         return result;
     }
+    /**
+     * @param {?} options
+     * @return {?}
+     */
     function combine(options) {
-        return (_a = Object).assign.apply(_a, [{}].concat(options));
+        return (_a = ((Object))).assign.apply(_a, [{}].concat(options));
         var _a;
     }
+    /**
+     * @param {?} ret
+     * @return {?}
+     */
     function datePartGetterFactory(ret) {
         return function (date, locale) { return intlDateFormat(date, locale, ret); };
     }
-    var DATE_FORMATTER_CACHE = new Map();
+    var /** @type {?} */ DATE_FORMATTER_CACHE = new Map();
+    /**
+     * @param {?} format
+     * @param {?} date
+     * @param {?} locale
+     * @return {?}
+     */
     function dateFormatter(format, date, locale) {
-        var fn = PATTERN_ALIASES[format];
+        var /** @type {?} */ fn = PATTERN_ALIASES[format];
         if (fn)
             return fn(date, locale);
-        var parts = DATE_FORMATTER_CACHE.get(format);
+        var /** @type {?} */ cacheKey = format;
+        var /** @type {?} */ parts = DATE_FORMATTER_CACHE.get(cacheKey);
         if (!parts) {
             parts = [];
-            var match = void 0;
+            var /** @type {?} */ match = void 0;
             DATE_FORMATS_SPLIT.exec(format);
             while (format) {
                 match = DATE_FORMATS_SPLIT.exec(format);
@@ -2282,35 +2899,46 @@
                     format = null;
                 }
             }
-            DATE_FORMATTER_CACHE.set(format, parts);
+            DATE_FORMATTER_CACHE.set(cacheKey, parts);
         }
         return parts.reduce(function (text, part) {
-            var fn = DATE_FORMATS[part];
+            var /** @type {?} */ fn = DATE_FORMATS[part];
             return text + (fn ? fn(date, locale) : partToTime(part));
         }, '');
     }
+    /**
+     * @param {?} part
+     * @return {?}
+     */
     function partToTime(part) {
         return part === '\'\'' ? '\'' : part.replace(/(^'|'$)/g, '').replace(/''/g, '\'');
     }
     var DateFormatter = (function () {
         function DateFormatter() {
         }
+        /**
+         * @param {?} date
+         * @param {?} locale
+         * @param {?} pattern
+         * @return {?}
+         */
         DateFormatter.format = function (date, locale, pattern) {
             return dateFormatter(pattern, date, locale);
         };
         return DateFormatter;
     }());
 
+    var /** @type {?} */ ISO8601_DATE_REGEX = /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Formats a date according to locale rules.
-     * @howToUse `date_expression | date[:format]`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Formats a date according to locale rules.
+     * \@howToUse `date_expression | date[:format]`
+     * \@description
      *
      * Where:
      * - `expression` is a date object or a number (milliseconds since UTC epoch) or an ISO string
      * (https://www.w3.org/TR/NOTE-datetime).
-     * - `format` indicates which date/time components to include. The format can be predifined as
+     * - `format` indicates which date/time components to include. The format can be predefined as
      *   shown below or custom as shown in the table.
      *   - `'medium'`: equivalent to `'yMMMdjms'` (e.g. `Sep 3, 2010, 12:05:08 PM` for `en-US`)
      *   - `'short'`: equivalent to `'yMdjm'` (e.g. `9/3/2010, 12:05 PM` for `en-US`)
@@ -2366,18 +2994,26 @@
      *     {{ dateObj | date:'mmss' }}        // output is '43:11'
      * ```
      *
-     * {@example common/pipes/ts/date_pipe.ts region='DatePipe'}
+     * {\@example common/pipes/ts/date_pipe.ts region='DatePipe'}
      *
-     * @stable
+     * \@stable
      */
     var DatePipe = (function () {
+        /**
+         * @param {?} _locale
+         */
         function DatePipe(_locale) {
             this._locale = _locale;
         }
+        /**
+         * @param {?} value
+         * @param {?=} pattern
+         * @return {?}
+         */
         DatePipe.prototype.transform = function (value, pattern) {
             if (pattern === void 0) { pattern = 'mediumDate'; }
-            var date;
-            if (isBlank$1(value))
+            var /** @type {?} */ date;
+            if (isBlank$1(value) || value !== value)
                 return null;
             if (typeof value === 'string') {
                 value = value.trim();
@@ -2405,7 +3041,13 @@
                 date = new Date(value);
             }
             if (!isDate(date)) {
-                throw new InvalidPipeArgumentError(DatePipe, value);
+                var /** @type {?} */ match = void 0;
+                if ((typeof value === 'string') && (match = value.match(ISO8601_DATE_REGEX))) {
+                    date = isoStringToDate(match);
+                }
+                else {
+                    throw new InvalidPipeArgumentError(DatePipe, value);
+                }
             }
             return DateFormatter.format(date, this._locale, DatePipe._ALIASES[pattern] || pattern);
         };
@@ -2424,21 +3066,61 @@
             { type: _angular_core.Pipe, args: [{ name: 'date', pure: true },] },
         ];
         /** @nocollapse */
-        DatePipe.ctorParameters = [
+        DatePipe.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
-        ];
+        ]; };
         return DatePipe;
     }());
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     function isBlank$1(obj) {
         return obj == null || obj === '';
     }
-
-    var _INTERPOLATION_REGEXP = /#/g;
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Maps a value to a string that pluralizes the value according to locale rules.
-     * @howToUse `expression | i18nPlural:mapping`
-     * @description
+     * @param {?} obj
+     * @return {?}
+     */
+    function isDate(obj) {
+        return obj instanceof Date && !isNaN(obj.valueOf());
+    }
+    /**
+     * @param {?} match
+     * @return {?}
+     */
+    function isoStringToDate(match) {
+        var /** @type {?} */ date = new Date(0);
+        var /** @type {?} */ tzHour = 0;
+        var /** @type {?} */ tzMin = 0;
+        var /** @type {?} */ dateSetter = match[8] ? date.setUTCFullYear : date.setFullYear;
+        var /** @type {?} */ timeSetter = match[8] ? date.setUTCHours : date.setHours;
+        if (match[9]) {
+            tzHour = toInt(match[9] + match[10]);
+            tzMin = toInt(match[9] + match[11]);
+        }
+        dateSetter.call(date, toInt(match[1]), toInt(match[2]) - 1, toInt(match[3]));
+        var /** @type {?} */ h = toInt(match[4] || '0') - tzHour;
+        var /** @type {?} */ m = toInt(match[5] || '0') - tzMin;
+        var /** @type {?} */ s = toInt(match[6] || '0');
+        var /** @type {?} */ ms = Math.round(parseFloat('0.' + (match[7] || 0)) * 1000);
+        timeSetter.call(date, h, m, s, ms);
+        return date;
+    }
+    /**
+     * @param {?} str
+     * @return {?}
+     */
+    function toInt(str) {
+        return parseInt(str, 10);
+    }
+
+    var /** @type {?} */ _INTERPOLATION_REGEXP = /#/g;
+    /**
+     * \@ngModule CommonModule
+     * \@whatItDoes Maps a value to a string that pluralizes the value according to locale rules.
+     * \@howToUse `expression | i18nPlural:mapping`
+     * \@description
      *
      *  Where:
      *  - `expression` is a number.
@@ -2447,38 +3129,46 @@
      *
      *  ## Example
      *
-     * {@example common/pipes/ts/i18n_pipe.ts region='I18nPluralPipeComponent'}
+     * {\@example common/pipes/ts/i18n_pipe.ts region='I18nPluralPipeComponent'}
      *
-     * @experimental
+     * \@experimental
      */
     var I18nPluralPipe = (function () {
+        /**
+         * @param {?} _localization
+         */
         function I18nPluralPipe(_localization) {
             this._localization = _localization;
         }
+        /**
+         * @param {?} value
+         * @param {?} pluralMap
+         * @return {?}
+         */
         I18nPluralPipe.prototype.transform = function (value, pluralMap) {
-            if (isBlank(value))
+            if (value == null)
                 return '';
             if (typeof pluralMap !== 'object' || pluralMap === null) {
                 throw new InvalidPipeArgumentError(I18nPluralPipe, pluralMap);
             }
-            var key = getPluralCategory(value, Object.keys(pluralMap), this._localization);
+            var /** @type {?} */ key = getPluralCategory(value, Object.keys(pluralMap), this._localization);
             return pluralMap[key].replace(_INTERPOLATION_REGEXP, value.toString());
         };
         I18nPluralPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'i18nPlural', pure: true },] },
         ];
         /** @nocollapse */
-        I18nPluralPipe.ctorParameters = [
+        I18nPluralPipe.ctorParameters = function () { return [
             { type: NgLocalization, },
-        ];
+        ]; };
         return I18nPluralPipe;
     }());
 
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Generic selector that displays the string that matches the current value.
-     * @howToUse `expression | i18nSelect:mapping`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Generic selector that displays the string that matches the current value.
+     * \@howToUse `expression | i18nSelect:mapping`
+     * \@description
      *
      *  Where `mapping` is an object that indicates the text that should be displayed
      *  for different values of the provided `expression`.
@@ -2487,13 +3177,18 @@
      *
      *  ## Example
      *
-     * {@example common/pipes/ts/i18n_pipe.ts region='I18nSelectPipeComponent'}
+     * {\@example common/pipes/ts/i18n_pipe.ts region='I18nSelectPipeComponent'}
      *
-     *  @experimental
+     *  \@experimental
      */
     var I18nSelectPipe = (function () {
         function I18nSelectPipe() {
         }
+        /**
+         * @param {?} value
+         * @param {?} mapping
+         * @return {?}
+         */
         I18nSelectPipe.prototype.transform = function (value, mapping) {
             if (value == null)
                 return '';
@@ -2512,52 +3207,60 @@
             { type: _angular_core.Pipe, args: [{ name: 'i18nSelect', pure: true },] },
         ];
         /** @nocollapse */
-        I18nSelectPipe.ctorParameters = [];
+        I18nSelectPipe.ctorParameters = function () { return []; };
         return I18nSelectPipe;
     }());
 
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Converts value into JSON string.
-     * @howToUse `expression | json`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Converts value into JSON string.
+     * \@howToUse `expression | json`
+     * \@description
      *
      * Converts value into string using `JSON.stringify`. Useful for debugging.
      *
      * ### Example
-     * {@example common/pipes/ts/json_pipe.ts region='JsonPipe'}
+     * {\@example common/pipes/ts/json_pipe.ts region='JsonPipe'}
      *
-     * @stable
+     * \@stable
      */
     var JsonPipe = (function () {
         function JsonPipe() {
         }
+        /**
+         * @param {?} value
+         * @return {?}
+         */
         JsonPipe.prototype.transform = function (value) { return JSON.stringify(value, null, 2); };
         JsonPipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'json', pure: false },] },
         ];
         /** @nocollapse */
-        JsonPipe.ctorParameters = [];
+        JsonPipe.ctorParameters = function () { return []; };
         return JsonPipe;
     }());
 
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Transforms string to lowercase.
-     * @howToUse `expression | lowercase`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Transforms string to lowercase.
+     * \@howToUse `expression | lowercase`
+     * \@description
      *
      * Converts value into a lowercase string using `String.prototype.toLowerCase()`.
      *
      * ### Example
      *
-     * {@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
+     * {\@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
      *
-     * @stable
+     * \@stable
      */
     var LowerCasePipe = (function () {
         function LowerCasePipe() {
         }
+        /**
+         * @param {?} value
+         * @return {?}
+         */
         LowerCasePipe.prototype.transform = function (value) {
             if (isBlank(value))
                 return value;
@@ -2570,24 +3273,34 @@
             { type: _angular_core.Pipe, args: [{ name: 'lowercase' },] },
         ];
         /** @nocollapse */
-        LowerCasePipe.ctorParameters = [];
+        LowerCasePipe.ctorParameters = function () { return []; };
         return LowerCasePipe;
     }());
 
-    var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(-(\d+))?)?$/;
+    var /** @type {?} */ _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(-(\d+))?)?$/;
+    /**
+     * @param {?} pipe
+     * @param {?} locale
+     * @param {?} value
+     * @param {?} style
+     * @param {?} digits
+     * @param {?=} currency
+     * @param {?=} currencyAsSymbol
+     * @return {?}
+     */
     function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSymbol) {
         if (currency === void 0) { currency = null; }
         if (currencyAsSymbol === void 0) { currencyAsSymbol = false; }
-        if (isBlank(value))
+        if (value == null)
             return null;
         // Convert strings to numbers
         value = typeof value === 'string' && NumberWrapper.isNumeric(value) ? +value : value;
         if (typeof value !== 'number') {
             throw new InvalidPipeArgumentError(pipe, value);
         }
-        var minInt;
-        var minFraction;
-        var maxFraction;
+        var /** @type {?} */ minInt;
+        var /** @type {?} */ minFraction;
+        var /** @type {?} */ maxFraction;
         if (style !== NumberFormatStyle.Currency) {
             // rely on Intl default for currency
             minInt = 1;
@@ -2595,21 +3308,21 @@
             maxFraction = 3;
         }
         if (digits) {
-            var parts = digits.match(_NUMBER_FORMAT_REGEXP);
+            var /** @type {?} */ parts = digits.match(_NUMBER_FORMAT_REGEXP);
             if (parts === null) {
                 throw new Error(digits + " is not a valid digit info for number pipes");
             }
-            if (isPresent(parts[1])) {
+            if (parts[1] != null) {
                 minInt = NumberWrapper.parseIntAutoRadix(parts[1]);
             }
-            if (isPresent(parts[3])) {
+            if (parts[3] != null) {
                 minFraction = NumberWrapper.parseIntAutoRadix(parts[3]);
             }
-            if (isPresent(parts[5])) {
+            if (parts[5] != null) {
                 maxFraction = NumberWrapper.parseIntAutoRadix(parts[5]);
             }
         }
-        return NumberFormatter.format(value, locale, style, {
+        return NumberFormatter.format(/** @type {?} */ (value), locale, style, {
             minimumIntegerDigits: minInt,
             minimumFractionDigits: minFraction,
             maximumFractionDigits: maxFraction,
@@ -2618,9 +3331,9 @@
         });
     }
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Formats a number according to locale rules.
-     * @howToUse `number_expression | number[:digitInfo]`
+     * \@ngModule CommonModule
+     * \@whatItDoes Formats a number according to locale rules.
+     * \@howToUse `number_expression | number[:digitInfo]`
      *
      * Formats a number as text. Group sizing and separator and other locale-specific
      * configurations are based on the active locale.
@@ -2636,18 +3349,26 @@
      * details see your native internationalization library.
      *
      * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
-     * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+     * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
      *
      * ### Example
      *
-     * {@example common/pipes/ts/number_pipe.ts region='NumberPipe'}
+     * {\@example common/pipes/ts/number_pipe.ts region='NumberPipe'}
      *
-     * @stable
+     * \@stable
      */
     var DecimalPipe = (function () {
+        /**
+         * @param {?} _locale
+         */
         function DecimalPipe(_locale) {
             this._locale = _locale;
         }
+        /**
+         * @param {?} value
+         * @param {?=} digits
+         * @return {?}
+         */
         DecimalPipe.prototype.transform = function (value, digits) {
             if (digits === void 0) { digits = null; }
             return formatNumber(DecimalPipe, this._locale, value, NumberFormatStyle.Decimal, digits);
@@ -2656,35 +3377,43 @@
             { type: _angular_core.Pipe, args: [{ name: 'number' },] },
         ];
         /** @nocollapse */
-        DecimalPipe.ctorParameters = [
+        DecimalPipe.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
-        ];
+        ]; };
         return DecimalPipe;
     }());
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Formats a number as a percentage according to locale rules.
-     * @howToUse `number_expression | percent[:digitInfo]`
+     * \@ngModule CommonModule
+     * \@whatItDoes Formats a number as a percentage according to locale rules.
+     * \@howToUse `number_expression | percent[:digitInfo]`
      *
-     * @description
+     * \@description
      *
      * Formats a number as percentage.
      *
-     * - `digitInfo` See {@link DecimalPipe} for detailed description.
+     * - `digitInfo` See {\@link DecimalPipe} for detailed description.
      *
      * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
-     * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+     * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
      *
      * ### Example
      *
-     * {@example common/pipes/ts/number_pipe.ts region='PercentPipe'}
+     * {\@example common/pipes/ts/number_pipe.ts region='PercentPipe'}
      *
-     * @stable
+     * \@stable
      */
     var PercentPipe = (function () {
+        /**
+         * @param {?} _locale
+         */
         function PercentPipe(_locale) {
             this._locale = _locale;
         }
+        /**
+         * @param {?} value
+         * @param {?=} digits
+         * @return {?}
+         */
         PercentPipe.prototype.transform = function (value, digits) {
             if (digits === void 0) { digits = null; }
             return formatNumber(PercentPipe, this._locale, value, NumberFormatStyle.Percent, digits);
@@ -2693,16 +3422,16 @@
             { type: _angular_core.Pipe, args: [{ name: 'percent' },] },
         ];
         /** @nocollapse */
-        PercentPipe.ctorParameters = [
+        PercentPipe.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
-        ];
+        ]; };
         return PercentPipe;
     }());
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Formats a number as currency using locale rules.
-     * @howToUse `number_expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Formats a number as currency using locale rules.
+     * \@howToUse `number_expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]`
+     * \@description
      *
      * Use `currency` to format a number as currency.
      *
@@ -2711,21 +3440,31 @@
      * - `symbolDisplay` is a boolean indicating whether to use the currency symbol or code.
      *   - `true`: use symbol (e.g. `$`).
      *   - `false`(default): use code (e.g. `USD`).
-     * - `digitInfo` See {@link DecimalPipe} for detailed description.
+     * - `digitInfo` See {\@link DecimalPipe} for detailed description.
      *
      * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
-     * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+     * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
      *
      * ### Example
      *
-     * {@example common/pipes/ts/number_pipe.ts region='CurrencyPipe'}
+     * {\@example common/pipes/ts/number_pipe.ts region='CurrencyPipe'}
      *
-     * @stable
+     * \@stable
      */
     var CurrencyPipe = (function () {
+        /**
+         * @param {?} _locale
+         */
         function CurrencyPipe(_locale) {
             this._locale = _locale;
         }
+        /**
+         * @param {?} value
+         * @param {?=} currencyCode
+         * @param {?=} symbolDisplay
+         * @param {?=} digits
+         * @return {?}
+         */
         CurrencyPipe.prototype.transform = function (value, currencyCode, symbolDisplay, digits) {
             if (currencyCode === void 0) { currencyCode = 'USD'; }
             if (symbolDisplay === void 0) { symbolDisplay = false; }
@@ -2736,17 +3475,17 @@
             { type: _angular_core.Pipe, args: [{ name: 'currency' },] },
         ];
         /** @nocollapse */
-        CurrencyPipe.ctorParameters = [
+        CurrencyPipe.ctorParameters = function () { return [
             { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_core.LOCALE_ID,] },] },
-        ];
+        ]; };
         return CurrencyPipe;
     }());
 
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Creates a new List or String containing a subset (slice) of the elements.
-     * @howToUse `array_or_string_expression | slice:start[:end]`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Creates a new List or String containing a subset (slice) of the elements.
+     * \@howToUse `array_or_string_expression | slice:start[:end]`
+     * \@description
      *
      * Where the input expression is a `List` or `String`, and:
      * - `start`: The starting index of the subset to return.
@@ -2773,7 +3512,7 @@
      *
      * This `ngFor` example:
      *
-     * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_list'}
+     * {\@example common/pipes/ts/slice_pipe.ts region='SlicePipe_list'}
      *
      * produces the following:
      *
@@ -2782,47 +3521,61 @@
      *
      * ## String Examples
      *
-     * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_string'}
+     * {\@example common/pipes/ts/slice_pipe.ts region='SlicePipe_string'}
      *
-     * @stable
+     * \@stable
      */
     var SlicePipe = (function () {
         function SlicePipe() {
         }
+        /**
+         * @param {?} value
+         * @param {?} start
+         * @param {?=} end
+         * @return {?}
+         */
         SlicePipe.prototype.transform = function (value, start, end) {
-            if (isBlank(value))
+            if (value == null)
                 return value;
             if (!this.supports(value)) {
                 throw new InvalidPipeArgumentError(SlicePipe, value);
             }
             return value.slice(start, end);
         };
+        /**
+         * @param {?} obj
+         * @return {?}
+         */
         SlicePipe.prototype.supports = function (obj) { return typeof obj === 'string' || Array.isArray(obj); };
         SlicePipe.decorators = [
             { type: _angular_core.Pipe, args: [{ name: 'slice', pure: false },] },
         ];
         /** @nocollapse */
-        SlicePipe.ctorParameters = [];
+        SlicePipe.ctorParameters = function () { return []; };
         return SlicePipe;
     }());
 
     /**
-     * @ngModule CommonModule
-     * @whatItDoes Transforms string to uppercase.
-     * @howToUse `expression | uppercase`
-     * @description
+     * \@ngModule CommonModule
+     * \@whatItDoes Transforms string to uppercase.
+     * \@howToUse `expression | uppercase`
+     * \@description
      *
      * Converts value into an uppercase string using `String.prototype.toUpperCase()`.
      *
      * ### Example
      *
-     * {@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
+     * {\@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
      *
-     * @stable
+     * \@stable
      */
     var UpperCasePipe = (function () {
         function UpperCasePipe() {
         }
+        /**
+         * @param {?} value
+         * @return {?}
+         */
         UpperCasePipe.prototype.transform = function (value) {
             if (isBlank(value))
                 return value;
@@ -2835,14 +3588,14 @@
             { type: _angular_core.Pipe, args: [{ name: 'uppercase' },] },
         ];
         /** @nocollapse */
-        UpperCasePipe.ctorParameters = [];
+        UpperCasePipe.ctorParameters = function () { return []; };
         return UpperCasePipe;
     }());
 
     /**
      * A collection of Angular pipes that are likely to be used in each and every application.
      */
-    var COMMON_PIPES = [
+    var /** @type {?} */ COMMON_PIPES = [
         AsyncPipe,
         UpperCasePipe,
         LowerCasePipe,
@@ -2856,12 +3609,10 @@
         I18nSelectPipe,
     ];
 
-    // Note: This does not contain the location providers,
-    // as they need some platform specific implementations to work.
     /**
-     * The module that includes all the basic Angular directives like {@link NgIf}, {@link NgFor}, ...
+     * The module that includes all the basic Angular directives like {\@link NgIf}, {\@link NgFor}, ...
      *
-     * @stable
+     * \@stable
      */
     var CommonModule = (function () {
         function CommonModule() {
@@ -2876,9 +3627,14 @@
                     },] },
         ];
         /** @nocollapse */
-        CommonModule.ctorParameters = [];
+        CommonModule.ctorParameters = function () { return []; };
         return CommonModule;
     }());
+
+    /**
+     * @stable
+     */
+    var /** @type {?} */ VERSION = new _angular_core.Version('2.4.7');
 
     exports.NgLocalization = NgLocalization;
     exports.CommonModule = CommonModule;
@@ -2903,6 +3659,8 @@
     exports.PercentPipe = PercentPipe;
     exports.SlicePipe = SlicePipe;
     exports.UpperCasePipe = UpperCasePipe;
+    exports.VERSION = VERSION;
+    exports.Version = _angular_core.Version;
     exports.PlatformLocation = PlatformLocation;
     exports.LocationStrategy = LocationStrategy;
     exports.APP_BASE_HREF = APP_BASE_HREF;

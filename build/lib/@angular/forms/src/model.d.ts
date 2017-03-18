@@ -18,7 +18,6 @@ export declare const PENDING: string;
  * calculations of validity or value.
  */
 export declare const DISABLED: string;
-export declare function isControl(control: Object): boolean;
 /**
  * @whatItDoes This is the base class for {@link FormControl}, {@link FormGroup}, and
  * {@link FormArray}.
@@ -622,8 +621,8 @@ export declare class FormGroup extends AbstractControl {
     getRawValue(): any;
 }
 /**
- * @whatItDoes Tracks the value and validity state of an array of {@link FormControl}
- * instances.
+ * @whatItDoes Tracks the value and validity state of an array of {@link FormControl},
+ * {@link FormGroup} or {@link FormArray} instances.
  *
  * A `FormArray` aggregates the values of each child {@link FormControl} into an array.
  * It calculates its status by reducing the statuses of its children. For example, if one of

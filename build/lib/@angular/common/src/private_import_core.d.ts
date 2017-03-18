@@ -7,3 +7,4 @@
  */
 import { __core_private__ as r } from '@angular/core';
 export declare const isPromise: typeof r.isPromise;
+export declare const isObservable: typeof r.isObservable;

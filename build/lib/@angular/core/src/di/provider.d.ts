@@ -58,7 +58,7 @@ export interface ValueProvider {
      */
     useValue: any;
     /**
-     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * If true, then injector returns an array of instances. This is useful to allow multiple
      * providers spread across many files to provide configuration information to a common token.
      *
      * ### Example
@@ -99,7 +99,7 @@ export interface ClassProvider {
      */
     useClass: Type<any>;
     /**
-     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * If true, then injector returns an array of instances. This is useful to allow multiple
      * providers spread across many files to provide configuration information to a common token.
      *
      * ### Example
@@ -134,7 +134,7 @@ export interface ExistingProvider {
      */
     useExisting: any;
     /**
-     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * If true, then injector returns an array of instances. This is useful to allow multiple
      * providers spread across many files to provide configuration information to a common token.
      *
      * ### Example
@@ -176,12 +176,12 @@ export interface FactoryProvider {
      */
     useFactory: Function;
     /**
-     * A list of `token`s which need to be resolved by the injector. The list of values is than
+     * A list of `token`s which need to be resolved by the injector. The list of values is then
      * used as arguments to the `useFactory` function.
      */
     deps?: any[];
     /**
-     * If true, than injector returns an array of instances. This is useful to allow multiple
+     * If true, then injector returns an array of instances. This is useful to allow multiple
      * providers spread across many files to provide configuration information to a common token.
      *
      * ### Example

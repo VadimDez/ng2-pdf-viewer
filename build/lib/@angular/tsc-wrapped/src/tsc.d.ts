@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 import AngularCompilerOptions from './options';
-import { TsickleHost } from './compiler_host';
 /**
  * Our interface to the TypeScript standard compiler.
  * If you write an Angular compiler plugin for another build tool,
@@ -12,10 +11,19 @@ export interface CompilerInterface {
         ngOptions: AngularCompilerOptions;
     };
     typeCheck(compilerHost: ts.CompilerHost, program: ts.Program): void;
-    emit(compilerHost: ts.CompilerHost, program: ts.Program): number;
+    emit(program: ts.Program): number;
+}
+export declare class UserError extends Error {
+    private _nativeError;
+    constructor(message: string);
+    message: string;
+    readonly name: string;
+    stack: any;
+    toString(): string;
 }
 export declare function formatDiagnostics(diags: ts.Diagnostic[]): string;
 export declare function check(diags: ts.Diagnostic[]): void;
+export declare function validateAngularCompilerOptions(options: AngularCompilerOptions): ts.Diagnostic[];
 export declare class Tsc implements CompilerInterface {
     private readFile;
     private readDirectory;
@@ -28,6 +36,6 @@ export declare class Tsc implements CompilerInterface {
         ngOptions: AngularCompilerOptions;
     };
     typeCheck(compilerHost: ts.CompilerHost, program: ts.Program): void;
-    emit(compilerHost: TsickleHost, oldProgram: ts.Program): number;
+    emit(program: ts.Program): number;
 }
-export declare var tsc: CompilerInterface;
+export declare const tsc: CompilerInterface;

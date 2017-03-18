@@ -27,7 +27,7 @@ export declare enum LifecycleHooks {
 export interface SimpleChanges {
     [propName: string]: SimpleChange;
 }
-export declare var LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
+export declare const LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
 /**
  * @whatItDoes Lifecycle hook that is called when any data-bound property of a directive changes.
  * @howToUse
@@ -88,7 +88,7 @@ export declare abstract class DoCheck {
     abstract ngDoCheck(): void;
 }
 /**
- * @whatItDoes Lifecycle hook that is called when a directive or pipe is destroyed.
+ * @whatItDoes Lifecycle hook that is called when a directive, pipe or service is destroyed.
  * @howToUse
  * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='OnDestroy'}
  *

@@ -5,15 +5,13 @@ import { EmptyObservable } from '../observable/EmptyObservable';
 import { TeardownLogic } from '../Subscription';
 
 /**
- * Returns an Observable that repeats the stream of items emitted by the source Observable at most count times,
- * on a particular Scheduler.
+ * Returns an Observable that repeats the stream of items emitted by the source Observable at most count times.
  *
  * <img src="./img/repeat.png" width="100%">
  *
- * @param {Scheduler} [scheduler] the Scheduler to emit the items on.
- * @param {number} [count] the number of times the source Observable items are repeated, a count of 0 will yield
+ * @param {number} [count] The number of times the source Observable items are repeated, a count of 0 will yield
  * an empty Observable.
- * @return {Observable} an Observable that repeats the stream of items emitted by the source Observable at most
+ * @return {Observable} An Observable that repeats the stream of items emitted by the source Observable at most
  * count times.
  * @method repeat
  * @owner Observable
@@ -33,7 +31,7 @@ class RepeatOperator<T> implements Operator<T, T> {
               private source: Observable<T>) {
   }
   call(subscriber: Subscriber<T>, source: any): TeardownLogic {
-    return source._subscribe(new RepeatSubscriber(subscriber, this.count, this.source));
+    return source.subscribe(new RepeatSubscriber(subscriber, this.count, this.source));
   }
 }
 
@@ -56,10 +54,7 @@ class RepeatSubscriber<T> extends Subscriber<T> {
       } else if (count > -1) {
         this.count = count - 1;
       }
-      this.unsubscribe();
-      this.isStopped = false;
-      this.closed = false;
-      source.subscribe(this);
+      source.subscribe(this._unsubscribeAndRecycle());
     }
   }
 }

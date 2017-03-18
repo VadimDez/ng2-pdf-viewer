@@ -10,6 +10,8 @@ var Host = (function () {
     function Host(directory, scripts) {
         this.directory = directory;
         this.scripts = scripts;
+        this.overrides = new Map();
+        this.version = 1;
     }
     Host.prototype.getCompilationSettings = function () {
         return {
@@ -19,7 +21,7 @@ var Host = (function () {
         };
     };
     Host.prototype.getScriptFileNames = function () { return this.scripts; };
-    Host.prototype.getScriptVersion = function (fileName) { return '1'; };
+    Host.prototype.getScriptVersion = function (fileName) { return this.version.toString(); };
     Host.prototype.getScriptSnapshot = function (fileName) {
         var content = this.getFileContent(fileName);
         if (content)
@@ -27,7 +29,18 @@ var Host = (function () {
     };
     Host.prototype.getCurrentDirectory = function () { return '/'; };
     Host.prototype.getDefaultLibFileName = function (options) { return 'lib.d.ts'; };
+    Host.prototype.overrideFile = function (fileName, content) {
+        this.overrides.set(fileName, content);
+        this.version++;
+    };
+    Host.prototype.addFile = function (fileName) {
+        this.scripts.push(fileName);
+        this.version++;
+    };
     Host.prototype.getFileContent = function (fileName) {
+        if (this.overrides.has(fileName)) {
+            return this.overrides.get(fileName);
+        }
         var names = fileName.split('/');
         if (names[names.length - 1] === 'lib.d.ts') {
             return fs.readFileSync(ts.getDefaultLibFilePath(this.getCompilationSettings()), 'utf8');

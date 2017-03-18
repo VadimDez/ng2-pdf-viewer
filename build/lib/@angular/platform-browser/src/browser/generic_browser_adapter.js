@@ -15,8 +15,9 @@ import { isPresent } from '../facade/lang';
 /**
  * Provides DOM operations in any browser environment.
  *
- * @security Tread carefully! Interacting with the DOM directly is dangerous and
+ * \@security Tread carefully! Interacting with the DOM directly is dangerous and
  * can introduce XSS risks.
+ * @abstract
  */
 export var GenericBrowserDomAdapter = (function (_super) {
     __extends(GenericBrowserDomAdapter, _super);
@@ -56,19 +57,50 @@ export var GenericBrowserDomAdapter = (function (_super) {
             this._transitionEnd = null;
         }
     }
-    GenericBrowserDomAdapter.prototype.getDistributedNodes = function (el) { return el.getDistributedNodes(); };
+    /**
+     * @param {?} el
+     * @return {?}
+     */
+    GenericBrowserDomAdapter.prototype.getDistributedNodes = function (el) { return ((el)).getDistributedNodes(); };
+    /**
+     * @param {?} el
+     * @param {?} baseUrl
+     * @param {?} href
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.resolveAndSetHref = function (el, baseUrl, href) {
         el.href = href == null ? baseUrl : baseUrl + '/../' + href;
     };
+    /**
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.supportsDOMEvents = function () { return true; };
+    /**
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.supportsNativeShadowDOM = function () {
-        return typeof this.defaultDoc().body.createShadowRoot === 'function';
+        return typeof ((this.defaultDoc().body)).createShadowRoot === 'function';
     };
+    /**
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.getAnimationPrefix = function () { return this._animationPrefix ? this._animationPrefix : ''; };
+    /**
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.getTransitionEnd = function () { return this._transitionEnd ? this._transitionEnd : ''; };
+    /**
+     * @return {?}
+     */
     GenericBrowserDomAdapter.prototype.supportsAnimation = function () {
         return isPresent(this._animationPrefix) && isPresent(this._transitionEnd);
     };
     return GenericBrowserDomAdapter;
 }(DomAdapter));
+function GenericBrowserDomAdapter_tsickle_Closure_declarations() {
+    /** @type {?} */
+    GenericBrowserDomAdapter.prototype._animationPrefix;
+    /** @type {?} */
+    GenericBrowserDomAdapter.prototype._transitionEnd;
+}
 //# sourceMappingURL=generic_browser_adapter.js.map

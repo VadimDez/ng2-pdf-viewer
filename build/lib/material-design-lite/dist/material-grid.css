@@ -1,6 +1,6 @@
 /**
  * material-design-lite - Material Design Components in CSS, JS and HTML
- * @version v1.2.1
+ * @version v1.3.0
  * @license Apache-2.0
  * @copyright 2015 Google, Inc.
  * @link https://github.com/google/material-design-lite
@@ -391,6 +391,7 @@
 .mdl-cell--middle {
   -webkit-align-self: center;
       -ms-flex-item-align: center;
+              -ms-grid-row-align: center;
           align-self: center; }
 
 .mdl-cell--bottom {
@@ -401,6 +402,7 @@
 .mdl-cell--stretch {
   -webkit-align-self: stretch;
       -ms-flex-item-align: stretch;
+              -ms-grid-row-align: stretch;
           align-self: stretch; }
 
 .mdl-grid.mdl-grid--no-spacing > .mdl-cell {

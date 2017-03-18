@@ -9,28 +9,28 @@ import { ParseSourceSpan } from '../parse_util';
 export declare class Message {
     nodes: Node[];
     placeholders: {
-        [name: string]: string;
+        [phName: string]: string;
     };
-    placeholderToMsgIds: {
-        [name: string]: string;
+    placeholderToMessage: {
+        [phName: string]: Message;
     };
     meaning: string;
     description: string;
     /**
      * @param nodes message AST
      * @param placeholders maps placeholder names to static content
-     * @param placeholderToMsgIds maps placeholder names to translatable message IDs (used for ICU
-     *                            messages)
+     * @param placeholderToMessage maps placeholder names to messages (used for nested ICU messages)
      * @param meaning
      * @param description
      */
     constructor(nodes: Node[], placeholders: {
-        [name: string]: string;
-    }, placeholderToMsgIds: {
-        [name: string]: string;
+        [phName: string]: string;
+    }, placeholderToMessage: {
+        [phName: string]: Message;
     }, meaning: string, description: string);
 }
 export interface Node {
+    sourceSpan: ParseSourceSpan;
     visit(visitor: Visitor, context?: any): any;
 }
 export declare class Text implements Node {
@@ -52,6 +52,7 @@ export declare class Icu implements Node {
         [k: string]: Node;
     };
     sourceSpan: ParseSourceSpan;
+    expressionPlaceholder: string;
     constructor(expression: string, type: string, cases: {
         [k: string]: Node;
     }, sourceSpan: ParseSourceSpan);

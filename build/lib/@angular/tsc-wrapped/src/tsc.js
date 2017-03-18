@@ -1,13 +1,55 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var fs_1 = require('fs');
 var path = require('path');
 var ts = require('typescript');
+var UserError = (function (_super) {
+    __extends(UserError, _super);
+    function UserError(message) {
+        // Errors don't use current this, instead they create a new instance.
+        // We have to do forward all of our api to the nativeInstance.
+        var nativeError = _super.call(this, message);
+        this._nativeError = nativeError;
+    }
+    Object.defineProperty(UserError.prototype, "message", {
+        get: function () { return this._nativeError.message; },
+        set: function (message) { this._nativeError.message = message; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(UserError.prototype, "name", {
+        get: function () { return 'UserError'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(UserError.prototype, "stack", {
+        get: function () { return this._nativeError.stack; },
+        set: function (value) { this._nativeError.stack = value; },
+        enumerable: true,
+        configurable: true
+    });
+    UserError.prototype.toString = function () { return this._nativeError.toString(); };
+    return UserError;
+}(Error));
+exports.UserError = UserError;
 var DEBUG = false;
 function debug(msg) {
     var o = [];
     for (var _i = 1; _i < arguments.length; _i++) {
         o[_i - 1] = arguments[_i];
     }
+    // tslint:disable-next-line:no-console
     if (DEBUG)
         console.log.apply(console, [msg].concat(o));
 }
@@ -28,10 +70,29 @@ function formatDiagnostics(diags) {
 exports.formatDiagnostics = formatDiagnostics;
 function check(diags) {
     if (diags && diags.length && diags[0]) {
-        throw new Error(formatDiagnostics(diags));
+        throw new UserError(formatDiagnostics(diags));
     }
 }
 exports.check = check;
+function validateAngularCompilerOptions(options) {
+    if (options.annotationsAs) {
+        switch (options.annotationsAs) {
+            case 'decorators':
+            case 'static fields':
+                break;
+            default:
+                return [{
+                        file: null,
+                        start: null,
+                        length: null,
+                        messageText: 'Angular compiler options "annotationsAs" only supports "static fields" and "decorators"',
+                        category: ts.DiagnosticCategory.Error,
+                        code: 0
+                    }];
+        }
+    }
+}
+exports.validateAngularCompilerOptions = validateAngularCompilerOptions;
 var Tsc = (function () {
     function Tsc(readFile, readDirectory) {
         if (readFile === void 0) { readFile = ts.sys.readFile; }
@@ -72,6 +133,7 @@ var Tsc = (function () {
             var key = _b[_i];
             this.ngOptions[key] = this.parsed.options[key];
         }
+        check(validateAngularCompilerOptions(this.ngOptions));
         return { parsed: this.parsed, ngOptions: this.ngOptions };
     };
     Tsc.prototype.typeCheck = function (compilerHost, program) {
@@ -85,14 +147,11 @@ var Tsc = (function () {
         }
         check(diagnostics);
     };
-    Tsc.prototype.emit = function (compilerHost, oldProgram) {
-        // Create a new program since the host may be different from the old program.
-        var program = ts.createProgram(this.parsed.fileNames, this.parsed.options, compilerHost);
+    Tsc.prototype.emit = function (program) {
         debug('Emitting outputs...');
         var emitResult = program.emit();
         var diagnostics = [];
         diagnostics.push.apply(diagnostics, emitResult.diagnostics);
-        check(compilerHost.diagnostics);
         return emitResult.emitSkipped ? 1 : 0;
     };
     return Tsc;

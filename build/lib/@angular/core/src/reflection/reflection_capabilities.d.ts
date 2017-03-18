@@ -1,13 +1,20 @@
 import { Type } from '../type';
 import { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
 import { GetterFn, MethodFn, SetterFn } from './types';
+/**
+ * Attention: This regex has to hold even if the code is minified!
+ */
+export declare const DELEGATE_CTOR: RegExp;
 export declare class ReflectionCapabilities implements PlatformReflectionCapabilities {
     private _reflect;
     constructor(reflect?: any);
     isReflectionEnabled(): boolean;
     factory<T>(t: Type<T>): (args: any[]) => T;
+    private _ownParameters(type, parentCtor);
     parameters(type: Type<any>): any[][];
+    private _ownAnnotations(typeOrFunc, parentCtor);
     annotations(typeOrFunc: Type<any>): any[];
+    private _ownPropMetadata(typeOrFunc, parentCtor);
     propMetadata(typeOrFunc: any): {
         [key: string]: any[];
     };

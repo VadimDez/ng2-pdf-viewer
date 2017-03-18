@@ -17,13 +17,11 @@ export declare class MessageBundle {
     private _htmlParser;
     private _implicitTags;
     private _implicitAttrs;
-    private _messageMap;
+    private _messages;
     constructor(_htmlParser: HtmlParser, _implicitTags: string[], _implicitAttrs: {
         [k: string]: string[];
     });
     updateFromTemplate(html: string, url: string, interpolationConfig: InterpolationConfig): ParseError[];
-    getMessageMap(): {
-        [id: string]: Message;
-    };
+    getMessages(): Message[];
     write(serializer: Serializer): string;
 }

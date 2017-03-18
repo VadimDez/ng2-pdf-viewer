@@ -301,6 +301,7 @@
   font-size: 32px;
 }
 </style>
+<!-- Icon badge on icon -->
 <div class="material-icons mdl-badge mdl-badge--overlap" data-badge="♥">account_box</div>
 
 
@@ -323,7 +324,8 @@
   <div class="snippet-code">
     <pre class="language-markup codepen-button-enabled"><code id="badge/badge-on-icon-text.html">&lt;!-- Number badge on icon --&gt;
 &lt;div class=&quot;material-icons mdl-badge mdl-badge--overlap&quot; data-badge=&quot;1&quot;&gt;account_box&lt;/div&gt;
-</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="badge/badge-on-icon-icon.html">&lt;div class=&quot;material-icons mdl-badge mdl-badge--overlap&quot; data-badge=&quot;♥&quot;&gt;account_box&lt;/div&gt;
+</code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><code id="badge/badge-on-icon-icon.html">&lt;!-- Icon badge on icon --&gt;
+&lt;div class=&quot;material-icons mdl-badge mdl-badge--overlap&quot; data-badge=&quot;♥&quot;&gt;account_box&lt;/div&gt;
 </code><div class="codepen-extra-css">&lt;style&gt;&lt;/style&gt;</div><div class="codepen-extra-css">&lt;style&gt;
 body {
   padding: 20px;
@@ -1814,6 +1816,11 @@ body {
 <td><code>mdl-card__actions</code></td>
 <td>Defines div as a card actions container and assigns appropriate text characteristics to actions text</td>
 <td>Required on &quot;inner&quot; actions div; content goes directly inside the div with no intervening containers</td>
+</tr>
+<tr>
+<td><code>mdl-card__menu</code></td>
+<td>Defines element as top right menu button</td>
+<td>Optional. Should be a child of the <code>mdl-card</code> element.</td>
 </tr>
 </tbody>
 </table>
@@ -3672,6 +3679,11 @@ After your dialog markup is created, add the event listeners to the page to trig
 <td>Required on tab section elements</td>
 </tr>
 <tr>
+<td><code>mdl-layout__tab-manual-switch</code></td>
+<td>Disables tab switching when clicking on tab separators. Useful for disabling default behavior and setting up your own event listeners.</td>
+<td>Optional; goes on tab bar element</td>
+</tr>
+<tr>
 <td><code>mdl-layout--fixed-tabs</code></td>
 <td>Uses fixed tabs instead of the default scrollable tabs</td>
 <td>Optional; goes on outer div element (not div inside header)</td>
@@ -5347,10 +5359,10 @@ body {
       <i class="material-icons  mdl-list__item-avatar">person</i>
       Aaron Paul
     </span>
-      <span class="mdl-list__item-secondary-action">
-        <label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="list-option-1">
-          <input type="radio" id="list-option-1" class="mdl-radio__button" name="options" value="1" checked />
-        </label>
+    <span class="mdl-list__item-secondary-action">
+      <label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="list-option-1">
+        <input type="radio" id="list-option-1" class="mdl-radio__button" name="options" value="1" checked />
+      </label>
     </span>
   </li>
   <li class="mdl-list__item">
@@ -5358,10 +5370,10 @@ body {
       <i class="material-icons  mdl-list__item-avatar">person</i>
       Bob Odenkirk
     </span>
-      <span class="mdl-list__item-secondary-action">
-        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="list-switch-1">
-          <input type="checkbox" id="list-switch-1" class="mdl-switch__input" checked />
-        </label>
+    <span class="mdl-list__item-secondary-action">
+      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="list-switch-1">
+        <input type="checkbox" id="list-switch-1" class="mdl-switch__input" checked />
+      </label>
     </span>
   </li>
 </ul>
@@ -5408,10 +5420,10 @@ body {
       &lt;i class=&quot;material-icons  mdl-list__item-avatar&quot;&gt;person&lt;/i&gt;
       Aaron Paul
     &lt;/span&gt;
-      &lt;span class=&quot;mdl-list__item-secondary-action&quot;&gt;
-        &lt;label class=&quot;demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect&quot; for=&quot;list-option-1&quot;&gt;
-          &lt;input type=&quot;radio&quot; id=&quot;list-option-1&quot; class=&quot;mdl-radio__button&quot; name=&quot;options&quot; value=&quot;1&quot; checked /&gt;
-        &lt;/label&gt;
+    &lt;span class=&quot;mdl-list__item-secondary-action&quot;&gt;
+      &lt;label class=&quot;demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect&quot; for=&quot;list-option-1&quot;&gt;
+        &lt;input type=&quot;radio&quot; id=&quot;list-option-1&quot; class=&quot;mdl-radio__button&quot; name=&quot;options&quot; value=&quot;1&quot; checked /&gt;
+      &lt;/label&gt;
     &lt;/span&gt;
   &lt;/li&gt;
   &lt;li class=&quot;mdl-list__item&quot;&gt;
@@ -5419,10 +5431,10 @@ body {
       &lt;i class=&quot;material-icons  mdl-list__item-avatar&quot;&gt;person&lt;/i&gt;
       Bob Odenkirk
     &lt;/span&gt;
-      &lt;span class=&quot;mdl-list__item-secondary-action&quot;&gt;
-        &lt;label class=&quot;mdl-switch mdl-js-switch mdl-js-ripple-effect&quot; for=&quot;list-switch-1&quot;&gt;
-          &lt;input type=&quot;checkbox&quot; id=&quot;list-switch-1&quot; class=&quot;mdl-switch__input&quot; checked /&gt;
-        &lt;/label&gt;
+    &lt;span class=&quot;mdl-list__item-secondary-action&quot;&gt;
+      &lt;label class=&quot;mdl-switch mdl-js-switch mdl-js-ripple-effect&quot; for=&quot;list-switch-1&quot;&gt;
+        &lt;input type=&quot;checkbox&quot; id=&quot;list-switch-1&quot; class=&quot;mdl-switch__input&quot; checked /&gt;
+      &lt;/label&gt;
     &lt;/span&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
@@ -5785,22 +5797,22 @@ Spec</a> to know more about the content options.</p>
 <tr>
 <td>.mdl-list__item-secondary-content</td>
 <td style="text-align:center">Defines the secondary content sub-division</td>
-<td style="text-align:right">requires <code>.mdl-list__item-two-line</code> or <code>.mdl-list__item-three-line</code></td>
+<td style="text-align:right">requires <code>.mdl-list__item--two-line</code> or <code>.mdl-list__item--three-line</code></td>
 </tr>
 <tr>
 <td>.mdl-list__item-secondary-info</td>
 <td style="text-align:center">Defines the information sub-division</td>
-<td style="text-align:right">requires <code>.mdl-list__item-two-line</code> or <code>.mdl-list__item-three-line</code></td>
+<td style="text-align:right">requires <code>.mdl-list__item--two-line</code> or <code>.mdl-list__item--three-line</code></td>
 </tr>
 <tr>
 <td>.mdl-list__item-secondary-action</td>
 <td style="text-align:center">Defines the Action sub-division</td>
-<td style="text-align:right">requires <code>.mdl-list__item-two-line</code> or <code>.mdl-list__item-three-line</code></td>
+<td style="text-align:right">requires <code>.mdl-list__item--two-line</code> or <code>.mdl-list__item--three-line</code></td>
 </tr>
 <tr>
 <td>.mdl-list__item-text-body</td>
 <td style="text-align:center">Defines the Text Body sub-division</td>
-<td style="text-align:right">requires <code>.mdl-list__item-three-line</code></td>
+<td style="text-align:right">requires <code>.mdl-list__item--three-line</code></td>
 </tr>
 </tbody>
 </table>

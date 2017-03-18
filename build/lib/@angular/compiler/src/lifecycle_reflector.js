@@ -6,9 +6,18 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { LifecycleHooks, reflector } from './private_import_core';
+/**
+ * @param {?} hook
+ * @param {?} token
+ * @return {?}
+ */
 export function hasLifecycleHook(hook, token) {
     return reflector.hasLifecycleHook(token, getHookName(hook));
 }
+/**
+ * @param {?} hook
+ * @return {?}
+ */
 function getHookName(hook) {
     switch (hook) {
         case LifecycleHooks.OnInit:

@@ -14,13 +14,13 @@
     ]
   ],
   "_from": "@angular/platform-browser-dynamic@>=2.2.1 <3.0.0",
-  "_id": "@angular/platform-browser-dynamic@2.2.1",
+  "_id": "@angular/platform-browser-dynamic@2.4.7",
   "_inCache": true,
   "_location": "/@angular/platform-browser-dynamic",
   "_nodeVersion": "6.9.1",
   "_npmOperationalInternal": {
-    "host": "packages-18-east.internal.npmjs.com",
-    "tmp": "tmp/platform-browser-dynamic-2.2.1.tgz_1479411149589_0.9771876884624362"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/platform-browser-dynamic-2.4.7.tgz_1486615234258_0.652232006425038"
   },
   "_npmUser": {
     "name": "angular",
@@ -40,8 +40,8 @@
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.2.1.tgz",
-  "_shasum": "561d32982fee4b68b474ba474c7f3c4d94bfeb6c",
+  "_resolved": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.4.7.tgz",
+  "_shasum": "9632586f9ce596186be4c124c3ea0a4a74b27b46",
   "_shrinkwrap": null,
   "_spec": "@angular/platform-browser-dynamic@^2.2.1",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
@@ -56,8 +56,8 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "561d32982fee4b68b474ba474c7f3c4d94bfeb6c",
-    "tarball": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.2.1.tgz"
+    "shasum": "9632586f9ce596186be4c124c3ea0a4a74b27b46",
+    "tarball": "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.4.7.tgz"
   },
   "homepage": "https://github.com/angular/angular#readme",
   "license": "MIT",
@@ -72,10 +72,10 @@
   "name": "@angular/platform-browser-dynamic",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/core": "2.2.1",
-    "@angular/common": "2.2.1",
-    "@angular/compiler": "2.2.1",
-    "@angular/platform-browser": "2.2.1"
+    "@angular/core": "2.4.7",
+    "@angular/common": "2.4.7",
+    "@angular/compiler": "2.4.7",
+    "@angular/platform-browser": "2.4.7"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -84,5 +84,5 @@
   },
   "scripts": {},
   "typings": "index.d.ts",
-  "version": "2.2.1"
+  "version": "2.4.7"
 }

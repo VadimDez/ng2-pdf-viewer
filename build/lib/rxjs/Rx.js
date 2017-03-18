@@ -60,7 +60,6 @@ require('./add/operator/defaultIfEmpty');
 require('./add/operator/delay');
 require('./add/operator/delayWhen');
 require('./add/operator/distinct');
-require('./add/operator/distinctKey');
 require('./add/operator/distinctUntilChanged');
 require('./add/operator/distinctUntilKeyChanged');
 require('./add/operator/do');

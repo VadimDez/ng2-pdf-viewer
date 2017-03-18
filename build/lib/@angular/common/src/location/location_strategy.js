@@ -9,24 +9,76 @@ import { OpaqueToken } from '@angular/core';
 /**
  * `LocationStrategy` is responsible for representing and reading route state
  * from the browser's URL. Angular provides two strategies:
- * {@link HashLocationStrategy} and {@link PathLocationStrategy} (default).
+ * {\@link HashLocationStrategy} and {\@link PathLocationStrategy}.
  *
- * This is used under the hood of the {@link Location} service.
+ * This is used under the hood of the {\@link Location} service.
  *
- * Applications should use the {@link Router} or {@link Location} services to
+ * Applications should use the {\@link Router} or {\@link Location} services to
  * interact with application route state.
  *
- * For instance, {@link HashLocationStrategy} produces URLs like
- * `http://example.com#/foo`, and {@link PathLocationStrategy} produces
+ * For instance, {\@link HashLocationStrategy} produces URLs like
+ * `http://example.com#/foo`, and {\@link PathLocationStrategy} produces
  * `http://example.com/foo` as an equivalent URL.
  *
  * See these two classes for more.
  *
- * @stable
+ * \@stable
+ * @abstract
  */
 export var LocationStrategy = (function () {
     function LocationStrategy() {
     }
+    /**
+     * @abstract
+     * @param {?=} includeHash
+     * @return {?}
+     */
+    LocationStrategy.prototype.path = function (includeHash) { };
+    /**
+     * @abstract
+     * @param {?} internal
+     * @return {?}
+     */
+    LocationStrategy.prototype.prepareExternalUrl = function (internal) { };
+    /**
+     * @abstract
+     * @param {?} state
+     * @param {?} title
+     * @param {?} url
+     * @param {?} queryParams
+     * @return {?}
+     */
+    LocationStrategy.prototype.pushState = function (state, title, url, queryParams) { };
+    /**
+     * @abstract
+     * @param {?} state
+     * @param {?} title
+     * @param {?} url
+     * @param {?} queryParams
+     * @return {?}
+     */
+    LocationStrategy.prototype.replaceState = function (state, title, url, queryParams) { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    LocationStrategy.prototype.forward = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    LocationStrategy.prototype.back = function () { };
+    /**
+     * @abstract
+     * @param {?} fn
+     * @return {?}
+     */
+    LocationStrategy.prototype.onPopState = function (fn) { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    LocationStrategy.prototype.getBaseHref = function () { };
     return LocationStrategy;
 }());
 /**
@@ -51,5 +103,5 @@ export var LocationStrategy = (function () {
  *
  * @stable
  */
-export var APP_BASE_HREF = new OpaqueToken('appBaseHref');
+export var /** @type {?} */ APP_BASE_HREF = new OpaqueToken('appBaseHref');
 //# sourceMappingURL=location_strategy.js.map

@@ -71,7 +71,8 @@ export declare class Identifiers {
     static noop: IdentifierSpec;
 }
 export declare function assetUrl(pkg: string, path?: string, type?: string): string;
-export declare function resolveIdentifier(identifier: IdentifierSpec): CompileIdentifierMetadata;
+export declare function resolveIdentifier(identifier: IdentifierSpec): any;
+export declare function createIdentifier(identifier: IdentifierSpec): CompileIdentifierMetadata;
 export declare function identifierToken(identifier: CompileIdentifierMetadata): CompileTokenMetadata;
-export declare function resolveIdentifierToken(identifier: IdentifierSpec): CompileTokenMetadata;
-export declare function resolveEnumIdentifier(enumType: CompileIdentifierMetadata, name: string): CompileIdentifierMetadata;
+export declare function createIdentifierToken(identifier: IdentifierSpec): CompileTokenMetadata;
+export declare function createEnumIdentifier(enumType: IdentifierSpec, name: string): CompileIdentifierMetadata;

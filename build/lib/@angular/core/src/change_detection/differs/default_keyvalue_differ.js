@@ -9,7 +9,15 @@ import { isJsObject, looseIdentical, stringify } from '../../facade/lang';
 export var DefaultKeyValueDifferFactory = (function () {
     function DefaultKeyValueDifferFactory() {
     }
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     DefaultKeyValueDifferFactory.prototype.supports = function (obj) { return obj instanceof Map || isJsObject(obj); };
+    /**
+     * @param {?} cdRef
+     * @return {?}
+     */
     DefaultKeyValueDifferFactory.prototype.create = function (cdRef) { return new DefaultKeyValueDiffer(); };
     return DefaultKeyValueDifferFactory;
 }());
@@ -26,6 +34,9 @@ export var DefaultKeyValueDiffer = (function () {
         this._removalsTail = null;
     }
     Object.defineProperty(DefaultKeyValueDiffer.prototype, "isDirty", {
+        /**
+         * @return {?}
+         */
         get: function () {
             return this._additionsHead !== null || this._changesHead !== null ||
                 this._removalsHead !== null;
@@ -33,36 +44,60 @@ export var DefaultKeyValueDiffer = (function () {
         enumerable: true,
         configurable: true
     });
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.forEachItem = function (fn) {
-        var record;
+        var /** @type {?} */ record;
         for (record = this._mapHead; record !== null; record = record._next) {
             fn(record);
         }
     };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.forEachPreviousItem = function (fn) {
-        var record;
+        var /** @type {?} */ record;
         for (record = this._previousMapHead; record !== null; record = record._nextPrevious) {
             fn(record);
         }
     };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.forEachChangedItem = function (fn) {
-        var record;
+        var /** @type {?} */ record;
         for (record = this._changesHead; record !== null; record = record._nextChanged) {
             fn(record);
         }
     };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.forEachAddedItem = function (fn) {
-        var record;
+        var /** @type {?} */ record;
         for (record = this._additionsHead; record !== null; record = record._nextAdded) {
             fn(record);
         }
     };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.forEachRemovedItem = function (fn) {
-        var record;
+        var /** @type {?} */ record;
         for (record = this._removalsHead; record !== null; record = record._nextRemoved) {
             fn(record);
         }
     };
+    /**
+     * @param {?} map
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.diff = function (map) {
         if (!map) {
             map = new Map();
@@ -72,17 +107,24 @@ export var DefaultKeyValueDiffer = (function () {
         }
         return this.check(map) ? this : null;
     };
+    /**
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.onDestroy = function () { };
+    /**
+     * @param {?} map
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.check = function (map) {
         var _this = this;
         this._reset();
-        var records = this._records;
-        var oldSeqRecord = this._mapHead;
-        var lastOldSeqRecord = null;
-        var lastNewSeqRecord = null;
-        var seqChanged = false;
+        var /** @type {?} */ records = this._records;
+        var /** @type {?} */ oldSeqRecord = this._mapHead;
+        var /** @type {?} */ lastOldSeqRecord = null;
+        var /** @type {?} */ lastNewSeqRecord = null;
+        var /** @type {?} */ seqChanged = false;
         this._forEach(map, function (value, key) {
-            var newSeqRecord;
+            var /** @type {?} */ newSeqRecord;
             if (oldSeqRecord && key === oldSeqRecord.key) {
                 newSeqRecord = oldSeqRecord;
                 _this._maybeAddToChanges(newSeqRecord, value);
@@ -122,10 +164,13 @@ export var DefaultKeyValueDiffer = (function () {
         this._truncate(lastOldSeqRecord, oldSeqRecord);
         return this.isDirty;
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._reset = function () {
         if (this.isDirty) {
-            var record = void 0;
+            var /** @type {?} */ record = void 0;
             // Record the state of the mapping
             for (record = this._previousMapHead = this._mapHead; record !== null; record = record._next) {
                 record._nextPrevious = record._next;
@@ -141,7 +186,12 @@ export var DefaultKeyValueDiffer = (function () {
             this._removalsHead = this._removalsTail = null;
         }
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} lastRecord
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._truncate = function (lastRecord, record) {
         while (record !== null) {
             if (lastRecord === null) {
@@ -150,17 +200,22 @@ export var DefaultKeyValueDiffer = (function () {
             else {
                 lastRecord._next = null;
             }
-            var nextRecord = record._next;
+            var /** @type {?} */ nextRecord = record._next;
             this._addToRemovals(record);
             lastRecord = record;
             record = nextRecord;
         }
-        for (var rec = this._removalsHead; rec !== null; rec = rec._nextRemoved) {
+        for (var /** @type {?} */ rec = this._removalsHead; rec !== null; rec = rec._nextRemoved) {
             rec.previousValue = rec.currentValue;
             rec.currentValue = null;
             this._records.delete(rec.key);
         }
     };
+    /**
+     * @param {?} record
+     * @param {?} newValue
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._maybeAddToChanges = function (record, newValue) {
         if (!looseIdentical(newValue, record.currentValue)) {
             record.previousValue = record.currentValue;
@@ -168,12 +223,20 @@ export var DefaultKeyValueDiffer = (function () {
             this._addToChanges(record);
         }
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._isInRemovals = function (record) {
         return record === this._removalsHead || record._nextRemoved !== null ||
             record._prevRemoved !== null;
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._addToRemovals = function (record) {
         if (this._removalsHead === null) {
             this._removalsHead = this._removalsTail = record;
@@ -184,9 +247,14 @@ export var DefaultKeyValueDiffer = (function () {
             this._removalsTail = record;
         }
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} prev
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._removeFromSeq = function (prev, record) {
-        var next = record._next;
+        var /** @type {?} */ next = record._next;
         if (prev === null) {
             this._mapHead = next;
         }
@@ -195,10 +263,14 @@ export var DefaultKeyValueDiffer = (function () {
         }
         record._next = null;
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._removeFromRemovals = function (record) {
-        var prev = record._prevRemoved;
-        var next = record._nextRemoved;
+        var /** @type {?} */ prev = record._prevRemoved;
+        var /** @type {?} */ next = record._nextRemoved;
         if (prev === null) {
             this._removalsHead = next;
         }
@@ -213,7 +285,11 @@ export var DefaultKeyValueDiffer = (function () {
         }
         record._prevRemoved = record._nextRemoved = null;
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._addToAdditions = function (record) {
         if (this._additionsHead === null) {
             this._additionsHead = this._additionsTail = record;
@@ -223,7 +299,11 @@ export var DefaultKeyValueDiffer = (function () {
             this._additionsTail = record;
         }
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} record
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._addToChanges = function (record) {
         if (this._changesHead === null) {
             this._changesHead = this._changesTail = record;
@@ -233,13 +313,16 @@ export var DefaultKeyValueDiffer = (function () {
             this._changesTail = record;
         }
     };
+    /**
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype.toString = function () {
-        var items = [];
-        var previous = [];
-        var changes = [];
-        var additions = [];
-        var removals = [];
-        var record;
+        var /** @type {?} */ items = [];
+        var /** @type {?} */ previous = [];
+        var /** @type {?} */ changes = [];
+        var /** @type {?} */ additions = [];
+        var /** @type {?} */ removals = [];
+        var /** @type {?} */ record;
         for (record = this._mapHead; record !== null; record = record._next) {
             items.push(stringify(record));
         }
@@ -261,7 +344,12 @@ export var DefaultKeyValueDiffer = (function () {
             'changes: ' + changes.join(', ') + '\n' +
             'removals: ' + removals.join(', ') + '\n';
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} obj
+     * @param {?} fn
+     * @return {?}
+     */
     DefaultKeyValueDiffer.prototype._forEach = function (obj, fn) {
         if (obj instanceof Map) {
             obj.forEach(fn);
@@ -272,10 +360,33 @@ export var DefaultKeyValueDiffer = (function () {
     };
     return DefaultKeyValueDiffer;
 }());
+function DefaultKeyValueDiffer_tsickle_Closure_declarations() {
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._records;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._mapHead;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._previousMapHead;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._changesHead;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._changesTail;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._additionsHead;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._additionsTail;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._removalsHead;
+    /** @type {?} */
+    DefaultKeyValueDiffer.prototype._removalsTail;
+}
 /**
- * @stable
+ * \@stable
  */
 export var KeyValueChangeRecord = (function () {
+    /**
+     * @param {?} key
+     */
     function KeyValueChangeRecord(key) {
         this.key = key;
         this.previousValue = null;
@@ -293,6 +404,9 @@ export var KeyValueChangeRecord = (function () {
         /** @internal */
         this._nextChanged = null;
     }
+    /**
+     * @return {?}
+     */
     KeyValueChangeRecord.prototype.toString = function () {
         return looseIdentical(this.previousValue, this.currentValue) ?
             stringify(this.key) :
@@ -301,4 +415,42 @@ export var KeyValueChangeRecord = (function () {
     };
     return KeyValueChangeRecord;
 }());
+function KeyValueChangeRecord_tsickle_Closure_declarations() {
+    /** @type {?} */
+    KeyValueChangeRecord.prototype.previousValue;
+    /** @type {?} */
+    KeyValueChangeRecord.prototype.currentValue;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._nextPrevious;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._next;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._nextAdded;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._nextRemoved;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._prevRemoved;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    KeyValueChangeRecord.prototype._nextChanged;
+    /** @type {?} */
+    KeyValueChangeRecord.prototype.key;
+}
 //# sourceMappingURL=default_keyvalue_differ.js.map

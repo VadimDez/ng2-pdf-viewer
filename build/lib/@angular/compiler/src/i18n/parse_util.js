@@ -16,6 +16,10 @@ import { ParseError } from '../parse_util';
  */
 export var I18nError = (function (_super) {
     __extends(I18nError, _super);
+    /**
+     * @param {?} span
+     * @param {?} msg
+     */
     function I18nError(span, msg) {
         _super.call(this, span, msg);
     }

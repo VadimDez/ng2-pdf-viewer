@@ -95,7 +95,7 @@ export var SpyLocation = (function () {
         { type: Injectable },
     ];
     /** @nocollapse */
-    SpyLocation.ctorParameters = [];
+    SpyLocation.ctorParameters = function () { return []; };
     return SpyLocation;
 }());
 var LocationState = (function () {

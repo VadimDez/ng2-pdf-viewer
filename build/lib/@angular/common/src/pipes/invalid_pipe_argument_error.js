@@ -14,6 +14,10 @@ import { BaseError } from '../facade/errors';
 import { stringify } from '../facade/lang';
 export var InvalidPipeArgumentError = (function (_super) {
     __extends(InvalidPipeArgumentError, _super);
+    /**
+     * @param {?} type
+     * @param {?} value
+     */
     function InvalidPipeArgumentError(type, value) {
         _super.call(this, "Invalid argument '" + value + "' for pipe '" + stringify(type) + "'");
     }

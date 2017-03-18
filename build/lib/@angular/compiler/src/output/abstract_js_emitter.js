@@ -13,11 +13,19 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { isPresent } from '../facade/lang';
 import { AbstractEmitterVisitor, CATCH_ERROR_VAR, CATCH_STACK_VAR } from './abstract_emitter';
 import * as o from './output_ast';
+/**
+ * @abstract
+ */
 export var AbstractJsEmitterVisitor = (function (_super) {
     __extends(AbstractJsEmitterVisitor, _super);
     function AbstractJsEmitterVisitor() {
         _super.call(this, false);
     }
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitDeclareClassStmt = function (stmt, ctx) {
         var _this = this;
         ctx.pushClass(stmt);
@@ -32,6 +40,11 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.popClass();
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype._visitClassConstructor = function (stmt, ctx) {
         ctx.print("function " + stmt.name + "(");
         if (isPresent(stmt.constructorMethod)) {
@@ -48,6 +61,12 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.decIndent();
         ctx.println("}");
     };
+    /**
+     * @param {?} stmt
+     * @param {?} getter
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype._visitClassGetter = function (stmt, getter, ctx) {
         ctx.println("Object.defineProperty(" + stmt.name + ".prototype, '" + getter.name + "', { get: function() {");
         ctx.incIndent();
@@ -58,6 +77,12 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.decIndent();
         ctx.println("}});");
     };
+    /**
+     * @param {?} stmt
+     * @param {?} method
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype._visitClassMethod = function (stmt, method, ctx) {
         ctx.print(stmt.name + ".prototype." + method.name + " = function(");
         this._visitParams(method.params, ctx);
@@ -70,6 +95,11 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.decIndent();
         ctx.println("};");
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitReadVarExpr = function (ast, ctx) {
         if (ast.builtin === o.BuiltinVar.This) {
             ctx.print('self');
@@ -82,18 +112,33 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         }
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitDeclareVarStmt = function (stmt, ctx) {
         ctx.print("var " + stmt.name + " = ");
         stmt.value.visitExpression(this, ctx);
         ctx.println(";");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitCastExpr = function (ast, ctx) {
         ast.value.visitExpression(this, ctx);
         return null;
     };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitInvokeFunctionExpr = function (expr, ctx) {
-        var fnExpr = expr.fn;
+        var /** @type {?} */ fnExpr = expr.fn;
         if (fnExpr instanceof o.ReadVarExpr && fnExpr.builtin === o.BuiltinVar.Super) {
             ctx.currentClass.parent.visitExpression(this, ctx);
             ctx.print(".call(this");
@@ -108,6 +153,11 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         }
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitFunctionExpr = function (ast, ctx) {
         ctx.print("function(");
         this._visitParams(ast.params, ctx);
@@ -118,6 +168,11 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.print("}");
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitDeclareFunctionStmt = function (stmt, ctx) {
         ctx.print("function " + stmt.name + "(");
         this._visitParams(stmt.params, ctx);
@@ -128,6 +183,11 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.println("}");
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.visitTryCatchStmt = function (stmt, ctx) {
         ctx.println("try {");
         ctx.incIndent();
@@ -135,19 +195,28 @@ export var AbstractJsEmitterVisitor = (function (_super) {
         ctx.decIndent();
         ctx.println("} catch (" + CATCH_ERROR_VAR.name + ") {");
         ctx.incIndent();
-        var catchStmts = [CATCH_STACK_VAR.set(CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
+        var /** @type {?} */ catchStmts = [(CATCH_STACK_VAR.set(CATCH_ERROR_VAR.prop('stack')).toDeclStmt(null, [
                 o.StmtModifier.Final
-            ])].concat(stmt.catchStmts);
+            ]))].concat(stmt.catchStmts);
         this.visitAllStatements(catchStmts, ctx);
         ctx.decIndent();
         ctx.println("}");
         return null;
     };
+    /**
+     * @param {?} params
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype._visitParams = function (params, ctx) {
         this.visitAllObjects(function (param) { return ctx.print(param.name); }, params, ctx, ',');
     };
+    /**
+     * @param {?} method
+     * @return {?}
+     */
     AbstractJsEmitterVisitor.prototype.getBuiltinMethodName = function (method) {
-        var name;
+        var /** @type {?} */ name;
         switch (method) {
             case o.BuiltinMethod.ConcatArray:
                 name = 'concat';

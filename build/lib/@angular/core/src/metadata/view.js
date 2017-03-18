@@ -5,44 +5,22 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-/**
- * Defines template and style encapsulation options available for Component's {@link Component}.
- *
- * See {@link ViewMetadata#encapsulation}.
- * @stable
- */
-export var ViewEncapsulation;
-(function (ViewEncapsulation) {
-    /**
-     * Emulate `Native` scoping of styles by adding an attribute containing surrogate id to the Host
-     * Element and pre-processing the style rules provided via
-     * {@link ViewMetadata#styles} or {@link ViewMetadata#stylesUrls}, and adding the new Host Element
-     * attribute to all selectors.
-     *
-     * This is the default option.
-     */
-    ViewEncapsulation[ViewEncapsulation["Emulated"] = 0] = "Emulated";
-    /**
-     * Use the native encapsulation mechanism of the renderer.
-     *
-     * For the DOM this means using [Shadow DOM](https://w3c.github.io/webcomponents/spec/shadow/) and
-     * creating a ShadowRoot for Component's Host Element.
-     */
-    ViewEncapsulation[ViewEncapsulation["Native"] = 1] = "Native";
-    /**
-     * Don't provide any template or style encapsulation.
-     */
-    ViewEncapsulation[ViewEncapsulation["None"] = 2] = "None";
-})(ViewEncapsulation || (ViewEncapsulation = {}));
+export var ViewEncapsulation = {};
+ViewEncapsulation.Emulated = 0;
+ViewEncapsulation.Native = 1;
+ViewEncapsulation.None = 2;
+ViewEncapsulation[ViewEncapsulation.Emulated] = "Emulated";
+ViewEncapsulation[ViewEncapsulation.Native] = "Native";
+ViewEncapsulation[ViewEncapsulation.None] = "None";
 /**
  * Metadata properties available for configuring Views.
  *
- * For details on the `@Component` annotation, see {@link Component}.
+ * For details on the `\@Component` annotation, see {\@link Component}.
  *
  * ### Example
  *
  * ```
- * @Component({
+ * \@Component({
  *   selector: 'greet',
  *   template: 'Hello {{name}}!',
  * })
@@ -57,9 +35,12 @@ export var ViewEncapsulation;
  *
  * @deprecated Use Component instead.
  *
- * {@link Component}
+ * {\@link Component}
  */
 export var ViewMetadata = (function () {
+    /**
+     * @param {?=} __0
+     */
     function ViewMetadata(_a) {
         var _b = _a === void 0 ? {} : _a, templateUrl = _b.templateUrl, template = _b.template, encapsulation = _b.encapsulation, styles = _b.styles, styleUrls = _b.styleUrls, animations = _b.animations, interpolation = _b.interpolation;
         this.templateUrl = templateUrl;
@@ -72,4 +53,41 @@ export var ViewMetadata = (function () {
     }
     return ViewMetadata;
 }());
+function ViewMetadata_tsickle_Closure_declarations() {
+    /**
+     * {\@link Component.templateUrl}
+     * @type {?}
+     */
+    ViewMetadata.prototype.templateUrl;
+    /**
+     * {\@link Component.template}
+     * @type {?}
+     */
+    ViewMetadata.prototype.template;
+    /**
+     * {\@link Component.stylesUrl}
+     * @type {?}
+     */
+    ViewMetadata.prototype.styleUrls;
+    /**
+     * {\@link Component.styles}
+     * @type {?}
+     */
+    ViewMetadata.prototype.styles;
+    /**
+     * {\@link Component.encapsulation}
+     * @type {?}
+     */
+    ViewMetadata.prototype.encapsulation;
+    /**
+     * {\@link Component.animation}
+     * @type {?}
+     */
+    ViewMetadata.prototype.animations;
+    /**
+     * {\@link Component.interpolation}
+     * @type {?}
+     */
+    ViewMetadata.prototype.interpolation;
+}
 //# sourceMappingURL=view.js.map

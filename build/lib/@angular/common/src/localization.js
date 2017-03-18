@@ -12,11 +12,18 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 import { Inject, Injectable, LOCALE_ID } from '@angular/core';
 /**
- * @experimental
+ * \@experimental
+ * @abstract
  */
 export var NgLocalization = (function () {
     function NgLocalization() {
     }
+    /**
+     * @abstract
+     * @param {?} value
+     * @return {?}
+     */
+    NgLocalization.prototype.getPluralCategory = function (value) { };
     return NgLocalization;
 }());
 /**
@@ -24,25 +31,46 @@ export var NgLocalization = (function () {
  * - "=value" when the case exists,
  * - the plural category otherwise
  *
- * @internal
+ * \@internal
+ * @param {?} value
+ * @param {?} cases
+ * @param {?} ngLocalization
+ * @return {?}
  */
 export function getPluralCategory(value, cases, ngLocalization) {
-    var nbCase = "=" + value;
-    return cases.indexOf(nbCase) > -1 ? nbCase : ngLocalization.getPluralCategory(value);
+    var /** @type {?} */ key = "=" + value;
+    if (cases.indexOf(key) > -1) {
+        return key;
+    }
+    key = ngLocalization.getPluralCategory(value);
+    if (cases.indexOf(key) > -1) {
+        return key;
+    }
+    if (cases.indexOf('other') > -1) {
+        return 'other';
+    }
+    throw new Error("No plural message found for value \"" + value + "\"");
 }
 /**
  * Returns the plural case based on the locale
  *
- * @experimental
+ * \@experimental
  */
 export var NgLocaleLocalization = (function (_super) {
     __extends(NgLocaleLocalization, _super);
+    /**
+     * @param {?} _locale
+     */
     function NgLocaleLocalization(_locale) {
         _super.call(this);
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @return {?}
+     */
     NgLocaleLocalization.prototype.getPluralCategory = function (value) {
-        var plural = getPluralCase(this._locale, value);
+        var /** @type {?} */ plural = getPluralCase(this._locale, value);
         switch (plural) {
             case Plural.Zero:
                 return 'zero';
@@ -62,40 +90,55 @@ export var NgLocaleLocalization = (function (_super) {
         { type: Injectable },
     ];
     /** @nocollapse */
-    NgLocaleLocalization.ctorParameters = [
+    NgLocaleLocalization.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return NgLocaleLocalization;
 }(NgLocalization));
-// This is generated code DO NOT MODIFY
-// see angular2/script/cldr/gen_plural_rules.js
-/** @experimental */
-export var Plural;
-(function (Plural) {
-    Plural[Plural["Zero"] = 0] = "Zero";
-    Plural[Plural["One"] = 1] = "One";
-    Plural[Plural["Two"] = 2] = "Two";
-    Plural[Plural["Few"] = 3] = "Few";
-    Plural[Plural["Many"] = 4] = "Many";
-    Plural[Plural["Other"] = 5] = "Other";
-})(Plural || (Plural = {}));
+function NgLocaleLocalization_tsickle_Closure_declarations() {
+    /** @type {?} */
+    NgLocaleLocalization.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    NgLocaleLocalization.ctorParameters;
+    /** @type {?} */
+    NgLocaleLocalization.prototype._locale;
+}
+export var Plural = {};
+Plural.Zero = 0;
+Plural.One = 1;
+Plural.Two = 2;
+Plural.Few = 3;
+Plural.Many = 4;
+Plural.Other = 5;
+Plural[Plural.Zero] = "Zero";
+Plural[Plural.One] = "One";
+Plural[Plural.Two] = "Two";
+Plural[Plural.Few] = "Few";
+Plural[Plural.Many] = "Many";
+Plural[Plural.Other] = "Other";
 /**
  * Returns the plural case based on the locale
  *
- * @experimental
+ * \@experimental
+ * @param {?} locale
+ * @param {?} nLike
+ * @return {?}
  */
 export function getPluralCase(locale, nLike) {
     // TODO(vicb): lazy compute
     if (typeof nLike === 'string') {
-        nLike = parseInt(nLike, 10);
+        nLike = parseInt(/** @type {?} */ (nLike), 10);
     }
-    var n = nLike;
-    var nDecimal = n.toString().replace(/^[^.]*\.?/, '');
-    var i = Math.floor(Math.abs(n));
-    var v = nDecimal.length;
-    var f = parseInt(nDecimal, 10);
-    var t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
-    var lang = locale.split('-')[0].toLowerCase();
+    var /** @type {?} */ n = (nLike);
+    var /** @type {?} */ nDecimal = n.toString().replace(/^[^.]*\.?/, '');
+    var /** @type {?} */ i = Math.floor(Math.abs(n));
+    var /** @type {?} */ v = nDecimal.length;
+    var /** @type {?} */ f = parseInt(nDecimal, 10);
+    var /** @type {?} */ t = parseInt(n.toString().replace(/^[^.]*\.?|0+$/g, ''), 10) || 0;
+    var /** @type {?} */ lang = locale.split('-')[0].toLowerCase();
     switch (lang) {
         case 'af':
         case 'asa':

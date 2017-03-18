@@ -6,11 +6,11 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ViewEncapsulation, isDevMode } from '@angular/core';
-import { Identifiers, resolveIdentifier } from './identifiers';
-function unimplemented() {
-    throw new Error('unimplemented');
-}
+import { Identifiers, createIdentifier } from './identifiers';
 export var CompilerConfig = (function () {
+    /**
+     * @param {?=} __0
+     */
     function CompilerConfig(_a) {
         var _b = _a === void 0 ? {} : _a, _c = _b.renderTypes, renderTypes = _c === void 0 ? new DefaultRenderTypes() : _c, _d = _b.defaultEncapsulation, defaultEncapsulation = _d === void 0 ? ViewEncapsulation.Emulated : _d, genDebugInfo = _b.genDebugInfo, logBindingUpdate = _b.logBindingUpdate, _e = _b.useJit, useJit = _e === void 0 ? true : _e;
         this.renderTypes = renderTypes;
@@ -20,6 +20,9 @@ export var CompilerConfig = (function () {
         this.useJit = useJit;
     }
     Object.defineProperty(CompilerConfig.prototype, "genDebugInfo", {
+        /**
+         * @return {?}
+         */
         get: function () {
             return this._genDebugInfo === void 0 ? isDevMode() : this._genDebugInfo;
         },
@@ -27,6 +30,9 @@ export var CompilerConfig = (function () {
         configurable: true
     });
     Object.defineProperty(CompilerConfig.prototype, "logBindingUpdate", {
+        /**
+         * @return {?}
+         */
         get: function () {
             return this._logBindingUpdate === void 0 ? isDevMode() : this._logBindingUpdate;
         },
@@ -35,44 +41,57 @@ export var CompilerConfig = (function () {
     });
     return CompilerConfig;
 }());
+function CompilerConfig_tsickle_Closure_declarations() {
+    /** @type {?} */
+    CompilerConfig.prototype.renderTypes;
+    /** @type {?} */
+    CompilerConfig.prototype.defaultEncapsulation;
+    /** @type {?} */
+    CompilerConfig.prototype._genDebugInfo;
+    /** @type {?} */
+    CompilerConfig.prototype._logBindingUpdate;
+    /** @type {?} */
+    CompilerConfig.prototype.useJit;
+}
 /**
  * Types used for the renderer.
  * Can be replaced to specialize the generated output to a specific renderer
  * to help tree shaking.
+ * @abstract
  */
 export var RenderTypes = (function () {
     function RenderTypes() {
     }
-    Object.defineProperty(RenderTypes.prototype, "renderer", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RenderTypes.prototype, "renderText", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RenderTypes.prototype, "renderElement", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RenderTypes.prototype, "renderComment", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RenderTypes.prototype, "renderNode", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(RenderTypes.prototype, "renderEvent", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderer = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderText = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderElement = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderComment = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderNode = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    RenderTypes.prototype.renderEvent = function () { };
     return RenderTypes;
 }());
 export var DefaultRenderTypes = (function () {
@@ -84,11 +103,26 @@ export var DefaultRenderTypes = (function () {
         this.renderEvent = null;
     }
     Object.defineProperty(DefaultRenderTypes.prototype, "renderer", {
-        get: function () { return resolveIdentifier(Identifiers.Renderer); },
+        /**
+         * @return {?}
+         */
+        get: function () { return createIdentifier(Identifiers.Renderer); },
         enumerable: true,
         configurable: true
     });
     ;
     return DefaultRenderTypes;
 }());
+function DefaultRenderTypes_tsickle_Closure_declarations() {
+    /** @type {?} */
+    DefaultRenderTypes.prototype.renderText;
+    /** @type {?} */
+    DefaultRenderTypes.prototype.renderElement;
+    /** @type {?} */
+    DefaultRenderTypes.prototype.renderComment;
+    /** @type {?} */
+    DefaultRenderTypes.prototype.renderNode;
+    /** @type {?} */
+    DefaultRenderTypes.prototype.renderEvent;
+}
 //# sourceMappingURL=config.js.map

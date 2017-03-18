@@ -936,7 +936,7 @@ export interface HostListener {
     args?: string[];
 }
 /**
- * HostBinding decorator and metadata.
+ * HostListener decorator and metadata.
  *
  * @stable
  * @Annotation

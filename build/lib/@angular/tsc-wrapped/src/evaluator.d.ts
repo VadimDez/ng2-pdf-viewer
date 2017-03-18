@@ -1,4 +1,12 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import * as ts from 'typescript';
+import { CollectorOptions } from './collector';
 import { MetadataEntry, MetadataError, MetadataValue } from './schema';
 import { Symbols } from './symbols';
 export declare function isPrimitive(value: any): boolean;
@@ -22,7 +30,8 @@ export declare function errorSymbol(message: string, node?: ts.Node, context?: {
 export declare class Evaluator {
     private symbols;
     private nodeMap;
-    constructor(symbols: Symbols, nodeMap: Map<MetadataEntry, ts.Node>);
+    private options;
+    constructor(symbols: Symbols, nodeMap: Map<MetadataEntry, ts.Node>, options?: CollectorOptions);
     nameOf(node: ts.Node): string | MetadataError;
     /**
      * Returns true if the expression represented by `node` can be folded into a literal expression.

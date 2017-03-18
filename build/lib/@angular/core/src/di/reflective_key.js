@@ -8,24 +8,26 @@
 import { stringify } from '../facade/lang';
 import { resolveForwardRef } from './forward_ref';
 /**
- * A unique object used for retrieving items from the {@link ReflectiveInjector}.
+ * A unique object used for retrieving items from the {\@link ReflectiveInjector}.
  *
  * Keys have:
  * - a system-wide unique `id`.
  * - a `token`.
  *
- * `Key` is used internally by {@link ReflectiveInjector} because its system-wide unique `id` allows
+ * `Key` is used internally by {\@link ReflectiveInjector} because its system-wide unique `id` allows
  * the
  * injector to store created objects in a more efficient way.
  *
- * `Key` should not be created directly. {@link ReflectiveInjector} creates keys automatically when
+ * `Key` should not be created directly. {\@link ReflectiveInjector} creates keys automatically when
  * resolving
  * providers.
- * @experimental
+ * \@experimental
  */
 export var ReflectiveKey = (function () {
     /**
      * Private
+     * @param {?} token
+     * @param {?} id
      */
     function ReflectiveKey(token, id) {
         this.token = token;
@@ -37,6 +39,7 @@ export var ReflectiveKey = (function () {
     Object.defineProperty(ReflectiveKey.prototype, "displayName", {
         /**
          * Returns a stringified token.
+         * @return {?}
          */
         get: function () { return stringify(this.token); },
         enumerable: true,
@@ -44,13 +47,15 @@ export var ReflectiveKey = (function () {
     });
     /**
      * Retrieves a `Key` for a token.
+     * @param {?} token
+     * @return {?}
      */
     ReflectiveKey.get = function (token) {
         return _globalKeyRegistry.get(resolveForwardRef(token));
     };
     Object.defineProperty(ReflectiveKey, "numberOfKeys", {
         /**
-         * @returns the number of keys registered in the system.
+         * @return {?} the number of keys registered in the system.
          */
         get: function () { return _globalKeyRegistry.numberOfKeys; },
         enumerable: true,
@@ -58,29 +63,46 @@ export var ReflectiveKey = (function () {
     });
     return ReflectiveKey;
 }());
+function ReflectiveKey_tsickle_Closure_declarations() {
+    /** @type {?} */
+    ReflectiveKey.prototype.token;
+    /** @type {?} */
+    ReflectiveKey.prototype.id;
+}
 /**
- * @internal
+ * \@internal
  */
 export var KeyRegistry = (function () {
     function KeyRegistry() {
         this._allKeys = new Map();
     }
+    /**
+     * @param {?} token
+     * @return {?}
+     */
     KeyRegistry.prototype.get = function (token) {
         if (token instanceof ReflectiveKey)
             return token;
         if (this._allKeys.has(token)) {
             return this._allKeys.get(token);
         }
-        var newKey = new ReflectiveKey(token, ReflectiveKey.numberOfKeys);
+        var /** @type {?} */ newKey = new ReflectiveKey(token, ReflectiveKey.numberOfKeys);
         this._allKeys.set(token, newKey);
         return newKey;
     };
     Object.defineProperty(KeyRegistry.prototype, "numberOfKeys", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._allKeys.size; },
         enumerable: true,
         configurable: true
     });
     return KeyRegistry;
 }());
-var _globalKeyRegistry = new KeyRegistry();
+function KeyRegistry_tsickle_Closure_declarations() {
+    /** @type {?} */
+    KeyRegistry.prototype._allKeys;
+}
+var /** @type {?} */ _globalKeyRegistry = new KeyRegistry();
 //# sourceMappingURL=reflective_key.js.map

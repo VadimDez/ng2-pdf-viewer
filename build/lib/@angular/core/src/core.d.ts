@@ -11,9 +11,10 @@
  * Entry point from which you should import all public core APIs.
  */
 export * from './metadata';
+export * from './version';
 export * from './util';
 export * from './di';
-export { createPlatform, assertPlatform, destroyPlatform, getPlatform, PlatformRef, ApplicationRef, enableProdMode, isDevMode, createPlatformFactory } from './application_ref';
+export { createPlatform, assertPlatform, destroyPlatform, getPlatform, PlatformRef, ApplicationRef, enableProdMode, isDevMode, createPlatformFactory, NgProbeToken } from './application_ref';
 export { APP_ID, PACKAGE_ROOT_URL, PLATFORM_INITIALIZER, APP_BOOTSTRAP_LISTENER } from './application_tokens';
 export { APP_INITIALIZER, ApplicationInitStatus } from './application_init';
 export * from './zone';
@@ -33,4 +34,6 @@ export * from './core_private_export';
 export * from './animation/metadata';
 export { AnimationTransitionEvent } from './animation/animation_transition_event';
 export { AnimationPlayer } from './animation/animation_player';
+export { AnimationStyles } from './animation/animation_styles';
+export { AnimationKeyframe } from './animation/animation_keyframe';
 export { Sanitizer, SecurityContext } from './security';

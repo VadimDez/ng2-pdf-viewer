@@ -9,12 +9,10 @@ import { NgModule } from '@angular/core';
 import { COMMON_DIRECTIVES } from './directives/index';
 import { NgLocaleLocalization, NgLocalization } from './localization';
 import { COMMON_PIPES } from './pipes/index';
-// Note: This does not contain the location providers,
-// as they need some platform specific implementations to work.
 /**
- * The module that includes all the basic Angular directives like {@link NgIf}, {@link NgFor}, ...
+ * The module that includes all the basic Angular directives like {\@link NgIf}, {\@link NgFor}, ...
  *
- * @stable
+ * \@stable
  */
 export var CommonModule = (function () {
     function CommonModule() {
@@ -29,7 +27,16 @@ export var CommonModule = (function () {
                 },] },
     ];
     /** @nocollapse */
-    CommonModule.ctorParameters = [];
+    CommonModule.ctorParameters = function () { return []; };
     return CommonModule;
 }());
+function CommonModule_tsickle_Closure_declarations() {
+    /** @type {?} */
+    CommonModule.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    CommonModule.ctorParameters;
+}
 //# sourceMappingURL=common_module.js.map

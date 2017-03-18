@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { NgZone } from '@angular/core';
+export declare let browserDetection: BrowserDetection;
 export declare class BrowserDetection {
     private _overrideUa;
     private _ua;
@@ -26,5 +27,4 @@ export declare function dispatchEvent(element: any, eventType: any): void;
 export declare function el(html: string): HTMLElement;
 export declare function normalizeCSS(css: string): string;
 export declare function stringifyElement(el: any): string;
-export declare var browserDetection: BrowserDetection;
 export declare function createNgZone(): NgZone;

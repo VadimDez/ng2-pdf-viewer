@@ -10,14 +10,30 @@ import { print, warn } from './facade/lang';
 export var Console = (function () {
     function Console() {
     }
+    /**
+     * @param {?} message
+     * @return {?}
+     */
     Console.prototype.log = function (message) { print(message); };
-    // Note: for reporting errors use `DOM.logError()` as it is platform specific
+    /**
+     * @param {?} message
+     * @return {?}
+     */
     Console.prototype.warn = function (message) { warn(message); };
     Console.decorators = [
         { type: Injectable },
     ];
     /** @nocollapse */
-    Console.ctorParameters = [];
+    Console.ctorParameters = function () { return []; };
     return Console;
 }());
+function Console_tsickle_Closure_declarations() {
+    /** @type {?} */
+    Console.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    Console.ctorParameters;
+}
 //# sourceMappingURL=console.js.map

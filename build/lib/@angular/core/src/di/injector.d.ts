@@ -29,5 +29,5 @@ export declare abstract class Injector {
      * Injector.THROW_IF_NOT_FOUND is given
      * - Returns the `notFoundValue` otherwise
      */
-    get(token: any, notFoundValue?: any): any;
+    abstract get(token: any, notFoundValue?: any): any;
 }

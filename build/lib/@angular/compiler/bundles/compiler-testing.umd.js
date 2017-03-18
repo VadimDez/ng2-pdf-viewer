@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.2.1
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.7
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -68,10 +68,10 @@
             return '' + token;
         }
         if (token.overriddenName) {
-            return token.overriddenName;
+            return "" + token.overriddenName;
         }
         if (token.name) {
-            return token.name;
+            return "" + token.name;
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
@@ -212,9 +212,9 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        MockDirectiveResolver.ctorParameters = [
+        MockDirectiveResolver.ctorParameters = function () { return [
             { type: _angular_core.Injector, },
-        ];
+        ]; };
         return MockDirectiveResolver;
     }(_angular_compiler.DirectiveResolver));
 
@@ -264,9 +264,9 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        MockNgModuleResolver.ctorParameters = [
+        MockNgModuleResolver.ctorParameters = function () { return [
             { type: _angular_core.Injector, },
-        ];
+        ]; };
         return MockNgModuleResolver;
     }(_angular_compiler.NgModuleResolver));
 
@@ -320,9 +320,9 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        MockPipeResolver.ctorParameters = [
+        MockPipeResolver.ctorParameters = function () { return [
             { type: _angular_core.Injector, },
-        ];
+        ]; };
         return MockPipeResolver;
     }(_angular_compiler.PipeResolver));
 
@@ -454,9 +454,9 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        TestingCompilerFactoryImpl.ctorParameters = [
+        TestingCompilerFactoryImpl.ctorParameters = function () { return [
             { type: _angular_core.CompilerFactory, },
-        ];
+        ]; };
         return TestingCompilerFactoryImpl;
     }());
     var TestingCompilerImpl = (function () {
@@ -483,6 +483,9 @@
         };
         TestingCompilerImpl.prototype.compileModuleAndAllComponentsAsync = function (moduleType) {
             return this._compiler.compileModuleAndAllComponentsAsync(moduleType);
+        };
+        TestingCompilerImpl.prototype.getNgContentSelectors = function (component) {
+            return this._compiler.getNgContentSelectors(component);
         };
         TestingCompilerImpl.prototype.overrideModule = function (ngModule, override) {
             var oldMetadata = this._moduleResolver.resolve(ngModule, false);
@@ -514,9 +517,12 @@
             provide: _angular_core.COMPILER_OPTIONS,
             useValue: {
                 providers: [
-                    MockPipeResolver, { provide: _angular_compiler.PipeResolver, useExisting: MockPipeResolver },
-                    MockDirectiveResolver, { provide: _angular_compiler.DirectiveResolver, useExisting: MockDirectiveResolver },
-                    MockNgModuleResolver, { provide: _angular_compiler.NgModuleResolver, useExisting: MockNgModuleResolver }
+                    MockPipeResolver,
+                    { provide: _angular_compiler.PipeResolver, useExisting: MockPipeResolver },
+                    MockDirectiveResolver,
+                    { provide: _angular_compiler.DirectiveResolver, useExisting: MockDirectiveResolver },
+                    MockNgModuleResolver,
+                    { provide: _angular_compiler.NgModuleResolver, useExisting: MockNgModuleResolver },
                 ]
             },
             multi: true

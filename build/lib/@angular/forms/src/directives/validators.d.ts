@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OnChanges, SimpleChanges } from '@angular/core';
+import { OnChanges, Provider, SimpleChanges } from '@angular/core';
 import { AbstractControl } from '../model';
 /**
  * An interface that can be implemented by classes that can act as validators.
@@ -32,7 +32,8 @@ export interface Validator {
     };
     registerOnValidatorChange?(fn: () => void): void;
 }
-export declare const REQUIRED_VALIDATOR: any;
+export declare const REQUIRED_VALIDATOR: Provider;
+export declare const CHECKBOX_REQUIRED_VALIDATOR: Provider;
 /**
  * A Directive that adds the `required` validator to any controls marked with the
  * `required` attribute, via the {@link NG_VALIDATORS} binding.
@@ -53,6 +54,23 @@ export declare class RequiredValidator implements Validator {
         [key: string]: any;
     };
     registerOnValidatorChange(fn: () => void): void;
+}
+/**
+ * A Directive that adds the `required` validator to checkbox controls marked with the
+ * `required` attribute, via the {@link NG_VALIDATORS} binding.
+ *
+ * ### Example
+ *
+ * ```
+ * <input type="checkbox" name="active" ngModel required>
+ * ```
+ *
+ * @experimental
+ */
+export declare class CheckboxRequiredValidator extends RequiredValidator {
+    validate(c: AbstractControl): {
+        [key: string]: any;
+    };
 }
 /**
  * @stable

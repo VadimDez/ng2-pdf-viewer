@@ -135,9 +135,9 @@ export var MockDirectiveResolver = (function (_super) {
         { type: Injectable },
     ];
     /** @nocollapse */
-    MockDirectiveResolver.ctorParameters = [
+    MockDirectiveResolver.ctorParameters = function () { return [
         { type: Injector, },
-    ];
+    ]; };
     return MockDirectiveResolver;
 }(DirectiveResolver));
 function flattenArray(tree, out) {

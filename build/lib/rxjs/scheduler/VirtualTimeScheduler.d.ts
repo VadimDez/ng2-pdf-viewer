@@ -21,9 +21,9 @@ export declare class VirtualTimeScheduler extends AsyncScheduler {
  */
 export declare class VirtualAction<T> extends AsyncAction<T> {
     protected scheduler: VirtualTimeScheduler;
-    protected work: (state?: T) => void;
+    protected work: (this: VirtualAction<T>, state?: T) => void;
     protected index: number;
-    constructor(scheduler: VirtualTimeScheduler, work: (state?: T) => void, index?: number);
+    constructor(scheduler: VirtualTimeScheduler, work: (this: VirtualAction<T>, state?: T) => void, index?: number);
     schedule(state?: T, delay?: number): Subscription;
     protected requestAsyncId(scheduler: VirtualTimeScheduler, id?: any, delay?: number): any;
     protected recycleAsyncId(scheduler: VirtualTimeScheduler, id?: any, delay?: number): any;

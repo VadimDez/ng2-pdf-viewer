@@ -11,8 +11,8 @@ import { EventEmitter } from '../facade/async';
  *
  * The most common use of this service is to optimize performance when starting a work consisting of
  * one or more asynchronous tasks that don't require UI updates or error handling to be handled by
- * Angular. Such tasks can be kicked off via {@link runOutsideAngular} and if needed, these tasks
- * can reenter the Angular zone via {@link run}.
+ * Angular. Such tasks can be kicked off via {\@link runOutsideAngular} and if needed, these tasks
+ * can reenter the Angular zone via {\@link run}.
  *
  * <!-- TODO: add/fix links to:
  *   - docs explaining zones and the use of zones in Angular and change-detection
@@ -20,11 +20,12 @@ import { EventEmitter } from '../facade/async';
  *   -->
  *
  * ### Example
- * ```
- * import {Component, NgZone} from '@angular/core';
- * import {NgIf} from '@angular/common';
  *
- * @Component({
+ * ```
+ * import {Component, NgZone} from '\@angular/core';
+ * import {NgIf} from '\@angular/common';
+ *
+ * \@Component({
  *   selector: 'ng-zone-demo'.
  *   template: `
  *     <h2>Demo: NgZone</h2>
@@ -74,9 +75,13 @@ import { EventEmitter } from '../facade/async';
  *   }
  * }
  * ```
- * @experimental
+ *
+ * \@experimental
  */
 export var NgZone = (function () {
+    /**
+     * @param {?} __0
+     */
     function NgZone(_a) {
         var _b = _a.enableLongStackTrace, enableLongStackTrace = _b === void 0 ? false : _b;
         this._hasPendingMicrotasks = false;
@@ -100,12 +105,21 @@ export var NgZone = (function () {
         }
         this.forkInnerZoneWithAngularBehavior();
     }
+    /**
+     * @return {?}
+     */
     NgZone.isInAngularZone = function () { return Zone.current.get('isAngularZone') === true; };
+    /**
+     * @return {?}
+     */
     NgZone.assertInAngularZone = function () {
         if (!NgZone.isInAngularZone()) {
             throw new Error('Expected to be in Angular Zone, but it is not!');
         }
     };
+    /**
+     * @return {?}
+     */
     NgZone.assertNotInAngularZone = function () {
         if (NgZone.isInAngularZone()) {
             throw new Error('Expected to not be in Angular Zone, but it is!');
@@ -116,17 +130,21 @@ export var NgZone = (function () {
      * the function.
      *
      * Running functions via `run` allows you to reenter Angular zone from a task that was executed
-     * outside of the Angular zone (typically started via {@link runOutsideAngular}).
+     * outside of the Angular zone (typically started via {\@link runOutsideAngular}).
      *
      * Any future tasks or microtasks scheduled from within this function will continue executing from
      * within the Angular zone.
      *
      * If a synchronous error happens it will be rethrown and not reported via `onError`.
+     * @param {?} fn
+     * @return {?}
      */
     NgZone.prototype.run = function (fn) { return this.inner.run(fn); };
     /**
      * Same as `run`, except that synchronous errors are caught and forwarded via `onError` and not
      * rethrown.
+     * @param {?} fn
+     * @return {?}
      */
     NgZone.prototype.runGuarded = function (fn) { return this.inner.runGuarded(fn); };
     /**
@@ -139,12 +157,15 @@ export var NgZone = (function () {
      * Any future tasks or microtasks scheduled from within this function will continue executing from
      * outside of the Angular zone.
      *
-     * Use {@link run} to reenter the Angular zone and do work that updates the application model.
+     * Use {\@link run} to reenter the Angular zone and do work that updates the application model.
+     * @param {?} fn
+     * @return {?}
      */
     NgZone.prototype.runOutsideAngular = function (fn) { return this.outer.run(fn); };
     Object.defineProperty(NgZone.prototype, "onUnstable", {
         /**
          * Notifies when code enters Angular Zone. This gets fired first on VM Turn.
+         * @return {?}
          */
         get: function () { return this._onUnstable; },
         enumerable: true,
@@ -155,6 +176,7 @@ export var NgZone = (function () {
          * Notifies when there is no more microtasks enqueue in the current VM Turn.
          * This is a hint for Angular to do change detection, which may enqueue more microtasks.
          * For this reason this event can fire multiple times per VM Turn.
+         * @return {?}
          */
         get: function () { return this._onMicrotaskEmpty; },
         enumerable: true,
@@ -165,6 +187,7 @@ export var NgZone = (function () {
          * Notifies when the last `onMicrotaskEmpty` has run and there are no more microtasks, which
          * implies we are about to relinquish VM turn.
          * This event gets called just once.
+         * @return {?}
          */
         get: function () { return this._onStable; },
         enumerable: true,
@@ -173,6 +196,7 @@ export var NgZone = (function () {
     Object.defineProperty(NgZone.prototype, "onError", {
         /**
          * Notify that an error has been delivered.
+         * @return {?}
          */
         get: function () { return this._onErrorEvents; },
         enumerable: true,
@@ -181,21 +205,31 @@ export var NgZone = (function () {
     Object.defineProperty(NgZone.prototype, "isStable", {
         /**
          * Whether there are no outstanding microtasks or macrotasks.
+         * @return {?}
          */
         get: function () { return this._isStable; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgZone.prototype, "hasPendingMicrotasks", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._hasPendingMicrotasks; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgZone.prototype, "hasPendingMacrotasks", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._hasPendingMacrotasks; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
     NgZone.prototype.checkStable = function () {
         var _this = this;
         if (this._nesting == 0 && !this._hasPendingMicrotasks && !this._isStable) {
@@ -216,11 +250,14 @@ export var NgZone = (function () {
             }
         }
     };
+    /**
+     * @return {?}
+     */
     NgZone.prototype.forkInnerZoneWithAngularBehavior = function () {
         var _this = this;
         this.inner = this.inner.fork({
             name: 'angular',
-            properties: { 'isAngularZone': true },
+            properties: /** @type {?} */ ({ 'isAngularZone': true }),
             onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
                 try {
                     _this.onEnter();
@@ -259,6 +296,9 @@ export var NgZone = (function () {
             }
         });
     };
+    /**
+     * @return {?}
+     */
     NgZone.prototype.onEnter = function () {
         this._nesting++;
         if (this._isStable) {
@@ -266,16 +306,53 @@ export var NgZone = (function () {
             this._onUnstable.emit(null);
         }
     };
+    /**
+     * @return {?}
+     */
     NgZone.prototype.onLeave = function () {
         this._nesting--;
         this.checkStable();
     };
+    /**
+     * @param {?} hasMicrotasks
+     * @return {?}
+     */
     NgZone.prototype.setHasMicrotask = function (hasMicrotasks) {
         this._hasPendingMicrotasks = hasMicrotasks;
         this.checkStable();
     };
+    /**
+     * @param {?} hasMacrotasks
+     * @return {?}
+     */
     NgZone.prototype.setHasMacrotask = function (hasMacrotasks) { this._hasPendingMacrotasks = hasMacrotasks; };
+    /**
+     * @param {?} error
+     * @return {?}
+     */
     NgZone.prototype.triggerError = function (error) { this._onErrorEvents.emit(error); };
     return NgZone;
 }());
+function NgZone_tsickle_Closure_declarations() {
+    /** @type {?} */
+    NgZone.prototype.outer;
+    /** @type {?} */
+    NgZone.prototype.inner;
+    /** @type {?} */
+    NgZone.prototype._hasPendingMicrotasks;
+    /** @type {?} */
+    NgZone.prototype._hasPendingMacrotasks;
+    /** @type {?} */
+    NgZone.prototype._isStable;
+    /** @type {?} */
+    NgZone.prototype._nesting;
+    /** @type {?} */
+    NgZone.prototype._onUnstable;
+    /** @type {?} */
+    NgZone.prototype._onMicrotaskEmpty;
+    /** @type {?} */
+    NgZone.prototype._onStable;
+    /** @type {?} */
+    NgZone.prototype._onErrorEvents;
+}
 //# sourceMappingURL=ng_zone.js.map

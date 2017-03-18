@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.2.1
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.7
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -43,6 +43,7 @@
     var BrowserDomAdapter = _angular_platformBrowser.__platform_browser_private__.BrowserDomAdapter;
     var ELEMENT_PROBE_PROVIDERS = _angular_platformBrowser.__platform_browser_private__.ELEMENT_PROBE_PROVIDERS;
 
+    var browserDetection;
     var BrowserDetection = (function () {
         function BrowserDetection(ua) {
             this._overrideUa = ua;
@@ -135,7 +136,6 @@
         return BrowserDetection;
     }());
     BrowserDetection.setup();
-    var browserDetection = new BrowserDetection(null);
     function createNgZone() {
         return new _angular_core.NgZone({ enableLongStackTrace: true });
     }
@@ -170,7 +170,7 @@
                     },] },
         ];
         /** @nocollapse */
-        BrowserTestingModule.ctorParameters = [];
+        BrowserTestingModule.ctorParameters = function () { return []; };
         return BrowserTestingModule;
     }());
 

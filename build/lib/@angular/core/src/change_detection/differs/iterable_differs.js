@@ -9,15 +9,23 @@ import { Optional, SkipSelf } from '../../di';
 import { getTypeNameForDebugging, isPresent } from '../../facade/lang';
 /**
  * A repository of different iterable diffing strategies used by NgFor, NgClass, and others.
- * @stable
+ * \@stable
  */
 export var IterableDiffers = (function () {
+    /**
+     * @param {?} factories
+     */
     function IterableDiffers(factories) {
         this.factories = factories;
     }
+    /**
+     * @param {?} factories
+     * @param {?=} parent
+     * @return {?}
+     */
     IterableDiffers.create = function (factories, parent) {
         if (isPresent(parent)) {
-            var copied = parent.factories.slice();
+            var /** @type {?} */ copied = parent.factories.slice();
             factories = factories.concat(copied);
             return new IterableDiffers(factories);
         }
@@ -26,23 +34,25 @@ export var IterableDiffers = (function () {
         }
     };
     /**
-     * Takes an array of {@link IterableDifferFactory} and returns a provider used to extend the
-     * inherited {@link IterableDiffers} instance with the provided factories and return a new
-     * {@link IterableDiffers} instance.
+     * Takes an array of {\@link IterableDifferFactory} and returns a provider used to extend the
+     * inherited {\@link IterableDiffers} instance with the provided factories and return a new
+     * {\@link IterableDiffers} instance.
      *
      * The following example shows how to extend an existing list of factories,
-           * which will only be applied to the injector for this component and its children.
-           * This step is all that's required to make a new {@link IterableDiffer} available.
+     * which will only be applied to the injector for this component and its children.
+     * This step is all that's required to make a new {\@link IterableDiffer} available.
      *
      * ### Example
      *
      * ```
-     * @Component({
+     * \@Component({
      *   viewProviders: [
      *     IterableDiffers.extend([new ImmutableListDiffer()])
      *   ]
      * })
      * ```
+     * @param {?} factories
+     * @return {?}
      */
     IterableDiffers.extend = function (factories) {
         return {
@@ -60,8 +70,12 @@ export var IterableDiffers = (function () {
             deps: [[IterableDiffers, new SkipSelf(), new Optional()]]
         };
     };
+    /**
+     * @param {?} iterable
+     * @return {?}
+     */
     IterableDiffers.prototype.find = function (iterable) {
-        var factory = this.factories.find(function (f) { return f.supports(iterable); });
+        var /** @type {?} */ factory = this.factories.find(function (f) { return f.supports(iterable); });
         if (isPresent(factory)) {
             return factory;
         }
@@ -71,4 +85,8 @@ export var IterableDiffers = (function () {
     };
     return IterableDiffers;
 }());
+function IterableDiffers_tsickle_Closure_declarations() {
+    /** @type {?} */
+    IterableDiffers.prototype.factories;
+}
 //# sourceMappingURL=iterable_differs.js.map

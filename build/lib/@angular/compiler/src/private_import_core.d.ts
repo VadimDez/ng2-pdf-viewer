@@ -66,3 +66,6 @@ export declare const ViewMetadata: typeof r.ViewMetadata;
 export declare type ComponentStillLoadingError = typeof r._ComponentStillLoadingError;
 export declare const ComponentStillLoadingError: typeof r.ComponentStillLoadingError;
 export declare const AnimationTransition: typeof r.AnimationTransition;
+export declare type SetterFn = typeof r._SetterFn;
+export declare type GetterFn = typeof r._GetterFn;
+export declare type MethodFn = typeof r._MethodFn;

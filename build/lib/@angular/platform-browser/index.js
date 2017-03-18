@@ -10,5 +10,5 @@
  * @description
  * Entry point for all public APIs of the platform-browser package.
  */
-export * from './src/platform-browser';
+export { BrowserModule, platformBrowser, Title, disableDebugTools, enableDebugTools, AnimationDriver, By, NgProbeToken, DOCUMENT, EVENT_MANAGER_PLUGINS, EventManager, HAMMER_GESTURE_CONFIG, HammerGestureConfig, DomSanitizer, VERSION, __platform_browser_private__ } from './src/platform-browser';
 //# sourceMappingURL=index.js.map

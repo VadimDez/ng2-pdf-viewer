@@ -6,7 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import * as i18n from './i18n_ast';
-export declare function digestMessage(message: i18n.Message): string;
+export declare function digest(message: i18n.Message): string;
+export declare function decimalDigest(message: i18n.Message): string;
 export declare function serializeNodes(nodes: i18n.Node[]): string[];
 /**
  * Compute the SHA1 of the given string
@@ -17,3 +18,13 @@ export declare function serializeNodes(nodes: i18n.Node[]): string[];
  *          DO NOT USE IT IN A SECURITY SENSITIVE CONTEXT.
  */
 export declare function sha1(str: string): string;
+/**
+ * Compute the fingerprint of the given string
+ *
+ * The output is 64 bit number encoded as a decimal string
+ *
+ * based on:
+ * https://github.com/google/closure-compiler/blob/master/src/com/google/javascript/jscomp/GoogleJsMessageIdGenerator.java
+ */
+export declare function fingerprint(str: string): [number, number];
+export declare function computeMsgId(msg: string, meaning: string): string;

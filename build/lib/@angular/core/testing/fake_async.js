@@ -38,6 +38,7 @@ var _inFakeAsyncCall = false;
  * @experimental
  */
 export function fakeAsync(fn) {
+    // Not using an arrow function to preserve context passed from call site
     return function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -59,7 +60,7 @@ export function fakeAsync(fn) {
             var lastProxyZoneSpec = proxyZoneSpec.getDelegate();
             proxyZoneSpec.setDelegate(_fakeAsyncTestZoneSpec);
             try {
-                res = fn.apply(void 0, args);
+                res = fn.apply(this, args);
                 flushMicrotasks();
             }
             finally {

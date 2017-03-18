@@ -6,7 +6,7 @@ export declare function createOfflineCompileUrlResolver(): UrlResolver;
 /**
  * A default provider for {@link PACKAGE_ROOT_URL} that maps to '/'.
  */
-export declare var DEFAULT_PACKAGE_URL_PROVIDER: {
+export declare const DEFAULT_PACKAGE_URL_PROVIDER: {
     provide: any;
     useValue: string;
 };

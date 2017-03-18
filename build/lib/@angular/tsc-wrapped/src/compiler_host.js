@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -5,9 +12,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var fs_1 = require('fs');
-var tsickle_1 = require('tsickle');
+var tsickle = require('tsickle');
 var ts = require('typescript');
 var collector_1 = require('./collector');
+function formatDiagnostics(d) {
+    var host = {
+        getCurrentDirectory: function () { return ts.sys.getCurrentDirectory(); },
+        getNewLine: function () { return ts.sys.newLine; },
+        getCanonicalFileName: function (f) { return f; }
+    };
+    return ts.formatDiagnostics(d, host);
+}
+exports.formatDiagnostics = formatDiagnostics;
 /**
  * Implementation of CompilerHost that forwards all methods to another instance.
  * Useful for partial implementations to override only methods they care about.
@@ -40,25 +56,25 @@ var DelegatingHost = (function () {
     return DelegatingHost;
 }());
 exports.DelegatingHost = DelegatingHost;
-var TsickleHost = (function (_super) {
-    __extends(TsickleHost, _super);
-    function TsickleHost(delegate, program) {
+var DecoratorDownlevelCompilerHost = (function (_super) {
+    __extends(DecoratorDownlevelCompilerHost, _super);
+    function DecoratorDownlevelCompilerHost(delegate, program) {
         var _this = this;
         _super.call(this, delegate);
         this.program = program;
-        // Additional diagnostics gathered by pre- and post-emit transformations.
+        this.ANNOTATION_SUPPORT = "\ninterface DecoratorInvocation {\n  type: Function;\n  args?: any[];\n}\n";
+        /** Error messages produced by tsickle, if any. */
         this.diagnostics = [];
-        this.TSICKLE_SUPPORT = "\ninterface DecoratorInvocation {\n  type: Function;\n  args?: any[];\n}\n";
         this.getSourceFile = function (fileName, languageVersion, onError) {
             var originalContent = _this.delegate.readFile(fileName);
             var newContent = originalContent;
             if (!/\.d\.ts$/.test(fileName)) {
                 try {
-                    var converted = tsickle_1.convertDecorators(_this.program.getTypeChecker(), _this.program.getSourceFile(fileName));
+                    var converted = tsickle.convertDecorators(_this.program.getTypeChecker(), _this.program.getSourceFile(fileName));
                     if (converted.diagnostics) {
                         (_a = _this.diagnostics).push.apply(_a, converted.diagnostics);
                     }
-                    newContent = converted.output + _this.TSICKLE_SUPPORT;
+                    newContent = converted.output + _this.ANNOTATION_SUPPORT;
                 }
                 catch (e) {
                     console.error('Cannot convertDecorators on file', fileName);
@@ -69,18 +85,42 @@ var TsickleHost = (function (_super) {
             var _a;
         };
     }
-    return TsickleHost;
+    return DecoratorDownlevelCompilerHost;
 }(DelegatingHost));
-exports.TsickleHost = TsickleHost;
-var IGNORED_FILES = /\.ngfactory\.js$|\.css\.js$|\.css\.shim\.js$/;
-var MetadataWriterHost = (function (_super) {
-    __extends(MetadataWriterHost, _super);
-    function MetadataWriterHost(delegate, program, ngOptions) {
+exports.DecoratorDownlevelCompilerHost = DecoratorDownlevelCompilerHost;
+var TsickleCompilerHost = (function (_super) {
+    __extends(TsickleCompilerHost, _super);
+    function TsickleCompilerHost(delegate, oldProgram, options) {
         var _this = this;
         _super.call(this, delegate);
-        this.program = program;
+        this.oldProgram = oldProgram;
+        this.options = options;
+        /** Error messages produced by tsickle, if any. */
+        this.diagnostics = [];
+        this.getSourceFile = function (fileName, languageVersion, onError) {
+            var sourceFile = _this.oldProgram.getSourceFile(fileName);
+            var isDefinitions = /\.d\.ts$/.test(fileName);
+            // Don't tsickle-process any d.ts that isn't a compilation target;
+            // this means we don't process e.g. lib.d.ts.
+            if (isDefinitions)
+                return sourceFile;
+            var _a = tsickle.annotate(_this.oldProgram, sourceFile, { untyped: true }), output = _a.output, externs = _a.externs, diagnostics = _a.diagnostics;
+            _this.diagnostics = diagnostics;
+            return ts.createSourceFile(fileName, output, languageVersion, true);
+        };
+    }
+    return TsickleCompilerHost;
+}(DelegatingHost));
+exports.TsickleCompilerHost = TsickleCompilerHost;
+var IGNORED_FILES = /\.ngfactory\.js$|\.ngstyle\.js$/;
+var MetadataWriterHost = (function (_super) {
+    __extends(MetadataWriterHost, _super);
+    function MetadataWriterHost(delegate, ngOptions) {
+        var _this = this;
+        _super.call(this, delegate);
         this.ngOptions = ngOptions;
-        this.metadataCollector = new collector_1.MetadataCollector();
+        this.metadataCollector = new collector_1.MetadataCollector({ quotedNames: true });
+        this.metadataCollector1 = new collector_1.MetadataCollector({ version: 1 });
         this.writeFile = function (fileName, data, writeByteOrderMark, onError, sourceFiles) {
             if (/\.d\.ts$/.test(fileName)) {
                 // Let the original file be written first; this takes care of creating parent directories
@@ -108,9 +148,19 @@ var MetadataWriterHost = (function (_super) {
         // released
         if (/\.js$/.test(emitFilePath)) {
             var path_1 = emitFilePath.replace(/*DTS*/ /\.js$/, '.metadata.json');
-            var metadata = this.metadataCollector.getMetadata(sourceFile, !!this.ngOptions.strictMetadataEmit);
-            if (metadata && metadata.metadata) {
-                var metadataText = JSON.stringify(metadata);
+            // Beginning with 2.1, TypeScript transforms the source tree before emitting it.
+            // We need the original, unmodified, tree which might be several levels back
+            // depending on the number of transforms performed. All SourceFile's prior to 2.1
+            // will appear to be the original source since they didn't include an original field.
+            var collectableFile = sourceFile;
+            while (collectableFile.original) {
+                collectableFile = collectableFile.original;
+            }
+            var metadata = this.metadataCollector.getMetadata(collectableFile, !!this.ngOptions.strictMetadataEmit);
+            var metadata1 = this.metadataCollector1.getMetadata(collectableFile, false);
+            var metadatas = [metadata, metadata1].filter(function (e) { return !!e; });
+            if (metadatas.length) {
+                var metadataText = JSON.stringify(metadatas);
                 fs_1.writeFileSync(path_1, metadataText, { encoding: 'utf-8' });
             }
         }

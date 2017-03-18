@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.2.1
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.7
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -59,7 +59,7 @@
             { type: _angular_core.Injectable },
         ];
         /** @nocollapse */
-        ResourceLoaderImpl.ctorParameters = [];
+        ResourceLoaderImpl.ctorParameters = function () { return []; };
         return ResourceLoaderImpl;
     }(_angular_compiler.ResourceLoader));
 
@@ -147,6 +147,11 @@
     };
 
     /**
+     * @stable
+     */
+    var VERSION = new _angular_core.Version('2.4.7');
+
+    /**
      * @experimental
      */
     var RESOURCE_CACHE_PROVIDER = [{ provide: _angular_compiler.ResourceLoader, useClass: CachedResourceLoader }];
@@ -157,6 +162,7 @@
 
     exports.RESOURCE_CACHE_PROVIDER = RESOURCE_CACHE_PROVIDER;
     exports.platformBrowserDynamic = platformBrowserDynamic;
+    exports.VERSION = VERSION;
     exports.__platform_browser_dynamic_private__ = __platform_browser_dynamic_private__;
 
 }));

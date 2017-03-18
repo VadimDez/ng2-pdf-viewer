@@ -7,18 +7,18 @@
  */
 import { Directive, Input, ViewContainerRef } from '@angular/core';
 /**
- * @ngModule CommonModule
+ * \@ngModule CommonModule
  *
- * @whatItDoes Inserts an embedded view from a prepared `TemplateRef`
+ * \@whatItDoes Inserts an embedded view from a prepared `TemplateRef`
  *
- * @howToUse
+ * \@howToUse
  * ```
  * <template [ngTemplateOutlet]="templateRefExpression"
  *           [ngOutletContext]="objectExpression">
  * </template>
  * ```
  *
- * @description
+ * \@description
  *
  * You can attach a context object to the `EmbeddedViewRef` by setting `[ngOutletContext]`.
  * `[ngOutletContext]` should be an object, the object's keys will be the local template variables
@@ -26,22 +26,37 @@ import { Directive, Input, ViewContainerRef } from '@angular/core';
  *
  * Note: using the key `$implicit` in the context object will set it's value as default.
  *
- * @experimental
+ * \@experimental
  */
 export var NgTemplateOutlet = (function () {
+    /**
+     * @param {?} _viewContainerRef
+     */
     function NgTemplateOutlet(_viewContainerRef) {
         this._viewContainerRef = _viewContainerRef;
     }
     Object.defineProperty(NgTemplateOutlet.prototype, "ngOutletContext", {
+        /**
+         * @param {?} context
+         * @return {?}
+         */
         set: function (context) { this._context = context; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgTemplateOutlet.prototype, "ngTemplateOutlet", {
+        /**
+         * @param {?} templateRef
+         * @return {?}
+         */
         set: function (templateRef) { this._templateRef = templateRef; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
     NgTemplateOutlet.prototype.ngOnChanges = function (changes) {
         if (this._viewRef) {
             this._viewContainerRef.remove(this._viewContainerRef.indexOf(this._viewRef));
@@ -54,13 +69,32 @@ export var NgTemplateOutlet = (function () {
         { type: Directive, args: [{ selector: '[ngTemplateOutlet]' },] },
     ];
     /** @nocollapse */
-    NgTemplateOutlet.ctorParameters = [
+    NgTemplateOutlet.ctorParameters = function () { return [
         { type: ViewContainerRef, },
-    ];
+    ]; };
     NgTemplateOutlet.propDecorators = {
         'ngOutletContext': [{ type: Input },],
         'ngTemplateOutlet': [{ type: Input },],
     };
     return NgTemplateOutlet;
 }());
+function NgTemplateOutlet_tsickle_Closure_declarations() {
+    /** @type {?} */
+    NgTemplateOutlet.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    NgTemplateOutlet.ctorParameters;
+    /** @type {?} */
+    NgTemplateOutlet.propDecorators;
+    /** @type {?} */
+    NgTemplateOutlet.prototype._viewRef;
+    /** @type {?} */
+    NgTemplateOutlet.prototype._context;
+    /** @type {?} */
+    NgTemplateOutlet.prototype._templateRef;
+    /** @type {?} */
+    NgTemplateOutlet.prototype._viewContainerRef;
+}
 //# sourceMappingURL=ng_template_outlet.js.map

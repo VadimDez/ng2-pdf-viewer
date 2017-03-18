@@ -1,5 +1,6 @@
 import { PlatformRef, Provider } from '@angular/core';
 export * from './private_export';
+export { VERSION } from './version';
 /**
  * @experimental
  */

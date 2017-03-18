@@ -20,15 +20,24 @@
  *   </p>
  * </div>
  */
+export { VERSION } from './src/version';
 export * from './src/template_parser/template_ast';
 export { TEMPLATE_TRANSFORMS } from './src/template_parser/template_parser';
 export { CompilerConfig, RenderTypes } from './src/config';
 export * from './src/compile_metadata';
-export * from './src/offline_compiler';
-export { RuntimeCompiler } from './src/runtime_compiler';
+export * from './src/aot/compiler_factory';
+export * from './src/aot/compiler';
+export * from './src/aot/compiler_host';
+export * from './src/aot/static_reflector';
+export * from './src/aot/static_reflection_capabilities';
+export * from './src/aot/static_symbol';
+export * from './src/aot/static_symbol_resolver';
+export * from './src/aot/summary_resolver';
+export * from './src/summary_resolver';
+export { JitCompiler } from './src/jit/compiler';
+export * from './src/jit/compiler_factory';
 export * from './src/url_resolver';
 export * from './src/resource_loader';
-export * from './src/compiler';
 export { DirectiveResolver } from './src/directive_resolver';
 export { PipeResolver } from './src/pipe_resolver';
 export { NgModuleResolver } from './src/ng_module_resolver';
@@ -52,3 +61,4 @@ export * from './src/style_compiler';
 export * from './src/template_parser/template_parser';
 export { ViewCompiler } from './src/view_compiler/view_compiler';
 export { AnimationParser } from './src/animation/animation_parser';
+export { SyntaxError } from './src/util';

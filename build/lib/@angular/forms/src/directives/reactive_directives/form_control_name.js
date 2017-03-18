@@ -21,63 +21,69 @@ import { ReactiveErrors } from '../reactive_errors';
 import { composeAsyncValidators, composeValidators, controlPath, isPropertyUpdated, selectValueAccessor } from '../shared';
 import { FormGroupDirective } from './form_group_directive';
 import { FormArrayName, FormGroupName } from './form_group_name';
-export var controlNameBinding = {
+export var /** @type {?} */ controlNameBinding = {
     provide: NgControl,
     useExisting: forwardRef(function () { return FormControlName; })
 };
 /**
- * @whatItDoes  Syncs a {@link FormControl} in an existing {@link FormGroup} to a form control
+ * \@whatItDoes Syncs a {\@link FormControl} in an existing {\@link FormGroup} to a form control
  * element by name.
  *
- * In other words, this directive ensures that any values written to the {@link FormControl}
+ * In other words, this directive ensures that any values written to the {\@link FormControl}
  * instance programmatically will be written to the DOM element (model -> view). Conversely,
  * any values written to the DOM element through user input will be reflected in the
- * {@link FormControl} instance (view -> model).
+ * {\@link FormControl} instance (view -> model).
  *
- * @howToUse
+ * \@howToUse
  *
- * This directive is designed to be used with a parent {@link FormGroupDirective} (selector:
+ * This directive is designed to be used with a parent {\@link FormGroupDirective} (selector:
  * `[formGroup]`).
  *
- * It accepts the string name of the {@link FormControl} instance you want to
- * link, and will look for a {@link FormControl} registered with that name in the
- * closest {@link FormGroup} or {@link FormArray} above it.
+ * It accepts the string name of the {\@link FormControl} instance you want to
+ * link, and will look for a {\@link FormControl} registered with that name in the
+ * closest {\@link FormGroup} or {\@link FormArray} above it.
  *
- * **Access the control**: You can access the {@link FormControl} associated with
- * this directive by using the {@link AbstractControl.get} method.
+ * **Access the control**: You can access the {\@link FormControl} associated with
+ * this directive by using the {\@link AbstractControl.get} method.
  * Ex: `this.form.get('first');`
  *
- * **Get value**: the `value` property is always synced and available on the {@link FormControl}.
- * See a full list of available properties in {@link AbstractControl}.
+ * **Get value**: the `value` property is always synced and available on the {\@link FormControl}.
+ * See a full list of available properties in {\@link AbstractControl}.
  *
  *  **Set value**: You can set an initial value for the control when instantiating the
- *  {@link FormControl}, or you can set it programmatically later using
- *  {@link AbstractControl.setValue} or {@link AbstractControl.patchValue}.
+ *  {\@link FormControl}, or you can set it programmatically later using
+ *  {\@link AbstractControl.setValue} or {\@link AbstractControl.patchValue}.
  *
  * **Listen to value**: If you want to listen to changes in the value of the control, you can
- * subscribe to the {@link AbstractControl.valueChanges} event.  You can also listen to
- * {@link AbstractControl.statusChanges} to be notified when the validation status is
+ * subscribe to the {\@link AbstractControl.valueChanges} event.  You can also listen to
+ * {\@link AbstractControl.statusChanges} to be notified when the validation status is
  * re-calculated.
  *
  * ### Example
  *
  * In this example, we create form controls for first name and last name.
  *
- * {@example forms/ts/simpleFormGroup/simple_form_group_example.ts region='Component'}
+ * {\@example forms/ts/simpleFormGroup/simple_form_group_example.ts region='Component'}
  *
  * To see `formControlName` examples with different form control types, see:
  *
- * * Radio buttons: {@link RadioControlValueAccessor}
- * * Selects: {@link SelectControlValueAccessor}
+ * * Radio buttons: {\@link RadioControlValueAccessor}
+ * * Selects: {\@link SelectControlValueAccessor}
  *
- * **npm package**: `@angular/forms`
+ * **npm package**: `\@angular/forms`
  *
- * **NgModule**: {@link ReactiveFormsModule}
+ * **NgModule**: {\@link ReactiveFormsModule}
  *
- *  @stable
+ *  \@stable
  */
 export var FormControlName = (function (_super) {
     __extends(FormControlName, _super);
+    /**
+     * @param {?} parent
+     * @param {?} validators
+     * @param {?} asyncValidators
+     * @param {?} valueAccessors
+     */
     function FormControlName(parent, validators, asyncValidators, valueAccessors) {
         _super.call(this);
         this._added = false;
@@ -88,10 +94,18 @@ export var FormControlName = (function (_super) {
         this.valueAccessor = selectValueAccessor(this, valueAccessors);
     }
     Object.defineProperty(FormControlName.prototype, "isDisabled", {
+        /**
+         * @param {?} isDisabled
+         * @return {?}
+         */
         set: function (isDisabled) { ReactiveErrors.disabledAttrWarning(); },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
     FormControlName.prototype.ngOnChanges = function (changes) {
         if (!this._added)
             this._setUpControl();
@@ -100,31 +114,50 @@ export var FormControlName = (function (_super) {
             this.formDirective.updateModel(this, this.model);
         }
     };
+    /**
+     * @return {?}
+     */
     FormControlName.prototype.ngOnDestroy = function () {
         if (this.formDirective) {
             this.formDirective.removeControl(this);
         }
     };
+    /**
+     * @param {?} newValue
+     * @return {?}
+     */
     FormControlName.prototype.viewToModelUpdate = function (newValue) {
         this.viewModel = newValue;
         this.update.emit(newValue);
     };
     Object.defineProperty(FormControlName.prototype, "path", {
+        /**
+         * @return {?}
+         */
         get: function () { return controlPath(this.name, this._parent); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(FormControlName.prototype, "formDirective", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._parent ? this._parent.formDirective : null; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(FormControlName.prototype, "validator", {
+        /**
+         * @return {?}
+         */
         get: function () { return composeValidators(this._rawValidators); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(FormControlName.prototype, "asyncValidator", {
+        /**
+         * @return {?}
+         */
         get: function () {
             return composeAsyncValidators(this._rawAsyncValidators);
         },
@@ -132,10 +165,16 @@ export var FormControlName = (function (_super) {
         configurable: true
     });
     Object.defineProperty(FormControlName.prototype, "control", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._control; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
     FormControlName.prototype._checkParentType = function () {
         if (!(this._parent instanceof FormGroupName) &&
             this._parent instanceof AbstractFormGroupDirective) {
@@ -146,6 +185,9 @@ export var FormControlName = (function (_super) {
             ReactiveErrors.controlParentException();
         }
     };
+    /**
+     * @return {?}
+     */
     FormControlName.prototype._setUpControl = function () {
         this._checkParentType();
         this._control = this.formDirective.addControl(this);
@@ -158,12 +200,12 @@ export var FormControlName = (function (_super) {
         { type: Directive, args: [{ selector: '[formControlName]', providers: [controlNameBinding] },] },
     ];
     /** @nocollapse */
-    FormControlName.ctorParameters = [
+    FormControlName.ctorParameters = function () { return [
         { type: ControlContainer, decorators: [{ type: Optional }, { type: Host }, { type: SkipSelf },] },
         { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALIDATORS,] },] },
         { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_ASYNC_VALIDATORS,] },] },
         { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALUE_ACCESSOR,] },] },
-    ];
+    ]; };
     FormControlName.propDecorators = {
         'name': [{ type: Input, args: ['formControlName',] },],
         'model': [{ type: Input, args: ['ngModel',] },],
@@ -172,4 +214,33 @@ export var FormControlName = (function (_super) {
     };
     return FormControlName;
 }(NgControl));
+function FormControlName_tsickle_Closure_declarations() {
+    /** @type {?} */
+    FormControlName.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    FormControlName.ctorParameters;
+    /** @type {?} */
+    FormControlName.propDecorators;
+    /** @type {?} */
+    FormControlName.prototype._added;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    FormControlName.prototype.viewModel;
+    /**
+     * \@internal
+     * @type {?}
+     */
+    FormControlName.prototype._control;
+    /** @type {?} */
+    FormControlName.prototype.name;
+    /** @type {?} */
+    FormControlName.prototype.model;
+    /** @type {?} */
+    FormControlName.prototype.update;
+}
 //# sourceMappingURL=form_control_name.js.map

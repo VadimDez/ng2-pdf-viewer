@@ -1,3 +1,4 @@
+import { Self, SkipSelf } from './metadata';
 import { Provider } from './provider';
 import { ReflectiveKey } from './reflective_key';
 /**
@@ -7,10 +8,8 @@ import { ReflectiveKey } from './reflective_key';
 export declare class ReflectiveDependency {
     key: ReflectiveKey;
     optional: boolean;
-    lowerBoundVisibility: any;
-    upperBoundVisibility: any;
-    properties: any[];
-    constructor(key: ReflectiveKey, optional: boolean, lowerBoundVisibility: any, upperBoundVisibility: any, properties: any[]);
+    visibility: Self | SkipSelf;
+    constructor(key: ReflectiveKey, optional: boolean, visibility: Self | SkipSelf);
     static fromKey(key: ReflectiveKey): ReflectiveDependency;
 }
 /**

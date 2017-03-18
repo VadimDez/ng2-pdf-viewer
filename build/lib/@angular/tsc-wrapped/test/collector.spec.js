@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
 var ts = require('typescript');
 var collector_1 = require('../src/collector');
@@ -17,6 +24,7 @@ describe('Collector', function () {
             '/unsupported-1.ts',
             '/unsupported-2.ts',
             'import-star.ts',
+            'exported-classes.ts',
             'exported-functions.ts',
             'exported-enum.ts',
             'exported-consts.ts',
@@ -26,15 +34,20 @@ describe('Collector', function () {
             'local-symbol-ref-func-dynamic.ts',
             'private-enum.ts',
             're-exports.ts',
+            're-exports-2.ts',
+            'export-as.d.ts',
             'static-field-reference.ts',
             'static-method.ts',
             'static-method-call.ts',
             'static-method-with-if.ts',
             'static-method-with-default.ts',
+            'class-inheritance.ts',
+            'class-inheritance-parent.ts',
+            'class-inheritance-declarations.d.ts'
         ]);
         service = ts.createLanguageService(host, documentRegistry);
         program = service.getProgram();
-        collector = new collector_1.MetadataCollector();
+        collector = new collector_1.MetadataCollector({ quotedNames: true });
     });
     it('should not have errors in test data', function () { typescript_mocks_1.expectValidSources(service, program); });
     it('should return undefined for modules that have no metadata', function () {
@@ -47,7 +60,7 @@ describe('Collector', function () {
         var metadata = collector.getMetadata(sourceFile);
         expect(metadata).toEqual({
             __symbolic: 'module',
-            version: 1,
+            version: 3,
             metadata: {
                 HeroDetailComponent: {
                     __symbolic: 'class',
@@ -77,7 +90,7 @@ describe('Collector', function () {
         var metadata = collector.getMetadata(sourceFile);
         expect(metadata).toEqual({
             __symbolic: 'module',
-            version: 1,
+            version: 3,
             metadata: {
                 AppComponent: {
                     __symbolic: 'class',
@@ -120,23 +133,22 @@ describe('Collector', function () {
         var metadata = collector.getMetadata(sourceFile);
         expect(metadata).toEqual({
             __symbolic: 'module',
-            version: 1,
+            version: 3,
             metadata: {
                 HEROES: [
-                    { 'id': 11, 'name': 'Mr. Nice' }, { 'id': 12, 'name': 'Narco' },
-                    { 'id': 13, 'name': 'Bombasto' }, { 'id': 14, 'name': 'Celeritas' },
-                    { 'id': 15, 'name': 'Magneta' }, { 'id': 16, 'name': 'RubberMan' },
-                    { 'id': 17, 'name': 'Dynama' }, { 'id': 18, 'name': 'Dr IQ' }, { 'id': 19, 'name': 'Magma' },
-                    { 'id': 20, 'name': 'Tornado' }
+                    { 'id': 11, 'name': 'Mr. Nice', '$quoted$': ['id', 'name'] },
+                    { 'id': 12, 'name': 'Narco', '$quoted$': ['id', 'name'] },
+                    { 'id': 13, 'name': 'Bombasto', '$quoted$': ['id', 'name'] },
+                    { 'id': 14, 'name': 'Celeritas', '$quoted$': ['id', 'name'] },
+                    { 'id': 15, 'name': 'Magneta', '$quoted$': ['id', 'name'] },
+                    { 'id': 16, 'name': 'RubberMan', '$quoted$': ['id', 'name'] },
+                    { 'id': 17, 'name': 'Dynama', '$quoted$': ['id', 'name'] },
+                    { 'id': 18, 'name': 'Dr IQ', '$quoted$': ['id', 'name'] },
+                    { 'id': 19, 'name': 'Magma', '$quoted$': ['id', 'name'] },
+                    { 'id': 20, 'name': 'Tornado', '$quoted$': ['id', 'name'] }
                 ]
             }
         });
-    });
-    it('should return undefined for modules that have no metadata', function () {
-        var sourceFile = program.getSourceFile('/app/error-cases.ts');
-        expect(sourceFile).toBeTruthy(sourceFile);
-        var metadata = collector.getMetadata(sourceFile);
-        expect(metadata).toBeUndefined();
     });
     var casesFile;
     var casesMetadata;
@@ -193,7 +205,7 @@ describe('Collector', function () {
         var metadata = collector.getMetadata(unsupported1);
         expect(metadata).toEqual({
             __symbolic: 'module',
-            version: 1,
+            version: 3,
             metadata: {
                 a: { __symbolic: 'error', message: 'Destructuring not supported', line: 1, character: 16 },
                 b: { __symbolic: 'error', message: 'Destructuring not supported', line: 1, character: 19 },
@@ -227,12 +239,25 @@ describe('Collector', function () {
             { __symbolic: 'reference', module: 'angular2/common', name: 'NgFor' }
         ]);
     });
+    it('should record all exported classes', function () {
+        var sourceFile = program.getSourceFile('/exported-classes.ts');
+        var metadata = collector.getMetadata(sourceFile);
+        expect(metadata).toEqual({
+            __symbolic: 'module',
+            version: 3,
+            metadata: {
+                SimpleClass: { __symbolic: 'class' },
+                AbstractClass: { __symbolic: 'class' },
+                DeclaredClass: { __symbolic: 'class' }
+            }
+        });
+    });
     it('should be able to record functions', function () {
         var exportedFunctions = program.getSourceFile('/exported-functions.ts');
         var metadata = collector.getMetadata(exportedFunctions);
         expect(metadata).toEqual({
             __symbolic: 'module',
-            version: 1,
+            version: 3,
             metadata: {
                 one: {
                     __symbolic: 'function',
@@ -280,7 +305,9 @@ describe('Collector', function () {
                             }
                         }
                     }
-                }
+                },
+                complexFn: { __symbolic: 'function' },
+                declaredFn: { __symbolic: 'function' }
             }
         });
     });
@@ -449,6 +476,20 @@ describe('Collector', function () {
             { from: 'angular2/core' }
         ]);
     });
+    it('should be able to collect a export as symbol', function () {
+        var source = program.getSourceFile('export-as.d.ts');
+        var metadata = collector.getMetadata(source);
+        expect(metadata.metadata).toEqual({ SomeFunction: { __symbolic: 'function' } });
+    });
+    it('should be able to collect exports with no module specifier', function () {
+        var source = program.getSourceFile('/re-exports-2.ts');
+        var metadata = collector.getMetadata(source);
+        expect(metadata.metadata).toEqual({
+            MyClass: Object({ __symbolic: 'class' }),
+            OtherModule: { __symbolic: 'reference', module: './static-field-reference', name: 'Foo' },
+            MyOtherModule: { __symbolic: 'reference', module: './static-field', name: 'MyModule' }
+        });
+    });
     it('should collect an error symbol if collecting a reference to a non-exported symbol', function () {
         var source = program.getSourceFile('/local-symbol-ref.ts');
         var metadata = collector.getMetadata(source);
@@ -524,6 +565,48 @@ describe('Collector', function () {
                 .toThrowError(/Reference to non-exported class/);
         });
     });
+    describe('with invalid input', function () {
+        it('should not throw with a class with no name', function () {
+            var fileName = '/invalid-class.ts';
+            override(fileName, 'export class');
+            var invalidClass = program.getSourceFile(fileName);
+            expect(function () { return collector.getMetadata(invalidClass); }).not.toThrow();
+        });
+        it('should not throw with a function with no name', function () {
+            var fileName = '/invalid-function.ts';
+            override(fileName, 'export function');
+            var invalidFunction = program.getSourceFile(fileName);
+            expect(function () { return collector.getMetadata(invalidFunction); }).not.toThrow();
+        });
+    });
+    describe('inheritance', function () {
+        it('should record `extends` clauses for declared classes', function () {
+            var metadata = collector.getMetadata(program.getSourceFile('/class-inheritance.ts'));
+            expect(metadata.metadata['DeclaredChildClass'])
+                .toEqual({ __symbolic: 'class', extends: { __symbolic: 'reference', name: 'ParentClass' } });
+        });
+        it('should record `extends` clauses for classes in the same file', function () {
+            var metadata = collector.getMetadata(program.getSourceFile('/class-inheritance.ts'));
+            expect(metadata.metadata['ChildClassSameFile'])
+                .toEqual({ __symbolic: 'class', extends: { __symbolic: 'reference', name: 'ParentClass' } });
+        });
+        it('should record `extends` clauses for classes in a different file', function () {
+            var metadata = collector.getMetadata(program.getSourceFile('/class-inheritance.ts'));
+            expect(metadata.metadata['ChildClassOtherFile']).toEqual({
+                __symbolic: 'class',
+                extends: {
+                    __symbolic: 'reference',
+                    module: './class-inheritance-parent',
+                    name: 'ParentClassFromOtherFile'
+                }
+            });
+        });
+    });
+    function override(fileName, content) {
+        host.overrideFile(fileName, content);
+        host.addFile(fileName);
+        program = service.getProgram();
+    }
 });
 // TODO: Do not use \` in a template literal as it confuses clang-format
 var FILES = {
@@ -549,16 +632,21 @@ var FILES = {
     'unsupported-1.ts': "\n    export let {a, b} = {a: 1, b: 2};\n    export let [c, d] = [1, 2];\n    export let e;\n  ",
     'unsupported-2.ts': "\n    import {Injectable} from 'angular2/core';\n\n    class Foo {}\n\n    @Injectable()\n    export class Bar {\n      constructor(private f: Foo) {}\n    }\n  ",
     'import-star.ts': "\n    import {Injectable} from 'angular2/core';\n    import * as common from 'angular2/common';\n\n    @Injectable()\n    export class SomeClass {\n      constructor(private f: common.NgFor) {}\n    }\n  ",
-    'exported-functions.ts': "\n    export function one(a: string, b: string, c: string) {\n      return {a: a, b: b, c: c};\n    }\n    export function two(a: string, b: string, c: string) {\n      return {a, b, c};\n    }\n    export function three({a, b, c}: {a: string, b: string, c: string}) {\n      return [a, b, c];\n    }\n    export function supportsState(): boolean {\n     return !!window.history.pushState;\n    }\n  ",
+    'exported-classes.ts': "\n    export class SimpleClass {}\n    export abstract class AbstractClass {}\n    export declare class DeclaredClass {}\n  ",
+    'class-inheritance-parent.ts': "\n    export class ParentClassFromOtherFile {}\n  ",
+    'class-inheritance.ts': "\n    import {ParentClassFromOtherFile} from './class-inheritance-parent';\n\n    export class ParentClass {}\n\n    export declare class DeclaredChildClass extends ParentClass {}\n\n    export class ChildClassSameFile extends ParentClass {}\n\n    export class ChildClassOtherFile extends ParentClassFromOtherFile {}\n  ",
+    'exported-functions.ts': "\n    export function one(a: string, b: string, c: string) {\n      return {a: a, b: b, c: c};\n    }\n    export function two(a: string, b: string, c: string) {\n      return {a, b, c};\n    }\n    export function three({a, b, c}: {a: string, b: string, c: string}) {\n      return [a, b, c];\n    }\n    export function supportsState(): boolean {\n     return !!window.history.pushState;\n    }\n    export function complexFn(x: any): boolean {\n      if (x) {\n        return true;\n      } else {\n        return false;\n      }\n    }\n    export declare function declaredFn();\n  ",
     'exported-enum.ts': "\n    import {constValue} from './exported-consts';\n\n    export const someValue = 30;\n    export enum SomeEnum { A, B, C = 100, D };\n    export enum ComplexEnum { A, B, C = someValue, D = someValue + 10, E = constValue };\n  ",
     'exported-consts.ts': "\n    export const constValue = 100;\n  ",
-    'static-method.ts': "\n    import {Injectable} from 'angular2/core';\n\n    @Injectable()\n    export class MyModule {\n      static with(comp: any): any[] {\n        return [\n          MyModule,\n          { provider: 'a', useValue: comp }\n        ];\n      }\n    }\n  ",
-    'static-method-with-default.ts': "\n    import {Injectable} from 'angular2/core';\n\n    @Injectable()\n    export class MyModule {\n      static with(comp: any, foo: boolean = true, bar: boolean = false): any[] {\n        return [\n          MyModule,\n          foo ? { provider: 'a', useValue: comp } : {provider: 'b', useValue: comp},\n          bar ? { provider: 'c', useValue: comp } : {provider: 'd', useValue: comp}\n        ];\n      }\n    }\n  ",
+    'static-method.ts': "\n    export class MyModule {\n      static with(comp: any): any[] {\n        return [\n          MyModule,\n          { provider: 'a', useValue: comp }\n        ];\n      }\n    }\n  ",
+    'static-method-with-default.ts': "\n    export class MyModule {\n      static with(comp: any, foo: boolean = true, bar: boolean = false): any[] {\n        return [\n          MyModule,\n          foo ? { provider: 'a', useValue: comp } : {provider: 'b', useValue: comp},\n          bar ? { provider: 'c', useValue: comp } : {provider: 'd', useValue: comp}\n        ];\n      }\n    }\n  ",
     'static-method-call.ts': "\n    import {Component} from 'angular2/core';\n    import {MyModule} from './static-method';\n\n    @Component({\n      providers: MyModule.with('a')\n    })\n    export class Foo { }\n  ",
-    'static-field.ts': "\n    import {Injectable} from 'angular2/core';\n\n    @Injectable()\n    export class MyModule {\n      static VALUE = 'Some string';\n    }\n  ",
+    'static-field.ts': "\n    export class MyModule {\n      static VALUE = 'Some string';\n    }\n  ",
     'static-field-reference.ts': "\n    import {Component} from 'angular2/core';\n    import {MyModule} from './static-field';\n\n    @Component({\n      providers: [ { provide: 'a', useValue: MyModule.VALUE } ]\n    })\n    export class Foo { }\n  ",
-    'static-method-with-if.ts': "\n    import {Injectable} from 'angular2/core';\n\n    @Injectable()\n    export class MyModule {\n      static with(cond: boolean): any[] {\n        return [\n          MyModule,\n          { provider: 'a', useValue: cond ? '1' : '2' }\n        ];\n      }\n    }\n  ",
+    'static-method-with-if.ts': "\n    export class MyModule {\n      static with(cond: boolean): any[] {\n        return [\n          MyModule,\n          { provider: 'a', useValue: cond ? '1' : '2' }\n        ];\n      }\n    }\n  ",
     're-exports.ts': "\n    export {MyModule} from './static-field';\n    export {Foo as OtherModule} from './static-field-reference';\n    export * from 'angular2/core';\n  ",
+    're-exports-2.ts': "\n    import {MyModule} from './static-field';\n    import {Foo as OtherModule} from './static-field-reference';\n    class MyClass {}\n    export {OtherModule, MyModule as MyOtherModule, MyClass};\n  ",
+    'export-as.d.ts': "\n     declare function someFunction(): void;\n     export { someFunction as SomeFunction };\n ",
     'local-symbol-ref.ts': "\n    import {Component, Validators} from 'angular2/core';\n\n    var REQUIRED;\n\n    export const REQUIRED_VALIDATOR: any = {\n      provide: 'SomeToken',\n      useValue: REQUIRED,\n      multi: true\n    };\n\n    @Component({\n      providers: [REQUIRED_VALIDATOR]\n    })\n    export class SomeComponent {}\n  ",
     'private-enum.ts': "\n    export enum PublicEnum { a, b, c }\n    enum PrivateEnum { e, f, g }\n  ",
     'local-function-ref.ts': "\n    import {Component, Validators} from 'angular2/core';\n\n    function required() {}\n\n    export const REQUIRED_VALIDATOR: any = {\n      provide: 'SomeToken',\n      useValue: required,\n      multi: true\n    };\n\n    @Component({\n      providers: [REQUIRED_VALIDATOR]\n    })\n    export class SomeComponent {}\n  ",

@@ -7,13 +7,13 @@
  */
 import { ErrorHandler } from '../src/error_handler';
 import { ApplicationInitStatus } from './application_init';
-import { ChangeDetectorRef } from './change_detection/change_detector_ref';
 import { Console } from './console';
 import { Injector, Provider } from './di';
 import { CompilerOptions } from './linker/compiler';
 import { ComponentFactory, ComponentRef } from './linker/component_factory';
 import { ComponentFactoryResolver } from './linker/component_factory_resolver';
 import { NgModuleFactory, NgModuleRef } from './linker/ng_module_factory';
+import { ViewRef } from './linker/view_ref';
 import { Testability, TestabilityRegistry } from './testability/testability';
 import { Type } from './type';
 import { NgZone } from './zone/ng_zone';
@@ -38,6 +38,16 @@ export declare function enableProdMode(): void;
  */
 export declare function isDevMode(): boolean;
 /**
+ * A token for third-party components that can register themselves with NgProbe.
+ *
+ * @experimental
+ */
+export declare class NgProbeToken {
+    name: string;
+    token: any;
+    constructor(name: string, token: any);
+}
+/**
  * Creates a platform.
  * Platforms have to be eagerly created via this function.
  *
@@ -49,7 +59,7 @@ export declare function createPlatform(injector: Injector): PlatformRef;
  *
  * @experimental APIs related to application bootstrap are currently under review.
  */
-export declare function createPlatformFactory(parentPlaformFactory: (extraProviders?: Provider[]) => PlatformRef, name: string, providers?: Provider[]): (extraProviders?: Provider[]) => PlatformRef;
+export declare function createPlatformFactory(parentPlatformFactory: (extraProviders?: Provider[]) => PlatformRef, name: string, providers?: Provider[]): (extraProviders?: Provider[]) => PlatformRef;
 /**
  * Checks that there currently is a platform
  * which contains the given token as a provider.
@@ -103,7 +113,7 @@ export declare abstract class PlatformRef {
      *
      * @experimental APIs related to application bootstrap are currently under review.
      */
-    bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>>;
+    abstract bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>>;
     /**
      * Creates an instance of an `@NgModule` for a given platform using the given runtime compiler.
      *
@@ -119,7 +129,7 @@ export declare abstract class PlatformRef {
      * ```
      * @stable
      */
-    bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: CompilerOptions | CompilerOptions[]): Promise<NgModuleRef<M>>;
+    abstract bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: CompilerOptions | CompilerOptions[]): Promise<NgModuleRef<M>>;
     /**
      * Register a listener to be called when the platform is disposed.
      */
@@ -192,6 +202,20 @@ export declare abstract class ApplicationRef {
      * Get a list of components registered to this application.
      */
     components: ComponentRef<any>[];
+    /**
+     * Attaches a view so that it will be dirty checked.
+     * The view will be automatically detached when it is destroyed.
+     * This will throw if the view is already attached to a ViewContainer.
+     */
+    abstract attachView(view: ViewRef): void;
+    /**
+     * Detaches a view from dirty checking again.
+     */
+    abstract detachView(view: ViewRef): void;
+    /**
+     * Returns the number of attached views.
+     */
+    viewCount: number;
 }
 export declare class ApplicationRef_ extends ApplicationRef {
     private _zone;
@@ -205,15 +229,18 @@ export declare class ApplicationRef_ extends ApplicationRef {
     private _bootstrapListeners;
     private _rootComponents;
     private _rootComponentTypes;
-    private _changeDetectorRefs;
+    private _views;
     private _runningTick;
     private _enforceNoNewChanges;
     constructor(_zone: NgZone, _console: Console, _injector: Injector, _exceptionHandler: ErrorHandler, _componentFactoryResolver: ComponentFactoryResolver, _initStatus: ApplicationInitStatus, _testabilityRegistry: TestabilityRegistry, _testability: Testability);
-    registerChangeDetector(changeDetector: ChangeDetectorRef): void;
-    unregisterChangeDetector(changeDetector: ChangeDetectorRef): void;
+    attachView(viewRef: ViewRef): void;
+    detachView(viewRef: ViewRef): void;
     bootstrap<C>(componentOrFactory: ComponentFactory<C> | Type<C>): ComponentRef<C>;
+    private _loadComponent(componentRef);
+    private _unloadComponent(componentRef);
     tick(): void;
     ngOnDestroy(): void;
+    viewCount: number;
     componentTypes: Type<any>[];
     components: ComponentRef<any>[];
 }

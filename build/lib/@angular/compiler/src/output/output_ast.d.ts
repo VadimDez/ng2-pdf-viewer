@@ -29,10 +29,10 @@ export declare class BuiltinType extends Type {
     constructor(name: BuiltinTypeName, modifiers?: TypeModifier[]);
     visitType(visitor: TypeVisitor, context: any): any;
 }
-export declare class ExternalType extends Type {
-    value: CompileIdentifierMetadata;
+export declare class ExpressionType extends Type {
+    value: Expression;
     typeParams: Type[];
-    constructor(value: CompileIdentifierMetadata, typeParams?: Type[], modifiers?: TypeModifier[]);
+    constructor(value: Expression, typeParams?: Type[], modifiers?: TypeModifier[]);
     visitType(visitor: TypeVisitor, context: any): any;
 }
 export declare class ArrayType extends Type {
@@ -45,16 +45,16 @@ export declare class MapType extends Type {
     constructor(valueType: Type, modifiers?: TypeModifier[]);
     visitType(visitor: TypeVisitor, context: any): any;
 }
-export declare var DYNAMIC_TYPE: BuiltinType;
-export declare var BOOL_TYPE: BuiltinType;
-export declare var INT_TYPE: BuiltinType;
-export declare var NUMBER_TYPE: BuiltinType;
-export declare var STRING_TYPE: BuiltinType;
-export declare var FUNCTION_TYPE: BuiltinType;
-export declare var NULL_TYPE: BuiltinType;
+export declare const DYNAMIC_TYPE: BuiltinType;
+export declare const BOOL_TYPE: BuiltinType;
+export declare const INT_TYPE: BuiltinType;
+export declare const NUMBER_TYPE: BuiltinType;
+export declare const STRING_TYPE: BuiltinType;
+export declare const FUNCTION_TYPE: BuiltinType;
+export declare const NULL_TYPE: BuiltinType;
 export interface TypeVisitor {
     visitBuiltintType(type: BuiltinType, context: any): any;
-    visitExternalType(type: ExternalType, context: any): any;
+    visitExpressionType(type: ExpressionType, context: any): any;
     visitArrayType(type: ArrayType, context: any): any;
     visitMapType(type: MapType, context: any): any;
 }
@@ -229,10 +229,16 @@ export declare class LiteralArrayExpr extends Expression {
     constructor(entries: Expression[], type?: Type);
     visitExpression(visitor: ExpressionVisitor, context: any): any;
 }
+export declare class LiteralMapEntry {
+    key: string;
+    value: Expression;
+    quoted: boolean;
+    constructor(key: string, value: Expression, quoted?: boolean);
+}
 export declare class LiteralMapExpr extends Expression {
-    entries: [string, Expression][];
+    entries: LiteralMapEntry[];
     valueType: Type;
-    constructor(entries: [string, Expression][], type?: MapType);
+    constructor(entries: LiteralMapEntry[], type?: MapType);
     visitExpression(visitor: ExpressionVisitor, context: any): any;
 }
 export interface ExpressionVisitor {
@@ -255,12 +261,12 @@ export interface ExpressionVisitor {
     visitLiteralArrayExpr(ast: LiteralArrayExpr, context: any): any;
     visitLiteralMapExpr(ast: LiteralMapExpr, context: any): any;
 }
-export declare var THIS_EXPR: ReadVarExpr;
-export declare var SUPER_EXPR: ReadVarExpr;
-export declare var CATCH_ERROR_VAR: ReadVarExpr;
-export declare var CATCH_STACK_VAR: ReadVarExpr;
-export declare var NULL_EXPR: LiteralExpr;
-export declare var TYPED_NULL_EXPR: LiteralExpr;
+export declare const THIS_EXPR: ReadVarExpr;
+export declare const SUPER_EXPR: ReadVarExpr;
+export declare const CATCH_ERROR_VAR: ReadVarExpr;
+export declare const CATCH_STACK_VAR: ReadVarExpr;
+export declare const NULL_EXPR: LiteralExpr;
+export declare const TYPED_NULL_EXPR: LiteralExpr;
 export declare enum StmtModifier {
     Final = 0,
     Private = 1,
@@ -427,9 +433,10 @@ export declare function replaceVarInExpression(varName: string, newValue: Expres
 export declare function findReadVarNames(stmts: Statement[]): Set<string>;
 export declare function variable(name: string, type?: Type): ReadVarExpr;
 export declare function importExpr(id: CompileIdentifierMetadata, typeParams?: Type[]): ExternalExpr;
-export declare function importType(id: CompileIdentifierMetadata, typeParams?: Type[], typeModifiers?: TypeModifier[]): ExternalType;
+export declare function importType(id: CompileIdentifierMetadata, typeParams?: Type[], typeModifiers?: TypeModifier[]): ExpressionType;
+export declare function expressionType(expr: Expression, typeParams?: Type[], typeModifiers?: TypeModifier[]): ExpressionType;
 export declare function literalArr(values: Expression[], type?: Type): LiteralArrayExpr;
-export declare function literalMap(values: [string, Expression][], type?: MapType): LiteralMapExpr;
+export declare function literalMap(values: [string, Expression][], type?: MapType, quoted?: boolean): LiteralMapExpr;
 export declare function not(expr: Expression): NotExpr;
 export declare function fn(params: FnParam[], body: Statement[], type?: Type): FunctionExpr;
 export declare function literal(value: any, type?: Type): LiteralExpr;

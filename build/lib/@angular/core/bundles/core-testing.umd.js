@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.2.1
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.7
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -38,6 +38,7 @@
         // If we're running using the Jasmine test framework, adapt to call the 'done'
         // function when asynchronous activity is finished.
         if (_global.jasmine) {
+            // Not using an arrow function to preserve context passed from call site
             return function (done) {
                 if (!done) {
                     // if we run beforeEach in @angular/core/testing/testing_internal then we get no done
@@ -45,7 +46,7 @@
                     done = function () { };
                     done.fail = function (e) { throw e; };
                 }
-                runInTestZone(fn, done, function (err) {
+                runInTestZone(fn, this, done, function (err) {
                     if (typeof err === 'string') {
                         return done.fail(new Error(err));
                     }
@@ -58,11 +59,15 @@
         // Otherwise, return a promise which will resolve when asynchronous activity
         // is finished. This will be correctly consumed by the Mocha framework with
         // it('...', async(myFn)); or can be used in a custom framework.
-        return function () { return new Promise(function (finishCallback, failCallback) {
-            runInTestZone(fn, finishCallback, failCallback);
-        }); };
+        // Not using an arrow function to preserve context passed from call site
+        return function () {
+            var _this = this;
+            return new Promise(function (finishCallback, failCallback) {
+                runInTestZone(fn, _this, finishCallback, failCallback);
+            });
+        };
     }
-    function runInTestZone(fn, finishCallback, failCallback) {
+    function runInTestZone(fn, context, finishCallback, failCallback) {
         var currentZone = Zone.current;
         var AsyncTestZoneSpec = Zone['AsyncTestZoneSpec'];
         if (AsyncTestZoneSpec === undefined) {
@@ -102,7 +107,7 @@
             }, 'test');
             proxyZoneSpec.setDelegate(testZoneSpec);
         });
-        return Zone.current.runGuarded(fn);
+        return Zone.current.runGuarded(fn, context);
     }
 
     function scheduleMicroTask(fn) {
@@ -116,10 +121,10 @@
             return '' + token;
         }
         if (token.overriddenName) {
-            return token.overriddenName;
+            return "" + token.overriddenName;
         }
         if (token.name) {
-            return token.name;
+            return "" + token.name;
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
@@ -318,6 +323,7 @@
      * @experimental
      */
     function fakeAsync(fn) {
+        // Not using an arrow function to preserve context passed from call site
         return function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -339,7 +345,7 @@
                 var lastProxyZoneSpec = proxyZoneSpec.getDelegate();
                 proxyZoneSpec.setDelegate(_fakeAsyncTestZoneSpec);
                 try {
-                    res = fn.apply(void 0, args);
+                    res = fn.apply(this, args);
                     flushMicrotasks();
                 }
                 finally {
@@ -441,6 +447,9 @@
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
+    /**
+     * Convenience to throw an Error with 'unimplemented' as the message.
+     */
     function unimplemented() {
         throw new Error('unimplemented');
     }
@@ -450,9 +459,12 @@
     var BaseError = (function (_super) {
         __extends$1(BaseError, _super);
         function BaseError(message) {
+            _super.call(this, message);
             // Errors don't use current this, instead they create a new instance.
             // We have to do forward all of our api to the nativeInstance.
-            var nativeError = _super.call(this, message);
+            // TODO(bradfordcsmith): Remove this hack when
+            //     google/closure-compiler/issues/2102 is fixed.
+            var nativeError = new Error(message);
             this._nativeError = nativeError;
         }
         Object.defineProperty(BaseError.prototype, "message", {
@@ -759,7 +771,7 @@
                 }
                 catch (e) {
                     if (e.compType) {
-                        throw new Error(("This test module uses the component " + stringify(e.compType) + " which is using a \"templateUrl\", but they were never compiled. ") +
+                        throw new Error(("This test module uses the component " + stringify(e.compType) + " which is using a \"templateUrl\" or \"styleUrls\", but they were never compiled. ") +
                             "Please call \"TestBed.compileComponents\" before your test.");
                     }
                     else {
@@ -767,8 +779,9 @@
                     }
                 }
             }
-            this._moduleRef =
-                this._moduleWithComponentFactories.ngModuleFactory.create(this.platform.injector);
+            var ngZone = new _angular_core.NgZone({ enableLongStackTrace: true });
+            var ngZoneInjector = _angular_core.ReflectiveInjector.resolveAndCreate([{ provide: _angular_core.NgZone, useValue: ngZone }], this.platform.injector);
+            this._moduleRef = this._moduleWithComponentFactories.ngModuleFactory.create(ngZoneInjector);
             this._instantiated = true;
         };
         TestBed.prototype._createCompilerAndModule = function () {
@@ -784,7 +797,7 @@
                     { type: _angular_core.NgModule, args: [{ providers: providers, declarations: declarations, imports: imports, schemas: schemas },] },
                 ];
                 /** @nocollapse */
-                DynamicTestModule.ctorParameters = [];
+                DynamicTestModule.ctorParameters = function () { return []; };
                 return DynamicTestModule;
             }());
             var compilerFactory = this.platform.injector.get(TestingCompilerFactory);
@@ -813,11 +826,11 @@
             var result = this._moduleRef.injector.get(token, UNDEFINED);
             return result === UNDEFINED ? this._compiler.injector.get(token, notFoundValue) : result;
         };
-        TestBed.prototype.execute = function (tokens, fn) {
+        TestBed.prototype.execute = function (tokens, fn, context) {
             var _this = this;
             this._initIfNeeded();
             var params = tokens.map(function (t) { return _this.get(t); });
-            return fn.apply(void 0, params);
+            return fn.apply(context, params);
         };
         TestBed.prototype.overrideModule = function (ngModule, override) {
             this._assertNotInstantiated('overrideModule', 'override module metadata');
@@ -892,19 +905,21 @@
     function inject(tokens, fn) {
         var testBed = getTestBed();
         if (tokens.indexOf(AsyncTestCompleter) >= 0) {
+            // Not using an arrow function to preserve context passed from call site
             return function () {
+                var _this = this;
                 // Return an async test method that returns a Promise if AsyncTestCompleter is one of
-                // the
-                // injected tokens.
+                // the injected tokens.
                 return testBed.compileComponents().then(function () {
                     var completer = testBed.get(AsyncTestCompleter);
-                    testBed.execute(tokens, fn);
+                    testBed.execute(tokens, fn, _this);
                     return completer.promise;
                 });
             };
         }
         else {
-            return function () { return testBed.execute(tokens, fn); };
+            // Not using an arrow function to preserve context passed from call site
+            return function () { return testBed.execute(tokens, fn, this); };
         }
     }
     /**
@@ -921,10 +936,11 @@
             }
         };
         InjectSetupWrapper.prototype.inject = function (tokens, fn) {
-            var _this = this;
+            var self = this;
+            // Not using an arrow function to preserve context passed from call site
             return function () {
-                _this._addModule();
-                return inject(tokens, fn)();
+                self._addModule();
+                return inject(tokens, fn).call(this);
             };
         };
         return InjectSetupWrapper;
@@ -932,12 +948,13 @@
     function withModule(moduleDef, fn) {
         if (fn === void 0) { fn = null; }
         if (fn) {
+            // Not using an arrow function to preserve context passed from call site
             return function () {
                 var testBed = getTestBed();
                 if (moduleDef) {
                     testBed.configureTestingModule(moduleDef);
                 }
-                return fn();
+                return fn.apply(this);
             };
         }
         return new InjectSetupWrapper(function () { return moduleDef; });

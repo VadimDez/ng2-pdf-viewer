@@ -43,7 +43,7 @@ export declare class BindingParser {
     createDirectiveHostPropertyAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundElementPropertyAst[];
     createDirectiveHostEventAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundEventAst[];
     parseInterpolation(value: string, sourceSpan: ParseSourceSpan): ASTWithSource;
-    parseInlineTemplateBinding(name: string, prefixToken: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[], targetVars: VariableAst[]): void;
+    parseInlineTemplateBinding(prefixToken: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[], targetVars: VariableAst[]): void;
     private _parseTemplateBindings(prefixToken, value, sourceSpan);
     parseLiteralAttr(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
     parsePropertyBinding(name: string, expression: string, isHost: boolean, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
@@ -68,7 +68,7 @@ export declare class BindingParser {
     private _validatePropertyOrAttributeName(propName, sourceSpan, isAttr);
 }
 export declare class PipeCollector extends RecursiveAstVisitor {
-    pipes: Set<string>;
+    pipes: Map<string, BindingPipe>;
     visitPipe(ast: BindingPipe, context: any): any;
 }
 export declare function calcPossibleSecurityContexts(registry: ElementSchemaRegistry, selector: string, propName: string, isAttribute: boolean): SecurityContext[];

@@ -43,9 +43,9 @@ export var TestingCompilerFactoryImpl = (function () {
         { type: Injectable },
     ];
     /** @nocollapse */
-    TestingCompilerFactoryImpl.ctorParameters = [
+    TestingCompilerFactoryImpl.ctorParameters = function () { return [
         { type: CompilerFactory, },
-    ];
+    ]; };
     return TestingCompilerFactoryImpl;
 }());
 export var TestingCompilerImpl = (function () {
@@ -72,6 +72,9 @@ export var TestingCompilerImpl = (function () {
     };
     TestingCompilerImpl.prototype.compileModuleAndAllComponentsAsync = function (moduleType) {
         return this._compiler.compileModuleAndAllComponentsAsync(moduleType);
+    };
+    TestingCompilerImpl.prototype.getNgContentSelectors = function (component) {
+        return this._compiler.getNgContentSelectors(component);
     };
     TestingCompilerImpl.prototype.overrideModule = function (ngModule, override) {
         var oldMetadata = this._moduleResolver.resolve(ngModule, false);
@@ -103,9 +106,12 @@ export var platformCoreDynamicTesting = createPlatformFactory(platformCoreDynami
         provide: COMPILER_OPTIONS,
         useValue: {
             providers: [
-                MockPipeResolver, { provide: PipeResolver, useExisting: MockPipeResolver },
-                MockDirectiveResolver, { provide: DirectiveResolver, useExisting: MockDirectiveResolver },
-                MockNgModuleResolver, { provide: NgModuleResolver, useExisting: MockNgModuleResolver }
+                MockPipeResolver,
+                { provide: PipeResolver, useExisting: MockPipeResolver },
+                MockDirectiveResolver,
+                { provide: DirectiveResolver, useExisting: MockDirectiveResolver },
+                MockNgModuleResolver,
+                { provide: NgModuleResolver, useExisting: MockNgModuleResolver },
             ]
         },
         multi: true

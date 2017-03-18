@@ -6,19 +6,20 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, LOCALE_ID, Pipe } from '@angular/core';
-import { DateFormatter } from '../facade/intl';
-import { NumberWrapper, isDate } from '../facade/lang';
+import { NumberWrapper } from '../facade/lang';
+import { DateFormatter } from './intl';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
+var /** @type {?} */ ISO8601_DATE_REGEX = /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
 /**
- * @ngModule CommonModule
- * @whatItDoes Formats a date according to locale rules.
- * @howToUse `date_expression | date[:format]`
- * @description
+ * \@ngModule CommonModule
+ * \@whatItDoes Formats a date according to locale rules.
+ * \@howToUse `date_expression | date[:format]`
+ * \@description
  *
  * Where:
  * - `expression` is a date object or a number (milliseconds since UTC epoch) or an ISO string
  * (https://www.w3.org/TR/NOTE-datetime).
- * - `format` indicates which date/time components to include. The format can be predifined as
+ * - `format` indicates which date/time components to include. The format can be predefined as
  *   shown below or custom as shown in the table.
  *   - `'medium'`: equivalent to `'yMMMdjms'` (e.g. `Sep 3, 2010, 12:05:08 PM` for `en-US`)
  *   - `'short'`: equivalent to `'yMdjm'` (e.g. `9/3/2010, 12:05 PM` for `en-US`)
@@ -74,18 +75,26 @@ import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
  *     {{ dateObj | date:'mmss' }}        // output is '43:11'
  * ```
  *
- * {@example common/pipes/ts/date_pipe.ts region='DatePipe'}
+ * {\@example common/pipes/ts/date_pipe.ts region='DatePipe'}
  *
- * @stable
+ * \@stable
  */
 export var DatePipe = (function () {
+    /**
+     * @param {?} _locale
+     */
     function DatePipe(_locale) {
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @param {?=} pattern
+     * @return {?}
+     */
     DatePipe.prototype.transform = function (value, pattern) {
         if (pattern === void 0) { pattern = 'mediumDate'; }
-        var date;
-        if (isBlank(value))
+        var /** @type {?} */ date;
+        if (isBlank(value) || value !== value)
             return null;
         if (typeof value === 'string') {
             value = value.trim();
@@ -113,7 +122,13 @@ export var DatePipe = (function () {
             date = new Date(value);
         }
         if (!isDate(date)) {
-            throw new InvalidPipeArgumentError(DatePipe, value);
+            var /** @type {?} */ match = void 0;
+            if ((typeof value === 'string') && (match = value.match(ISO8601_DATE_REGEX))) {
+                date = isoStringToDate(match);
+            }
+            else {
+                throw new InvalidPipeArgumentError(DatePipe, value);
+            }
         }
         return DateFormatter.format(date, this._locale, DatePipe._ALIASES[pattern] || pattern);
     };
@@ -132,12 +147,68 @@ export var DatePipe = (function () {
         { type: Pipe, args: [{ name: 'date', pure: true },] },
     ];
     /** @nocollapse */
-    DatePipe.ctorParameters = [
+    DatePipe.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return DatePipe;
 }());
+function DatePipe_tsickle_Closure_declarations() {
+    /**
+     * \@internal
+     * @type {?}
+     */
+    DatePipe._ALIASES;
+    /** @type {?} */
+    DatePipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    DatePipe.ctorParameters;
+    /** @type {?} */
+    DatePipe.prototype._locale;
+}
+/**
+ * @param {?} obj
+ * @return {?}
+ */
 function isBlank(obj) {
     return obj == null || obj === '';
+}
+/**
+ * @param {?} obj
+ * @return {?}
+ */
+function isDate(obj) {
+    return obj instanceof Date && !isNaN(obj.valueOf());
+}
+/**
+ * @param {?} match
+ * @return {?}
+ */
+function isoStringToDate(match) {
+    var /** @type {?} */ date = new Date(0);
+    var /** @type {?} */ tzHour = 0;
+    var /** @type {?} */ tzMin = 0;
+    var /** @type {?} */ dateSetter = match[8] ? date.setUTCFullYear : date.setFullYear;
+    var /** @type {?} */ timeSetter = match[8] ? date.setUTCHours : date.setHours;
+    if (match[9]) {
+        tzHour = toInt(match[9] + match[10]);
+        tzMin = toInt(match[9] + match[11]);
+    }
+    dateSetter.call(date, toInt(match[1]), toInt(match[2]) - 1, toInt(match[3]));
+    var /** @type {?} */ h = toInt(match[4] || '0') - tzHour;
+    var /** @type {?} */ m = toInt(match[5] || '0') - tzMin;
+    var /** @type {?} */ s = toInt(match[6] || '0');
+    var /** @type {?} */ ms = Math.round(parseFloat('0.' + (match[7] || 0)) * 1000);
+    timeSetter.call(date, h, m, s, ms);
+    return date;
+}
+/**
+ * @param {?} str
+ * @return {?}
+ */
+function toInt(str) {
+    return parseInt(str, 10);
 }
 //# sourceMappingURL=date_pipe.js.map

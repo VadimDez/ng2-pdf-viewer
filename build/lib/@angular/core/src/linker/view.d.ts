@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import { ApplicationRef } from '../application_ref';
 import { ChangeDetectorRef, ChangeDetectorStatus } from '../change_detection/change_detection';
 import { Injector } from '../di/injector';
 import { RenderComponentType, Renderer } from '../render/api';
@@ -34,6 +35,7 @@ export declare abstract class AppView<T> {
     allNodes: any[];
     disposables: Function[];
     viewContainer: ViewContainer;
+    appRef: ApplicationRef;
     numberOfChecks: number;
     renderer: Renderer;
     private _hasExternalHostElement;
@@ -75,6 +77,7 @@ export declare abstract class AppView<T> {
     detachInternal(): void;
     detach(): void;
     private _renderDetach();
+    attachToAppRef(appRef: ApplicationRef): void;
     attachAfter(viewContainer: ViewContainer, prevView: AppView<any>): void;
     moveAfter(viewContainer: ViewContainer, prevView: AppView<any>): void;
     private _renderAttach(viewContainer, prevView);
@@ -94,6 +97,7 @@ export declare abstract class AppView<T> {
      * Overwritten by implementations
      */
     dirtyParentQueriesInternal(): void;
+    internalDetectChanges(throwOnChange: boolean): void;
     detectChanges(throwOnChange: boolean): void;
     /**
      * Overwritten by implementations

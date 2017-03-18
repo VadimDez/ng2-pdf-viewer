@@ -9,13 +9,13 @@ import { OpaqueToken } from '../di/opaque_token';
 /**
  * @experimental i18n support is experimental.
  */
-export var LOCALE_ID = new OpaqueToken('LocaleId');
+export var /** @type {?} */ LOCALE_ID = new OpaqueToken('LocaleId');
 /**
  * @experimental i18n support is experimental.
  */
-export var TRANSLATIONS = new OpaqueToken('Translations');
+export var /** @type {?} */ TRANSLATIONS = new OpaqueToken('Translations');
 /**
  * @experimental i18n support is experimental.
  */
-export var TRANSLATIONS_FORMAT = new OpaqueToken('TranslationsFormat');
+export var /** @type {?} */ TRANSLATIONS_FORMAT = new OpaqueToken('TranslationsFormat');
 //# sourceMappingURL=tokens.js.map

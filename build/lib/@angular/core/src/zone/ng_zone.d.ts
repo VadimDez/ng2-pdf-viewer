@@ -20,6 +20,7 @@ import { EventEmitter } from '../facade/async';
  *   -->
  *
  * ### Example
+ *
  * ```
  * import {Component, NgZone} from '@angular/core';
  * import {NgIf} from '@angular/common';
@@ -74,6 +75,7 @@ import { EventEmitter } from '../facade/async';
  *   }
  * }
  * ```
+ *
  * @experimental
  */
 export declare class NgZone {

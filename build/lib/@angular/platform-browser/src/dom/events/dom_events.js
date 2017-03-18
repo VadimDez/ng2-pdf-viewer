@@ -17,18 +17,35 @@ export var DomEventsPlugin = (function (_super) {
     function DomEventsPlugin() {
         _super.apply(this, arguments);
     }
-    // This plugin should come last in the list of plugins, because it accepts all
-    // events.
+    /**
+     * @param {?} eventName
+     * @return {?}
+     */
     DomEventsPlugin.prototype.supports = function (eventName) { return true; };
+    /**
+     * @param {?} element
+     * @param {?} eventName
+     * @param {?} handler
+     * @return {?}
+     */
     DomEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
-        element.addEventListener(eventName, handler, false);
-        return function () { return element.removeEventListener(eventName, handler, false); };
+        element.addEventListener(eventName, /** @type {?} */ (handler), false);
+        return function () { return element.removeEventListener(eventName, /** @type {?} */ (handler), false); };
     };
     DomEventsPlugin.decorators = [
         { type: Injectable },
     ];
     /** @nocollapse */
-    DomEventsPlugin.ctorParameters = [];
+    DomEventsPlugin.ctorParameters = function () { return []; };
     return DomEventsPlugin;
 }(EventManagerPlugin));
+function DomEventsPlugin_tsickle_Closure_declarations() {
+    /** @type {?} */
+    DomEventsPlugin.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    DomEventsPlugin.ctorParameters;
+}
 //# sourceMappingURL=dom_events.js.map

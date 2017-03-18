@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { AnimationEntryMetadata, Type } from '@angular/core';
+import { AnimationEntryMetadata, Component, Directive, OpaqueToken, Type } from '@angular/core';
 import * as cpl from './compile_metadata';
 import { DirectiveNormalizer } from './directive_normalizer';
 import { DirectiveResolver } from './directive_resolver';
@@ -13,68 +13,62 @@ import { NgModuleResolver } from './ng_module_resolver';
 import { PipeResolver } from './pipe_resolver';
 import { ReflectorReader } from './private_import_core';
 import { ElementSchemaRegistry } from './schema/element_schema_registry';
+import { SummaryResolver } from './summary_resolver';
+export declare type ErrorCollector = (error: any, type?: any) => void;
+export declare const ERROR_COLLECTOR_TOKEN: OpaqueToken;
 export declare class CompileMetadataResolver {
     private _ngModuleResolver;
     private _directiveResolver;
     private _pipeResolver;
+    private _summaryResolver;
     private _schemaRegistry;
     private _directiveNormalizer;
     private _reflector;
+    private _errorCollector;
     private _directiveCache;
-    private _directiveSummaryCache;
+    private _summaryCache;
     private _pipeCache;
-    private _pipeSummaryCache;
     private _ngModuleCache;
     private _ngModuleOfTypes;
-    private _anonymousTypes;
-    private _anonymousTypeIndex;
-    constructor(_ngModuleResolver: NgModuleResolver, _directiveResolver: DirectiveResolver, _pipeResolver: PipeResolver, _schemaRegistry: ElementSchemaRegistry, _directiveNormalizer: DirectiveNormalizer, _reflector?: ReflectorReader);
-    private sanitizeTokenName(token);
+    constructor(_ngModuleResolver: NgModuleResolver, _directiveResolver: DirectiveResolver, _pipeResolver: PipeResolver, _summaryResolver: SummaryResolver<any>, _schemaRegistry: ElementSchemaRegistry, _directiveNormalizer: DirectiveNormalizer, _reflector?: ReflectorReader, _errorCollector?: ErrorCollector);
     clearCacheFor(type: Type<any>): void;
     clearCache(): void;
     getAnimationEntryMetadata(entry: AnimationEntryMetadata): cpl.CompileAnimationEntryMetadata;
     private _getAnimationStateMetadata(value);
     private _getAnimationStyleMetadata(value);
     private _getAnimationMetadata(value);
+    private _loadSummary(type, kind);
     private _loadDirectiveMetadata(directiveType, isSync);
-    getNonNormalizedDirectiveMetadata(directiveType: any): cpl.CompileDirectiveMetadata;
+    getNonNormalizedDirectiveMetadata(directiveType: any): {
+        annotation: Directive;
+        metadata: cpl.CompileDirectiveMetadata;
+    };
     /**
      * Gets the metadata for the given directive.
-     * This assumes `loadNgModuleMetadata` has been called first.
+     * This assumes `loadNgModuleDirectiveAndPipeMetadata` has been called first.
      */
     getDirectiveMetadata(directiveType: any): cpl.CompileDirectiveMetadata;
     getDirectiveSummary(dirType: any): cpl.CompileDirectiveSummary;
     isDirective(type: any): boolean;
     isPipe(type: any): boolean;
+    getNgModuleSummary(moduleType: any): cpl.CompileNgModuleSummary;
     /**
-     * Gets the metadata for the given module.
-     * This assumes `loadNgModuleMetadata` has been called first.
+     * Loads the declared directives and pipes of an NgModule.
      */
-    getNgModuleMetadata(moduleType: any): cpl.CompileNgModuleMetadata;
-    private _loadNgModuleSummary(moduleType, isSync);
-    /**
-     * Loads an NgModule and all of its directives. This includes loading the exported directives of
-     * imported modules,
-     * but not private directives of imported modules.
-     */
-    loadNgModuleMetadata(moduleType: any, isSync: boolean, throwIfNotFound?: boolean): {
-        ngModule: cpl.CompileNgModuleMetadata;
-        loading: Promise<any>;
-    };
-    /**
-     * Get the NgModule metadata without loading the directives.
-     */
-    getUnloadedNgModuleMetadata(moduleType: any, isSync: boolean, throwIfNotFound?: boolean): cpl.CompileNgModuleMetadata;
-    private _loadNgModuleMetadata(moduleType, isSync, throwIfNotFound?);
+    loadNgModuleDirectiveAndPipeMetadata(moduleType: any, isSync: boolean, throwIfNotFound?: boolean): Promise<any>;
+    getNgModuleMetadata(moduleType: any, throwIfNotFound?: boolean): cpl.CompileNgModuleMetadata;
     private _getTypeDescriptor(type);
     private _addTypeToModule(type, moduleType);
     private _getTransitiveNgModuleMetadata(importedModules, exportedModules);
-    private _getIdentifierMetadata(type, moduleUrl);
-    private _getTypeMetadata(type, moduleUrl, dependencies?);
-    private _getFactoryMetadata(factory, moduleUrl, dependencies?);
+    private _getIdentifierMetadata(type);
+    isInjectable(type: any): boolean;
+    getInjectableSummary(type: any): cpl.CompileTypeSummary;
+    private _getInjectableMetadata(type, dependencies?);
+    private _getTypeMetadata(type, dependencies?);
+    private _getFactoryMetadata(factory, dependencies?);
     /**
      * Gets the metadata for the given pipe.
-     * This assumes `loadNgModuleMetadata` has been called first.
+     * This assumes `loadNgModuleDirectiveAndPipeMetadata` has been called first.
      */
     getPipeMetadata(pipeType: any): cpl.CompilePipeMetadata;
     getPipeSummary(pipeType: any): cpl.CompilePipeSummary;
@@ -82,10 +76,12 @@ export declare class CompileMetadataResolver {
     private _loadPipeMetadata(pipeType);
     private _getDependenciesMetadata(typeOrFunc, dependencies);
     private _getTokenMetadata(token);
-    private _getProvidersMetadata(providers, targetEntryComponents, debugInfo?);
-    private _getEntryComponentsFromProvider(provider);
+    private _getProvidersMetadata(providers, targetEntryComponents, debugInfo?, compileProviders?, type?);
+    private _getEntryComponentsFromProvider(provider, type?);
     getProviderMetadata(provider: cpl.ProviderMeta): cpl.CompileProviderMetadata;
     private _getQueriesMetadata(queries, isViewQuery, directiveType);
     private _queryVarBindings(selector);
     private _getQueryMetadata(q, propertyName, typeOrFunc);
+    private _reportError(error, type?, otherType?);
 }
+export declare function componentModuleUrl(reflector: ReflectorReader, type: Type<any>, cmpMetadata: Component): string;

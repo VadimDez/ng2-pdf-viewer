@@ -12,5 +12,5 @@ export { Reflector } from './reflector';
  * The {@link Reflector} used internally in Angular to access metadata
  * about symbols.
  */
-export var reflector = new Reflector(new ReflectionCapabilities());
+export var /** @type {?} */ reflector = new Reflector(new ReflectionCapabilities());
 //# sourceMappingURL=reflection.js.map

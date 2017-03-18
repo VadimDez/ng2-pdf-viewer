@@ -15,5 +15,6 @@ export { DOCUMENT } from './dom/dom_tokens';
 export { EVENT_MANAGER_PLUGINS, EventManager } from './dom/events/event_manager';
 export { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from './dom/events/hammer_gestures';
 export { DomSanitizer } from './security/dom_sanitization_service';
-export * from './private_export';
+export { __platform_browser_private__ } from './private_export';
+export { VERSION } from './version';
 //# sourceMappingURL=platform-browser.js.map

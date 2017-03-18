@@ -9,30 +9,28 @@ var isDate_1 = require('../util/isDate');
 var Subscriber_1 = require('../Subscriber');
 var TimeoutError_1 = require('../util/TimeoutError');
 /**
- * @param due
- * @param errorToSend
- * @param scheduler
+ * @param {number} due
+ * @param {Scheduler} [scheduler]
  * @return {Observable<R>|WebSocketSubject<T>|Observable<T>}
  * @method timeout
  * @owner Observable
  */
-function timeout(due, errorToSend, scheduler) {
-    if (errorToSend === void 0) { errorToSend = null; }
+function timeout(due, scheduler) {
     if (scheduler === void 0) { scheduler = async_1.async; }
     var absoluteTimeout = isDate_1.isDate(due);
     var waitFor = absoluteTimeout ? (+due - scheduler.now()) : Math.abs(due);
-    return this.lift(new TimeoutOperator(waitFor, absoluteTimeout, errorToSend, scheduler));
+    return this.lift(new TimeoutOperator(waitFor, absoluteTimeout, scheduler, new TimeoutError_1.TimeoutError()));
 }
 exports.timeout = timeout;
 var TimeoutOperator = (function () {
-    function TimeoutOperator(waitFor, absoluteTimeout, errorToSend, scheduler) {
+    function TimeoutOperator(waitFor, absoluteTimeout, scheduler, errorInstance) {
         this.waitFor = waitFor;
         this.absoluteTimeout = absoluteTimeout;
-        this.errorToSend = errorToSend;
         this.scheduler = scheduler;
+        this.errorInstance = errorInstance;
     }
     TimeoutOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new TimeoutSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.errorToSend, this.scheduler));
+        return source.subscribe(new TimeoutSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.scheduler, this.errorInstance));
     };
     return TimeoutOperator;
 }());
@@ -43,12 +41,12 @@ var TimeoutOperator = (function () {
  */
 var TimeoutSubscriber = (function (_super) {
     __extends(TimeoutSubscriber, _super);
-    function TimeoutSubscriber(destination, absoluteTimeout, waitFor, errorToSend, scheduler) {
+    function TimeoutSubscriber(destination, absoluteTimeout, waitFor, scheduler, errorInstance) {
         _super.call(this, destination);
         this.absoluteTimeout = absoluteTimeout;
         this.waitFor = waitFor;
-        this.errorToSend = errorToSend;
         this.scheduler = scheduler;
+        this.errorInstance = errorInstance;
         this.index = 0;
         this._previousIndex = 0;
         this._hasCompleted = false;
@@ -96,7 +94,7 @@ var TimeoutSubscriber = (function (_super) {
         this._hasCompleted = true;
     };
     TimeoutSubscriber.prototype.notifyTimeout = function () {
-        this.error(this.errorToSend || new TimeoutError_1.TimeoutError());
+        this.error(this.errorInstance);
     };
     return TimeoutSubscriber;
 }(Subscriber_1.Subscriber));

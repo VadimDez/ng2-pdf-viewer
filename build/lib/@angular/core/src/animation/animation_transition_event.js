@@ -1,20 +1,13 @@
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
  * An instance of this class is returned as an event parameter when an animation
  * callback is captured for an animation either during the start or done phase.
  *
  * ```typescript
- * @Component({
+ * \@Component({
  *   host: {
- *     '[@myAnimationTrigger]': 'someExpression',
- *     '(@myAnimationTrigger.start)': 'captureStartEvent($event)',
- *     '(@myAnimationTrigger.done)': 'captureDoneEvent($event)',
+ *     '[\@myAnimationTrigger]': 'someExpression',
+ *     '(\@myAnimationTrigger.start)': 'captureStartEvent($event)',
+ *     '(\@myAnimationTrigger.done)': 'captureDoneEvent($event)',
  *   },
  *   animations: [
  *     trigger("myAnimationTrigger", [
@@ -34,9 +27,12 @@
  * }
  * ```
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationTransitionEvent = (function () {
+    /**
+     * @param {?} __0
+     */
     function AnimationTransitionEvent(_a) {
         var fromState = _a.fromState, toState = _a.toState, totalTime = _a.totalTime, phaseName = _a.phaseName;
         this.fromState = fromState;
@@ -46,4 +42,14 @@ export var AnimationTransitionEvent = (function () {
     }
     return AnimationTransitionEvent;
 }());
+function AnimationTransitionEvent_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationTransitionEvent.prototype.fromState;
+    /** @type {?} */
+    AnimationTransitionEvent.prototype.toState;
+    /** @type {?} */
+    AnimationTransitionEvent.prototype.totalTime;
+    /** @type {?} */
+    AnimationTransitionEvent.prototype.phaseName;
+}
 //# sourceMappingURL=animation_transition_event.js.map

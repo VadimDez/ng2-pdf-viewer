@@ -15,5 +15,5 @@ export declare class I18NHtmlParser implements HtmlParser {
     getTagDefinition: any;
     constructor(_htmlParser: HtmlParser, _translations?: string, _translationsFormat?: string);
     parse(source: string, url: string, parseExpansionForms?: boolean, interpolationConfig?: InterpolationConfig): ParseTreeResult;
-    private _createSerializer(interpolationConfig);
+    private _createSerializer();
 }

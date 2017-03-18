@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { INTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS } from './server';
-export var __platform_server_private__ = {
+export var /** @type {?} */ __platform_server_private__ = {
     INTERNAL_SERVER_PLATFORM_PROVIDERS: INTERNAL_SERVER_PLATFORM_PROVIDERS,
     SERVER_RENDER_PROVIDERS: SERVER_RENDER_PROVIDERS,
 };

@@ -12,5 +12,5 @@ import { OpaqueToken } from '@angular/core';
  * See {@link DefaultValueAccessor} for how to implement one.
  * @stable
  */
-export var NG_VALUE_ACCESSOR = new OpaqueToken('NgValueAccessor');
+export var /** @type {?} */ NG_VALUE_ACCESSOR = new OpaqueToken('NgValueAccessor');
 //# sourceMappingURL=control_value_accessor.js.map

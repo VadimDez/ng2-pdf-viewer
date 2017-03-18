@@ -5,6 +5,8 @@ export interface Directory {
 export declare class Host implements ts.LanguageServiceHost {
     private directory;
     private scripts;
+    private overrides;
+    private version;
     constructor(directory: Directory, scripts: string[]);
     getCompilationSettings(): ts.CompilerOptions;
     getScriptFileNames(): string[];
@@ -12,6 +14,8 @@ export declare class Host implements ts.LanguageServiceHost {
     getScriptSnapshot(fileName: string): ts.IScriptSnapshot;
     getCurrentDirectory(): string;
     getDefaultLibFileName(options: ts.CompilerOptions): string;
+    overrideFile(fileName: string, content: string): void;
+    addFile(fileName: string): void;
     private getFileContent(fileName);
 }
 export declare class MockNode implements ts.Node {

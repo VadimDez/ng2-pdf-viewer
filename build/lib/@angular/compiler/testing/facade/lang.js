@@ -44,9 +44,6 @@ var STRING_MAP_PROTO = Object.getPrototypeOf({});
 export function isStrictStringMap(obj) {
     return typeof obj === 'object' && obj !== null && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
 }
-export function isDate(obj) {
-    return obj instanceof Date && !isNaN(obj.valueOf());
-}
 export function stringify(token) {
     if (typeof token === 'string') {
         return token;
@@ -55,10 +52,10 @@ export function stringify(token) {
         return '' + token;
     }
     if (token.overriddenName) {
-        return token.overriddenName;
+        return "" + token.overriddenName;
     }
     if (token.name) {
-        return token.name;
+        return "" + token.name;
     }
     var res = token.toString();
     var newLineIndex = res.indexOf('\n');
@@ -85,6 +82,7 @@ export function isJsObject(o) {
     return o !== null && (typeof o === 'function' || typeof o === 'object');
 }
 export function print(obj) {
+    // tslint:disable-next-line:no-console
     console.log(obj);
 }
 export function warn(obj) {

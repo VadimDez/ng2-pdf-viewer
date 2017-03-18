@@ -6,5 +6,6 @@
  * found in the LICENSE file at https://angular.io/license
  */
 export { ServerModule, platformDynamicServer, platformServer } from './server';
-export * from './private_export';
+export { __platform_server_private__ } from './private_export';
+export { VERSION } from './version';
 //# sourceMappingURL=platform-server.js.map

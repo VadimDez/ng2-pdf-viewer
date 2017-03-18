@@ -17,7 +17,7 @@ import * as hammer_gesture from './dom/events/hammer_gestures';
 import * as key_events from './dom/events/key_events';
 import * as shared_styles_host from './dom/shared_styles_host';
 import { WebAnimationsDriver } from './dom/web_animations_driver';
-export declare var __platform_browser_private__: {
+export declare const __platform_browser_private__: {
     _BrowserPlatformLocation?: location.BrowserPlatformLocation;
     BrowserPlatformLocation: typeof location.BrowserPlatformLocation;
     _DomAdapter?: dom_adapter.DomAdapter;

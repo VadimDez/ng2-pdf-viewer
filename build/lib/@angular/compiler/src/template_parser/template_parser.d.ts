@@ -14,6 +14,7 @@ import { InterpolationConfig } from '../ml_parser/interpolation_config';
 import { ParseError, ParseErrorLevel, ParseSourceSpan } from '../parse_util';
 import { Console } from '../private_import_core';
 import { ElementSchemaRegistry } from '../schema/element_schema_registry';
+import { CssSelector } from '../selector';
 import { TemplateAst, TemplateAstVisitor } from './template_ast';
 /**
  * Provides an array of {@link TemplateAstVisitor}s which will be used to transform
@@ -45,6 +46,7 @@ export declare class TemplateParser {
     getInterpolationConfig(component: CompileDirectiveMetadata): InterpolationConfig;
 }
 export declare function splitClasses(classAttrValue: string): string[];
+export declare function createElementCssSelector(elementName: string, attributes: [string, string][]): CssSelector;
 export declare function removeSummaryDuplicates<T extends {
     type: CompileTypeMetadata;
 }>(items: T[]): T[];

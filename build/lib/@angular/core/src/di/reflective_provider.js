@@ -8,7 +8,7 @@
 import { reflector } from '../reflection/reflection';
 import { Type } from '../type';
 import { resolveForwardRef } from './forward_ref';
-import { Host, Inject, Optional, Self, SkipSelf } from './metadata';
+import { Inject, Optional, Self, SkipSelf } from './metadata';
 import { InvalidProviderError, MixingMultiProvidersWithRegularProvidersError, NoAnnotationError } from './reflective_errors';
 import { ReflectiveKey } from './reflective_key';
 /**
@@ -16,60 +16,101 @@ import { ReflectiveKey } from './reflective_key';
  * This is internal to Angular and should not be used directly.
  */
 export var ReflectiveDependency = (function () {
-    function ReflectiveDependency(key, optional, lowerBoundVisibility, upperBoundVisibility, properties) {
+    /**
+     * @param {?} key
+     * @param {?} optional
+     * @param {?} visibility
+     */
+    function ReflectiveDependency(key, optional, visibility) {
         this.key = key;
         this.optional = optional;
-        this.lowerBoundVisibility = lowerBoundVisibility;
-        this.upperBoundVisibility = upperBoundVisibility;
-        this.properties = properties;
+        this.visibility = visibility;
     }
+    /**
+     * @param {?} key
+     * @return {?}
+     */
     ReflectiveDependency.fromKey = function (key) {
-        return new ReflectiveDependency(key, false, null, null, []);
+        return new ReflectiveDependency(key, false, null);
     };
     return ReflectiveDependency;
 }());
-var _EMPTY_LIST = [];
+function ReflectiveDependency_tsickle_Closure_declarations() {
+    /** @type {?} */
+    ReflectiveDependency.prototype.key;
+    /** @type {?} */
+    ReflectiveDependency.prototype.optional;
+    /** @type {?} */
+    ReflectiveDependency.prototype.visibility;
+}
+var /** @type {?} */ _EMPTY_LIST = [];
 export var ResolvedReflectiveProvider_ = (function () {
+    /**
+     * @param {?} key
+     * @param {?} resolvedFactories
+     * @param {?} multiProvider
+     */
     function ResolvedReflectiveProvider_(key, resolvedFactories, multiProvider) {
         this.key = key;
         this.resolvedFactories = resolvedFactories;
         this.multiProvider = multiProvider;
     }
     Object.defineProperty(ResolvedReflectiveProvider_.prototype, "resolvedFactory", {
+        /**
+         * @return {?}
+         */
         get: function () { return this.resolvedFactories[0]; },
         enumerable: true,
         configurable: true
     });
     return ResolvedReflectiveProvider_;
 }());
+function ResolvedReflectiveProvider__tsickle_Closure_declarations() {
+    /** @type {?} */
+    ResolvedReflectiveProvider_.prototype.key;
+    /** @type {?} */
+    ResolvedReflectiveProvider_.prototype.resolvedFactories;
+    /** @type {?} */
+    ResolvedReflectiveProvider_.prototype.multiProvider;
+}
 /**
- * An internal resolved representation of a factory function created by resolving {@link
+ * An internal resolved representation of a factory function created by resolving {\@link
  * Provider}.
- * @experimental
+ * \@experimental
  */
 export var ResolvedReflectiveFactory = (function () {
-    function ResolvedReflectiveFactory(
-        /**
-         * Factory function which can return an instance of an object represented by a key.
-         */
-        factory, 
-        /**
-         * Arguments (dependencies) to the `factory` function.
-         */
-        dependencies) {
+    /**
+     * @param {?} factory
+     * @param {?} dependencies
+     */
+    function ResolvedReflectiveFactory(factory, dependencies) {
         this.factory = factory;
         this.dependencies = dependencies;
     }
     return ResolvedReflectiveFactory;
 }());
+function ResolvedReflectiveFactory_tsickle_Closure_declarations() {
+    /**
+     * Factory function which can return an instance of an object represented by a key.
+     * @type {?}
+     */
+    ResolvedReflectiveFactory.prototype.factory;
+    /**
+     * Arguments (dependencies) to the `factory` function.
+     * @type {?}
+     */
+    ResolvedReflectiveFactory.prototype.dependencies;
+}
 /**
  * Resolve a single provider.
+ * @param {?} provider
+ * @return {?}
  */
 function resolveReflectiveFactory(provider) {
-    var factoryFn;
-    var resolvedDeps;
+    var /** @type {?} */ factoryFn;
+    var /** @type {?} */ resolvedDeps;
     if (provider.useClass) {
-        var useClass = resolveForwardRef(provider.useClass);
+        var /** @type {?} */ useClass = resolveForwardRef(provider.useClass);
         factoryFn = reflector.factory(useClass);
         resolvedDeps = _dependenciesFor(useClass);
     }
@@ -88,38 +129,45 @@ function resolveReflectiveFactory(provider) {
     return new ResolvedReflectiveFactory(factoryFn, resolvedDeps);
 }
 /**
- * Converts the {@link Provider} into {@link ResolvedProvider}.
+ * Converts the {\@link Provider} into {\@link ResolvedProvider}.
  *
- * {@link Injector} internally only uses {@link ResolvedProvider}, {@link Provider} contains
+ * {\@link Injector} internally only uses {\@link ResolvedProvider}, {\@link Provider} contains
  * convenience provider syntax.
+ * @param {?} provider
+ * @return {?}
  */
 function resolveReflectiveProvider(provider) {
     return new ResolvedReflectiveProvider_(ReflectiveKey.get(provider.provide), [resolveReflectiveFactory(provider)], provider.multi);
 }
 /**
  * Resolve a list of Providers.
+ * @param {?} providers
+ * @return {?}
  */
 export function resolveReflectiveProviders(providers) {
-    var normalized = _normalizeProviders(providers, []);
-    var resolved = normalized.map(resolveReflectiveProvider);
-    var resolvedProviderMap = mergeResolvedReflectiveProviders(resolved, new Map());
+    var /** @type {?} */ normalized = _normalizeProviders(providers, []);
+    var /** @type {?} */ resolved = normalized.map(resolveReflectiveProvider);
+    var /** @type {?} */ resolvedProviderMap = mergeResolvedReflectiveProviders(resolved, new Map());
     return Array.from(resolvedProviderMap.values());
 }
 /**
  * Merges a list of ResolvedProviders into a list where
  * each key is contained exactly once and multi providers
  * have been merged.
+ * @param {?} providers
+ * @param {?} normalizedProvidersMap
+ * @return {?}
  */
 export function mergeResolvedReflectiveProviders(providers, normalizedProvidersMap) {
-    for (var i = 0; i < providers.length; i++) {
-        var provider = providers[i];
-        var existing = normalizedProvidersMap.get(provider.key.id);
+    for (var /** @type {?} */ i = 0; i < providers.length; i++) {
+        var /** @type {?} */ provider = providers[i];
+        var /** @type {?} */ existing = normalizedProvidersMap.get(provider.key.id);
         if (existing) {
             if (provider.multiProvider !== existing.multiProvider) {
                 throw new MixingMultiProvidersWithRegularProvidersError(existing, provider);
             }
             if (provider.multiProvider) {
-                for (var j = 0; j < provider.resolvedFactories.length; j++) {
+                for (var /** @type {?} */ j = 0; j < provider.resolvedFactories.length; j++) {
                     existing.resolvedFactories.push(provider.resolvedFactories[j]);
                 }
             }
@@ -128,7 +176,7 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
             }
         }
         else {
-            var resolvedProvider = void 0;
+            var /** @type {?} */ resolvedProvider = void 0;
             if (provider.multiProvider) {
                 resolvedProvider = new ResolvedReflectiveProvider_(provider.key, provider.resolvedFactories.slice(), provider.multiProvider);
             }
@@ -140,13 +188,18 @@ export function mergeResolvedReflectiveProviders(providers, normalizedProvidersM
     }
     return normalizedProvidersMap;
 }
+/**
+ * @param {?} providers
+ * @param {?} res
+ * @return {?}
+ */
 function _normalizeProviders(providers, res) {
     providers.forEach(function (b) {
         if (b instanceof Type) {
             res.push({ provide: b, useClass: b });
         }
-        else if (b && typeof b == 'object' && b.provide !== undefined) {
-            res.push(b);
+        else if (b && typeof b == 'object' && ((b)).provide !== undefined) {
+            res.push(/** @type {?} */ (b));
         }
         else if (b instanceof Array) {
             _normalizeProviders(b, res);
@@ -157,17 +210,26 @@ function _normalizeProviders(providers, res) {
     });
     return res;
 }
+/**
+ * @param {?} typeOrFunc
+ * @param {?} dependencies
+ * @return {?}
+ */
 export function constructDependencies(typeOrFunc, dependencies) {
     if (!dependencies) {
         return _dependenciesFor(typeOrFunc);
     }
     else {
-        var params_1 = dependencies.map(function (t) { return [t]; });
+        var /** @type {?} */ params_1 = dependencies.map(function (t) { return [t]; });
         return dependencies.map(function (t) { return _extractToken(typeOrFunc, t, params_1); });
     }
 }
+/**
+ * @param {?} typeOrFunc
+ * @return {?}
+ */
 function _dependenciesFor(typeOrFunc) {
-    var params = reflector.parameters(typeOrFunc);
+    var /** @type {?} */ params = reflector.parameters(typeOrFunc);
     if (!params)
         return [];
     if (params.some(function (p) { return p == null; })) {
@@ -175,22 +237,26 @@ function _dependenciesFor(typeOrFunc) {
     }
     return params.map(function (p) { return _extractToken(typeOrFunc, p, params); });
 }
+/**
+ * @param {?} typeOrFunc
+ * @param {?} metadata
+ * @param {?} params
+ * @return {?}
+ */
 function _extractToken(typeOrFunc, metadata, params) {
-    var depProps = [];
-    var token = null;
-    var optional = false;
+    var /** @type {?} */ token = null;
+    var /** @type {?} */ optional = false;
     if (!Array.isArray(metadata)) {
         if (metadata instanceof Inject) {
-            return _createDependency(metadata.token, optional, null, null, depProps);
+            return _createDependency(metadata.token, optional, null);
         }
         else {
-            return _createDependency(metadata, optional, null, null, depProps);
+            return _createDependency(metadata, optional, null);
         }
     }
-    var lowerBoundVisibility = null;
-    var upperBoundVisibility = null;
-    for (var i = 0; i < metadata.length; ++i) {
-        var paramMetadata = metadata[i];
+    var /** @type {?} */ visibility = null;
+    for (var /** @type {?} */ i = 0; i < metadata.length; ++i) {
+        var /** @type {?} */ paramMetadata = metadata[i];
         if (paramMetadata instanceof Type) {
             token = paramMetadata;
         }
@@ -200,25 +266,25 @@ function _extractToken(typeOrFunc, metadata, params) {
         else if (paramMetadata instanceof Optional) {
             optional = true;
         }
-        else if (paramMetadata instanceof Self) {
-            upperBoundVisibility = paramMetadata;
-        }
-        else if (paramMetadata instanceof Host) {
-            upperBoundVisibility = paramMetadata;
-        }
-        else if (paramMetadata instanceof SkipSelf) {
-            lowerBoundVisibility = paramMetadata;
+        else if (paramMetadata instanceof Self || paramMetadata instanceof SkipSelf) {
+            visibility = paramMetadata;
         }
     }
     token = resolveForwardRef(token);
     if (token != null) {
-        return _createDependency(token, optional, lowerBoundVisibility, upperBoundVisibility, depProps);
+        return _createDependency(token, optional, visibility);
     }
     else {
         throw new NoAnnotationError(typeOrFunc, params);
     }
 }
-function _createDependency(token, optional, lowerBoundVisibility, upperBoundVisibility, depProps) {
-    return new ReflectiveDependency(ReflectiveKey.get(token), optional, lowerBoundVisibility, upperBoundVisibility, depProps);
+/**
+ * @param {?} token
+ * @param {?} optional
+ * @param {?} visibility
+ * @return {?}
+ */
+function _createDependency(token, optional, visibility) {
+    return new ReflectiveDependency(ReflectiveKey.get(token), optional, visibility);
 }
 //# sourceMappingURL=reflective_provider.js.map

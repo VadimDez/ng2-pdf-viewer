@@ -37,7 +37,7 @@ import { subscribeToResult } from '../util/subscribeToResult';
  * @see {@link sample}
  * @see {@link throttleTime}
  *
- * @param {function(value: T): Observable|Promise} durationSelector A function
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
  * that receives a value from the source Observable, for computing the silencing
  * duration for each source value, returned as an Observable or a Promise.
  * @return {Observable<T>} An Observable that performs the throttle operation to
@@ -54,7 +54,7 @@ class ThrottleOperator<T> implements Operator<T, T> {
   }
 
   call(subscriber: Subscriber<T>, source: any): TeardownLogic {
-    return source._subscribe(new ThrottleSubscriber(subscriber, this.durationSelector));
+    return source.subscribe(new ThrottleSubscriber(subscriber, this.durationSelector));
   }
 }
 

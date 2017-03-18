@@ -8,17 +8,17 @@
 /**
  * JS version of browser APIs. This library can only run in the browser.
  */
-var win = typeof window !== 'undefined' && window || {};
+var /** @type {?} */ win = typeof window !== 'undefined' && window || ({});
 export { win as window };
-export var document = win.document;
-export var location = win.location;
-export var gc = win['gc'] ? function () { return win['gc'](); } : function () { return null; };
-export var performance = win['performance'] ? win['performance'] : null;
-export var Event = win['Event'];
-export var MouseEvent = win['MouseEvent'];
-export var KeyboardEvent = win['KeyboardEvent'];
-export var EventTarget = win['EventTarget'];
-export var History = win['History'];
-export var Location = win['Location'];
-export var EventListener = win['EventListener'];
+export var /** @type {?} */ document = win.document;
+export var /** @type {?} */ location = win.location;
+export var /** @type {?} */ gc = win['gc'] ? function () { return win['gc'](); } : function () { return null; };
+export var /** @type {?} */ performance = win['performance'] ? win['performance'] : null;
+export var /** @type {?} */ Event = win['Event'];
+export var /** @type {?} */ MouseEvent = win['MouseEvent'];
+export var /** @type {?} */ KeyboardEvent = win['KeyboardEvent'];
+export var /** @type {?} */ EventTarget = win['EventTarget'];
+export var /** @type {?} */ History = win['History'];
+export var /** @type {?} */ Location = win['Location'];
+export var /** @type {?} */ EventListener = win['EventListener'];
 //# sourceMappingURL=browser.js.map

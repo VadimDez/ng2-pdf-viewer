@@ -52,6 +52,12 @@ export declare class Validators {
         [key: string]: boolean;
     };
     /**
+     * Validator that requires control value to be true.
+     */
+    static requiredTrue(control: AbstractControl): {
+        [key: string]: boolean;
+    };
+    /**
      * Validator that requires controls to have a value of a minimum length.
      */
     static minLength(minLength: number): ValidatorFn;

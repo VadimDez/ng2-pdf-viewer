@@ -14,5 +14,5 @@ import { OpaqueToken } from '@angular/core';
  *
  * @stable
  */
-export var DOCUMENT = new OpaqueToken('DocumentToken');
+export var /** @type {?} */ DOCUMENT = new OpaqueToken('DocumentToken');
 //# sourceMappingURL=dom_tokens.js.map

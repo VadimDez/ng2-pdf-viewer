@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, OnDestroy, PipeTransform } from '@angular/core';
 import { EventEmitter, Observable } from '../facade/async';
 /**
  * @ngModule CommonModule
@@ -26,13 +26,13 @@ import { EventEmitter, Observable } from '../facade/async';
  * {@example common/pipes/ts/async_pipe.ts region='AsyncPipePromise'}
  *
  * It's also possible to use `async` with Observables. The example below binds the `time` Observable
- * to the view. The Observable continuesly updates the view with the current time.
+ * to the view. The Observable continuously updates the view with the current time.
  *
  * {@example common/pipes/ts/async_pipe.ts region='AsyncPipeObservable'}
  *
  * @stable
  */
-export declare class AsyncPipe implements OnDestroy {
+export declare class AsyncPipe implements OnDestroy, PipeTransform {
     private _ref;
     private _latestValue;
     private _latestReturnedValue;
