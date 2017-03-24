@@ -9,6 +9,9 @@
   <a href="https://david-dm.org/vadimdez/ng2-pdf-viewer" title="dependencies status">
     <img src="https://david-dm.org/vadimdez/ng2-pdf-viewer/status.svg"/>
   </a>
+  <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
+    <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
+  </a>
 </p>
 
 > PDF Viewer Component for Angular 2
