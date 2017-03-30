@@ -74,7 +74,7 @@
     "rxjs": "^5.2.0",
     "systemjs": "^0.20.10",
     "systemjs-builder": "^0.16.4",
-    "ts-node": "^2.0.0",
+    "ts-node": "^3.0.0",
     "tslint": "^4.5.1",
     "typescript": "^2.2.1",
     "typings": "^2.1.0",
