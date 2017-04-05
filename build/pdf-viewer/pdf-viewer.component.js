@@ -1,4 +1,14 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -8,19 +18,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 require("pdfjs-dist/build/pdf.combined");
-var PdfViewerComponent = (function () {
+var PdfViewerComponent = (function (_super) {
+    __extends(PdfViewerComponent, _super);
     function PdfViewerComponent(element) {
-        this.element = element;
-        this._showAll = false;
-        this._renderText = true;
-        this._originalSize = true;
-        this._page = 1;
-        this._zoom = 1;
-        this._rotation = 0;
-        this.afterLoadComplete = new core_1.EventEmitter();
-        this.pageChange = new core_1.EventEmitter(true);
+        var _this = _super.call(this) || this;
+        _this.element = element;
+        _this._showAll = false;
+        _this._renderText = true;
+        _this._originalSize = true;
+        _this._page = 1;
+        _this._zoom = 1;
+        _this._rotation = 0;
+        _this.afterLoadComplete = new core_1.EventEmitter();
+        _this.pageChange = new core_1.EventEmitter(true);
+        return _this;
     }
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
         set: function (_page) {
@@ -181,7 +195,7 @@ var PdfViewerComponent = (function () {
         }
     };
     return PdfViewerComponent;
-}());
+}(core_1.OnChanges));
 __decorate([
     core_1.Output('after-load-complete'),
     __metadata("design:type", Object)
