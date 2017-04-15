@@ -16,7 +16,7 @@
 
 > PDF Viewer Component for Angular 2
 
-[Demo page](https://vi-dot.github.io/ng2-pdf-viewer/)
+[Demo page](https://vadimdez.github.io/ng2-pdf-viewer/)
 
 ## Install
 
