@@ -12,17 +12,17 @@ import 'reflect-metadata';
 import * as compiler from '@angular/compiler';
 import * as tsc from '@angular/tsc-wrapped';
 import * as ts from 'typescript';
-import { ReflectorHost } from './reflector_host';
-import { StaticReflector } from './static_reflector';
+import { CompilerHost, CompilerHostContext } from './compiler_host';
 export declare class Extractor {
     private options;
-    private program;
+    private ngExtractor;
     host: ts.CompilerHost;
-    private staticReflector;
-    private messageBundle;
-    private reflectorHost;
-    private metadataResolver;
-    constructor(options: tsc.AngularCompilerOptions, program: ts.Program, host: ts.CompilerHost, staticReflector: StaticReflector, messageBundle: compiler.MessageBundle, reflectorHost: ReflectorHost, metadataResolver: compiler.CompileMetadataResolver);
-    extract(): Promise<compiler.MessageBundle>;
-    static create(options: tsc.AngularCompilerOptions, translationsFormat: string, program: ts.Program, compilerHost: ts.CompilerHost, resourceLoader: compiler.ResourceLoader, reflectorHost?: ReflectorHost): Extractor;
+    private ngCompilerHost;
+    private program;
+    constructor(options: tsc.AngularCompilerOptions, ngExtractor: compiler.Extractor, host: ts.CompilerHost, ngCompilerHost: CompilerHost, program: ts.Program);
+    extract(formatName: string, outFile: string | null): Promise<void>;
+    extractBundle(): Promise<compiler.MessageBundle>;
+    serialize(bundle: compiler.MessageBundle, formatName: string): string;
+    getExtension(formatName: string): string;
+    static create(options: tsc.AngularCompilerOptions, program: ts.Program, tsCompilerHost: ts.CompilerHost, locale?: string | null, compilerHostContext?: CompilerHostContext, ngCompilerHost?: CompilerHost): Extractor;
 }

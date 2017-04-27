@@ -27,7 +27,7 @@ var ObserveOnOperator = (function () {
         this.delay = delay;
     }
     ObserveOnOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ObserveOnSubscriber(subscriber, this.scheduler, this.delay));
+        return source.subscribe(new ObserveOnSubscriber(subscriber, this.scheduler, this.delay));
     };
     return ObserveOnOperator;
 }());
@@ -48,6 +48,7 @@ var ObserveOnSubscriber = (function (_super) {
     ObserveOnSubscriber.dispatch = function (arg) {
         var notification = arg.notification, destination = arg.destination;
         notification.observe(destination);
+        this.unsubscribe();
     };
     ObserveOnSubscriber.prototype.scheduleMessage = function (notification) {
         this.add(this.scheduler.schedule(ObserveOnSubscriber.dispatch, this.delay, new ObserveOnMessage(notification, this.destination)));

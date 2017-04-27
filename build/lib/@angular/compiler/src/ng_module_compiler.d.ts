@@ -1,9 +1,12 @@
-import { CompileIdentifierMetadata, CompileNgModuleMetadata, CompileProviderMetadata } from './compile_metadata';
+import { CompileNgModuleMetadata, CompileProviderMetadata } from './compile_metadata';
 import * as o from './output/output_ast';
+/**
+ * This is currently not read, but will probably be used in the future.
+ * We keep it as we already pass it through all the rigth places...
+ */
 export declare class ComponentFactoryDependency {
-    comp: CompileIdentifierMetadata;
-    placeholder: CompileIdentifierMetadata;
-    constructor(comp: CompileIdentifierMetadata, placeholder: CompileIdentifierMetadata);
+    compType: any;
+    constructor(compType: any);
 }
 export declare class NgModuleCompileResult {
     statements: o.Statement[];

@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OnChanges, SimpleChanges } from '@angular/core';
-import { EventEmitter } from '../../facade/async';
+import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '../../model';
 import { ControlContainer } from '../control_container';
 import { Form } from '../form_interface';
@@ -58,10 +57,10 @@ export declare class FormGroupDirective extends ControlContainer implements Form
     ngSubmit: EventEmitter<{}>;
     constructor(_validators: any[], _asyncValidators: any[]);
     ngOnChanges(changes: SimpleChanges): void;
-    submitted: boolean;
-    formDirective: Form;
-    control: FormGroup;
-    path: string[];
+    readonly submitted: boolean;
+    readonly formDirective: Form;
+    readonly control: FormGroup;
+    readonly path: string[];
     addControl(dir: FormControlName): FormControl;
     getControl(dir: FormControlName): FormControl;
     removeControl(dir: FormControlName): void;

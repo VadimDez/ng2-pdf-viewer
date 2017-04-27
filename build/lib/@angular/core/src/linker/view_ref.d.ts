@@ -1,10 +1,21 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { ApplicationRef } from '../application_ref';
 import { ChangeDetectorRef } from '../change_detection/change_detector_ref';
-import { AppView } from './view';
 /**
  * @stable
  */
-export declare abstract class ViewRef {
-    destroyed: boolean;
+export declare abstract class ViewRef extends ChangeDetectorRef {
+    /**
+     * Destroys the view and all of the data structures associated with it.
+     */
+    abstract destroy(): void;
+    readonly abstract destroyed: boolean;
     abstract onDestroy(callback: Function): any;
 }
 /**
@@ -36,7 +47,7 @@ export declare abstract class ViewRef {
  * ```
  * Count: {{items.length}}
  * <ul>
- *   <template ngFor let-item [ngForOf]="items"></template>
+ *   <ng-template ngFor let-item [ngForOf]="items"></ng-template>
  * </ul>
  * ```
  *
@@ -53,7 +64,7 @@ export declare abstract class ViewRef {
  * <!-- ViewRef: outer-0 -->
  * Count: 2
  * <ul>
- *   <template view-container-ref></template>
+ *   <ng-template view-container-ref></ng-template>
  *   <!-- ViewRef: inner-1 --><li>first</li><!-- /ViewRef: inner-1 -->
  *   <!-- ViewRef: inner-2 --><li>second</li><!-- /ViewRef: inner-2 -->
  * </ul>
@@ -62,25 +73,10 @@ export declare abstract class ViewRef {
  * @experimental
  */
 export declare abstract class EmbeddedViewRef<C> extends ViewRef {
-    context: C;
-    rootNodes: any[];
-    /**
-     * Destroys the view and all of the data structures associated with it.
-     */
-    abstract destroy(): void;
+    readonly abstract context: C;
+    readonly abstract rootNodes: any[];
 }
-export declare class ViewRef_<C> implements EmbeddedViewRef<C>, ChangeDetectorRef {
-    private _view;
-    constructor(_view: AppView<C>);
-    internalView: AppView<C>;
-    rootNodes: any[];
-    context: C;
-    destroyed: boolean;
-    markForCheck(): void;
-    detach(): void;
-    detectChanges(): void;
-    checkNoChanges(): void;
-    reattach(): void;
-    onDestroy(callback: Function): void;
-    destroy(): void;
+export interface InternalViewRef extends ViewRef {
+    detachFromAppRef(): void;
+    attachToAppRef(appRef: ApplicationRef): void;
 }

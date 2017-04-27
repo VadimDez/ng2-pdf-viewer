@@ -2,10 +2,11 @@ import { CompileDirectiveMetadata, CompileIdentifierMetadata, CompileStylesheetM
 import * as o from './output/output_ast';
 import { UrlResolver } from './url_resolver';
 export declare class StylesCompileDependency {
+    name: string;
     moduleUrl: string;
     isShimmed: boolean;
     valuePlaceholder: CompileIdentifierMetadata;
-    constructor(moduleUrl: string, isShimmed: boolean, valuePlaceholder: CompileIdentifierMetadata);
+    constructor(name: string, moduleUrl: string, isShimmed: boolean, valuePlaceholder: CompileIdentifierMetadata);
 }
 export declare class StylesCompileResult {
     componentStylesheet: CompiledStylesheet;

@@ -17,7 +17,7 @@
  *
  */
 
- // jscs:disable jsDoc
+// jscs:disable jsDoc
 
 'use strict';
 
@@ -26,7 +26,7 @@ import fs from 'fs';
 import path from 'path';
 import mergeStream from 'merge-stream';
 import del from 'del';
-import vinylPaths from'vinyl-paths';
+import vinylPaths from 'vinyl-paths';
 import runSequence from 'run-sequence';
 import browserSync from 'browser-sync';
 import through from 'through2';
@@ -219,12 +219,12 @@ gulp.task('closure', () => {
       compilerPath: 'node_modules/google-closure-compiler/compiler.jar',
       fileName: 'material.closure.min.js',
       compilerFlags: {
-        // jscs:disable closureCamelCase
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         compilation_level: 'ADVANCED_OPTIMIZATIONS',
         language_in: 'ECMASCRIPT6_STRICT',
         language_out: 'ECMASCRIPT5_STRICT',
         warning_level: 'VERBOSE'
-        // jscs:enable closureCamelCase
+        // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
       }
     }))
     .pipe(gulp.dest('./dist'));

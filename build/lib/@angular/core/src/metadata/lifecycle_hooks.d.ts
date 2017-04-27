@@ -27,7 +27,7 @@ export declare enum LifecycleHooks {
 export interface SimpleChanges {
     [propName: string]: SimpleChange;
 }
-export declare var LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
+export declare const LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
 /**
  * @whatItDoes Lifecycle hook that is called when any data-bound property of a directive changes.
  * @howToUse
@@ -42,8 +42,8 @@ export declare var LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
  *
  * @stable
  */
-export declare abstract class OnChanges {
-    abstract ngOnChanges(changes: SimpleChanges): void;
+export interface OnChanges {
+    ngOnChanges(changes: SimpleChanges): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after data-bound properties of a directive are
@@ -60,8 +60,8 @@ export declare abstract class OnChanges {
  *
  * @stable
  */
-export declare abstract class OnInit {
-    abstract ngOnInit(): void;
+export interface OnInit {
+    ngOnInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called when Angular dirty checks a directive.
@@ -84,11 +84,11 @@ export declare abstract class OnInit {
  *
  * @stable
  */
-export declare abstract class DoCheck {
-    abstract ngDoCheck(): void;
+export interface DoCheck {
+    ngDoCheck(): void;
 }
 /**
- * @whatItDoes Lifecycle hook that is called when a directive or pipe is destroyed.
+ * @whatItDoes Lifecycle hook that is called when a directive, pipe or service is destroyed.
  * @howToUse
  * {@example core/ts/metadata/lifecycle_hooks_spec.ts region='OnDestroy'}
  *
@@ -100,8 +100,8 @@ export declare abstract class DoCheck {
  *
  * @stable
  */
-export declare abstract class OnDestroy {
-    abstract ngOnDestroy(): void;
+export interface OnDestroy {
+    ngOnDestroy(): void;
 }
 /**
  *
@@ -115,8 +115,8 @@ export declare abstract class OnDestroy {
  *
  * @stable
  */
-export declare abstract class AfterContentInit {
-    abstract ngAfterContentInit(): void;
+export interface AfterContentInit {
+    ngAfterContentInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after every check of a directive's content.
@@ -128,8 +128,8 @@ export declare abstract class AfterContentInit {
  *
  * @stable
  */
-export declare abstract class AfterContentChecked {
-    abstract ngAfterContentChecked(): void;
+export interface AfterContentChecked {
+    ngAfterContentChecked(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after a component's view has been fully
@@ -142,8 +142,8 @@ export declare abstract class AfterContentChecked {
  *
  * @stable
  */
-export declare abstract class AfterViewInit {
-    abstract ngAfterViewInit(): void;
+export interface AfterViewInit {
+    ngAfterViewInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after every check of a component's view.
@@ -155,6 +155,6 @@ export declare abstract class AfterViewInit {
  *
  * @stable
  */
-export declare abstract class AfterViewChecked {
-    abstract ngAfterViewChecked(): void;
+export interface AfterViewChecked {
+    ngAfterViewChecked(): void;
 }

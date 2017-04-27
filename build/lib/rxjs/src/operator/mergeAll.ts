@@ -3,7 +3,11 @@ import { Operator } from '../Operator';
 import { Observer } from '../Observer';
 import { Subscription } from '../Subscription';
 import { OuterSubscriber } from '../OuterSubscriber';
+import { Subscribable } from '../Observable';
 import { subscribeToResult } from '../util/subscribeToResult';
+
+export function mergeAll<T>(this: Observable<T>, concurrent?: number): T;
+export function mergeAll<T, R>(this: Observable<T>, concurrent?: number): Subscribable<R>;
 
 /**
  * Converts a higher-order Observable into a first-order Observable which
@@ -58,7 +62,7 @@ export class MergeAllOperator<T> implements Operator<Observable<T>, T> {
   }
 
   call(observer: Observer<T>, source: any): any {
-    return source._subscribe(new MergeAllSubscriber(observer, this.concurrent));
+    return source.subscribe(new MergeAllSubscriber(observer, this.concurrent));
   }
 }
 

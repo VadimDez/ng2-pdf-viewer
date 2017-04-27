@@ -26,7 +26,7 @@ import 'pdfjs-dist/build/pdf.combined';
   `]
 })
 
-export class PdfViewerComponent extends OnChanges {
+export class PdfViewerComponent implements OnChanges {
   private _showAll: boolean = false;
   private _renderText: boolean = true;
   private _originalSize: boolean = true;
@@ -37,9 +37,7 @@ export class PdfViewerComponent extends OnChanges {
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
-  constructor(private element: ElementRef) {
-    super();
-  }
+  constructor(private element: ElementRef) {}
 
   @Input()
   src: string | Uint8Array | PDFSource;

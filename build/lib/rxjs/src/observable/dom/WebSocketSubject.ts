@@ -18,6 +18,7 @@ export interface WebSocketSubjectConfig {
   closeObserver?: NextObserver<CloseEvent>;
   closingObserver?: NextObserver<void>;
   WebSocketCtor?: { new(url: string, protocol?: string|Array<string>): WebSocket };
+  binaryType?: 'blob' | 'arraybuffer';
 }
 
 /**
@@ -34,6 +35,7 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
   closeObserver: NextObserver<CloseEvent>;
   closingObserver: NextObserver<void>;
   WebSocketCtor: { new(url: string, protocol?: string|Array<string>): WebSocket };
+  binaryType?: 'blob' | 'arraybuffer';
 
   private _output: Subject<T>;
 
@@ -42,7 +44,38 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
   }
 
   /**
-   * @param urlConfigOrSource
+   * Wrapper around the w3c-compatible WebSocket object provided by the browser.
+   *
+   * @example <caption>Wraps browser WebSocket</caption>
+   *
+   * let socket$ = Observable.webSocket('ws://localhost:8081');
+   *
+   * socket$.subscribe(
+   *    (msg) => console.log('message received: ' + msg),
+   *    (err) => console.log(err),
+   *    () => console.log('complete')
+   *  );
+   *
+   * socket$.next(JSON.stringify({ op: 'hello' }));
+   *
+   * @example <caption>Wraps WebSocket from nodejs-websocket (using node.js)</caption>
+   *
+   * import { w3cwebsocket } from 'websocket';
+   *
+   * let socket$ = Observable.webSocket({
+   *   url: 'ws://localhost:8081',
+   *   WebSocketCtor: w3cwebsocket
+   * });
+   *
+   * socket$.subscribe(
+   *    (msg) => console.log('message received: ' + msg),
+   *    (err) => console.log(err),
+   *    () => console.log('complete')
+   *  );
+   *
+   * socket$.next(JSON.stringify({ op: 'hello' }));
+   *
+   * @param {string | WebSocketSubjectConfig} urlConfigOrSource the source of the websocket as an url or a structure defining the websocket object
    * @return {WebSocketSubject}
    * @static true
    * @name webSocket
@@ -130,6 +163,9 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
         new WebSocketCtor(this.url, this.protocol) :
         new WebSocketCtor(this.url);
       this.socket = socket;
+      if (this.binaryType) {
+        this.socket.binaryType = this.binaryType;
+      }
     } catch (e) {
       observer.error(e);
       return;
@@ -220,10 +256,12 @@ export class WebSocketSubject<T> extends AnonymousSubject<T> {
     subscription.add(this._output.subscribe(subscriber));
     subscription.add(() => {
       const { socket } = this;
-      if (this._output.observers.length === 0 && socket && socket.readyState === 1) {
-        socket.close();
+      if (this._output.observers.length === 0) {
+        if (socket && socket.readyState === 1) {
+          socket.close();
+        }
+        this._resetState();
       }
-      this._resetState();
     });
     return subscription;
   }

@@ -1,11 +1,18 @@
-// Metadata Schema
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
+// Metadata Schema
 // If you make a backwards incompatible change to the schema, increment the VERSION number.
 // If you make a backwards compatible change to the metadata (such as adding an option field) then
 // leave VERSION the same. If possible, as many versions of the metadata that can represent the
 // semantics of the file in an array. For example, when generating a version 2 file, if version 1
 // can accurately represent the metadata, generate both version 1 and version 2 in an array.
-exports.VERSION = 1;
+exports.VERSION = 3;
 function isModuleMetadata(value) {
     return value && value.__symbolic === 'module';
 }
@@ -14,6 +21,10 @@ function isClassMetadata(value) {
     return value && value.__symbolic === 'class';
 }
 exports.isClassMetadata = isClassMetadata;
+function isInterfaceMetadata(value) {
+    return value && value.__symbolic === 'interface';
+}
+exports.isInterfaceMetadata = isInterfaceMetadata;
 function isMemberMetadata(value) {
     if (value) {
         switch (value.__symbolic) {

@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint strict: ["error", "function"] */
+/* eslint-disable no-extend-native */
 /* globals VBArray, PDFJS */
 
 (function compatibilityWrapper() {
@@ -24,6 +26,7 @@ var isAndroidPre3 = /Android\s[0-2][^\d]/.test(userAgent);
 var isAndroidPre5 = /Android\s[0-4][^\d]/.test(userAgent);
 var isChrome = userAgent.indexOf('Chrom') >= 0;
 var isChromeWithRangeBug = /Chrome\/(39|40)\./.test(userAgent);
+var isIOSChrome = userAgent.indexOf('CriOS') >= 0;
 var isIE = userAgent.indexOf('Trident') >= 0;
 var isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent);
 var isOpera = userAgent.indexOf('Opera') >= 0;
@@ -200,9 +203,8 @@ if (typeof PDFJS === 'undefined') {
       get: function xmlHttpRequestResponseGet() {
         if (this.responseType === 'arraybuffer') {
           return new Uint8Array(new VBArray(this.responseBody).toArray());
-        } else {
-          return this.responseText;
         }
+        return this.responseText;
       }
     });
     return;
@@ -270,7 +272,7 @@ if (typeof PDFJS === 'undefined') {
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
       // get next character
-      buffer = input.charAt(idx++);
+      (buffer = input.charAt(idx++));
       // character found in table?
       // initialize bit storage and add its ascii value
       ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
@@ -418,13 +420,19 @@ if (typeof PDFJS === 'undefined') {
   } else if (!('bind' in console.log)) {
     // native functions in IE9 might not have bind
     console.log = (function(fn) {
-      return function(msg) { return fn(msg); };
+      return function(msg) {
+        return fn(msg);
+      };
     })(console.log);
     console.error = (function(fn) {
-      return function(msg) { return fn(msg); };
+      return function(msg) {
+        return fn(msg);
+      };
     })(console.error);
     console.warn = (function(fn) {
-      return function(msg) { return fn(msg); };
+      return function(msg) {
+        return fn(msg);
+      };
     })(console.warn);
   }
 })();
@@ -449,10 +457,11 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // Checks if possible to use URL.createObjectURL()
-// Support: IE
+// Support: IE, Chrome on iOS
 (function checkOnBlobSupport() {
-  // sometimes IE loosing the data created with createObjectURL(), see #3977
-  if (isIE) {
+  // sometimes IE and Chrome on iOS loosing the data created with
+  // createObjectURL(), see #3977 and #8081
+  if (isIE || isIOSChrome) {
     PDFJS.disableCreateObjectURL = true;
   }
 })();
@@ -593,6 +602,63 @@ if (typeof PDFJS === 'undefined') {
     enumerable: true,
     configurable: true
   });
+})();
+
+// Provides `input.type = 'type'` runtime failure protection.
+// Support: IE9,10.
+(function checkInputTypeNumberAssign() {
+  var el = document.createElement('input');
+  try {
+    el.type = 'number';
+  } catch (ex) {
+    var inputProto = el.constructor.prototype;
+    var typeProperty = Object.getOwnPropertyDescriptor(inputProto, 'type');
+    Object.defineProperty(inputProto, 'type', {
+      get: function () {
+        return typeProperty.get.call(this);
+      },
+      set: function (value) {
+        typeProperty.set.call(this, value === 'number' ? 'text' : value);
+      },
+      enumerable: true,
+      configurable: true
+    });
+  }
+})();
+
+// Provides correct document.readyState value for legacy browsers.
+// Support: IE9,10.
+(function checkDocumentReadyState() {
+  if (!document.attachEvent) {
+    return;
+  }
+  var documentProto = document.constructor.prototype;
+  var readyStateProto = Object.getOwnPropertyDescriptor(documentProto,
+                                                        'readyState');
+  Object.defineProperty(documentProto, 'readyState', {
+    get: function () {
+      var value = readyStateProto.get.call(this);
+      return value === 'interactive' ? 'loading' : value;
+    },
+    set: function (value) {
+      readyStateProto.set.call(this, value);
+    },
+    enumerable: true,
+    configurable: true
+  });
+})();
+
+// Provides support for ChildNode.remove in legacy browsers.
+// Support: IE.
+(function checkChildNodeRemove() {
+  if (typeof Element.prototype.remove !== 'undefined') {
+    return;
+  }
+  Element.prototype.remove = function () {
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  };
 })();
 
 }).call((typeof window === 'undefined') ? this : window);

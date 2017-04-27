@@ -66,7 +66,7 @@ var DelayWhenOperator = (function () {
         this.delayDurationSelector = delayDurationSelector;
     }
     DelayWhenOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new DelayWhenSubscriber(subscriber, this.delayDurationSelector));
+        return source.subscribe(new DelayWhenSubscriber(subscriber, this.delayDurationSelector));
     };
     return DelayWhenOperator;
 }());

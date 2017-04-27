@@ -5,21 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OpaqueToken } from '../di';
-import { BaseError } from '../facade/errors';
+import { InjectionToken } from '../di';
+import { MissingTranslationStrategy } from '../i18n/tokens';
 import { ViewEncapsulation } from '../metadata';
 import { Type } from '../type';
 import { ComponentFactory } from './component_factory';
 import { NgModuleFactory } from './ng_module_factory';
-/**
- * Indicates that a component is still being loaded in a synchronous compile.
- *
- * @stable
- */
-export declare class ComponentStillLoadingError extends BaseError {
-    compType: Type<any>;
-    constructor(compType: Type<any>);
-}
 /**
  * Combination of NgModuleFactory and ComponentFactorys.
  *
@@ -43,8 +34,7 @@ export declare class ModuleWithComponentFactories<T> {
 export declare class Compiler {
     /**
      * Compiles the given NgModule and all of its components. All templates of the components listed
-     * in `entryComponents`
-     * have to be inlined. Otherwise throws a {@link ComponentStillLoadingError}.
+     * in `entryComponents` have to be inlined.
      */
     compileModuleSync<T>(moduleType: Type<T>): NgModuleFactory<T>;
     /**
@@ -60,6 +50,15 @@ export declare class Compiler {
      */
     compileModuleAndAllComponentsAsync<T>(moduleType: Type<T>): Promise<ModuleWithComponentFactories<T>>;
     /**
+     * Exposes the CSS-style selectors that have been used in `ngContent` directives within
+     * the template of the given component.
+     * This is used by the `upgrade` library to compile the appropriate transclude content
+     * in the AngularJS wrapper component.
+     *
+     * @deprecated since v4. Use ComponentFactory.ngContentSelectors instead.
+     */
+    getNgContentSelectors(component: Type<any>): string[];
+    /**
      * Clears all caches.
      */
     clearCache(): void;
@@ -74,17 +73,22 @@ export declare class Compiler {
  * @experimental
  */
 export declare type CompilerOptions = {
+    /**
+     * @deprecated since v4 this option has no effect anymore.
+     */
     useDebug?: boolean;
     useJit?: boolean;
     defaultEncapsulation?: ViewEncapsulation;
     providers?: any[];
+    missingTranslation?: MissingTranslationStrategy;
+    enableLegacyTemplate?: boolean;
 };
 /**
  * Token to provide CompilerOptions in the platform injector.
  *
  * @experimental
  */
-export declare const COMPILER_OPTIONS: OpaqueToken;
+export declare const COMPILER_OPTIONS: InjectionToken<CompilerOptions[]>;
 /**
  * A factory for creating a Compiler
  *

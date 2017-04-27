@@ -4,12 +4,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var fs = require('fs');
-var ts = require('typescript');
+var fs = require("fs");
+var ts = require("typescript");
 var Host = (function () {
     function Host(directory, scripts) {
         this.directory = directory;
         this.scripts = scripts;
+        this.overrides = new Map();
+        this.version = 1;
     }
     Host.prototype.getCompilationSettings = function () {
         return {
@@ -19,7 +21,7 @@ var Host = (function () {
         };
     };
     Host.prototype.getScriptFileNames = function () { return this.scripts; };
-    Host.prototype.getScriptVersion = function (fileName) { return '1'; };
+    Host.prototype.getScriptVersion = function (fileName) { return this.version.toString(); };
     Host.prototype.getScriptSnapshot = function (fileName) {
         var content = this.getFileContent(fileName);
         if (content)
@@ -27,26 +29,44 @@ var Host = (function () {
     };
     Host.prototype.getCurrentDirectory = function () { return '/'; };
     Host.prototype.getDefaultLibFileName = function (options) { return 'lib.d.ts'; };
+    Host.prototype.overrideFile = function (fileName, content) {
+        this.overrides.set(fileName, content);
+        this.version++;
+    };
+    Host.prototype.addFile = function (fileName) {
+        this.scripts.push(fileName);
+        this.version++;
+    };
     Host.prototype.getFileContent = function (fileName) {
-        var names = fileName.split('/');
-        if (names[names.length - 1] === 'lib.d.ts') {
+        if (this.overrides.has(fileName)) {
+            return this.overrides.get(fileName);
+        }
+        if (fileName.endsWith('lib.d.ts')) {
             return fs.readFileSync(ts.getDefaultLibFilePath(this.getCompilationSettings()), 'utf8');
         }
-        var current = this.directory;
-        if (names.length && names[0] === '')
-            names.shift();
-        for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
-            var name_1 = names_1[_i];
-            if (!current || typeof current === 'string')
-                return undefined;
-            current = current[name_1];
-        }
+        var current = open(this.directory, fileName);
         if (typeof current === 'string')
             return current;
     };
     return Host;
 }());
 exports.Host = Host;
+function open(directory, fileName) {
+    // Path might be normalized by the current node environment. But it could also happen that this
+    // path directly comes from the compiler in POSIX format. Support both separators for development.
+    var names = fileName.split(/[\\/]/);
+    var current = directory;
+    if (names.length && names[0] === '')
+        names.shift();
+    for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
+        var name_1 = names_1[_i];
+        if (!current || typeof current === 'string')
+            return undefined;
+        current = current[name_1];
+    }
+    return current;
+}
+exports.open = open;
 var MockNode = (function () {
     function MockNode(kind, flags, pos, end) {
         if (kind === void 0) { kind = ts.SyntaxKind.Identifier; }
@@ -72,6 +92,9 @@ var MockNode = (function () {
     MockNode.prototype.getText = function (sourceFile) { return ''; };
     MockNode.prototype.getFirstToken = function (sourceFile) { return null; };
     MockNode.prototype.getLastToken = function (sourceFile) { return null; };
+    MockNode.prototype.forEachChild = function (cbNode, cbNodeArray) {
+        return null;
+    };
     return MockNode;
 }());
 exports.MockNode = MockNode;
@@ -82,9 +105,11 @@ var MockIdentifier = (function (_super) {
         if (flags === void 0) { flags = 0; }
         if (pos === void 0) { pos = 0; }
         if (end === void 0) { end = 0; }
-        _super.call(this, kind, flags, pos, end);
-        this.name = name;
-        this.text = name;
+        var _this = _super.call(this, kind, flags, pos, end) || this;
+        _this.name = name;
+        _this.kind = kind;
+        _this.text = name;
+        return _this;
     }
     return MockIdentifier;
 }(MockNode));
@@ -96,8 +121,10 @@ var MockVariableDeclaration = (function (_super) {
         if (flags === void 0) { flags = 0; }
         if (pos === void 0) { pos = 0; }
         if (end === void 0) { end = 0; }
-        _super.call(this, kind, flags, pos, end);
-        this.name = name;
+        var _this = _super.call(this, kind, flags, pos, end) || this;
+        _this.name = name;
+        _this.kind = kind;
+        return _this;
     }
     MockVariableDeclaration.of = function (name) {
         return new MockVariableDeclaration(new MockIdentifier(name));
@@ -117,6 +144,9 @@ var MockSymbol = (function () {
     MockSymbol.prototype.getName = function () { return this.name; };
     MockSymbol.prototype.getDeclarations = function () { return [this.node]; };
     MockSymbol.prototype.getDocumentationComment = function () { return []; };
+    // TODO(vicb): removed in TS 2.2
+    MockSymbol.prototype.getJsDocTags = function () { return []; };
+    ;
     MockSymbol.of = function (name) { return new MockSymbol(name); };
     return MockSymbol;
 }());

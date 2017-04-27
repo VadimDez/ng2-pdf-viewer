@@ -5,13 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { EventEmitter } from '../facade/async';
+import { EventEmitter, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { FormControl } from '../model';
 import { ControlContainer } from './control_container';
 import { ControlValueAccessor } from './control_value_accessor';
 import { NgControl } from './ng_control';
-import { AsyncValidatorFn, Validator, ValidatorFn } from './validators';
+import { AsyncValidator, AsyncValidatorFn, Validator, ValidatorFn } from './validators';
 export declare const formControlBinding: any;
 /**
  * @whatItDoes Creates a {@link FormControl} instance from a domain model and binds it
@@ -81,14 +80,14 @@ export declare class NgModel extends NgControl implements OnChanges, OnDestroy {
         standalone?: boolean;
     };
     update: EventEmitter<{}>;
-    constructor(parent: ControlContainer, validators: Array<Validator | ValidatorFn>, asyncValidators: Array<Validator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
+    constructor(parent: ControlContainer, validators: Array<Validator | ValidatorFn>, asyncValidators: Array<AsyncValidator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
     ngOnChanges(changes: SimpleChanges): void;
     ngOnDestroy(): void;
-    control: FormControl;
-    path: string[];
-    formDirective: any;
-    validator: ValidatorFn;
-    asyncValidator: AsyncValidatorFn;
+    readonly control: FormControl;
+    readonly path: string[];
+    readonly formDirective: any;
+    readonly validator: ValidatorFn | null;
+    readonly asyncValidator: AsyncValidatorFn | null;
     viewToModelUpdate(newValue: any): void;
     private _setUpControl();
     private _isStandalone();

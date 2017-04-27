@@ -292,7 +292,6 @@ body .demo-blog {
 .demo-blog--blogpost .meta > * {
   -webkit-align-items: center;
       -ms-flex-align: center;
-              -ms-grid-row-align: center;
           align-items: center;
 }
 .demo-blog--blogpost .meta + .mdl-card__supporting-text {
@@ -495,7 +494,6 @@ body .demo-blog {
   padding: 40px;
   -webkit-align-items: center;
       -ms-flex-align: center;
-              -ms-grid-row-align: center;
           align-items: center;
   background-color: white;
   box-sizing: border-box;

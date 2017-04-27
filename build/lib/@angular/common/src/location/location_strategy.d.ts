@@ -5,12 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OpaqueToken } from '@angular/core';
+import { InjectionToken } from '@angular/core';
 import { LocationChangeListener } from './platform_location';
 /**
  * `LocationStrategy` is responsible for representing and reading route state
  * from the browser's URL. Angular provides two strategies:
- * {@link HashLocationStrategy} and {@link PathLocationStrategy} (default).
+ * {@link HashLocationStrategy} and {@link PathLocationStrategy}.
  *
  * This is used under the hood of the {@link Location} service.
  *
@@ -57,4 +57,4 @@ export declare abstract class LocationStrategy {
  *
  * @stable
  */
-export declare const APP_BASE_HREF: OpaqueToken;
+export declare const APP_BASE_HREF: InjectionToken<string>;

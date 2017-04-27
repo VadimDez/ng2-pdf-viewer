@@ -6,6 +6,11 @@ import { OuterSubscriber } from '../OuterSubscriber';
 import { InnerSubscriber } from '../InnerSubscriber';
 import { subscribeToResult } from '../util/subscribeToResult';
 
+/* tslint:disable:max-line-length */
+export function switchMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>): Observable<R>;
+export function switchMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
+/* tslint:enable:max-line-length */
+
 /**
  * Projects each source value to the same Observable which is flattened multiple
  * times with {@link switch} in the output Observable.
@@ -31,7 +36,7 @@ import { subscribeToResult } from '../util/subscribeToResult';
  * @see {@link switchMap}
  * @see {@link mergeMapTo}
  *
- * @param {Observable} innerObservable An Observable to replace each value from
+ * @param {ObservableInput} innerObservable An Observable to replace each value from
  * the source Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
  * A function to produce the value on the output Observable based on the values
@@ -42,18 +47,12 @@ import { subscribeToResult } from '../util/subscribeToResult';
  * - `outerIndex`: the "index" of the value that came from the source
  * - `innerIndex`: the "index" of the value from the projected Observable
  * @return {Observable} An Observable that emits items from the given
- * `innerObservable` every time a value is emitted on the source Observable.
- * @return {Observable} An Observable that emits items from the given
  * `innerObservable` (and optionally transformed through `resultSelector`) every
  * time a value is emitted on the source Observable, and taking only the values
  * from the most recently projected inner Observable.
  * @method switchMapTo
  * @owner Observable
  */
-/* tslint:disable:max-line-length */
-export function switchMapTo<T, R>(this: Observable<T>, observable: ObservableInput<R>): Observable<R>;
-export function switchMapTo<T, I, R>(this: Observable<T>, observable: ObservableInput<I>, resultSelector: (outerValue: T, innerValue: I, outerIndex: number, innerIndex: number) => R): Observable<R>;
-/* tslint:disable:max-line-length */
 export function switchMapTo<T, I, R>(this: Observable<T>, innerObservable: Observable<I>,
                                      resultSelector?: (outerValue: T,
                                                        innerValue: I,
@@ -68,7 +67,7 @@ class SwitchMapToOperator<T, I, R> implements Operator<T, I> {
   }
 
   call(subscriber: Subscriber<I>, source: any): any {
-    return source._subscribe(new SwitchMapToSubscriber(subscriber, this.observable, this.resultSelector));
+    return source.subscribe(new SwitchMapToSubscriber(subscriber, this.observable, this.resultSelector));
   }
 }
 

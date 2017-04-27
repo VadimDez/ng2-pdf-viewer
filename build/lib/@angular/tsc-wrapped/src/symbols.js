@@ -1,5 +1,12 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 "use strict";
-var ts = require('typescript');
+var ts = require("typescript");
 var Symbols = (function () {
     function Symbols(sourceFile) {
         this.sourceFile = sourceFile;

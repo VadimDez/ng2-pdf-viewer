@@ -9,69 +9,79 @@
 /**
  * Extract i18n messages from source code
  */
-// Must be imported first, because angular2 decorators throws on load.
-require('reflect-metadata');
-var compiler = require('@angular/compiler');
-var core_1 = require('@angular/core');
-var codegen_1 = require('./codegen');
-var reflector_host_1 = require('./reflector_host');
-var static_reflection_capabilities_1 = require('./static_reflection_capabilities');
-var static_reflector_1 = require('./static_reflector');
+// Must be imported first, because Angular decorators throw on load.
+require("reflect-metadata");
+var compiler = require("@angular/compiler");
+var path = require("path");
+var compiler_host_1 = require("./compiler_host");
+var path_mapped_compiler_host_1 = require("./path_mapped_compiler_host");
 var Extractor = (function () {
-    function Extractor(options, program, host, staticReflector, messageBundle, reflectorHost, metadataResolver) {
+    function Extractor(options, ngExtractor, host, ngCompilerHost, program) {
         this.options = options;
-        this.program = program;
+        this.ngExtractor = ngExtractor;
         this.host = host;
-        this.staticReflector = staticReflector;
-        this.messageBundle = messageBundle;
-        this.reflectorHost = reflectorHost;
-        this.metadataResolver = metadataResolver;
+        this.ngCompilerHost = ngCompilerHost;
+        this.program = program;
     }
-    Extractor.prototype.extract = function () {
+    Extractor.prototype.extract = function (formatName, outFile) {
         var _this = this;
-        var programSymbols = codegen_1.extractProgramSymbols(this.program, this.staticReflector, this.reflectorHost, this.options);
-        var _a = compiler.analyzeAndValidateNgModules(programSymbols, { transitiveModules: true }, this.metadataResolver), ngModules = _a.ngModules, files = _a.files;
-        return compiler.loadNgModuleDirectives(ngModules).then(function () {
-            var errors = [];
-            files.forEach(function (file) {
-                var compMetas = [];
-                file.directives.forEach(function (directiveType) {
-                    var dirMeta = _this.metadataResolver.getDirectiveMetadata(directiveType);
-                    if (dirMeta && dirMeta.isComponent) {
-                        compMetas.push(dirMeta);
-                    }
-                });
-                compMetas.forEach(function (compMeta) {
-                    var html = compMeta.template.template;
-                    var interpolationConfig = compiler.InterpolationConfig.fromArray(compMeta.template.interpolation);
-                    errors.push.apply(errors, _this.messageBundle.updateFromTemplate(html, file.srcUrl, interpolationConfig));
-                });
-            });
-            if (errors.length) {
-                throw new Error(errors.map(function (e) { return e.toString(); }).join('\n'));
-            }
-            return _this.messageBundle;
+        // Checks the format and returns the extension
+        var ext = this.getExtension(formatName);
+        var promiseBundle = this.extractBundle();
+        return promiseBundle.then(function (bundle) {
+            var content = _this.serialize(bundle, formatName);
+            var dstFile = outFile || "messages." + ext;
+            var dstPath = path.join(_this.options.genDir, dstFile);
+            _this.host.writeFile(dstPath, content, false);
         });
     };
-    Extractor.create = function (options, translationsFormat, program, compilerHost, resourceLoader, reflectorHost) {
-        var htmlParser = new compiler.I18NHtmlParser(new compiler.HtmlParser());
-        var urlResolver = compiler.createOfflineCompileUrlResolver();
-        if (!reflectorHost)
-            reflectorHost = new reflector_host_1.ReflectorHost(program, compilerHost, options);
-        var staticReflector = new static_reflector_1.StaticReflector(reflectorHost);
-        static_reflection_capabilities_1.StaticAndDynamicReflectionCapabilities.install(staticReflector);
-        var config = new compiler.CompilerConfig({
-            genDebugInfo: options.debug === true,
-            defaultEncapsulation: core_1.ViewEncapsulation.Emulated,
-            logBindingUpdate: false,
-            useJit: false
-        });
-        var normalizer = new compiler.DirectiveNormalizer(resourceLoader, urlResolver, htmlParser, config);
-        var elementSchemaRegistry = new compiler.DomElementSchemaRegistry();
-        var resolver = new compiler.CompileMetadataResolver(new compiler.NgModuleResolver(staticReflector), new compiler.DirectiveResolver(staticReflector), new compiler.PipeResolver(staticReflector), elementSchemaRegistry, normalizer, staticReflector);
-        // TODO(vicb): implicit tags & attributes
-        var messageBundle = new compiler.MessageBundle(htmlParser, [], {});
-        return new Extractor(options, program, compilerHost, staticReflector, messageBundle, reflectorHost, resolver);
+    Extractor.prototype.extractBundle = function () {
+        var _this = this;
+        var files = this.program.getSourceFiles().map(function (sf) { return _this.ngCompilerHost.getCanonicalFileName(sf.fileName); });
+        return this.ngExtractor.extract(files);
+    };
+    Extractor.prototype.serialize = function (bundle, formatName) {
+        var _this = this;
+        var format = formatName.toLowerCase();
+        var serializer;
+        switch (format) {
+            case 'xmb':
+                serializer = new compiler.Xmb();
+                break;
+            case 'xliff2':
+            case 'xlf2':
+                serializer = new compiler.Xliff2();
+                break;
+            case 'xlf':
+            case 'xliff':
+            default:
+                serializer = new compiler.Xliff();
+        }
+        return bundle.write(serializer, function (sourcePath) { return sourcePath.replace(path.join(_this.options.basePath, '/'), ''); });
+    };
+    Extractor.prototype.getExtension = function (formatName) {
+        var format = (formatName || 'xlf').toLowerCase();
+        switch (format) {
+            case 'xmb':
+                return 'xmb';
+            case 'xlf':
+            case 'xlif':
+            case 'xliff':
+            case 'xlf2':
+            case 'xliff2':
+                return 'xlf';
+        }
+        throw new Error("Unsupported format \"" + formatName + "\"");
+    };
+    Extractor.create = function (options, program, tsCompilerHost, locale, compilerHostContext, ngCompilerHost) {
+        if (!ngCompilerHost) {
+            var usePathMapping = !!options.rootDirs && options.rootDirs.length > 0;
+            var context = compilerHostContext || new compiler_host_1.ModuleResolutionHostAdapter(tsCompilerHost);
+            ngCompilerHost = usePathMapping ? new path_mapped_compiler_host_1.PathMappedCompilerHost(program, options, context) :
+                new compiler_host_1.CompilerHost(program, options, context);
+        }
+        var ngExtractor = compiler.Extractor.create(ngCompilerHost, locale || null).extractor;
+        return new Extractor(options, ngExtractor, tsCompilerHost, ngCompilerHost, program);
     };
     return Extractor;
 }());

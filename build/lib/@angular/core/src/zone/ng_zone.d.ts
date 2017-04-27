@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { EventEmitter } from '../facade/async';
+import { EventEmitter } from '../event_emitter';
 /**
  * An injectable service for executing work inside or outside of the Angular zone.
  *
@@ -20,6 +20,7 @@ import { EventEmitter } from '../facade/async';
  *   -->
  *
  * ### Example
+ *
  * ```
  * import {Component, NgZone} from '@angular/core';
  * import {NgIf} from '@angular/common';
@@ -74,6 +75,7 @@ import { EventEmitter } from '../facade/async';
  *   }
  * }
  * ```
+ *
  * @experimental
  */
 export declare class NgZone {
@@ -127,29 +129,29 @@ export declare class NgZone {
     /**
      * Notifies when code enters Angular Zone. This gets fired first on VM Turn.
      */
-    onUnstable: EventEmitter<any>;
+    readonly onUnstable: EventEmitter<any>;
     /**
      * Notifies when there is no more microtasks enqueue in the current VM Turn.
      * This is a hint for Angular to do change detection, which may enqueue more microtasks.
      * For this reason this event can fire multiple times per VM Turn.
      */
-    onMicrotaskEmpty: EventEmitter<any>;
+    readonly onMicrotaskEmpty: EventEmitter<any>;
     /**
      * Notifies when the last `onMicrotaskEmpty` has run and there are no more microtasks, which
      * implies we are about to relinquish VM turn.
      * This event gets called just once.
      */
-    onStable: EventEmitter<any>;
+    readonly onStable: EventEmitter<any>;
     /**
      * Notify that an error has been delivered.
      */
-    onError: EventEmitter<any>;
+    readonly onError: EventEmitter<any>;
     /**
      * Whether there are no outstanding microtasks or macrotasks.
      */
-    isStable: boolean;
-    hasPendingMicrotasks: boolean;
-    hasPendingMacrotasks: boolean;
+    readonly isStable: boolean;
+    readonly hasPendingMicrotasks: boolean;
+    readonly hasPendingMacrotasks: boolean;
     private checkStable();
     private forkInnerZoneWithAngularBehavior();
     private onEnter();

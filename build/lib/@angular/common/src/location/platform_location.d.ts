@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import { InjectionToken } from '@angular/core';
 /**
  * This class should not be used directly by an application developer. Instead, use
  * {@link Location}.
@@ -35,14 +36,19 @@ export declare abstract class PlatformLocation {
     abstract getBaseHrefFromDOM(): string;
     abstract onPopState(fn: LocationChangeListener): void;
     abstract onHashChange(fn: LocationChangeListener): void;
-    pathname: string;
-    search: string;
-    hash: string;
+    readonly abstract pathname: string;
+    readonly abstract search: string;
+    readonly abstract hash: string;
     abstract replaceState(state: any, title: string, url: string): void;
     abstract pushState(state: any, title: string, url: string): void;
     abstract forward(): void;
     abstract back(): void;
 }
+/**
+ * @whatItDoes indicates when a location is initialized
+ * @experimental
+ */
+export declare const LOCATION_INITIALIZED: InjectionToken<Promise<any>>;
 /**
  * A serializable version of the event from onPopState or onHashChange
  *
