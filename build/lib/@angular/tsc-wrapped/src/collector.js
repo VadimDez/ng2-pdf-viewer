@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
-var ts = require('typescript');
-var evaluator_1 = require('./evaluator');
-var schema_1 = require('./schema');
-var symbols_1 = require('./symbols');
+var ts = require("typescript");
+var evaluator_1 = require("./evaluator");
+var schema_1 = require("./schema");
+var symbols_1 = require("./symbols");
 // In TypeScript 2.1 these flags moved
 // These helpers work for both 2.0 and 2.1.
 var isExport = ts.ModifierFlags ?
@@ -76,7 +76,6 @@ var MetadataCollector = (function () {
                                 value: evaluator.evaluateNode(returnStatement.expression)
                             };
                             if (functionDeclaration.parameters.some(function (p) { return p.initializer != null; })) {
-                                var defaults = [];
                                 func.defaults = functionDeclaration.parameters.map(function (p) { return p.initializer && evaluator.evaluateNode(p.initializer); });
                             }
                             return recordEntry({ func: func, name: functionName }, functionDeclaration);
@@ -109,6 +108,11 @@ var MetadataCollector = (function () {
                         hc.types.forEach(function (type) { return result.extends = referenceFrom(type.expression); });
                     }
                 });
+            }
+            // Add arity if the type is generic
+            var typeParameters = classDeclaration.typeParameters;
+            if (typeParameters && typeParameters.length) {
+                result.arity = typeParameters.length;
             }
             // Add class decorators
             if (classDeclaration.decorators) {
@@ -232,15 +236,11 @@ var MetadataCollector = (function () {
             }
         });
         var isExportedIdentifier = function (identifier) { return exportMap.has(identifier.text); };
-        var isExported = function (node) {
-            return isExport(node) || isExportedIdentifier(node.name);
-        };
+        var isExported = function (node) { return isExport(node) || isExportedIdentifier(node.name); };
         var exportedIdentifierName = function (identifier) {
             return exportMap.get(identifier.text) || identifier.text;
         };
-        var exportedName = function (node) {
-            return exportedIdentifierName(node.name);
-        };
+        var exportedName = function (node) { return exportedIdentifierName(node.name); };
         // Predeclare classes and functions
         ts.forEachChild(sourceFile, function (node) {
             switch (node.kind) {
@@ -254,6 +254,14 @@ var MetadataCollector = (function () {
                         else {
                             locals.define(className, errorSym('Reference to non-exported class', node, { className: className }));
                         }
+                    }
+                    break;
+                case ts.SyntaxKind.InterfaceDeclaration:
+                    var interfaceDeclaration = node;
+                    if (interfaceDeclaration.name) {
+                        var interfaceName = interfaceDeclaration.name.text;
+                        // All references to interfaces should be converted to references to `any`.
+                        locals.define(interfaceName, { __symbolic: 'reference', name: 'any' });
                     }
                     break;
                 case ts.SyntaxKind.FunctionDeclaration:
@@ -308,7 +316,6 @@ var MetadataCollector = (function () {
                 case ts.SyntaxKind.ClassDeclaration:
                     var classDeclaration = node;
                     if (classDeclaration.name) {
-                        var className = classDeclaration.name.text;
                         if (isExported(classDeclaration)) {
                             if (!metadata)
                                 metadata = {};
@@ -316,6 +323,14 @@ var MetadataCollector = (function () {
                         }
                     }
                     // Otherwise don't record metadata for the class.
+                    break;
+                case ts.SyntaxKind.InterfaceDeclaration:
+                    var interfaceDeclaration = node;
+                    if (interfaceDeclaration.name && isExported(interfaceDeclaration)) {
+                        if (!metadata)
+                            metadata = {};
+                        metadata[exportedName(interfaceDeclaration)] = { __symbolic: 'interface' };
+                    }
                     break;
                 case ts.SyntaxKind.FunctionDeclaration:
                     // Record functions that return a single value. Record the parameter
@@ -380,7 +395,7 @@ var MetadataCollector = (function () {
                     break;
                 case ts.SyntaxKind.VariableStatement:
                     var variableStatement = node;
-                    var _loop_1 = function(variableDeclaration) {
+                    var _loop_1 = function (variableDeclaration) {
                         if (variableDeclaration.name.kind == ts.SyntaxKind.Identifier) {
                             var nameNode = variableDeclaration.name;
                             var varValue = void 0;
@@ -398,7 +413,8 @@ var MetadataCollector = (function () {
                                 metadata[exportedIdentifierName(nameNode)] = recordEntry(varValue, node);
                                 exported = true;
                             }
-                            if (evaluator_1.isPrimitive(varValue)) {
+                            if (typeof varValue == 'string' || typeof varValue == 'number' ||
+                                typeof varValue == 'boolean') {
                                 locals.define(nameNode.text, varValue);
                             }
                             else if (!exported) {
@@ -553,6 +569,17 @@ function validateMetadata(sourceFile, nodeMap, metadata) {
         if (classData.members) {
             Object.getOwnPropertyNames(classData.members)
                 .forEach(function (name) { return classData.members[name].forEach(function (m) { return validateMember(classData, m); }); });
+        }
+        if (classData.statics) {
+            Object.getOwnPropertyNames(classData.statics).forEach(function (name) {
+                var staticMember = classData.statics[name];
+                if (schema_1.isFunctionMetadata(staticMember)) {
+                    validateExpression(staticMember.value);
+                }
+                else {
+                    validateExpression(staticMember);
+                }
+            });
         }
     }
     function validateFunction(functionDeclaration) {

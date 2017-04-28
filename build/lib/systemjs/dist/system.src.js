@@ -1,5 +1,5 @@
 /*
- * SystemJS v0.20.9 Dev
+ * SystemJS v0.20.12 Dev
  */
 (function () {
 'use strict';
@@ -786,8 +786,13 @@ function traceLoad (loader, load, link) {
   loader.loads[load.key] = {
     key: load.key,
     deps: link.dependencies,
+    dynamicDeps: [],
     depMap: link.depMap || {}
   };
+}
+
+function traceDynamicLoad (loader, parentKey, key) {
+  loader.loads[parentKey].dynamicDeps.push(key);
 }
 
 /*
@@ -801,35 +806,40 @@ function registerDeclarative (loader, load, link, declare) {
   var moduleObj = link.moduleObj;
   var importerSetters = load.importerSetters;
 
-  var locked = false;
+  var definedExports = false;
 
   // closure especially not based on link to allow link record disposal
   var declared = declare.call(envGlobal, function (name, value) {
-    // export setter propogation with locking to avoid cycles
-    if (locked)
-      return;
-
     if (typeof name === 'object') {
-      for (var p in name)
-        if (p !== '__useDefault')
-          moduleObj[p] = name[p];
+      var changed = false;
+      for (var p in name) {
+        value = name[p];
+        if (p !== '__useDefault' && (!(p in moduleObj) || moduleObj[p] !== value)) {
+          changed = true;
+          moduleObj[p] = value;
+        }
+      }
+      if (changed === false)
+        return value;
     }
     else {
+      if ((definedExports || name in moduleObj) && moduleObj[name] === value)
+        return value;
       moduleObj[name] = value;
     }
 
-    locked = true;
     for (var i = 0; i < importerSetters.length; i++)
       importerSetters[i](moduleObj);
-    locked = false;
 
     return value;
   }, new ContextualLoader(loader, load.key));
 
   link.setters = declared.setters;
   link.execute = declared.execute;
-  if (declared.exports)
+  if (declared.exports) {
     link.moduleObj = moduleObj = declared.exports;
+    definedExports = true;
+  }
 }
 
 function instantiateDeps (loader, load, link, registry, state, seen) {
@@ -876,8 +886,10 @@ function instantiateDeps (loader, load, link, registry, state, seen) {
       if (!depLink || depLink.linked)
         continue;
 
-      if (seen.indexOf(depLoad) !== -1)
+      if (seen.indexOf(depLoad) !== -1) {
+        deepDepsInstantiatePromises.push(depLink.depsInstantiatePromise);
         continue;
+      }
       seen.push(depLoad);
 
       deepDepsInstantiatePromises.push(instantiateDeps(loader, depLoad, depLoad.linkRecord, registry, state, seen));
@@ -982,18 +994,17 @@ function ContextualLoader (loader, key) {
   this.loader = loader;
   this.key = this.id = key;
 }
-ContextualLoader.prototype.constructor = function () {
+/*ContextualLoader.prototype.constructor = function () {
   throw new TypeError('Cannot subclass the contextual loader only Reflect.Loader.');
-};
+};*/
 ContextualLoader.prototype.import = function (key) {
+  if (this.loader.trace)
+    traceDynamicLoad(this.loader, this.key, key);
   return this.loader.import(key, this.key);
 };
-ContextualLoader.prototype.resolve = function (key) {
+/*ContextualLoader.prototype.resolve = function (key) {
   return this.loader.resolve(key, this.key);
-};
-ContextualLoader.prototype.load = function (key) {
-  return this.loader.load(key, this.key);
-};
+};*/
 
 // this is the execution function bound to the Module namespace record
 function ensureEvaluate (loader, load, link, registry, state, seen) {
@@ -1109,13 +1120,10 @@ function doEvaluate (loader, load, link, registry, state, seen) {
 
       // __esModule flag extension support via lifting
       if (moduleDefault && moduleDefault.__esModule) {
-        if (moduleObj.__useDefault)
-          delete moduleObj.__useDefault;
-        for (var p in moduleDefault) {
-          if (Object.hasOwnProperty.call(moduleDefault, p))
+        for (var p in moduleObj.default) {
+          if (Object.hasOwnProperty.call(moduleObj.default, p) && p !== 'default')
             moduleObj[p] = moduleDefault[p];
         }
-        moduleObj.__esModule = true;
       }
     }
   }
@@ -1196,6 +1204,44 @@ var isWorker = typeof window === 'undefined' && typeof self !== 'undefined' && t
 function warn (msg, force) {
   if (force || this.warnings && typeof console !== 'undefined' && console.warn)
     console.warn(msg);
+}
+
+function checkInstantiateWasm (loader, wasmBuffer, processAnonRegister) {
+  var bytes = new Uint8Array(wasmBuffer);
+
+  // detect by leading bytes
+  // Can be (new Uint32Array(fetched))[0] === 0x6D736100 when working in Node
+  if (bytes[0] === 0 && bytes[1] === 97 && bytes[2] === 115) {
+    return WebAssembly.compile(wasmBuffer).then(function (m) {
+      var deps = [];
+      var setters = [];
+      var importObj = {};
+
+      // we can only set imports if supported (eg Safari doesnt support)
+      if (WebAssembly.Module.imports)
+        WebAssembly.Module.imports(m).forEach(function (i) {
+          var key = i.module;
+          setters.push(function (m) {
+            importObj[key] = m;
+          });
+          if (deps.indexOf(key) === -1)
+            deps.push(key);
+        });
+      loader.register(deps, function (_export) {
+        return {
+          setters: setters,
+          execute: function () {
+            _export(new WebAssembly.Instance(m, importObj).exports);
+          }
+        };
+      });
+      processAnonRegister();
+
+      return true;
+    });
+  }
+
+  return Promise.resolve(false);
 }
 
 var parentModuleContext;
@@ -1812,6 +1858,8 @@ function packageResolve (config, key, parentKey, metadata, parentMetadata, skipE
       metadata.packageKey = undefined;
       metadata.load = createMeta();
       metadata.load.format = 'json';
+      // ensure no loader
+      metadata.load.loader = '';
       return Promise.resolve(normalized);
     }
 
@@ -2449,7 +2497,9 @@ function cloneObj (obj, maxDepth) {
   for (var p in obj) {
     var prop = obj[p];
     if (maxDepth > 1) {
-      if (typeof prop === 'object')
+      if (prop instanceof Array)
+        clone[p] = [].concat(prop);
+      else if (typeof prop === 'object')
         clone[p] = cloneObj(prop, maxDepth - 1);
       else if (p !== 'packageConfig')
         clone[p] = prop;
@@ -2546,12 +2596,17 @@ function setConfig (cfg, isEnvConfig) {
       var v = cfg.map[p];
 
       if (typeof v === 'string') {
-        config.map[p] = coreResolve.call(loader, config, v, undefined, false, false);
+        var mapped = coreResolve.call(loader, config, v, undefined, false, false);
+        if (mapped[mapped.length -1] === '/' && p[p.length - 1] !== ':' && p[p.length - 1] !== '/')
+          mapped = mapped.substr(0, mapped.length - 1);
+        config.map[p] = mapped;
       }
 
       // object map
       else {
-        var pkgName = coreResolve.call(loader, config, p, undefined, true, true);
+        var pkgName = coreResolve.call(loader, config, p[p.length - 1] !== '/' ? p + '/' : p, undefined, true, true);
+        pkgName = pkgName.substr(0, pkgName.length - 1);
+
         var pkg = config.packages[pkgName];
         if (!pkg) {
           pkg = config.packages[pkgName] = createPackage();
@@ -2588,7 +2643,7 @@ function setConfig (cfg, isEnvConfig) {
       if (p.match(/^([^\/]+:)?\/\/$/))
         throw new TypeError('"' + p + '" is not a valid package name.');
 
-      var pkgName = coreResolve.call(loader, config, p[p.length -1] !== '/' ? p + '/' : p, undefined, true, true);
+      var pkgName = coreResolve.call(loader, config, p[p.length - 1] !== '/' ? p + '/' : p, undefined, true, true);
       pkgName = pkgName.substr(0, pkgName.length - 1);
 
       setPkgConfig(config.packages[pkgName] = config.packages[pkgName] || createPackage(), cfg.packages[p], pkgName, false, config);
@@ -3174,9 +3229,11 @@ function amdGetCJSDeps(source, requireIndex) {
 function wrapEsModuleExecute (execute) {
   return function (require, exports, module) {
     execute(require, exports, module);
-    Object.defineProperty(module.exports, '__esModule', {
-      value: true
-    });
+    exports = module.exports;
+    if ((typeof exports === 'object' || typeof exports === 'function') && !('__esModule' in exports))
+      Object.defineProperty(module.exports, '__esModule', {
+        value: true
+      });
   };
 }
 
@@ -3209,7 +3266,8 @@ if (typeof require !== 'undefined' && typeof process !== 'undefined' && !process
   nodeRequire = require;
 
 function setMetaEsModule (metadata, moduleValue) {
-  if (metadata.load.esModule && !('__esModule' in moduleValue))
+  if (metadata.load.esModule && (typeof moduleValue === 'object' || typeof moduleValue === 'function') &&
+      !('__esModule' in moduleValue))
     Object.defineProperty(moduleValue, '__esModule', {
       value: true
     });
@@ -3218,12 +3276,13 @@ function setMetaEsModule (metadata, moduleValue) {
 function instantiate$1 (key, processAnonRegister) {
   var loader = this;
   var config = this[CONFIG];
-  var metadata = this[METADATA][key];
   // first do bundles and depCache
   return (loadBundlesAndDepCache(config, this, key) || resolvedPromise)
   .then(function () {
     if (processAnonRegister())
       return;
+
+    var metadata = loader[METADATA][key];
 
     // node module loading
     if (key.substr(0, 6) === '@node/') {
@@ -3311,21 +3370,21 @@ function loadBundlesAndDepCache (config, loader, key) {
       for (var i = 0; i < config.bundles[b].length; i++) {
         var curModule = config.bundles[b][i];
 
-        if (curModule == key) {
+        if (curModule === key) {
           matched = true;
           break;
         }
 
         // wildcard in bundles includes / boundaries
-        if (curModule.indexOf('*') != -1) {
+        if (curModule.indexOf('*') !== -1) {
           var parts = curModule.split('*');
-          if (parts.length != 2) {
+          if (parts.length !== 2) {
             config.bundles[b].splice(i--, 1);
             continue;
           }
 
-          if (key.substring(0, parts[0].length) == parts[0] &&
-              key.substr(key.length - parts[1].length, parts[1].length) == parts[1]) {
+          if (key.substr(0, parts[0].length) === parts[0] &&
+              key.substr(key.length - parts[1].length, parts[1].length) === parts[1]) {
             matched = true;
             break;
           }
@@ -3376,43 +3435,18 @@ function runFetchPipeline (loader, key, metadata, processAnonRegister, wasm) {
     if (!wasm || typeof fetched === 'string')
       return translateAndInstantiate(loader, key, fetched, metadata, processAnonRegister);
 
-    var bytes = new Uint8Array(fetched);
+    return checkInstantiateWasm(loader, fetched, processAnonRegister)
+    .then(function (wasmInstantiated) {
+      if (wasmInstantiated)
+        return;
 
-    // detect by leading bytes
-    if (bytes[0] === 0 && bytes[1] === 97 && bytes[2] === 115) {
-      return WebAssembly.compile(bytes).then(function (m) {
-        var deps = [];
-        var setters = [];
-        var importObj = {};
-
-        // we can only set imports if supported (eg Safari doesnt support)
-        if (WebAssembly.Module.imports)
-          WebAssembly.Module.imports(m).forEach(function (i) {
-            var key = i.module;
-            setters.push(function (m) {
-              importObj[key] = m;
-            });
-            if (deps.indexOf(key) === -1)
-              deps.push(key);
-          });
-        loader.register(deps, function (_export) {
-          return {
-            setters: setters,
-            execute: function () {
-              _export(new WebAssembly.Instance(m, importObj).exports);
-            }
-          };
-        });
-        processAnonRegister();
-      });
-    }
-
-    // not wasm -> convert buffer into utf-8 string to execute as a module
-    // TextDecoder compatibility matches WASM currently. Need to keep checking this.
-    // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
-    var stringSource = new TextDecoder('utf-8').decode(bytes);
-    return translateAndInstantiate(loader, key, stringSource, metadata, processAnonRegister);
-  })
+      // not wasm -> convert buffer into utf-8 string to execute as a module
+      // TextDecoder compatibility matches WASM currently. Need to keep checking this.
+      // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
+      var stringSource = isBrowser ? new TextDecoder('utf-8').decode(new Uint8Array(fetched)) : fetched.toString();
+      return translateAndInstantiate(loader, key, stringSource, metadata, processAnonRegister);
+    });
+  });
 }
 
 function translateAndInstantiate (loader, key, source, metadata, processAnonRegister) {
@@ -3443,6 +3477,11 @@ function translateAndInstantiate (loader, key, source, metadata, processAnonRegi
     });
   })
   .then(function (source) {
+    if (!metadata.load.format && source.substring(0, 8) === '"bundle"') {
+      metadata.load.format = 'system';
+      return source;
+    }
+
     if (metadata.load.format === 'register' || !metadata.load.format && detectRegisterFormat(source)) {
       metadata.load.format = 'register';
       return source;
@@ -3969,7 +4008,7 @@ SystemJSLoader$1.prototype.registerDynamic = function (key, deps, executingRequi
   return RegisterLoader$1.prototype.registerDynamic.call(this, key, deps, executingRequire, execute);
 };
 
-SystemJSLoader$1.prototype.version = "0.20.9 Dev";
+SystemJSLoader$1.prototype.version = "0.20.12 Dev";
 
 var System = new SystemJSLoader$1();
 

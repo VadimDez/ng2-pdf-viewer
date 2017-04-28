@@ -2,48 +2,48 @@
   "_args": [
     [
       {
-        "raw": "@angular/tsc-wrapped@0.5.2",
+        "raw": "@angular/tsc-wrapped@4.1.0",
         "scope": "@angular",
         "escapedName": "@angular%2ftsc-wrapped",
         "name": "@angular/tsc-wrapped",
-        "rawSpec": "0.5.2",
-        "spec": "0.5.2",
+        "rawSpec": "4.1.0",
+        "spec": "4.1.0",
         "type": "version"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer/node_modules/@angular/compiler-cli"
     ]
   ],
-  "_from": "@angular/tsc-wrapped@0.5.2",
-  "_id": "@angular/tsc-wrapped@0.5.2",
+  "_from": "@angular/tsc-wrapped@4.1.0",
+  "_id": "@angular/tsc-wrapped@4.1.0",
   "_inCache": true,
   "_location": "/@angular/tsc-wrapped",
-  "_nodeVersion": "6.9.1",
+  "_nodeVersion": "6.10.0",
   "_npmOperationalInternal": {
-    "host": "packages-18-east.internal.npmjs.com",
-    "tmp": "tmp/tsc-wrapped-0.5.2.tgz_1486095925962_0.39810583274811506"
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/tsc-wrapped-4.1.0.tgz_1493222500427_0.4549886512104422"
   },
   "_npmUser": {
     "name": "angular",
     "email": "angular-core+npm@google.com"
   },
-  "_npmVersion": "3.10.8",
+  "_npmVersion": "3.10.10",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/tsc-wrapped@0.5.2",
+    "raw": "@angular/tsc-wrapped@4.1.0",
     "scope": "@angular",
     "escapedName": "@angular%2ftsc-wrapped",
     "name": "@angular/tsc-wrapped",
-    "rawSpec": "0.5.2",
-    "spec": "0.5.2",
+    "rawSpec": "4.1.0",
+    "spec": "4.1.0",
     "type": "version"
   },
   "_requiredBy": [
     "/@angular/compiler-cli"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/tsc-wrapped/-/tsc-wrapped-0.5.2.tgz",
-  "_shasum": "2eddf472c467fcb334ea94deddaaa71990c5a482",
+  "_resolved": "https://registry.npmjs.org/@angular/tsc-wrapped/-/tsc-wrapped-4.1.0.tgz",
+  "_shasum": "07cbd61d91adde4c2daf9a41605152952b8832b3",
   "_shrinkwrap": null,
-  "_spec": "@angular/tsc-wrapped@0.5.2",
+  "_spec": "@angular/tsc-wrapped@4.1.0",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer/node_modules/@angular/compiler-cli",
   "bugs": {
     "url": "https://github.com/angular/angular/issues"
@@ -59,14 +59,14 @@
     }
   ],
   "dependencies": {
-    "tsickle": "^0.2"
+    "tsickle": "^0.21.0"
   },
   "description": "Wraps the tsc CLI, allowing extensions.",
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "2eddf472c467fcb334ea94deddaaa71990c5a482",
-    "tarball": "https://registry.npmjs.org/@angular/tsc-wrapped/-/tsc-wrapped-0.5.2.tgz"
+    "shasum": "07cbd61d91adde4c2daf9a41605152952b8832b3",
+    "tarball": "https://registry.npmjs.org/@angular/tsc-wrapped/-/tsc-wrapped-4.1.0.tgz"
   },
   "homepage": "https://github.com/angular/angular/tree/master/tools/tsc-wrapped",
   "license": "MIT",
@@ -79,7 +79,7 @@
   "name": "@angular/tsc-wrapped",
   "optionalDependencies": {},
   "peerDependencies": {
-    "typescript": "^2.0.2"
+    "typescript": "^2.1.5"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -87,5 +87,5 @@
     "url": "git+https://github.com/angular/angular.git"
   },
   "scripts": {},
-  "version": "0.5.2"
+  "version": "4.1.0"
 }

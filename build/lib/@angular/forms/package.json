@@ -2,48 +2,48 @@
   "_args": [
     [
       {
-        "raw": "@angular/forms@^2.2.1",
+        "raw": "@angular/forms@^4.1.0",
         "scope": "@angular",
         "escapedName": "@angular%2fforms",
         "name": "@angular/forms",
-        "rawSpec": "^2.2.1",
-        "spec": ">=2.2.1 <3.0.0",
+        "rawSpec": "^4.1.0",
+        "spec": ">=4.1.0 <5.0.0",
         "type": "range"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/forms@>=2.2.1 <3.0.0",
-  "_id": "@angular/forms@2.4.7",
+  "_from": "@angular/forms@>=4.1.0 <5.0.0",
+  "_id": "@angular/forms@4.1.0",
   "_inCache": true,
   "_location": "/@angular/forms",
-  "_nodeVersion": "6.9.1",
+  "_nodeVersion": "6.10.0",
   "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/forms-2.4.7.tgz_1486615226012_0.45769946998916566"
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/forms-4.1.0.tgz_1493222455190_0.0020277637522667646"
   },
   "_npmUser": {
     "name": "angular",
     "email": "angular-core+npm@google.com"
   },
-  "_npmVersion": "3.10.8",
+  "_npmVersion": "3.10.10",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/forms@^2.2.1",
+    "raw": "@angular/forms@^4.1.0",
     "scope": "@angular",
     "escapedName": "@angular%2fforms",
     "name": "@angular/forms",
-    "rawSpec": "^2.2.1",
-    "spec": ">=2.2.1 <3.0.0",
+    "rawSpec": "^4.1.0",
+    "spec": ">=4.1.0 <5.0.0",
     "type": "range"
   },
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/forms/-/forms-2.4.7.tgz",
-  "_shasum": "d34a36110e10f641aa1e1420b5c2df65987fd8bb",
+  "_resolved": "https://registry.npmjs.org/@angular/forms/-/forms-4.1.0.tgz",
+  "_shasum": "8eae2a45c4ba064b377f9280e59c012b5dac6b80",
   "_shrinkwrap": null,
-  "_spec": "@angular/forms@^2.2.1",
+  "_spec": "@angular/forms@^4.1.0",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -56,24 +56,26 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "d34a36110e10f641aa1e1420b5c2df65987fd8bb",
-    "tarball": "https://registry.npmjs.org/@angular/forms/-/forms-2.4.7.tgz"
+    "shasum": "8eae2a45c4ba064b377f9280e59c012b5dac6b80",
+    "tarball": "https://registry.npmjs.org/@angular/forms/-/forms-4.1.0.tgz"
   },
+  "es2015": "./@angular/forms.js",
   "homepage": "https://github.com/angular/angular#readme",
   "license": "MIT",
-  "main": "bundles/forms.umd.js",
+  "main": "./bundles/forms.umd.js",
   "maintainers": [
     {
       "name": "angular",
       "email": "angular-core+npm@google.com"
     }
   ],
-  "module": "index.js",
+  "module": "./@angular/forms.es5.js",
   "name": "@angular/forms",
   "optionalDependencies": {},
   "peerDependencies": {
-    "@angular/core": "2.4.7",
-    "@angular/common": "2.4.7"
+    "@angular/core": "4.1.0",
+    "@angular/common": "4.1.0",
+    "@angular/platform-browser": "4.1.0"
   },
   "readme": "ERROR: No README data found!",
   "repository": {
@@ -81,6 +83,6 @@
     "url": "git+https://github.com/angular/angular.git"
   },
   "scripts": {},
-  "typings": "index.d.ts",
-  "version": "2.4.7"
+  "typings": "./forms.d.ts",
+  "version": "4.1.0"
 }

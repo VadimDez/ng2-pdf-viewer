@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OpaqueToken } from '../di/opaque_token';
+import { InjectionToken } from '../di/injection_token';
 import { Type } from '../type';
 /**
  * This token can be used to create a virtual provider that will populate the
@@ -41,7 +41,7 @@ import { Type } from '../type';
  *
  * @experimental
  */
-export declare const ANALYZE_FOR_ENTRY_COMPONENTS: OpaqueToken;
+export declare const ANALYZE_FOR_ENTRY_COMPONENTS: InjectionToken<any>;
 /**
  * Type of the Attribute decorator / constructor function.
  *

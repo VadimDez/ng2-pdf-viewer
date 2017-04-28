@@ -12,9 +12,9 @@
  * This API should be stable for NG 2. It can be removed in NG 4..., but should be replaced by
  * something else.
  */
-var compiler_1 = require('@angular/compiler');
-var core_1 = require('@angular/core');
-var ROUTER_MODULE_PATH = '@angular/router/src/router_config_loader';
+var compiler_1 = require("@angular/compiler");
+var core_1 = require("@angular/core");
+var ROUTER_MODULE_PATH = '@angular/router';
 var ROUTER_ROUTES_SYMBOL_NAME = 'ROUTES';
 // A route definition. Normally the short form 'path/to/module#ModuleClassName' is used by
 // the user, and this is a helper class to extract information from it.
@@ -86,7 +86,7 @@ function _resolveModule(modulePath, containingFile, host) {
 function _assertRoute(map, route) {
     var r = route.routeDef.toString();
     if (map[r] && map[r].absoluteFilePath != route.absoluteFilePath) {
-        throw new Error(("Duplicated path in loadChildren detected: \"" + r + "\" is used in 2 loadChildren, ") +
+        throw new Error("Duplicated path in loadChildren detected: \"" + r + "\" is used in 2 loadChildren, " +
             ("but they point to different modules \"(" + map[r].absoluteFilePath + " and ") +
             ("\"" + route.absoluteFilePath + "\"). Webpack cannot distinguish on context and would fail to ") +
             'load the proper one.');

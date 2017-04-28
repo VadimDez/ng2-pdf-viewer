@@ -37,7 +37,7 @@ export class PdfViewerComponent implements OnChanges {
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
 
-  constructor(private element: ElementRef) { }
+  constructor(private element: ElementRef) {}
 
   @Input()
   src: string | Uint8Array | PDFSource;

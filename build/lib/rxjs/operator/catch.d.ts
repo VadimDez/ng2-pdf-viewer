@@ -58,4 +58,4 @@ import { Observable, ObservableInput } from '../Observable';
  * @name catch
  * @owner Observable
  */
-export declare function _catch<T, R>(this: Observable<T>, selector: (err: any, caught: Observable<T>) => ObservableInput<R>): Observable<R>;
+export declare function _catch<T, R>(this: Observable<T>, selector: (err: any, caught: Observable<T>) => ObservableInput<R>): Observable<T | R>;
