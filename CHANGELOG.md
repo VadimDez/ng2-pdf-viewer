@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+* [[#72](https://github.com/VadimDez/ng2-pdf-viewer/issues/72)] - Updated for Angular 4
+
 ## 1.0.1
 * [[#48](https://github.com/VadimDez/ng2-pdf-viewer/issues/48)] - Use ngOnchanges() instead of update() inside setters
 
