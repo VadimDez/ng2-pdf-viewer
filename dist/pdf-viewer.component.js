@@ -174,9 +174,6 @@ var PdfViewerComponent = (function () {
         if (this._renderLink) {
             this._pdfLinkService.setViewer(this._pdfViewer);
         }
-        if (this.src) {
-            this.loadPDF();
-        }
     };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
         if ('src' in changes) {
@@ -218,8 +215,10 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
         if (!this._originalSize) {
+            var containerWidth = _this.element.nativeElement.offsetWidth;
             this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
-                var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+                var viewport = page.getViewport(1, _this._rotation);
+                var scale = _this._zoom * (containerWidth / viewport.width) / PdfViewerComponent.CSS_UNITS;
                 _this._pdfViewer._setScale(scale, !_this._stickToPage);
             });
         }
