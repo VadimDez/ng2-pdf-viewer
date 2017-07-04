@@ -11,16 +11,9 @@
     "declaration": true,
     "removeComments": true,
     "noImplicitAny": false,
-    "lib": ["es6", "dom"],
+    "lib": ["es2015", "dom"],
     "typeRoots": [
-      "node_modules/@types",
-      "node_modules"
-    ],
-    "types": [
-      "systemjs",
-      "jasmine",
-      "node",
-      "pdf"
+      "node_modules/@types"
     ]
   },
   "exclude": [
@@ -31,7 +24,6 @@
     "aot"
   ],
   "angularCompilerOptions": {
-    "genDir": "aot",
-    "skipMetadataEmit" : false
+    "skipTemplateCodegen": true
   }
 }

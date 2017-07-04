@@ -5,16 +5,13 @@
     'app': './',
     'rxjs': 'lib/rxjs',
     '@angular': 'lib/@angular',
-    'pdfjs-dist': 'lib/pdfjs-dist',
-    //'pdf-viewer': './dist/'
+    'pdfjs-dist': 'lib/pdfjs-dist/'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
   var packages = {
     'app': { main: 'main.js', defaultExtension: 'js' },
-    'rxjs': { defaultExtension: 'js' },
-    'pdfjs-dist': { main: '/build/pdf.js', defaultExtension: 'js' },
-    // 'pdf-viewer': { main: 'pdf-viewer.component.js', defaultExtension: 'js' }
+    'rxjs': { defaultExtension: 'js' }
   };
 
   [
@@ -32,11 +29,6 @@
     map: map,
     packages: packages
   };
-
-  // filterSystemConfig - index.html's chance to modify config before we register it.
-  if (global.filterSystemConfig) {
-    global.filterSystemConfig(config);
-  }
 
   SystemJS.config(config);
 

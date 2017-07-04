@@ -4,7 +4,8 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
 } from '@angular/core';
-import 'pdfjs-dist/build/pdf.min';
+import * as pdfjs from 'pdfjs-dist/build/pdf.min';
+window['pdfjs-dist/build/pdf'] = pdfjs;
 import 'pdfjs-dist/web/compatibility';
 import 'pdfjs-dist/web/pdf_viewer';
 
@@ -446,7 +447,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     const src = this.src;
-    PDFJS.getDocument(src).then((pdf: PDFDocumentProxy) => {
+    PDFJS.getDocument(<any>src).then((pdf: PDFDocumentProxy) => {
       this._pdf = pdf;
       this.lastLoaded = src;
 
