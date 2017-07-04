@@ -25,7 +25,7 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     page: any;
     pageChange: EventEmitter<number>;
     renderText: boolean;
-    renderLink: any;
+    renderLink: boolean;
     originalSize: boolean;
     showAll: boolean;
     stickToPage: boolean;

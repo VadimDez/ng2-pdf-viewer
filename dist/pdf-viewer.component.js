@@ -188,14 +188,16 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.loadPDF = function () {
         var _this = this;
-        if (!this.src) {
+        if (!this.src || !this._pdfViewer) {
             return;
         }
         PDFJS.getDocument(this.src).then(function (pdf) {
             _this._pdf = pdf;
             _this.afterLoadComplete.emit(pdf);
             _this._pdfViewer.setDocument(_this._pdf);
-            _this._pdfLinkService.setDocument(_this._pdf, null);
+            if (_this._renderLink) {
+                _this._pdfLinkService.setDocument(_this._pdf, null);
+            }
             _this.update();
         });
     };
@@ -218,8 +220,10 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
         if (!this._originalSize) {
+            var containerWidth = _this.element.nativeElement.offsetWidth;
             this._pdf.getPage(this._pdfViewer._currentPageNumber).then(function (page) {
-                var scale = _this._zoom * (_this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+                var viewport = page.getViewport(1, _this._rotation);
+                var scale = _this._zoom * (containerWidth / viewport.width) / PdfViewerComponent.CSS_UNITS;
                 _this._pdfViewer._setScale(scale, !_this._stickToPage);
             });
         }
