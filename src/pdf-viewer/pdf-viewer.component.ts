@@ -270,6 +270,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
+  private _showAll: boolean = false;
 
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
@@ -298,7 +299,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    PDFJS.disableWorker = true;
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {
@@ -334,6 +334,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
+  }
+
+  @Input('show-all')
+  set showAll(value: boolean) {
+    this._showAll = value;
   }
 
   @Input('stick-to-page')
@@ -403,8 +408,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   public updateSize() {
     if (!this._originalSize) {
-      this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-        const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+      const offsetWidth = this.element.nativeElement.offsetWidth;
+
+      this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
+        const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
         this._pdfViewer._setScale(scale, !this._stickToPage);
       });
     } else {
@@ -447,14 +454,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     const src = this.src;
-    PDFJS.getDocument(<any>src).then((pdf: PDFDocumentProxy) => {
-      this._pdf = pdf;
-      this.lastLoaded = src;
+    PDFJS.getDocument(<any>src)
+      .then((pdf: PDFDocumentProxy) => {
+        this._pdf = pdf;
+        this.lastLoaded = src;
 
-      this.afterLoadComplete.emit(pdf);
+        this.afterLoadComplete.emit(pdf);
 
-      this.update();
-    });
+        this.update();
+      });
   }
 
   private update() {
