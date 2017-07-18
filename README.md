@@ -91,6 +91,7 @@ export class AppComponent {
 * [after-load-complete](#after-load-complete)
 
 #### [src]
+*accepts: string, object, UInt8Array*
 
 Pass pdf location
  
