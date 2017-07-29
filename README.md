@@ -177,7 +177,10 @@ And then use it in your template:
 ``` 
 (after-load-complete)="callBackFn($event)"
 ```
-## Develop
+## Contribute
+
+Clone project and switch to latest version branch (right now `feature/1.1.0`)
+
 ```
 npm start
 ```
