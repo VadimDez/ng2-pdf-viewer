@@ -133,9 +133,16 @@ export class PdfViewerComponent implements OnChanges {
 
     this.removeAllChildNodes(container);
 
-    for (let page = 1; page <= this._pdf.numPages; page++) {
-      this.renderPage(page);
-    }
+    // render pages synchronously
+    const render = (page: number) => {
+      this.renderPage(page).then(() => {
+        if (page < this._pdf.numPages) {
+          render(page + 1);
+        }
+      });
+    };
+
+    render(1);
   }
 
   private isValidPageNumber(page: number) {
