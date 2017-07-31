@@ -10,6 +10,7 @@ import { createPlatformFactory } from '@angular/core';
 import { INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS } from './platform_providers';
 import { CachedResourceLoader } from './resource_loader/resource_loader_cache';
 export * from './private_export';
+export { VERSION } from './version';
 /**
  * @experimental
  */

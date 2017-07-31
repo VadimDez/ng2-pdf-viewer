@@ -9,15 +9,23 @@ import { Optional, SkipSelf } from '../../di';
 import { isPresent } from '../../facade/lang';
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
- * @stable
+ * \@stable
  */
 export var KeyValueDiffers = (function () {
+    /**
+     * @param {?} factories
+     */
     function KeyValueDiffers(factories) {
         this.factories = factories;
     }
+    /**
+     * @param {?} factories
+     * @param {?=} parent
+     * @return {?}
+     */
     KeyValueDiffers.create = function (factories, parent) {
         if (isPresent(parent)) {
-            var copied = parent.factories.slice();
+            var /** @type {?} */ copied = parent.factories.slice();
             factories = factories.concat(copied);
             return new KeyValueDiffers(factories);
         }
@@ -26,23 +34,25 @@ export var KeyValueDiffers = (function () {
         }
     };
     /**
-     * Takes an array of {@link KeyValueDifferFactory} and returns a provider used to extend the
-     * inherited {@link KeyValueDiffers} instance with the provided factories and return a new
-     * {@link KeyValueDiffers} instance.
+     * Takes an array of {\@link KeyValueDifferFactory} and returns a provider used to extend the
+     * inherited {\@link KeyValueDiffers} instance with the provided factories and return a new
+     * {\@link KeyValueDiffers} instance.
      *
      * The following example shows how to extend an existing list of factories,
-           * which will only be applied to the injector for this component and its children.
-           * This step is all that's required to make a new {@link KeyValueDiffer} available.
+     * which will only be applied to the injector for this component and its children.
+     * This step is all that's required to make a new {\@link KeyValueDiffer} available.
      *
      * ### Example
      *
      * ```
-     * @Component({
+     * \@Component({
      *   viewProviders: [
      *     KeyValueDiffers.extend([new ImmutableMapDiffer()])
      *   ]
      * })
      * ```
+     * @param {?} factories
+     * @return {?}
      */
     KeyValueDiffers.extend = function (factories) {
         return {
@@ -60,8 +70,12 @@ export var KeyValueDiffers = (function () {
             deps: [[KeyValueDiffers, new SkipSelf(), new Optional()]]
         };
     };
+    /**
+     * @param {?} kv
+     * @return {?}
+     */
     KeyValueDiffers.prototype.find = function (kv) {
-        var factory = this.factories.find(function (f) { return f.supports(kv); });
+        var /** @type {?} */ factory = this.factories.find(function (f) { return f.supports(kv); });
         if (isPresent(factory)) {
             return factory;
         }
@@ -71,4 +85,8 @@ export var KeyValueDiffers = (function () {
     };
     return KeyValueDiffers;
 }());
+function KeyValueDiffers_tsickle_Closure_declarations() {
+    /** @type {?} */
+    KeyValueDiffers.prototype.factories;
+}
 //# sourceMappingURL=keyvalue_differs.js.map

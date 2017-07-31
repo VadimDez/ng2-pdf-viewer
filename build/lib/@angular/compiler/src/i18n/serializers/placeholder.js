@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var TAG_TO_PLACEHOLDER_NAMES = {
+var /** @type {?} */ TAG_TO_PLACEHOLDER_NAMES = {
     'A': 'LINK',
     'B': 'BOLD_TEXT',
     'BR': 'LINE_BREAK',
@@ -38,70 +38,108 @@ var TAG_TO_PLACEHOLDER_NAMES = {
     'UL': 'UNORDERED_LIST',
 };
 /**
- * Creates unique names for placeholder with different content
+ * Creates unique names for placeholder with different content.
  *
- * @internal
+ * Returns the same placeholder name when the content is identical.
+ *
+ * \@internal
  */
 export var PlaceholderRegistry = (function () {
     function PlaceholderRegistry() {
-        // Count the occurrence of the base name top generate a unique name
         this._placeHolderNameCounts = {};
-        // Maps signature to placeholder names
         this._signatureToName = {};
     }
+    /**
+     * @param {?} tag
+     * @param {?} attrs
+     * @param {?} isVoid
+     * @return {?}
+     */
     PlaceholderRegistry.prototype.getStartTagPlaceholderName = function (tag, attrs, isVoid) {
-        var signature = this._hashTag(tag, attrs, isVoid);
+        var /** @type {?} */ signature = this._hashTag(tag, attrs, isVoid);
         if (this._signatureToName[signature]) {
             return this._signatureToName[signature];
         }
-        var upperTag = tag.toUpperCase();
-        var baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || "TAG_" + upperTag;
-        var name = this._generateUniqueName(isVoid ? baseName : "START_" + baseName);
+        var /** @type {?} */ upperTag = tag.toUpperCase();
+        var /** @type {?} */ baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || "TAG_" + upperTag;
+        var /** @type {?} */ name = this._generateUniqueName(isVoid ? baseName : "START_" + baseName);
         this._signatureToName[signature] = name;
         return name;
     };
+    /**
+     * @param {?} tag
+     * @return {?}
+     */
     PlaceholderRegistry.prototype.getCloseTagPlaceholderName = function (tag) {
-        var signature = this._hashClosingTag(tag);
+        var /** @type {?} */ signature = this._hashClosingTag(tag);
         if (this._signatureToName[signature]) {
             return this._signatureToName[signature];
         }
-        var upperTag = tag.toUpperCase();
-        var baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || "TAG_" + upperTag;
-        var name = this._generateUniqueName("CLOSE_" + baseName);
+        var /** @type {?} */ upperTag = tag.toUpperCase();
+        var /** @type {?} */ baseName = TAG_TO_PLACEHOLDER_NAMES[upperTag] || "TAG_" + upperTag;
+        var /** @type {?} */ name = this._generateUniqueName("CLOSE_" + baseName);
         this._signatureToName[signature] = name;
         return name;
     };
+    /**
+     * @param {?} name
+     * @param {?} content
+     * @return {?}
+     */
     PlaceholderRegistry.prototype.getPlaceholderName = function (name, content) {
-        var upperName = name.toUpperCase();
-        var signature = "PH: " + upperName + "=" + content;
+        var /** @type {?} */ upperName = name.toUpperCase();
+        var /** @type {?} */ signature = "PH: " + upperName + "=" + content;
         if (this._signatureToName[signature]) {
             return this._signatureToName[signature];
         }
-        var uniqueName = this._generateUniqueName(upperName);
+        var /** @type {?} */ uniqueName = this._generateUniqueName(upperName);
         this._signatureToName[signature] = uniqueName;
         return uniqueName;
     };
-    // Generate a hash for a tag - does not take attribute order into account
+    /**
+     * @param {?} name
+     * @return {?}
+     */
+    PlaceholderRegistry.prototype.getUniquePlaceholder = function (name) {
+        return this._generateUniqueName(name.toUpperCase());
+    };
+    /**
+     * @param {?} tag
+     * @param {?} attrs
+     * @param {?} isVoid
+     * @return {?}
+     */
     PlaceholderRegistry.prototype._hashTag = function (tag, attrs, isVoid) {
-        var start = "<" + tag;
-        var strAttrs = Object.keys(attrs).sort().map(function (name) { return (" " + name + "=" + attrs[name]); }).join('');
-        var end = isVoid ? '/>' : "></" + tag + ">";
+        var /** @type {?} */ start = "<" + tag;
+        var /** @type {?} */ strAttrs = Object.keys(attrs).sort().map(function (name) { return (" " + name + "=" + attrs[name]); }).join('');
+        var /** @type {?} */ end = isVoid ? '/>' : "></" + tag + ">";
         return start + strAttrs + end;
     };
+    /**
+     * @param {?} tag
+     * @return {?}
+     */
     PlaceholderRegistry.prototype._hashClosingTag = function (tag) { return this._hashTag("/" + tag, {}, false); };
+    /**
+     * @param {?} base
+     * @return {?}
+     */
     PlaceholderRegistry.prototype._generateUniqueName = function (base) {
-        var name = base;
-        var next = this._placeHolderNameCounts[name];
-        if (!next) {
-            next = 1;
+        var /** @type {?} */ seen = this._placeHolderNameCounts.hasOwnProperty(base);
+        if (!seen) {
+            this._placeHolderNameCounts[base] = 1;
+            return base;
         }
-        else {
-            name += "_" + next;
-            next++;
-        }
-        this._placeHolderNameCounts[base] = next;
-        return name;
+        var /** @type {?} */ id = this._placeHolderNameCounts[base];
+        this._placeHolderNameCounts[base] = id + 1;
+        return base + "_" + id;
     };
     return PlaceholderRegistry;
 }());
+function PlaceholderRegistry_tsickle_Closure_declarations() {
+    /** @type {?} */
+    PlaceholderRegistry.prototype._placeHolderNameCounts;
+    /** @type {?} */
+    PlaceholderRegistry.prototype._signatureToName;
+}
 //# sourceMappingURL=placeholder.js.map

@@ -10,5 +10,5 @@
  * @description
  * Entry point for all public APIs of the platform-server package.
  */
-export * from './src/platform-server';
+export { ServerModule, platformDynamicServer, platformServer, VERSION, __platform_server_private__ } from './src/platform-server';
 //# sourceMappingURL=index.js.map

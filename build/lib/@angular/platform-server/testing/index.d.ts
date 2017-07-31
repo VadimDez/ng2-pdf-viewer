@@ -8,6 +8,6 @@
 /**
  * @module
  * @description
- * Entry point for all public APIs of the platform-server/testing package.
+ * Entry point for all public APIs of the platform-browser-dynamic/testing package.
  */
-export * from './src/testing';
+export * from './server';

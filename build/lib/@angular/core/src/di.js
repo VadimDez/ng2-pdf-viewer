@@ -10,7 +10,7 @@
  * @description
  * The `di` module provides dependency injection container services.
  */
-export * from './di/metadata';
+export { Inject, Optional, Injectable, Self, SkipSelf, Host } from './di/metadata';
 export { forwardRef, resolveForwardRef } from './di/forward_ref';
 export { Injector } from './di/injector';
 export { ReflectiveInjector } from './di/reflective_injector';

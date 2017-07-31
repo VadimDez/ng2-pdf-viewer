@@ -1,8 +1,4 @@
-import { ɵDomAdapter as DomAdapter } from '@angular/platform-browser';
-/**
- * Parses a document string to a Document object.
- */
-export declare function parseDocument(html: string): any;
+import { DomAdapter } from './private_import_platform-browser';
 /**
  * A `DomAdapter` powered by the `parse5` NodeJS module.
  *
@@ -11,7 +7,6 @@ export declare function parseDocument(html: string): any;
  */
 export declare class Parse5DomAdapter extends DomAdapter {
     static makeCurrent(): void;
-    contains(nodeA: any, nodeB: any): boolean;
     hasProperty(element: any, name: string): boolean;
     setProperty(el: any, name: string, value: any): void;
     getProperty(el: any, name: string): any;
@@ -19,9 +14,10 @@ export declare class Parse5DomAdapter extends DomAdapter {
     log(error: string): void;
     logGroup(error: string): void;
     logGroupEnd(): void;
-    readonly attrToPropMap: {
+    attrToPropMap: {
         [key: string]: string;
     };
+    query(selector: any): void;
     querySelector(el: any, selector: string): any;
     querySelectorAll(el: any, selector: string): any[];
     elementMatches(node: any, selector: string, matcher?: any): boolean;
@@ -33,7 +29,7 @@ export declare class Parse5DomAdapter extends DomAdapter {
     preventDefault(event: any): void;
     isPrevented(event: any): boolean;
     getInnerHTML(el: any): string;
-    getTemplateContent(el: any): Node | null;
+    getTemplateContent(el: any): Node;
     getOuterHTML(el: any): string;
     nodeName(node: any): string;
     nodeValue(node: any): string;
@@ -48,9 +44,9 @@ export declare class Parse5DomAdapter extends DomAdapter {
     appendChild(el: any, node: any): void;
     removeChild(el: any, node: any): void;
     remove(el: any): HTMLElement;
-    insertBefore(parent: any, ref: any, newNode: any): void;
-    insertAllBefore(parent: any, ref: any, nodes: any): void;
-    insertAfter(parent: any, ref: any, node: any): void;
+    insertBefore(el: any, node: any): void;
+    insertAllBefore(el: any, nodes: any): void;
+    insertAfter(el: any, node: any): void;
     setInnerHTML(el: any, value: any): void;
     getText(el: any, isRecursive?: boolean): string;
     setText(el: any, value: string): void;
@@ -77,7 +73,7 @@ export declare class Parse5DomAdapter extends DomAdapter {
     removeClass(element: any, className: string): void;
     hasClass(element: any, className: string): boolean;
     hasStyle(element: any, styleName: string, styleValue?: string): boolean;
-    setStyle(element: any, styleName: string, styleValue?: string | null): void;
+    setStyle(element: any, styleName: string, styleValue: string): void;
     removeStyle(element: any, styleName: string): void;
     getStyle(element: any, styleName: string): string;
     tagName(element: any): string;
@@ -92,9 +88,10 @@ export declare class Parse5DomAdapter extends DomAdapter {
     removeAttributeNS(element: any, ns: string, name: string): void;
     templateAwareRoot(el: any): any;
     createHtmlDocument(): Document;
+    defaultDoc(): Document;
     getBoundingClientRect(el: any): any;
-    getTitle(doc: Document): string;
-    setTitle(doc: Document, newTitle: string): void;
+    getTitle(): string;
+    setTitle(newTitle: string): void;
     isTemplateElement(el: any): boolean;
     isTextNode(node: any): boolean;
     isCommentNode(node: any): boolean;
@@ -107,8 +104,8 @@ export declare class Parse5DomAdapter extends DomAdapter {
     resolveAndSetHref(el: any, baseUrl: string, href: string): void;
     supportsDOMEvents(): boolean;
     supportsNativeShadowDOM(): boolean;
-    getGlobalEventTarget(doc: Document, target: string): any;
-    getBaseHref(doc: Document): string | null;
+    getGlobalEventTarget(target: string): any;
+    getBaseHref(): string;
     resetBaseElement(): void;
     getHistory(): History;
     getLocation(): Location;
@@ -130,5 +127,4 @@ export declare class Parse5DomAdapter extends DomAdapter {
     getCookie(name: string): string;
     setCookie(name: string, value: string): void;
     animate(element: any, keyframes: any[], options: any): any;
-    private getTitleNode(doc);
 }

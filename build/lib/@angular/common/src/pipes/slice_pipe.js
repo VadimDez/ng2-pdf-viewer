@@ -6,13 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Pipe } from '@angular/core';
-import { isBlank } from '../facade/lang';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
 /**
- * @ngModule CommonModule
- * @whatItDoes Creates a new List or String containing a subset (slice) of the elements.
- * @howToUse `array_or_string_expression | slice:start[:end]`
- * @description
+ * \@ngModule CommonModule
+ * \@whatItDoes Creates a new List or String containing a subset (slice) of the elements.
+ * \@howToUse `array_or_string_expression | slice:start[:end]`
+ * \@description
  *
  * Where the input expression is a `List` or `String`, and:
  * - `start`: The starting index of the subset to return.
@@ -39,7 +38,7 @@ import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
  *
  * This `ngFor` example:
  *
- * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_list'}
+ * {\@example common/pipes/ts/slice_pipe.ts region='SlicePipe_list'}
  *
  * produces the following:
  *
@@ -48,27 +47,46 @@ import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
  *
  * ## String Examples
  *
- * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_string'}
+ * {\@example common/pipes/ts/slice_pipe.ts region='SlicePipe_string'}
  *
- * @stable
+ * \@stable
  */
 export var SlicePipe = (function () {
     function SlicePipe() {
     }
+    /**
+     * @param {?} value
+     * @param {?} start
+     * @param {?=} end
+     * @return {?}
+     */
     SlicePipe.prototype.transform = function (value, start, end) {
-        if (isBlank(value))
+        if (value == null)
             return value;
         if (!this.supports(value)) {
             throw new InvalidPipeArgumentError(SlicePipe, value);
         }
         return value.slice(start, end);
     };
+    /**
+     * @param {?} obj
+     * @return {?}
+     */
     SlicePipe.prototype.supports = function (obj) { return typeof obj === 'string' || Array.isArray(obj); };
     SlicePipe.decorators = [
         { type: Pipe, args: [{ name: 'slice', pure: false },] },
     ];
     /** @nocollapse */
-    SlicePipe.ctorParameters = [];
+    SlicePipe.ctorParameters = function () { return []; };
     return SlicePipe;
 }());
+function SlicePipe_tsickle_Closure_declarations() {
+    /** @type {?} */
+    SlicePipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    SlicePipe.ctorParameters;
+}
 //# sourceMappingURL=slice_pipe.js.map

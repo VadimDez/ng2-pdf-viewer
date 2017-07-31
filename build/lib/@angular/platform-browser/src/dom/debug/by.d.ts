@@ -5,7 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { DebugElement, Predicate, Type } from '@angular/core';
+import { DebugElement, Type } from '@angular/core';
+import { Predicate } from '../../facade/collection';
 /**
  * Predicates for use with {@link DebugElement}'s query functions.
  *

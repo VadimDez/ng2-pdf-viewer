@@ -17,7 +17,7 @@ export { NgClass, NgFor, NgIf, NgPlural, NgPluralCase, NgStyle, NgSwitch, NgSwit
  * A collection of Angular directives that are likely to be used in each and every Angular
  * application.
  */
-export var COMMON_DIRECTIVES = [
+export var /** @type {?} */ COMMON_DIRECTIVES = [
     NgClass,
     NgFor,
     NgIf,

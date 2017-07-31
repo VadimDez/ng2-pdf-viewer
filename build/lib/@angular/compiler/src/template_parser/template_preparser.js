@@ -6,24 +6,28 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { splitNsName } from '../ml_parser/tags';
-var NG_CONTENT_SELECT_ATTR = 'select';
-var NG_CONTENT_ELEMENT = 'ng-content';
-var LINK_ELEMENT = 'link';
-var LINK_STYLE_REL_ATTR = 'rel';
-var LINK_STYLE_HREF_ATTR = 'href';
-var LINK_STYLE_REL_VALUE = 'stylesheet';
-var STYLE_ELEMENT = 'style';
-var SCRIPT_ELEMENT = 'script';
-var NG_NON_BINDABLE_ATTR = 'ngNonBindable';
-var NG_PROJECT_AS = 'ngProjectAs';
+var /** @type {?} */ NG_CONTENT_SELECT_ATTR = 'select';
+var /** @type {?} */ NG_CONTENT_ELEMENT = 'ng-content';
+var /** @type {?} */ LINK_ELEMENT = 'link';
+var /** @type {?} */ LINK_STYLE_REL_ATTR = 'rel';
+var /** @type {?} */ LINK_STYLE_HREF_ATTR = 'href';
+var /** @type {?} */ LINK_STYLE_REL_VALUE = 'stylesheet';
+var /** @type {?} */ STYLE_ELEMENT = 'style';
+var /** @type {?} */ SCRIPT_ELEMENT = 'script';
+var /** @type {?} */ NG_NON_BINDABLE_ATTR = 'ngNonBindable';
+var /** @type {?} */ NG_PROJECT_AS = 'ngProjectAs';
+/**
+ * @param {?} ast
+ * @return {?}
+ */
 export function preparseElement(ast) {
-    var selectAttr = null;
-    var hrefAttr = null;
-    var relAttr = null;
-    var nonBindable = false;
-    var projectAs = null;
+    var /** @type {?} */ selectAttr = null;
+    var /** @type {?} */ hrefAttr = null;
+    var /** @type {?} */ relAttr = null;
+    var /** @type {?} */ nonBindable = false;
+    var /** @type {?} */ projectAs = null;
     ast.attrs.forEach(function (attr) {
-        var lcAttrName = attr.name.toLowerCase();
+        var /** @type {?} */ lcAttrName = attr.name.toLowerCase();
         if (lcAttrName == NG_CONTENT_SELECT_ATTR) {
             selectAttr = attr.value;
         }
@@ -43,8 +47,8 @@ export function preparseElement(ast) {
         }
     });
     selectAttr = normalizeNgContentSelect(selectAttr);
-    var nodeName = ast.name.toLowerCase();
-    var type = PreparsedElementType.OTHER;
+    var /** @type {?} */ nodeName = ast.name.toLowerCase();
+    var /** @type {?} */ type = PreparsedElementType.OTHER;
     if (splitNsName(nodeName)[1] == NG_CONTENT_ELEMENT) {
         type = PreparsedElementType.NG_CONTENT;
     }
@@ -59,15 +63,25 @@ export function preparseElement(ast) {
     }
     return new PreparsedElement(type, selectAttr, hrefAttr, nonBindable, projectAs);
 }
-export var PreparsedElementType;
-(function (PreparsedElementType) {
-    PreparsedElementType[PreparsedElementType["NG_CONTENT"] = 0] = "NG_CONTENT";
-    PreparsedElementType[PreparsedElementType["STYLE"] = 1] = "STYLE";
-    PreparsedElementType[PreparsedElementType["STYLESHEET"] = 2] = "STYLESHEET";
-    PreparsedElementType[PreparsedElementType["SCRIPT"] = 3] = "SCRIPT";
-    PreparsedElementType[PreparsedElementType["OTHER"] = 4] = "OTHER";
-})(PreparsedElementType || (PreparsedElementType = {}));
+export var PreparsedElementType = {};
+PreparsedElementType.NG_CONTENT = 0;
+PreparsedElementType.STYLE = 1;
+PreparsedElementType.STYLESHEET = 2;
+PreparsedElementType.SCRIPT = 3;
+PreparsedElementType.OTHER = 4;
+PreparsedElementType[PreparsedElementType.NG_CONTENT] = "NG_CONTENT";
+PreparsedElementType[PreparsedElementType.STYLE] = "STYLE";
+PreparsedElementType[PreparsedElementType.STYLESHEET] = "STYLESHEET";
+PreparsedElementType[PreparsedElementType.SCRIPT] = "SCRIPT";
+PreparsedElementType[PreparsedElementType.OTHER] = "OTHER";
 export var PreparsedElement = (function () {
+    /**
+     * @param {?} type
+     * @param {?} selectAttr
+     * @param {?} hrefAttr
+     * @param {?} nonBindable
+     * @param {?} projectAs
+     */
     function PreparsedElement(type, selectAttr, hrefAttr, nonBindable, projectAs) {
         this.type = type;
         this.selectAttr = selectAttr;
@@ -77,6 +91,22 @@ export var PreparsedElement = (function () {
     }
     return PreparsedElement;
 }());
+function PreparsedElement_tsickle_Closure_declarations() {
+    /** @type {?} */
+    PreparsedElement.prototype.type;
+    /** @type {?} */
+    PreparsedElement.prototype.selectAttr;
+    /** @type {?} */
+    PreparsedElement.prototype.hrefAttr;
+    /** @type {?} */
+    PreparsedElement.prototype.nonBindable;
+    /** @type {?} */
+    PreparsedElement.prototype.projectAs;
+}
+/**
+ * @param {?} selectAttr
+ * @return {?}
+ */
 function normalizeNgContentSelect(selectAttr) {
     if (selectAttr === null || selectAttr.length === 0) {
         return '*';

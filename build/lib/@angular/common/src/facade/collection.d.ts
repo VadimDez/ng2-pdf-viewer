@@ -23,6 +23,7 @@ export interface Predicate<T> {
     (value: T, index?: number, array?: T[]): boolean;
 }
 export declare class ListWrapper {
+    static findLast<T>(arr: T[], condition: (value: T) => boolean): T;
     static removeAll<T>(list: T[], items: T[]): void;
     static remove<T>(list: T[], el: T): boolean;
     static equals(a: any[], b: any[]): boolean;

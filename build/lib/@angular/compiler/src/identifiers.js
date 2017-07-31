@@ -6,12 +6,11 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ANALYZE_FOR_ENTRY_COMPONENTS, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactory, ComponentFactoryResolver, ComponentRef, ElementRef, Injector, LOCALE_ID, NgModuleFactory, QueryList, RenderComponentType, Renderer, SecurityContext, SimpleChange, TRANSLATIONS_FORMAT, TemplateRef, ViewContainerRef, ViewEncapsulation } from '@angular/core';
-import { CompileIdentifierMetadata, CompileTokenMetadata } from './compile_metadata';
 import { AnimationGroupPlayer, AnimationKeyframe, AnimationSequencePlayer, AnimationStyles, AnimationTransition, AppView, ChangeDetectorStatus, CodegenComponentFactoryResolver, ComponentRef_, DebugAppView, DebugContext, NgModuleInjector, NoOpAnimationPlayer, StaticNodeDebugInfo, TemplateRef_, UNINITIALIZED, ValueUnwrapper, ViewContainer, ViewType, balanceAnimationKeyframes, clearStyles, collectAndResolveStyles, devModeEqual, prepareFinalAnimationStyles, reflector, registerModuleFactory, renderStyles, view_utils } from './private_import_core';
-var APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
-var VIEW_UTILS_MODULE_URL = assetUrl('core', 'linker/view_utils');
-var CD_MODULE_URL = assetUrl('core', 'change_detection/change_detection');
-var ANIMATION_STYLE_UTIL_ASSET_URL = assetUrl('core', 'animation/animation_style_util');
+var /** @type {?} */ APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
+var /** @type {?} */ VIEW_UTILS_MODULE_URL = assetUrl('core', 'linker/view_utils');
+var /** @type {?} */ CD_MODULE_URL = assetUrl('core', 'change_detection/change_detection');
+var /** @type {?} */ ANIMATION_STYLE_UTIL_ASSET_URL = assetUrl('core', 'animation/animation_style_util');
 export var Identifiers = (function () {
     function Identifiers() {
     }
@@ -320,31 +319,188 @@ export var Identifiers = (function () {
     Identifiers.noop = { name: 'noop', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.noop };
     return Identifiers;
 }());
+function Identifiers_tsickle_Closure_declarations() {
+    /** @type {?} */
+    Identifiers.ANALYZE_FOR_ENTRY_COMPONENTS;
+    /** @type {?} */
+    Identifiers.ViewUtils;
+    /** @type {?} */
+    Identifiers.AppView;
+    /** @type {?} */
+    Identifiers.DebugAppView;
+    /** @type {?} */
+    Identifiers.ViewContainer;
+    /** @type {?} */
+    Identifiers.ElementRef;
+    /** @type {?} */
+    Identifiers.ViewContainerRef;
+    /** @type {?} */
+    Identifiers.ChangeDetectorRef;
+    /** @type {?} */
+    Identifiers.RenderComponentType;
+    /** @type {?} */
+    Identifiers.QueryList;
+    /** @type {?} */
+    Identifiers.TemplateRef;
+    /** @type {?} */
+    Identifiers.TemplateRef_;
+    /** @type {?} */
+    Identifiers.CodegenComponentFactoryResolver;
+    /** @type {?} */
+    Identifiers.ComponentFactoryResolver;
+    /** @type {?} */
+    Identifiers.ComponentFactory;
+    /** @type {?} */
+    Identifiers.ComponentRef_;
+    /** @type {?} */
+    Identifiers.ComponentRef;
+    /** @type {?} */
+    Identifiers.NgModuleFactory;
+    /** @type {?} */
+    Identifiers.NgModuleInjector;
+    /** @type {?} */
+    Identifiers.RegisterModuleFactoryFn;
+    /** @type {?} */
+    Identifiers.ValueUnwrapper;
+    /** @type {?} */
+    Identifiers.Injector;
+    /** @type {?} */
+    Identifiers.ViewEncapsulation;
+    /** @type {?} */
+    Identifiers.ViewType;
+    /** @type {?} */
+    Identifiers.ChangeDetectionStrategy;
+    /** @type {?} */
+    Identifiers.StaticNodeDebugInfo;
+    /** @type {?} */
+    Identifiers.DebugContext;
+    /** @type {?} */
+    Identifiers.Renderer;
+    /** @type {?} */
+    Identifiers.SimpleChange;
+    /** @type {?} */
+    Identifiers.UNINITIALIZED;
+    /** @type {?} */
+    Identifiers.ChangeDetectorStatus;
+    /** @type {?} */
+    Identifiers.checkBinding;
+    /** @type {?} */
+    Identifiers.devModeEqual;
+    /** @type {?} */
+    Identifiers.inlineInterpolate;
+    /** @type {?} */
+    Identifiers.interpolate;
+    /** @type {?} */
+    Identifiers.castByValue;
+    /** @type {?} */
+    Identifiers.EMPTY_ARRAY;
+    /** @type {?} */
+    Identifiers.EMPTY_MAP;
+    /** @type {?} */
+    Identifiers.createRenderElement;
+    /** @type {?} */
+    Identifiers.selectOrCreateRenderHostElement;
+    /** @type {?} */
+    Identifiers.pureProxies;
+    /** @type {?} */
+    Identifiers.SecurityContext;
+    /** @type {?} */
+    Identifiers.AnimationKeyframe;
+    /** @type {?} */
+    Identifiers.AnimationStyles;
+    /** @type {?} */
+    Identifiers.NoOpAnimationPlayer;
+    /** @type {?} */
+    Identifiers.AnimationGroupPlayer;
+    /** @type {?} */
+    Identifiers.AnimationSequencePlayer;
+    /** @type {?} */
+    Identifiers.prepareFinalAnimationStyles;
+    /** @type {?} */
+    Identifiers.balanceAnimationKeyframes;
+    /** @type {?} */
+    Identifiers.clearStyles;
+    /** @type {?} */
+    Identifiers.renderStyles;
+    /** @type {?} */
+    Identifiers.collectAndResolveStyles;
+    /** @type {?} */
+    Identifiers.LOCALE_ID;
+    /** @type {?} */
+    Identifiers.TRANSLATIONS_FORMAT;
+    /** @type {?} */
+    Identifiers.setBindingDebugInfo;
+    /** @type {?} */
+    Identifiers.setBindingDebugInfoForChanges;
+    /** @type {?} */
+    Identifiers.AnimationTransition;
+    /** @type {?} */
+    Identifiers.InlineArray;
+    /** @type {?} */
+    Identifiers.inlineArrays;
+    /** @type {?} */
+    Identifiers.EMPTY_INLINE_ARRAY;
+    /** @type {?} */
+    Identifiers.InlineArrayDynamic;
+    /** @type {?} */
+    Identifiers.subscribeToRenderElement;
+    /** @type {?} */
+    Identifiers.createRenderComponentType;
+    /** @type {?} */
+    Identifiers.noop;
+}
+/**
+ * @param {?} pkg
+ * @param {?=} path
+ * @param {?=} type
+ * @return {?}
+ */
 export function assetUrl(pkg, path, type) {
     if (path === void 0) { path = null; }
     if (type === void 0) { type = 'src'; }
     if (path == null) {
-        return "asset:@angular/lib/" + pkg + "/index";
+        return "@angular/" + pkg + "/index";
     }
     else {
-        return "asset:@angular/lib/" + pkg + "/src/" + path;
+        return "@angular/" + pkg + "/" + type + "/" + path;
     }
 }
+/**
+ * @param {?} identifier
+ * @return {?}
+ */
 export function resolveIdentifier(identifier) {
-    return new CompileIdentifierMetadata({
-        name: identifier.name,
-        moduleUrl: identifier.moduleUrl,
-        reference: reflector.resolveIdentifier(identifier.name, identifier.moduleUrl, identifier.runtime)
-    });
+    return reflector.resolveIdentifier(identifier.name, identifier.moduleUrl, identifier.runtime);
 }
+/**
+ * @param {?} identifier
+ * @return {?}
+ */
+export function createIdentifier(identifier) {
+    var /** @type {?} */ reference = reflector.resolveIdentifier(identifier.name, identifier.moduleUrl, identifier.runtime);
+    return { reference: reference };
+}
+/**
+ * @param {?} identifier
+ * @return {?}
+ */
 export function identifierToken(identifier) {
-    return new CompileTokenMetadata({ identifier: identifier });
+    return { identifier: identifier };
 }
-export function resolveIdentifierToken(identifier) {
-    return identifierToken(resolveIdentifier(identifier));
+/**
+ * @param {?} identifier
+ * @return {?}
+ */
+export function createIdentifierToken(identifier) {
+    return identifierToken(createIdentifier(identifier));
 }
-export function resolveEnumIdentifier(enumType, name) {
-    var resolvedEnum = reflector.resolveEnum(enumType.reference, name);
-    return new CompileIdentifierMetadata({ name: enumType.name + "." + name, moduleUrl: enumType.moduleUrl, reference: resolvedEnum });
+/**
+ * @param {?} enumType
+ * @param {?} name
+ * @return {?}
+ */
+export function createEnumIdentifier(enumType, name) {
+    var /** @type {?} */ resolvedEnum = reflector.resolveEnum(resolveIdentifier(enumType), name);
+    return { reference: resolvedEnum };
 }
 //# sourceMappingURL=identifiers.js.map

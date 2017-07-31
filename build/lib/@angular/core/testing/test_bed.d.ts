@@ -136,7 +136,7 @@ export declare class TestBed implements Injector {
     private _createCompilerAndModule();
     private _assertNotInstantiated(methodName, methodDescription);
     get(token: any, notFoundValue?: any): any;
-    execute(tokens: any[], fn: Function): any;
+    execute(tokens: any[], fn: Function, context?: any): any;
     overrideModule(ngModule: Type<any>, override: MetadataOverride<NgModule>): void;
     overrideComponent(component: Type<any>, override: MetadataOverride<Component>): void;
     overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): void;

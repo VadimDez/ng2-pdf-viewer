@@ -16,16 +16,16 @@ import { AbstractFormGroupDirective } from './abstract_form_group_directive';
 import { ControlContainer } from './control_container';
 import { NgForm } from './ng_form';
 import { TemplateDrivenErrors } from './template_driven_errors';
-export var modelGroupProvider = {
+export var /** @type {?} */ modelGroupProvider = {
     provide: ControlContainer,
     useExisting: forwardRef(function () { return NgModelGroup; })
 };
 /**
- * @whatItDoes Creates and binds a {@link FormGroup} instance to a DOM element.
+ * \@whatItDoes Creates and binds a {\@link FormGroup} instance to a DOM element.
  *
- * @howToUse
+ * \@howToUse
  *
- * This directive can only be used as a child of {@link NgForm} (or in other words,
+ * This directive can only be used as a child of {\@link NgForm} (or in other words,
  * within `<form>` tags).
  *
  * Use this directive if you'd like to create a sub-group within a form. This can
@@ -37,23 +37,31 @@ export var modelGroupProvider = {
  * for the sub-group in the form's full value. You can also export the directive into
  * a local template variable using `ngModelGroup` (ex: `#myGroup="ngModelGroup"`).
  *
- * {@example forms/ts/ngModelGroup/ng_model_group_example.ts region='Component'}
+ * {\@example forms/ts/ngModelGroup/ng_model_group_example.ts region='Component'}
  *
- * * **npm package**: `@angular/forms`
+ * * **npm package**: `\@angular/forms`
  *
  * * **NgModule**: `FormsModule`
  *
- * @stable
+ * \@stable
  */
 export var NgModelGroup = (function (_super) {
     __extends(NgModelGroup, _super);
+    /**
+     * @param {?} parent
+     * @param {?} validators
+     * @param {?} asyncValidators
+     */
     function NgModelGroup(parent, validators, asyncValidators) {
         _super.call(this);
         this._parent = parent;
         this._validators = validators;
         this._asyncValidators = asyncValidators;
     }
-    /** @internal */
+    /**
+     * \@internal
+     * @return {?}
+     */
     NgModelGroup.prototype._checkParentType = function () {
         if (!(this._parent instanceof NgModelGroup) && !(this._parent instanceof NgForm)) {
             TemplateDrivenErrors.modelGroupParentException();
@@ -63,14 +71,27 @@ export var NgModelGroup = (function (_super) {
         { type: Directive, args: [{ selector: '[ngModelGroup]', providers: [modelGroupProvider], exportAs: 'ngModelGroup' },] },
     ];
     /** @nocollapse */
-    NgModelGroup.ctorParameters = [
+    NgModelGroup.ctorParameters = function () { return [
         { type: ControlContainer, decorators: [{ type: Host }, { type: SkipSelf },] },
         { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_VALIDATORS,] },] },
         { type: Array, decorators: [{ type: Optional }, { type: Self }, { type: Inject, args: [NG_ASYNC_VALIDATORS,] },] },
-    ];
+    ]; };
     NgModelGroup.propDecorators = {
         'name': [{ type: Input, args: ['ngModelGroup',] },],
     };
     return NgModelGroup;
 }(AbstractFormGroupDirective));
+function NgModelGroup_tsickle_Closure_declarations() {
+    /** @type {?} */
+    NgModelGroup.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    NgModelGroup.ctorParameters;
+    /** @type {?} */
+    NgModelGroup.propDecorators;
+    /** @type {?} */
+    NgModelGroup.prototype.name;
+}
 //# sourceMappingURL=ng_model_group.js.map

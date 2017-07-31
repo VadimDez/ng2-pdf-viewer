@@ -13,32 +13,28 @@ import { OnChanges, SimpleChanges, TemplateRef, ViewContainerRef } from '@angula
  *
  * @howToUse
  * ```
- * <ng-container *ngTemplateOutlet="templateRefExp; context: contextExp"></ng-container>
+ * <template [ngTemplateOutlet]="templateRefExpression"
+ *           [ngOutletContext]="objectExpression">
+ * </template>
  * ```
  *
  * @description
  *
- * You can attach a context object to the `EmbeddedViewRef` by setting `[ngTemplateOutletContext]`.
- * `[ngTemplateOutletContext]` should be an object, the object's keys will be available for binding
- * by the local template `let` declarations.
+ * You can attach a context object to the `EmbeddedViewRef` by setting `[ngOutletContext]`.
+ * `[ngOutletContext]` should be an object, the object's keys will be the local template variables
+ * available within the `TemplateRef`.
  *
  * Note: using the key `$implicit` in the context object will set it's value as default.
- *
- * # Example
- *
- * {@example common/ngTemplateOutlet/ts/module.ts region='NgTemplateOutlet'}
  *
  * @experimental
  */
 export declare class NgTemplateOutlet implements OnChanges {
     private _viewContainerRef;
     private _viewRef;
-    ngTemplateOutletContext: Object;
-    ngTemplateOutlet: TemplateRef<any>;
+    private _context;
+    private _templateRef;
     constructor(_viewContainerRef: ViewContainerRef);
-    /**
-     * @deprecated v4.0.0 - Renamed to ngTemplateOutletContext.
-     */
     ngOutletContext: Object;
+    ngTemplateOutlet: TemplateRef<Object>;
     ngOnChanges(changes: SimpleChanges): void;
 }

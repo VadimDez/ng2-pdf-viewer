@@ -5,47 +5,47 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { makeParamDecorator } from '../util/decorators';
+import { makeDecorator, makeParamDecorator } from '../util/decorators';
 /**
  * Inject decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Inject = makeParamDecorator('Inject', [['token', undefined]]);
+export var /** @type {?} */ Inject = makeParamDecorator('Inject', [['token', undefined]]);
 /**
  * Optional decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Optional = makeParamDecorator('Optional', []);
+export var /** @type {?} */ Optional = makeParamDecorator('Optional', []);
 /**
  * Injectable decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Injectable = makeParamDecorator('Injectable', []);
+export var /** @type {?} */ Injectable = (makeDecorator('Injectable', []));
 /**
  * Self decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Self = makeParamDecorator('Self', []);
+export var /** @type {?} */ Self = makeParamDecorator('Self', []);
 /**
  * SkipSelf decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var SkipSelf = makeParamDecorator('SkipSelf', []);
+export var /** @type {?} */ SkipSelf = makeParamDecorator('SkipSelf', []);
 /**
  * Host decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Host = makeParamDecorator('Host', []);
+export var /** @type {?} */ Host = makeParamDecorator('Host', []);
 //# sourceMappingURL=metadata.js.map

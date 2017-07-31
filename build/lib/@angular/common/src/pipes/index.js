@@ -18,7 +18,7 @@ export { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, I18nPluralPipe, I18nSel
 /**
  * A collection of Angular pipes that are likely to be used in each and every application.
  */
-export var COMMON_PIPES = [
+export var /** @type {?} */ COMMON_PIPES = [
     AsyncPipe,
     UpperCasePipe,
     LowerCasePipe,

@@ -88,6 +88,7 @@ export declare class NgFor implements DoCheck, OnChanges {
     ngForOf: any;
     ngForTrackBy: TrackByFn;
     private _differ;
+    private _trackByFn;
     constructor(_viewContainer: ViewContainerRef, _template: TemplateRef<NgForRow>, _differs: IterableDiffers, _cdr: ChangeDetectorRef);
     ngForTemplate: TemplateRef<NgForRow>;
     ngOnChanges(changes: SimpleChanges): void;

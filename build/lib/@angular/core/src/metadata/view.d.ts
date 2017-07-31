@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+import { AnimationEntryMetadata } from '../animation/metadata';
 /**
  * Defines template and style encapsulation options available for Component's {@link Component}.
  *
@@ -60,26 +61,26 @@ export declare enum ViewEncapsulation {
  */
 export declare class ViewMetadata {
     /** {@link Component.templateUrl} */
-    templateUrl: string | undefined;
+    templateUrl: string;
     /** {@link Component.template} */
-    template: string | undefined;
+    template: string;
     /** {@link Component.stylesUrl} */
-    styleUrls: string[] | undefined;
+    styleUrls: string[];
     /** {@link Component.styles} */
-    styles: string[] | undefined;
+    styles: string[];
     /** {@link Component.encapsulation} */
-    encapsulation: ViewEncapsulation | undefined;
+    encapsulation: ViewEncapsulation;
     /** {@link Component.animation} */
-    animations: any[] | undefined;
+    animations: AnimationEntryMetadata[];
     /** {@link Component.interpolation} */
-    interpolation: [string, string] | undefined;
+    interpolation: [string, string];
     constructor({templateUrl, template, encapsulation, styles, styleUrls, animations, interpolation}?: {
         templateUrl?: string;
         template?: string;
         encapsulation?: ViewEncapsulation;
         styles?: string[];
         styleUrls?: string[];
-        animations?: any[];
+        animations?: AnimationEntryMetadata[];
         interpolation?: [string, string];
     });
 }

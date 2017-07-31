@@ -32,9 +32,9 @@ export declare abstract class DomAdapter {
     attrToPropMap: {
         [key: string]: string;
     };
-    abstract contains(nodeA: any, nodeB: any): boolean;
     abstract parse(templateHtml: string): any;
-    abstract querySelector(el: any, selector: string): any;
+    abstract query(selector: string): any;
+    abstract querySelector(el: any, selector: string): HTMLElement;
     abstract querySelectorAll(el: any, selector: string): any[];
     abstract on(el: any, evt: any, listener: any): any;
     abstract onAndCancel(el: any, evt: any, listener: any): Function;
@@ -48,12 +48,12 @@ export declare abstract class DomAdapter {
     abstract getTemplateContent(el: any): any;
     abstract getOuterHTML(el: any): string;
     abstract nodeName(node: any): string;
-    abstract nodeValue(node: any): string | null;
+    abstract nodeValue(node: any): string;
     abstract type(node: any): string;
     abstract content(node: any): any;
-    abstract firstChild(el: any): Node | null;
-    abstract nextSibling(el: any): Node | null;
-    abstract parentElement(el: any): Node | null;
+    abstract firstChild(el: any): Node;
+    abstract nextSibling(el: any): Node;
+    abstract parentElement(el: any): Node;
     abstract childNodes(el: any): Node[];
     abstract childNodesAsList(el: any): Node[];
     abstract clearNodes(el: any): any;
@@ -61,11 +61,11 @@ export declare abstract class DomAdapter {
     abstract removeChild(el: any, node: any): any;
     abstract replaceChild(el: any, newNode: any, oldNode: any): any;
     abstract remove(el: any): Node;
-    abstract insertBefore(parent: any, ref: any, node: any): any;
-    abstract insertAllBefore(parent: any, ref: any, nodes: any): any;
-    abstract insertAfter(parent: any, el: any, node: any): any;
+    abstract insertBefore(el: any, node: any): any;
+    abstract insertAllBefore(el: any, nodes: any): any;
+    abstract insertAfter(el: any, node: any): any;
     abstract setInnerHTML(el: any, value: any): any;
-    abstract getText(el: any): string | null;
+    abstract getText(el: any): string;
     abstract setText(el: any, value: string): any;
     abstract getValue(el: any): string;
     abstract setValue(el: any, value: string): any;
@@ -97,7 +97,7 @@ export declare abstract class DomAdapter {
     abstract attributeMap(element: any): Map<string, string>;
     abstract hasAttribute(element: any, attribute: string): boolean;
     abstract hasAttributeNS(element: any, ns: string, attribute: string): boolean;
-    abstract getAttribute(element: any, attribute: string): string | null;
+    abstract getAttribute(element: any, attribute: string): string;
     abstract getAttributeNS(element: any, ns: string, attribute: string): string;
     abstract setAttribute(element: any, name: string, value: string): any;
     abstract setAttributeNS(element: any, ns: string, name: string, value: string): any;
@@ -105,9 +105,10 @@ export declare abstract class DomAdapter {
     abstract removeAttributeNS(element: any, ns: string, attribute: string): any;
     abstract templateAwareRoot(el: any): any;
     abstract createHtmlDocument(): HTMLDocument;
+    abstract defaultDoc(): HTMLDocument;
     abstract getBoundingClientRect(el: any): any;
-    abstract getTitle(doc: Document): string;
-    abstract setTitle(doc: Document, newTitle: string): any;
+    abstract getTitle(): string;
+    abstract setTitle(newTitle: string): any;
     abstract elementMatches(n: any, selector: string): boolean;
     abstract isTemplateElement(el: any): boolean;
     abstract isTextNode(node: any): boolean;
@@ -122,15 +123,15 @@ export declare abstract class DomAdapter {
     abstract resolveAndSetHref(element: any, baseUrl: string, href: string): any;
     abstract supportsDOMEvents(): boolean;
     abstract supportsNativeShadowDOM(): boolean;
-    abstract getGlobalEventTarget(doc: Document, target: string): any;
+    abstract getGlobalEventTarget(target: string): any;
     abstract getHistory(): History;
     abstract getLocation(): Location;
-    abstract getBaseHref(doc: Document): string | null;
+    abstract getBaseHref(): string;
     abstract resetBaseElement(): void;
     abstract getUserAgent(): string;
     abstract setData(element: any, name: string, value: string): any;
     abstract getComputedStyle(element: any): any;
-    abstract getData(element: any, name: string): string | null;
+    abstract getData(element: any, name: string): string;
     abstract setGlobalVar(name: string, value: any): any;
     abstract supportsWebAnimation(): boolean;
     abstract performanceNow(): number;
@@ -138,6 +139,6 @@ export declare abstract class DomAdapter {
     abstract getTransitionEnd(): string;
     abstract supportsAnimation(): boolean;
     abstract supportsCookies(): boolean;
-    abstract getCookie(name: string): string | null;
+    abstract getCookie(name: string): string;
     abstract setCookie(name: string, value: string): any;
 }

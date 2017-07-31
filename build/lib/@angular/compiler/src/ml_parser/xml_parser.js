@@ -18,6 +18,12 @@ export var XmlParser = (function (_super) {
     function XmlParser() {
         _super.call(this, getXmlTagDefinition);
     }
+    /**
+     * @param {?} source
+     * @param {?} url
+     * @param {?=} parseExpansionForms
+     * @return {?}
+     */
     XmlParser.prototype.parse = function (source, url, parseExpansionForms) {
         if (parseExpansionForms === void 0) { parseExpansionForms = false; }
         return _super.prototype.parse.call(this, source, url, parseExpansionForms, null);

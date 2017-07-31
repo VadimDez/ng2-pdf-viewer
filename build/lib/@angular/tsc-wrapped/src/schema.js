@@ -21,10 +21,6 @@ function isClassMetadata(value) {
     return value && value.__symbolic === 'class';
 }
 exports.isClassMetadata = isClassMetadata;
-function isInterfaceMetadata(value) {
-    return value && value.__symbolic === 'interface';
-}
-exports.isInterfaceMetadata = isInterfaceMetadata;
 function isMemberMetadata(value) {
     if (value) {
         switch (value.__symbolic) {

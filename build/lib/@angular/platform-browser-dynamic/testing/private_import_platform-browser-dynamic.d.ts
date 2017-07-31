@@ -6,4 +6,4 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { __platform_browser_dynamic_private__ as _ } from '@angular/platform-browser-dynamic';
-export declare var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS: typeof _.INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS;
+export declare const INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS: typeof _.INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS;

@@ -11,18 +11,32 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Injector, THROW_IF_NOT_FOUND } from '../di/injector';
-var _UNDEFINED = new Object();
 export var ElementInjector = (function (_super) {
     __extends(ElementInjector, _super);
+    /**
+     * @param {?} _view
+     * @param {?} _nodeIndex
+     */
     function ElementInjector(_view, _nodeIndex) {
         _super.call(this);
         this._view = _view;
         this._nodeIndex = _nodeIndex;
     }
+    /**
+     * @param {?} token
+     * @param {?=} notFoundValue
+     * @return {?}
+     */
     ElementInjector.prototype.get = function (token, notFoundValue) {
         if (notFoundValue === void 0) { notFoundValue = THROW_IF_NOT_FOUND; }
         return this._view.injectorGet(token, this._nodeIndex, notFoundValue);
     };
     return ElementInjector;
 }(Injector));
+function ElementInjector_tsickle_Closure_declarations() {
+    /** @type {?} */
+    ElementInjector.prototype._view;
+    /** @type {?} */
+    ElementInjector.prototype._nodeIndex;
+}
 //# sourceMappingURL=element_injector.js.map

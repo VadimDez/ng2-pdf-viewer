@@ -23,7 +23,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig, HammerGesturesPlugin } from
 import { KeyEventsPlugin } from './dom/events/key_events';
 import { DomSharedStylesHost, SharedStylesHost } from './dom/shared_styles_host';
 import { DomSanitizer, DomSanitizerImpl } from './security/dom_sanitization_service';
-export var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
+export var /** @type {?} */ INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
     { provide: PLATFORM_INITIALIZER, useValue: initDomAdapter, multi: true },
     { provide: PlatformLocation, useClass: BrowserPlatformLocation }
 ];
@@ -33,24 +33,36 @@ export var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [
  * application to XSS risks. For more detail, see the [Security Guide](http://g.co/ng/security).
  * @experimental
  */
-export var BROWSER_SANITIZATION_PROVIDERS = [
+export var /** @type {?} */ BROWSER_SANITIZATION_PROVIDERS = [
     { provide: Sanitizer, useExisting: DomSanitizer },
     { provide: DomSanitizer, useClass: DomSanitizerImpl },
 ];
 /**
  * @stable
  */
-export var platformBrowser = createPlatformFactory(platformCore, 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
+export var /** @type {?} */ platformBrowser = createPlatformFactory(platformCore, 'browser', INTERNAL_BROWSER_PLATFORM_PROVIDERS);
+/**
+ * @return {?}
+ */
 export function initDomAdapter() {
     BrowserDomAdapter.makeCurrent();
     BrowserGetTestability.init();
 }
+/**
+ * @return {?}
+ */
 export function errorHandler() {
     return new ErrorHandler();
 }
+/**
+ * @return {?}
+ */
 export function _document() {
     return getDOM().defaultDoc();
 }
+/**
+ * @return {?}
+ */
 export function _resolveDefaultAnimationDriver() {
     if (getDOM().supportsWebAnimation()) {
         return new WebAnimationsDriver();
@@ -60,9 +72,12 @@ export function _resolveDefaultAnimationDriver() {
 /**
  * The ng module for the browser.
  *
- * @stable
+ * \@stable
  */
 export var BrowserModule = (function () {
+    /**
+     * @param {?} parentModule
+     */
     function BrowserModule(parentModule) {
         if (parentModule) {
             throw new Error("BrowserModule has already been loaded. If you need access to common directives such as NgIf and NgFor from a lazy loaded module, import CommonModule instead.");
@@ -87,9 +102,18 @@ export var BrowserModule = (function () {
                 },] },
     ];
     /** @nocollapse */
-    BrowserModule.ctorParameters = [
+    BrowserModule.ctorParameters = function () { return [
         { type: BrowserModule, decorators: [{ type: Optional }, { type: SkipSelf },] },
-    ];
+    ]; };
     return BrowserModule;
 }());
+function BrowserModule_tsickle_Closure_declarations() {
+    /** @type {?} */
+    BrowserModule.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    BrowserModule.ctorParameters;
+}
 //# sourceMappingURL=browser.js.map

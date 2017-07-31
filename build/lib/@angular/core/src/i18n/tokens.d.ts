@@ -5,24 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { InjectionToken } from '../di/injection_token';
+import { OpaqueToken } from '../di/opaque_token';
 /**
  * @experimental i18n support is experimental.
  */
-export declare const LOCALE_ID: InjectionToken<string>;
+export declare const LOCALE_ID: OpaqueToken;
 /**
  * @experimental i18n support is experimental.
  */
-export declare const TRANSLATIONS: InjectionToken<string>;
+export declare const TRANSLATIONS: OpaqueToken;
 /**
  * @experimental i18n support is experimental.
  */
-export declare const TRANSLATIONS_FORMAT: InjectionToken<string>;
-/**
- * @experimental i18n support is experimental.
- */
-export declare enum MissingTranslationStrategy {
-    Error = 0,
-    Warning = 1,
-    Ignore = 2,
-}
+export declare const TRANSLATIONS_FORMAT: OpaqueToken;

@@ -5,10 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { SecurityContext, ɵLifecycleHooks as LifecycleHooks } from '@angular/core';
+import { SecurityContext } from '@angular/core';
 import { CompileDirectiveSummary, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
 import { AST } from '../expression_parser/ast';
 import { ParseSourceSpan } from '../parse_util';
+import { LifecycleHooks } from '../private_import_core';
 /**
  * An Abstract Syntax Tree node representing part of a parsed Angular template.
  */
@@ -60,12 +61,13 @@ export declare class BoundElementPropertyAst implements TemplateAst {
     name: string;
     type: PropertyBindingType;
     securityContext: SecurityContext;
+    needsRuntimeSecurityContext: boolean;
     value: AST;
-    unit: string | null;
+    unit: string;
     sourceSpan: ParseSourceSpan;
-    constructor(name: string, type: PropertyBindingType, securityContext: SecurityContext, value: AST, unit: string | null, sourceSpan: ParseSourceSpan);
+    constructor(name: string, type: PropertyBindingType, securityContext: SecurityContext, needsRuntimeSecurityContext: boolean, value: AST, unit: string, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
-    readonly isAnimation: boolean;
+    isAnimation: boolean;
 }
 /**
  * A binding for an element event (e.g. `(event)="handler()"`) or an animation trigger event (e.g.
@@ -73,15 +75,15 @@ export declare class BoundElementPropertyAst implements TemplateAst {
  */
 export declare class BoundEventAst implements TemplateAst {
     name: string;
-    target: string | null;
-    phase: string | null;
+    target: string;
+    phase: string;
     handler: AST;
     sourceSpan: ParseSourceSpan;
-    static calcFullName(name: string, target: string | null, phase: string | null): string;
-    constructor(name: string, target: string | null, phase: string | null, handler: AST, sourceSpan: ParseSourceSpan);
+    static calcFullName(name: string, target: string, phase: string): string;
+    constructor(name: string, target: string, phase: string, handler: AST, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
-    readonly fullName: string;
-    readonly isAnimation: boolean;
+    fullName: string;
+    isAnimation: boolean;
 }
 /**
  * A reference declaration on an element (e.g. `let someName="expression"`).
@@ -94,7 +96,7 @@ export declare class ReferenceAst implements TemplateAst {
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
- * A variable declaration on a <ng-template> (e.g. `var-someName="someLocalName"`).
+ * A variable declaration on a <template> (e.g. `var-someName="someLocalName"`).
  */
 export declare class VariableAst implements TemplateAst {
     name: string;
@@ -115,16 +117,15 @@ export declare class ElementAst implements TemplateAst {
     directives: DirectiveAst[];
     providers: ProviderAst[];
     hasViewContainer: boolean;
-    queryMatches: QueryMatch[];
     children: TemplateAst[];
-    ngContentIndex: number | null;
+    ngContentIndex: number;
     sourceSpan: ParseSourceSpan;
-    endSourceSpan: ParseSourceSpan | null;
-    constructor(name: string, attrs: AttrAst[], inputs: BoundElementPropertyAst[], outputs: BoundEventAst[], references: ReferenceAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, queryMatches: QueryMatch[], children: TemplateAst[], ngContentIndex: number | null, sourceSpan: ParseSourceSpan, endSourceSpan: ParseSourceSpan | null);
+    endSourceSpan: ParseSourceSpan;
+    constructor(name: string, attrs: AttrAst[], inputs: BoundElementPropertyAst[], outputs: BoundEventAst[], references: ReferenceAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, children: TemplateAst[], ngContentIndex: number, sourceSpan: ParseSourceSpan, endSourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
- * A `<ng-template>` element included in an Angular template.
+ * A `<template>` element included in an Angular template.
  */
 export declare class EmbeddedTemplateAst implements TemplateAst {
     attrs: AttrAst[];
@@ -134,11 +135,10 @@ export declare class EmbeddedTemplateAst implements TemplateAst {
     directives: DirectiveAst[];
     providers: ProviderAst[];
     hasViewContainer: boolean;
-    queryMatches: QueryMatch[];
     children: TemplateAst[];
     ngContentIndex: number;
     sourceSpan: ParseSourceSpan;
-    constructor(attrs: AttrAst[], outputs: BoundEventAst[], references: ReferenceAst[], variables: VariableAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, queryMatches: QueryMatch[], children: TemplateAst[], ngContentIndex: number, sourceSpan: ParseSourceSpan);
+    constructor(attrs: AttrAst[], outputs: BoundEventAst[], references: ReferenceAst[], variables: VariableAst[], directives: DirectiveAst[], providers: ProviderAst[], hasViewContainer: boolean, children: TemplateAst[], ngContentIndex: number, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
@@ -160,9 +160,8 @@ export declare class DirectiveAst implements TemplateAst {
     inputs: BoundDirectivePropertyAst[];
     hostProperties: BoundElementPropertyAst[];
     hostEvents: BoundEventAst[];
-    contentQueryStartId: number;
     sourceSpan: ParseSourceSpan;
-    constructor(directive: CompileDirectiveSummary, inputs: BoundDirectivePropertyAst[], hostProperties: BoundElementPropertyAst[], hostEvents: BoundEventAst[], contentQueryStartId: number, sourceSpan: ParseSourceSpan);
+    constructor(directive: CompileDirectiveSummary, inputs: BoundDirectivePropertyAst[], hostProperties: BoundElementPropertyAst[], hostEvents: BoundEventAst[], sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
@@ -220,10 +219,6 @@ export declare enum PropertyBindingType {
      * A binding to an animation reference (e.g. `[animate.key]="expression"`).
      */
     Animation = 4,
-}
-export interface QueryMatch {
-    queryId: number;
-    value: CompileTokenMetadata;
 }
 /**
  * A visitor for {@link TemplateAst} trees that will process each node.

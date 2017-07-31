@@ -7,6 +7,9 @@
  */
 import { TagContentType } from './tags';
 export var HtmlTagDefinition = (function () {
+    /**
+     * @param {?=} __0
+     */
     function HtmlTagDefinition(_a) {
         var _this = this;
         var _b = _a === void 0 ? {} : _a, closedByChildren = _b.closedByChildren, requiredParents = _b.requiredParents, implicitNamespacePrefix = _b.implicitNamespacePrefix, _c = _b.contentType, contentType = _c === void 0 ? TagContentType.PARSABLE_DATA : _c, _d = _b.closedByParent, closedByParent = _d === void 0 ? false : _d, _e = _b.isVoid, isVoid = _e === void 0 ? false : _e, _f = _b.ignoreFirstLf, ignoreFirstLf = _f === void 0 ? false : _f;
@@ -28,6 +31,10 @@ export var HtmlTagDefinition = (function () {
         this.contentType = contentType;
         this.ignoreFirstLf = ignoreFirstLf;
     }
+    /**
+     * @param {?} currentParent
+     * @return {?}
+     */
     HtmlTagDefinition.prototype.requireExtraParent = function (currentParent) {
         if (!this.requiredParents) {
             return false;
@@ -35,17 +42,41 @@ export var HtmlTagDefinition = (function () {
         if (!currentParent) {
             return true;
         }
-        var lcParent = currentParent.toLowerCase();
+        var /** @type {?} */ lcParent = currentParent.toLowerCase();
         return this.requiredParents[lcParent] != true && lcParent != 'template';
     };
+    /**
+     * @param {?} name
+     * @return {?}
+     */
     HtmlTagDefinition.prototype.isClosedByChild = function (name) {
         return this.isVoid || name.toLowerCase() in this.closedByChildren;
     };
     return HtmlTagDefinition;
 }());
+function HtmlTagDefinition_tsickle_Closure_declarations() {
+    /** @type {?} */
+    HtmlTagDefinition.prototype.closedByChildren;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.closedByParent;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.requiredParents;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.parentToAdd;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.implicitNamespacePrefix;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.contentType;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.isVoid;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.ignoreFirstLf;
+    /** @type {?} */
+    HtmlTagDefinition.prototype.canSelfClose;
+}
 // see http://www.w3.org/TR/html51/syntax.html#optional-tags
 // This implementation does not fully conform to the HTML5 spec.
-var TAG_DEFINITIONS = {
+var /** @type {?} */ TAG_DEFINITIONS = {
     'base': new HtmlTagDefinition({ isVoid: true }),
     'meta': new HtmlTagDefinition({ isVoid: true }),
     'area': new HtmlTagDefinition({ isVoid: true }),
@@ -96,7 +127,11 @@ var TAG_DEFINITIONS = {
     'title': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT }),
     'textarea': new HtmlTagDefinition({ contentType: TagContentType.ESCAPABLE_RAW_TEXT, ignoreFirstLf: true }),
 };
-var _DEFAULT_TAG_DEFINITION = new HtmlTagDefinition();
+var /** @type {?} */ _DEFAULT_TAG_DEFINITION = new HtmlTagDefinition();
+/**
+ * @param {?} tagName
+ * @return {?}
+ */
 export function getHtmlTagDefinition(tagName) {
     return TAG_DEFINITIONS[tagName.toLowerCase()] || _DEFAULT_TAG_DEFINITION;
 }

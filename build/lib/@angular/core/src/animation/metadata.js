@@ -14,23 +14,34 @@ import { isPresent } from '../facade/lang';
 /**
  * @experimental Animation support is experimental.
  */
-export var AUTO_STYLE = '*';
+export var /** @type {?} */ AUTO_STYLE = '*';
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link trigger trigger
+ * Instances of this class are provided via the animation DSL when the {\@link trigger trigger
  * animation function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationEntryMetadata = (function () {
+    /**
+     * @param {?} name
+     * @param {?} definitions
+     */
     function AnimationEntryMetadata(name, definitions) {
         this.name = name;
         this.definitions = definitions;
     }
     return AnimationEntryMetadata;
 }());
+function AnimationEntryMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationEntryMetadata.prototype.name;
+    /** @type {?} */
+    AnimationEntryMetadata.prototype.definitions;
+}
 /**
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @abstract
  */
 export var AnimationStateMetadata = (function () {
     function AnimationStateMetadata() {
@@ -39,13 +50,17 @@ export var AnimationStateMetadata = (function () {
 }());
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link state state animation
+ * Instances of this class are provided via the animation DSL when the {\@link state state animation
  * function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationStateDeclarationMetadata = (function (_super) {
     __extends(AnimationStateDeclarationMetadata, _super);
+    /**
+     * @param {?} stateNameExpr
+     * @param {?} styles
+     */
     function AnimationStateDeclarationMetadata(stateNameExpr, styles) {
         _super.call(this);
         this.stateNameExpr = stateNameExpr;
@@ -53,15 +68,25 @@ export var AnimationStateDeclarationMetadata = (function (_super) {
     }
     return AnimationStateDeclarationMetadata;
 }(AnimationStateMetadata));
+function AnimationStateDeclarationMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationStateDeclarationMetadata.prototype.stateNameExpr;
+    /** @type {?} */
+    AnimationStateDeclarationMetadata.prototype.styles;
+}
 /**
  * Metadata representing the entry of animations.
  * Instances of this class are provided via the animation DSL when the
- * {@link transition transition animation function} is called.
+ * {\@link transition transition animation function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationStateTransitionMetadata = (function (_super) {
     __extends(AnimationStateTransitionMetadata, _super);
+    /**
+     * @param {?} stateChangeExpr
+     * @param {?} steps
+     */
     function AnimationStateTransitionMetadata(stateChangeExpr, steps) {
         _super.call(this);
         this.stateChangeExpr = stateChangeExpr;
@@ -69,8 +94,15 @@ export var AnimationStateTransitionMetadata = (function (_super) {
     }
     return AnimationStateTransitionMetadata;
 }(AnimationStateMetadata));
+function AnimationStateTransitionMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationStateTransitionMetadata.prototype.stateChangeExpr;
+    /** @type {?} */
+    AnimationStateTransitionMetadata.prototype.steps;
+}
 /**
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @abstract
  */
 export var AnimationMetadata = (function () {
     function AnimationMetadata() {
@@ -79,28 +111,39 @@ export var AnimationMetadata = (function () {
 }());
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link keyframes keyframes
+ * Instances of this class are provided via the animation DSL when the {\@link keyframes keyframes
  * animation function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationKeyframesSequenceMetadata = (function (_super) {
     __extends(AnimationKeyframesSequenceMetadata, _super);
+    /**
+     * @param {?} steps
+     */
     function AnimationKeyframesSequenceMetadata(steps) {
         _super.call(this);
         this.steps = steps;
     }
     return AnimationKeyframesSequenceMetadata;
 }(AnimationMetadata));
+function AnimationKeyframesSequenceMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationKeyframesSequenceMetadata.prototype.steps;
+}
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link style style animation
+ * Instances of this class are provided via the animation DSL when the {\@link style style animation
  * function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationStyleMetadata = (function (_super) {
     __extends(AnimationStyleMetadata, _super);
+    /**
+     * @param {?} styles
+     * @param {?=} offset
+     */
     function AnimationStyleMetadata(styles, offset) {
         if (offset === void 0) { offset = null; }
         _super.call(this);
@@ -109,15 +152,25 @@ export var AnimationStyleMetadata = (function (_super) {
     }
     return AnimationStyleMetadata;
 }(AnimationMetadata));
+function AnimationStyleMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationStyleMetadata.prototype.styles;
+    /** @type {?} */
+    AnimationStyleMetadata.prototype.offset;
+}
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link animate animate
+ * Instances of this class are provided via the animation DSL when the {\@link animate animate
  * animation function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationAnimateMetadata = (function (_super) {
     __extends(AnimationAnimateMetadata, _super);
+    /**
+     * @param {?} timings
+     * @param {?} styles
+     */
     function AnimationAnimateMetadata(timings, styles) {
         _super.call(this);
         this.timings = timings;
@@ -125,8 +178,15 @@ export var AnimationAnimateMetadata = (function (_super) {
     }
     return AnimationAnimateMetadata;
 }(AnimationMetadata));
+function AnimationAnimateMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationAnimateMetadata.prototype.timings;
+    /** @type {?} */
+    AnimationAnimateMetadata.prototype.styles;
+}
 /**
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @abstract
  */
 export var AnimationWithStepsMetadata = (function (_super) {
     __extends(AnimationWithStepsMetadata, _super);
@@ -134,6 +194,9 @@ export var AnimationWithStepsMetadata = (function (_super) {
         _super.call(this);
     }
     Object.defineProperty(AnimationWithStepsMetadata.prototype, "steps", {
+        /**
+         * @return {?}
+         */
         get: function () { throw new Error('NOT IMPLEMENTED: Base Class'); },
         enumerable: true,
         configurable: true
@@ -142,55 +205,75 @@ export var AnimationWithStepsMetadata = (function (_super) {
 }(AnimationMetadata));
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link sequence sequence
+ * Instances of this class are provided via the animation DSL when the {\@link sequence sequence
  * animation function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationSequenceMetadata = (function (_super) {
     __extends(AnimationSequenceMetadata, _super);
+    /**
+     * @param {?} _steps
+     */
     function AnimationSequenceMetadata(_steps) {
         _super.call(this);
         this._steps = _steps;
     }
     Object.defineProperty(AnimationSequenceMetadata.prototype, "steps", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._steps; },
         enumerable: true,
         configurable: true
     });
     return AnimationSequenceMetadata;
 }(AnimationWithStepsMetadata));
+function AnimationSequenceMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationSequenceMetadata.prototype._steps;
+}
 /**
  * Metadata representing the entry of animations.
- * Instances of this class are provided via the animation DSL when the {@link group group animation
+ * Instances of this class are provided via the animation DSL when the {\@link group group animation
  * function} is called.
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
  */
 export var AnimationGroupMetadata = (function (_super) {
     __extends(AnimationGroupMetadata, _super);
+    /**
+     * @param {?} _steps
+     */
     function AnimationGroupMetadata(_steps) {
         _super.call(this);
         this._steps = _steps;
     }
     Object.defineProperty(AnimationGroupMetadata.prototype, "steps", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._steps; },
         enumerable: true,
         configurable: true
     });
     return AnimationGroupMetadata;
 }(AnimationWithStepsMetadata));
+function AnimationGroupMetadata_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationGroupMetadata.prototype._steps;
+}
 /**
  * `animate` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `animate` specifies an animation step that will apply the provided `styles` data for a given
  * amount of
  * time based on the provided `timing` expression value. Calls to `animate` are expected to be
- * used within {@link sequence an animation sequence}, {@link group group}, or {@link transition
+ * used within {\@link sequence an animation sequence}, {\@link group group}, or {\@link transition
  * transition}.
  *
  * ### Usage
@@ -203,11 +286,11 @@ export var AnimationGroupMetadata = (function (_super) {
  * delay=100, easing=ease-out`.
  * If a numeric value is provided then that will be used as the `duration` value in millisecond
  * form.
- * - `styles` is the style input data which can either be a call to {@link style style} or {@link
+ * - `styles` is the style input data which can either be a call to {\@link style style} or {\@link
  * keyframes keyframes}.
  * If left empty then the styles from the destination state will be collected and used (this is
  * useful when
- * describing an animation step that will complete an animation by {@link
+ * describing an animation step that will complete an animation by {\@link
  * transition#the-final-animate-call animating to the final state}).
  *
  * ```typescript
@@ -228,15 +311,18 @@ export var AnimationGroupMetadata = (function (_super) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} timing
+ * @param {?=} styles
+ * @return {?}
  */
 export function animate(timing, styles) {
     if (styles === void 0) { styles = null; }
-    var stylesEntry = styles;
+    var /** @type {?} */ stylesEntry = styles;
     if (!isPresent(stylesEntry)) {
-        var EMPTY_STYLE = {};
+        var /** @type {?} */ EMPTY_STYLE = {};
         stylesEntry = new AnimationStyleMetadata([EMPTY_STYLE], 1);
     }
     return new AnimationAnimateMetadata(timing, stylesEntry);
@@ -245,14 +331,14 @@ export function animate(timing, styles) {
  * `group` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `group` specifies a list of animation steps that are all run in parallel. Grouped animations
  * are useful when a series of styles must be animated/closed off
  * at different statrting/ending times.
  *
- * The `group` function can either be used within a {@link sequence sequence} or a {@link transition
+ * The `group` function can either be used within a {\@link sequence sequence} or a {\@link transition
  * transition}
  * and it will only continue to the next instruction once all of the inner animation steps
  * have completed.
@@ -260,10 +346,10 @@ export function animate(timing, styles) {
  * ### Usage
  *
  * The `steps` data that is passed into the `group` animation function can either consist
- * of {@link style style} or {@link animate animate} function calls. Each call to `style()` or
+ * of {\@link style style} or {\@link animate animate} function calls. Each call to `style()` or
  * `animate()`
- * within a group will be executed instantly (use {@link keyframes keyframes} or a
- * {@link animate#usage animate() with a delay value} to offset styles to be applied at a later
+ * within a group will be executed instantly (use {\@link keyframes keyframes} or a
+ * {\@link animate#usage animate() with a delay value} to offset styles to be applied at a later
  * time).
  *
  * ```typescript
@@ -275,9 +361,11 @@ export function animate(timing, styles) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} steps
+ * @return {?}
  */
 export function group(steps) {
     return new AnimationGroupMetadata(steps);
@@ -286,24 +374,24 @@ export function group(steps) {
  * `sequence` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `sequence` Specifies a list of animation steps that are run one by one. (`sequence` is used
- * by default when an array is passed as animation data into {@link transition transition}.)
+ * by default when an array is passed as animation data into {\@link transition transition}.)
  *
- * The `sequence` function can either be used within a {@link group group} or a {@link transition
+ * The `sequence` function can either be used within a {\@link group group} or a {\@link transition
  * transition}
  * and it will only continue to the next instruction once each of the inner animation steps
  * have completed.
  *
  * To perform animation styling in parallel with other animation steps then
- * have a look at the {@link group group} animation function.
+ * have a look at the {\@link group group} animation function.
  *
  * ### Usage
  *
  * The `steps` data that is passed into the `sequence` animation function can either consist
- * of {@link style style} or {@link animate animate} function calls. A call to `style()` will apply
+ * of {\@link style style} or {\@link animate animate} function calls. A call to `style()` will apply
  * the
  * provided styling data immediately while a call to `animate()` will apply its styling
  * data over a given time depending on its timing data.
@@ -317,9 +405,11 @@ export function group(steps) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} steps
+ * @return {?}
  */
 export function sequence(steps) {
     return new AnimationSequenceMetadata(steps);
@@ -328,12 +418,12 @@ export function sequence(steps) {
  * `style` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `style` declares a key/value object containing CSS properties/styles that can then
- * be used for {@link state animation states}, within an {@link sequence animation sequence}, or as
- * styling data for both {@link animate animate} and {@link keyframes keyframes}.
+ * be used for {\@link state animation states}, within an {\@link sequence animation sequence}, or as
+ * styling data for both {\@link animate animate} and {\@link keyframes keyframes}.
  *
  * ### Usage
  *
@@ -367,25 +457,27 @@ export function sequence(steps) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} tokens
+ * @return {?}
  */
 export function style(tokens) {
-    var input;
-    var offset = null;
+    var /** @type {?} */ input;
+    var /** @type {?} */ offset = null;
     if (typeof tokens === 'string') {
-        input = [tokens];
+        input = [(tokens)];
     }
     else {
         if (Array.isArray(tokens)) {
-            input = tokens;
+            input = (tokens);
         }
         else {
-            input = [tokens];
+            input = [(tokens)];
         }
         input.forEach(function (entry) {
-            var entryOffset = entry['offset'];
+            var /** @type {?} */ entryOffset = ((entry) /** TODO #9100 */)['offset'];
             if (isPresent(entryOffset)) {
                 offset = offset == null ? parseFloat(entryOffset) : offset;
             }
@@ -397,16 +489,16 @@ export function style(tokens) {
  * `state` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
  * `state` declares an animation state within the given trigger. When a state is
  * active within a component then its associated styles will persist on
  * the element that the trigger is attached to (even when the animation ends).
  *
- * To animate between states, have a look at the animation {@link transition transition}
+ * To animate between states, have a look at the animation {\@link transition transition}
  * DSL function. To register states to an animation trigger please have a look
- * at the {@link trigger trigger} function.
+ * at the {\@link trigger trigger} function.
  *
  * #### The `void` state
  *
@@ -427,7 +519,7 @@ export function style(tokens) {
  * within the given trigger.
  *
  * - `stateNameExpr` can be one or more state names separated by commas.
- * - `styles` refers to the {@link style styling data} that will be persisted on the element once
+ * - `styles` refers to the {\@link style styling data} that will be persisted on the element once
  * the state
  * has been reached.
  *
@@ -443,9 +535,12 @@ export function style(tokens) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} stateNameExpr
+ * @param {?} styles
+ * @return {?}
  */
 export function state(stateNameExpr, styles) {
     return new AnimationStateDeclarationMetadata(stateNameExpr, styles);
@@ -454,15 +549,15 @@ export function state(stateNameExpr, styles) {
  * `keyframes` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
- * `keyframes` specifies a collection of {@link style style} entries each optionally characterized
+ * `keyframes` specifies a collection of {\@link style style} entries each optionally characterized
  * by an `offset` value.
  *
  * ### Usage
  *
- * The `keyframes` animation function is designed to be used alongside the {@link animate animate}
+ * The `keyframes` animation function is designed to be used alongside the {\@link animate animate}
  * animation function. Instead of applying animations from where they are
  * currently to their destination, keyframes can describe how each style entry is applied
  * and at what point within the animation arc (much like CSS Keyframe Animations do).
@@ -495,9 +590,11 @@ export function state(stateNameExpr, styles) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} steps
+ * @return {?}
  */
 export function keyframes(steps) {
     return new AnimationKeyframesSequenceMetadata(steps);
@@ -506,18 +603,18 @@ export function keyframes(steps) {
  * `transition` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
- * `transition` declares the {@link sequence sequence of animation steps} that will be run when the
+ * `transition` declares the {\@link sequence sequence of animation steps} that will be run when the
  * provided
  * `stateChangeExpr` value is satisfied. The `stateChangeExpr` consists of a `state1 => state2`
  * which consists
  * of two known states (use an asterix (`*`) to refer to a dynamic starting and/or ending state).
  *
- * Animation transitions are placed within an {@link trigger animation trigger}. For an transition
+ * Animation transitions are placed within an {\@link trigger animation trigger}. For an transition
  * to animate to
- * a state value and persist its styles then one or more {@link state animation states} is expected
+ * a state value and persist its styles then one or more {\@link state animation states} is expected
  * to be defined.
  *
  * ### Usage
@@ -563,7 +660,7 @@ export function keyframes(steps) {
  *
  * ```html
  * <!-- somewhere inside of my-component-tpl.html -->
- * <div [@myAnimationTrigger]="myStatusExp">...</div>
+ * <div [\@myAnimationTrigger]="myStatusExp">...</div>
  * ```
  *
  * #### The final `animate` call
@@ -602,40 +699,43 @@ export function keyframes(steps) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} stateChangeExpr
+ * @param {?} steps
+ * @return {?}
  */
 export function transition(stateChangeExpr, steps) {
-    var animationData = Array.isArray(steps) ? new AnimationSequenceMetadata(steps) : steps;
+    var /** @type {?} */ animationData = Array.isArray(steps) ? new AnimationSequenceMetadata(steps) : steps;
     return new AnimationStateTransitionMetadata(stateChangeExpr, animationData);
 }
 /**
  * `trigger` is an animation-specific function that is designed to be used inside of Angular2's
  * animation
  * DSL language. If this information is new, please navigate to the
- * {@link Component#animations-anchor component animations metadata
+ * {\@link Component#animations-anchor component animations metadata
  * page} to gain a better understanding of how animations in Angular2 are used.
  *
- * `trigger` Creates an animation trigger which will a list of {@link state state} and {@link
+ * `trigger` Creates an animation trigger which will a list of {\@link state state} and {\@link
  * transition transition}
  * entries that will be evaluated when the expression bound to the trigger changes.
  *
  * Triggers are registered within the component annotation data under the
- * {@link Component#animations-anchor animations section}. An animation trigger can
+ * {\@link Component#animations-anchor animations section}. An animation trigger can
  * be placed on an element within a template by referencing the name of the
  * trigger followed by the expression value that the trigger is bound to
- * (in the form of `[@triggerName]="expression"`.
+ * (in the form of `[\@triggerName]="expression"`.
  *
  * ### Usage
  *
  * `trigger` will create an animation trigger reference based on the provided `name` value.
- * The provided `animation` value is expected to be an array consisting of {@link state state} and
- * {@link transition transition}
+ * The provided `animation` value is expected to be an array consisting of {\@link state state} and
+ * {\@link transition transition}
  * declarations.
  *
  * ```typescript
- * @Component({
+ * \@Component({
  *   selector: 'my-component',
  *   templateUrl: 'my-component-tpl.html',
  *   animations: [
@@ -657,14 +757,17 @@ export function transition(stateChangeExpr, steps) {
  *
  * ```html
  * <!-- somewhere inside of my-component-tpl.html -->
- * <div [@myAnimationTrigger]="myStatusExp">...</div>
+ * <div [\@myAnimationTrigger]="myStatusExp">...</div>
  * ```
  *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
- * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
+ * {\@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
- * @experimental Animation support is experimental.
+ * \@experimental Animation support is experimental.
+ * @param {?} name
+ * @param {?} animation
+ * @return {?}
  */
 export function trigger(name, animation) {
     return new AnimationEntryMetadata(name, animation);

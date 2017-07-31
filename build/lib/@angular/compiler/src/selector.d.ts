@@ -4,14 +4,14 @@
  * of selecting subsets out of them.
  */
 export declare class CssSelector {
-    element: string | null;
+    element: string;
     classNames: string[];
     attrs: string[];
     notSelectors: CssSelector[];
     static parse(selector: string): CssSelector[];
     isElementSelector(): boolean;
     hasElementSelector(): boolean;
-    setElement(element?: string | null): void;
+    setElement(element?: string): void;
     /** Gets a template string for an element that matches the selector. */
     getMatchingElementTemplate(): string;
     addAttribute(name: string, value?: string): void;
@@ -47,7 +47,7 @@ export declare class SelectorMatcher {
      * @param matchedCallback This callback will be called with the object handed into `addSelectable`
      * @return boolean true if a match was found
     */
-    match(cssSelector: CssSelector, matchedCallback: ((c: CssSelector, a: any) => void) | null): boolean;
+    match(cssSelector: CssSelector, matchedCallback: (c: CssSelector, a: any) => void): boolean;
 }
 export declare class SelectorListContext {
     selectors: CssSelector[];
@@ -60,5 +60,5 @@ export declare class SelectorContext {
     listContext: SelectorListContext;
     notSelectors: CssSelector[];
     constructor(selector: CssSelector, cbContext: any, listContext: SelectorListContext);
-    finalize(cssSelector: CssSelector, callback: ((c: CssSelector, a: any) => void) | null): boolean;
+    finalize(cssSelector: CssSelector, callback: (c: CssSelector, a: any) => void): boolean;
 }

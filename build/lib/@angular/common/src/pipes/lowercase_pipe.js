@@ -9,22 +9,26 @@ import { Pipe } from '@angular/core';
 import { isBlank } from '../facade/lang';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
 /**
- * @ngModule CommonModule
- * @whatItDoes Transforms string to lowercase.
- * @howToUse `expression | lowercase`
- * @description
+ * \@ngModule CommonModule
+ * \@whatItDoes Transforms string to lowercase.
+ * \@howToUse `expression | lowercase`
+ * \@description
  *
  * Converts value into a lowercase string using `String.prototype.toLowerCase()`.
  *
  * ### Example
  *
- * {@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
+ * {\@example common/pipes/ts/lowerupper_pipe.ts region='LowerUpperPipe'}
  *
- * @stable
+ * \@stable
  */
 export var LowerCasePipe = (function () {
     function LowerCasePipe() {
     }
+    /**
+     * @param {?} value
+     * @return {?}
+     */
     LowerCasePipe.prototype.transform = function (value) {
         if (isBlank(value))
             return value;
@@ -37,7 +41,16 @@ export var LowerCasePipe = (function () {
         { type: Pipe, args: [{ name: 'lowercase' },] },
     ];
     /** @nocollapse */
-    LowerCasePipe.ctorParameters = [];
+    LowerCasePipe.ctorParameters = function () { return []; };
     return LowerCasePipe;
 }());
+function LowerCasePipe_tsickle_Closure_declarations() {
+    /** @type {?} */
+    LowerCasePipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    LowerCasePipe.ctorParameters;
+}
 //# sourceMappingURL=lowercase_pipe.js.map

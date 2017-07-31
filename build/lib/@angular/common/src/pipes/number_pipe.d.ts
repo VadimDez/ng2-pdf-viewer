@@ -36,7 +36,7 @@ import { PipeTransform } from '@angular/core';
 export declare class DecimalPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string | null;
+    transform(value: any, digits?: string): string;
 }
 /**
  * @ngModule CommonModule
@@ -61,7 +61,7 @@ export declare class DecimalPipe implements PipeTransform {
 export declare class PercentPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string | null;
+    transform(value: any, digits?: string): string;
 }
 /**
  * @ngModule CommonModule
@@ -90,6 +90,5 @@ export declare class PercentPipe implements PipeTransform {
 export declare class CurrencyPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string | null;
+    transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string;
 }
-export declare function isNumeric(value: any): boolean;

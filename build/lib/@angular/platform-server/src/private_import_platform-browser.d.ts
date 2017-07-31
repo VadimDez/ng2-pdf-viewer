@@ -7,14 +7,14 @@
  */
 import { __platform_browser_private__ as _ } from '@angular/platform-browser';
 export declare type DomAdapter = typeof _._DomAdapter;
-export declare var DomAdapter: typeof _.DomAdapter;
-export declare var setRootDomAdapter: typeof _.setRootDomAdapter;
-export declare var getDOM: typeof _.getDOM;
-export declare var SharedStylesHost: typeof _.SharedStylesHost;
+export declare const DomAdapter: typeof _.DomAdapter;
+export declare const setRootDomAdapter: typeof _.setRootDomAdapter;
+export declare const getDOM: typeof _.getDOM;
+export declare const SharedStylesHost: typeof _.SharedStylesHost;
 export declare type SharedStylesHost = typeof _._SharedStylesHost;
-export declare var NAMESPACE_URIS: typeof _.NAMESPACE_URIS;
-export declare var shimContentAttribute: typeof _.shimContentAttribute;
-export declare var shimHostAttribute: typeof _.shimHostAttribute;
-export declare var flattenStyles: typeof _.flattenStyles;
-export declare var splitNamespace: typeof _.splitNamespace;
-export declare var isNamespaced: typeof _.isNamespaced;
+export declare const NAMESPACE_URIS: typeof _.NAMESPACE_URIS;
+export declare const shimContentAttribute: typeof _.shimContentAttribute;
+export declare const shimHostAttribute: typeof _.shimHostAttribute;
+export declare const flattenStyles: typeof _.flattenStyles;
+export declare const splitNamespace: typeof _.splitNamespace;
+export declare const isNamespaced: typeof _.isNamespaced;

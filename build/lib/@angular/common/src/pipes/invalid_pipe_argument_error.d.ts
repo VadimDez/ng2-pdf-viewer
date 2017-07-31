@@ -6,4 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Type } from '@angular/core';
-export declare function invalidPipeArgumentError(type: Type<any>, value: Object): Error;
+import { BaseError } from '../facade/errors';
+export declare class InvalidPipeArgumentError extends BaseError {
+    constructor(type: Type<any>, value: Object);
+}

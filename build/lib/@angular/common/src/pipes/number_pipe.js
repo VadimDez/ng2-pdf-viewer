@@ -6,23 +6,33 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, LOCALE_ID, Pipe } from '@angular/core';
-import { NumberFormatStyle, NumberFormatter } from '../facade/intl';
-import { NumberWrapper, isBlank, isPresent } from '../facade/lang';
+import { NumberWrapper } from '../facade/lang';
+import { NumberFormatStyle, NumberFormatter } from './intl';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
-var _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(-(\d+))?)?$/;
+var /** @type {?} */ _NUMBER_FORMAT_REGEXP = /^(\d+)?\.((\d+)(-(\d+))?)?$/;
+/**
+ * @param {?} pipe
+ * @param {?} locale
+ * @param {?} value
+ * @param {?} style
+ * @param {?} digits
+ * @param {?=} currency
+ * @param {?=} currencyAsSymbol
+ * @return {?}
+ */
 function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSymbol) {
     if (currency === void 0) { currency = null; }
     if (currencyAsSymbol === void 0) { currencyAsSymbol = false; }
-    if (isBlank(value))
+    if (value == null)
         return null;
     // Convert strings to numbers
     value = typeof value === 'string' && NumberWrapper.isNumeric(value) ? +value : value;
     if (typeof value !== 'number') {
         throw new InvalidPipeArgumentError(pipe, value);
     }
-    var minInt;
-    var minFraction;
-    var maxFraction;
+    var /** @type {?} */ minInt;
+    var /** @type {?} */ minFraction;
+    var /** @type {?} */ maxFraction;
     if (style !== NumberFormatStyle.Currency) {
         // rely on Intl default for currency
         minInt = 1;
@@ -30,21 +40,21 @@ function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSy
         maxFraction = 3;
     }
     if (digits) {
-        var parts = digits.match(_NUMBER_FORMAT_REGEXP);
+        var /** @type {?} */ parts = digits.match(_NUMBER_FORMAT_REGEXP);
         if (parts === null) {
             throw new Error(digits + " is not a valid digit info for number pipes");
         }
-        if (isPresent(parts[1])) {
+        if (parts[1] != null) {
             minInt = NumberWrapper.parseIntAutoRadix(parts[1]);
         }
-        if (isPresent(parts[3])) {
+        if (parts[3] != null) {
             minFraction = NumberWrapper.parseIntAutoRadix(parts[3]);
         }
-        if (isPresent(parts[5])) {
+        if (parts[5] != null) {
             maxFraction = NumberWrapper.parseIntAutoRadix(parts[5]);
         }
     }
-    return NumberFormatter.format(value, locale, style, {
+    return NumberFormatter.format(/** @type {?} */ (value), locale, style, {
         minimumIntegerDigits: minInt,
         minimumFractionDigits: minFraction,
         maximumFractionDigits: maxFraction,
@@ -53,9 +63,9 @@ function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSy
     });
 }
 /**
- * @ngModule CommonModule
- * @whatItDoes Formats a number according to locale rules.
- * @howToUse `number_expression | number[:digitInfo]`
+ * \@ngModule CommonModule
+ * \@whatItDoes Formats a number according to locale rules.
+ * \@howToUse `number_expression | number[:digitInfo]`
  *
  * Formats a number as text. Group sizing and separator and other locale-specific
  * configurations are based on the active locale.
@@ -71,18 +81,26 @@ function formatNumber(pipe, locale, value, style, digits, currency, currencyAsSy
  * details see your native internationalization library.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
  *
  * ### Example
  *
- * {@example common/pipes/ts/number_pipe.ts region='NumberPipe'}
+ * {\@example common/pipes/ts/number_pipe.ts region='NumberPipe'}
  *
- * @stable
+ * \@stable
  */
 export var DecimalPipe = (function () {
+    /**
+     * @param {?} _locale
+     */
     function DecimalPipe(_locale) {
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @param {?=} digits
+     * @return {?}
+     */
     DecimalPipe.prototype.transform = function (value, digits) {
         if (digits === void 0) { digits = null; }
         return formatNumber(DecimalPipe, this._locale, value, NumberFormatStyle.Decimal, digits);
@@ -91,35 +109,54 @@ export var DecimalPipe = (function () {
         { type: Pipe, args: [{ name: 'number' },] },
     ];
     /** @nocollapse */
-    DecimalPipe.ctorParameters = [
+    DecimalPipe.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return DecimalPipe;
 }());
+function DecimalPipe_tsickle_Closure_declarations() {
+    /** @type {?} */
+    DecimalPipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    DecimalPipe.ctorParameters;
+    /** @type {?} */
+    DecimalPipe.prototype._locale;
+}
 /**
- * @ngModule CommonModule
- * @whatItDoes Formats a number as a percentage according to locale rules.
- * @howToUse `number_expression | percent[:digitInfo]`
+ * \@ngModule CommonModule
+ * \@whatItDoes Formats a number as a percentage according to locale rules.
+ * \@howToUse `number_expression | percent[:digitInfo]`
  *
- * @description
+ * \@description
  *
  * Formats a number as percentage.
  *
- * - `digitInfo` See {@link DecimalPipe} for detailed description.
+ * - `digitInfo` See {\@link DecimalPipe} for detailed description.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
  *
  * ### Example
  *
- * {@example common/pipes/ts/number_pipe.ts region='PercentPipe'}
+ * {\@example common/pipes/ts/number_pipe.ts region='PercentPipe'}
  *
- * @stable
+ * \@stable
  */
 export var PercentPipe = (function () {
+    /**
+     * @param {?} _locale
+     */
     function PercentPipe(_locale) {
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @param {?=} digits
+     * @return {?}
+     */
     PercentPipe.prototype.transform = function (value, digits) {
         if (digits === void 0) { digits = null; }
         return formatNumber(PercentPipe, this._locale, value, NumberFormatStyle.Percent, digits);
@@ -128,16 +165,27 @@ export var PercentPipe = (function () {
         { type: Pipe, args: [{ name: 'percent' },] },
     ];
     /** @nocollapse */
-    PercentPipe.ctorParameters = [
+    PercentPipe.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return PercentPipe;
 }());
+function PercentPipe_tsickle_Closure_declarations() {
+    /** @type {?} */
+    PercentPipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    PercentPipe.ctorParameters;
+    /** @type {?} */
+    PercentPipe.prototype._locale;
+}
 /**
- * @ngModule CommonModule
- * @whatItDoes Formats a number as currency using locale rules.
- * @howToUse `number_expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]`
- * @description
+ * \@ngModule CommonModule
+ * \@whatItDoes Formats a number as currency using locale rules.
+ * \@howToUse `number_expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]`
+ * \@description
  *
  * Use `currency` to format a number as currency.
  *
@@ -146,21 +194,31 @@ export var PercentPipe = (function () {
  * - `symbolDisplay` is a boolean indicating whether to use the currency symbol or code.
  *   - `true`: use symbol (e.g. `$`).
  *   - `false`(default): use code (e.g. `USD`).
- * - `digitInfo` See {@link DecimalPipe} for detailed description.
+ * - `digitInfo` See {\@link DecimalPipe} for detailed description.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See {\@linkDocs guide/browser-support} for details.
  *
  * ### Example
  *
- * {@example common/pipes/ts/number_pipe.ts region='CurrencyPipe'}
+ * {\@example common/pipes/ts/number_pipe.ts region='CurrencyPipe'}
  *
- * @stable
+ * \@stable
  */
 export var CurrencyPipe = (function () {
+    /**
+     * @param {?} _locale
+     */
     function CurrencyPipe(_locale) {
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @param {?=} currencyCode
+     * @param {?=} symbolDisplay
+     * @param {?=} digits
+     * @return {?}
+     */
     CurrencyPipe.prototype.transform = function (value, currencyCode, symbolDisplay, digits) {
         if (currencyCode === void 0) { currencyCode = 'USD'; }
         if (symbolDisplay === void 0) { symbolDisplay = false; }
@@ -171,9 +229,20 @@ export var CurrencyPipe = (function () {
         { type: Pipe, args: [{ name: 'currency' },] },
     ];
     /** @nocollapse */
-    CurrencyPipe.ctorParameters = [
+    CurrencyPipe.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return CurrencyPipe;
 }());
+function CurrencyPipe_tsickle_Closure_declarations() {
+    /** @type {?} */
+    CurrencyPipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    CurrencyPipe.ctorParameters;
+    /** @type {?} */
+    CurrencyPipe.prototype._locale;
+}
 //# sourceMappingURL=number_pipe.js.map

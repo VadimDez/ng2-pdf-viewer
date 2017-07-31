@@ -7,43 +7,90 @@
  */
 import { isBlank, isPresent } from '../facade/lang';
 import * as o from './output_ast';
-var _SINGLE_QUOTE_ESCAPE_STRING_RE = /'|\\|\n|\r|\$/g;
-var _LEGAL_IDENTIFIER_RE = /^[$A-Z_][0-9A-Z_$]*$/i;
-export var CATCH_ERROR_VAR = o.variable('error');
-export var CATCH_STACK_VAR = o.variable('stack');
+var /** @type {?} */ _SINGLE_QUOTE_ESCAPE_STRING_RE = /'|\\|\n|\r|\$/g;
+var /** @type {?} */ _LEGAL_IDENTIFIER_RE = /^[$A-Z_][0-9A-Z_$]*$/i;
+export var /** @type {?} */ CATCH_ERROR_VAR = o.variable('error');
+export var /** @type {?} */ CATCH_STACK_VAR = o.variable('stack');
+/**
+ * @abstract
+ */
 export var OutputEmitter = (function () {
     function OutputEmitter() {
     }
+    /**
+     * @abstract
+     * @param {?} moduleUrl
+     * @param {?} stmts
+     * @param {?} exportedVars
+     * @return {?}
+     */
+    OutputEmitter.prototype.emitStatements = function (moduleUrl, stmts, exportedVars) { };
     return OutputEmitter;
 }());
 var _EmittedLine = (function () {
+    /**
+     * @param {?} indent
+     */
     function _EmittedLine(indent) {
         this.indent = indent;
         this.parts = [];
     }
     return _EmittedLine;
 }());
+function _EmittedLine_tsickle_Closure_declarations() {
+    /** @type {?} */
+    _EmittedLine.prototype.parts;
+    /** @type {?} */
+    _EmittedLine.prototype.indent;
+}
 export var EmitterVisitorContext = (function () {
+    /**
+     * @param {?} _exportedVars
+     * @param {?} _indent
+     */
     function EmitterVisitorContext(_exportedVars, _indent) {
         this._exportedVars = _exportedVars;
         this._indent = _indent;
         this._classes = [];
         this._lines = [new _EmittedLine(_indent)];
     }
+    /**
+     * @param {?} exportedVars
+     * @return {?}
+     */
     EmitterVisitorContext.createRoot = function (exportedVars) {
         return new EmitterVisitorContext(exportedVars, 0);
     };
     Object.defineProperty(EmitterVisitorContext.prototype, "_currentLine", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._lines[this._lines.length - 1]; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @param {?} varName
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.isExportedVar = function (varName) { return this._exportedVars.indexOf(varName) !== -1; };
+    /**
+     * @param {?=} lastPart
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.println = function (lastPart) {
         if (lastPart === void 0) { lastPart = ''; }
         this.print(lastPart, true);
     };
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.lineIsEmpty = function () { return this._currentLine.parts.length === 0; };
+    /**
+     * @param {?} part
+     * @param {?=} newLine
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.print = function (part, newLine) {
         if (newLine === void 0) { newLine = false; }
         if (part.length > 0) {
@@ -53,30 +100,52 @@ export var EmitterVisitorContext = (function () {
             this._lines.push(new _EmittedLine(this._indent));
         }
     };
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.removeEmptyLastLine = function () {
         if (this.lineIsEmpty()) {
             this._lines.pop();
         }
     };
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.incIndent = function () {
         this._indent++;
         this._currentLine.indent = this._indent;
     };
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.decIndent = function () {
         this._indent--;
         this._currentLine.indent = this._indent;
     };
+    /**
+     * @param {?} clazz
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.pushClass = function (clazz) { this._classes.push(clazz); };
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.popClass = function () { return this._classes.pop(); };
     Object.defineProperty(EmitterVisitorContext.prototype, "currentClass", {
+        /**
+         * @return {?}
+         */
         get: function () {
             return this._classes.length > 0 ? this._classes[this._classes.length - 1] : null;
         },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
     EmitterVisitorContext.prototype.toSource = function () {
-        var lines = this._lines;
+        var /** @type {?} */ lines = this._lines;
         if (lines[lines.length - 1].parts.length === 0) {
             lines = lines.slice(0, lines.length - 1);
         }
@@ -93,26 +162,71 @@ export var EmitterVisitorContext = (function () {
     };
     return EmitterVisitorContext;
 }());
+function EmitterVisitorContext_tsickle_Closure_declarations() {
+    /** @type {?} */
+    EmitterVisitorContext.prototype._lines;
+    /** @type {?} */
+    EmitterVisitorContext.prototype._classes;
+    /** @type {?} */
+    EmitterVisitorContext.prototype._exportedVars;
+    /** @type {?} */
+    EmitterVisitorContext.prototype._indent;
+}
+/**
+ * @abstract
+ */
 export var AbstractEmitterVisitor = (function () {
+    /**
+     * @param {?} _escapeDollarInStrings
+     */
     function AbstractEmitterVisitor(_escapeDollarInStrings) {
         this._escapeDollarInStrings = _escapeDollarInStrings;
     }
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitExpressionStmt = function (stmt, ctx) {
         stmt.expr.visitExpression(this, ctx);
         ctx.println(';');
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitReturnStmt = function (stmt, ctx) {
         ctx.print("return ");
         stmt.value.visitExpression(this, ctx);
         ctx.println(';');
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} ast
+     * @param {?} context
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitCastExpr = function (ast, context) { };
+    /**
+     * @abstract
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitDeclareClassStmt = function (stmt, ctx) { };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitIfStmt = function (stmt, ctx) {
         ctx.print("if (");
         stmt.condition.visitExpression(this, ctx);
         ctx.print(") {");
-        var hasElseCase = isPresent(stmt.falseCase) && stmt.falseCase.length > 0;
+        var /** @type {?} */ hasElseCase = isPresent(stmt.falseCase) && stmt.falseCase.length > 0;
         if (stmt.trueCase.length <= 1 && !hasElseCase) {
             ctx.print(" ");
             this.visitAllStatements(stmt.trueCase, ctx);
@@ -134,19 +248,48 @@ export var AbstractEmitterVisitor = (function () {
         ctx.println("}");
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitTryCatchStmt = function (stmt, ctx) { };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitThrowStmt = function (stmt, ctx) {
         ctx.print("throw ");
         stmt.error.visitExpression(this, ctx);
         ctx.println(";");
         return null;
     };
+    /**
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitCommentStmt = function (stmt, ctx) {
-        var lines = stmt.comment.split('\n');
+        var /** @type {?} */ lines = stmt.comment.split('\n');
         lines.forEach(function (line) { ctx.println("// " + line); });
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} stmt
+     * @param {?} ctx
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitDeclareVarStmt = function (stmt, ctx) { };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitWriteVarExpr = function (expr, ctx) {
-        var lineWasEmpty = ctx.lineIsEmpty();
+        var /** @type {?} */ lineWasEmpty = ctx.lineIsEmpty();
         if (!lineWasEmpty) {
             ctx.print('(');
         }
@@ -157,8 +300,13 @@ export var AbstractEmitterVisitor = (function () {
         }
         return null;
     };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitWriteKeyExpr = function (expr, ctx) {
-        var lineWasEmpty = ctx.lineIsEmpty();
+        var /** @type {?} */ lineWasEmpty = ctx.lineIsEmpty();
         if (!lineWasEmpty) {
             ctx.print('(');
         }
@@ -172,8 +320,13 @@ export var AbstractEmitterVisitor = (function () {
         }
         return null;
     };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitWritePropExpr = function (expr, ctx) {
-        var lineWasEmpty = ctx.lineIsEmpty();
+        var /** @type {?} */ lineWasEmpty = ctx.lineIsEmpty();
         if (!lineWasEmpty) {
             ctx.print('(');
         }
@@ -185,9 +338,14 @@ export var AbstractEmitterVisitor = (function () {
         }
         return null;
     };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitInvokeMethodExpr = function (expr, ctx) {
         expr.receiver.visitExpression(this, ctx);
-        var name = expr.name;
+        var /** @type {?} */ name = expr.name;
         if (isPresent(expr.builtin)) {
             name = this.getBuiltinMethodName(expr.builtin);
             if (isBlank(name)) {
@@ -200,6 +358,17 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} method
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.getBuiltinMethodName = function (method) { };
+    /**
+     * @param {?} expr
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitInvokeFunctionExpr = function (expr, ctx) {
         expr.fn.visitExpression(this, ctx);
         ctx.print("(");
@@ -207,8 +376,13 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitReadVarExpr = function (ast, ctx) {
-        var varName = ast.name;
+        var /** @type {?} */ varName = ast.name;
         if (isPresent(ast.builtin)) {
             switch (ast.builtin) {
                 case o.BuiltinVar.Super:
@@ -230,6 +404,11 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(varName);
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitInstantiateExpr = function (ast, ctx) {
         ctx.print("new ");
         ast.classExpr.visitExpression(this, ctx);
@@ -238,8 +417,13 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
-        var value = ast.value;
+        var /** @type {?} */ value = ast.value;
         if (typeof value === 'string') {
             ctx.print(escapeIdentifier(value, this._escapeDollarInStrings));
         }
@@ -248,6 +432,18 @@ export var AbstractEmitterVisitor = (function () {
         }
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitExternalExpr = function (ast, ctx) { };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitConditionalExpr = function (ast, ctx) {
         ctx.print("(");
         ast.condition.visitExpression(this, ctx);
@@ -258,13 +454,37 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitNotExpr = function (ast, ctx) {
         ctx.print('!');
         ast.condition.visitExpression(this, ctx);
         return null;
     };
+    /**
+     * @abstract
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitFunctionExpr = function (ast, ctx) { };
+    /**
+     * @abstract
+     * @param {?} stmt
+     * @param {?} context
+     * @return {?}
+     */
+    AbstractEmitterVisitor.prototype.visitDeclareFunctionStmt = function (stmt, context) { };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitBinaryOperatorExpr = function (ast, ctx) {
-        var opStr;
+        var /** @type {?} */ opStr;
         switch (ast.operator) {
             case o.BinaryOperator.Equals:
                 opStr = '==';
@@ -321,12 +541,22 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print(")");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitReadPropExpr = function (ast, ctx) {
         ast.receiver.visitExpression(this, ctx);
         ctx.print(".");
         ctx.print(ast.name);
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitReadKeyExpr = function (ast, ctx) {
         ast.receiver.visitExpression(this, ctx);
         ctx.print("[");
@@ -334,8 +564,13 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print("]");
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitLiteralArrayExpr = function (ast, ctx) {
-        var useNewLine = ast.entries.length > 1;
+        var /** @type {?} */ useNewLine = ast.entries.length > 1;
         ctx.print("[", useNewLine);
         ctx.incIndent();
         this.visitAllExpressions(ast.entries, ctx, ',', useNewLine);
@@ -343,27 +578,47 @@ export var AbstractEmitterVisitor = (function () {
         ctx.print("]", useNewLine);
         return null;
     };
+    /**
+     * @param {?} ast
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitLiteralMapExpr = function (ast, ctx) {
         var _this = this;
-        var useNewLine = ast.entries.length > 1;
+        var /** @type {?} */ useNewLine = ast.entries.length > 1;
         ctx.print("{", useNewLine);
         ctx.incIndent();
         this.visitAllObjects(function (entry) {
-            ctx.print(escapeIdentifier(entry[0], _this._escapeDollarInStrings, false) + ": ");
-            entry[1].visitExpression(_this, ctx);
+            ctx.print(escapeIdentifier(entry.key, _this._escapeDollarInStrings, entry.quoted) + ": ");
+            entry.value.visitExpression(_this, ctx);
         }, ast.entries, ctx, ',', useNewLine);
         ctx.decIndent();
         ctx.print("}", useNewLine);
         return null;
     };
+    /**
+     * @param {?} expressions
+     * @param {?} ctx
+     * @param {?} separator
+     * @param {?=} newLine
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitAllExpressions = function (expressions, ctx, separator, newLine) {
         var _this = this;
         if (newLine === void 0) { newLine = false; }
         this.visitAllObjects(function (expr) { return expr.visitExpression(_this, ctx); }, expressions, ctx, separator, newLine);
     };
+    /**
+     * @param {?} handler
+     * @param {?} expressions
+     * @param {?} ctx
+     * @param {?} separator
+     * @param {?=} newLine
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitAllObjects = function (handler, expressions, ctx, separator, newLine) {
         if (newLine === void 0) { newLine = false; }
-        for (var i = 0; i < expressions.length; i++) {
+        for (var /** @type {?} */ i = 0; i < expressions.length; i++) {
             if (i > 0) {
                 ctx.print(separator, newLine);
             }
@@ -373,18 +628,33 @@ export var AbstractEmitterVisitor = (function () {
             ctx.println();
         }
     };
+    /**
+     * @param {?} statements
+     * @param {?} ctx
+     * @return {?}
+     */
     AbstractEmitterVisitor.prototype.visitAllStatements = function (statements, ctx) {
         var _this = this;
         statements.forEach(function (stmt) { return stmt.visitStatement(_this, ctx); });
     };
     return AbstractEmitterVisitor;
 }());
+function AbstractEmitterVisitor_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AbstractEmitterVisitor.prototype._escapeDollarInStrings;
+}
+/**
+ * @param {?} input
+ * @param {?} escapeDollar
+ * @param {?=} alwaysQuote
+ * @return {?}
+ */
 export function escapeIdentifier(input, escapeDollar, alwaysQuote) {
     if (alwaysQuote === void 0) { alwaysQuote = true; }
     if (isBlank(input)) {
         return null;
     }
-    var body = input.replace(_SINGLE_QUOTE_ESCAPE_STRING_RE, function () {
+    var /** @type {?} */ body = input.replace(_SINGLE_QUOTE_ESCAPE_STRING_RE, function () {
         var match = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             match[_i - 0] = arguments[_i];
@@ -402,12 +672,16 @@ export function escapeIdentifier(input, escapeDollar, alwaysQuote) {
             return "\\" + match[0];
         }
     });
-    var requiresQuotes = alwaysQuote || !_LEGAL_IDENTIFIER_RE.test(body);
+    var /** @type {?} */ requiresQuotes = alwaysQuote || !_LEGAL_IDENTIFIER_RE.test(body);
     return requiresQuotes ? "'" + body + "'" : body;
 }
+/**
+ * @param {?} count
+ * @return {?}
+ */
 function _createIndent(count) {
-    var res = '';
-    for (var i = 0; i < count; i++) {
+    var /** @type {?} */ res = '';
+    for (var /** @type {?} */ i = 0; i < count; i++) {
         res += '  ';
     }
     return res;

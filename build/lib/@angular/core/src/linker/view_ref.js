@@ -10,22 +10,36 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { triggerQueuedAnimations } from '../animation/animation_queue';
+import { ChangeDetectorRef } from '../change_detection/change_detector_ref';
 import { ChangeDetectorStatus } from '../change_detection/constants';
-import { unimplemented } from '../facade/errors';
 /**
- * @stable
+ * \@stable
+ * @abstract
  */
-export var ViewRef = (function () {
+export var ViewRef = (function (_super) {
+    __extends(ViewRef, _super);
     function ViewRef() {
+        _super.apply(this, arguments);
     }
-    Object.defineProperty(ViewRef.prototype, "destroyed", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
+    /**
+     * Destroys the view and all of the data structures associated with it.
+     * @abstract
+     * @return {?}
+     */
+    ViewRef.prototype.destroy = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    ViewRef.prototype.destroyed = function () { };
+    /**
+     * @abstract
+     * @param {?} callback
+     * @return {?}
+     */
+    ViewRef.prototype.onDestroy = function (callback) { };
     return ViewRef;
-}());
+}(ChangeDetectorRef));
 /**
  * Represents an Angular View.
  *
@@ -35,7 +49,7 @@ export var ViewRef = (function () {
  *
  * Properties of elements in a View can change, but the structure (number and order) of elements in
  * a View cannot. Changing the structure of Elements can only be done by inserting, moving or
- * removing nested Views via a {@link ViewContainerRef}. Each View can contain many View Containers.
+ * removing nested Views via a {\@link ViewContainerRef}. Each View can contain many View Containers.
  * <!-- /TODO -->
  *
  * ### Example
@@ -49,9 +63,9 @@ export var ViewRef = (function () {
  * </ul>
  * ```
  *
- * We have two {@link TemplateRef}s:
+ * We have two {\@link TemplateRef}s:
  *
- * Outer {@link TemplateRef}:
+ * Outer {\@link TemplateRef}:
  * ```
  * Count: {{items.length}}
  * <ul>
@@ -59,14 +73,14 @@ export var ViewRef = (function () {
  * </ul>
  * ```
  *
- * Inner {@link TemplateRef}:
+ * Inner {\@link TemplateRef}:
  * ```
  *   <li>{{item}}</li>
  * ```
  *
- * Notice that the original template is broken down into two separate {@link TemplateRef}s.
+ * Notice that the original template is broken down into two separate {\@link TemplateRef}s.
  *
- * The outer/inner {@link TemplateRef}s are then assembled into views like so:
+ * The outer/inner {\@link TemplateRef}s are then assembled into views like so:
  *
  * ```
  * <!-- ViewRef: outer-0 -->
@@ -78,70 +92,120 @@ export var ViewRef = (function () {
  * </ul>
  * <!-- /ViewRef: outer-0 -->
  * ```
- * @experimental
+ * \@experimental
+ * @abstract
  */
 export var EmbeddedViewRef = (function (_super) {
     __extends(EmbeddedViewRef, _super);
     function EmbeddedViewRef() {
         _super.apply(this, arguments);
     }
-    Object.defineProperty(EmbeddedViewRef.prototype, "context", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(EmbeddedViewRef.prototype, "rootNodes", {
-        get: function () { return unimplemented(); },
-        enumerable: true,
-        configurable: true
-    });
-    ;
+    /**
+     * @abstract
+     * @return {?}
+     */
+    EmbeddedViewRef.prototype.context = function () { };
+    /**
+     * @abstract
+     * @return {?}
+     */
+    EmbeddedViewRef.prototype.rootNodes = function () { };
     return EmbeddedViewRef;
 }(ViewRef));
 export var ViewRef_ = (function () {
-    function ViewRef_(_view) {
+    /**
+     * @param {?} _view
+     * @param {?} animationQueue
+     */
+    function ViewRef_(_view, animationQueue) {
         this._view = _view;
+        this.animationQueue = animationQueue;
         this._view = _view;
         this._originalMode = this._view.cdMode;
     }
     Object.defineProperty(ViewRef_.prototype, "internalView", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._view; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ViewRef_.prototype, "rootNodes", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._view.flatRootNodes; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ViewRef_.prototype, "context", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._view.context; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(ViewRef_.prototype, "destroyed", {
+        /**
+         * @return {?}
+         */
         get: function () { return this._view.destroyed; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.markForCheck = function () { this._view.markPathToRootAsCheckOnce(); };
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.detach = function () { this._view.cdMode = ChangeDetectorStatus.Detached; };
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.detectChanges = function () {
         this._view.detectChanges(false);
-        triggerQueuedAnimations();
+        this.animationQueue.flush();
     };
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.checkNoChanges = function () { this._view.detectChanges(true); };
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.reattach = function () {
         this._view.cdMode = this._originalMode;
         this.markForCheck();
     };
+    /**
+     * @param {?} callback
+     * @return {?}
+     */
     ViewRef_.prototype.onDestroy = function (callback) {
         if (!this._view.disposables) {
             this._view.disposables = [];
         }
         this._view.disposables.push(callback);
     };
+    /**
+     * @return {?}
+     */
     ViewRef_.prototype.destroy = function () { this._view.detachAndDestroy(); };
     return ViewRef_;
 }());
+function ViewRef__tsickle_Closure_declarations() {
+    /**
+     * \@internal
+     * @type {?}
+     */
+    ViewRef_.prototype._originalMode;
+    /** @type {?} */
+    ViewRef_.prototype._view;
+    /** @type {?} */
+    ViewRef_.prototype.animationQueue;
+}
 //# sourceMappingURL=view_ref.js.map

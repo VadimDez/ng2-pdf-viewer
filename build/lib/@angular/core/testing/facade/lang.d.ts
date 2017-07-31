@@ -34,7 +34,6 @@ export declare function getTypeNameForDebugging(type: any): string;
 export declare function isPresent(obj: any): boolean;
 export declare function isBlank(obj: any): boolean;
 export declare function isStrictStringMap(obj: any): boolean;
-export declare function isDate(obj: any): obj is Date;
 export declare function stringify(token: any): string;
 export declare class NumberWrapper {
     static parseIntAutoRadix(text: string): number;

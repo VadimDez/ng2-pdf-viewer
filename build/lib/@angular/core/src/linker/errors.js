@@ -22,7 +22,7 @@ import { BaseError, WrappedError } from '../facade/errors';
  * ### Example
  *
  * ```typescript
- * @Component({
+ * \@Component({
  *   selector: 'parent',
  *   template: '<child [prop]="parentProp"></child>',
  * })
@@ -30,7 +30,7 @@ import { BaseError, WrappedError } from '../facade/errors';
  *   parentProp = 'init';
  * }
  *
- * @Directive({selector: 'child', inputs: ['prop']})
+ * \@Directive({selector: 'child', inputs: ['prop']})
  * class Child {
  *   constructor(public parent: Parent) {}
  *
@@ -41,10 +41,14 @@ import { BaseError, WrappedError } from '../facade/errors';
  *   }
  * }
  * ```
- * @stable
+ * \@stable
  */
 export var ExpressionChangedAfterItHasBeenCheckedError = (function (_super) {
     __extends(ExpressionChangedAfterItHasBeenCheckedError, _super);
+    /**
+     * @param {?} oldValue
+     * @param {?} currValue
+     */
     function ExpressionChangedAfterItHasBeenCheckedError(oldValue, currValue) {
         var msg = "Expression has changed after it was checked. Previous value: '" + oldValue + "'. Current value: '" + currValue + "'.";
         if (oldValue === UNINITIALIZED) {
@@ -61,26 +65,40 @@ export var ExpressionChangedAfterItHasBeenCheckedError = (function (_super) {
  *
  * This error wraps the original exception to attach additional contextual information that can
  * be useful for debugging.
- * @stable
+ * \@stable
  */
 export var ViewWrappedError = (function (_super) {
     __extends(ViewWrappedError, _super);
+    /**
+     * @param {?} originalError
+     * @param {?} context
+     */
     function ViewWrappedError(originalError, context) {
         _super.call(this, "Error in " + context.source, originalError);
         this.context = context;
     }
     return ViewWrappedError;
 }(WrappedError));
+function ViewWrappedError_tsickle_Closure_declarations() {
+    /**
+     * DebugContext
+     * @type {?}
+     */
+    ViewWrappedError.prototype.context;
+}
 /**
  * Thrown when a destroyed view is used.
  *
  * This error indicates a bug in the framework.
  *
  * This is an internal Angular error.
- * @stable
+ * \@stable
  */
 export var ViewDestroyedError = (function (_super) {
     __extends(ViewDestroyedError, _super);
+    /**
+     * @param {?} details
+     */
     function ViewDestroyedError(details) {
         _super.call(this, "Attempt to use a destroyed view: " + details);
     }

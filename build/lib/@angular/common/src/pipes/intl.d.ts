@@ -15,7 +15,7 @@ export declare class NumberFormatter {
         minimumIntegerDigits?: number;
         minimumFractionDigits?: number;
         maximumFractionDigits?: number;
-        currency?: string | null;
+        currency?: string;
         currencyAsSymbol?: boolean;
     }): string;
 }

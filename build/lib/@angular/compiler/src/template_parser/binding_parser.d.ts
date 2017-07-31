@@ -27,8 +27,8 @@ export declare class BoundProperty {
     type: BoundPropertyType;
     sourceSpan: ParseSourceSpan;
     constructor(name: string, expression: ASTWithSource, type: BoundPropertyType, sourceSpan: ParseSourceSpan);
-    readonly isLiteral: boolean;
-    readonly isAnimation: boolean;
+    isLiteral: boolean;
+    isAnimation: boolean;
 }
 /**
  * Parses bindings in templates and in the directive host area.
@@ -39,15 +39,13 @@ export declare class BindingParser {
     private _schemaRegistry;
     private _targetErrors;
     pipesByName: Map<string, CompilePipeSummary>;
-    private _usedPipes;
     constructor(_exprParser: Parser, _interpolationConfig: InterpolationConfig, _schemaRegistry: ElementSchemaRegistry, pipes: CompilePipeSummary[], _targetErrors: ParseError[]);
-    getUsedPipes(): CompilePipeSummary[];
-    createDirectiveHostPropertyAsts(dirMeta: CompileDirectiveSummary, elementSelector: string, sourceSpan: ParseSourceSpan): BoundElementPropertyAst[] | null;
-    createDirectiveHostEventAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundEventAst[] | null;
+    createDirectiveHostPropertyAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundElementPropertyAst[];
+    createDirectiveHostEventAsts(dirMeta: CompileDirectiveSummary, sourceSpan: ParseSourceSpan): BoundEventAst[];
     parseInterpolation(value: string, sourceSpan: ParseSourceSpan): ASTWithSource;
     parseInlineTemplateBinding(prefixToken: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[], targetVars: VariableAst[]): void;
     private _parseTemplateBindings(prefixToken, value, sourceSpan);
-    parseLiteralAttr(name: string, value: string | null, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
+    parseLiteralAttr(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
     parsePropertyBinding(name: string, expression: string, isHost: boolean, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): void;
     parsePropertyInterpolation(name: string, value: string, sourceSpan: ParseSourceSpan, targetMatchableAttrs: string[][], targetProps: BoundProperty[]): boolean;
     private _parsePropertyAst(name, ast, sourceSpan, targetMatchableAttrs, targetProps);

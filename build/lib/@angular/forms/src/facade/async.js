@@ -22,7 +22,7 @@ export { Subject } from 'rxjs/Subject';
  * title gets clicked:
  *
  * ```
- * @Component({
+ * \@Component({
  *   selector: 'zippy',
  *   template: `
  *   <div class="zippy">
@@ -33,8 +33,8 @@ export { Subject } from 'rxjs/Subject';
  *  </div>`})
  * export class Zippy {
  *   visible: boolean = true;
- *   @Output() open: EventEmitter<any> = new EventEmitter();
- *   @Output() close: EventEmitter<any> = new EventEmitter();
+ *   \@Output() open: EventEmitter<any> = new EventEmitter();
+ *   \@Output() close: EventEmitter<any> = new EventEmitter();
  *
  *   toggle() {
  *     this.visible = !this.visible;
@@ -58,24 +58,35 @@ export { Subject } from 'rxjs/Subject';
  * https://github.com/jhusain/observable-spec
  *
  * Once a reference implementation of the spec is available, switch to it.
- * @stable
+ * \@stable
  */
 export var EventEmitter = (function (_super) {
     __extends(EventEmitter, _super);
     /**
      * Creates an instance of [EventEmitter], which depending on [isAsync],
      * delivers events synchronously or asynchronously.
+     * @param {?=} isAsync
      */
     function EventEmitter(isAsync) {
         if (isAsync === void 0) { isAsync = false; }
         _super.call(this);
         this.__isAsync = isAsync;
     }
+    /**
+     * @param {?=} value
+     * @return {?}
+     */
     EventEmitter.prototype.emit = function (value) { _super.prototype.next.call(this, value); };
+    /**
+     * @param {?=} generatorOrNext
+     * @param {?=} error
+     * @param {?=} complete
+     * @return {?}
+     */
     EventEmitter.prototype.subscribe = function (generatorOrNext, error, complete) {
-        var schedulerFn;
-        var errorFn = function (err) { return null; };
-        var completeFn = function () { return null; };
+        var /** @type {?} */ schedulerFn;
+        var /** @type {?} */ errorFn = function (err) { return null; };
+        var /** @type {?} */ completeFn = function () { return null; };
         if (generatorOrNext && typeof generatorOrNext === 'object') {
             schedulerFn = this.__isAsync ? function (value) {
                 setTimeout(function () { return generatorOrNext.next(value); });
@@ -105,4 +116,8 @@ export var EventEmitter = (function (_super) {
     };
     return EventEmitter;
 }(Subject));
+function EventEmitter_tsickle_Closure_declarations() {
+    /** @type {?} */
+    EventEmitter.prototype.__isAsync;
+}
 //# sourceMappingURL=async.js.map

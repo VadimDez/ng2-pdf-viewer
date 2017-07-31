@@ -20,10 +20,6 @@ export declare class CollectorOptions {
      * the source.
      */
     quotedNames?: boolean;
-    /**
-     * Do not simplify invalid expressions.
-     */
-    verboseInvalidExpression?: boolean;
 }
 /**
  * Collect decorator metadata from a TypeScript module.

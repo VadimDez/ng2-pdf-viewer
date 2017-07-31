@@ -10,6 +10,12 @@ import { AnimationKeyframe, AnimationStyles } from '../private_import_core';
 /**
  * @experimental
  */
+export declare class NoOpAnimationDriver implements AnimationDriver {
+    animate(element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[], duration: number, delay: number, easing: string, previousPlayers?: AnimationPlayer[]): AnimationPlayer;
+}
+/**
+ * @experimental
+ */
 export declare abstract class AnimationDriver {
     static NOOP: AnimationDriver;
     abstract animate(element: any, startingStyles: AnimationStyles, keyframes: AnimationKeyframe[], duration: number, delay: number, easing: string, previousPlayers?: AnimationPlayer[]): AnimationPlayer;

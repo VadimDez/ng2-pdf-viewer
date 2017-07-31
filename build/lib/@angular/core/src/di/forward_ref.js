@@ -15,13 +15,15 @@ import { stringify } from '../facade/lang';
  * yet defined.
  *
  * ### Example
- * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref'}
- * @experimental
+ * {\@example core/di/ts/forward_ref/forward_ref_spec.ts region='forward_ref'}
+ * \@experimental
+ * @param {?} forwardRefFn
+ * @return {?}
  */
 export function forwardRef(forwardRefFn) {
-    forwardRefFn.__forward_ref__ = forwardRef;
-    forwardRefFn.toString = function () { return stringify(this()); };
-    return forwardRefFn;
+    ((forwardRefFn)).__forward_ref__ = forwardRef;
+    ((forwardRefFn)).toString = function () { return stringify(this()); };
+    return (((forwardRefFn)));
 }
 /**
  * Lazily retrieves the reference value from a forwardRef.
@@ -30,15 +32,17 @@ export function forwardRef(forwardRefFn) {
  *
  * ### Example ([live demo](http://plnkr.co/edit/GU72mJrk1fiodChcmiDR?p=preview))
  *
- * {@example core/di/ts/forward_ref/forward_ref_spec.ts region='resolve_forward_ref'}
+ * {\@example core/di/ts/forward_ref/forward_ref_spec.ts region='resolve_forward_ref'}
  *
- * See: {@link forwardRef}
- * @experimental
+ * See: {\@link forwardRef}
+ * \@experimental
+ * @param {?} type
+ * @return {?}
  */
 export function resolveForwardRef(type) {
     if (typeof type === 'function' && type.hasOwnProperty('__forward_ref__') &&
         type.__forward_ref__ === forwardRef) {
-        return type();
+        return ((type))();
     }
     else {
         return type;

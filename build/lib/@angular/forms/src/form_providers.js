@@ -11,7 +11,7 @@ import { RadioControlRegistry } from './directives/radio_control_value_accessor'
 import { FormBuilder } from './form_builder';
 /**
  * The ng module for forms.
- * @stable
+ * \@stable
  */
 export var FormsModule = (function () {
     function FormsModule() {
@@ -24,12 +24,21 @@ export var FormsModule = (function () {
                 },] },
     ];
     /** @nocollapse */
-    FormsModule.ctorParameters = [];
+    FormsModule.ctorParameters = function () { return []; };
     return FormsModule;
 }());
+function FormsModule_tsickle_Closure_declarations() {
+    /** @type {?} */
+    FormsModule.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    FormsModule.ctorParameters;
+}
 /**
  * The ng module for reactive forms.
- * @stable
+ * \@stable
  */
 export var ReactiveFormsModule = (function () {
     function ReactiveFormsModule() {
@@ -42,7 +51,16 @@ export var ReactiveFormsModule = (function () {
                 },] },
     ];
     /** @nocollapse */
-    ReactiveFormsModule.ctorParameters = [];
+    ReactiveFormsModule.ctorParameters = function () { return []; };
     return ReactiveFormsModule;
 }());
+function ReactiveFormsModule_tsickle_Closure_declarations() {
+    /** @type {?} */
+    ReactiveFormsModule.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    ReactiveFormsModule.ctorParameters;
+}
 //# sourceMappingURL=form_providers.js.map

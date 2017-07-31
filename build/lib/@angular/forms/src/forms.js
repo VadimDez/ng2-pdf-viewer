@@ -34,9 +34,10 @@ export { FormArrayName } from './directives/reactive_directives/form_group_name'
 export { FormGroupName } from './directives/reactive_directives/form_group_name';
 export { NgSelectOption, SelectControlValueAccessor } from './directives/select_control_value_accessor';
 export { SelectMultipleControlValueAccessor } from './directives/select_multiple_control_value_accessor';
-export { MaxLengthValidator, MinLengthValidator, PatternValidator, RequiredValidator } from './directives/validators';
+export { CheckboxRequiredValidator, MaxLengthValidator, MinLengthValidator, PatternValidator, RequiredValidator } from './directives/validators';
 export { FormBuilder } from './form_builder';
 export { AbstractControl, FormArray, FormControl, FormGroup } from './model';
 export { NG_ASYNC_VALIDATORS, NG_VALIDATORS, Validators } from './validators';
-export * from './form_providers';
+export { VERSION } from './version';
+export { FormsModule, ReactiveFormsModule } from './form_providers';
 //# sourceMappingURL=forms.js.map

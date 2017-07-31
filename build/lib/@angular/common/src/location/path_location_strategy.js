@@ -16,15 +16,14 @@ import { Location } from './location';
 import { APP_BASE_HREF, LocationStrategy } from './location_strategy';
 import { PlatformLocation } from './platform_location';
 /**
- * `PathLocationStrategy` is a {@link LocationStrategy} used to configure the
- * {@link Location} service to represent its state in the
+ * \@whatItDoes Use URL for storing application location data.
+ * \@description
+ * `PathLocationStrategy` is a {\@link LocationStrategy} used to configure the
+ * {\@link Location} service to represent its state in the
  * [path](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax) of the
  * browser's URL.
  *
- * `PathLocationStrategy` is the default binding for {@link LocationStrategy}
- * provided in {@link ROUTER_PROVIDERS}.
- *
- * If you're using `PathLocationStrategy`, you must provide a {@link APP_BASE_HREF}
+ * If you're using `PathLocationStrategy`, you must provide a {\@link APP_BASE_HREF}
  * or add a base element to the document. This URL prefix that will be preserved
  * when generating and recognizing URLs.
  *
@@ -36,10 +35,18 @@ import { PlatformLocation } from './platform_location';
  * `location.go('/foo')`, the browser's URL will become
  * `example.com/my/app/foo`.
  *
- * @stable
+ * ### Example
+ *
+ * {\@example common/location/ts/path_location_component.ts region='LocationComponent'}
+ *
+ * \@stable
  */
 export var PathLocationStrategy = (function (_super) {
     __extends(PathLocationStrategy, _super);
+    /**
+     * @param {?} _platformLocation
+     * @param {?=} href
+     */
     function PathLocationStrategy(_platformLocation, href) {
         _super.call(this);
         this._platformLocation = _platformLocation;
@@ -51,39 +58,87 @@ export var PathLocationStrategy = (function (_super) {
         }
         this._baseHref = href;
     }
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     PathLocationStrategy.prototype.onPopState = function (fn) {
         this._platformLocation.onPopState(fn);
         this._platformLocation.onHashChange(fn);
     };
+    /**
+     * @return {?}
+     */
     PathLocationStrategy.prototype.getBaseHref = function () { return this._baseHref; };
+    /**
+     * @param {?} internal
+     * @return {?}
+     */
     PathLocationStrategy.prototype.prepareExternalUrl = function (internal) {
         return Location.joinWithSlash(this._baseHref, internal);
     };
+    /**
+     * @param {?=} includeHash
+     * @return {?}
+     */
     PathLocationStrategy.prototype.path = function (includeHash) {
         if (includeHash === void 0) { includeHash = false; }
-        var pathname = this._platformLocation.pathname +
+        var /** @type {?} */ pathname = this._platformLocation.pathname +
             Location.normalizeQueryParams(this._platformLocation.search);
-        var hash = this._platformLocation.hash;
+        var /** @type {?} */ hash = this._platformLocation.hash;
         return hash && includeHash ? "" + pathname + hash : pathname;
     };
+    /**
+     * @param {?} state
+     * @param {?} title
+     * @param {?} url
+     * @param {?} queryParams
+     * @return {?}
+     */
     PathLocationStrategy.prototype.pushState = function (state, title, url, queryParams) {
-        var externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
+        var /** @type {?} */ externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
         this._platformLocation.pushState(state, title, externalUrl);
     };
+    /**
+     * @param {?} state
+     * @param {?} title
+     * @param {?} url
+     * @param {?} queryParams
+     * @return {?}
+     */
     PathLocationStrategy.prototype.replaceState = function (state, title, url, queryParams) {
-        var externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
+        var /** @type {?} */ externalUrl = this.prepareExternalUrl(url + Location.normalizeQueryParams(queryParams));
         this._platformLocation.replaceState(state, title, externalUrl);
     };
+    /**
+     * @return {?}
+     */
     PathLocationStrategy.prototype.forward = function () { this._platformLocation.forward(); };
+    /**
+     * @return {?}
+     */
     PathLocationStrategy.prototype.back = function () { this._platformLocation.back(); };
     PathLocationStrategy.decorators = [
         { type: Injectable },
     ];
     /** @nocollapse */
-    PathLocationStrategy.ctorParameters = [
+    PathLocationStrategy.ctorParameters = function () { return [
         { type: PlatformLocation, },
         { type: undefined, decorators: [{ type: Optional }, { type: Inject, args: [APP_BASE_HREF,] },] },
-    ];
+    ]; };
     return PathLocationStrategy;
 }(LocationStrategy));
+function PathLocationStrategy_tsickle_Closure_declarations() {
+    /** @type {?} */
+    PathLocationStrategy.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    PathLocationStrategy.ctorParameters;
+    /** @type {?} */
+    PathLocationStrategy.prototype._baseHref;
+    /** @type {?} */
+    PathLocationStrategy.prototype._platformLocation;
+}
 //# sourceMappingURL=path_location_strategy.js.map

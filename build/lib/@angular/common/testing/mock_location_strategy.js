@@ -71,7 +71,7 @@ export var MockLocationStrategy = (function (_super) {
         { type: Injectable },
     ];
     /** @nocollapse */
-    MockLocationStrategy.ctorParameters = [];
+    MockLocationStrategy.ctorParameters = function () { return []; };
     return MockLocationStrategy;
 }(LocationStrategy));
 var _MockPopStateEvent = (function () {

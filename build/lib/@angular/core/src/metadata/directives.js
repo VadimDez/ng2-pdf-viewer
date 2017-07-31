@@ -13,7 +13,7 @@ import { makeDecorator, makePropDecorator } from '../util/decorators';
  * @stable
  * @Annotation
  */
-export var Directive = makeDecorator('Directive', {
+export var /** @type {?} */ Directive = (makeDecorator('Directive', {
     selector: undefined,
     inputs: undefined,
     outputs: undefined,
@@ -21,14 +21,14 @@ export var Directive = makeDecorator('Directive', {
     providers: undefined,
     exportAs: undefined,
     queries: undefined
-});
+}));
 /**
  * Component decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Component = makeDecorator('Component', {
+export var /** @type {?} */ Component = (makeDecorator('Component', {
     selector: undefined,
     inputs: undefined,
     outputs: undefined,
@@ -47,43 +47,43 @@ export var Component = makeDecorator('Component', {
     encapsulation: undefined,
     interpolation: undefined,
     entryComponents: undefined
-}, Directive);
+}, Directive));
 /**
  * Pipe decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Pipe = makeDecorator('Pipe', {
+export var /** @type {?} */ Pipe = (makeDecorator('Pipe', {
     name: undefined,
     pure: true,
-});
+}));
 /**
  * Input decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Input = makePropDecorator('Input', [['bindingPropertyName', undefined]]);
+export var /** @type {?} */ Input = makePropDecorator('Input', [['bindingPropertyName', undefined]]);
 /**
  * Output decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var Output = makePropDecorator('Output', [['bindingPropertyName', undefined]]);
+export var /** @type {?} */ Output = makePropDecorator('Output', [['bindingPropertyName', undefined]]);
 /**
  * HostBinding decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var HostBinding = makePropDecorator('HostBinding', [['hostPropertyName', undefined]]);
+export var /** @type {?} */ HostBinding = makePropDecorator('HostBinding', [['hostPropertyName', undefined]]);
 /**
- * HostBinding decorator and metadata.
+ * HostListener decorator and metadata.
  *
  * @stable
  * @Annotation
  */
-export var HostListener = makePropDecorator('HostListener', [['eventName', undefined], ['args', []]]);
+export var /** @type {?} */ HostListener = makePropDecorator('HostListener', [['eventName', undefined], ['args', []]]);
 //# sourceMappingURL=directives.js.map

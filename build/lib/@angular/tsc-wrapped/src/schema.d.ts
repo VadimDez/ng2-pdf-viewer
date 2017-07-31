@@ -5,18 +5,14 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-export declare const VERSION = 3;
-export declare type MetadataEntry = ClassMetadata | InterfaceMetadata | FunctionMetadata | MetadataValue;
+export declare const VERSION: number;
+export declare type MetadataEntry = ClassMetadata | FunctionMetadata | MetadataValue;
 export interface ModuleMetadata {
     __symbolic: 'module';
     version: number;
     exports?: ModuleExportMetadata[];
-    importAs?: string;
     metadata: {
         [name: string]: MetadataEntry;
-    };
-    origins?: {
-        [name: string]: string;
     };
 }
 export declare function isModuleMetadata(value: any): value is ModuleMetadata;
@@ -30,7 +26,6 @@ export interface ModuleExportMetadata {
 export interface ClassMetadata {
     __symbolic: 'class';
     extends?: MetadataSymbolicExpression | MetadataError;
-    arity?: number;
     decorators?: (MetadataSymbolicExpression | MetadataError)[];
     members?: MetadataMap;
     statics?: {
@@ -38,10 +33,6 @@ export interface ClassMetadata {
     };
 }
 export declare function isClassMetadata(value: any): value is ClassMetadata;
-export interface InterfaceMetadata {
-    __symbolic: 'interface';
-}
-export declare function isInterfaceMetadata(value: any): value is InterfaceMetadata;
 export interface MetadataMap {
     [name: string]: MemberMetadata[];
 }
@@ -165,10 +156,6 @@ export interface MetadataError {
      * The number of utf8 code-units from the beginning of the file of the error.
      */
     character?: number;
-    /**
-     * The module of the error (only used in bundled metadata)
-     */
-    module?: string;
     /**
      * Context information that can be used to generate a more descriptive error message. The content
      * of the context is dependent on the error message.

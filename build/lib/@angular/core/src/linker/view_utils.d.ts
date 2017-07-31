@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { AnimationQueue } from '../animation/animation_queue';
 import { SimpleChange } from '../change_detection/change_detection';
 import { ViewEncapsulation } from '../metadata/view';
 import { RenderComponentType, RenderDebugInfo, Renderer, RootRenderer } from '../render/api';
@@ -5,9 +13,9 @@ import { Sanitizer } from '../security';
 import { AppView } from './view';
 export declare class ViewUtils {
     private _renderer;
+    animationQueue: AnimationQueue;
     sanitizer: Sanitizer;
-    private _nextCompTypeId;
-    constructor(_renderer: RootRenderer, sanitizer: Sanitizer);
+    constructor(_renderer: RootRenderer, sanitizer: Sanitizer, animationQueue: AnimationQueue);
 }
 export declare function createRenderComponentType(templateUrl: string, slotCount: number, encapsulation: ViewEncapsulation, styles: Array<string | any[]>, animations: {
     [key: string]: Function;

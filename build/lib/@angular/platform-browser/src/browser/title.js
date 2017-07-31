@@ -14,19 +14,20 @@ import { getDOM } from '../dom/dom_adapter';
  * (representing the `<title>` tag). Instead, this service can be used to set and get the current
  * title value.
  *
- * @experimental
+ * \@experimental
  */
 export var Title = (function () {
     function Title() {
     }
     /**
      * Get the title of the current HTML document.
-     * @returns {string}
+     * @return {?}
      */
     Title.prototype.getTitle = function () { return getDOM().getTitle(); };
     /**
      * Set the title of the current HTML document.
-     * @param newTitle
+     * @param {?} newTitle
+     * @return {?}
      */
     Title.prototype.setTitle = function (newTitle) { getDOM().setTitle(newTitle); };
     return Title;
