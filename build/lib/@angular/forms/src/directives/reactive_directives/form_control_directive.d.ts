@@ -5,11 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { OnChanges, SimpleChanges } from '@angular/core';
+import { EventEmitter } from '../../facade/async';
 import { FormControl } from '../../model';
 import { ControlValueAccessor } from '../control_value_accessor';
 import { NgControl } from '../ng_control';
-import { AsyncValidator, AsyncValidatorFn, Validator, ValidatorFn } from '../validators';
+import { AsyncValidatorFn, Validator, ValidatorFn } from '../validators';
 export declare const formControlBinding: any;
 /**
  * @whatItDoes Syncs a standalone {@link FormControl} instance to a form control element.
@@ -59,12 +60,12 @@ export declare class FormControlDirective extends NgControl implements OnChanges
     model: any;
     update: EventEmitter<{}>;
     isDisabled: boolean;
-    constructor(validators: Array<Validator | ValidatorFn>, asyncValidators: Array<AsyncValidator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
+    constructor(validators: Array<Validator | ValidatorFn>, asyncValidators: Array<Validator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
     ngOnChanges(changes: SimpleChanges): void;
-    readonly path: string[];
-    readonly validator: ValidatorFn | null;
-    readonly asyncValidator: AsyncValidatorFn | null;
-    readonly control: FormControl;
+    path: string[];
+    validator: ValidatorFn;
+    asyncValidator: AsyncValidatorFn;
+    control: FormControl;
     viewToModelUpdate(newValue: any): void;
     private _isControlChanged(changes);
 }

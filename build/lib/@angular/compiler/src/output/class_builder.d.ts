@@ -5,7 +5,6 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ParseSourceSpan } from '../parse_util';
 import * as o from './output_ast';
 /**
  * Create a new class stmts based on the given data.
@@ -17,7 +16,6 @@ export declare function createClassStmt(config: {
     ctorParams?: o.FnParam[];
     builders: ClassBuilderPart | ClassBuilderPart[];
     modifiers?: o.StmtModifier[];
-    sourceSpan?: ParseSourceSpan;
 }): o.ClassStmt;
 /**
  * Collects data for a generated class.

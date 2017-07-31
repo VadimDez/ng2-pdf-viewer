@@ -1,10 +1,3 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 import { Type } from '../type';
 import { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
 import { GetterFn, MethodFn, SetterFn } from './types';
@@ -30,7 +23,6 @@ export declare class ReflectionCapabilities implements PlatformReflectionCapabil
     setter(name: string): SetterFn;
     method(name: string): MethodFn;
     importUri(type: any): string;
-    resourceUri(type: any): string;
-    resolveIdentifier(name: string, moduleUrl: string, members: string[], runtime: any): any;
+    resolveIdentifier(name: string, moduleUrl: string, runtime: any): any;
     resolveEnum(enumIdentifier: any, name: string): any;
 }

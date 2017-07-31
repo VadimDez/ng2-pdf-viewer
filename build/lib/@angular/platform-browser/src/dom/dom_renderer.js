@@ -215,7 +215,6 @@ export var DomRenderer = (function () {
         var /** @type {?} */ nodesParent;
         if (this.componentProto.encapsulation === ViewEncapsulation.Native) {
             nodesParent = ((hostElement)).createShadowRoot();
-            this._rootRenderer.sharedStylesHost.addHost(nodesParent);
             for (var /** @type {?} */ i = 0; i < this._styles.length; i++) {
                 var /** @type {?} */ styleEl = document.createElement('style');
                 styleEl.textContent = this._styles[i];

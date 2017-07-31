@@ -1,11 +1,4 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { EventEmitter } from '@angular/core';
+import { EventEmitter } from '../facade/async';
 import { AbstractControl, FormControl, FormGroup } from '../model';
 import { ControlContainer } from './control_container';
 import { Form } from './form_interface';
@@ -49,11 +42,11 @@ export declare class NgForm extends ControlContainer implements Form {
     form: FormGroup;
     ngSubmit: EventEmitter<{}>;
     constructor(validators: any[], asyncValidators: any[]);
-    readonly submitted: boolean;
-    readonly formDirective: Form;
-    readonly control: FormGroup;
-    readonly path: string[];
-    readonly controls: {
+    submitted: boolean;
+    formDirective: Form;
+    control: FormGroup;
+    path: string[];
+    controls: {
         [key: string]: AbstractControl;
     };
     addControl(dir: NgModel): void;

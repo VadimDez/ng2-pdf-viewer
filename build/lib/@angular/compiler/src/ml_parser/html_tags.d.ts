@@ -13,7 +13,7 @@ export declare class HtmlTagDefinition implements TagDefinition {
         [key: string]: boolean;
     };
     parentToAdd: string;
-    implicitNamespacePrefix: string | null;
+    implicitNamespacePrefix: string;
     contentType: TagContentType;
     isVoid: boolean;
     ignoreFirstLf: boolean;

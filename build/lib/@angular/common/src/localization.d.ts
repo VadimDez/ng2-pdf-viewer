@@ -10,8 +10,8 @@ export declare abstract class NgLocalization {
  * @experimental
  */
 export declare class NgLocaleLocalization extends NgLocalization {
-    protected locale: string;
-    constructor(locale: string);
+    private _locale;
+    constructor(_locale: string);
     getPluralCategory(value: any): string;
 }
 /** @experimental */

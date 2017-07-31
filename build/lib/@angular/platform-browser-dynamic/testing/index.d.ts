@@ -1,13 +1,13 @@
+import { PlatformRef, Provider } from '@angular/core';
+export * from './private_export_testing';
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
+ * @stable
+ */
+export declare const platformBrowserDynamicTesting: (extraProviders?: Provider[]) => PlatformRef;
+/**
+ * NgModule for testing.
  *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * @stable
  */
-/**
- * @module
- * @description
- * Entry point for all public APIs of the platform-browser-dynamic/testing package.
- */
-export * from './src/testing';
+export declare class BrowserDynamicTestingModule {
+}

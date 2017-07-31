@@ -1,12 +1,4 @@
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { InjectionToken } from '@angular/core';
-/**
  * Create a {@link UrlResolver} with no package prefix.
  */
 export declare function createUrlResolverWithoutPackagePrefix(): UrlResolver;
@@ -15,7 +7,7 @@ export declare function createOfflineCompileUrlResolver(): UrlResolver;
  * A default provider for {@link PACKAGE_ROOT_URL} that maps to '/'.
  */
 export declare const DEFAULT_PACKAGE_URL_PROVIDER: {
-    provide: InjectionToken<string>;
+    provide: any;
     useValue: string;
 };
 /**
@@ -36,7 +28,7 @@ export declare const DEFAULT_PACKAGE_URL_PROVIDER: {
  */
 export declare class UrlResolver {
     private _packagePrefix;
-    constructor(_packagePrefix?: string | null);
+    constructor(_packagePrefix?: string);
     /**
      * Resolves the `url` given the `baseUrl`:
      * - when the `url` is null, the `baseUrl` is returned,

@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ChangeDetectorRef, OnDestroy, PipeTransform } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { EventEmitter, Observable } from '../facade/async';
 /**
  * @ngModule CommonModule
  * @whatItDoes Unwraps a value from an asynchronous primitive.
@@ -41,10 +41,7 @@ export declare class AsyncPipe implements OnDestroy, PipeTransform {
     private _strategy;
     constructor(_ref: ChangeDetectorRef);
     ngOnDestroy(): void;
-    transform<T>(obj: null): null;
-    transform<T>(obj: undefined): undefined;
-    transform<T>(obj: Observable<T>): T | null;
-    transform<T>(obj: Promise<T>): T | null;
+    transform(obj: Observable<any> | Promise<any> | EventEmitter<any>): any;
     private _subscribe(obj);
     private _selectStrategy(obj);
     private _dispose();

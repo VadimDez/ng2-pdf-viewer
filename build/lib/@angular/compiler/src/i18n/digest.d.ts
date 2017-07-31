@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import * as i18n from './i18n_ast';
 export declare function digest(message: i18n.Message): string;
 export declare function decimalDigest(message: i18n.Message): string;
@@ -21,3 +28,4 @@ export declare function sha1(str: string): string;
  */
 export declare function fingerprint(str: string): [number, number];
 export declare function computeMsgId(msg: string, meaning: string): string;
+export declare function utf8Encode(str: string): string;

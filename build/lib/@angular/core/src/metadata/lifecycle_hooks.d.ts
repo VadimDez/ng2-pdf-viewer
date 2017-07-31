@@ -42,8 +42,8 @@ export declare const LIFECYCLE_HOOKS_VALUES: LifecycleHooks[];
  *
  * @stable
  */
-export interface OnChanges {
-    ngOnChanges(changes: SimpleChanges): void;
+export declare abstract class OnChanges {
+    abstract ngOnChanges(changes: SimpleChanges): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after data-bound properties of a directive are
@@ -60,8 +60,8 @@ export interface OnChanges {
  *
  * @stable
  */
-export interface OnInit {
-    ngOnInit(): void;
+export declare abstract class OnInit {
+    abstract ngOnInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called when Angular dirty checks a directive.
@@ -84,8 +84,8 @@ export interface OnInit {
  *
  * @stable
  */
-export interface DoCheck {
-    ngDoCheck(): void;
+export declare abstract class DoCheck {
+    abstract ngDoCheck(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called when a directive, pipe or service is destroyed.
@@ -100,8 +100,8 @@ export interface DoCheck {
  *
  * @stable
  */
-export interface OnDestroy {
-    ngOnDestroy(): void;
+export declare abstract class OnDestroy {
+    abstract ngOnDestroy(): void;
 }
 /**
  *
@@ -115,8 +115,8 @@ export interface OnDestroy {
  *
  * @stable
  */
-export interface AfterContentInit {
-    ngAfterContentInit(): void;
+export declare abstract class AfterContentInit {
+    abstract ngAfterContentInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after every check of a directive's content.
@@ -128,8 +128,8 @@ export interface AfterContentInit {
  *
  * @stable
  */
-export interface AfterContentChecked {
-    ngAfterContentChecked(): void;
+export declare abstract class AfterContentChecked {
+    abstract ngAfterContentChecked(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after a component's view has been fully
@@ -142,8 +142,8 @@ export interface AfterContentChecked {
  *
  * @stable
  */
-export interface AfterViewInit {
-    ngAfterViewInit(): void;
+export declare abstract class AfterViewInit {
+    abstract ngAfterViewInit(): void;
 }
 /**
  * @whatItDoes Lifecycle hook that is called after every check of a component's view.
@@ -155,6 +155,6 @@ export interface AfterViewInit {
  *
  * @stable
  */
-export interface AfterViewChecked {
-    ngAfterViewChecked(): void;
+export declare abstract class AfterViewChecked {
+    abstract ngAfterViewChecked(): void;
 }

@@ -1,4 +1,12 @@
 /**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { OpaqueToken } from '@angular/core';
+/**
  * This class should not be used directly by an application developer. Instead, use
  * {\@link Location}.
  *
@@ -97,4 +105,9 @@ export var PlatformLocation = (function () {
     PlatformLocation.prototype.back = function () { };
     return PlatformLocation;
 }());
+/**
+ * @whatItDoes indicates when a location is initialized
+ * @experimental
+ */
+export var /** @type {?} */ LOCATION_INITIALIZED = new OpaqueToken('Location Initialized');
 //# sourceMappingURL=platform_location.js.map

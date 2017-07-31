@@ -2,25 +2,25 @@
   "_args": [
     [
       {
-        "raw": "pdfjs-dist@^1.7.312",
+        "raw": "pdfjs-dist@^1.8.508",
         "scope": null,
         "escapedName": "pdfjs-dist",
         "name": "pdfjs-dist",
-        "rawSpec": "^1.7.312",
-        "spec": ">=1.7.312 <2.0.0",
+        "rawSpec": "^1.8.508",
+        "spec": ">=1.8.508 <2.0.0",
         "type": "range"
       },
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "pdfjs-dist@>=1.7.312 <2.0.0",
-  "_id": "pdfjs-dist@1.7.312",
+  "_from": "pdfjs-dist@>=1.8.508 <2.0.0",
+  "_id": "pdfjs-dist@1.8.508",
   "_inCache": true,
   "_location": "/pdfjs-dist",
   "_nodeVersion": "6.9.4",
   "_npmOperationalInternal": {
-    "host": "packages-18-east.internal.npmjs.com",
-    "tmp": "tmp/pdfjs-dist-1.7.312.tgz_1487720478341_0.18609125912189484"
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/pdfjs-dist-1.8.508.tgz_1499075260589_0.9792055813595653"
   },
   "_npmUser": {
     "name": "pdfjsbot",
@@ -29,21 +29,22 @@
   "_npmVersion": "4.1.2",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "pdfjs-dist@^1.7.312",
+    "raw": "pdfjs-dist@^1.8.508",
     "scope": null,
     "escapedName": "pdfjs-dist",
     "name": "pdfjs-dist",
-    "rawSpec": "^1.7.312",
-    "spec": ">=1.7.312 <2.0.0",
+    "rawSpec": "^1.8.508",
+    "spec": ">=1.8.508 <2.0.0",
     "type": "range"
   },
   "_requiredBy": [
-    "/"
+    "/",
+    "/ng2-pdf-viewer"
   ],
-  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.7.312.tgz",
-  "_shasum": "f094b0c7923b4f186c6be5f0e10f5c6a5c7548d9",
+  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.8.508.tgz",
+  "_shasum": "5d0ea0598a4f5a3f61f27d8391f0ae258dfe282f",
   "_shrinkwrap": null,
-  "_spec": "pdfjs-dist@^1.7.312",
+  "_spec": "pdfjs-dist@^1.8.508",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "browser": {
     "node-ensure": false
@@ -52,17 +53,18 @@
     "url": "https://github.com/mozilla/pdf.js/issues"
   },
   "dependencies": {
-    "node-ensure": "^0.0.0"
+    "node-ensure": "^0.0.0",
+    "worker-loader": "^0.8.0"
   },
   "description": "Generic build of Mozilla's PDF.js library.",
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "f094b0c7923b4f186c6be5f0e10f5c6a5c7548d9",
-    "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.7.312.tgz"
+    "shasum": "5d0ea0598a4f5a3f61f27d8391f0ae258dfe282f",
+    "tarball": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.8.508.tgz"
   },
   "format": "amd",
-  "gitHead": "befe1cab23278b956680bd41a51a828cd5c57c7f",
+  "gitHead": "afe8f3ef1e9085215ab8be5ec6d641c7d27695d1",
   "homepage": "http://mozilla.github.io/pdf.js/",
   "keywords": [
     "Mozilla",
@@ -73,8 +75,16 @@
   "main": "build/pdf.js",
   "maintainers": [
     {
+      "name": "brendandahl",
+      "email": "brendan.dahl@gmail.com"
+    },
+    {
       "name": "pdfjsbot",
-      "email": "pdfjsbot@gmail.com"
+      "email": "dev-pdf-js@lists.mozilla.org"
+    },
+    {
+      "name": "yurydelendik",
+      "email": "ydelendik@mozilla.com"
     }
   ],
   "name": "pdfjs-dist",
@@ -85,5 +95,5 @@
     "url": "git+https://github.com/mozilla/pdfjs-dist.git"
   },
   "scripts": {},
-  "version": "1.7.312"
+  "version": "1.8.508"
 }

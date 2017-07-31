@@ -11,9 +11,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var path = require("path");
-var ts = require("typescript");
-var compiler_host_1 = require("./compiler_host");
+var path = require('path');
+var ts = require('typescript');
+var compiler_host_1 = require('./compiler_host');
 var EXT = /(\.ts|\.d\.ts|\.js|\.jsx|\.tsx)$/;
 var DTS = /\.d\.ts$/;
 /**
@@ -26,7 +26,7 @@ var DTS = /\.d\.ts$/;
 var PathMappedCompilerHost = (function (_super) {
     __extends(PathMappedCompilerHost, _super);
     function PathMappedCompilerHost(program, options, context) {
-        return _super.call(this, program, options, context) || this;
+        _super.call(this, program, options, context);
     }
     PathMappedCompilerHost.prototype.getCanonicalFileName = function (fileName) {
         if (!fileName)
@@ -59,7 +59,6 @@ var PathMappedCompilerHost = (function (_super) {
                 return this.getCanonicalFileName(resolved.resolvedFileName);
             }
         }
-        return null;
     };
     /**
      * We want a moduleId that will appear in import statements in the generated code.
@@ -88,7 +87,7 @@ var PathMappedCompilerHost = (function (_super) {
         };
         var importModuleName = importedFile.replace(EXT, '');
         var parts = importModuleName.split(path.sep).filter(function (p) { return !!p; });
-        var foundRelativeImport = undefined;
+        var foundRelativeImport;
         for (var index = parts.length - 1; index >= 0; index--) {
             var candidate_1 = parts.slice(index, parts.length).join(path.sep);
             if (resolvable(candidate_1)) {
@@ -131,7 +130,6 @@ var PathMappedCompilerHost = (function (_super) {
                 return metadata ? [metadata] : [];
             }
         }
-        return null;
     };
     return PathMappedCompilerHost;
 }(compiler_host_1.CompilerHost));

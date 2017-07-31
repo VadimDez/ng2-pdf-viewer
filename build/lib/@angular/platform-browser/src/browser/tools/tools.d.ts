@@ -7,7 +7,7 @@
  */
 import { ComponentRef } from '@angular/core';
 /**
- * Enabled Angular debug tools that are accessible via your browser's
+ * Enabled Angular 2 debug tools that are accessible via your browser's
  * developer console.
  *
  * Usage:
@@ -21,7 +21,7 @@ import { ComponentRef } from '@angular/core';
  */
 export declare function enableDebugTools<T>(ref: ComponentRef<T>): ComponentRef<T>;
 /**
- * Disables Angular tools.
+ * Disables Angular 2 tools.
  *
  * @experimental All debugging apis are currently experimental.
  */

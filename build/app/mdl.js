@@ -13,13 +13,12 @@ var MDL = (function () {
     MDL.prototype.ngAfterViewInit = function () {
         componentHandler.upgradeAllRegistered();
     };
+    MDL = __decorate([
+        core_1.Directive({
+            selector: '[mdl]'
+        })
+    ], MDL);
     return MDL;
 }());
-MDL = __decorate([
-    core_1.Directive({
-        selector: '[mdl]'
-    })
-], MDL);
 exports.MDL = MDL;
-
 //# sourceMappingURL=mdl.js.map

@@ -24,7 +24,7 @@ import { PipeTransform } from '@angular/core';
  *  @experimental
  */
 export declare class I18nSelectPipe implements PipeTransform {
-    transform(value: string | null | undefined, mapping: {
+    transform(value: string, mapping: {
         [key: string]: string;
     }): string;
 }

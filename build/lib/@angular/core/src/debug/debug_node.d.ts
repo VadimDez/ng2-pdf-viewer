@@ -6,7 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injector } from '../di';
-import { DebugContext } from '../view/index';
+import { Predicate } from '../facade/collection';
+import { RenderDebugInfo } from '../render/api';
 export declare class EventListener {
     name: string;
     callback: Function;
@@ -16,22 +17,19 @@ export declare class EventListener {
  * @experimental All debugging apis are currently experimental.
  */
 export declare class DebugNode {
-    private _debugContext;
+    private _debugInfo;
     nativeNode: any;
     listeners: EventListener[];
-    parent: DebugElement | null;
-    constructor(nativeNode: any, parent: DebugNode | null, _debugContext: DebugContext);
-    readonly injector: Injector;
-    readonly componentInstance: any;
-    readonly context: any;
-    readonly references: {
+    parent: DebugElement;
+    constructor(nativeNode: any, parent: DebugNode, _debugInfo: RenderDebugInfo);
+    injector: Injector;
+    componentInstance: any;
+    context: any;
+    references: {
         [key: string]: any;
     };
-    readonly providerTokens: any[];
-    /**
-     * @deprecated since v4
-     */
-    readonly source: string;
+    providerTokens: any[];
+    source: string;
 }
 /**
  * @experimental All debugging apis are currently experimental.
@@ -42,25 +40,24 @@ export declare class DebugElement extends DebugNode {
         [key: string]: any;
     };
     attributes: {
-        [key: string]: string | null;
+        [key: string]: string;
     };
     classes: {
         [key: string]: boolean;
     };
     styles: {
-        [key: string]: string | null;
+        [key: string]: string;
     };
     childNodes: DebugNode[];
     nativeElement: any;
-    constructor(nativeNode: any, parent: any, _debugContext: DebugContext);
+    constructor(nativeNode: any, parent: any, _debugInfo: RenderDebugInfo);
     addChild(child: DebugNode): void;
     removeChild(child: DebugNode): void;
     insertChildrenAfter(child: DebugNode, newChildren: DebugNode[]): void;
-    insertBefore(refChild: DebugNode, newChild: DebugNode): void;
     query(predicate: Predicate<DebugElement>): DebugElement;
     queryAll(predicate: Predicate<DebugElement>): DebugElement[];
     queryAllNodes(predicate: Predicate<DebugNode>): DebugNode[];
-    readonly children: DebugElement[];
+    children: DebugElement[];
     triggerEventHandler(eventName: string, eventObj: any): void;
 }
 /**
@@ -70,16 +67,7 @@ export declare function asNativeElements(debugEls: DebugElement[]): any;
 /**
  * @experimental
  */
-export declare function getDebugNode(nativeNode: any): DebugNode | null;
+export declare function getDebugNode(nativeNode: any): DebugNode;
 export declare function getAllDebugNodes(): DebugNode[];
 export declare function indexDebugNode(node: DebugNode): void;
 export declare function removeDebugNodeFromIndex(node: DebugNode): void;
-/**
- * A boolean-valued function over a value, possibly including context information
- * regarding that value's position in an array.
- *
- * @experimental All debugging apis are currently experimental.
- */
-export interface Predicate<T> {
-    (value: T): boolean;
-}
