@@ -11,6 +11,7 @@ export declare class PdfViewerComponent implements OnChanges {
     private _zoom;
     private _rotation;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
+    onError: EventEmitter<any>;
     constructor(element: ElementRef);
     src: string | Uint8Array | PDFSource;
     page: any;

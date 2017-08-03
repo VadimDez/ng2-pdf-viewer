@@ -38,7 +38,11 @@ var AppComponent = (function () {
         }
     };
     AppComponent.prototype.afterLoadComplete = function (pdf) {
+        this.error = null;
         this.pdf = pdf;
+    };
+    AppComponent.prototype.onError = function (error) {
+        this.error = error;
     };
     AppComponent = __decorate([
         core_1.Component({
