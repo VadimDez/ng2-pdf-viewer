@@ -191,7 +191,10 @@ Then add it to `pdf-component` in component's template
 (error)="onError($event)
 ```
 
-## Develop
+## Contribute
+
+Clone project and switch to latest version branch (right now `features/1.1.2`)
+
 ```
 npm start
 ```

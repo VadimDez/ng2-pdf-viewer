@@ -1,7 +1,11 @@
 # Changelog
 
+## 1.1.2
+* [[#112](https://github.com/VadimDez/ng2-pdf-viewer/issues/112)] - Error handling
+* Updated documentation
+
 ## 1.1.1
-[[#111](https://github.com/VadimDez/ng2-pdf-viewer/issues/111)] - out of order
+* [[#111](https://github.com/VadimDez/ng2-pdf-viewer/issues/111)] - out of order
 
 ## 1.1.0
 * [[#72](https://github.com/VadimDez/ng2-pdf-viewer/issues/72)] - Updated for Angular 4
