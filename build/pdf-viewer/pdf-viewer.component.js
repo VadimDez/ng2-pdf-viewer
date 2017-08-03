@@ -248,4 +248,5 @@ var PdfViewerComponent = (function () {
     return PdfViewerComponent;
 }());
 exports.PdfViewerComponent = PdfViewerComponent;
+
 //# sourceMappingURL=pdf-viewer.component.js.map
