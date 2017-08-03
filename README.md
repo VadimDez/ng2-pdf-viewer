@@ -188,7 +188,7 @@ onError(error: any) {
 Then add it to `pdf-component` in component's template
 
 ```html
-(error)="onError($event)
+(error)="onError($event)"
 ```
 
 ## Contribute
