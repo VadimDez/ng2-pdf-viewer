@@ -36,6 +36,7 @@ export class PdfViewerComponent implements OnChanges {
   private _rotation: number = 0;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+  @Output('error') onError = new EventEmitter<any>();
 
   constructor(private element: ElementRef) {}
 
@@ -109,13 +110,16 @@ export class PdfViewerComponent implements OnChanges {
       return;
     }
 
-    PDFJS.getDocument(this.src).then(pdf => {
-      this._pdf = pdf;
+    PDFJS.getDocument(this.src)
+      .then(pdf => {
+        this._pdf = pdf;
 
-      this.afterLoadComplete.emit(pdf);
+        this.afterLoadComplete.emit(pdf);
 
-      this.update();
-    });
+        this.update();
+      }, (error: any) => {
+        this.onError.emit(error);
+      });
   }
 
   private update() {

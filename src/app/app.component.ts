@@ -22,6 +22,7 @@ export class AppComponent {
   //// }
   // };
 
+  error: any;
   page: number = 1;
   rotation: number = 0;
   zoom: number = 1.0;
@@ -64,6 +65,16 @@ export class AppComponent {
    * @param pdf
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
+    this.error = null; // clear error
     this.pdf = pdf;
+  }
+
+  /**
+   * Handle error callback
+   *
+   * @param error
+   */
+  onError(error: any) {
+    this.error = error; // set error
   }
 }

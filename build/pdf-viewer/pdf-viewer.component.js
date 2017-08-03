@@ -21,6 +21,7 @@ var PdfViewerComponent = (function () {
         this._zoom = 1;
         this._rotation = 0;
         this.afterLoadComplete = new core_1.EventEmitter();
+        this.onError = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
     }
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
@@ -95,10 +96,13 @@ var PdfViewerComponent = (function () {
         if (!this.src) {
             return;
         }
-        PDFJS.getDocument(this.src).then(function (pdf) {
+        PDFJS.getDocument(this.src)
+            .then(function (pdf) {
             _this._pdf = pdf;
             _this.afterLoadComplete.emit(pdf);
             _this.update();
+        }, function (error) {
+            _this.onError.emit(error);
         });
     };
     PdfViewerComponent.prototype.update = function () {
@@ -191,6 +195,10 @@ var PdfViewerComponent = (function () {
         core_1.Output('after-load-complete'),
         __metadata("design:type", Object)
     ], PdfViewerComponent.prototype, "afterLoadComplete", void 0);
+    __decorate([
+        core_1.Output('error'),
+        __metadata("design:type", Object)
+    ], PdfViewerComponent.prototype, "onError", void 0);
     __decorate([
         core_1.Input(),
         __metadata("design:type", Object)

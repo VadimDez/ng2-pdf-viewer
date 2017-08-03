@@ -1,6 +1,7 @@
 /// <reference types="pdf" />
 export declare class AppComponent {
     pdfSrc: string;
+    error: any;
     page: number;
     rotation: number;
     zoom: number;
@@ -13,4 +14,5 @@ export declare class AppComponent {
     rotate(angle: number): void;
     onFileSelected(): void;
     afterLoadComplete(pdf: PDFDocumentProxy): void;
+    onError(error: any): void;
 }

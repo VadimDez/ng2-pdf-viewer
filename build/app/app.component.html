@@ -21,6 +21,10 @@
                 <input (change)="onFileSelected()" type="file" id="file">
             </div>
 
+            <div *ngIf="error" class="error mb">
+                {{ error | json }}
+            </div>
+
             <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="original-size">
                     <input type="checkbox" id="original-size" class="mdl-switch__input"
@@ -111,6 +115,7 @@
                         (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
                         [render-text]="renderText"
+                        (error)="onError($event)"
             ></pdf-viewer>
 
         </div>
