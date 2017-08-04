@@ -186,7 +186,7 @@ export class PdfViewerComponent implements OnChanges {
   }
 
   private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
-    page.getTextContent().then(textContent => {
+    page.getTextContent().then((textContent: TextContent) => {
       let index = this._showAll ? page.pageIndex : 0;
       let canvas = container.querySelectorAll('canvas')[index];
       canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
@@ -198,11 +198,13 @@ export class PdfViewerComponent implements OnChanges {
   }
 
   private renderPage(pageNumber: number): PDFPromise<void> {
-    return this._pdf.getPage(pageNumber).then( page => {
+    return this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
       let canvas: HTMLCanvasElement = document.createElement('canvas');
+      let ctx = canvas.getContext('2d');
       let div: HTMLElement = document.createElement('div');
+      let ratio = Math.max(window.devicePixelRatio || 1, 1);
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
@@ -215,11 +217,15 @@ export class PdfViewerComponent implements OnChanges {
       div.appendChild(canvas);
       container.appendChild(div);
 
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+      canvas.height = viewport.height * ratio;
+      canvas.width = viewport.width * ratio;
+      canvas.style.height = `${ viewport.height }px`;
+      canvas.style.width = `${ viewport.width }px`;
+
+      ctx.scale(ratio, ratio);
 
       page.render({
-        canvasContext: canvas.getContext('2d'),
+        canvasContext: ctx,
         viewport: viewport
       });
 
