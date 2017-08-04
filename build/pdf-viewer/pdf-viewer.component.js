@@ -166,7 +166,9 @@ var PdfViewerComponent = (function () {
             var viewport = page.getViewport(_this._zoom, _this._rotation);
             var container = _this.element.nativeElement.querySelector('div');
             var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
             var div = document.createElement('div');
+            var ratio = Math.max(window.devicePixelRatio || 1, 1);
             if (!_this._originalSize) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
             }
@@ -175,10 +177,13 @@ var PdfViewerComponent = (function () {
             }
             div.appendChild(canvas);
             container.appendChild(div);
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+            canvas.height = viewport.height * ratio;
+            canvas.width = viewport.width * ratio;
+            canvas.style.height = viewport.height + "px";
+            canvas.style.width = viewport.width + "px";
+            ctx.scale(ratio, ratio);
             page.render({
-                canvasContext: canvas.getContext('2d'),
+                canvasContext: ctx,
                 viewport: viewport
             });
             if (_this._renderText) {
