@@ -14,8 +14,8 @@
  */
 'use strict';
 
-var pdfjsVersion = '1.8.508';
-var pdfjsBuild = '699f3392';
+var pdfjsVersion = '1.8.609';
+var pdfjsBuild = 'f83bd721';
 var pdfjsSharedUtil = require('./shared/util.js');
 var pdfjsDisplayGlobal = require('./display/global.js');
 var pdfjsDisplayAPI = require('./display/api.js');
@@ -23,6 +23,9 @@ var pdfjsDisplayTextLayer = require('./display/text_layer.js');
 var pdfjsDisplayAnnotationLayer = require('./display/annotation_layer.js');
 var pdfjsDisplayDOMUtils = require('./display/dom_utils.js');
 var pdfjsDisplaySVG = require('./display/svg.js');
+{
+  require('./display/network.js');
+}
 exports.PDFJS = pdfjsDisplayGlobal.PDFJS;
 exports.build = pdfjsDisplayAPI.build;
 exports.version = pdfjsDisplayAPI.version;

@@ -571,7 +571,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var fontRef,
           xref = this.xref;
       if (font) {
-        (0, _util.assert)((0, _primitives.isRef)(font));
+        if (!(0, _primitives.isRef)(font)) {
+          throw new Error('The "font" object should be a reference.');
+        }
         fontRef = font;
       } else {
         var fontRes = resources.get('Font');
@@ -707,7 +709,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
 
       resources = resources || _primitives.Dict.empty;
       initialState = initialState || new EvalState();
-      (0, _util.assert)(operatorList, 'getOperatorList: missing "operatorList" parameter');
+      if (!operatorList) {
+        throw new Error('getOperatorList: missing "operatorList" parameter');
+      }
       var self = this;
       var xref = this.xref;
       var imageCache = Object.create(null);
@@ -762,9 +766,13 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               }
               var xobj = xobjs.get(name);
               if (xobj) {
-                (0, _util.assert)((0, _primitives.isStream)(xobj), 'XObject should be a stream');
+                if (!(0, _primitives.isStream)(xobj)) {
+                  throw new _util.FormatError('XObject should be a stream');
+                }
                 var type = xobj.dict.get('Subtype');
-                (0, _util.assert)((0, _primitives.isName)(type), 'XObject should have a Name subtype');
+                if (!(0, _primitives.isName)(type)) {
+                  throw new _util.FormatError('XObject should have a Name subtype');
+                }
                 if (type.name === 'Form') {
                   stateManager.save();
                   next(self.buildFormXObject(resources, xobj, null, operatorList, task, stateManager.state.clone()).then(function () {
@@ -779,7 +787,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
                   (0, _util.info)('Ignored XObject subtype PS');
                   continue;
                 } else {
-                  (0, _util.error)('Unhandled XObject subtype ' + type.name);
+                  throw new _util.FormatError('Unhandled XObject subtype ' + type.name);
                 }
               }
               break;
@@ -901,9 +909,13 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               break;
             case _util.OPS.shadingFill:
               var shadingRes = resources.get('Shading');
-              (0, _util.assert)(shadingRes, 'No shading resource found');
+              if (!shadingRes) {
+                throw new _util.FormatError('No shading resource found');
+              }
               var shading = shadingRes.get(args[0].name);
-              (0, _util.assert)(shading, 'No shading object found');
+              if (!shading) {
+                throw new _util.FormatError('No shading object found');
+              }
               var shadingFill = _pattern.Pattern.parseShading(shading, null, xref, resources, self.handler);
               var patternIR = shadingFill.getIR();
               args = [patternIR];
@@ -1377,10 +1389,14 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
                 if (!xobj) {
                   break;
                 }
-                (0, _util.assert)((0, _primitives.isStream)(xobj), 'XObject should be a stream');
+                if (!(0, _primitives.isStream)(xobj)) {
+                  throw new _util.FormatError('XObject should be a stream');
+                }
                 type = xobj.dict.get('Subtype');
 
-                (0, _util.assert)((0, _primitives.isName)(type), 'XObject should have a Name subtype');
+                if (!(0, _primitives.isName)(type)) {
+                  throw new _util.FormatError('XObject should have a Name subtype');
+                }
                 if (type.name !== 'Form') {
                   skipEmptyXObjs[name] = true;
                   break;
@@ -1465,6 +1481,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         enqueueChunk();
         resolve();
       }).catch(function (reason) {
+        if (reason instanceof _util.AbortException) {
+          return;
+        }
         if (_this9.options.ignoreErrors) {
           (0, _util.warn)('getTextContent - ignoring errors during task: ' + task.name);
           flushTextContentItem();
@@ -1513,14 +1532,14 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               } else if ((0, _primitives.isName)(data)) {
                 differences[index++] = data.name;
               } else {
-                (0, _util.error)('Invalid entry in \'Differences\' array: ' + data);
+                throw new _util.FormatError('Invalid entry in \'Differences\' array: ' + data);
               }
             }
           }
         } else if ((0, _primitives.isName)(encoding)) {
           baseEncodingName = encoding.name;
         } else {
-          (0, _util.error)('Encoding is not a Name nor a Dict');
+          throw new _util.FormatError('Encoding is not a Name nor a Dict');
         }
         if (baseEncodingName !== 'MacRomanEncoding' && baseEncodingName !== 'MacExpertEncoding' && baseEncodingName !== 'WinAnsiEncoding') {
           baseEncodingName = null;
@@ -1635,7 +1654,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
           var cMap = properties.cMap;
           toUnicode = [];
           cMap.forEach(function (charcode, cid) {
-            (0, _util.assert)(cid <= 0xffff, 'Max size of CID is 65,535');
+            if (cid > 0xffff) {
+              throw new _util.FormatError('Max size of CID is 65,535');
+            }
             var ucs2 = ucs2CMap.lookup(cid);
             if (ucs2) {
               toUnicode[charcode] = String.fromCharCode((ucs2.charCodeAt(0) << 8) + ucs2.charCodeAt(1));
@@ -1840,15 +1861,21 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     preEvaluateFont: function PartialEvaluator_preEvaluateFont(dict) {
       var baseDict = dict;
       var type = dict.get('Subtype');
-      (0, _util.assert)((0, _primitives.isName)(type), 'invalid font Subtype');
+      if (!(0, _primitives.isName)(type)) {
+        throw new _util.FormatError('invalid font Subtype');
+      }
       var composite = false;
       var uint8array;
       if (type.name === 'Type0') {
         var df = dict.get('DescendantFonts');
-        (0, _util.assert)(df, 'Descendant fonts are not specified');
+        if (!df) {
+          throw new _util.FormatError('Descendant fonts are not specified');
+        }
         dict = (0, _util.isArray)(df) ? this.xref.fetchIfRef(df[0]) : df;
         type = dict.get('Subtype');
-        (0, _util.assert)((0, _primitives.isName)(type), 'invalid font Subtype');
+        if (!(0, _primitives.isName)(type)) {
+          throw new _util.FormatError('invalid font Subtype');
+        }
         composite = true;
       }
       var descriptor = dict.get('FontDescriptor');
@@ -1922,7 +1949,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
           descriptor.set('FontBBox', dict.getArray('FontBBox'));
         } else {
           var baseFontName = dict.get('BaseFont');
-          (0, _util.assert)((0, _primitives.isName)(baseFontName), 'Base font is not specified');
+          if (!(0, _primitives.isName)(baseFontName)) {
+            throw new _util.FormatError('Base font is not specified');
+          }
           baseFontName = baseFontName.name.replace(/[,_]/g, '-');
           var metrics = this.getBaseFontMetrics(baseFontName);
           var fontNameWoStyle = baseFontName.split('-')[0];
@@ -1963,7 +1992,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         }
       }
       fontName = fontName || baseFont;
-      (0, _util.assert)((0, _primitives.isName)(fontName), 'invalid font name');
+      if (!(0, _primitives.isName)(fontName)) {
+        throw new _util.FormatError('invalid font name');
+      }
       var fontFile = descriptor.get('FontFile', 'FontFile2', 'FontFile3');
       if (fontFile) {
         if (fontFile.dict) {
@@ -2048,7 +2079,9 @@ var TranslatedFont = function TranslatedFontClosure() {
       this.sent = true;
     },
     loadType3Data: function loadType3Data(evaluator, resources, parentOperatorList, task) {
-      (0, _util.assert)(this.font.isType3Font);
+      if (!this.font.isType3Font) {
+        throw new Error('Must be a Type3 font.');
+      }
       if (this.type3Loaded) {
         return this.type3Loaded;
       }
@@ -2761,7 +2794,9 @@ var EvaluatorPreprocessor = function EvaluatorPreprocessorClosure() {
             args = [];
           }
           args.push(obj);
-          (0, _util.assert)(args.length <= 33, 'Too many arguments');
+          if (args.length > 33) {
+            throw new _util.FormatError('Too many arguments');
+          }
         }
       }
     },

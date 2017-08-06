@@ -401,7 +401,7 @@ var renderTextLayer = function renderTextLayerClosure() {
     },
     cancel: function TextLayer_cancel() {
       if (this._reader) {
-        this._reader.cancel();
+        this._reader.cancel(new _util.AbortException('text layer task cancelled'));
         this._reader = null;
       }
       this._canceled = true;

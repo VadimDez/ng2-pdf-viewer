@@ -5,12 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { NgModuleResolver } from '@angular/compiler';
+import { CompileReflector, NgModuleResolver } from '@angular/compiler';
 import { Injector, NgModule, Type } from '@angular/core';
 export declare class MockNgModuleResolver extends NgModuleResolver {
     private _injector;
     private _ngModules;
-    constructor(_injector: Injector);
+    constructor(_injector: Injector, reflector: CompileReflector);
     /**
      * Overrides the {@link NgModule} for a module.
      */

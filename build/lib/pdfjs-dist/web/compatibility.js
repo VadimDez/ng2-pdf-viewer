@@ -88,7 +88,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -96,7 +96,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
+
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -747,6 +747,22 @@ if (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked) {
       if (this.parentNode) {
         this.parentNode.removeChild(this);
       }
+    };
+  })();
+  (function checkNumberIsNaN() {
+    if (Number.isNaN) {
+      return;
+    }
+    Number.isNaN = function (value) {
+      return typeof value === 'number' && isNaN(value);
+    };
+  })();
+  (function checkNumberIsInteger() {
+    if (Number.isInteger) {
+      return;
+    }
+    Number.isInteger = function (value) {
+      return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
     };
   })();
   (function checkPromise() {
@@ -1593,30 +1609,9 @@ if (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked) {
     globalScope.URL = JURL;
   })();
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var g;
-g = function () {
-  return this;
-}();
-try {
-  g = g || Function("return this")() || (1, eval)("this");
-} catch (e) {
-  if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
-}
-module.exports = g;
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -437,7 +437,7 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
         ctx.putImageData(chunkImgData, 0, i * FULL_CHUNK_HEIGHT);
       }
     } else {
-      (0, _util.error)('bad image kind: ' + imgData.kind);
+      throw new Error('bad image kind: ' + imgData.kind);
     }
   }
   function putBinaryImageMask(ctx, imgData) {
@@ -1018,7 +1018,7 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
       var fontObj = this.commonObjs.get(fontRefName);
       var current = this.current;
       if (!fontObj) {
-        (0, _util.error)('Can\'t find font for ' + fontRefName);
+        throw new Error('Can\'t find font for ' + fontRefName);
       }
       current.fontMatrix = fontObj.fontMatrix ? fontObj.fontMatrix : _util.FONT_IDENTITY_MATRIX;
       if (current.fontMatrix[0] === 0 || current.fontMatrix[3] === 0) {
@@ -1354,10 +1354,10 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
       this.restore();
     },
     beginInlineImage: function CanvasGraphics_beginInlineImage() {
-      (0, _util.error)('Should not call beginInlineImage');
+      throw new Error('Should not call beginInlineImage');
     },
     beginImageData: function CanvasGraphics_beginImageData() {
-      (0, _util.error)('Should not call beginImageData');
+      throw new Error('Should not call beginImageData');
     },
     paintFormXObjectBegin: function CanvasGraphics_paintFormXObjectBegin(matrix, bbox) {
       this.save();
@@ -1391,7 +1391,9 @@ var CanvasGraphics = function CanvasGraphicsClosure() {
       if (group.matrix) {
         currentCtx.transform.apply(currentCtx, group.matrix);
       }
-      (0, _util.assert)(group.bbox, 'Bounding box is required.');
+      if (!group.bbox) {
+        throw new Error('Bounding box is required.');
+      }
       var bounds = _util.Util.getAxialAlignedBoundingBox(group.bbox, currentCtx.mozCurrentTransform);
       var canvasBounds = [0, 0, currentCtx.canvas.width, currentCtx.canvas.height];
       bounds = _util.Util.intersect(bounds, canvasBounds) || [0, 0, 0, 0];

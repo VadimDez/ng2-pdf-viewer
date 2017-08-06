@@ -38,11 +38,11 @@ var ShadingType = {
 };
 var Pattern = function PatternClosure() {
   function Pattern() {
-    (0, _util.error)('should not call Pattern constructor');
+    throw new Error('should not call Pattern constructor');
   }
   Pattern.prototype = {
     getPattern: function Pattern_getPattern(ctx) {
-      (0, _util.error)('Should not call Pattern.getStyle: ' + ctx);
+      throw new Error('Should not call Pattern.getStyle: ' + ctx);
     }
   };
   Pattern.parseShading = function Pattern_parseShading(shading, matrix, xref, res, handler) {
@@ -59,7 +59,7 @@ var Pattern = function PatternClosure() {
         case ShadingType.TENSOR_PATCH_MESH:
           return new Shadings.Mesh(shading, matrix, xref, res);
         default:
-          throw new Error('Unsupported ShadingType: ' + type);
+          throw new _util.FormatError('Unsupported ShadingType: ' + type);
       }
     } catch (ex) {
       if (ex instanceof _util.MissingDataException) {
@@ -163,7 +163,7 @@ Shadings.RadialAxial = function RadialAxialClosure() {
         r1 = coordsArr[5];
         type = 'radial';
       } else {
-        (0, _util.error)('getPattern type unknown: ' + shadingType);
+        (0, _util.unreachable)('getPattern type unknown: ' + shadingType);
       }
       var matrix = this.matrix;
       if (matrix) {
@@ -274,7 +274,9 @@ Shadings.Mesh = function MeshClosure() {
       var coord = reader.readCoordinate();
       var color = reader.readComponents();
       if (verticesLeft === 0) {
-        (0, _util.assert)(0 <= f && f <= 2, 'Unknown type4 flag');
+        if (!(0 <= f && f <= 2)) {
+          throw new _util.FormatError('Unknown type4 flag');
+        }
         switch (f) {
           case 0:
             verticesLeft = 3;
@@ -421,7 +423,9 @@ Shadings.Mesh = function MeshClosure() {
     var cs = new Int32Array(4);
     while (reader.hasData) {
       var f = reader.readFlag();
-      (0, _util.assert)(0 <= f && f <= 3, 'Unknown type6 flag');
+      if (!(0 <= f && f <= 3)) {
+        throw new _util.FormatError('Unknown type6 flag');
+      }
       var i, ii;
       var pi = coords.length;
       for (i = 0, ii = f !== 0 ? 8 : 12; i < ii; i++) {
@@ -537,7 +541,9 @@ Shadings.Mesh = function MeshClosure() {
     var cs = new Int32Array(4);
     while (reader.hasData) {
       var f = reader.readFlag();
-      (0, _util.assert)(0 <= f && f <= 3, 'Unknown type7 flag');
+      if (!(0 <= f && f <= 3)) {
+        throw new _util.FormatError('Unknown type7 flag');
+      }
       var i, ii;
       var pi = coords.length;
       for (i = 0, ii = f !== 0 ? 12 : 16; i < ii; i++) {
@@ -700,7 +706,9 @@ Shadings.Mesh = function MeshClosure() {
     }
   }
   function Mesh(stream, matrix, xref, res) {
-    (0, _util.assert)((0, _primitives.isStream)(stream), 'Mesh data is not a stream');
+    if (!(0, _primitives.isStream)(stream)) {
+      throw new _util.FormatError('Mesh data is not a stream');
+    }
     var dict = stream.dict;
     this.matrix = matrix;
     this.shadingType = dict.get('ShadingType');
@@ -732,7 +740,9 @@ Shadings.Mesh = function MeshClosure() {
         break;
       case ShadingType.LATTICE_FORM_MESH:
         var verticesPerRow = dict.get('VerticesPerRow') | 0;
-        (0, _util.assert)(verticesPerRow >= 2, 'Invalid VerticesPerRow');
+        if (verticesPerRow < 2) {
+          throw new _util.FormatError('Invalid VerticesPerRow');
+        }
         decodeType5Shading(this, reader, verticesPerRow);
         break;
       case ShadingType.COONS_PATCH_MESH:
@@ -744,7 +754,7 @@ Shadings.Mesh = function MeshClosure() {
         patchMesh = true;
         break;
       default:
-        (0, _util.error)('Unsupported mesh type.');
+        (0, _util.unreachable)('Unsupported mesh type.');
         break;
     }
     if (patchMesh) {
@@ -782,7 +792,7 @@ function getTilingPatternIR(operatorList, dict, args) {
   var paintType = dict.get('PaintType');
   var tilingType = dict.get('TilingType');
   if (bbox[2] - bbox[0] === 0 || bbox[3] - bbox[1] === 0) {
-    throw new Error('getTilingPatternIR - invalid /BBox array: [' + bbox + '].');
+    throw new _util.FormatError('Invalid getTilingPatternIR /BBox array: [' + bbox + '].');
   }
   return ['TilingPattern', args, operatorList, matrix, bbox, xstep, ystep, paintType, tilingType];
 }

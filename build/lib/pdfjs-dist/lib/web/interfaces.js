@@ -39,6 +39,13 @@ var IPDFLinkService = function () {
     key: 'executeNamedAction',
     value: function executeNamedAction(action) {}
   }, {
+    key: 'onFileAttachmentAnnotation',
+    value: function onFileAttachmentAnnotation(_ref) {
+      var id = _ref.id,
+          filename = _ref.filename,
+          content = _ref.content;
+    }
+  }, {
     key: 'cachePageRef',
     value: function cachePageRef(pageNum, pageRef) {}
   }, {

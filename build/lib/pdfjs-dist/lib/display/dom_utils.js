@@ -35,7 +35,9 @@ var DOMCanvasFactory = function () {
   _createClass(DOMCanvasFactory, [{
     key: 'create',
     value: function create(width, height) {
-      (0, _util.assert)(width > 0 && height > 0, 'invalid canvas size');
+      if (width <= 0 || height <= 0) {
+        throw new Error('invalid canvas size');
+      }
       var canvas = document.createElement('canvas');
       var context = canvas.getContext('2d');
       canvas.width = width;
@@ -48,15 +50,21 @@ var DOMCanvasFactory = function () {
   }, {
     key: 'reset',
     value: function reset(canvasAndContext, width, height) {
-      (0, _util.assert)(canvasAndContext.canvas, 'canvas is not specified');
-      (0, _util.assert)(width > 0 && height > 0, 'invalid canvas size');
+      if (!canvasAndContext.canvas) {
+        throw new Error('canvas is not specified');
+      }
+      if (width <= 0 || height <= 0) {
+        throw new Error('invalid canvas size');
+      }
       canvasAndContext.canvas.width = width;
       canvasAndContext.canvas.height = height;
     }
   }, {
     key: 'destroy',
     value: function destroy(canvasAndContext) {
-      (0, _util.assert)(canvasAndContext.canvas, 'canvas is not specified');
+      if (!canvasAndContext.canvas) {
+        throw new Error('canvas is not specified');
+      }
       canvasAndContext.canvas.width = 0;
       canvasAndContext.canvas.height = 0;
       canvasAndContext.canvas = null;

@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, Injector, OnDestroy, OnInit, Renderer } from '@angular/core';
+import { ElementRef, Injector, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
 import { NgControl } from './ng_control';
 export declare const RADIO_VALUE_ACCESSOR: any;
@@ -58,7 +58,7 @@ export declare class RadioControlValueAccessor implements ControlValueAccessor, 
     name: string;
     formControlName: string;
     value: any;
-    constructor(_renderer: Renderer, _elementRef: ElementRef, _registry: RadioControlRegistry, _injector: Injector);
+    constructor(_renderer: Renderer2, _elementRef: ElementRef, _registry: RadioControlRegistry, _injector: Injector);
     ngOnInit(): void;
     ngOnDestroy(): void;
     writeValue(value: any): void;

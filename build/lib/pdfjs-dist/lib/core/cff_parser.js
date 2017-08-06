@@ -291,7 +291,14 @@ var CFFParser = function CFFParserClosure() {
       }
       cff.charset = charset;
       cff.encoding = encoding;
-      var charStringsAndSeacs = this.parseCharStrings(charStringIndex, topDict.privateDict.subrsIndex, globalSubrIndex.obj, cff.fdSelect, cff.fdArray);
+      var charStringsAndSeacs = this.parseCharStrings({
+        charStrings: charStringIndex,
+        localSubrIndex: topDict.privateDict.subrsIndex,
+        globalSubrIndex: globalSubrIndex.obj,
+        fdSelect: cff.fdSelect,
+        fdArray: cff.fdArray,
+        privateDict: topDict.privateDict
+      });
       cff.charStrings = charStringsAndSeacs.charStrings;
       cff.seacs = charStringsAndSeacs.seacs;
       cff.widths = charStringsAndSeacs.widths;
@@ -305,8 +312,9 @@ var CFFParser = function CFFParserClosure() {
         ++offset;
       }
       if (offset >= bytesLength) {
-        (0, _util.error)('Invalid CFF header');
-      } else if (offset !== 0) {
+        throw new _util.FormatError('Invalid CFF header');
+      }
+      if (offset !== 0) {
         (0, _util.info)('cff data is shifted');
         bytes = bytes.subarray(offset);
         this.bytes = bytes;
@@ -585,7 +593,14 @@ var CFFParser = function CFFParserClosure() {
       state.stackSize = stackSize;
       return true;
     },
-    parseCharStrings: function CFFParser_parseCharStrings(charStrings, localSubrIndex, globalSubrIndex, fdSelect, fdArray) {
+    parseCharStrings: function parseCharStrings(_ref) {
+      var charStrings = _ref.charStrings,
+          localSubrIndex = _ref.localSubrIndex,
+          globalSubrIndex = _ref.globalSubrIndex,
+          fdSelect = _ref.fdSelect,
+          fdArray = _ref.fdArray,
+          privateDict = _ref.privateDict;
+
       var seacs = [];
       var widths = [];
       var count = charStrings.count;
@@ -603,6 +618,7 @@ var CFFParser = function CFFParserClosure() {
         };
         var valid = true;
         var localSubrToUse = null;
+        var privateDictToUse = privateDict;
         if (fdSelect && fdArray.length) {
           var fdIndex = fdSelect.getFDIndex(i);
           if (fdIndex === -1) {
@@ -614,7 +630,8 @@ var CFFParser = function CFFParserClosure() {
             valid = false;
           }
           if (valid) {
-            localSubrToUse = fdArray[fdIndex].privateDict.subrsIndex;
+            privateDictToUse = fdArray[fdIndex].privateDict;
+            localSubrToUse = privateDictToUse.subrsIndex;
           }
         } else if (localSubrIndex) {
           localSubrToUse = localSubrIndex;
@@ -623,7 +640,11 @@ var CFFParser = function CFFParserClosure() {
           valid = this.parseCharString(state, charstring, localSubrToUse, globalSubrIndex);
         }
         if (state.width !== null) {
-          widths[i] = state.width;
+          var nominalWidth = privateDictToUse.getByName('nominalWidthX');
+          widths[i] = nominalWidth + state.width;
+        } else {
+          var defaultWidth = privateDictToUse.getByName('defaultWidthX');
+          widths[i] = defaultWidth;
         }
         if (state.seac !== null) {
           seacs[i] = state.seac;
@@ -638,6 +659,7 @@ var CFFParser = function CFFParserClosure() {
         widths: widths
       };
     },
+
     emptyPrivateDictionary: function CFFParser_emptyPrivateDictionary(parentDict) {
       var privateDict = this.createDict(CFFPrivateDict, [], parentDict.strings);
       parentDict.setByKey(18, [0, 0]);
@@ -716,7 +738,7 @@ var CFFParser = function CFFParserClosure() {
           }
           break;
         default:
-          (0, _util.error)('Unknown charset format');
+          throw new _util.FormatError('Unknown charset format');
       }
       var end = pos;
       var raw = bytes.subarray(start, end);
@@ -768,8 +790,7 @@ var CFFParser = function CFFParserClosure() {
             }
             break;
           default:
-            (0, _util.error)('Unknown encoding format: ' + format + ' in CFF');
-            break;
+            throw new _util.FormatError('Unknown encoding format: ' + format + ' in CFF');
         }
         var dataEnd = pos;
         if (format & 0x80) {
@@ -819,10 +840,11 @@ var CFFParser = function CFFParserClosure() {
           }
           break;
         default:
-          (0, _util.error)('parseFDSelect: Unknown format "' + format + '".');
-          break;
+          throw new _util.FormatError('parseFDSelect: Unknown format "' + format + '".');
       }
-      (0, _util.assert)(fdSelect.length === length, 'parseFDSelect: Invalid font data.');
+      if (fdSelect.length !== length) {
+        throw new _util.FormatError('parseFDSelect: Invalid font data.');
+      }
       return new CFFFDSelect(fdSelect, rawBytes);
     }
   };
@@ -934,7 +956,7 @@ var CFFDict = function CFFDictClosure() {
     },
     setByName: function CFFDict_setByName(name, value) {
       if (!(name in this.nameToKeyMap)) {
-        (0, _util.error)('Invalid dictionary name "' + name + '"');
+        throw new _util.FormatError('Invalid dictionary name "' + name + '"');
       }
       this.values[this.nameToKeyMap[name]] = value;
     },
@@ -943,7 +965,7 @@ var CFFDict = function CFFDictClosure() {
     },
     getByName: function CFFDict_getByName(name) {
       if (!(name in this.nameToKeyMap)) {
-        (0, _util.error)('Invalid dictionary name "' + name + '"');
+        throw new _util.FormatError('Invalid dictionary name ' + name + '"');
       }
       var key = this.nameToKeyMap[name];
       if (!(key in this.values)) {
@@ -1052,7 +1074,7 @@ var CFFOffsetTracker = function CFFOffsetTrackerClosure() {
     },
     track: function CFFOffsetTracker_track(key, location) {
       if (key in this.offsets) {
-        (0, _util.error)('Already tracking location of ' + key);
+        throw new _util.FormatError('Already tracking location of ' + key);
       }
       this.offsets[key] = location;
     },
@@ -1063,7 +1085,7 @@ var CFFOffsetTracker = function CFFOffsetTrackerClosure() {
     },
     setEntryLocation: function CFFOffsetTracker_setEntryLocation(key, values, output) {
       if (!(key in this.offsets)) {
-        (0, _util.error)('Not tracking location of ' + key);
+        throw new _util.FormatError('Not tracking location of ' + key);
       }
       var data = output.data;
       var dataOffset = this.offsets[key];
@@ -1075,7 +1097,7 @@ var CFFOffsetTracker = function CFFOffsetTrackerClosure() {
         var offset3 = offset0 + 3;
         var offset4 = offset0 + 4;
         if (data[offset0] !== 0x1d || data[offset1] !== 0 || data[offset2] !== 0 || data[offset3] !== 0 || data[offset4] !== 0) {
-          (0, _util.error)('writing to an offset that is not empty');
+          throw new _util.FormatError('writing to an offset that is not empty');
         }
         var value = values[i];
         data[offset0] = 0x1d;
@@ -1251,8 +1273,10 @@ var CFFCompiler = function CFFCompilerClosure() {
     compilePrivateDicts: function CFFCompiler_compilePrivateDicts(dicts, trackers, output) {
       for (var i = 0, ii = dicts.length; i < ii; ++i) {
         var fontDict = dicts[i];
-        (0, _util.assert)(fontDict.privateDict && fontDict.hasName('Private'), 'There must be an private dictionary.');
         var privateDict = fontDict.privateDict;
+        if (!privateDict || !fontDict.hasName('Private')) {
+          throw new _util.FormatError('There must be a private dictionary.');
+        }
         var privateDictTracker = new CFFOffsetTracker();
         var privateDictData = this.compileDict(privateDict, privateDictTracker);
         var outputLength = output.length;
@@ -1311,8 +1335,7 @@ var CFFCompiler = function CFFCompilerClosure() {
               }
               break;
             default:
-              (0, _util.error)('Unknown data type of ' + type);
-              break;
+              throw new _util.FormatError('Unknown data type of ' + type);
           }
         }
         out = out.concat(dict.opcodes[key]);

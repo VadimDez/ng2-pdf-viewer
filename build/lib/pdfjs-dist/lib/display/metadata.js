@@ -17,10 +17,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Metadata = undefined;
-
-var _util = require('../shared/util');
-
 function fixMetadata(meta) {
   return meta.replace(/>\\376\\377([^<]+)/g, function (all, codes) {
     var bytes = codes.replace(/\\([0-3])([0-7])([0-7])/g, function (code, d1, d2, d3) {
@@ -40,7 +36,7 @@ function Metadata(meta) {
     var parser = new DOMParser();
     meta = parser.parseFromString(meta, 'application/xml');
   } else if (!(meta instanceof Document)) {
-    (0, _util.error)('Metadata: Invalid metadata object');
+    throw new Error('Metadata: Invalid metadata object');
   }
   this.metaDocument = meta;
   this.metadata = Object.create(null);

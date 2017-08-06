@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -5,7 +6,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // Metadata Schema
 // If you make a backwards incompatible change to the schema, increment the VERSION number.
 // If you make a backwards compatible change to the metadata (such as adding an option field) then
@@ -21,6 +22,10 @@ function isClassMetadata(value) {
     return value && value.__symbolic === 'class';
 }
 exports.isClassMetadata = isClassMetadata;
+function isInterfaceMetadata(value) {
+    return value && value.__symbolic === 'interface';
+}
+exports.isInterfaceMetadata = isInterfaceMetadata;
 function isMemberMetadata(value) {
     if (value) {
         switch (value.__symbolic) {

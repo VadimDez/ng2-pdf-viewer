@@ -16,33 +16,9 @@
 
 var _primitives = require('../../core/primitives');
 
+var _test_utils = require('./test_utils');
+
 describe('primitives', function () {
-  function XRefMock(array) {
-    this.map = Object.create(null);
-    for (var elem in array) {
-      var obj = array[elem];
-      var ref = obj.ref,
-          data = obj.data;
-      this.map[ref.toString()] = data;
-    }
-  }
-  XRefMock.prototype = {
-    fetch: function fetch(ref) {
-      return this.map[ref.toString()];
-    },
-    fetchIfRef: function fetchIfRef(obj) {
-      if (!(0, _primitives.isRef)(obj)) {
-        return obj;
-      }
-      return this.fetch(obj);
-    },
-    fetchAsync: function fetchAsync(ref) {
-      return Promise.resolve(this.fetch(ref));
-    },
-    fetchIfRefAsync: function fetchIfRefAsync(obj) {
-      return Promise.resolve(this.fetchIfRef(obj));
-    }
-  };
   describe('Name', function () {
     it('should retain the given name', function () {
       var givenName = 'Font';
@@ -165,7 +141,7 @@ describe('primitives', function () {
     });
     it('should handle keys pointing to indirect objects, both sync and async', function (done) {
       var fontRef = new _primitives.Ref(1, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: fontRef,
         data: testFontFile
       }]);
@@ -185,7 +161,7 @@ describe('primitives', function () {
           maxCoordRef = new _primitives.Ref(2, 0);
       var minCoord = 0,
           maxCoord = 1;
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: minCoordRef,
         data: minCoord
       }, {

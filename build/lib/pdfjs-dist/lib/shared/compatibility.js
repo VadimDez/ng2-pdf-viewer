@@ -665,6 +665,22 @@ if (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked) {
       }
     };
   })();
+  (function checkNumberIsNaN() {
+    if (Number.isNaN) {
+      return;
+    }
+    Number.isNaN = function (value) {
+      return typeof value === 'number' && isNaN(value);
+    };
+  })();
+  (function checkNumberIsInteger() {
+    if (Number.isInteger) {
+      return;
+    }
+    Number.isInteger = function (value) {
+      return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+    };
+  })();
   (function checkPromise() {
     if (globalScope.Promise) {
       if (typeof globalScope.Promise.all !== 'function') {

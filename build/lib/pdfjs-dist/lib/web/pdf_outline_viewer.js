@@ -28,14 +28,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var DEFAULT_TITLE = '\u2013';
 
 var PDFOutlineViewer = function () {
-  function PDFOutlineViewer(options) {
+  function PDFOutlineViewer(_ref) {
+    var container = _ref.container,
+        linkService = _ref.linkService,
+        eventBus = _ref.eventBus;
+
     _classCallCheck(this, PDFOutlineViewer);
 
     this.outline = null;
     this.lastToggleIsShow = true;
-    this.container = options.container;
-    this.linkService = options.linkService;
-    this.eventBus = options.eventBus;
+    this.container = container;
+    this.linkService = linkService;
+    this.eventBus = eventBus;
   }
 
   _createClass(PDFOutlineViewer, [{
@@ -125,15 +129,14 @@ var PDFOutlineViewer = function () {
     }
   }, {
     key: 'render',
-    value: function render() {
-      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    value: function render(_ref2) {
+      var outline = _ref2.outline;
 
-      var outline = params.outline || null;
       var outlineCount = 0;
       if (this.outline) {
         this.reset();
       }
-      this.outline = outline;
+      this.outline = outline || null;
       if (!outline) {
         this._dispatchEvent(outlineCount);
         return;

@@ -20,6 +20,8 @@ export declare class CodeGenerator {
     private compiler;
     private ngCompilerHost;
     constructor(options: AngularCompilerOptions, program: ts.Program, host: ts.CompilerHost, compiler: compiler.AotCompiler, ngCompilerHost: CompilerHost);
-    codegen(): Promise<any>;
+    codegen(): Promise<string[]>;
+    codegenSync(): string[];
+    private emit(analyzedModules);
     static create(options: AngularCompilerOptions, cliOptions: NgcCliOptions, program: ts.Program, tsCompilerHost: ts.CompilerHost, compilerHostContext?: CompilerHostContext, ngCompilerHost?: CompilerHost): CodeGenerator;
 }

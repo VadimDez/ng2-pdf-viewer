@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, OnDestroy, Provider, Renderer } from '@angular/core';
+import { ElementRef, OnDestroy, Provider, Renderer2 } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
 export declare const SELECT_VALUE_ACCESSOR: Provider;
 /**
@@ -37,6 +37,31 @@ export declare const SELECT_VALUE_ACCESSOR: Provider;
  *
  * {@example forms/ts/reactiveSelectControl/reactive_select_control_example.ts region='Component'}
  *
+ * ### Caveat: Option selection
+ *
+ * Angular uses object identity to select option. It's possible for the identities of items
+ * to change while the data does not. This can happen, for example, if the items are produced
+ * from an RPC to the server, and that RPC is re-run. Even if the data hasn't changed, the
+ * second response will produce objects with different identities.
+ *
+ * To customize the default option comparison algorithm, `<select>` supports `compareWith` input.
+ * `compareWith` takes a **function** which has two arguments: `option1` and `option2`.
+ * If `compareWith` is given, Angular selects option by the return value of the function.
+ *
+ * #### Syntax
+ *
+ * ```
+ * <select [compareWith]="compareFn"  [(ngModel)]="selectedCountries">
+ *     <option *ngFor="let country of countries" [ngValue]="country">
+ *         {{country.name}}
+ *     </option>
+ * </select>
+ *
+ * compareFn(c1: Country, c2: Country): boolean {
+ *     return c1 && c2 ? c1.id === c2.id : c1 === c2;
+ * }
+ * ```
+ *
  * Note: We listen to the 'change' event because 'input' events aren't fired
  * for selects in Firefox and IE:
  * https://bugzilla.mozilla.org/show_bug.cgi?id=1024350
@@ -52,7 +77,9 @@ export declare class SelectControlValueAccessor implements ControlValueAccessor 
     value: any;
     onChange: (_: any) => void;
     onTouched: () => void;
-    constructor(_renderer: Renderer, _elementRef: ElementRef);
+    compareWith: (o1: any, o2: any) => boolean;
+    private _compareWith;
+    constructor(_renderer: Renderer2, _elementRef: ElementRef);
     writeValue(value: any): void;
     registerOnChange(fn: (value: any) => any): void;
     registerOnTouched(fn: () => any): void;
@@ -72,7 +99,7 @@ export declare class NgSelectOption implements OnDestroy {
     private _renderer;
     private _select;
     id: string;
-    constructor(_element: ElementRef, _renderer: Renderer, _select: SelectControlValueAccessor);
+    constructor(_element: ElementRef, _renderer: Renderer2, _select: SelectControlValueAccessor);
     ngValue: any;
     value: any;
     ngOnDestroy(): void;

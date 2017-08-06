@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -37,13 +38,19 @@ var MetadataBundler = (function () {
             module: s.declaration.module
         }); });
         var origins = Array.from(this.symbolMap.values())
-            .filter(function (s) { return s.referenced; })
+            .filter(function (s) { return s.referenced && !s.reexport; })
             .reduce(function (p, s) {
             p[s.isPrivate ? s.privateName : s.name] = s.declaration.module;
             return p;
         }, {});
+        var exports = this.getReExports(exportedSymbols);
         return {
-            metadata: { __symbolic: 'module', version: schema_1.VERSION, metadata: metadata, origins: origins, importAs: this.importAs },
+            metadata: {
+                __symbolic: 'module',
+                version: schema_1.VERSION,
+                exports: exports.length ? exports : undefined, metadata: metadata, origins: origins,
+                importAs: this.importAs
+            },
             privates: privates
         };
     };
@@ -98,26 +105,41 @@ var MetadataBundler = (function () {
                 var exportDeclaration = _a[_i];
                 var exportFrom = resolveModule(exportDeclaration.from, moduleName);
                 // Record all the exports from the module even if we don't use it directly.
-                this.exportAll(exportFrom);
+                var exportedSymbols = this.exportAll(exportFrom);
                 if (exportDeclaration.export) {
                     // Re-export all the named exports from a module.
                     for (var _b = 0, _c = exportDeclaration.export; _b < _c.length; _b++) {
                         var exportItem = _c[_b];
                         var name_1 = typeof exportItem == 'string' ? exportItem : exportItem.name;
                         var exportAs = typeof exportItem == 'string' ? exportItem : exportItem.as;
+                        var symbol = this.symbolOf(exportFrom, name_1);
+                        if (exportedSymbols && exportedSymbols.length == 1 && exportedSymbols[0].reexport &&
+                            exportedSymbols[0].name == '*') {
+                            // This is a named export from a module we have no metadata about. Record the named
+                            // export as a re-export.
+                            symbol.reexport = true;
+                        }
                         exportSymbol(this.symbolOf(exportFrom, name_1), exportAs);
                     }
                 }
                 else {
                     // Re-export all the symbols from the module
-                    var exportedSymbols = this.exportAll(exportFrom);
-                    for (var _d = 0, exportedSymbols_1 = exportedSymbols; _d < exportedSymbols_1.length; _d++) {
-                        var exportedSymbol = exportedSymbols_1[_d];
+                    var exportedSymbols_1 = this.exportAll(exportFrom);
+                    for (var _d = 0, exportedSymbols_2 = exportedSymbols_1; _d < exportedSymbols_2.length; _d++) {
+                        var exportedSymbol = exportedSymbols_2[_d];
                         var name_2 = exportedSymbol.name;
                         exportSymbol(exportedSymbol, name_2);
                     }
                 }
             }
+        }
+        if (!module) {
+            // If no metadata is found for this import then it is considered external to the
+            // library and should be recorded as a re-export in the final metadata if it is
+            // eventually re-exported.
+            var symbol = this.symbolOf(moduleName, '*');
+            symbol.reexport = true;
+            result.push(symbol);
         }
         this.exports.set(moduleName, result);
         return result;
@@ -140,6 +162,7 @@ var MetadataBundler = (function () {
         symbol.isPrivate = isPrivate;
         symbol.declaration = declaration;
         symbol.canonicalSymbol = canonicalSymbol;
+        symbol.reexport = declaration.reexport;
     };
     MetadataBundler.prototype.getEntries = function (exportedSymbols) {
         var _this = this;
@@ -163,7 +186,7 @@ var MetadataBundler = (function () {
         }
         exportedSymbols.forEach(function (symbol) { return _this.convertSymbol(symbol); });
         Array.from(this.symbolMap.values()).forEach(function (symbol) {
-            if (symbol.referenced) {
+            if (symbol.referenced && !symbol.reexport) {
                 var name_3 = symbol.name;
                 if (symbol.isPrivate && !symbol.privateName) {
                     name_3 = newPrivateName();
@@ -174,14 +197,44 @@ var MetadataBundler = (function () {
         });
         return result;
     };
+    MetadataBundler.prototype.getReExports = function (exportedSymbols) {
+        var modules = new Map();
+        var exportAlls = new Set();
+        for (var _i = 0, exportedSymbols_3 = exportedSymbols; _i < exportedSymbols_3.length; _i++) {
+            var symbol = exportedSymbols_3[_i];
+            if (symbol.reexport) {
+                var declaration = symbol.declaration;
+                var module_1 = declaration.module;
+                if (declaration.name == '*') {
+                    // Reexport all the symbols.
+                    exportAlls.add(declaration.module);
+                }
+                else {
+                    // Re-export the symbol as the exported name.
+                    var entry = modules.get(module_1);
+                    if (!entry) {
+                        entry = [];
+                        modules.set(module_1, entry);
+                    }
+                    var as = symbol.name;
+                    var name_4 = declaration.name;
+                    entry.push({ name: name_4, as: as });
+                }
+            }
+        }
+        return Array.from(exportAlls.values()).map(function (from) { return ({ from: from }); }).concat(Array.from(modules.entries()).map(function (_a) {
+            var from = _a[0], exports = _a[1];
+            return ({ export: exports, from: from });
+        }));
+    };
     MetadataBundler.prototype.convertSymbol = function (symbol) {
         var canonicalSymbol = symbol.canonicalSymbol;
         if (!canonicalSymbol.referenced) {
             canonicalSymbol.referenced = true;
             var declaration = canonicalSymbol.declaration;
-            var module_1 = this.getMetadata(declaration.module);
-            if (module_1) {
-                var value = module_1.metadata[declaration.name];
+            var module_2 = this.getMetadata(declaration.module);
+            if (module_2) {
+                var value = module_2.metadata[declaration.name];
                 if (value && !declaration.name.startsWith('___')) {
                     canonicalSymbol.value = this.convertEntry(declaration.module, value);
                 }
@@ -214,9 +267,9 @@ var MetadataBundler = (function () {
     MetadataBundler.prototype.convertMembers = function (moduleName, members) {
         var _this = this;
         var result = {};
-        for (var name_4 in members) {
-            var value = members[name_4];
-            result[name_4] = value.map(function (v) { return _this.convertMember(moduleName, v); });
+        for (var name_5 in members) {
+            var value = members[name_5];
+            result[name_5] = value.map(function (v) { return _this.convertMember(moduleName, v); });
         }
         return result;
     };

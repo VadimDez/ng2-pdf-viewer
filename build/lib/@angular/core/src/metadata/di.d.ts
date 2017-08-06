@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OpaqueToken } from '../di/opaque_token';
+import { InjectionToken } from '../di/injection_token';
 import { Type } from '../type';
 /**
  * This token can be used to create a virtual provider that will populate the
@@ -41,7 +41,7 @@ import { Type } from '../type';
  *
  * @experimental
  */
-export declare const ANALYZE_FOR_ENTRY_COMPONENTS: OpaqueToken;
+export declare const ANALYZE_FOR_ENTRY_COMPONENTS: InjectionToken<any>;
 /**
  * Type of the Attribute decorator / constructor function.
  *
@@ -175,11 +175,11 @@ export interface ContentChildrenDecorator {
      * @stable
      * @Annotation
      */
-    (selector: Type<any> | Function | string, {descendants, read}?: {
+    (selector: Type<any> | Function | string, opts?: {
         descendants?: boolean;
         read?: any;
     }): any;
-    new (selector: Type<any> | Function | string, {descendants, read}?: {
+    new (selector: Type<any> | Function | string, opts?: {
         descendants?: boolean;
         read?: any;
     }): Query;
@@ -234,10 +234,10 @@ export interface ContentChildDecorator {
      * @stable
      * @Annotation
      */
-    (selector: Type<any> | Function | string, {read}?: {
+    (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): any;
-    new (selector: Type<any> | Function | string, {read}?: {
+    new (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): ContentChild;
 }
@@ -259,7 +259,7 @@ export declare const ContentChild: ContentChildDecorator;
 /**
  * Type of the ViewChildren decorator / constructor function.
  *
- * See {@ViewChildren}.
+ * See {@link ViewChildren}.
  *
  * @stable
  */
@@ -293,10 +293,10 @@ export interface ViewChildrenDecorator {
      * @stable
      * @Annotation
      */
-    (selector: Type<any> | Function | string, {read}?: {
+    (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): any;
-    new (selector: Type<any> | Function | string, {read}?: {
+    new (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): ViewChildren;
 }
@@ -348,10 +348,10 @@ export interface ViewChildDecorator {
      * @stable
      * @Annotation
      */
-    (selector: Type<any> | Function | string, {read}?: {
+    (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): any;
-    new (selector: Type<any> | Function | string, {read}?: {
+    new (selector: Type<any> | Function | string, opts?: {
         read?: any;
     }): ViewChild;
 }

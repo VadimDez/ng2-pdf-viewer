@@ -19,6 +19,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PDFPrintServiceFactory = exports.DefaultExternalServices = exports.PDFViewerApplication = undefined;
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _ui_utils = require('./ui_utils');
 
 var _pdf = require('../pdf');
@@ -127,6 +129,7 @@ var PDFViewerApplication = {
     pdfBugEnabled: false,
     showPreviousViewOnLoad: true,
     defaultZoomValue: '',
+    disablePageMode: false,
     disablePageLabels: false,
     renderer: 'canvas',
     enhanceTextSelection: false,
@@ -210,6 +213,8 @@ var PDFViewerApplication = {
       viewerPrefs['renderer'] = value;
     }), preferences.get('renderInteractiveForms').then(function resolved(value) {
       viewerPrefs['renderInteractiveForms'] = value;
+    }), preferences.get('disablePageMode').then(function resolved(value) {
+      viewerPrefs['disablePageMode'] = value;
     }), preferences.get('disablePageLabels').then(function resolved(value) {
       viewerPrefs['disablePageLabels'] = value;
     }), preferences.get('enablePrintAutoRotate').then(function resolved(value) {
@@ -596,6 +601,9 @@ var PDFViewerApplication = {
   progress: function progress(level) {
     var _this5 = this;
 
+    if (this.downloadComplete) {
+      return;
+    }
     var percent = Math.round(level * 100);
     if (percent > this.loadingBar.percent || isNaN(percent)) {
       this.loadingBar.percent = percent;
@@ -624,6 +632,7 @@ var PDFViewerApplication = {
         _this6.eventBus.dispatch('documentload', { source: _this6 });
       });
     });
+    var pageModePromise = pdfDocument.getPageMode().catch(function () {});
     this.toolbar.setPagesCount(pdfDocument.numPages, false);
     this.secondaryToolbar.setPagesCount(pdfDocument.numPages);
     var id = this.documentFingerprint = pdfDocument.fingerprint;
@@ -657,35 +666,42 @@ var PDFViewerApplication = {
         bookmark: _this6.initialBookmark,
         hash: null
       };
-      var storedHash = _this6.viewerPrefs['defaultZoomValue'] ? 'zoom=' + _this6.viewerPrefs['defaultZoomValue'] : null;
-      var sidebarView = _this6.viewerPrefs['sidebarViewOnLoad'];
-      new Promise(function (resolve, reject) {
-        if (!_this6.viewerPrefs['showPreviousViewOnLoad']) {
-          resolve();
-          return;
+      var storePromise = store.getMultiple({
+        exists: false,
+        page: '1',
+        zoom: _ui_utils.DEFAULT_SCALE_VALUE,
+        scrollLeft: '0',
+        scrollTop: '0',
+        sidebarView: _pdf_sidebar.SidebarView.NONE
+      }).catch(function () {});
+      Promise.all([storePromise, pageModePromise]).then(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            _ref3$ = _ref3[0],
+            values = _ref3$ === undefined ? {} : _ref3$,
+            pageMode = _ref3[1];
+
+        var hash = _this6.viewerPrefs['defaultZoomValue'] ? 'zoom=' + _this6.viewerPrefs['defaultZoomValue'] : null;
+        var sidebarView = _this6.viewerPrefs['sidebarViewOnLoad'];
+        if (values.exists && _this6.viewerPrefs['showPreviousViewOnLoad']) {
+          hash = 'page=' + values.page + '&zoom=' + (_this6.viewerPrefs['defaultZoomValue'] || values.zoom) + ',' + values.scrollLeft + ',' + values.scrollTop;
+          sidebarView = sidebarView || values.sidebarView | 0;
         }
-        store.getMultiple({
-          exists: false,
-          page: '1',
-          zoom: _ui_utils.DEFAULT_SCALE_VALUE,
-          scrollLeft: '0',
-          scrollTop: '0',
-          sidebarView: _pdf_sidebar.SidebarView.NONE
-        }).then(function (values) {
-          if (!values.exists) {
-            resolve();
-            return;
-          }
-          storedHash = 'page=' + values.page + '&zoom=' + (_this6.viewerPrefs['defaultZoomValue'] || values.zoom) + ',' + values.scrollLeft + ',' + values.scrollTop;
-          sidebarView = _this6.viewerPrefs['sidebarViewOnLoad'] || values.sidebarView | 0;
-          resolve();
-        }).catch(resolve);
-      }).then(function () {
-        _this6.setInitialView(storedHash, {
+        if (pageMode && !_this6.viewerPrefs['disablePageMode']) {
+          sidebarView = sidebarView || apiPageModeToSidebarView(pageMode);
+        }
+        return {
+          hash: hash,
+          sidebarView: sidebarView
+        };
+      }).then(function (_ref4) {
+        var hash = _ref4.hash,
+            sidebarView = _ref4.sidebarView;
+
+        _this6.setInitialView(hash, {
           sidebarView: sidebarView,
           scale: scale
         });
-        initialParams.hash = storedHash;
+        initialParams.hash = hash;
         if (!_this6.isViewerEmbedded) {
           pdfViewer.focus();
         }
@@ -694,13 +710,15 @@ var PDFViewerApplication = {
         if (!initialParams.destination && !initialParams.bookmark && !initialParams.hash) {
           return;
         }
-        if (_this6.hasEqualPageSizes) {
+        if (pdfViewer.hasEqualPageSizes) {
           return;
         }
         _this6.initialDestination = initialParams.destination;
         _this6.initialBookmark = initialParams.bookmark;
         pdfViewer.currentScaleValue = pdfViewer.currentScaleValue;
         _this6.setInitialView(initialParams.hash);
+      }).then(function () {
+        pdfViewer.update();
       });
     });
     pdfDocument.getPageLabels().then(function (labels) {
@@ -753,9 +771,9 @@ var PDFViewerApplication = {
         _this6.pdfAttachmentViewer.render({ attachments: attachments });
       });
     });
-    pdfDocument.getMetadata().then(function (_ref2) {
-      var info = _ref2.info,
-          metadata = _ref2.metadata;
+    pdfDocument.getMetadata().then(function (_ref5) {
+      var info = _ref5.info,
+          metadata = _ref5.metadata;
 
       _this6.documentInfo = info;
       _this6.metadata = metadata;
@@ -848,16 +866,6 @@ var PDFViewerApplication = {
     printService.layout();
   },
 
-  get hasEqualPageSizes() {
-    var firstPage = this.pdfViewer.getPageView(0);
-    for (var i = 1, ii = this.pagesCount; i < ii; ++i) {
-      var pageView = this.pdfViewer.getPageView(i);
-      if (pageView.width !== firstPage.width || pageView.height !== firstPage.height) {
-        return false;
-      }
-    }
-    return true;
-  },
   afterPrint: function pdfViewSetupAfterPrint() {
     if (this.printService) {
       this.printService.destroy();
@@ -1015,6 +1023,9 @@ var validateFileURL = void 0;
 {
   var HOSTED_VIEWER_ORIGINS = ['null', 'http://mozilla.github.io', 'https://mozilla.github.io'];
   validateFileURL = function validateFileURL(file) {
+    if (file === undefined) {
+      return;
+    }
     try {
       var viewerOrigin = new URL(window.location.href).origin || 'null';
       if (HOSTED_VIEWER_ORIGINS.indexOf(viewerOrigin) >= 0) {
@@ -1271,13 +1282,17 @@ function webViewerUpdateViewarea(evt) {
   PDFViewerApplication.toolbar.updateLoadingIndicatorState(loading);
 }
 function webViewerResize() {
-  var currentScaleValue = PDFViewerApplication.pdfViewer.currentScaleValue;
-  if (currentScaleValue === 'auto' || currentScaleValue === 'page-fit' || currentScaleValue === 'page-width') {
-    PDFViewerApplication.pdfViewer.currentScaleValue = currentScaleValue;
-  } else if (!currentScaleValue) {
-    PDFViewerApplication.pdfViewer.currentScaleValue = _ui_utils.DEFAULT_SCALE_VALUE;
+  var pdfDocument = PDFViewerApplication.pdfDocument,
+      pdfViewer = PDFViewerApplication.pdfViewer;
+
+  if (!pdfDocument) {
+    return;
   }
-  PDFViewerApplication.pdfViewer.update();
+  var currentScaleValue = pdfViewer.currentScaleValue;
+  if (currentScaleValue === 'auto' || currentScaleValue === 'page-fit' || currentScaleValue === 'page-width') {
+    pdfViewer.currentScaleValue = currentScaleValue;
+  }
+  pdfViewer.update();
 }
 function webViewerHashchange(evt) {
   if (PDFViewerApplication.pdfHistory.isHashChangeUnlocked) {
@@ -1677,6 +1692,20 @@ function webViewerKeyDown(evt) {
   if (handled) {
     evt.preventDefault();
   }
+}
+function apiPageModeToSidebarView(mode) {
+  switch (mode) {
+    case 'UseNone':
+      return _pdf_sidebar.SidebarView.NONE;
+    case 'UseThumbs':
+      return _pdf_sidebar.SidebarView.THUMBS;
+    case 'UseOutlines':
+      return _pdf_sidebar.SidebarView.OUTLINE;
+    case 'UseAttachments':
+      return _pdf_sidebar.SidebarView.ATTACHMENTS;
+    case 'UseOC':
+  }
+  return _pdf_sidebar.SidebarView.NONE;
 }
 var PDFPrintServiceFactory = {
   instance: {

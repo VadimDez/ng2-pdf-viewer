@@ -56,7 +56,7 @@ export declare class TestBed implements Injector {
      *
      * @experimental
      */
-    static initTestEnvironment(ngModule: Type<any> | Type<any>[], platform: PlatformRef): TestBed;
+    static initTestEnvironment(ngModule: Type<any> | Type<any>[], platform: PlatformRef, aotSummaries?: () => any[]): TestBed;
     /**
      * Reset the providers for the test injector.
      *
@@ -88,12 +88,22 @@ export declare class TestBed implements Injector {
     static overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): typeof TestBed;
     static overridePipe(pipe: Type<any>, override: MetadataOverride<Pipe>): typeof TestBed;
     static overrideTemplate(component: Type<any>, template: string): typeof TestBed;
+    /**
+     * Overwrites all providers for the given token with the given provider definition.
+     */
+    static overrideProvider(token: any, provider: {
+        useFactory: Function;
+        deps: any[];
+    }): void;
+    static overrideProvider(token: any, provider: {
+        useValue: any;
+    }): void;
     static get(token: any, notFoundValue?: any): any;
     static createComponent<T>(component: Type<T>): ComponentFixture<T>;
     private _instantiated;
     private _compiler;
     private _moduleRef;
-    private _moduleWithComponentFactories;
+    private _moduleFactory;
     private _compilerOptions;
     private _moduleOverrides;
     private _componentOverrides;
@@ -104,6 +114,9 @@ export declare class TestBed implements Injector {
     private _imports;
     private _schemas;
     private _activeFixtures;
+    private _aotSummaries;
+    platform: PlatformRef;
+    ngModule: Type<any> | Type<any>[];
     /**
      * Initialize the environment for testing with a compiler factory, a PlatformRef, and an
      * angular module. These are common to every test in the suite.
@@ -117,7 +130,7 @@ export declare class TestBed implements Injector {
      *
      * @experimental
      */
-    initTestEnvironment(ngModule: Type<any> | Type<any>[], platform: PlatformRef): void;
+    initTestEnvironment(ngModule: Type<any> | Type<any>[], platform: PlatformRef, aotSummaries?: () => any[]): void;
     /**
      * Reset the providers for the test injector.
      *
@@ -125,8 +138,6 @@ export declare class TestBed implements Injector {
      */
     resetTestEnvironment(): void;
     resetTestingModule(): void;
-    platform: PlatformRef;
-    ngModule: Type<any> | Type<any>[];
     configureCompiler(config: {
         providers?: any[];
         useJit?: boolean;
@@ -142,6 +153,16 @@ export declare class TestBed implements Injector {
     overrideComponent(component: Type<any>, override: MetadataOverride<Component>): void;
     overrideDirective(directive: Type<any>, override: MetadataOverride<Directive>): void;
     overridePipe(pipe: Type<any>, override: MetadataOverride<Pipe>): void;
+    /**
+     * Overwrites all providers for the given token with the given provider definition.
+     */
+    overrideProvider(token: any, provider: {
+        useFactory: Function;
+        deps: any[];
+    }): void;
+    overrideProvider(token: any, provider: {
+        useValue: any;
+    }): void;
     createComponent<T>(component: Type<T>): ComponentFixture<T>;
 }
 /**

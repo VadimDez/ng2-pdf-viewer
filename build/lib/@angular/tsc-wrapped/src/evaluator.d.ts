@@ -55,5 +55,5 @@ export declare class Evaluator {
      * Produce a JSON serialiable object representing `node`. The foldable values in the expression
      * tree are folded. For example, a node representing `1 + 2` is folded into `3`.
      */
-    evaluateNode(node: ts.Node): MetadataValue;
+    evaluateNode(node: ts.Node, preferReference?: boolean): MetadataValue;
 }

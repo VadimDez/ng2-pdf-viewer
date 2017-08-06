@@ -50,7 +50,7 @@ export interface TypeProvider extends Type<any> {
  */
 export interface ValueProvider {
     /**
-     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     * An injection token. (Typically an instance of `Type` or `InjectionToken`, but can be `any`).
      */
     provide: any;
     /**
@@ -91,7 +91,7 @@ export interface ValueProvider {
  */
 export interface ClassProvider {
     /**
-     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     * An injection token. (Typically an instance of `Type` or `InjectionToken`, but can be `any`).
      */
     provide: any;
     /**
@@ -126,7 +126,7 @@ export interface ClassProvider {
  */
 export interface ExistingProvider {
     /**
-     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     * An injection token. (Typically an instance of `Type` or `InjectionToken`, but can be `any`).
      */
     provide: any;
     /**
@@ -167,7 +167,7 @@ export interface ExistingProvider {
  */
 export interface FactoryProvider {
     /**
-     * An injection token. (Typically an instance of `Type` or `OpaqueToken`, but can be `any`).
+     * An injection token. (Typically an instance of `Type` or `InjectionToken`, but can be `any`).
      */
     provide: any;
     /**

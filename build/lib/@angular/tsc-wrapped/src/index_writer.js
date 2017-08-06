@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -5,7 +6,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var INDEX_HEADER = "/**\n * Generated bundle index. Do not edit.\n */\n";
 function privateEntriesToIndex(index, privates) {
     var results = [INDEX_HEADER];

@@ -1,12 +1,13 @@
 /**
- * @license Angular v4.1.0
+ * @license Angular v4.3.3
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
-import { ApplicationRef, Inject, Injectable, InjectionToken, Injector, NgModule, NgZone, Optional, PLATFORM_ID, PLATFORM_INITIALIZER, RendererFactory2, Testability, Version, ViewEncapsulation, createPlatformFactory, platformCore, ɵALLOW_MULTIPLE_PLATFORMS, ɵglobal } from '@angular/core';
-import { BrowserModule, DOCUMENT, ɵDomAdapter, ɵNAMESPACE_URIS, ɵSharedStylesHost, ɵTRANSITION_ID, ɵflattenStyles, ɵgetDOM, ɵsetRootDomAdapter, ɵsetValueOnPath, ɵshimContentAttribute, ɵshimHostAttribute } from '@angular/platform-browser';
+import { ApplicationRef, Inject, Injectable, InjectionToken, Injector, NgModule, NgZone, Optional, PLATFORM_ID, PLATFORM_INITIALIZER, RendererFactory2, Testability, Version, ViewEncapsulation, createPlatformFactory, platformCore, ɵALLOW_MULTIPLE_PLATFORMS } from '@angular/core';
+import { BrowserModule, DOCUMENT, ɵDomAdapter, ɵNAMESPACE_URIS, ɵSharedStylesHost, ɵTRANSITION_ID, ɵflattenStyles, ɵgetDOM, ɵsetRootDomAdapter, ɵshimContentAttribute, ɵshimHostAttribute } from '@angular/platform-browser';
 import { ɵAnimationEngine } from '@angular/animations/browser';
 import { PlatformLocation, ɵPLATFORM_SERVER_ID } from '@angular/common';
+import { HTTP_INTERCEPTORS, HttpBackend, HttpClientModule, HttpHandler, XhrFactory, ɵinterceptingHandler } from '@angular/common/http';
 import { CssSelector, DomElementSchemaRegistry, SelectorMatcher, platformCoreDynamic } from '@angular/compiler';
 import { BrowserXhr, Http, HttpModule, ReadyState, RequestOptions, XHRBackend, XSRFStrategy } from '@angular/http';
 import { NoopAnimationsModule, ɵAnimationRendererFactory } from '@angular/platform-browser/animations';
@@ -104,41 +105,41 @@ ServerXsrfStrategy.decorators = [
  * @nocollapse
  */
 ServerXsrfStrategy.ctorParameters = () => [];
-class ZoneMacroTaskConnection {
+/**
+ * @abstract
+ */
+class ZoneMacroTaskWrapper {
     /**
      * @param {?} request
-     * @param {?} backend
+     * @return {?}
      */
-    constructor(request, backend) {
-        this.request = request;
-        validateRequestUrl(request.url);
-        this.response = new Observable((observer) => {
-            let task = null;
-            let scheduled = false;
-            let sub = null;
-            let savedResult = null;
-            let savedError = null;
-            const scheduleTask = (_task) => {
+    wrap(request) {
+        return new Observable((observer) => {
+            let /** @type {?} */ task = ((null));
+            let /** @type {?} */ scheduled = false;
+            let /** @type {?} */ sub = null;
+            let /** @type {?} */ savedResult = null;
+            let /** @type {?} */ savedError = null;
+            const /** @type {?} */ scheduleTask = (_task) => {
                 task = _task;
                 scheduled = true;
-                this.lastConnection = backend.createConnection(request);
-                sub = this.lastConnection.response
-                    .subscribe(res => savedResult = res, err => {
+                const /** @type {?} */ delegate = this.delegate(request);
+                sub = delegate.subscribe(res => savedResult = res, err => {
                     if (!scheduled) {
-                        throw new Error('invoke twice');
+                        throw new Error('An http observable was completed twice. This shouldn\'t happen, please file a bug.');
                     }
                     savedError = err;
                     scheduled = false;
                     task.invoke();
                 }, () => {
                     if (!scheduled) {
-                        throw new Error('invoke twice');
+                        throw new Error('An http observable was completed twice. This shouldn\'t happen, please file a bug.');
                     }
                     scheduled = false;
                     task.invoke();
                 });
             };
-            const cancelTask = (_task) => {
+            const /** @type {?} */ cancelTask = (_task) => {
                 if (!scheduled) {
                     return;
                 }
@@ -148,7 +149,7 @@ class ZoneMacroTaskConnection {
                     sub = null;
                 }
             };
-            const onComplete = () => {
+            const /** @type {?} */ onComplete = () => {
                 if (savedError !== null) {
                     observer.error(savedError);
                 }
@@ -157,10 +158,10 @@ class ZoneMacroTaskConnection {
                     observer.complete();
                 }
             };
-            // MockBackend is currently synchronous, which means that if scheduleTask is by
+            // MockBackend for Http is synchronous, which means that if scheduleTask is by
             // scheduleMacroTask, the request will hit MockBackend and the response will be
             // sent, causing task.invoke() to be called.
-            const _task = Zone.current.scheduleMacroTask('ZoneMacroTaskConnection.subscribe', onComplete, {}, () => null, cancelTask);
+            const /** @type {?} */ _task = Zone.current.scheduleMacroTask('ZoneMacroTaskWrapper.subscribe', onComplete, {}, () => null, cancelTask);
             scheduleTask(_task);
             return () => {
                 if (scheduled && task) {
@@ -173,6 +174,33 @@ class ZoneMacroTaskConnection {
                 }
             };
         });
+    }
+    /**
+     * @abstract
+     * @param {?} request
+     * @return {?}
+     */
+    delegate(request) { }
+}
+class ZoneMacroTaskConnection extends ZoneMacroTaskWrapper {
+    /**
+     * @param {?} request
+     * @param {?} backend
+     */
+    constructor(request, backend) {
+        super();
+        this.request = request;
+        this.backend = backend;
+        validateRequestUrl(request.url);
+        this.response = this.wrap(request);
+    }
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    delegate(request) {
+        this.lastConnection = this.backend.createConnection(request);
+        return (this.lastConnection.response);
     }
     /**
      * @return {?}
@@ -196,6 +224,27 @@ class ZoneMacroTaskBackend {
         return new ZoneMacroTaskConnection(request, this.backend);
     }
 }
+class ZoneClientBackend extends ZoneMacroTaskWrapper {
+    /**
+     * @param {?} backend
+     */
+    constructor(backend) {
+        super();
+        this.backend = backend;
+    }
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    handle(request) { return this.wrap(request); }
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    delegate(request) {
+        return this.backend.handle(request);
+    }
+}
 /**
  * @param {?} xhrBackend
  * @param {?} options
@@ -205,10 +254,23 @@ function httpFactory(xhrBackend, options) {
     const /** @type {?} */ macroBackend = new ZoneMacroTaskBackend(xhrBackend);
     return new Http(macroBackend, options);
 }
+/**
+ * @param {?} backend
+ * @param {?} interceptors
+ * @return {?}
+ */
+function zoneWrappedInterceptingHandler(backend, interceptors) {
+    const /** @type {?} */ realBackend = ɵinterceptingHandler(backend, interceptors);
+    return new ZoneClientBackend(realBackend);
+}
 const SERVER_HTTP_PROVIDERS = [
     { provide: Http, useFactory: httpFactory, deps: [XHRBackend, RequestOptions] },
-    { provide: BrowserXhr, useClass: ServerXhr },
-    { provide: XSRFStrategy, useClass: ServerXsrfStrategy },
+    { provide: BrowserXhr, useClass: ServerXhr }, { provide: XSRFStrategy, useClass: ServerXsrfStrategy },
+    { provide: XhrFactory, useClass: ServerXhr }, {
+        provide: HttpHandler,
+        useFactory: zoneWrappedInterceptingHandler,
+        deps: [HttpBackend, [new Optional(), HTTP_INTERCEPTORS]]
+    }
 ];
 
 /**
@@ -466,7 +528,10 @@ class Parse5DomAdapter extends ɵDomAdapter {
             el.attribs['class'] = el.className = value;
         }
         else {
-            el[name] = value;
+            // Store the property in a separate property bag so that it doesn't clobber
+            // actual parse5 properties on the Element.
+            el.properties = el.properties || {};
+            el.properties[name] = value;
         }
     }
     /**
@@ -474,7 +539,9 @@ class Parse5DomAdapter extends ɵDomAdapter {
      * @param {?} name
      * @return {?}
      */
-    getProperty(el, name) { return el[name]; }
+    getProperty(el, name) {
+        return el.properties ? el.properties[name] : undefined;
+    }
     /**
      * @param {?} error
      * @return {?}
@@ -1443,12 +1510,6 @@ class Parse5DomAdapter extends ɵDomAdapter {
      */
     setData(el, name, value) { this.setAttribute(el, 'data-' + name, value); }
     /**
-     * @param {?} path
-     * @param {?} value
-     * @return {?}
-     */
-    setGlobalVar(path, value) { ɵsetValueOnPath(ɵglobal, path, value); }
-    /**
      * @return {?}
      */
     supportsWebAnimation() { return false; }
@@ -1780,6 +1841,14 @@ class ServerRendererFactory2 {
             }
         }
     }
+    /**
+     * @return {?}
+     */
+    begin() { }
+    /**
+     * @return {?}
+     */
+    end() { }
 }
 ServerRendererFactory2.decorators = [
     { type: Injectable },
@@ -2140,7 +2209,7 @@ class ServerModule {
 ServerModule.decorators = [
     { type: NgModule, args: [{
                 exports: [BrowserModule],
-                imports: [HttpModule, NoopAnimationsModule],
+                imports: [HttpModule, HttpClientModule, NoopAnimationsModule],
                 providers: [
                     SERVER_RENDER_PROVIDERS,
                     SERVER_HTTP_PROVIDERS,
@@ -2222,8 +2291,12 @@ the server-rendered app can be properly bootstrapped into a client app.`);
 /**
  * Renders a Module to string.
  *
+ * `document` is the full document HTML of the page to render, as a string.
+ * `url` is the URL for the current render request.
+ * `extraProviders` are the platform level providers for the current render request.
+ *
  * Do not use this in a production server environment. Use pre-compiled {\@link NgModuleFactory} with
- * {link renderModuleFactory} instead.
+ * {\@link renderModuleFactory} instead.
  *
  * \@experimental
  * @template T
@@ -2237,6 +2310,10 @@ function renderModule(module, options) {
 }
 /**
  * Renders a {\@link NgModuleFactory} to string.
+ *
+ * `document` is the full document HTML of the page to render, as a string.
+ * `url` is the URL for the current render request.
+ * `extraProviders` are the platform level providers for the current render request.
  *
  * \@experimental
  * @template T
@@ -2272,7 +2349,7 @@ function renderModuleFactory(moduleFactory, options) {
 /**
  * \@stable
  */
-const VERSION = new Version('4.1.0');
+const VERSION = new Version('4.3.3');
 
 /**
  * @license
@@ -2301,5 +2378,5 @@ const VERSION = new Version('4.1.0');
  * Generated bundle index. Do not edit.
  */
 
-export { PlatformState, ServerModule, platformDynamicServer, platformServer, INITIAL_CONFIG, renderModule, renderModuleFactory, VERSION, INTERNAL_SERVER_PLATFORM_PROVIDERS as ɵINTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS as ɵSERVER_RENDER_PROVIDERS, ServerRendererFactory2 as ɵServerRendererFactory2, SERVER_HTTP_PROVIDERS as ɵf, ServerXhr as ɵc, ServerXsrfStrategy as ɵd, httpFactory as ɵe, instantiateServerRendererFactory as ɵa, ServerStylesHost as ɵb };
+export { PlatformState, ServerModule, platformDynamicServer, platformServer, INITIAL_CONFIG, renderModule, renderModuleFactory, VERSION, INTERNAL_SERVER_PLATFORM_PROVIDERS as ɵINTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS as ɵSERVER_RENDER_PROVIDERS, ServerRendererFactory2 as ɵServerRendererFactory2, SERVER_HTTP_PROVIDERS as ɵg, ServerXhr as ɵc, ServerXsrfStrategy as ɵd, httpFactory as ɵe, zoneWrappedInterceptingHandler as ɵf, instantiateServerRendererFactory as ɵa, ServerStylesHost as ɵb };
 //# sourceMappingURL=platform-server.js.map

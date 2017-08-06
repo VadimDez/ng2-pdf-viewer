@@ -78,5 +78,5 @@ import { PipeTransform } from '@angular/core';
 export declare class DatePipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, pattern?: string): string;
+    transform(value: any, pattern?: string): string | null;
 }

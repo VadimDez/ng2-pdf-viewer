@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { DirectiveResolver } from '@angular/compiler';
+import { CompileReflector, DirectiveResolver } from '@angular/compiler';
 import { Directive, Injector, Provider, Type, ɵViewMetadata as ViewMetadata } from '@angular/core';
 /**
  * An implementation of {@link DirectiveResolver} that allows overriding
@@ -18,7 +18,7 @@ export declare class MockDirectiveResolver extends DirectiveResolver {
     private _viewProviderOverrides;
     private _views;
     private _inlineTemplates;
-    constructor(_injector: Injector);
+    constructor(_injector: Injector, reflector: CompileReflector);
     private readonly _compiler;
     private _clearCacheFor(component);
     resolve(type: Type<any>): Directive;

@@ -17,11 +17,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TEST_PDFS_PATH = exports.buildGetDocumentParams = exports.NodeCMapReaderFactory = exports.NodeFileReaderFactory = undefined;
+exports.TEST_PDFS_PATH = exports.buildGetDocumentParams = exports.XRefMock = exports.NodeCMapReaderFactory = exports.NodeFileReaderFactory = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _util = require('../../shared/util');
+
+var _primitives = require('../../core/primitives');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -102,7 +104,47 @@ var NodeCMapReaderFactory = function () {
   return NodeCMapReaderFactory;
 }();
 
+var XRefMock = function () {
+  function XRefMock(array) {
+    _classCallCheck(this, XRefMock);
+
+    this._map = Object.create(null);
+    for (var key in array) {
+      var obj = array[key];
+      this._map[obj.ref.toString()] = obj.data;
+    }
+  }
+
+  _createClass(XRefMock, [{
+    key: 'fetch',
+    value: function fetch(ref) {
+      return this._map[ref.toString()];
+    }
+  }, {
+    key: 'fetchAsync',
+    value: function fetchAsync(ref) {
+      return Promise.resolve(this.fetch(ref));
+    }
+  }, {
+    key: 'fetchIfRef',
+    value: function fetchIfRef(obj) {
+      if (!(0, _primitives.isRef)(obj)) {
+        return obj;
+      }
+      return this.fetch(obj);
+    }
+  }, {
+    key: 'fetchIfRefAsync',
+    value: function fetchIfRefAsync(obj) {
+      return Promise.resolve(this.fetchIfRef(obj));
+    }
+  }]);
+
+  return XRefMock;
+}();
+
 exports.NodeFileReaderFactory = NodeFileReaderFactory;
 exports.NodeCMapReaderFactory = NodeCMapReaderFactory;
+exports.XRefMock = XRefMock;
 exports.buildGetDocumentParams = buildGetDocumentParams;
 exports.TEST_PDFS_PATH = TEST_PDFS_PATH;

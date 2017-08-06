@@ -1,10 +1,10 @@
 /**
- * @license Angular v4.1.0
+ * @license Angular v4.3.3
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 import { COMPILER_OPTIONS, Compiler, CompilerFactory, Component, Directive, Injectable, Injector, NgModule, Pipe, SecurityContext, createPlatformFactory, ɵstringify } from '@angular/core';
-import { DirectiveResolver, NgModuleResolver, PipeResolver, platformCoreDynamic } from '@angular/compiler';
+import { CompileMetadataResolver, CompileReflector, DirectiveResolver, NgModuleResolver, PipeResolver, platformCoreDynamic } from '@angular/compiler';
 import { ɵTestingCompilerFactory } from '@angular/core/testing';
 
 /**
@@ -73,8 +73,8 @@ class MockSchemaRegistry {
  * various properties of directives.
  */
 class MockDirectiveResolver extends DirectiveResolver {
-    constructor(_injector) {
-        super();
+    constructor(_injector, reflector) {
+        super(reflector);
         this._injector = _injector;
         this._directives = new Map();
         this._providerOverrides = new Map();
@@ -182,6 +182,7 @@ MockDirectiveResolver.decorators = [
 /** @nocollapse */
 MockDirectiveResolver.ctorParameters = () => [
     { type: Injector, },
+    { type: CompileReflector, },
 ];
 
 /**
@@ -192,8 +193,8 @@ MockDirectiveResolver.ctorParameters = () => [
  * found in the LICENSE file at https://angular.io/license
  */
 class MockNgModuleResolver extends NgModuleResolver {
-    constructor(_injector) {
-        super();
+    constructor(_injector, reflector) {
+        super(reflector);
         this._injector = _injector;
         this._ngModules = new Map();
     }
@@ -222,6 +223,7 @@ MockNgModuleResolver.decorators = [
 /** @nocollapse */
 MockNgModuleResolver.ctorParameters = () => [
     { type: Injector, },
+    { type: CompileReflector, },
 ];
 
 /**
@@ -232,8 +234,8 @@ MockNgModuleResolver.ctorParameters = () => [
  * found in the LICENSE file at https://angular.io/license
  */
 class MockPipeResolver extends PipeResolver {
-    constructor(_injector) {
-        super();
+    constructor(_injector, refector) {
+        super(refector);
         this._injector = _injector;
         this._pipes = new Map();
     }
@@ -266,6 +268,7 @@ MockPipeResolver.decorators = [
 /** @nocollapse */
 MockPipeResolver.ctorParameters = () => [
     { type: Injector, },
+    { type: CompileReflector, },
 ];
 
 /**
@@ -410,7 +413,7 @@ class TestingCompilerFactoryImpl {
     }
     createTestingCompiler(options) {
         const compiler = this._compilerFactory.createCompiler(options);
-        return new TestingCompilerImpl(compiler, compiler.injector.get(MockDirectiveResolver), compiler.injector.get(MockPipeResolver), compiler.injector.get(MockNgModuleResolver));
+        return new TestingCompilerImpl(compiler, compiler.injector.get(MockDirectiveResolver), compiler.injector.get(MockPipeResolver), compiler.injector.get(MockNgModuleResolver), compiler.injector.get(CompileMetadataResolver));
     }
 }
 TestingCompilerFactoryImpl.decorators = [
@@ -421,11 +424,12 @@ TestingCompilerFactoryImpl.ctorParameters = () => [
     { type: CompilerFactory, },
 ];
 class TestingCompilerImpl {
-    constructor(_compiler, _directiveResolver, _pipeResolver, _moduleResolver) {
+    constructor(_compiler, _directiveResolver, _pipeResolver, _moduleResolver, _metadataResolver) {
         this._compiler = _compiler;
         this._directiveResolver = _directiveResolver;
         this._pipeResolver = _pipeResolver;
         this._moduleResolver = _moduleResolver;
+        this._metadataResolver = _metadataResolver;
         this._overrider = new MetadataOverrider();
     }
     get injector() { return this._compiler.injector; }
@@ -444,22 +448,35 @@ class TestingCompilerImpl {
     getNgContentSelectors(component) {
         return this._compiler.getNgContentSelectors(component);
     }
+    getComponentFactory(component) {
+        return this._compiler.getComponentFactory(component);
+    }
+    checkOverrideAllowed(type) {
+        if (this._compiler.hasAotSummary(type)) {
+            throw new Error(`${ɵstringify(type)} was AOT compiled, so its metadata cannot be changed.`);
+        }
+    }
     overrideModule(ngModule, override) {
+        this.checkOverrideAllowed(ngModule);
         const oldMetadata = this._moduleResolver.resolve(ngModule, false);
         this._moduleResolver.setNgModule(ngModule, this._overrider.overrideMetadata(NgModule, oldMetadata, override));
     }
     overrideDirective(directive, override) {
+        this.checkOverrideAllowed(directive);
         const oldMetadata = this._directiveResolver.resolve(directive, false);
         this._directiveResolver.setDirective(directive, this._overrider.overrideMetadata(Directive, oldMetadata, override));
     }
     overrideComponent(component, override) {
+        this.checkOverrideAllowed(component);
         const oldMetadata = this._directiveResolver.resolve(component, false);
         this._directiveResolver.setDirective(component, this._overrider.overrideMetadata(Component, oldMetadata, override));
     }
     overridePipe(pipe, override) {
+        this.checkOverrideAllowed(pipe);
         const oldMetadata = this._pipeResolver.resolve(pipe, false);
         this._pipeResolver.setPipe(pipe, this._overrider.overrideMetadata(Pipe, oldMetadata, override));
     }
+    loadAotSummaries(summaries) { this._compiler.loadAotSummaries(summaries); }
     clearCache() { this._compiler.clearCache(); }
     clearCacheFor(type) { this._compiler.clearCacheFor(type); }
 }

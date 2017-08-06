@@ -38,6 +38,17 @@ export declare function fakeAsync(fn: Function): (...args: any[]) => any;
  */
 export declare function tick(millis?: number): void;
 /**
+ * Simulates the asynchronous passage of time for the timers in the fakeAsync zone by
+ * draining the macrotask queue until it is empty. The returned value is the milliseconds
+ * of time that would have been elapsed.
+ *
+ * @param maxTurns
+ * @returns {number} The simulated time elapsed, in millis.
+ *
+ * @experimental
+ */
+export declare function flush(maxTurns?: number): number;
+/**
  * Discard all remaining periodic tasks.
  *
  * @experimental

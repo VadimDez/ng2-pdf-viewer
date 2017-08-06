@@ -19,6 +19,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PDFViewer = exports.PresentationModeState = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _pdf = require('../pdf');
 
 var _ui_utils = require('./ui_utils');
@@ -35,6 +37,8 @@ var _pdf_link_service = require('./pdf_link_service');
 
 var _text_layer_builder = require('./text_layer_builder');
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var PresentationModeState = {
   UNKNOWN: 0,
   NORMAL: 1,
@@ -42,39 +46,42 @@ var PresentationModeState = {
   FULLSCREEN: 3
 };
 var DEFAULT_CACHE_SIZE = 10;
-var PDFViewer = function pdfViewer() {
-  function PDFPageViewBuffer(size) {
-    var data = [];
-    this.push = function cachePush(view) {
-      var i = data.indexOf(view);
-      if (i >= 0) {
-        data.splice(i, 1);
-      }
-      data.push(view);
-      if (data.length > size) {
-        data.shift().destroy();
-      }
-    };
-    this.resize = function (newSize) {
-      size = newSize;
-      while (data.length > size) {
-        data.shift().destroy();
-      }
-    };
-  }
-  function isSameScale(oldScale, newScale) {
-    if (newScale === oldScale) {
-      return true;
+function PDFPageViewBuffer(size) {
+  var data = [];
+  this.push = function cachePush(view) {
+    var i = data.indexOf(view);
+    if (i >= 0) {
+      data.splice(i, 1);
     }
-    if (Math.abs(newScale - oldScale) < 1e-15) {
-      return true;
+    data.push(view);
+    if (data.length > size) {
+      data.shift().destroy();
     }
-    return false;
+  };
+  this.resize = function (newSize) {
+    size = newSize;
+    while (data.length > size) {
+      data.shift().destroy();
+    }
+  };
+}
+function isSameScale(oldScale, newScale) {
+  if (newScale === oldScale) {
+    return true;
   }
-  function isPortraitOrientation(size) {
-    return size.width <= size.height;
+  if (Math.abs(newScale - oldScale) < 1e-15) {
+    return true;
   }
+  return false;
+}
+function isPortraitOrientation(size) {
+  return size.width <= size.height;
+}
+
+var PDFViewer = function () {
   function PDFViewer(options) {
+    _classCallCheck(this, PDFViewer);
+
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
     this.eventBus = options.eventBus || (0, _dom_events.getGlobalEventBus)();
@@ -100,31 +107,17 @@ var PDFViewer = function pdfViewer() {
       this.viewer.classList.add('removePageBorders');
     }
   }
-  PDFViewer.prototype = {
-    get pagesCount() {
-      return this._pages.length;
-    },
-    getPageView: function getPageView(index) {
-      return this._pages[index];
-    },
 
-    get pageViewsReady() {
-      return this._pageViewsReady;
-    },
-    get currentPageNumber() {
-      return this._currentPageNumber;
-    },
-    set currentPageNumber(val) {
-      if ((val | 0) !== val) {
-        throw new Error('Invalid page number.');
-      }
-      if (!this.pdfDocument) {
-        this._currentPageNumber = val;
-        return;
-      }
-      this._setCurrentPageNumber(val, true);
-    },
-    _setCurrentPageNumber: function PDFViewer_setCurrentPageNumber(val, resetCurrentPageView) {
+  _createClass(PDFViewer, [{
+    key: 'getPageView',
+    value: function getPageView(index) {
+      return this._pages[index];
+    }
+  }, {
+    key: '_setCurrentPageNumber',
+    value: function _setCurrentPageNumber(val) {
+      var resetCurrentPageView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
       if (this._currentPageNumber === val) {
         if (resetCurrentPageView) {
           this._resetCurrentPageView();
@@ -132,7 +125,7 @@ var PDFViewer = function pdfViewer() {
         return;
       }
       if (!(0 < val && val <= this.pagesCount)) {
-        console.error('PDFViewer_setCurrentPageNumber: "' + val + '" is out of bounds.');
+        console.error('PDFViewer._setCurrentPageNumber: "' + val + '" is out of bounds.');
         return;
       }
       var arg = {
@@ -146,66 +139,10 @@ var PDFViewer = function pdfViewer() {
       if (resetCurrentPageView) {
         this._resetCurrentPageView();
       }
-    },
-    get currentPageLabel() {
-      return this._pageLabels && this._pageLabels[this._currentPageNumber - 1];
-    },
-    set currentPageLabel(val) {
-      var pageNumber = val | 0;
-      if (this._pageLabels) {
-        var i = this._pageLabels.indexOf(val);
-        if (i >= 0) {
-          pageNumber = i + 1;
-        }
-      }
-      this.currentPageNumber = pageNumber;
-    },
-    get currentScale() {
-      return this._currentScale !== _ui_utils.UNKNOWN_SCALE ? this._currentScale : _ui_utils.DEFAULT_SCALE;
-    },
-    set currentScale(val) {
-      if (isNaN(val)) {
-        throw new Error('Invalid numeric scale');
-      }
-      if (!this.pdfDocument) {
-        this._currentScale = val;
-        this._currentScaleValue = val !== _ui_utils.UNKNOWN_SCALE ? val.toString() : null;
-        return;
-      }
-      this._setScale(val, false);
-    },
-    get currentScaleValue() {
-      return this._currentScaleValue;
-    },
-    set currentScaleValue(val) {
-      if (!this.pdfDocument) {
-        this._currentScale = isNaN(val) ? _ui_utils.UNKNOWN_SCALE : val;
-        this._currentScaleValue = val.toString();
-        return;
-      }
-      this._setScale(val, false);
-    },
-    get pagesRotation() {
-      return this._pagesRotation;
-    },
-    set pagesRotation(rotation) {
-      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
-        throw new Error('Invalid pages rotation angle.');
-      }
-      this._pagesRotation = rotation;
-      if (!this.pdfDocument) {
-        return;
-      }
-      for (var i = 0, l = this._pages.length; i < l; i++) {
-        var pageView = this._pages[i];
-        pageView.update(pageView.scale, rotation);
-      }
-      this._setScale(this._currentScaleValue, true);
-      if (this.defaultRenderingQueue) {
-        this.update();
-      }
-    },
-    setDocument: function setDocument(pdfDocument) {
+    }
+  }, {
+    key: 'setDocument',
+    value: function setDocument(pdfDocument) {
       var _this = this;
 
       if (this.pdfDocument) {
@@ -242,7 +179,7 @@ var PDFViewer = function pdfViewer() {
       };
       var firstPagePromise = pdfDocument.getPage(1);
       this.firstPagePromise = firstPagePromise;
-      return firstPagePromise.then(function (pdfPage) {
+      firstPagePromise.then(function (pdfPage) {
         var scale = _this.currentScale;
         var viewport = pdfPage.getViewport(scale * _ui_utils.CSS_UNITS);
         for (var pageNum = 1; pageNum <= pagesCount; ++pageNum) {
@@ -284,6 +221,11 @@ var PDFViewer = function pdfViewer() {
               if (--getPagesLeft === 0) {
                 pagesCapability.resolve();
               }
+            }, function (reason) {
+              console.error('Unable to get page ' + _pageNum + ' to initialize viewer', reason);
+              if (--getPagesLeft === 0) {
+                pagesCapability.resolve();
+              }
             });
           };
 
@@ -298,10 +240,13 @@ var PDFViewer = function pdfViewer() {
         if (_this.findController) {
           _this.findController.resolveFirstPage();
         }
+      }).catch(function (reason) {
+        console.error('Unable to initialize viewer', reason);
       });
-    },
-
-    setPageLabels: function PDFViewer_setPageLabels(labels) {
+    }
+  }, {
+    key: 'setPageLabels',
+    value: function setPageLabels(labels) {
       if (!this.pdfDocument) {
         return;
       }
@@ -309,7 +254,7 @@ var PDFViewer = function pdfViewer() {
         this._pageLabels = null;
       } else if (!(labels instanceof Array && this.pdfDocument.numPages === labels.length)) {
         this._pageLabels = null;
-        console.error('PDFViewer_setPageLabels: Invalid page labels.');
+        console.error('PDFViewer.setPageLabels: Invalid page labels.');
       } else {
         this._pageLabels = labels;
       }
@@ -318,8 +263,10 @@ var PDFViewer = function pdfViewer() {
         var label = this._pageLabels && this._pageLabels[i];
         pageView.setPageLabel(label);
       }
-    },
-    _resetView: function _resetView() {
+    }
+  }, {
+    key: '_resetView',
+    value: function _resetView() {
       this._pages = [];
       this._currentPageNumber = 1;
       this._currentScale = _ui_utils.UNKNOWN_SCALE;
@@ -331,15 +278,20 @@ var PDFViewer = function pdfViewer() {
       this._pagesRequests = [];
       this._pageViewsReady = false;
       this.viewer.textContent = '';
-    },
-    _scrollUpdate: function _scrollUpdate() {
+    }
+  }, {
+    key: '_scrollUpdate',
+    value: function _scrollUpdate() {
       if (this.pagesCount === 0) {
         return;
       }
       this.update();
-    },
+    }
+  }, {
+    key: '_setScaleDispatchEvent',
+    value: function _setScaleDispatchEvent(newScale, newValue) {
+      var preset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-    _setScaleDispatchEvent: function pdfViewer_setScaleDispatchEvent(newScale, newValue, preset) {
       var arg = {
         source: this,
         scale: newScale,
@@ -347,8 +299,13 @@ var PDFViewer = function pdfViewer() {
       };
       this.eventBus.dispatch('scalechanging', arg);
       this.eventBus.dispatch('scalechange', arg);
-    },
-    _setScaleUpdatePages: function pdfViewer_setScaleUpdatePages(newScale, newValue, noScroll, preset) {
+    }
+  }, {
+    key: '_setScaleUpdatePages',
+    value: function _setScaleUpdatePages(newScale, newValue) {
+      var noScroll = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var preset = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
       this._currentScaleValue = newValue.toString();
       if (isSameScale(this._currentScale, newScale)) {
         if (preset) {
@@ -362,7 +319,7 @@ var PDFViewer = function pdfViewer() {
       this._currentScale = newScale;
       if (!noScroll) {
         var page = this._currentPageNumber,
-            dest;
+            dest = void 0;
         if (this._location && !_pdf.PDFJS.ignoreCurrentPositionOnZoom && !(this.isInPresentationMode || this.isChangingPresentationMode)) {
           page = this._location.pageNumber;
           dest = [null, { name: 'XYZ' }, this._location.left, this._location.top, null];
@@ -377,8 +334,12 @@ var PDFViewer = function pdfViewer() {
       if (this.defaultRenderingQueue) {
         this.update();
       }
-    },
-    _setScale: function PDFViewer_setScale(value, noScroll) {
+    }
+  }, {
+    key: '_setScale',
+    value: function _setScale(value) {
+      var noScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
       var scale = parseFloat(value);
       if (scale > 0) {
         this._setScaleUpdatePages(scale, value, noScroll, false);
@@ -410,21 +371,24 @@ var PDFViewer = function pdfViewer() {
             scale = Math.min(_ui_utils.MAX_AUTO_SCALE, horizontalScale);
             break;
           default:
-            console.error('PDFViewer_setScale: "' + value + '" is an unknown zoom value.');
+            console.error('PDFViewer._setScale: "' + value + '" is an unknown zoom value.');
             return;
         }
         this._setScaleUpdatePages(scale, value, noScroll, true);
       }
-    },
-    _resetCurrentPageView: function _resetCurrentPageView() {
+    }
+  }, {
+    key: '_resetCurrentPageView',
+    value: function _resetCurrentPageView() {
       if (this.isInPresentationMode) {
         this._setScale(this._currentScaleValue, true);
       }
       var pageView = this._pages[this._currentPageNumber - 1];
       (0, _ui_utils.scrollIntoView)(pageView.div);
-    },
-
-    scrollPageIntoView: function PDFViewer_scrollPageIntoView(params) {
+    }
+  }, {
+    key: 'scrollPageIntoView',
+    value: function scrollPageIntoView(params) {
       if (!this.pdfDocument) {
         return;
       }
@@ -448,15 +412,15 @@ var PDFViewer = function pdfViewer() {
       }
       var pageView = this._pages[pageNumber - 1];
       if (!pageView) {
-        console.error('PDFViewer_scrollPageIntoView: ' + 'Invalid "pageNumber" parameter.');
+        console.error('PDFViewer.scrollPageIntoView: Invalid "pageNumber" parameter.');
         return;
       }
       var x = 0,
           y = 0;
       var width = 0,
           height = 0,
-          widthScale,
-          heightScale;
+          widthScale = void 0,
+          heightScale = void 0;
       var changeOrientation = pageView.rotation % 180 === 0 ? false : true;
       var pageWidth = (changeOrientation ? pageView.height : pageView.width) / pageView.scale / _ui_utils.CSS_UNITS;
       var pageHeight = (changeOrientation ? pageView.width : pageView.height) / pageView.scale / _ui_utils.CSS_UNITS;
@@ -501,7 +465,7 @@ var PDFViewer = function pdfViewer() {
           scale = Math.min(Math.abs(widthScale), Math.abs(heightScale));
           break;
         default:
-          console.error('PDFViewer_scrollPageIntoView: \'' + dest[1].name + '\' is not a valid destination type.');
+          console.error('PDFViewer.scrollPageIntoView: "' + dest[1].name + '" ' + 'is not a valid destination type.');
           return;
       }
       if (scale && scale !== this._currentScale) {
@@ -524,8 +488,10 @@ var PDFViewer = function pdfViewer() {
         left: left,
         top: top
       });
-    },
-    _updateLocation: function _updateLocation(firstPage) {
+    }
+  }, {
+    key: '_updateLocation',
+    value: function _updateLocation(firstPage) {
       var currentScale = this._currentScale;
       var currentScaleValue = this._currentScaleValue;
       var normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 10000) / 100 : currentScaleValue;
@@ -545,9 +511,10 @@ var PDFViewer = function pdfViewer() {
         left: intLeft,
         pdfOpenParams: pdfOpenParams
       };
-    },
-
-    update: function PDFViewer_update() {
+    }
+  }, {
+    key: 'update',
+    value: function update() {
       var visible = this._getVisiblePages();
       var visiblePages = visible.views;
       if (visiblePages.length === 0) {
@@ -558,7 +525,8 @@ var PDFViewer = function pdfViewer() {
       this.renderingQueue.renderHighestPriority(visible);
       var currentId = this._currentPageNumber;
       var firstPage = visible.first;
-      for (var i = 0, ii = visiblePages.length, stillFullyVisible = false; i < ii; ++i) {
+      var stillFullyVisible = false;
+      for (var i = 0, ii = visiblePages.length; i < ii; ++i) {
         var page = visiblePages[i];
         if (page.percent < 100) {
           break;
@@ -579,24 +547,20 @@ var PDFViewer = function pdfViewer() {
         source: this,
         location: this._location
       });
-    },
-    containsElement: function containsElement(element) {
+    }
+  }, {
+    key: 'containsElement',
+    value: function containsElement(element) {
       return this.container.contains(element);
-    },
-    focus: function focus() {
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
       this.container.focus();
-    },
-
-    get isInPresentationMode() {
-      return this.presentationModeState === PresentationModeState.FULLSCREEN;
-    },
-    get isChangingPresentationMode() {
-      return this.presentationModeState === PresentationModeState.CHANGING;
-    },
-    get isHorizontalScrollbarEnabled() {
-      return this.isInPresentationMode ? false : this.container.scrollWidth > this.container.clientWidth;
-    },
-    _getVisiblePages: function _getVisiblePages() {
+    }
+  }, {
+    key: '_getVisiblePages',
+    value: function _getVisiblePages() {
       if (!this.isInPresentationMode) {
         return (0, _ui_utils.getVisibleElements)(this.container, this._pages, true);
       }
@@ -611,23 +575,28 @@ var PDFViewer = function pdfViewer() {
         last: currentPage,
         views: visible
       };
-    },
-    cleanup: function cleanup() {
+    }
+  }, {
+    key: 'cleanup',
+    value: function cleanup() {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {
         if (this._pages[i] && this._pages[i].renderingState !== _pdf_rendering_queue.RenderingStates.FINISHED) {
           this._pages[i].reset();
         }
       }
-    },
-
-    _cancelRendering: function PDFViewer_cancelRendering() {
+    }
+  }, {
+    key: '_cancelRendering',
+    value: function _cancelRendering() {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {
         if (this._pages[i]) {
           this._pages[i].cancelRendering();
         }
       }
-    },
-    _ensurePdfPageLoaded: function _ensurePdfPageLoaded(pageView) {
+    }
+  }, {
+    key: '_ensurePdfPageLoaded',
+    value: function _ensurePdfPageLoaded(pageView) {
       var _this2 = this;
 
       if (pageView.pdfPage) {
@@ -643,11 +612,16 @@ var PDFViewer = function pdfViewer() {
         }
         _this2._pagesRequests[pageNumber] = null;
         return pdfPage;
+      }).catch(function (reason) {
+        console.error('Unable to get page for page view', reason);
+        _this2._pagesRequests[pageNumber] = null;
       });
       this._pagesRequests[pageNumber] = promise;
       return promise;
-    },
-    forceRendering: function forceRendering(currentlyVisiblePages) {
+    }
+  }, {
+    key: 'forceRendering',
+    value: function forceRendering(currentlyVisiblePages) {
       var _this3 = this;
 
       var visiblePages = currentlyVisiblePages || this._getVisiblePages();
@@ -659,13 +633,17 @@ var PDFViewer = function pdfViewer() {
         return true;
       }
       return false;
-    },
-    getPageTextContent: function getPageTextContent(pageIndex) {
+    }
+  }, {
+    key: 'getPageTextContent',
+    value: function getPageTextContent(pageIndex) {
       return this.pdfDocument.getPage(pageIndex + 1).then(function (page) {
         return page.getTextContent({ normalizeWhitespace: true });
       });
-    },
-    createTextLayerBuilder: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
+    }
+  }, {
+    key: 'createTextLayerBuilder',
+    value: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
       var enhanceTextSelection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
       return new _text_layer_builder.TextLayerBuilder({
@@ -676,8 +654,10 @@ var PDFViewer = function pdfViewer() {
         findController: this.isInPresentationMode ? null : this.findController,
         enhanceTextSelection: this.isInPresentationMode ? false : enhanceTextSelection
       });
-    },
-    createAnnotationLayerBuilder: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
+    }
+  }, {
+    key: 'createAnnotationLayerBuilder',
+    value: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
       var renderInteractiveForms = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       var l10n = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _ui_utils.NullL10n;
 
@@ -689,11 +669,15 @@ var PDFViewer = function pdfViewer() {
         downloadManager: this.downloadManager,
         l10n: l10n
       });
-    },
-    setFindController: function setFindController(findController) {
+    }
+  }, {
+    key: 'setFindController',
+    value: function setFindController(findController) {
       this.findController = findController;
-    },
-    getPagesOverview: function getPagesOverview() {
+    }
+  }, {
+    key: 'getPagesOverview',
+    value: function getPagesOverview() {
       var pagesOverview = this._pages.map(function (pageView) {
         var viewport = pageView.pdfPage.getViewport(1);
         return {
@@ -717,8 +701,123 @@ var PDFViewer = function pdfViewer() {
         };
       });
     }
-  };
+  }, {
+    key: 'pagesCount',
+    get: function get() {
+      return this._pages.length;
+    }
+  }, {
+    key: 'pageViewsReady',
+    get: function get() {
+      return this._pageViewsReady;
+    }
+  }, {
+    key: 'currentPageNumber',
+    get: function get() {
+      return this._currentPageNumber;
+    },
+    set: function set(val) {
+      if ((val | 0) !== val) {
+        throw new Error('Invalid page number.');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setCurrentPageNumber(val, true);
+    }
+  }, {
+    key: 'currentPageLabel',
+    get: function get() {
+      return this._pageLabels && this._pageLabels[this._currentPageNumber - 1];
+    },
+    set: function set(val) {
+      var pageNumber = val | 0;
+      if (this._pageLabels) {
+        var i = this._pageLabels.indexOf(val);
+        if (i >= 0) {
+          pageNumber = i + 1;
+        }
+      }
+      this.currentPageNumber = pageNumber;
+    }
+  }, {
+    key: 'currentScale',
+    get: function get() {
+      return this._currentScale !== _ui_utils.UNKNOWN_SCALE ? this._currentScale : _ui_utils.DEFAULT_SCALE;
+    },
+    set: function set(val) {
+      if (isNaN(val)) {
+        throw new Error('Invalid numeric scale');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setScale(val, false);
+    }
+  }, {
+    key: 'currentScaleValue',
+    get: function get() {
+      return this._currentScaleValue;
+    },
+    set: function set(val) {
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setScale(val, false);
+    }
+  }, {
+    key: 'pagesRotation',
+    get: function get() {
+      return this._pagesRotation;
+    },
+    set: function set(rotation) {
+      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
+        throw new Error('Invalid pages rotation angle.');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._pagesRotation = rotation;
+      for (var i = 0, ii = this._pages.length; i < ii; i++) {
+        var pageView = this._pages[i];
+        pageView.update(pageView.scale, rotation);
+      }
+      this._setScale(this._currentScaleValue, true);
+      if (this.defaultRenderingQueue) {
+        this.update();
+      }
+    }
+  }, {
+    key: 'isInPresentationMode',
+    get: function get() {
+      return this.presentationModeState === PresentationModeState.FULLSCREEN;
+    }
+  }, {
+    key: 'isChangingPresentationMode',
+    get: function get() {
+      return this.presentationModeState === PresentationModeState.CHANGING;
+    }
+  }, {
+    key: 'isHorizontalScrollbarEnabled',
+    get: function get() {
+      return this.isInPresentationMode ? false : this.container.scrollWidth > this.container.clientWidth;
+    }
+  }, {
+    key: 'hasEqualPageSizes',
+    get: function get() {
+      var firstPageView = this._pages[0];
+      for (var i = 1, ii = this._pages.length; i < ii; ++i) {
+        var pageView = this._pages[i];
+        if (pageView.width !== firstPageView.width || pageView.height !== firstPageView.height) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }]);
+
   return PDFViewer;
 }();
+
 exports.PresentationModeState = PresentationModeState;
 exports.PDFViewer = PDFViewer;

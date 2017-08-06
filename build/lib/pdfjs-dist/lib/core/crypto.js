@@ -1442,12 +1442,12 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
   function CipherTransformFactory(dict, fileId, password) {
     var filter = dict.get('Filter');
     if (!(0, _primitives.isName)(filter, 'Standard')) {
-      (0, _util.error)('unknown encryption method');
+      throw new _util.FormatError('unknown encryption method');
     }
     this.dict = dict;
     var algorithm = dict.get('V');
     if (!(0, _util.isInt)(algorithm) || algorithm !== 1 && algorithm !== 2 && algorithm !== 4 && algorithm !== 5) {
-      (0, _util.error)('unsupported encryption algorithm');
+      throw new _util.FormatError('unsupported encryption algorithm');
     }
     this.algorithm = algorithm;
     var keyLength = dict.get('Length');
@@ -1468,7 +1468,7 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
       }
     }
     if (!(0, _util.isInt)(keyLength) || keyLength < 40 || keyLength % 8 !== 0) {
-      (0, _util.error)('invalid key length');
+      throw new _util.FormatError('invalid key length');
     }
     var ownerPassword = (0, _util.stringToBytes)(dict.get('O')).subarray(0, 32);
     var userPassword = (0, _util.stringToBytes)(dict.get('U')).subarray(0, 32);
@@ -1545,7 +1545,9 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
     return hash.subarray(0, Math.min(encryptionKey.length + 5, 16));
   }
   function buildCipherConstructor(cf, name, num, gen, key) {
-    (0, _util.assert)((0, _primitives.isName)(name), 'Invalid crypt filter name.');
+    if (!(0, _primitives.isName)(name)) {
+      throw new _util.FormatError('Invalid crypt filter name.');
+    }
     var cryptFilter = cf.get(name.name);
     var cfm;
     if (cryptFilter !== null && cryptFilter !== undefined) {
@@ -1571,7 +1573,7 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
         return new AES256Cipher(key);
       };
     }
-    (0, _util.error)('Unknown crypto method');
+    throw new _util.FormatError('Unknown crypto method');
   }
   CipherTransformFactory.prototype = {
     createCipherTransform: function CipherTransformFactory_createCipherTransform(num, gen) {

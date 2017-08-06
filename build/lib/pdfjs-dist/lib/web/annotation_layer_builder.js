@@ -30,15 +30,24 @@ var _pdf_link_service = require('./pdf_link_service');
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var AnnotationLayerBuilder = function () {
-  function AnnotationLayerBuilder(options) {
+  function AnnotationLayerBuilder(_ref) {
+    var pageDiv = _ref.pageDiv,
+        pdfPage = _ref.pdfPage,
+        linkService = _ref.linkService,
+        downloadManager = _ref.downloadManager,
+        _ref$renderInteractiv = _ref.renderInteractiveForms,
+        renderInteractiveForms = _ref$renderInteractiv === undefined ? false : _ref$renderInteractiv,
+        _ref$l10n = _ref.l10n,
+        l10n = _ref$l10n === undefined ? _ui_utils.NullL10n : _ref$l10n;
+
     _classCallCheck(this, AnnotationLayerBuilder);
 
-    this.pageDiv = options.pageDiv;
-    this.pdfPage = options.pdfPage;
-    this.renderInteractiveForms = options.renderInteractiveForms;
-    this.linkService = options.linkService;
-    this.downloadManager = options.downloadManager;
-    this.l10n = options.l10n || _ui_utils.NullL10n;
+    this.pageDiv = pageDiv;
+    this.pdfPage = pdfPage;
+    this.linkService = linkService;
+    this.downloadManager = downloadManager;
+    this.renderInteractiveForms = renderInteractiveForms;
+    this.l10n = l10n;
     this.div = null;
   }
 

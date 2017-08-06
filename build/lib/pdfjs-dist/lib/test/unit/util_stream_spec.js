@@ -166,7 +166,7 @@ describe('util_stream', function () {
         expect(log).toEqual('01p2');
         return reader.cancel();
       }).then(function () {
-        expect(log).toEqual('01p2c');
+        expect(log).toEqual('01p2c4');
         done();
       });
     });

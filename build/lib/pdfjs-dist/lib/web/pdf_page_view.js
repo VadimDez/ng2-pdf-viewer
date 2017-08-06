@@ -39,6 +39,7 @@ var PDFPageView = function () {
     var defaultViewport = options.defaultViewport;
     this.id = options.id;
     this.renderingId = 'page' + this.id;
+    this.pdfPage = null;
     this.pageLabel = null;
     this.rotation = 0;
     this.scale = options.scale || _ui_utils.DEFAULT_SCALE;
@@ -88,6 +89,7 @@ var PDFPageView = function () {
       this.reset();
       if (this.pdfPage) {
         this.pdfPage.cleanup();
+        this.pdfPage = null;
       }
     }
   }, {
@@ -283,6 +285,10 @@ var PDFPageView = function () {
       if (this.renderingState !== _pdf_rendering_queue.RenderingStates.INITIAL) {
         console.error('Must be in new state before drawing');
         this.reset();
+      }
+      if (!this.pdfPage) {
+        this.renderingState = _pdf_rendering_queue.RenderingStates.FINISHED;
+        return Promise.reject(new Error('Page is not loaded'));
       }
       this.renderingState = _pdf_rendering_queue.RenderingStates.RUNNING;
       var pdfPage = this.pdfPage;

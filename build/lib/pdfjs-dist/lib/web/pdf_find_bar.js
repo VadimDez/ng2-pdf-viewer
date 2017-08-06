@@ -137,9 +137,9 @@ var PDFFindBar = function () {
       this.findField.setAttribute('data-status', status);
       Promise.resolve(findMsg).then(function (msg) {
         _this2.findMsg.textContent = msg;
+        _this2._adjustWidth();
       });
       this.updateResultsCount(matchCount);
-      this._adjustWidth();
     }
   }, {
     key: 'updateResultsCount',
@@ -149,10 +149,12 @@ var PDFFindBar = function () {
       }
       if (!matchCount) {
         this.findResultsCount.classList.add('hidden');
-        return;
+        this.findResultsCount.textContent = '';
+      } else {
+        this.findResultsCount.textContent = matchCount.toLocaleString();
+        this.findResultsCount.classList.remove('hidden');
       }
-      this.findResultsCount.textContent = matchCount.toLocaleString();
-      this.findResultsCount.classList.remove('hidden');
+      this._adjustWidth();
     }
   }, {
     key: 'open',

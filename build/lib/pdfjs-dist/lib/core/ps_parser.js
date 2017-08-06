@@ -46,7 +46,7 @@ var PostScriptParser = function PostScriptParserClosure() {
       if (this.accept(type)) {
         return true;
       }
-      (0, _util.error)('Unexpected symbol: found ' + this.token.type + ' expected ' + type + '.');
+      throw new _util.FormatError('Unexpected symbol: found ' + this.token.type + ' expected ' + type + '.');
     },
     parse: function PostScriptParser_parse() {
       this.nextToken();
@@ -88,7 +88,7 @@ var PostScriptParser = function PostScriptParserClosure() {
         this.operators[conditionLocation] = endOfTrue;
         this.operators[conditionLocation + 1] = 'jz';
       } else {
-        (0, _util.error)('PS Function: error parsing conditional.');
+        throw new _util.FormatError('PS Function: error parsing conditional.');
       }
     }
   };
@@ -201,7 +201,7 @@ var PostScriptLexer = function PostScriptLexerClosure() {
       }
       var value = parseFloat(strBuf.join(''));
       if (isNaN(value)) {
-        (0, _util.error)('Invalid floating point number: ' + value);
+        throw new _util.FormatError('Invalid floating point number: ' + value);
       }
       return value;
     }

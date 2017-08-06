@@ -82,7 +82,7 @@ var FontRendererFactory = function FontRendererFactoryClosure() {
       }
       return ranges;
     }
-    (0, _util.error)('not supported cmap: ' + format);
+    throw new _util.FormatError('unsupported cmap: ' + format);
   }
   function parseCff(data, start, end, seacAnalysisEnabled) {
     var properties = {};
@@ -455,7 +455,7 @@ var FontRendererFactory = function FontRendererFactoryClosure() {
                 bezierCurveTo(xa, ya, xb, yb, x, y);
                 break;
               default:
-                (0, _util.error)('unknown operator: 12 ' + v);
+                throw new _util.FormatError('unknown operator: 12 ' + v);
             }
             break;
           case 14:
@@ -616,7 +616,7 @@ var FontRendererFactory = function FontRendererFactoryClosure() {
             break;
           default:
             if (v < 32) {
-              (0, _util.error)('unknown operator: ' + v);
+              throw new _util.FormatError('unknown operator: ' + v);
             }
             if (v < 247) {
               stack.push(v - 139);
@@ -675,7 +675,7 @@ var FontRendererFactory = function FontRendererFactoryClosure() {
       return cmds;
     },
     compileGlyphImpl: function compileGlyphImpl() {
-      (0, _util.error)('Children classes should implement this.');
+      throw new Error('Children classes should implement this.');
     },
     hasBuiltPath: function hasBuiltPath(unicode) {
       var cmap = lookupCmap(this.cmap, unicode);

@@ -49,6 +49,7 @@ function getDefaultPreferences() {
       "renderer": "canvas",
       "renderInteractiveForms": false,
       "enablePrintAutoRotate": false,
+      "disablePageMode": false,
       "disablePageLabels": false
     });
   }

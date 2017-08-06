@@ -1,10 +1,6 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+import * as tslib_1 from "tslib";
 /**
- * @license Angular v4.1.0
+ * @license Angular v4.3.3
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -128,7 +124,7 @@ var LocationState = (function () {
  * @stable
  */
 var MockLocationStrategy = (function (_super) {
-    __extends(MockLocationStrategy, _super);
+    tslib_1.__extends(MockLocationStrategy, _super);
     function MockLocationStrategy() {
         var _this = _super.call(this) || this;
         _this.internalBaseHref = '/';

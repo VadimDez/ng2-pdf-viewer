@@ -153,16 +153,16 @@ var IdentityCMap = function IdentityCMapClosure() {
   IdentityCMap.prototype = {
     addCodespaceRange: CMap.prototype.addCodespaceRange,
     mapCidRange: function mapCidRange(low, high, dstLow) {
-      (0, _util.error)('should not call mapCidRange');
+      throw new Error('should not call mapCidRange');
     },
     mapBfRange: function mapBfRange(low, high, dstLow) {
-      (0, _util.error)('should not call mapBfRange');
+      throw new Error('should not call mapBfRange');
     },
     mapBfRangeToArray: function mapBfRangeToArray(low, high, array) {
-      (0, _util.error)('should not call mapBfRangeToArray');
+      throw new Error('should not call mapBfRangeToArray');
     },
     mapOne: function mapOne(src, dst) {
-      (0, _util.error)('should not call mapCidOne');
+      throw new Error('should not call mapCidOne');
     },
     lookup: function lookup(code) {
       return (0, _util.isInt)(code) && code <= 0xffff ? code : undefined;
@@ -191,7 +191,7 @@ var IdentityCMap = function IdentityCMapClosure() {
       return 0x10000;
     },
     get isIdentityCMap() {
-      (0, _util.error)('should not access .isIdentityCMap');
+      throw new Error('should not access .isIdentityCMap');
     }
   };
   return IdentityCMap;
@@ -250,7 +250,7 @@ var BinaryCMapReader = function BinaryCMapReaderClosure() {
       do {
         var b = this.readByte();
         if (b < 0) {
-          (0, _util.error)('unexpected EOF in bcmap');
+          throw new _util.FormatError('unexpected EOF in bcmap');
         }
         last = !(b & 0x80);
         n = n << 7 | b & 0x7F;
@@ -272,7 +272,7 @@ var BinaryCMapReader = function BinaryCMapReaderClosure() {
       do {
         var b = this.readByte();
         if (b < 0) {
-          (0, _util.error)('unexpected EOF in bcmap');
+          throw new _util.FormatError('unexpected EOF in bcmap');
         }
         last = !(b & 0x80);
         stack[sp++] = b & 0x7F;
@@ -337,7 +337,9 @@ var BinaryCMapReader = function BinaryCMapReaderClosure() {
         }
         var sequence = !!(b & 0x10);
         var dataSize = b & 15;
-        (0, _util.assert)(dataSize + 1 <= MAX_NUM_SIZE);
+        if (dataSize + 1 > MAX_NUM_SIZE) {
+          throw new Error('processBinaryCMap: Invalid dataSize.');
+        }
         var ucs2DataSize = 1;
         var subitemsCount = stream.readNumber();
         var i;
@@ -466,12 +468,12 @@ var CMapFactory = function CMapFactoryClosure() {
   }
   function expectString(obj) {
     if (!(0, _util.isString)(obj)) {
-      (0, _util.error)('Malformed CMap: expected string.');
+      throw new _util.FormatError('Malformed CMap: expected string.');
     }
   }
   function expectInt(obj) {
     if (!(0, _util.isInt)(obj)) {
-      (0, _util.error)('Malformed CMap: expected int.');
+      throw new _util.FormatError('Malformed CMap: expected int.');
     }
   }
   function parseBfChar(cMap, lexer) {
@@ -521,7 +523,7 @@ var CMapFactory = function CMapFactoryClosure() {
         break;
       }
     }
-    (0, _util.error)('Invalid bf range.');
+    throw new _util.FormatError('Invalid bf range.');
   }
   function parseCidChar(cMap, lexer) {
     while (true) {
@@ -580,7 +582,7 @@ var CMapFactory = function CMapFactoryClosure() {
       var high = strToInt(obj);
       cMap.addCodespaceRange(obj.length, low, high);
     }
-    (0, _util.error)('Invalid codespace range.');
+    throw new _util.FormatError('Invalid codespace range.');
   }
   function parseWMode(cMap, lexer) {
     var obj = lexer.getObj();
@@ -678,7 +680,9 @@ var CMapFactory = function CMapFactoryClosure() {
     if (BUILT_IN_CMAPS.indexOf(name) === -1) {
       return Promise.reject(new Error('Unknown CMap name: ' + name));
     }
-    (0, _util.assert)(fetchBuiltInCMap, 'Built-in CMap parameters are not provided.');
+    if (!fetchBuiltInCMap) {
+      return Promise.reject(new Error('Built-in CMap parameters are not provided.'));
+    }
     return fetchBuiltInCMap(name).then(function (data) {
       var cMapData = data.cMapData,
           compressionType = data.compressionType;
@@ -688,9 +692,11 @@ var CMapFactory = function CMapFactoryClosure() {
           return extendCMap(cMap, fetchBuiltInCMap, useCMap);
         });
       }
-      (0, _util.assert)(compressionType === _util.CMapCompressionType.NONE, 'TODO: Only BINARY/NONE CMap compression is currently supported.');
-      var lexer = new _parser.Lexer(new _stream.Stream(cMapData));
-      return parseCMap(cMap, lexer, fetchBuiltInCMap, null);
+      if (compressionType === _util.CMapCompressionType.NONE) {
+        var lexer = new _parser.Lexer(new _stream.Stream(cMapData));
+        return parseCMap(cMap, lexer, fetchBuiltInCMap, null);
+      }
+      return Promise.reject(new Error('TODO: Only BINARY/NONE CMap compression is currently supported.'));
     });
   }
   return {

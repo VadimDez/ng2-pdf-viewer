@@ -99,14 +99,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 var pdfjsLib;
-if (typeof __pdfjsdev_webpack__ === 'undefined') {
-  if (typeof window !== 'undefined' && window['pdfjs-dist/build/pdf']) {
-    pdfjsLib = window['pdfjs-dist/build/pdf'];
-  } else if (typeof require === 'function') {
-    pdfjsLib = require('../build/pdf.js');
-  } else {
-    throw new Error('Neither `require` nor `window` found');
-  }
+if (typeof window !== 'undefined' && window['pdfjs-dist/build/pdf']) {
+  pdfjsLib = window['pdfjs-dist/build/pdf'];
+} else {
+  pdfjsLib = require('../build/pdf.js');
 }
 module.exports = pdfjsLib;
 
@@ -608,94 +604,94 @@ function attachDOMEventsToEventBus(eventBus) {
     event.initCustomEvent('documentload', true, true, {});
     window.dispatchEvent(event);
   });
-  eventBus.on('pagerendered', function (e) {
+  eventBus.on('pagerendered', function (evt) {
     var event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagerendered', true, true, {
-      pageNumber: e.pageNumber,
-      cssTransform: e.cssTransform
+      pageNumber: evt.pageNumber,
+      cssTransform: evt.cssTransform
     });
-    e.source.div.dispatchEvent(event);
+    evt.source.div.dispatchEvent(event);
   });
-  eventBus.on('textlayerrendered', function (e) {
+  eventBus.on('textlayerrendered', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('textlayerrendered', true, true, { pageNumber: e.pageNumber });
-    e.source.textLayerDiv.dispatchEvent(event);
+    event.initCustomEvent('textlayerrendered', true, true, { pageNumber: evt.pageNumber });
+    evt.source.textLayerDiv.dispatchEvent(event);
   });
-  eventBus.on('pagechange', function (e) {
+  eventBus.on('pagechange', function (evt) {
     var event = document.createEvent('UIEvents');
     event.initUIEvent('pagechange', true, true, window, 0);
-    event.pageNumber = e.pageNumber;
-    e.source.container.dispatchEvent(event);
+    event.pageNumber = evt.pageNumber;
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesinit', function (e) {
+  eventBus.on('pagesinit', function (evt) {
     var event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagesinit', true, true, null);
-    e.source.container.dispatchEvent(event);
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesloaded', function (e) {
+  eventBus.on('pagesloaded', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('pagesloaded', true, true, { pagesCount: e.pagesCount });
-    e.source.container.dispatchEvent(event);
+    event.initCustomEvent('pagesloaded', true, true, { pagesCount: evt.pagesCount });
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('scalechange', function (e) {
+  eventBus.on('scalechange', function (evt) {
     var event = document.createEvent('UIEvents');
     event.initUIEvent('scalechange', true, true, window, 0);
-    event.scale = e.scale;
-    event.presetValue = e.presetValue;
-    e.source.container.dispatchEvent(event);
+    event.scale = evt.scale;
+    event.presetValue = evt.presetValue;
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('updateviewarea', function (e) {
+  eventBus.on('updateviewarea', function (evt) {
     var event = document.createEvent('UIEvents');
     event.initUIEvent('updateviewarea', true, true, window, 0);
-    event.location = e.location;
-    e.source.container.dispatchEvent(event);
+    event.location = evt.location;
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('find', function (e) {
-    if (e.source === window) {
+  eventBus.on('find', function (evt) {
+    if (evt.source === window) {
       return;
     }
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('find' + e.type, true, true, {
-      query: e.query,
-      phraseSearch: e.phraseSearch,
-      caseSensitive: e.caseSensitive,
-      highlightAll: e.highlightAll,
-      findPrevious: e.findPrevious
+    event.initCustomEvent('find' + evt.type, true, true, {
+      query: evt.query,
+      phraseSearch: evt.phraseSearch,
+      caseSensitive: evt.caseSensitive,
+      highlightAll: evt.highlightAll,
+      findPrevious: evt.findPrevious
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('attachmentsloaded', function (e) {
+  eventBus.on('attachmentsloaded', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('attachmentsloaded', true, true, { attachmentsCount: e.attachmentsCount });
-    e.source.container.dispatchEvent(event);
+    event.initCustomEvent('attachmentsloaded', true, true, { attachmentsCount: evt.attachmentsCount });
+    evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('sidebarviewchanged', function (e) {
+  eventBus.on('sidebarviewchanged', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('sidebarviewchanged', true, true, { view: e.view });
-    e.source.outerContainer.dispatchEvent(event);
+    event.initCustomEvent('sidebarviewchanged', true, true, { view: evt.view });
+    evt.source.outerContainer.dispatchEvent(event);
   });
-  eventBus.on('pagemode', function (e) {
+  eventBus.on('pagemode', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('pagemode', true, true, { mode: e.mode });
-    e.source.pdfViewer.container.dispatchEvent(event);
+    event.initCustomEvent('pagemode', true, true, { mode: evt.mode });
+    evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('namedaction', function (e) {
+  eventBus.on('namedaction', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('namedaction', true, true, { action: e.action });
-    e.source.pdfViewer.container.dispatchEvent(event);
+    event.initCustomEvent('namedaction', true, true, { action: evt.action });
+    evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('presentationmodechanged', function (e) {
+  eventBus.on('presentationmodechanged', function (evt) {
     var event = document.createEvent('CustomEvent');
     event.initCustomEvent('presentationmodechanged', true, true, {
-      active: e.active,
-      switchInProgress: e.switchInProgress
+      active: evt.active,
+      switchInProgress: evt.switchInProgress
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('outlineloaded', function (e) {
+  eventBus.on('outlineloaded', function (evt) {
     var event = document.createEvent('CustomEvent');
-    event.initCustomEvent('outlineloaded', true, true, { outlineCount: e.outlineCount });
-    e.source.container.dispatchEvent(event);
+    event.initCustomEvent('outlineloaded', true, true, { outlineCount: evt.outlineCount });
+    evt.source.container.dispatchEvent(event);
   });
 }
 var globalEventBus = null;
@@ -724,47 +720,54 @@ exports.SimpleLinkService = exports.PDFLinkService = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _dom_events = __w_pdfjs_require__(2);
 
 var _ui_utils = __w_pdfjs_require__(1);
 
-var PDFLinkService = function PDFLinkServiceClosure() {
-  function PDFLinkService(options) {
-    options = options || {};
-    this.eventBus = options.eventBus || (0, _dom_events.getGlobalEventBus)();
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PDFLinkService = function () {
+  function PDFLinkService() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        eventBus = _ref.eventBus;
+
+    _classCallCheck(this, PDFLinkService);
+
+    this.eventBus = eventBus || (0, _dom_events.getGlobalEventBus)();
     this.baseUrl = null;
     this.pdfDocument = null;
     this.pdfViewer = null;
     this.pdfHistory = null;
     this._pagesRefCache = null;
   }
-  PDFLinkService.prototype = {
-    setDocument: function PDFLinkService_setDocument(pdfDocument, baseUrl) {
+
+  _createClass(PDFLinkService, [{
+    key: 'setDocument',
+    value: function setDocument(pdfDocument, baseUrl) {
       this.baseUrl = baseUrl;
       this.pdfDocument = pdfDocument;
       this._pagesRefCache = Object.create(null);
-    },
-    setViewer: function PDFLinkService_setViewer(pdfViewer) {
+    }
+  }, {
+    key: 'setViewer',
+    value: function setViewer(pdfViewer) {
       this.pdfViewer = pdfViewer;
-    },
-    setHistory: function PDFLinkService_setHistory(pdfHistory) {
+    }
+  }, {
+    key: 'setHistory',
+    value: function setHistory(pdfHistory) {
       this.pdfHistory = pdfHistory;
-    },
-    get pagesCount() {
-      return this.pdfDocument ? this.pdfDocument.numPages : 0;
-    },
-    get page() {
-      return this.pdfViewer.currentPageNumber;
-    },
-    set page(value) {
-      this.pdfViewer.currentPageNumber = value;
-    },
-    navigateTo: function navigateTo(dest) {
+    }
+  }, {
+    key: 'navigateTo',
+    value: function navigateTo(dest) {
       var _this = this;
 
-      var goToDestination = function goToDestination(_ref) {
-        var namedDest = _ref.namedDest,
-            explicitDest = _ref.explicitDest;
+      var goToDestination = function goToDestination(_ref2) {
+        var namedDest = _ref2.namedDest,
+            explicitDest = _ref2.explicitDest;
 
         var destRef = explicitDest[0],
             pageNumber = void 0;
@@ -825,8 +828,10 @@ var PDFLinkService = function PDFLinkServiceClosure() {
         }
         goToDestination(data);
       });
-    },
-    getDestinationHash: function getDestinationHash(dest) {
+    }
+  }, {
+    key: 'getDestinationHash',
+    value: function getDestinationHash(dest) {
       if (typeof dest === 'string') {
         return this.getAnchorUrl('#' + escape(dest));
       }
@@ -835,13 +840,17 @@ var PDFLinkService = function PDFLinkServiceClosure() {
         return this.getAnchorUrl('#' + escape(str));
       }
       return this.getAnchorUrl('');
-    },
-
-    getAnchorUrl: function PDFLinkService_getAnchorUrl(anchor) {
+    }
+  }, {
+    key: 'getAnchorUrl',
+    value: function getAnchorUrl(anchor) {
       return (this.baseUrl || '') + anchor;
-    },
-    setHash: function PDFLinkService_setHash(hash) {
-      var pageNumber, dest;
+    }
+  }, {
+    key: 'setHash',
+    value: function setHash(hash) {
+      var pageNumber = void 0,
+          dest = void 0;
       if (hash.indexOf('=') >= 0) {
         var params = (0, _ui_utils.parseQueryString)(hash);
         if ('search' in params) {
@@ -874,12 +883,12 @@ var PDFLinkService = function PDFLinkServiceClosure() {
               dest = [null, { name: zoomArg }, zoomArgs.length > 1 ? zoomArgs[1] | 0 : null];
             } else if (zoomArg === 'FitR') {
               if (zoomArgs.length !== 5) {
-                console.error('PDFLinkService_setHash: ' + 'Not enough parameters for \'FitR\'.');
+                console.error('PDFLinkService.setHash: Not enough parameters for "FitR".');
               } else {
                 dest = [null, { name: zoomArg }, zoomArgs[1] | 0, zoomArgs[2] | 0, zoomArgs[3] | 0, zoomArgs[4] | 0];
               }
             } else {
-              console.error('PDFLinkService_setHash: \'' + zoomArg + '\' is not a valid zoom value.');
+              console.error('PDFLinkService.setHash: "' + zoomArg + '" is not ' + 'a valid zoom value.');
             }
           }
         }
@@ -900,7 +909,7 @@ var PDFLinkService = function PDFLinkServiceClosure() {
         }
       } else {
         if (/^\d+$/.test(hash) && hash <= this.pagesCount) {
-          console.warn('PDFLinkService_setHash: specifying a page number ' + 'directly after the hash symbol (#) is deprecated, ' + 'please use the "#page=' + hash + '" form instead.');
+          console.warn('PDFLinkService_setHash: specifying a page number ' + 'directly after the hash symbol (#) is deprecated, ' + ('please use the "#page=' + hash + '" form instead.'));
           this.page = hash | 0;
         }
         dest = unescape(hash);
@@ -917,10 +926,12 @@ var PDFLinkService = function PDFLinkServiceClosure() {
           this.navigateTo(dest);
           return;
         }
-        console.error('PDFLinkService_setHash: \'' + unescape(hash) + '\' is not a valid destination.');
+        console.error('PDFLinkService.setHash: "' + unescape(hash) + '" is not ' + 'a valid destination.');
       }
-    },
-    executeNamedAction: function PDFLinkService_executeNamedAction(action) {
+    }
+  }, {
+    key: 'executeNamedAction',
+    value: function executeNamedAction(action) {
       switch (action) {
         case 'GoBack':
           if (this.pdfHistory) {
@@ -955,101 +966,148 @@ var PDFLinkService = function PDFLinkServiceClosure() {
         source: this,
         action: action
       });
-    },
-    onFileAttachmentAnnotation: function onFileAttachmentAnnotation() {
-      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    }
+  }, {
+    key: 'onFileAttachmentAnnotation',
+    value: function onFileAttachmentAnnotation(_ref3) {
+      var id = _ref3.id,
+          filename = _ref3.filename,
+          content = _ref3.content;
 
       this.eventBus.dispatch('fileattachmentannotation', {
         source: this,
-        id: params.id,
-        filename: params.filename,
-        content: params.content
+        id: id,
+        filename: filename,
+        content: content
       });
-    },
-
-    cachePageRef: function PDFLinkService_cachePageRef(pageNum, pageRef) {
+    }
+  }, {
+    key: 'cachePageRef',
+    value: function cachePageRef(pageNum, pageRef) {
       var refStr = pageRef.num + ' ' + pageRef.gen + ' R';
       this._pagesRefCache[refStr] = pageNum;
-    },
-    _cachedPageNumber: function PDFLinkService_cachedPageNumber(pageRef) {
+    }
+  }, {
+    key: '_cachedPageNumber',
+    value: function _cachedPageNumber(pageRef) {
       var refStr = pageRef.num + ' ' + pageRef.gen + ' R';
       return this._pagesRefCache && this._pagesRefCache[refStr] || null;
     }
-  };
-  function isValidExplicitDestination(dest) {
-    if (!(dest instanceof Array)) {
-      return false;
+  }, {
+    key: 'pagesCount',
+    get: function get() {
+      return this.pdfDocument ? this.pdfDocument.numPages : 0;
     }
-    var destLength = dest.length,
-        allowNull = true;
-    if (destLength < 2) {
-      return false;
+  }, {
+    key: 'page',
+    get: function get() {
+      return this.pdfViewer.currentPageNumber;
+    },
+    set: function set(value) {
+      this.pdfViewer.currentPageNumber = value;
     }
-    var page = dest[0];
-    if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && typeof page.num === 'number' && (page.num | 0) === page.num && typeof page.gen === 'number' && (page.gen | 0) === page.gen) && !(typeof page === 'number' && (page | 0) === page && page >= 0)) {
-      return false;
-    }
-    var zoom = dest[1];
-    if (!((typeof zoom === 'undefined' ? 'undefined' : _typeof(zoom)) === 'object' && typeof zoom.name === 'string')) {
-      return false;
-    }
-    switch (zoom.name) {
-      case 'XYZ':
-        if (destLength !== 5) {
-          return false;
-        }
-        break;
-      case 'Fit':
-      case 'FitB':
-        return destLength === 2;
-      case 'FitH':
-      case 'FitBH':
-      case 'FitV':
-      case 'FitBV':
-        if (destLength !== 3) {
-          return false;
-        }
-        break;
-      case 'FitR':
-        if (destLength !== 6) {
-          return false;
-        }
-        allowNull = false;
-        break;
-      default:
-        return false;
-    }
-    for (var i = 2; i < destLength; i++) {
-      var param = dest[i];
-      if (!(typeof param === 'number' || allowNull && param === null)) {
-        return false;
-      }
-    }
-    return true;
-  }
+  }]);
+
   return PDFLinkService;
 }();
-var SimpleLinkService = function SimpleLinkServiceClosure() {
-  function SimpleLinkService() {}
-  SimpleLinkService.prototype = {
-    get page() {
+
+function isValidExplicitDestination(dest) {
+  if (!(dest instanceof Array)) {
+    return false;
+  }
+  var destLength = dest.length,
+      allowNull = true;
+  if (destLength < 2) {
+    return false;
+  }
+  var page = dest[0];
+  if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && typeof page.num === 'number' && (page.num | 0) === page.num && typeof page.gen === 'number' && (page.gen | 0) === page.gen) && !(typeof page === 'number' && (page | 0) === page && page >= 0)) {
+    return false;
+  }
+  var zoom = dest[1];
+  if (!((typeof zoom === 'undefined' ? 'undefined' : _typeof(zoom)) === 'object' && typeof zoom.name === 'string')) {
+    return false;
+  }
+  switch (zoom.name) {
+    case 'XYZ':
+      if (destLength !== 5) {
+        return false;
+      }
+      break;
+    case 'Fit':
+    case 'FitB':
+      return destLength === 2;
+    case 'FitH':
+    case 'FitBH':
+    case 'FitV':
+    case 'FitBV':
+      if (destLength !== 3) {
+        return false;
+      }
+      break;
+    case 'FitR':
+      if (destLength !== 6) {
+        return false;
+      }
+      allowNull = false;
+      break;
+    default:
+      return false;
+  }
+  for (var i = 2; i < destLength; i++) {
+    var param = dest[i];
+    if (!(typeof param === 'number' || allowNull && param === null)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+var SimpleLinkService = function () {
+  function SimpleLinkService() {
+    _classCallCheck(this, SimpleLinkService);
+  }
+
+  _createClass(SimpleLinkService, [{
+    key: 'navigateTo',
+    value: function navigateTo(dest) {}
+  }, {
+    key: 'getDestinationHash',
+    value: function getDestinationHash(dest) {
+      return '#';
+    }
+  }, {
+    key: 'getAnchorUrl',
+    value: function getAnchorUrl(hash) {
+      return '#';
+    }
+  }, {
+    key: 'setHash',
+    value: function setHash(hash) {}
+  }, {
+    key: 'executeNamedAction',
+    value: function executeNamedAction(action) {}
+  }, {
+    key: 'onFileAttachmentAnnotation',
+    value: function onFileAttachmentAnnotation(_ref4) {
+      var id = _ref4.id,
+          filename = _ref4.filename,
+          content = _ref4.content;
+    }
+  }, {
+    key: 'cachePageRef',
+    value: function cachePageRef(pageNum, pageRef) {}
+  }, {
+    key: 'page',
+    get: function get() {
       return 0;
     },
-    set page(value) {},
-    navigateTo: function navigateTo(dest) {},
-    getDestinationHash: function getDestinationHash(dest) {
-      return '#';
-    },
-    getAnchorUrl: function getAnchorUrl(hash) {
-      return '#';
-    },
-    setHash: function setHash(hash) {},
-    executeNamedAction: function executeNamedAction(action) {},
-    onFileAttachmentAnnotation: function onFileAttachmentAnnotation(params) {},
-    cachePageRef: function cachePageRef(pageNum, pageRef) {}
-  };
+    set: function set(value) {}
+  }]);
+
   return SimpleLinkService;
 }();
+
 exports.PDFLinkService = PDFLinkService;
 exports.SimpleLinkService = SimpleLinkService;
 
@@ -1076,15 +1134,24 @@ var _pdf_link_service = __w_pdfjs_require__(3);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var AnnotationLayerBuilder = function () {
-  function AnnotationLayerBuilder(options) {
+  function AnnotationLayerBuilder(_ref) {
+    var pageDiv = _ref.pageDiv,
+        pdfPage = _ref.pdfPage,
+        linkService = _ref.linkService,
+        downloadManager = _ref.downloadManager,
+        _ref$renderInteractiv = _ref.renderInteractiveForms,
+        renderInteractiveForms = _ref$renderInteractiv === undefined ? false : _ref$renderInteractiv,
+        _ref$l10n = _ref.l10n,
+        l10n = _ref$l10n === undefined ? _ui_utils.NullL10n : _ref$l10n;
+
     _classCallCheck(this, AnnotationLayerBuilder);
 
-    this.pageDiv = options.pageDiv;
-    this.pdfPage = options.pdfPage;
-    this.renderInteractiveForms = options.renderInteractiveForms;
-    this.linkService = options.linkService;
-    this.downloadManager = options.downloadManager;
-    this.l10n = options.l10n || _ui_utils.NullL10n;
+    this.pageDiv = pageDiv;
+    this.pdfPage = pdfPage;
+    this.linkService = linkService;
+    this.downloadManager = downloadManager;
+    this.renderInteractiveForms = renderInteractiveForms;
+    this.l10n = l10n;
     this.div = null;
   }
 
@@ -1192,6 +1259,7 @@ var PDFPageView = function () {
     var defaultViewport = options.defaultViewport;
     this.id = options.id;
     this.renderingId = 'page' + this.id;
+    this.pdfPage = null;
     this.pageLabel = null;
     this.rotation = 0;
     this.scale = options.scale || _ui_utils.DEFAULT_SCALE;
@@ -1241,6 +1309,7 @@ var PDFPageView = function () {
       this.reset();
       if (this.pdfPage) {
         this.pdfPage.cleanup();
+        this.pdfPage = null;
       }
     }
   }, {
@@ -1436,6 +1505,10 @@ var PDFPageView = function () {
       if (this.renderingState !== _pdf_rendering_queue.RenderingStates.INITIAL) {
         console.error('Must be in new state before drawing');
         this.reset();
+      }
+      if (!this.pdfPage) {
+        this.renderingState = _pdf_rendering_queue.RenderingStates.FINISHED;
+        return Promise.reject(new Error('Page is not loaded'));
       }
       this.renderingState = _pdf_rendering_queue.RenderingStates.RUNNING;
       var pdfPage = this.pdfPage;
@@ -2514,6 +2587,10 @@ var PDFFindController = function () {
             }
             _this2.pageContents[i] = strBuf.join('');
             extractTextCapability.resolve(i);
+          }, function (reason) {
+            console.error('Unable to get page ' + (i + 1) + ' text content', reason);
+            _this2.pageContents[i] = '';
+            extractTextCapability.resolve(i);
           });
         });
       };
@@ -3029,6 +3106,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PDFViewer = exports.PresentationModeState = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _pdfjsLib = __w_pdfjs_require__(0);
 
 var _ui_utils = __w_pdfjs_require__(1);
@@ -3045,6 +3124,8 @@ var _pdf_link_service = __w_pdfjs_require__(3);
 
 var _text_layer_builder = __w_pdfjs_require__(6);
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var PresentationModeState = {
   UNKNOWN: 0,
   NORMAL: 1,
@@ -3052,39 +3133,42 @@ var PresentationModeState = {
   FULLSCREEN: 3
 };
 var DEFAULT_CACHE_SIZE = 10;
-var PDFViewer = function pdfViewer() {
-  function PDFPageViewBuffer(size) {
-    var data = [];
-    this.push = function cachePush(view) {
-      var i = data.indexOf(view);
-      if (i >= 0) {
-        data.splice(i, 1);
-      }
-      data.push(view);
-      if (data.length > size) {
-        data.shift().destroy();
-      }
-    };
-    this.resize = function (newSize) {
-      size = newSize;
-      while (data.length > size) {
-        data.shift().destroy();
-      }
-    };
-  }
-  function isSameScale(oldScale, newScale) {
-    if (newScale === oldScale) {
-      return true;
+function PDFPageViewBuffer(size) {
+  var data = [];
+  this.push = function cachePush(view) {
+    var i = data.indexOf(view);
+    if (i >= 0) {
+      data.splice(i, 1);
     }
-    if (Math.abs(newScale - oldScale) < 1e-15) {
-      return true;
+    data.push(view);
+    if (data.length > size) {
+      data.shift().destroy();
     }
-    return false;
+  };
+  this.resize = function (newSize) {
+    size = newSize;
+    while (data.length > size) {
+      data.shift().destroy();
+    }
+  };
+}
+function isSameScale(oldScale, newScale) {
+  if (newScale === oldScale) {
+    return true;
   }
-  function isPortraitOrientation(size) {
-    return size.width <= size.height;
+  if (Math.abs(newScale - oldScale) < 1e-15) {
+    return true;
   }
+  return false;
+}
+function isPortraitOrientation(size) {
+  return size.width <= size.height;
+}
+
+var PDFViewer = function () {
   function PDFViewer(options) {
+    _classCallCheck(this, PDFViewer);
+
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
     this.eventBus = options.eventBus || (0, _dom_events.getGlobalEventBus)();
@@ -3110,31 +3194,17 @@ var PDFViewer = function pdfViewer() {
       this.viewer.classList.add('removePageBorders');
     }
   }
-  PDFViewer.prototype = {
-    get pagesCount() {
-      return this._pages.length;
-    },
-    getPageView: function getPageView(index) {
-      return this._pages[index];
-    },
 
-    get pageViewsReady() {
-      return this._pageViewsReady;
-    },
-    get currentPageNumber() {
-      return this._currentPageNumber;
-    },
-    set currentPageNumber(val) {
-      if ((val | 0) !== val) {
-        throw new Error('Invalid page number.');
-      }
-      if (!this.pdfDocument) {
-        this._currentPageNumber = val;
-        return;
-      }
-      this._setCurrentPageNumber(val, true);
-    },
-    _setCurrentPageNumber: function PDFViewer_setCurrentPageNumber(val, resetCurrentPageView) {
+  _createClass(PDFViewer, [{
+    key: 'getPageView',
+    value: function getPageView(index) {
+      return this._pages[index];
+    }
+  }, {
+    key: '_setCurrentPageNumber',
+    value: function _setCurrentPageNumber(val) {
+      var resetCurrentPageView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
       if (this._currentPageNumber === val) {
         if (resetCurrentPageView) {
           this._resetCurrentPageView();
@@ -3142,7 +3212,7 @@ var PDFViewer = function pdfViewer() {
         return;
       }
       if (!(0 < val && val <= this.pagesCount)) {
-        console.error('PDFViewer_setCurrentPageNumber: "' + val + '" is out of bounds.');
+        console.error('PDFViewer._setCurrentPageNumber: "' + val + '" is out of bounds.');
         return;
       }
       var arg = {
@@ -3156,66 +3226,10 @@ var PDFViewer = function pdfViewer() {
       if (resetCurrentPageView) {
         this._resetCurrentPageView();
       }
-    },
-    get currentPageLabel() {
-      return this._pageLabels && this._pageLabels[this._currentPageNumber - 1];
-    },
-    set currentPageLabel(val) {
-      var pageNumber = val | 0;
-      if (this._pageLabels) {
-        var i = this._pageLabels.indexOf(val);
-        if (i >= 0) {
-          pageNumber = i + 1;
-        }
-      }
-      this.currentPageNumber = pageNumber;
-    },
-    get currentScale() {
-      return this._currentScale !== _ui_utils.UNKNOWN_SCALE ? this._currentScale : _ui_utils.DEFAULT_SCALE;
-    },
-    set currentScale(val) {
-      if (isNaN(val)) {
-        throw new Error('Invalid numeric scale');
-      }
-      if (!this.pdfDocument) {
-        this._currentScale = val;
-        this._currentScaleValue = val !== _ui_utils.UNKNOWN_SCALE ? val.toString() : null;
-        return;
-      }
-      this._setScale(val, false);
-    },
-    get currentScaleValue() {
-      return this._currentScaleValue;
-    },
-    set currentScaleValue(val) {
-      if (!this.pdfDocument) {
-        this._currentScale = isNaN(val) ? _ui_utils.UNKNOWN_SCALE : val;
-        this._currentScaleValue = val.toString();
-        return;
-      }
-      this._setScale(val, false);
-    },
-    get pagesRotation() {
-      return this._pagesRotation;
-    },
-    set pagesRotation(rotation) {
-      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
-        throw new Error('Invalid pages rotation angle.');
-      }
-      this._pagesRotation = rotation;
-      if (!this.pdfDocument) {
-        return;
-      }
-      for (var i = 0, l = this._pages.length; i < l; i++) {
-        var pageView = this._pages[i];
-        pageView.update(pageView.scale, rotation);
-      }
-      this._setScale(this._currentScaleValue, true);
-      if (this.defaultRenderingQueue) {
-        this.update();
-      }
-    },
-    setDocument: function setDocument(pdfDocument) {
+    }
+  }, {
+    key: 'setDocument',
+    value: function setDocument(pdfDocument) {
       var _this = this;
 
       if (this.pdfDocument) {
@@ -3252,7 +3266,7 @@ var PDFViewer = function pdfViewer() {
       };
       var firstPagePromise = pdfDocument.getPage(1);
       this.firstPagePromise = firstPagePromise;
-      return firstPagePromise.then(function (pdfPage) {
+      firstPagePromise.then(function (pdfPage) {
         var scale = _this.currentScale;
         var viewport = pdfPage.getViewport(scale * _ui_utils.CSS_UNITS);
         for (var pageNum = 1; pageNum <= pagesCount; ++pageNum) {
@@ -3294,6 +3308,11 @@ var PDFViewer = function pdfViewer() {
               if (--getPagesLeft === 0) {
                 pagesCapability.resolve();
               }
+            }, function (reason) {
+              console.error('Unable to get page ' + _pageNum + ' to initialize viewer', reason);
+              if (--getPagesLeft === 0) {
+                pagesCapability.resolve();
+              }
             });
           };
 
@@ -3308,10 +3327,13 @@ var PDFViewer = function pdfViewer() {
         if (_this.findController) {
           _this.findController.resolveFirstPage();
         }
+      }).catch(function (reason) {
+        console.error('Unable to initialize viewer', reason);
       });
-    },
-
-    setPageLabels: function PDFViewer_setPageLabels(labels) {
+    }
+  }, {
+    key: 'setPageLabels',
+    value: function setPageLabels(labels) {
       if (!this.pdfDocument) {
         return;
       }
@@ -3319,7 +3341,7 @@ var PDFViewer = function pdfViewer() {
         this._pageLabels = null;
       } else if (!(labels instanceof Array && this.pdfDocument.numPages === labels.length)) {
         this._pageLabels = null;
-        console.error('PDFViewer_setPageLabels: Invalid page labels.');
+        console.error('PDFViewer.setPageLabels: Invalid page labels.');
       } else {
         this._pageLabels = labels;
       }
@@ -3328,8 +3350,10 @@ var PDFViewer = function pdfViewer() {
         var label = this._pageLabels && this._pageLabels[i];
         pageView.setPageLabel(label);
       }
-    },
-    _resetView: function _resetView() {
+    }
+  }, {
+    key: '_resetView',
+    value: function _resetView() {
       this._pages = [];
       this._currentPageNumber = 1;
       this._currentScale = _ui_utils.UNKNOWN_SCALE;
@@ -3341,15 +3365,20 @@ var PDFViewer = function pdfViewer() {
       this._pagesRequests = [];
       this._pageViewsReady = false;
       this.viewer.textContent = '';
-    },
-    _scrollUpdate: function _scrollUpdate() {
+    }
+  }, {
+    key: '_scrollUpdate',
+    value: function _scrollUpdate() {
       if (this.pagesCount === 0) {
         return;
       }
       this.update();
-    },
+    }
+  }, {
+    key: '_setScaleDispatchEvent',
+    value: function _setScaleDispatchEvent(newScale, newValue) {
+      var preset = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-    _setScaleDispatchEvent: function pdfViewer_setScaleDispatchEvent(newScale, newValue, preset) {
       var arg = {
         source: this,
         scale: newScale,
@@ -3357,8 +3386,13 @@ var PDFViewer = function pdfViewer() {
       };
       this.eventBus.dispatch('scalechanging', arg);
       this.eventBus.dispatch('scalechange', arg);
-    },
-    _setScaleUpdatePages: function pdfViewer_setScaleUpdatePages(newScale, newValue, noScroll, preset) {
+    }
+  }, {
+    key: '_setScaleUpdatePages',
+    value: function _setScaleUpdatePages(newScale, newValue) {
+      var noScroll = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var preset = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
       this._currentScaleValue = newValue.toString();
       if (isSameScale(this._currentScale, newScale)) {
         if (preset) {
@@ -3372,7 +3406,7 @@ var PDFViewer = function pdfViewer() {
       this._currentScale = newScale;
       if (!noScroll) {
         var page = this._currentPageNumber,
-            dest;
+            dest = void 0;
         if (this._location && !_pdfjsLib.PDFJS.ignoreCurrentPositionOnZoom && !(this.isInPresentationMode || this.isChangingPresentationMode)) {
           page = this._location.pageNumber;
           dest = [null, { name: 'XYZ' }, this._location.left, this._location.top, null];
@@ -3387,8 +3421,12 @@ var PDFViewer = function pdfViewer() {
       if (this.defaultRenderingQueue) {
         this.update();
       }
-    },
-    _setScale: function PDFViewer_setScale(value, noScroll) {
+    }
+  }, {
+    key: '_setScale',
+    value: function _setScale(value) {
+      var noScroll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
       var scale = parseFloat(value);
       if (scale > 0) {
         this._setScaleUpdatePages(scale, value, noScroll, false);
@@ -3420,21 +3458,24 @@ var PDFViewer = function pdfViewer() {
             scale = Math.min(_ui_utils.MAX_AUTO_SCALE, horizontalScale);
             break;
           default:
-            console.error('PDFViewer_setScale: "' + value + '" is an unknown zoom value.');
+            console.error('PDFViewer._setScale: "' + value + '" is an unknown zoom value.');
             return;
         }
         this._setScaleUpdatePages(scale, value, noScroll, true);
       }
-    },
-    _resetCurrentPageView: function _resetCurrentPageView() {
+    }
+  }, {
+    key: '_resetCurrentPageView',
+    value: function _resetCurrentPageView() {
       if (this.isInPresentationMode) {
         this._setScale(this._currentScaleValue, true);
       }
       var pageView = this._pages[this._currentPageNumber - 1];
       (0, _ui_utils.scrollIntoView)(pageView.div);
-    },
-
-    scrollPageIntoView: function PDFViewer_scrollPageIntoView(params) {
+    }
+  }, {
+    key: 'scrollPageIntoView',
+    value: function scrollPageIntoView(params) {
       if (!this.pdfDocument) {
         return;
       }
@@ -3458,15 +3499,15 @@ var PDFViewer = function pdfViewer() {
       }
       var pageView = this._pages[pageNumber - 1];
       if (!pageView) {
-        console.error('PDFViewer_scrollPageIntoView: ' + 'Invalid "pageNumber" parameter.');
+        console.error('PDFViewer.scrollPageIntoView: Invalid "pageNumber" parameter.');
         return;
       }
       var x = 0,
           y = 0;
       var width = 0,
           height = 0,
-          widthScale,
-          heightScale;
+          widthScale = void 0,
+          heightScale = void 0;
       var changeOrientation = pageView.rotation % 180 === 0 ? false : true;
       var pageWidth = (changeOrientation ? pageView.height : pageView.width) / pageView.scale / _ui_utils.CSS_UNITS;
       var pageHeight = (changeOrientation ? pageView.width : pageView.height) / pageView.scale / _ui_utils.CSS_UNITS;
@@ -3511,7 +3552,7 @@ var PDFViewer = function pdfViewer() {
           scale = Math.min(Math.abs(widthScale), Math.abs(heightScale));
           break;
         default:
-          console.error('PDFViewer_scrollPageIntoView: \'' + dest[1].name + '\' is not a valid destination type.');
+          console.error('PDFViewer.scrollPageIntoView: "' + dest[1].name + '" ' + 'is not a valid destination type.');
           return;
       }
       if (scale && scale !== this._currentScale) {
@@ -3534,8 +3575,10 @@ var PDFViewer = function pdfViewer() {
         left: left,
         top: top
       });
-    },
-    _updateLocation: function _updateLocation(firstPage) {
+    }
+  }, {
+    key: '_updateLocation',
+    value: function _updateLocation(firstPage) {
       var currentScale = this._currentScale;
       var currentScaleValue = this._currentScaleValue;
       var normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 10000) / 100 : currentScaleValue;
@@ -3555,9 +3598,10 @@ var PDFViewer = function pdfViewer() {
         left: intLeft,
         pdfOpenParams: pdfOpenParams
       };
-    },
-
-    update: function PDFViewer_update() {
+    }
+  }, {
+    key: 'update',
+    value: function update() {
       var visible = this._getVisiblePages();
       var visiblePages = visible.views;
       if (visiblePages.length === 0) {
@@ -3568,7 +3612,8 @@ var PDFViewer = function pdfViewer() {
       this.renderingQueue.renderHighestPriority(visible);
       var currentId = this._currentPageNumber;
       var firstPage = visible.first;
-      for (var i = 0, ii = visiblePages.length, stillFullyVisible = false; i < ii; ++i) {
+      var stillFullyVisible = false;
+      for (var i = 0, ii = visiblePages.length; i < ii; ++i) {
         var page = visiblePages[i];
         if (page.percent < 100) {
           break;
@@ -3589,24 +3634,20 @@ var PDFViewer = function pdfViewer() {
         source: this,
         location: this._location
       });
-    },
-    containsElement: function containsElement(element) {
+    }
+  }, {
+    key: 'containsElement',
+    value: function containsElement(element) {
       return this.container.contains(element);
-    },
-    focus: function focus() {
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
       this.container.focus();
-    },
-
-    get isInPresentationMode() {
-      return this.presentationModeState === PresentationModeState.FULLSCREEN;
-    },
-    get isChangingPresentationMode() {
-      return this.presentationModeState === PresentationModeState.CHANGING;
-    },
-    get isHorizontalScrollbarEnabled() {
-      return this.isInPresentationMode ? false : this.container.scrollWidth > this.container.clientWidth;
-    },
-    _getVisiblePages: function _getVisiblePages() {
+    }
+  }, {
+    key: '_getVisiblePages',
+    value: function _getVisiblePages() {
       if (!this.isInPresentationMode) {
         return (0, _ui_utils.getVisibleElements)(this.container, this._pages, true);
       }
@@ -3621,23 +3662,28 @@ var PDFViewer = function pdfViewer() {
         last: currentPage,
         views: visible
       };
-    },
-    cleanup: function cleanup() {
+    }
+  }, {
+    key: 'cleanup',
+    value: function cleanup() {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {
         if (this._pages[i] && this._pages[i].renderingState !== _pdf_rendering_queue.RenderingStates.FINISHED) {
           this._pages[i].reset();
         }
       }
-    },
-
-    _cancelRendering: function PDFViewer_cancelRendering() {
+    }
+  }, {
+    key: '_cancelRendering',
+    value: function _cancelRendering() {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {
         if (this._pages[i]) {
           this._pages[i].cancelRendering();
         }
       }
-    },
-    _ensurePdfPageLoaded: function _ensurePdfPageLoaded(pageView) {
+    }
+  }, {
+    key: '_ensurePdfPageLoaded',
+    value: function _ensurePdfPageLoaded(pageView) {
       var _this2 = this;
 
       if (pageView.pdfPage) {
@@ -3653,11 +3699,16 @@ var PDFViewer = function pdfViewer() {
         }
         _this2._pagesRequests[pageNumber] = null;
         return pdfPage;
+      }).catch(function (reason) {
+        console.error('Unable to get page for page view', reason);
+        _this2._pagesRequests[pageNumber] = null;
       });
       this._pagesRequests[pageNumber] = promise;
       return promise;
-    },
-    forceRendering: function forceRendering(currentlyVisiblePages) {
+    }
+  }, {
+    key: 'forceRendering',
+    value: function forceRendering(currentlyVisiblePages) {
       var _this3 = this;
 
       var visiblePages = currentlyVisiblePages || this._getVisiblePages();
@@ -3669,13 +3720,17 @@ var PDFViewer = function pdfViewer() {
         return true;
       }
       return false;
-    },
-    getPageTextContent: function getPageTextContent(pageIndex) {
+    }
+  }, {
+    key: 'getPageTextContent',
+    value: function getPageTextContent(pageIndex) {
       return this.pdfDocument.getPage(pageIndex + 1).then(function (page) {
         return page.getTextContent({ normalizeWhitespace: true });
       });
-    },
-    createTextLayerBuilder: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
+    }
+  }, {
+    key: 'createTextLayerBuilder',
+    value: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
       var enhanceTextSelection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
 
       return new _text_layer_builder.TextLayerBuilder({
@@ -3686,8 +3741,10 @@ var PDFViewer = function pdfViewer() {
         findController: this.isInPresentationMode ? null : this.findController,
         enhanceTextSelection: this.isInPresentationMode ? false : enhanceTextSelection
       });
-    },
-    createAnnotationLayerBuilder: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
+    }
+  }, {
+    key: 'createAnnotationLayerBuilder',
+    value: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
       var renderInteractiveForms = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       var l10n = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _ui_utils.NullL10n;
 
@@ -3699,11 +3756,15 @@ var PDFViewer = function pdfViewer() {
         downloadManager: this.downloadManager,
         l10n: l10n
       });
-    },
-    setFindController: function setFindController(findController) {
+    }
+  }, {
+    key: 'setFindController',
+    value: function setFindController(findController) {
       this.findController = findController;
-    },
-    getPagesOverview: function getPagesOverview() {
+    }
+  }, {
+    key: 'getPagesOverview',
+    value: function getPagesOverview() {
       var pagesOverview = this._pages.map(function (pageView) {
         var viewport = pageView.pdfPage.getViewport(1);
         return {
@@ -3727,9 +3788,124 @@ var PDFViewer = function pdfViewer() {
         };
       });
     }
-  };
+  }, {
+    key: 'pagesCount',
+    get: function get() {
+      return this._pages.length;
+    }
+  }, {
+    key: 'pageViewsReady',
+    get: function get() {
+      return this._pageViewsReady;
+    }
+  }, {
+    key: 'currentPageNumber',
+    get: function get() {
+      return this._currentPageNumber;
+    },
+    set: function set(val) {
+      if ((val | 0) !== val) {
+        throw new Error('Invalid page number.');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setCurrentPageNumber(val, true);
+    }
+  }, {
+    key: 'currentPageLabel',
+    get: function get() {
+      return this._pageLabels && this._pageLabels[this._currentPageNumber - 1];
+    },
+    set: function set(val) {
+      var pageNumber = val | 0;
+      if (this._pageLabels) {
+        var i = this._pageLabels.indexOf(val);
+        if (i >= 0) {
+          pageNumber = i + 1;
+        }
+      }
+      this.currentPageNumber = pageNumber;
+    }
+  }, {
+    key: 'currentScale',
+    get: function get() {
+      return this._currentScale !== _ui_utils.UNKNOWN_SCALE ? this._currentScale : _ui_utils.DEFAULT_SCALE;
+    },
+    set: function set(val) {
+      if (isNaN(val)) {
+        throw new Error('Invalid numeric scale');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setScale(val, false);
+    }
+  }, {
+    key: 'currentScaleValue',
+    get: function get() {
+      return this._currentScaleValue;
+    },
+    set: function set(val) {
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._setScale(val, false);
+    }
+  }, {
+    key: 'pagesRotation',
+    get: function get() {
+      return this._pagesRotation;
+    },
+    set: function set(rotation) {
+      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
+        throw new Error('Invalid pages rotation angle.');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      this._pagesRotation = rotation;
+      for (var i = 0, ii = this._pages.length; i < ii; i++) {
+        var pageView = this._pages[i];
+        pageView.update(pageView.scale, rotation);
+      }
+      this._setScale(this._currentScaleValue, true);
+      if (this.defaultRenderingQueue) {
+        this.update();
+      }
+    }
+  }, {
+    key: 'isInPresentationMode',
+    get: function get() {
+      return this.presentationModeState === PresentationModeState.FULLSCREEN;
+    }
+  }, {
+    key: 'isChangingPresentationMode',
+    get: function get() {
+      return this.presentationModeState === PresentationModeState.CHANGING;
+    }
+  }, {
+    key: 'isHorizontalScrollbarEnabled',
+    get: function get() {
+      return this.isInPresentationMode ? false : this.container.scrollWidth > this.container.clientWidth;
+    }
+  }, {
+    key: 'hasEqualPageSizes',
+    get: function get() {
+      var firstPageView = this._pages[0];
+      for (var i = 1, ii = this._pages.length; i < ii; ++i) {
+        var pageView = this._pages[i];
+        if (pageView.width !== firstPageView.width || pageView.height !== firstPageView.height) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }]);
+
   return PDFViewer;
 }();
+
 exports.PresentationModeState = PresentationModeState;
 exports.PDFViewer = PDFViewer;
 
