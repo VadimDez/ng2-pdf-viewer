@@ -179,7 +179,7 @@ And then use it in your template:
 ```
 ## Contribute
 
-Clone project and switch to latest version branch (right now `features/1.1.3`)
+Clone project and switch to latest version branch (right now `features/1.1.4`, for the 2.0.0 switch to `feature/2.0.0`)
 
 ```
 npm start
