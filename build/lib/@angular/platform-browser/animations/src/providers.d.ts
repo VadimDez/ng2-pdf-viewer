@@ -1,15 +1,8 @@
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-import { AnimationDriver, ɵAnimationEngine as AnimationEngine, ɵAnimationStyleNormalizer as AnimationStyleNormalizer, ɵDomAnimationEngine as DomAnimationEngine, ɵNoopAnimationDriver as NoopAnimationDriver, ɵWebAnimationsStyleNormalizer as WebAnimationsStyleNormalizer } from '@angular/animations/browser';
+import { AnimationDriver, ɵAnimationEngine as AnimationEngine, ɵAnimationStyleNormalizer as AnimationStyleNormalizer, ɵNoopAnimationDriver as NoopAnimationDriver, ɵWebAnimationsStyleNormalizer as WebAnimationsStyleNormalizer } from '@angular/animations/browser';
 import { NgZone, Provider } from '@angular/core';
 import { ɵDomRendererFactory2 as DomRendererFactory2 } from '@angular/platform-browser';
 import { AnimationRendererFactory } from './animation_renderer';
-export declare class InjectableAnimationEngine extends DomAnimationEngine {
+export declare class InjectableAnimationEngine extends AnimationEngine {
     constructor(driver: AnimationDriver, normalizer: AnimationStyleNormalizer);
 }
 export declare function instantiateSupportedAnimationDriver(): NoopAnimationDriver;

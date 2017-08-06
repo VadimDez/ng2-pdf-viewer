@@ -40,7 +40,9 @@ var Catalog = function CatalogClosure() {
     this.pdfManager = pdfManager;
     this.xref = xref;
     this.catDict = xref.getCatalogObj();
-    (0, _util.assert)((0, _primitives.isDict)(this.catDict), 'catalog object is not a dictionary');
+    if (!(0, _primitives.isDict)(this.catDict)) {
+      throw new _util.FormatError('catalog object is not a dictionary');
+    }
     this.fontCache = new _primitives.RefSetCache();
     this.builtInCMapCache = Object.create(null);
     this.pageKidsCountCache = new _primitives.RefSetCache();
@@ -74,7 +76,9 @@ var Catalog = function CatalogClosure() {
     },
     get toplevelPagesDict() {
       var pagesObj = this.catDict.get('Pages');
-      (0, _util.assert)((0, _primitives.isDict)(pagesObj), 'invalid top-level pages dictionary');
+      if (!(0, _primitives.isDict)(pagesObj)) {
+        throw new _util.FormatError('invalid top-level pages dictionary');
+      }
       return (0, _util.shadow)(this, 'toplevelPagesDict', pagesObj);
     },
     get documentOutline() {
@@ -113,7 +117,9 @@ var Catalog = function CatalogClosure() {
         if (outlineDict === null) {
           continue;
         }
-        (0, _util.assert)(outlineDict.has('Title'), 'Invalid outline item');
+        if (!outlineDict.has('Title')) {
+          throw new _util.FormatError('Invalid outline item');
+        }
         var data = {
           url: null,
           dest: null
@@ -164,8 +170,10 @@ var Catalog = function CatalogClosure() {
     },
     get numPages() {
       var obj = this.toplevelPagesDict.get('Count');
-      (0, _util.assert)((0, _util.isInt)(obj), 'page count in top level pages object is not an integer');
-      return (0, _util.shadow)(this, 'num', obj);
+      if (!(0, _util.isInt)(obj)) {
+        throw new _util.FormatError('page count in top level pages object is not an integer');
+      }
+      return (0, _util.shadow)(this, 'numPages', obj);
     },
     get destinations() {
       function fetchDestination(dest) {
@@ -252,17 +260,27 @@ var Catalog = function CatalogClosure() {
       for (var i = 0, ii = this.numPages; i < ii; i++) {
         if (i in nums) {
           var labelDict = nums[i];
-          (0, _util.assert)((0, _primitives.isDict)(labelDict), 'The PageLabel is not a dictionary.');
+          if (!(0, _primitives.isDict)(labelDict)) {
+            throw new _util.FormatError('The PageLabel is not a dictionary.');
+          }
           var type = labelDict.get('Type');
-          (0, _util.assert)(!type || (0, _primitives.isName)(type, 'PageLabel'), 'Invalid type in PageLabel dictionary.');
+          if (type && !(0, _primitives.isName)(type, 'PageLabel')) {
+            throw new _util.FormatError('Invalid type in PageLabel dictionary.');
+          }
           var s = labelDict.get('S');
-          (0, _util.assert)(!s || (0, _primitives.isName)(s), 'Invalid style in PageLabel dictionary.');
+          if (s && !(0, _primitives.isName)(s)) {
+            throw new _util.FormatError('Invalid style in PageLabel dictionary.');
+          }
           style = s ? s.name : null;
           var p = labelDict.get('P');
-          (0, _util.assert)(!p || (0, _util.isString)(p), 'Invalid prefix in PageLabel dictionary.');
+          if (p && !(0, _util.isString)(p)) {
+            throw new _util.FormatError('Invalid prefix in PageLabel dictionary.');
+          }
           prefix = p ? (0, _util.stringToPDFString)(p) : '';
           var st = labelDict.get('St');
-          (0, _util.assert)(!st || (0, _util.isInt)(st) && st >= 1, 'Invalid start in PageLabel dictionary.');
+          if (st && !((0, _util.isInt)(st) && st >= 1)) {
+            throw new _util.FormatError('Invalid start in PageLabel dictionary.');
+          }
           currentIndex = st || 1;
         }
         switch (style) {
@@ -288,13 +306,31 @@ var Catalog = function CatalogClosure() {
             currentLabel = charBuf.join('');
             break;
           default:
-            (0, _util.assert)(!style, 'Invalid style "' + style + '" in PageLabel dictionary.');
+            if (style) {
+              throw new _util.FormatError('Invalid style "' + style + '" in PageLabel dictionary.');
+            }
         }
         pageLabels[i] = prefix + currentLabel;
         currentLabel = '';
         currentIndex++;
       }
       return pageLabels;
+    },
+    get pageMode() {
+      var obj = this.catDict.get('PageMode');
+      var pageMode = 'UseNone';
+      if ((0, _primitives.isName)(obj)) {
+        switch (obj.name) {
+          case 'UseNone':
+          case 'UseOutlines':
+          case 'UseThumbs':
+          case 'FullScreen':
+          case 'UseOC':
+          case 'UseAttachments':
+            pageMode = obj.name;
+        }
+      }
+      return (0, _util.shadow)(this, 'pageMode', pageMode);
     },
     get attachments() {
       var xref = this.xref;
@@ -423,7 +459,10 @@ var Catalog = function CatalogClosure() {
             }, capability.reject);
             return;
           }
-          (0, _util.assert)((0, _primitives.isDict)(currentNode), 'page dictionary kid reference points to wrong type of object');
+          if (!(0, _primitives.isDict)(currentNode)) {
+            capability.reject(new _util.FormatError('page dictionary kid reference points to wrong type of object'));
+            return;
+          }
           count = currentNode.get('Count');
           var objId = currentNode.objId;
           if (objId && !pageKidsCountCache.has(objId)) {
@@ -434,12 +473,15 @@ var Catalog = function CatalogClosure() {
             continue;
           }
           var kids = currentNode.get('Kids');
-          (0, _util.assert)((0, _util.isArray)(kids), 'page dictionary kids object is not an array');
+          if (!(0, _util.isArray)(kids)) {
+            capability.reject(new _util.FormatError('page dictionary kids object is not an array'));
+            return;
+          }
           for (var last = kids.length - 1; last >= 0; last--) {
             nodesToVisit.push(kids[last]);
           }
         }
-        capability.reject('Page index ' + pageIndex + ' not found.');
+        capability.reject(new Error('Page index ' + pageIndex + ' not found.'));
       }
       next();
       return capability.promise;
@@ -451,19 +493,23 @@ var Catalog = function CatalogClosure() {
         var parentRef;
         return xref.fetchAsync(kidRef).then(function (node) {
           if ((0, _primitives.isRefsEqual)(kidRef, pageRef) && !(0, _primitives.isDict)(node, 'Page') && !((0, _primitives.isDict)(node) && !node.has('Type') && node.has('Contents'))) {
-            throw new Error('The reference does not point to a /Page Dict.');
+            throw new _util.FormatError('The reference does not point to a /Page Dict.');
           }
           if (!node) {
             return null;
           }
-          (0, _util.assert)((0, _primitives.isDict)(node), 'node must be a Dict.');
+          if (!(0, _primitives.isDict)(node)) {
+            throw new _util.FormatError('node must be a Dict.');
+          }
           parentRef = node.getRaw('Parent');
           return node.getAsync('Parent');
         }).then(function (parent) {
           if (!parent) {
             return null;
           }
-          (0, _util.assert)((0, _primitives.isDict)(parent), 'parent must be a Dict.');
+          if (!(0, _primitives.isDict)(parent)) {
+            throw new _util.FormatError('parent must be a Dict.');
+          }
           return parent.getAsync('Kids');
         }).then(function (kids) {
           if (!kids) {
@@ -473,7 +519,9 @@ var Catalog = function CatalogClosure() {
           var found = false;
           for (var i = 0; i < kids.length; i++) {
             var kid = kids[i];
-            (0, _util.assert)((0, _primitives.isRef)(kid), 'kid must be a Ref.');
+            if (!(0, _primitives.isRef)(kid)) {
+              throw new _util.FormatError('kid must be a Ref.');
+            }
             if (kid.num === kidRef.num) {
               found = true;
               break;
@@ -488,7 +536,7 @@ var Catalog = function CatalogClosure() {
             }));
           }
           if (!found) {
-            (0, _util.error)('kid ref not found in parents kids');
+            throw new _util.FormatError('kid ref not found in parents kids');
           }
           return Promise.all(kidPromises).then(function () {
             return [total, parentRef];
@@ -665,7 +713,7 @@ var XRef = function XRefClosure() {
         this.encrypt = new _crypto.CipherTransformFactory(encrypt, fileId, this.pdfManager.password);
       }
       if (!(this.root = trailerDict.get('Root'))) {
-        (0, _util.error)('Invalid root reference');
+        throw new _util.FormatError('Invalid root reference');
       }
     },
     processXRefTable: function XRef_processXRefTable(parser) {
@@ -679,14 +727,14 @@ var XRef = function XRefClosure() {
       }
       var obj = this.readXRefTable(parser);
       if (!(0, _primitives.isCmd)(obj, 'trailer')) {
-        (0, _util.error)('Invalid XRef table: could not find trailer dictionary');
+        throw new _util.FormatError('Invalid XRef table: could not find trailer dictionary');
       }
       var dict = parser.getObj();
       if (!(0, _primitives.isDict)(dict) && dict.dict) {
         dict = dict.dict;
       }
       if (!(0, _primitives.isDict)(dict)) {
-        (0, _util.error)('Invalid XRef table: could not parse trailer dictionary');
+        throw new _util.FormatError('Invalid XRef table: could not parse trailer dictionary');
       }
       delete this.tableState;
       return dict;
@@ -709,7 +757,7 @@ var XRef = function XRefClosure() {
         var first = tableState.firstEntryNum;
         var count = tableState.entryCount;
         if (!(0, _util.isInt)(first) || !(0, _util.isInt)(count)) {
-          (0, _util.error)('Invalid XRef table: wrong types in subsection header');
+          throw new _util.FormatError('Invalid XRef table: wrong types in subsection header');
         }
         for (var i = tableState.entryNum; i < count; i++) {
           tableState.streamPos = stream.pos;
@@ -726,7 +774,7 @@ var XRef = function XRefClosure() {
             entry.uncompressed = true;
           }
           if (!(0, _util.isInt)(entry.offset) || !(0, _util.isInt)(entry.gen) || !(entry.free || entry.uncompressed)) {
-            (0, _util.error)('Invalid entry in XRef subsection: ' + first + ', ' + count);
+            throw new _util.FormatError('Invalid entry in XRef subsection: ' + first + ', ' + count);
           }
           if (i === 0 && entry.free && first === 1) {
             first = 0;
@@ -743,7 +791,7 @@ var XRef = function XRefClosure() {
         delete tableState.entryCount;
       }
       if (this.entries[0] && !this.entries[0].free) {
-        (0, _util.error)('Invalid XRef table: unexpected first object');
+        throw new _util.FormatError('Invalid XRef table: unexpected first object');
       }
       return obj;
     },
@@ -779,10 +827,10 @@ var XRef = function XRefClosure() {
         var first = entryRanges[0];
         var n = entryRanges[1];
         if (!(0, _util.isInt)(first) || !(0, _util.isInt)(n)) {
-          (0, _util.error)('Invalid XRef range fields: ' + first + ', ' + n);
+          throw new _util.FormatError('Invalid XRef range fields: ' + first + ', ' + n);
         }
         if (!(0, _util.isInt)(typeFieldWidth) || !(0, _util.isInt)(offsetFieldWidth) || !(0, _util.isInt)(generationFieldWidth)) {
-          (0, _util.error)('Invalid XRef entry fields length: ' + first + ', ' + n);
+          throw new _util.FormatError('Invalid XRef entry fields length: ' + first + ', ' + n);
         }
         for (i = streamState.entryNum; i < n; ++i) {
           streamState.entryNum = i;
@@ -815,7 +863,7 @@ var XRef = function XRefClosure() {
             case 2:
               break;
             default:
-              (0, _util.error)('Invalid XRef entry type: ' + type);
+              throw new _util.FormatError('Invalid XRef entry type: ' + type);
           }
           if (!this.entries[first + i]) {
             this.entries[first + i] = entry;
@@ -970,17 +1018,17 @@ var XRef = function XRefClosure() {
             }
           } else if ((0, _util.isInt)(obj)) {
             if (!(0, _util.isInt)(parser.getObj()) || !(0, _primitives.isCmd)(parser.getObj(), 'obj') || !(0, _primitives.isStream)(obj = parser.getObj())) {
-              (0, _util.error)('Invalid XRef stream');
+              throw new _util.FormatError('Invalid XRef stream');
             }
             dict = this.processXRefStream(obj);
             if (!this.topDict) {
               this.topDict = dict;
             }
             if (!dict) {
-              (0, _util.error)('Failed to read XRef stream');
+              throw new _util.FormatError('Failed to read XRef stream');
             }
           } else {
-            (0, _util.error)('Invalid XRef stream header');
+            throw new _util.FormatError('Invalid XRef stream header');
           }
           obj = dict.get('Prev');
           if ((0, _util.isInt)(obj)) {
@@ -1016,7 +1064,9 @@ var XRef = function XRefClosure() {
       return this.fetch(obj, suppressEncryption);
     },
     fetch: function XRef_fetch(ref, suppressEncryption) {
-      (0, _util.assert)((0, _primitives.isRef)(ref), 'ref object is not a reference');
+      if (!(0, _primitives.isRef)(ref)) {
+        throw new Error('ref object is not a reference');
+      }
       var num = ref.num;
       if (num in this.cache) {
         var cacheEntry = this.cache[num];
@@ -1045,7 +1095,7 @@ var XRef = function XRefClosure() {
       var gen = ref.gen;
       var num = ref.num;
       if (xrefEntry.gen !== gen) {
-        (0, _util.error)('inconsistent generation in XRef');
+        throw new _util.FormatError('inconsistent generation in XRef');
       }
       var stream = this.stream.makeSubStream(xrefEntry.offset + this.stream.start);
       var parser = new _parser.Parser(new _parser.Lexer(stream), true, this);
@@ -1053,7 +1103,7 @@ var XRef = function XRefClosure() {
       var obj2 = parser.getObj();
       var obj3 = parser.getObj();
       if (!(0, _util.isInt)(obj1) || parseInt(obj1, 10) !== num || !(0, _util.isInt)(obj2) || parseInt(obj2, 10) !== gen || !(0, _primitives.isCmd)(obj3)) {
-        (0, _util.error)('bad XRef entry');
+        throw new _util.FormatError('bad XRef entry');
       }
       if (!(0, _primitives.isCmd)(obj3, 'obj')) {
         if (obj3.cmd.indexOf('obj') === 0) {
@@ -1062,7 +1112,7 @@ var XRef = function XRefClosure() {
             return num;
           }
         }
-        (0, _util.error)('bad XRef entry');
+        throw new _util.FormatError('bad XRef entry');
       }
       if (this.encrypt && !suppressEncryption) {
         xrefEntry = parser.getObj(this.encrypt.createCipherTransform(num, gen));
@@ -1078,12 +1128,12 @@ var XRef = function XRefClosure() {
       var tableOffset = xrefEntry.offset;
       var stream = this.fetch(new _primitives.Ref(tableOffset, 0));
       if (!(0, _primitives.isStream)(stream)) {
-        (0, _util.error)('bad ObjStm stream');
+        throw new _util.FormatError('bad ObjStm stream');
       }
       var first = stream.dict.get('First');
       var n = stream.dict.get('N');
       if (!(0, _util.isInt)(first) || !(0, _util.isInt)(n)) {
-        (0, _util.error)('invalid first and n parameters for ObjStm stream');
+        throw new _util.FormatError('invalid first and n parameters for ObjStm stream');
       }
       var parser = new _parser.Parser(new _parser.Lexer(stream), false, this);
       parser.allowStreams = true;
@@ -1094,12 +1144,12 @@ var XRef = function XRefClosure() {
       for (i = 0; i < n; ++i) {
         num = parser.getObj();
         if (!(0, _util.isInt)(num)) {
-          (0, _util.error)('invalid object number in the ObjStm stream: ' + num);
+          throw new _util.FormatError('invalid object number in the ObjStm stream: ' + num);
         }
         nums.push(num);
         var offset = parser.getObj();
         if (!(0, _util.isInt)(offset)) {
-          (0, _util.error)('invalid object offset in the ObjStm stream: ' + offset);
+          throw new _util.FormatError('invalid object offset in the ObjStm stream: ' + offset);
         }
       }
       for (i = 0; i < n; ++i) {
@@ -1115,7 +1165,7 @@ var XRef = function XRefClosure() {
       }
       xrefEntry = entries[xrefEntry.gen];
       if (xrefEntry === undefined) {
-        (0, _util.error)('bad XRef entry for compressed object');
+        throw new _util.FormatError('bad XRef entry for compressed object');
       }
       return xrefEntry;
     },
@@ -1172,7 +1222,9 @@ var NameOrNumberTree = function NameOrNumberTreeClosure() {
           var kids = obj.get('Kids');
           for (i = 0, n = kids.length; i < n; i++) {
             var kid = kids[i];
-            (0, _util.assert)(!processed.has(kid), 'Duplicate entry in "' + this._type + '" tree.');
+            if (processed.has(kid)) {
+              throw new _util.FormatError('Duplicate entry in "' + this._type + '" tree.');
+            }
             queue.push(kid);
             processed.put(kid);
           }

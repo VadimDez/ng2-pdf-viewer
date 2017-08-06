@@ -18,11 +18,6 @@ import 'pdfjs-dist/build/pdf.combined';
   position: relative;
   z-index: 0;
 }
-
-:host >>> .textLayer {
-  font-family: sans-serif;
-  overflow: hidden;
-}
   `]
 })
 
@@ -153,58 +148,10 @@ export class PdfViewerComponent implements OnChanges {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private buildSVG(viewport, textContent) {
-    const SVG_NS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(SVG_NS, 'svg:svg');
-
-    svg.setAttribute('width', viewport.width + 'px');
-    svg.setAttribute('height', viewport.height + 'px');
-    svg.setAttribute('font-size', '1');
-    svg.setAttribute('class', 'textLayer');
-
-    textContent.items.forEach(function (textItem) {
-      const tx = (<any>window).PDFJS.Util.transform(
-          (<any>window).PDFJS.Util.transform(viewport.transform, textItem.transform),
-          [1, 0, 0, -1, 0, 0]
-      );
-
-      const style = textContent.styles[textItem.fontName];
-      const text = document.createElementNS(SVG_NS, 'svg:text');
-      text.setAttribute('transform', 'matrix(' + tx.join(' ') + ')');
-      text.setAttribute('style', `
-      position: absolute;
-      fill: transparent;
-      line-height: 1;
-      white-space: pre;
-      cursor: text;
-      font-family: ${ textItem.fontName }, ${ style.fontFamily };
-      `);
-      text.textContent = textItem.str;
-      svg.appendChild(text);
-    });
-    return svg;
-  }
-
-  private renderPageOverlay(page: any, viewport: any, container: HTMLElement) {
-    page.getTextContent().then((textContent: TextContent) => {
-      let index = this._showAll ? page.pageIndex : 0;
-      let canvas = container.querySelectorAll('canvas')[index];
-      canvas.parentNode.insertBefore(this.buildSVG(viewport, textContent), canvas);
-      canvas.style.position = 'absolute';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
-      canvas.style.zIndex = '-1';
-    });
-  }
-
   private renderPage(pageNumber: number): PDFPromise<void> {
     return this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
-      let canvas: HTMLCanvasElement = document.createElement('canvas');
-      let ctx = canvas.getContext('2d');
-      let div: HTMLElement = document.createElement('div');
-      let ratio = Math.max(window.devicePixelRatio || 1, 1);
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
@@ -214,24 +161,19 @@ export class PdfViewerComponent implements OnChanges {
         this.removeAllChildNodes(container);
       }
 
-      div.appendChild(canvas);
-      container.appendChild(div);
+      return (<any>page).getOperatorList().then(function (opList) {
+        let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
 
-      canvas.height = viewport.height * ratio;
-      canvas.width = viewport.width * ratio;
-      canvas.style.height = `${ viewport.height }px`;
-      canvas.style.width = `${ viewport.width }px`;
+        return svgGfx.getSVG(opList, viewport).then(function (svg) {
+          let $div = document.createElement('div');
 
-      ctx.scale(ratio, ratio);
+          $div.classList.add('page');
+          $div.setAttribute('data-page-number', `${ page.pageNumber }`);
 
-      page.render({
-        canvasContext: ctx,
-        viewport: viewport
+          $div.appendChild(svg);
+          container.appendChild($div);
+        });
       });
-
-      if (this._renderText) {
-        this.renderPageOverlay(page, viewport, container);
-      }
     });
   }
 

@@ -67,7 +67,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var typeNum = dict.get('FunctionType');
       var typeFn = types[typeNum];
       if (!typeFn) {
-        (0, _util.error)('Unknown type of function');
+        throw new _util.FormatError('Unknown type of function');
       }
       return typeFn.call(this, fn, dict, xref);
     },
@@ -117,7 +117,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var domain = dict.getArray('Domain');
       var range = dict.getArray('Range');
       if (!domain || !range) {
-        (0, _util.error)('No domain or range');
+        throw new _util.FormatError('No domain or range');
       }
       var inputSize = domain.length / 2;
       var outputSize = range.length / 2;
@@ -208,7 +208,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var c1 = dict.getArray('C1') || [1];
       var n = dict.get('N');
       if (!(0, _util.isArray)(c0) || !(0, _util.isArray)(c1)) {
-        (0, _util.error)('Illegal dictionary for interpolated function');
+        throw new _util.FormatError('Illegal dictionary for interpolated function');
       }
       var length = c0.length;
       var diff = [];
@@ -232,11 +232,11 @@ var PDFFunction = function PDFFunctionClosure() {
     constructStiched: function PDFFunction_constructStiched(fn, dict, xref) {
       var domain = dict.getArray('Domain');
       if (!domain) {
-        (0, _util.error)('No domain');
+        throw new _util.FormatError('No domain');
       }
       var inputSize = domain.length / 2;
       if (inputSize !== 1) {
-        (0, _util.error)('Bad domain for stiched function');
+        throw new _util.FormatError('Bad domain for stiched function');
       }
       var fnRefs = dict.get('Functions');
       var fns = [];
@@ -290,10 +290,10 @@ var PDFFunction = function PDFFunctionClosure() {
       var domain = dict.getArray('Domain');
       var range = dict.getArray('Range');
       if (!domain) {
-        (0, _util.error)('No domain.');
+        throw new _util.FormatError('No domain.');
       }
       if (!range) {
-        (0, _util.error)('No range.');
+        throw new _util.FormatError('No range.');
       }
       var lexer = new _ps_parser.PostScriptLexer(fn);
       var parser = new _ps_parser.PostScriptParser(lexer);
@@ -376,19 +376,19 @@ var PostScriptStack = function PostScriptStackClosure() {
   PostScriptStack.prototype = {
     push: function PostScriptStack_push(value) {
       if (this.stack.length >= MAX_STACK_SIZE) {
-        (0, _util.error)('PostScript function stack overflow.');
+        throw new Error('PostScript function stack overflow.');
       }
       this.stack.push(value);
     },
     pop: function PostScriptStack_pop() {
       if (this.stack.length <= 0) {
-        (0, _util.error)('PostScript function stack underflow.');
+        throw new Error('PostScript function stack underflow.');
       }
       return this.stack.pop();
     },
     copy: function PostScriptStack_copy(n) {
       if (this.stack.length + n >= MAX_STACK_SIZE) {
-        (0, _util.error)('PostScript function stack overflow.');
+        throw new Error('PostScript function stack overflow.');
       }
       var stack = this.stack;
       for (var i = stack.length - n, j = n - 1; j >= 0; j--, i++) {
@@ -647,8 +647,7 @@ var PostScriptEvaluator = function PostScriptEvaluatorClosure() {
             }
             break;
           default:
-            (0, _util.error)('Unknown operator ' + operator);
-            break;
+            throw new _util.FormatError('Unknown operator ' + operator);
         }
       }
       return stack.stack;

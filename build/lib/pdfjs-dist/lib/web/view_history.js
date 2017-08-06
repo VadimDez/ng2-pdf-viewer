@@ -42,7 +42,7 @@ var ViewHistory = function () {
       if (database.files.length >= _this.cacheSize) {
         database.files.shift();
       }
-      var index;
+      var index = void 0;
       for (var i = 0, length = database.files.length; i < length; i++) {
         var branch = database.files[i];
         if (branch.fingerprint === _this.fingerprint) {

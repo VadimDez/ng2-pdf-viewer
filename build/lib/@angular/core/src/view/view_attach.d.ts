@@ -8,5 +8,6 @@
 import { ElementData, ViewData } from './types';
 export declare function attachEmbeddedView(parentView: ViewData, elementData: ElementData, viewIndex: number | undefined | null, view: ViewData): void;
 export declare function detachEmbeddedView(elementData: ElementData, viewIndex?: number): ViewData | null;
+export declare function detachProjectedView(view: ViewData): void;
 export declare function moveEmbeddedView(elementData: ElementData, oldViewIndex: number, newViewIndex: number): ViewData;
 export declare function renderDetachView(view: ViewData): void;

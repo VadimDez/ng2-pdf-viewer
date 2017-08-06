@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { AotCompilerHost } from '@angular/compiler';
-import { AngularCompilerOptions, MetadataCollector, ModuleMetadata } from '@angular/tsc-wrapped';
+import { AngularCompilerOptions, CollectorOptions, MetadataCollector, ModuleMetadata } from '@angular/tsc-wrapped';
 import * as ts from 'typescript';
 export interface CompilerHostContext extends ts.ModuleResolutionHost {
-    readResource(fileName: string): Promise<string>;
+    readResource?(fileName: string): Promise<string> | string;
     assumeFileExists(fileName: string): void;
 }
 export declare class CompilerHost implements AotCompilerHost {
@@ -21,8 +21,12 @@ export declare class CompilerHost implements AotCompilerHost {
     protected basePath: string;
     private genDir;
     private resolverCache;
+    private flatModuleIndexCache;
+    private flatModuleIndexNames;
+    private flatModuleIndexRedirectNames;
+    private moduleFileNames;
     protected resolveModuleNameHost: CompilerHostContext;
-    constructor(program: ts.Program, options: AngularCompilerOptions, context: CompilerHostContext);
+    constructor(program: ts.Program, options: AngularCompilerOptions, context: CompilerHostContext, collectorOptions?: CollectorOptions);
     getCanonicalFileName(fileName: string): string;
     moduleNameToFileName(m: string, containingFile: string): string | null;
     /**
@@ -47,14 +51,15 @@ export declare class CompilerHost implements AotCompilerHost {
      */
     private rewriteGenDirPath(filepath);
     protected getSourceFile(filePath: string): ts.SourceFile;
-    getMetadataFor(filePath: string): ModuleMetadata[];
+    getMetadataFor(filePath: string): ModuleMetadata[] | undefined;
     readMetadata(filePath: string, dtsFilePath: string): ModuleMetadata[];
     private upgradeVersion1Metadata(v1Metadata, dtsFilePath);
-    loadResource(filePath: string): Promise<string>;
+    loadResource(filePath: string): Promise<string> | string;
     loadSummary(filePath: string): string | null;
     getOutputFileName(sourceFilePath: string): string;
     isSourceFile(filePath: string): boolean;
     calculateEmitPath(filePath: string): string;
+    private hasBundleIndex(filePath);
 }
 export declare class CompilerHostContextAdapter {
     protected assumedExists: {

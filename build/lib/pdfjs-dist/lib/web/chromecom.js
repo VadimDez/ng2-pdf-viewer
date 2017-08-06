@@ -287,7 +287,13 @@ var ChromePreferences = function (_BasePreferences) {
           });
         };
         if (chrome.storage.managed) {
-          chrome.storage.managed.get(_this3.defaults, getPreferences);
+          chrome.storage.managed.get(_this3.defaults, function (items) {
+            if (items && items.enableHandToolOnLoad && !items.cursorToolOnLoad) {
+              items.enableHandToolOnLoad = false;
+              items.cursorToolOnLoad = 1;
+            }
+            getPreferences(items);
+          });
         } else {
           getPreferences(_this3.defaults);
         }

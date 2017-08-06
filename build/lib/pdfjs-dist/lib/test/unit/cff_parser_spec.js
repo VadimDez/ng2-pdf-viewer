@@ -28,6 +28,11 @@ describe('CFFParser', function () {
     }
     return result;
   }
+  var privateDictStub = {
+    getByName: function getByName(name) {
+      return 0;
+    }
+  };
   var fontData, parser, cff;
   beforeAll(function (done) {
     var exampleFont = '0100040100010101134142434445462b' + '54696d65732d526f6d616e000101011f' + 'f81b00f81c02f81d03f819041c6f000d' + 'fb3cfb6efa7cfa1605e911b8f1120003' + '01010813183030312e30303754696d65' + '7320526f6d616e54696d657300000002' + '010102030e0e7d99f92a99fb7695f773' + '8b06f79a93fc7c8c077d99f85695f75e' + '9908fb6e8cf87393f7108b09a70adf0b' + 'f78e14';
@@ -116,7 +121,10 @@ describe('CFFParser', function () {
     var bytes = new Uint8Array([0, 1, 1, 0, 38, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 1, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 149, 3, 20, 22, 22, 14]);
     parser.bytes = bytes;
     var charStringsIndex = parser.parseIndex(0).obj;
-    var charStrings = parser.parseCharStrings(charStringsIndex).charStrings;
+    var charStrings = parser.parseCharStrings({
+      charStrings: charStringsIndex,
+      privateDict: privateDictStub
+    }).charStrings;
     expect(charStrings.count).toEqual(1);
     expect(charStrings.get(0).length).toEqual(38);
   });
@@ -126,7 +134,10 @@ describe('CFFParser', function () {
     var bytes = new Uint8Array([0, 1, 1, 0, 237, 247, 22, 247, 72, 204, 247, 86, 14]);
     parser.bytes = bytes;
     var charStringsIndex = parser.parseIndex(0).obj;
-    var result = parser.parseCharStrings(charStringsIndex);
+    var result = parser.parseCharStrings({
+      charStrings: charStringsIndex,
+      privateDict: privateDictStub
+    });
     expect(result.charStrings.count).toEqual(1);
     expect(result.charStrings.get(0).length).toEqual(1);
     expect(result.seacs.length).toEqual(1);
@@ -142,7 +153,10 @@ describe('CFFParser', function () {
     var bytes = new Uint8Array([0, 1, 1, 0, 237, 247, 22, 247, 72, 204, 247, 86, 14]);
     parser.bytes = bytes;
     var charStringsIndex = parser.parseIndex(0).obj;
-    var result = parser.parseCharStrings(charStringsIndex);
+    var result = parser.parseCharStrings({
+      charStrings: charStringsIndex,
+      privateDict: privateDictStub
+    });
     expect(result.charStrings.count).toEqual(1);
     expect(result.charStrings.get(0).length).toEqual(9);
     expect(result.seacs.length).toEqual(0);
@@ -151,7 +165,10 @@ describe('CFFParser', function () {
     var bytes = new Uint8Array([0, 1, 1, 0, 14]);
     parser.bytes = bytes;
     var charStringsIndex = parser.parseIndex(0).obj;
-    var result = parser.parseCharStrings(charStringsIndex);
+    var result = parser.parseCharStrings({
+      charStrings: charStringsIndex,
+      privateDict: privateDictStub
+    });
     expect(result.charStrings.count).toEqual(1);
     expect(result.charStrings.get(0)[0]).toEqual(14);
     expect(result.seacs.length).toEqual(0);

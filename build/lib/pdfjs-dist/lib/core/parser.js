@@ -74,7 +74,7 @@ var Parser = function ParserClosure() {
             }
             if ((0, _primitives.isEOF)(this.buf1)) {
               if (!this.recoveryMode) {
-                (0, _util.error)('End of file inside array');
+                throw new _util.FormatError('End of file inside array');
               }
               return array;
             }
@@ -97,7 +97,7 @@ var Parser = function ParserClosure() {
             }
             if ((0, _primitives.isEOF)(this.buf1)) {
               if (!this.recoveryMode) {
-                (0, _util.error)('End of file inside dictionary');
+                throw new _util.FormatError('End of file inside dictionary');
               }
               return dict;
             }
@@ -307,7 +307,7 @@ var Parser = function ParserClosure() {
       var dict = new _primitives.Dict(this.xref);
       while (!(0, _primitives.isCmd)(this.buf1, 'ID') && !(0, _primitives.isEOF)(this.buf1)) {
         if (!(0, _primitives.isName)(this.buf1)) {
-          (0, _util.error)('Dictionary key must be a name object');
+          throw new _util.FormatError('Dictionary key must be a name object');
         }
         var key = this.buf1.name;
         this.shift();
@@ -332,7 +332,7 @@ var Parser = function ParserClosure() {
           ii;
       if (filterName === 'DCTDecode' || filterName === 'DCT') {
         length = this.findDCTDecodeInlineStreamEnd(stream);
-      } else if (filterName === 'ASCII85Decide' || filterName === 'A85') {
+      } else if (filterName === 'ASCII85Decode' || filterName === 'A85') {
         length = this.findASCII85DecodeInlineStreamEnd(stream);
       } else if (filterName === 'ASCIIHexDecode' || filterName === 'AHx') {
         length = this.findASCIIHexDecodeInlineStreamEnd(stream);
@@ -422,7 +422,7 @@ var Parser = function ParserClosure() {
           stream.pos += scanLength;
         }
         if (!found) {
-          (0, _util.error)('Missing endstream');
+          throw new _util.FormatError('Missing endstream');
         }
         length = skipped;
         lexer.nextChar();
@@ -454,7 +454,7 @@ var Parser = function ParserClosure() {
         for (var i = 0, ii = filterArray.length; i < ii; ++i) {
           filter = this.xref.fetchIfRef(filterArray[i]);
           if (!(0, _primitives.isName)(filter)) {
-            (0, _util.error)('Bad filter name: ' + filter);
+            throw new _util.FormatError('Bad filter name: ' + filter);
           }
           params = null;
           if ((0, _util.isArray)(paramsArray) && i in paramsArray) {
@@ -580,7 +580,7 @@ var Lexer = function LexerClosure() {
         } while (ch === 0x0A || ch === 0x0D);
       }
       if (ch < 0x30 || ch > 0x39) {
-        (0, _util.error)('Invalid number: ' + String.fromCharCode(ch) + ' (charCode ' + ch + ')');
+        throw new _util.FormatError('Invalid number: ' + String.fromCharCode(ch) + ' (charCode ' + ch + ')');
       }
       var baseValue = ch - 0x30;
       var powerValue = 0;
@@ -867,8 +867,7 @@ var Lexer = function LexerClosure() {
           return _primitives.Cmd.get('}');
         case 0x29:
           this.nextChar();
-          (0, _util.error)('Illegal character: ' + ch);
-          break;
+          throw new _util.FormatError('Illegal character: ' + ch);
       }
       var str = String.fromCharCode(ch);
       var knownCommands = this.knownCommands;
@@ -879,7 +878,7 @@ var Lexer = function LexerClosure() {
           break;
         }
         if (str.length === 128) {
-          (0, _util.error)('Command token too long: ' + str.length);
+          throw new _util.FormatError('Command token too long: ' + str.length);
         }
         str = possibleCommand;
         knownCommandFound = knownCommands && knownCommands[str] !== undefined;

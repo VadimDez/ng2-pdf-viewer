@@ -7,7 +7,6 @@
  */
 import { Type } from '../type';
 import { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
-import { ReflectorReader } from './reflector_reader';
 import { GetterFn, MethodFn, SetterFn } from './types';
 export { PlatformReflectionCapabilities } from './platform_reflection_capabilities';
 export { GetterFn, MethodFn, SetterFn } from './types';
@@ -15,7 +14,7 @@ export { GetterFn, MethodFn, SetterFn } from './types';
  * Provides access to reflection data about symbols. Used internally by Angular
  * to power dependency injection and compilation.
  */
-export declare class Reflector extends ReflectorReader {
+export declare class Reflector {
     reflectionCapabilities: PlatformReflectionCapabilities;
     constructor(reflectionCapabilities: PlatformReflectionCapabilities);
     updateCapabilities(caps: PlatformReflectionCapabilities): void;
@@ -30,6 +29,7 @@ export declare class Reflector extends ReflectorReader {
     setter(name: string): SetterFn;
     method(name: string): MethodFn;
     importUri(type: any): string;
-    resolveIdentifier(name: string, moduleUrl: string, runtime: any): any;
+    resourceUri(type: any): string;
+    resolveIdentifier(name: string, moduleUrl: string, members: string[], runtime: any): any;
     resolveEnum(identifier: any, name: string): any;
 }

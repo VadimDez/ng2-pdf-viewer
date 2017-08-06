@@ -35,16 +35,23 @@ var SWIPE_MIN_DISTANCE_THRESHOLD = 50;
 var SWIPE_ANGLE_THRESHOLD = Math.PI / 6;
 
 var PDFPresentationMode = function () {
-  function PDFPresentationMode(options) {
+  function PDFPresentationMode(_ref) {
     var _this = this;
+
+    var container = _ref.container,
+        _ref$viewer = _ref.viewer,
+        viewer = _ref$viewer === undefined ? null : _ref$viewer,
+        pdfViewer = _ref.pdfViewer,
+        eventBus = _ref.eventBus,
+        _ref$contextMenuItems = _ref.contextMenuItems,
+        contextMenuItems = _ref$contextMenuItems === undefined ? null : _ref$contextMenuItems;
 
     _classCallCheck(this, PDFPresentationMode);
 
-    this.container = options.container;
-    this.viewer = options.viewer || options.container.firstElementChild;
-    this.pdfViewer = options.pdfViewer;
-    this.eventBus = options.eventBus;
-    var contextMenuItems = options.contextMenuItems || null;
+    this.container = container;
+    this.viewer = viewer || container.firstElementChild;
+    this.pdfViewer = pdfViewer;
+    this.eventBus = eventBus;
     this.active = false;
     this.args = null;
     this.contextMenuOpen = false;

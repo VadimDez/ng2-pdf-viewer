@@ -234,6 +234,10 @@ var PDFFindController = function () {
             }
             _this2.pageContents[i] = strBuf.join('');
             extractTextCapability.resolve(i);
+          }, function (reason) {
+            console.error('Unable to get page ' + (i + 1) + ' text content', reason);
+            _this2.pageContents[i] = '';
+            extractTextCapability.resolve(i);
           });
         });
       };

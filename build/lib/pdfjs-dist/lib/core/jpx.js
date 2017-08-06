@@ -23,6 +23,15 @@ var _util = require('../shared/util');
 
 var _arithmetic_decoder = require('./arithmetic_decoder');
 
+var JpxError = function JpxErrorClosure() {
+  function JpxError(msg) {
+    this.message = 'JPX error: ' + msg;
+  }
+  JpxError.prototype = new Error();
+  JpxError.prototype.name = 'JpxError';
+  JpxError.constructor = JpxError;
+  return JpxError;
+}();
 var JpxImage = function JpxImageClosure() {
   var SubbandsGainLog2 = {
     'LL': 0,
@@ -56,7 +65,7 @@ var JpxImage = function JpxImageClosure() {
           lbox = length - position + headerSize;
         }
         if (lbox < headerSize) {
-          (0, _util.error)('JPX Error: Invalid box field size');
+          throw new JpxError('Invalid box field size');
         }
         var dataLength = lbox - headerSize;
         var jumpDataLength = true;
@@ -126,7 +135,7 @@ var JpxImage = function JpxImageClosure() {
           return;
         }
       }
-      (0, _util.error)('JPX Error: No size marker found in JPX stream');
+      throw new JpxError('No size marker found in JPX stream');
     },
     parseCodestream: function JpxImage_parseCodestream(data, start, end) {
       var context = {};
@@ -378,7 +387,7 @@ var JpxImage = function JpxImageClosure() {
         }
       } catch (e) {
         if (doNotRecover || this.failOnCorruptedImage) {
-          (0, _util.error)('JPX Error: ' + e.message);
+          throw new JpxError(e.message);
         } else {
           (0, _util.warn)('JPX: Trying to recover from: ' + e.message);
         }
@@ -589,7 +598,7 @@ var JpxImage = function JpxImageClosure() {
         }
         r = 0;
       }
-      (0, _util.error)('JPX Error: Out of packets');
+      throw new JpxError('Out of packets');
     };
   }
   function ResolutionLayerComponentPositionIterator(context) {
@@ -627,7 +636,7 @@ var JpxImage = function JpxImageClosure() {
         }
         l = 0;
       }
-      (0, _util.error)('JPX Error: Out of packets');
+      throw new JpxError('Out of packets');
     };
   }
   function ResolutionPositionComponentLayerIterator(context) {
@@ -681,7 +690,7 @@ var JpxImage = function JpxImageClosure() {
         }
         p = 0;
       }
-      (0, _util.error)('JPX Error: Out of packets');
+      throw new JpxError('Out of packets');
     };
   }
   function PositionComponentResolutionLayerIterator(context) {
@@ -723,7 +732,7 @@ var JpxImage = function JpxImageClosure() {
         }
         px = 0;
       }
-      (0, _util.error)('JPX Error: Out of packets');
+      throw new JpxError('Out of packets');
     };
   }
   function ComponentPositionResolutionLayerIterator(context) {
@@ -765,7 +774,7 @@ var JpxImage = function JpxImageClosure() {
         }
         py = 0;
       }
-      (0, _util.error)('JPX Error: Out of packets');
+      throw new JpxError('Out of packets');
     };
   }
   function getPrecinctIndexIfExist(pxIndex, pyIndex, sizeInImageScale, precinctIterationSizes, resolution) {
@@ -917,7 +926,7 @@ var JpxImage = function JpxImageClosure() {
         tile.packetsIterator = new ComponentPositionResolutionLayerIterator(context);
         break;
       default:
-        (0, _util.error)('JPX Error: Unsupported progression order ' + progressionOrder);
+        throw new JpxError('Unsupported progression order ' + progressionOrder);
     }
   }
   function parseTilePackets(context, data, offset, dataLength) {
@@ -1737,7 +1746,7 @@ var JpxImage = function JpxImageClosure() {
         var contexts = this.contexts;
         var symbol = decoder.readBit(contexts, UNIFORM_CONTEXT) << 3 | decoder.readBit(contexts, UNIFORM_CONTEXT) << 2 | decoder.readBit(contexts, UNIFORM_CONTEXT) << 1 | decoder.readBit(contexts, UNIFORM_CONTEXT);
         if (symbol !== 0xA) {
-          (0, _util.error)('JPX Error: Invalid segmentation symbol');
+          throw new JpxError('Invalid segmentation symbol');
         }
       }
     };

@@ -11,11 +11,11 @@ export declare enum NumberFormatStyle {
     Currency = 2,
 }
 export declare class NumberFormatter {
-    static format(num: number, locale: string, style: NumberFormatStyle, {minimumIntegerDigits, minimumFractionDigits, maximumFractionDigits, currency, currencyAsSymbol}?: {
+    static format(num: number, locale: string, style: NumberFormatStyle, opts?: {
         minimumIntegerDigits?: number;
         minimumFractionDigits?: number;
         maximumFractionDigits?: number;
-        currency?: string;
+        currency?: string | null;
         currencyAsSymbol?: boolean;
     }): string;
 }

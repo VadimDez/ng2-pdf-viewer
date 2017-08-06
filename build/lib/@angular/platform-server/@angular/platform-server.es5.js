@@ -1,17 +1,14 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+import * as tslib_1 from "tslib";
 /**
- * @license Angular v4.1.0
+ * @license Angular v4.3.3
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
-import { ApplicationRef, Inject, Injectable, InjectionToken, Injector, NgModule, NgZone, Optional, PLATFORM_ID, PLATFORM_INITIALIZER, RendererFactory2, Testability, Version, ViewEncapsulation, createPlatformFactory, platformCore, ɵALLOW_MULTIPLE_PLATFORMS, ɵglobal } from '@angular/core';
-import { BrowserModule, DOCUMENT, ɵDomAdapter, ɵNAMESPACE_URIS, ɵSharedStylesHost, ɵTRANSITION_ID, ɵflattenStyles, ɵgetDOM, ɵsetRootDomAdapter, ɵsetValueOnPath, ɵshimContentAttribute, ɵshimHostAttribute } from '@angular/platform-browser';
+import { ApplicationRef, Inject, Injectable, InjectionToken, Injector, NgModule, NgZone, Optional, PLATFORM_ID, PLATFORM_INITIALIZER, RendererFactory2, Testability, Version, ViewEncapsulation, createPlatformFactory, platformCore, ɵALLOW_MULTIPLE_PLATFORMS } from '@angular/core';
+import { BrowserModule, DOCUMENT, ɵDomAdapter, ɵNAMESPACE_URIS, ɵSharedStylesHost, ɵTRANSITION_ID, ɵflattenStyles, ɵgetDOM, ɵsetRootDomAdapter, ɵshimContentAttribute, ɵshimHostAttribute } from '@angular/platform-browser';
 import { ɵAnimationEngine } from '@angular/animations/browser';
 import { PlatformLocation, ɵPLATFORM_SERVER_ID } from '@angular/common';
+import { HTTP_INTERCEPTORS, HttpBackend, HttpClientModule, HttpHandler, XhrFactory, ɵinterceptingHandler } from '@angular/common/http';
 import { CssSelector, DomElementSchemaRegistry, SelectorMatcher, platformCoreDynamic } from '@angular/compiler';
 import { BrowserXhr, Http, HttpModule, ReadyState, RequestOptions, XHRBackend, XSRFStrategy } from '@angular/http';
 import { NoopAnimationsModule, ɵAnimationRendererFactory } from '@angular/platform-browser/animations';
@@ -113,42 +110,44 @@ ServerXsrfStrategy.decorators = [
  * @nocollapse
  */
 ServerXsrfStrategy.ctorParameters = function () { return []; };
-var ZoneMacroTaskConnection = (function () {
+/**
+ * @abstract
+ */
+var ZoneMacroTaskWrapper = (function () {
+    function ZoneMacroTaskWrapper() {
+    }
     /**
      * @param {?} request
-     * @param {?} backend
+     * @return {?}
      */
-    function ZoneMacroTaskConnection(request, backend) {
+    ZoneMacroTaskWrapper.prototype.wrap = function (request) {
         var _this = this;
-        this.request = request;
-        validateRequestUrl(request.url);
-        this.response = new Observable(function (observer) {
-            var task = null;
-            var scheduled = false;
-            var sub = null;
-            var savedResult = null;
-            var savedError = null;
-            var scheduleTask = function (_task) {
+        return new Observable(function (observer) {
+            var /** @type {?} */ task = ((null));
+            var /** @type {?} */ scheduled = false;
+            var /** @type {?} */ sub = null;
+            var /** @type {?} */ savedResult = null;
+            var /** @type {?} */ savedError = null;
+            var /** @type {?} */ scheduleTask = function (_task) {
                 task = _task;
                 scheduled = true;
-                _this.lastConnection = backend.createConnection(request);
-                sub = _this.lastConnection.response
-                    .subscribe(function (res) { return savedResult = res; }, function (err) {
+                var /** @type {?} */ delegate = _this.delegate(request);
+                sub = delegate.subscribe(function (res) { return savedResult = res; }, function (err) {
                     if (!scheduled) {
-                        throw new Error('invoke twice');
+                        throw new Error('An http observable was completed twice. This shouldn\'t happen, please file a bug.');
                     }
                     savedError = err;
                     scheduled = false;
                     task.invoke();
                 }, function () {
                     if (!scheduled) {
-                        throw new Error('invoke twice');
+                        throw new Error('An http observable was completed twice. This shouldn\'t happen, please file a bug.');
                     }
                     scheduled = false;
                     task.invoke();
                 });
             };
-            var cancelTask = function (_task) {
+            var /** @type {?} */ cancelTask = function (_task) {
                 if (!scheduled) {
                     return;
                 }
@@ -158,7 +157,7 @@ var ZoneMacroTaskConnection = (function () {
                     sub = null;
                 }
             };
-            var onComplete = function () {
+            var /** @type {?} */ onComplete = function () {
                 if (savedError !== null) {
                     observer.error(savedError);
                 }
@@ -167,10 +166,10 @@ var ZoneMacroTaskConnection = (function () {
                     observer.complete();
                 }
             };
-            // MockBackend is currently synchronous, which means that if scheduleTask is by
+            // MockBackend for Http is synchronous, which means that if scheduleTask is by
             // scheduleMacroTask, the request will hit MockBackend and the response will be
             // sent, causing task.invoke() to be called.
-            var _task = Zone.current.scheduleMacroTask('ZoneMacroTaskConnection.subscribe', onComplete, {}, function () { return null; }, cancelTask);
+            var /** @type {?} */ _task = Zone.current.scheduleMacroTask('ZoneMacroTaskWrapper.subscribe', onComplete, {}, function () { return null; }, cancelTask);
             scheduleTask(_task);
             return function () {
                 if (scheduled && task) {
@@ -183,7 +182,37 @@ var ZoneMacroTaskConnection = (function () {
                 }
             };
         });
+    };
+    /**
+     * @abstract
+     * @param {?} request
+     * @return {?}
+     */
+    ZoneMacroTaskWrapper.prototype.delegate = function (request) { };
+    return ZoneMacroTaskWrapper;
+}());
+var ZoneMacroTaskConnection = (function (_super) {
+    tslib_1.__extends(ZoneMacroTaskConnection, _super);
+    /**
+     * @param {?} request
+     * @param {?} backend
+     */
+    function ZoneMacroTaskConnection(request, backend) {
+        var _this = _super.call(this) || this;
+        _this.request = request;
+        _this.backend = backend;
+        validateRequestUrl(request.url);
+        _this.response = _this.wrap(request);
+        return _this;
     }
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    ZoneMacroTaskConnection.prototype.delegate = function (request) {
+        this.lastConnection = this.backend.createConnection(request);
+        return (this.lastConnection.response);
+    };
     Object.defineProperty(ZoneMacroTaskConnection.prototype, "readyState", {
         /**
          * @return {?}
@@ -195,7 +224,7 @@ var ZoneMacroTaskConnection = (function () {
         configurable: true
     });
     return ZoneMacroTaskConnection;
-}());
+}(ZoneMacroTaskWrapper));
 var ZoneMacroTaskBackend = (function () {
     /**
      * @param {?} backend
@@ -212,6 +241,30 @@ var ZoneMacroTaskBackend = (function () {
     };
     return ZoneMacroTaskBackend;
 }());
+var ZoneClientBackend = (function (_super) {
+    tslib_1.__extends(ZoneClientBackend, _super);
+    /**
+     * @param {?} backend
+     */
+    function ZoneClientBackend(backend) {
+        var _this = _super.call(this) || this;
+        _this.backend = backend;
+        return _this;
+    }
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    ZoneClientBackend.prototype.handle = function (request) { return this.wrap(request); };
+    /**
+     * @param {?} request
+     * @return {?}
+     */
+    ZoneClientBackend.prototype.delegate = function (request) {
+        return this.backend.handle(request);
+    };
+    return ZoneClientBackend;
+}(ZoneMacroTaskWrapper));
 /**
  * @param {?} xhrBackend
  * @param {?} options
@@ -221,10 +274,23 @@ function httpFactory(xhrBackend, options) {
     var /** @type {?} */ macroBackend = new ZoneMacroTaskBackend(xhrBackend);
     return new Http(macroBackend, options);
 }
+/**
+ * @param {?} backend
+ * @param {?} interceptors
+ * @return {?}
+ */
+function zoneWrappedInterceptingHandler(backend, interceptors) {
+    var /** @type {?} */ realBackend = ɵinterceptingHandler(backend, interceptors);
+    return new ZoneClientBackend(realBackend);
+}
 var SERVER_HTTP_PROVIDERS = [
     { provide: Http, useFactory: httpFactory, deps: [XHRBackend, RequestOptions] },
-    { provide: BrowserXhr, useClass: ServerXhr },
-    { provide: XSRFStrategy, useClass: ServerXsrfStrategy },
+    { provide: BrowserXhr, useClass: ServerXhr }, { provide: XSRFStrategy, useClass: ServerXsrfStrategy },
+    { provide: XhrFactory, useClass: ServerXhr }, {
+        provide: HttpHandler,
+        useFactory: zoneWrappedInterceptingHandler,
+        deps: [HttpBackend, [new Optional(), HTTP_INTERCEPTORS]]
+    }
 ];
 /**
  * @license
@@ -451,7 +517,7 @@ function parseDocument(html) {
  * can introduce XSS risks.
  */
 var Parse5DomAdapter = (function (_super) {
-    __extends(Parse5DomAdapter, _super);
+    tslib_1.__extends(Parse5DomAdapter, _super);
     function Parse5DomAdapter() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -501,7 +567,10 @@ var Parse5DomAdapter = (function (_super) {
             el.attribs['class'] = el.className = value;
         }
         else {
-            el[name] = value;
+            // Store the property in a separate property bag so that it doesn't clobber
+            // actual parse5 properties on the Element.
+            el.properties = el.properties || {};
+            el.properties[name] = value;
         }
     };
     /**
@@ -509,7 +578,9 @@ var Parse5DomAdapter = (function (_super) {
      * @param {?} name
      * @return {?}
      */
-    Parse5DomAdapter.prototype.getProperty = function (el, name) { return el[name]; };
+    Parse5DomAdapter.prototype.getProperty = function (el, name) {
+        return el.properties ? el.properties[name] : undefined;
+    };
     /**
      * @param {?} error
      * @return {?}
@@ -1485,12 +1556,6 @@ var Parse5DomAdapter = (function (_super) {
      */
     Parse5DomAdapter.prototype.setData = function (el, name, value) { this.setAttribute(el, 'data-' + name, value); };
     /**
-     * @param {?} path
-     * @param {?} value
-     * @return {?}
-     */
-    Parse5DomAdapter.prototype.setGlobalVar = function (path, value) { ɵsetValueOnPath(ɵglobal, path, value); };
-    /**
      * @return {?}
      */
     Parse5DomAdapter.prototype.supportsWebAnimation = function () { return false; };
@@ -1822,6 +1887,14 @@ var ServerRendererFactory2 = (function () {
             }
         }
     };
+    /**
+     * @return {?}
+     */
+    ServerRendererFactory2.prototype.begin = function () { };
+    /**
+     * @return {?}
+     */
+    ServerRendererFactory2.prototype.end = function () { };
     return ServerRendererFactory2;
 }());
 ServerRendererFactory2.decorators = [
@@ -2053,7 +2126,7 @@ function checkNoSyntheticProp(name, nameKind) {
     }
 }
 var EmulatedEncapsulationServerRenderer2 = (function (_super) {
-    __extends(EmulatedEncapsulationServerRenderer2, _super);
+    tslib_1.__extends(EmulatedEncapsulationServerRenderer2, _super);
     /**
      * @param {?} document
      * @param {?} ngZone
@@ -2095,7 +2168,7 @@ var EmulatedEncapsulationServerRenderer2 = (function (_super) {
  * found in the LICENSE file at https://angular.io/license
  */
 var ServerStylesHost = (function (_super) {
-    __extends(ServerStylesHost, _super);
+    tslib_1.__extends(ServerStylesHost, _super);
     /**
      * @param {?} doc
      * @param {?} transitionId
@@ -2195,7 +2268,7 @@ var ServerModule = (function () {
 ServerModule.decorators = [
     { type: NgModule, args: [{
                 exports: [BrowserModule],
-                imports: [HttpModule, NoopAnimationsModule],
+                imports: [HttpModule, HttpClientModule, NoopAnimationsModule],
                 providers: [
                     SERVER_RENDER_PROVIDERS,
                     SERVER_HTTP_PROVIDERS,
@@ -2275,8 +2348,12 @@ function _render(platform, moduleRefPromise) {
 /**
  * Renders a Module to string.
  *
+ * `document` is the full document HTML of the page to render, as a string.
+ * `url` is the URL for the current render request.
+ * `extraProviders` are the platform level providers for the current render request.
+ *
  * Do not use this in a production server environment. Use pre-compiled {\@link NgModuleFactory} with
- * {link renderModuleFactory} instead.
+ * {\@link renderModuleFactory} instead.
  *
  * \@experimental
  * @template T
@@ -2290,6 +2367,10 @@ function renderModule(module, options) {
 }
 /**
  * Renders a {\@link NgModuleFactory} to string.
+ *
+ * `document` is the full document HTML of the page to render, as a string.
+ * `url` is the URL for the current render request.
+ * `extraProviders` are the platform level providers for the current render request.
  *
  * \@experimental
  * @template T
@@ -2323,7 +2404,7 @@ function renderModuleFactory(moduleFactory, options) {
 /**
  * \@stable
  */
-var VERSION = new Version('4.1.0');
+var VERSION = new Version('4.3.3');
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -2347,5 +2428,5 @@ var VERSION = new Version('4.1.0');
 /**
  * Generated bundle index. Do not edit.
  */
-export { PlatformState, ServerModule, platformDynamicServer, platformServer, INITIAL_CONFIG, renderModule, renderModuleFactory, VERSION, INTERNAL_SERVER_PLATFORM_PROVIDERS as ɵINTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS as ɵSERVER_RENDER_PROVIDERS, ServerRendererFactory2 as ɵServerRendererFactory2, SERVER_HTTP_PROVIDERS as ɵf, ServerXhr as ɵc, ServerXsrfStrategy as ɵd, httpFactory as ɵe, instantiateServerRendererFactory as ɵa, ServerStylesHost as ɵb };
+export { PlatformState, ServerModule, platformDynamicServer, platformServer, INITIAL_CONFIG, renderModule, renderModuleFactory, VERSION, INTERNAL_SERVER_PLATFORM_PROVIDERS as ɵINTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS as ɵSERVER_RENDER_PROVIDERS, ServerRendererFactory2 as ɵServerRendererFactory2, SERVER_HTTP_PROVIDERS as ɵg, ServerXhr as ɵc, ServerXsrfStrategy as ɵd, httpFactory as ɵe, zoneWrappedInterceptingHandler as ɵf, instantiateServerRendererFactory as ɵa, ServerStylesHost as ɵb };
 //# sourceMappingURL=platform-server.es5.js.map

@@ -59,6 +59,7 @@ var getStdFontMap = (0, _util.getLookupTableFactory)(function (t) {
   t['Helvetica-BoldOblique'] = 'Helvetica-BoldOblique';
   t['Helvetica-Italic'] = 'Helvetica-Oblique';
   t['Helvetica-Oblique'] = 'Helvetica-Oblique';
+  t['SegoeUISymbol'] = 'Helvetica';
   t['Symbol-Bold'] = 'Symbol';
   t['Symbol-BoldItalic'] = 'Symbol';
   t['Symbol-Italic'] = 'Symbol';

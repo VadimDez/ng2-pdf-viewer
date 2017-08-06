@@ -108,9 +108,9 @@ var PDFThumbnailViewer = function () {
       }
       this.pdfDocument = pdfDocument;
       if (!pdfDocument) {
-        return Promise.resolve();
+        return;
       }
-      return pdfDocument.getPage(1).then(function (firstPage) {
+      pdfDocument.getPage(1).then(function (firstPage) {
         var pagesCount = pdfDocument.numPages;
         var viewport = firstPage.getViewport(1.0);
         for (var pageNum = 1; pageNum <= pagesCount; ++pageNum) {
@@ -125,6 +125,8 @@ var PDFThumbnailViewer = function () {
           });
           _this._thumbnails.push(thumbnail);
         }
+      }).catch(function (reason) {
+        console.error('Unable to initialize thumbnail viewer', reason);
       });
     }
   }, {
@@ -171,6 +173,9 @@ var PDFThumbnailViewer = function () {
         thumbView.setPdfPage(pdfPage);
         _this2._pagesRequests[pageNumber] = null;
         return pdfPage;
+      }).catch(function (reason) {
+        console.error('Unable to get page for thumb view', reason);
+        _this2._pagesRequests[pageNumber] = null;
       });
       this._pagesRequests[pageNumber] = promise;
       return promise;
@@ -196,8 +201,14 @@ var PDFThumbnailViewer = function () {
       return this._pagesRotation;
     },
     set: function set(rotation) {
+      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
+        throw new Error('Invalid thumbnails rotation angle.');
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
       this._pagesRotation = rotation;
-      for (var i = 0, l = this._thumbnails.length; i < l; i++) {
+      for (var i = 0, ii = this._thumbnails.length; i < ii; i++) {
         this._thumbnails[i].update(rotation);
       }
     }

@@ -83,7 +83,7 @@ var PDFImage = function PDFImageClosure() {
     this.width = dict.get('Width', 'W');
     this.height = dict.get('Height', 'H');
     if (this.width < 1 || this.height < 1) {
-      (0, _util.error)('Invalid image width: ' + this.width + ' or height: ' + this.height);
+      throw new _util.FormatError('Invalid image width: ' + this.width + ' or ' + ('height: ' + this.height));
     }
     this.interpolate = dict.get('Interpolate', 'I') || false;
     this.imageMask = dict.get('ImageMask', 'IM') || false;
@@ -95,7 +95,7 @@ var PDFImage = function PDFImageClosure() {
         if (this.imageMask) {
           bitsPerComponent = 1;
         } else {
-          (0, _util.error)('Bits per component missing in image: ' + this.imageMask);
+          throw new _util.FormatError('Bits per component missing in image: ' + this.imageMask);
         }
       }
     }
@@ -115,7 +115,7 @@ var PDFImage = function PDFImageClosure() {
             colorSpace = _primitives.Name.get('DeviceCMYK');
             break;
           default:
-            (0, _util.error)('JPX images with ' + this.numComps + ' color components not supported.');
+            throw new Error('JPX images with ' + this.numComps + ' ' + 'color components not supported.');
         }
       }
       this.colorSpace = _colorspace.ColorSpace.parse(colorSpace, xref, res);
@@ -343,7 +343,7 @@ var PDFImage = function PDFImageClosure() {
             alphaBuf[i] = opacity;
           }
         } else {
-          (0, _util.error)('Unknown mask format.');
+          throw new _util.FormatError('Unknown mask format.');
         }
       }
       if (alphaBuf) {
@@ -457,7 +457,7 @@ var PDFImage = function PDFImageClosure() {
     fillGrayBuffer: function PDFImage_fillGrayBuffer(buffer) {
       var numComps = this.numComps;
       if (numComps !== 1) {
-        (0, _util.error)('Reading gray scale from a color image: ' + numComps);
+        throw new _util.FormatError('Reading gray scale from a color image: ' + numComps);
       }
       var width = this.width;
       var height = this.height;

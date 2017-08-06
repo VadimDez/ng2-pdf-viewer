@@ -53,9 +53,13 @@ var ChunkedStream = function ChunkedStreamClosure() {
     },
     onReceiveData: function ChunkedStream_onReceiveData(begin, chunk) {
       var end = begin + chunk.byteLength;
-      (0, _util.assert)(begin % this.chunkSize === 0, 'Bad begin offset: ' + begin);
+      if (begin % this.chunkSize !== 0) {
+        throw new Error('Bad begin offset: ' + begin);
+      }
       var length = this.bytes.length;
-      (0, _util.assert)(end % this.chunkSize === 0 || end === length, 'Bad end offset: ' + end);
+      if (end % this.chunkSize !== 0 && end !== length) {
+        throw new Error('Bad end offset: ' + end);
+      }
       this.bytes.set(new Uint8Array(chunk), begin);
       var chunkSize = this.chunkSize;
       var beginChunk = Math.floor(begin / chunkSize);

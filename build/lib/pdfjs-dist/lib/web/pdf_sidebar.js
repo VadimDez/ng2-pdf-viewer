@@ -212,17 +212,18 @@ var PDFSidebar = function () {
   }, {
     key: '_updateThumbnailViewer',
     value: function _updateThumbnailViewer() {
-      var pdfViewer = this.pdfViewer;
-      var thumbnailViewer = this.pdfThumbnailViewer;
+      var pdfViewer = this.pdfViewer,
+          pdfThumbnailViewer = this.pdfThumbnailViewer;
+
       var pagesCount = pdfViewer.pagesCount;
       for (var pageIndex = 0; pageIndex < pagesCount; pageIndex++) {
         var pageView = pdfViewer.getPageView(pageIndex);
         if (pageView && pageView.renderingState === _pdf_rendering_queue.RenderingStates.FINISHED) {
-          var thumbnailView = thumbnailViewer.getThumbnail(pageIndex);
+          var thumbnailView = pdfThumbnailViewer.getThumbnail(pageIndex);
           thumbnailView.setImage(pageView);
         }
       }
-      thumbnailViewer.scrollThumbnailIntoView(pdfViewer.currentPageNumber);
+      pdfThumbnailViewer.scrollThumbnailIntoView(pdfViewer.currentPageNumber);
     }
   }, {
     key: '_showUINotification',

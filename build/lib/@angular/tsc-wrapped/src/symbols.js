@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -5,14 +6,20 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var ts = require('typescript');
+Object.defineProperty(exports, "__esModule", { value: true });
+var ts = require("typescript");
 var Symbols = (function () {
     function Symbols(sourceFile) {
         this.sourceFile = sourceFile;
+        this.references = new Map();
     }
-    Symbols.prototype.resolve = function (name) { return this.symbols.get(name); };
+    Symbols.prototype.resolve = function (name, preferReference) {
+        return (preferReference && this.references.get(name)) || this.symbols.get(name);
+    };
     Symbols.prototype.define = function (name, value) { this.symbols.set(name, value); };
+    Symbols.prototype.defineReference = function (name, value) {
+        this.references.set(name, value);
+    };
     Symbols.prototype.has = function (name) { return this.symbols.has(name); };
     Object.defineProperty(Symbols.prototype, "symbols", {
         get: function () {

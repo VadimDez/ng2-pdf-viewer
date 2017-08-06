@@ -24,27 +24,9 @@ var _parser = require('../../core/parser');
 
 var _stream = require('../../core/stream');
 
+var _test_utils = require('./test_utils');
+
 describe('annotation', function () {
-  function XRefMock(array) {
-    this.map = Object.create(null);
-    for (var elem in array) {
-      var obj = array[elem];
-      var ref = obj.ref,
-          data = obj.data;
-      this.map[ref.toString()] = data;
-    }
-  }
-  XRefMock.prototype = {
-    fetch: function fetch(ref) {
-      return this.map[ref.toString()];
-    },
-    fetchIfRef: function fetchIfRef(obj) {
-      if (!(0, _primitives.isRef)(obj)) {
-        return obj;
-      }
-      return this.fetch(obj);
-    }
-  };
   function PDFManagerMock(params) {
     this.docBaseUrl = params.docBaseUrl || null;
   }
@@ -77,7 +59,7 @@ describe('annotation', function () {
       annotationDict.set('Type', _primitives.Name.get('Annot'));
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       var annotationRef = new _primitives.Ref(10, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -90,7 +72,7 @@ describe('annotation', function () {
       var annotationDict = new _primitives.Dict();
       annotationDict.set('Type', _primitives.Name.get('Annot'));
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
-      var xref = new XRefMock();
+      var xref = new _test_utils.XRefMock();
       var idFactory = new IdFactoryMock({
         prefix: 'p0_',
         startObjId: 0
@@ -108,7 +90,7 @@ describe('annotation', function () {
       var annotationDict = new _primitives.Dict();
       annotationDict.set('Type', _primitives.Name.get('Annot'));
       var annotationRef = new _primitives.Ref(1, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -274,7 +256,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(820, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -295,7 +277,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(353, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -316,7 +298,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(8, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -337,7 +319,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(798, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -360,7 +342,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(489, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -383,7 +365,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(489, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -406,7 +388,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(495, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -429,7 +411,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(489, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -456,7 +438,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(88, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -484,7 +466,7 @@ describe('annotation', function () {
         annotationDict.set('Subtype', _primitives.Name.get('Link'));
         annotationDict.set('A', actionDict);
         var annotationRef = new _primitives.Ref(46, 0);
-        var xref = new XRefMock([{
+        var xref = new _test_utils.XRefMock([{
           ref: annotationRef,
           data: annotationDict
         }]);
@@ -525,7 +507,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('A', actionDict);
       var annotationRef = new _primitives.Ref(12, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -542,7 +524,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('Dest', _primitives.Name.get('LI0'));
       var annotationRef = new _primitives.Ref(583, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -559,7 +541,7 @@ describe('annotation', function () {
       annotationDict.set('Subtype', _primitives.Name.get('Link'));
       annotationDict.set('Dest', [new _primitives.Ref(17, 0), _primitives.Name.get('XYZ'), 0, 841.89, null]);
       var annotationRef = new _primitives.Ref(10, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: annotationRef,
         data: annotationDict
       }]);
@@ -587,7 +569,7 @@ describe('annotation', function () {
     });
     it('should handle unknown field names', function () {
       var widgetRef = new _primitives.Ref(20, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: widgetRef,
         data: widgetDict
       }]);
@@ -599,7 +581,7 @@ describe('annotation', function () {
     it('should construct the field name when there are no ancestors', function () {
       widgetDict.set('T', 'foo');
       var widgetRef = new _primitives.Ref(21, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: widgetRef,
         data: widgetDict
       }]);
@@ -617,7 +599,7 @@ describe('annotation', function () {
       widgetDict.set('Parent', secondParent);
       widgetDict.set('T', 'baz');
       var widgetRef = new _primitives.Ref(22, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: widgetRef,
         data: widgetDict
       }]);
@@ -633,7 +615,7 @@ describe('annotation', function () {
       widgetDict.set('Parent', parentDict);
       widgetDict.set('T', 'bar');
       var widgetRef = new _primitives.Ref(22, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: widgetRef,
         data: widgetDict
       }]);
@@ -657,7 +639,7 @@ describe('annotation', function () {
     });
     it('should handle unknown text alignment, maximum length and flags', function () {
       var textWidgetRef = new _primitives.Ref(124, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: textWidgetRef,
         data: textWidgetDict
       }]);
@@ -675,7 +657,7 @@ describe('annotation', function () {
       textWidgetDict.set('MaxLen', 'five');
       textWidgetDict.set('Ff', 'readonly');
       var textWidgetRef = new _primitives.Ref(43, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: textWidgetRef,
         data: textWidgetDict
       }]);
@@ -693,7 +675,7 @@ describe('annotation', function () {
       textWidgetDict.set('MaxLen', 20);
       textWidgetDict.set('Ff', _util.AnnotationFieldFlag.READONLY + _util.AnnotationFieldFlag.MULTILINE);
       var textWidgetRef = new _primitives.Ref(84, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: textWidgetRef,
         data: textWidgetDict
       }]);
@@ -708,7 +690,7 @@ describe('annotation', function () {
     it('should reject comb fields without a maximum length', function () {
       textWidgetDict.set('Ff', _util.AnnotationFieldFlag.COMB);
       var textWidgetRef = new _primitives.Ref(46, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: textWidgetRef,
         data: textWidgetDict
       }]);
@@ -721,7 +703,7 @@ describe('annotation', function () {
       textWidgetDict.set('MaxLen', 20);
       textWidgetDict.set('Ff', _util.AnnotationFieldFlag.COMB);
       var textWidgetRef = new _primitives.Ref(46, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: textWidgetRef,
         data: textWidgetDict
       }]);
@@ -737,7 +719,7 @@ describe('annotation', function () {
         textWidgetDict.set('MaxLen', 20);
         textWidgetDict.set('Ff', flags);
         var textWidgetRef = new _primitives.Ref(93, 0);
-        var xref = new XRefMock([{
+        var xref = new _test_utils.XRefMock([{
           ref: textWidgetRef,
           data: textWidgetDict
         }]);
@@ -767,7 +749,7 @@ describe('annotation', function () {
     it('should handle checkboxes', function () {
       buttonWidgetDict.set('V', _primitives.Name.get('1'));
       var buttonWidgetRef = new _primitives.Ref(124, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: buttonWidgetRef,
         data: buttonWidgetDict
       }]);
@@ -789,7 +771,7 @@ describe('annotation', function () {
       buttonWidgetDict.set('Parent', parentDict);
       buttonWidgetDict.set('AP', appearanceStatesDict);
       var buttonWidgetRef = new _primitives.Ref(124, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: buttonWidgetRef,
         data: buttonWidgetDict
       }]);
@@ -809,7 +791,7 @@ describe('annotation', function () {
       buttonWidgetDict.set('Ff', _util.AnnotationFieldFlag.RADIO);
       buttonWidgetDict.set('AP', appearanceStatesDict);
       var buttonWidgetRef = new _primitives.Ref(124, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: buttonWidgetRef,
         data: buttonWidgetDict
       }]);
@@ -836,7 +818,7 @@ describe('annotation', function () {
     });
     it('should handle missing option arrays', function () {
       var choiceWidgetRef = new _primitives.Ref(122, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -860,7 +842,7 @@ describe('annotation', function () {
       }];
       choiceWidgetDict.set('Opt', options);
       var choiceWidgetRef = new _primitives.Ref(123, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }, {
@@ -888,7 +870,7 @@ describe('annotation', function () {
       }];
       choiceWidgetDict.set('Opt', options);
       var choiceWidgetRef = new _primitives.Ref(981, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }, {
@@ -913,7 +895,7 @@ describe('annotation', function () {
       parentDict.set('Opt', options);
       choiceWidgetDict.set('Parent', parentDict);
       var choiceWidgetRef = new _primitives.Ref(123, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -926,7 +908,7 @@ describe('annotation', function () {
       var fieldValue = ['Foo', 'Bar'];
       choiceWidgetDict.set('V', fieldValue);
       var choiceWidgetRef = new _primitives.Ref(968, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -939,7 +921,7 @@ describe('annotation', function () {
       var fieldValue = 'Foo';
       choiceWidgetDict.set('V', fieldValue);
       var choiceWidgetRef = new _primitives.Ref(978, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -950,7 +932,7 @@ describe('annotation', function () {
     });
     it('should handle unknown flags', function () {
       var choiceWidgetRef = new _primitives.Ref(166, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -964,7 +946,7 @@ describe('annotation', function () {
     it('should not set invalid flags', function () {
       choiceWidgetDict.set('Ff', 'readonly');
       var choiceWidgetRef = new _primitives.Ref(165, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -978,7 +960,7 @@ describe('annotation', function () {
     it('should set valid flags', function () {
       choiceWidgetDict.set('Ff', _util.AnnotationFieldFlag.READONLY + _util.AnnotationFieldFlag.COMBO + _util.AnnotationFieldFlag.MULTISELECT);
       var choiceWidgetRef = new _primitives.Ref(512, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: choiceWidgetRef,
         data: choiceWidgetDict
       }]);
@@ -997,7 +979,7 @@ describe('annotation', function () {
       lineDict.set('Subtype', _primitives.Name.get('Line'));
       lineDict.set('L', [1, 2, 3, 4]);
       var lineRef = new _primitives.Ref(122, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: lineRef,
         data: lineDict
       }]);
@@ -1029,7 +1011,7 @@ describe('annotation', function () {
       fileAttachmentDict.set('FS', fileSpecRef);
       fileAttachmentDict.set('T', 'Topic');
       fileAttachmentDict.set('Contents', 'Test.txt');
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: fileStreamRef,
         data: fileStreamDict
       }, {
@@ -1061,7 +1043,7 @@ describe('annotation', function () {
       popupDict.set('F', 25);
       popupDict.set('Parent', parentDict);
       var popupRef = new _primitives.Ref(13, 0);
-      var xref = new XRefMock([{
+      var xref = new _test_utils.XRefMock([{
         ref: popupRef,
         data: popupDict
       }]);

@@ -159,8 +159,7 @@ var createMeshCanvas = function createMeshCanvasClosure() {
         }
         break;
       default:
-        (0, _util.error)('illigal figure');
-        break;
+        throw new Error('illegal figure');
     }
   }
   function createMeshCanvas(bounds, combinesScale, coords, colors, figures, backgroundColor, cachedCanvases) {
@@ -268,7 +267,7 @@ ShadingIRs.Dummy = {
 function getShadingPatternFromIR(raw) {
   var shadingIR = ShadingIRs[raw[0]];
   if (!shadingIR) {
-    (0, _util.error)('Unknown IR type: ' + raw[0]);
+    throw new Error('Unknown IR type: ' + raw[0]);
   }
   return shadingIR.fromIR(raw);
 }
@@ -363,7 +362,7 @@ var TilingPattern = function TilingPatternClosure() {
           context.strokeStyle = cssColor;
           break;
         default:
-          (0, _util.error)('Unsupported paint type: ' + paintType);
+          throw new _util.FormatError('Unsupported paint type: ' + paintType);
       }
     },
     getPattern: function TilingPattern_getPattern(ctx, owner) {

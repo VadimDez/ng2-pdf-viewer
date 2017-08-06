@@ -14,7 +14,7 @@
  */
 'use strict';
 
-var _network = require('../../core/network');
+var _network = require('../../display/network');
 
 describe('network', function () {
   var pdf1 = new URL('../pdfs/tracemonkey.pdf', window.location).href;

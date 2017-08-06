@@ -5,12 +5,12 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { PipeResolver } from '@angular/compiler';
+import { CompileReflector, PipeResolver } from '@angular/compiler';
 import { Injector, Pipe, Type } from '@angular/core';
 export declare class MockPipeResolver extends PipeResolver {
     private _injector;
     private _pipes;
-    constructor(_injector: Injector);
+    constructor(_injector: Injector, refector: CompileReflector);
     private readonly _compiler;
     private _clearCacheFor(pipe);
     /**

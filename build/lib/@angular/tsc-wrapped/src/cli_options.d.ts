@@ -12,19 +12,25 @@ export declare class CliOptions {
     });
 }
 export declare class I18nExtractionCliOptions extends CliOptions {
-    i18nFormat: string;
-    constructor({i18nFormat}: {
+    i18nFormat: string | null;
+    locale: string | null;
+    outFile: string | null;
+    constructor({i18nFormat, locale, outFile}: {
         i18nFormat?: string;
+        locale?: string;
+        outFile?: string;
     });
 }
 export declare class NgcCliOptions extends CliOptions {
     i18nFormat: string;
     i18nFile: string;
     locale: string;
-    constructor({i18nFormat, i18nFile, locale, basePath}: {
+    missingTranslation: string;
+    constructor({i18nFormat, i18nFile, locale, missingTranslation, basePath}: {
         i18nFormat?: string;
         i18nFile?: string;
         locale?: string;
+        missingTranslation?: string;
         basePath?: string;
     });
 }

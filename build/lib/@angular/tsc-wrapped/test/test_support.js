@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -5,10 +6,10 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
-var fs = require('fs');
-var os = require('os');
-var path = require('path');
+Object.defineProperty(exports, "__esModule", { value: true });
+var fs = require("fs");
+var os = require("os");
+var path = require("path");
 var tmpdir = process.env.TEST_TMPDIR || os.tmpdir();
 function writeTempFile(name, contents) {
     // TEST_TMPDIR is set by bazel.

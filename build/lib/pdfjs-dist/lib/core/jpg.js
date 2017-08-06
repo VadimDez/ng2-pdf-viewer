@@ -23,6 +23,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _util = require('../shared/util');
 
+var JpegError = function JpegErrorClosure() {
+  function JpegError(msg) {
+    this.message = 'JPEG error: ' + msg;
+  }
+  JpegError.prototype = new Error();
+  JpegError.prototype.name = 'JpegError';
+  JpegError.constructor = JpegError;
+  return JpegError;
+}();
 var JpegImage = function JpegImageClosure() {
   var dctZigZag = new Uint8Array([0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63]);
   var dctCos1 = 4017;
@@ -100,7 +109,7 @@ var JpegImage = function JpegImageClosure() {
       if (bitsData === 0xFF) {
         var nextByte = data[offset++];
         if (nextByte) {
-          (0, _util.error)('JPEG error: unexpected marker ' + (bitsData << 8 | nextByte).toString(16));
+          throw new JpegError('unexpected marker ' + (bitsData << 8 | nextByte).toString(16));
         }
       }
       bitsCount = 7;
@@ -114,7 +123,7 @@ var JpegImage = function JpegImageClosure() {
           return node;
         }
         if ((typeof node === 'undefined' ? 'undefined' : _typeof(node)) !== 'object') {
-          (0, _util.error)('JPEG error: invalid huffman sequence');
+          throw new JpegError('invalid huffman sequence');
         }
       }
     }
@@ -217,7 +226,7 @@ var JpegImage = function JpegImageClosure() {
               }
             } else {
               if (s !== 1) {
-                (0, _util.error)('JPEG error: invalid ACn encoding');
+                throw new JpegError('invalid ACn encoding');
               }
               successiveACNextValue = receiveAndExtend(s);
               successiveACState = r ? 2 : 3;
@@ -327,7 +336,7 @@ var JpegImage = function JpegImageClosure() {
       }
       var marker = fileMarker && fileMarker.marker;
       if (!marker || marker <= 0xFF00) {
-        (0, _util.error)('JPEG error: marker was not found');
+        throw new JpegError('marker was not found');
       }
       if (marker >= 0xFFD0 && marker <= 0xFFD7) {
         offset += 2;
@@ -349,7 +358,7 @@ var JpegImage = function JpegImageClosure() {
     var p0, p1, p2, p3, p4, p5, p6, p7;
     var t;
     if (!qt) {
-      (0, _util.error)('JPEG error: missing required Quantization Table.');
+      throw new JpegError('missing required Quantization Table.');
     }
     for (var row = 0; row < 64; row += 8) {
       p0 = blockData[blockBufferOffset + row];
@@ -581,7 +590,7 @@ var JpegImage = function JpegImageClosure() {
           huffmanTablesDC = [];
       var fileMarker = readUint16();
       if (fileMarker !== 0xFFD8) {
-        (0, _util.error)('JPEG error: SOI not found');
+        throw new JpegError('SOI not found');
       }
       fileMarker = readUint16();
       while (fileMarker !== 0xFFD9) {
@@ -650,7 +659,7 @@ var JpegImage = function JpegImageClosure() {
                   tableData[z] = readUint16();
                 }
               } else {
-                (0, _util.error)('JPEG error: DQT - invalid table spec');
+                throw new JpegError('DQT - invalid table spec');
               }
               quantizationTables[quantizationTableSpec & 15] = tableData;
             }
@@ -659,7 +668,7 @@ var JpegImage = function JpegImageClosure() {
           case 0xFFC1:
           case 0xFFC2:
             if (frame) {
-              (0, _util.error)('JPEG error: Only single frame JPEGs supported');
+              throw new JpegError('Only single frame JPEGs supported');
             }
             readUint16();
             frame = {};
@@ -748,7 +757,7 @@ var JpegImage = function JpegImageClosure() {
               offset -= 3;
               break;
             }
-            (0, _util.error)('JPEG error: unknown marker ' + fileMarker.toString(16));
+            throw new JpegError('unknown marker ' + fileMarker.toString(16));
         }
         fileMarker = readUint16();
       }
@@ -816,20 +825,22 @@ var JpegImage = function JpegImageClosure() {
       }
       return data;
     },
-    _isColorConversionNeeded: function isColorConversionNeeded() {
-      if (this.adobe && this.adobe.transformCode) {
-        return true;
-      } else if (this.numComponents === 3) {
-        if (!this.adobe && this.colorTransform === 0) {
+    _isColorConversionNeeded: function _isColorConversionNeeded() {
+      if (this.adobe) {
+        return !!this.adobe.transformCode;
+      }
+      if (this.numComponents === 3) {
+        if (this.colorTransform === 0) {
           return false;
         }
         return true;
       }
-      if (!this.adobe && this.colorTransform === 1) {
+      if (this.colorTransform === 1) {
         return true;
       }
       return false;
     },
+
     _convertYccToRgb: function convertYccToRgb(data) {
       var Y, Cb, Cr;
       for (var i = 0, length = data.length; i < length; i += 3) {
@@ -892,7 +903,7 @@ var JpegImage = function JpegImageClosure() {
     },
     getData: function getData(width, height, forceRGBoutput) {
       if (this.numComponents > 4) {
-        (0, _util.error)('JPEG error: Unsupported color mode');
+        throw new JpegError('Unsupported color mode');
       }
       var data = this._getLinearizedBlockData(width, height);
       if (this.numComponents === 1 && forceRGBoutput) {

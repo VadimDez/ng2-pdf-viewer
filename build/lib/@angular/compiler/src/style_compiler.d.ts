@@ -1,31 +1,27 @@
-import { CompileDirectiveMetadata, CompileIdentifierMetadata, CompileStylesheetMetadata } from './compile_metadata';
-import * as o from './output/output_ast';
+import { CompileDirectiveMetadata, CompileStylesheetMetadata } from './compile_metadata';
 import { UrlResolver } from './url_resolver';
+import { OutputContext } from './util';
 export declare class StylesCompileDependency {
     name: string;
     moduleUrl: string;
-    isShimmed: boolean;
-    valuePlaceholder: CompileIdentifierMetadata;
-    constructor(name: string, moduleUrl: string, isShimmed: boolean, valuePlaceholder: CompileIdentifierMetadata);
-}
-export declare class StylesCompileResult {
-    componentStylesheet: CompiledStylesheet;
-    externalStylesheets: CompiledStylesheet[];
-    constructor(componentStylesheet: CompiledStylesheet, externalStylesheets: CompiledStylesheet[]);
+    setValue: (value: any) => void;
+    constructor(name: string, moduleUrl: string, setValue: (value: any) => void);
 }
 export declare class CompiledStylesheet {
-    statements: o.Statement[];
+    outputCtx: OutputContext;
     stylesVar: string;
     dependencies: StylesCompileDependency[];
     isShimmed: boolean;
     meta: CompileStylesheetMetadata;
-    constructor(statements: o.Statement[], stylesVar: string, dependencies: StylesCompileDependency[], isShimmed: boolean, meta: CompileStylesheetMetadata);
+    constructor(outputCtx: OutputContext, stylesVar: string, dependencies: StylesCompileDependency[], isShimmed: boolean, meta: CompileStylesheetMetadata);
 }
 export declare class StyleCompiler {
     private _urlResolver;
     private _shadowCss;
     constructor(_urlResolver: UrlResolver);
-    compileComponent(comp: CompileDirectiveMetadata): StylesCompileResult;
-    private _compileStyles(comp, stylesheet, isComponentStylesheet);
+    compileComponent(outputCtx: OutputContext, comp: CompileDirectiveMetadata): CompiledStylesheet;
+    compileStyles(outputCtx: OutputContext, comp: CompileDirectiveMetadata, stylesheet: CompileStylesheetMetadata): CompiledStylesheet;
+    needsStyleShim(comp: CompileDirectiveMetadata): boolean;
+    private _compileStyles(outputCtx, comp, stylesheet, isComponentStylesheet);
     private _shimIfNeeded(style, shim);
 }

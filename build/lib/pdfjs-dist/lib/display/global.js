@@ -39,8 +39,8 @@ if (!_util.globalScope.PDFJS) {
 }
 var PDFJS = _util.globalScope.PDFJS;
 {
-  PDFJS.version = '1.8.508';
-  PDFJS.build = '699f3392';
+  PDFJS.version = '1.8.609';
+  PDFJS.build = 'f83bd721';
 }
 PDFJS.pdfBug = false;
 if (PDFJS.verbosity !== undefined) {

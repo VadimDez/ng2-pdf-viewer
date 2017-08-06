@@ -26,8 +26,6 @@ export declare class PdfViewerComponent implements OnChanges {
     private update();
     private renderMultiplePages();
     private isValidPageNumber(page);
-    private buildSVG(viewport, textContent);
-    private renderPageOverlay(page, viewport, container);
     private renderPage(pageNumber);
     private removeAllChildNodes(element);
 }

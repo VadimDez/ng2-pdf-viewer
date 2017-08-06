@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -5,16 +6,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * This is a private API for the ngtools toolkit.
  *
  * This API should be stable for NG 2. It can be removed in NG 4..., but should be replaced by
  * something else.
  */
-var compiler_1 = require('@angular/compiler');
-var core_1 = require('@angular/core');
-var ROUTER_MODULE_PATH = '@angular/router/src/router_config_loader';
+var compiler_1 = require("@angular/compiler");
+var core_1 = require("@angular/core");
+var ROUTER_MODULE_PATH = '@angular/router';
 var ROUTER_ROUTES_SYMBOL_NAME = 'ROUTES';
 // A route definition. Normally the short form 'path/to/module#ModuleClassName' is used by
 // the user, and this is a helper class to extract information from it.
@@ -86,12 +87,19 @@ function _resolveModule(modulePath, containingFile, host) {
 function _assertRoute(map, route) {
     var r = route.routeDef.toString();
     if (map[r] && map[r].absoluteFilePath != route.absoluteFilePath) {
-        throw new Error(("Duplicated path in loadChildren detected: \"" + r + "\" is used in 2 loadChildren, ") +
+        throw new Error("Duplicated path in loadChildren detected: \"" + r + "\" is used in 2 loadChildren, " +
             ("but they point to different modules \"(" + map[r].absoluteFilePath + " and ") +
             ("\"" + route.absoluteFilePath + "\"). Webpack cannot distinguish on context and would fail to ") +
             'load the proper one.');
     }
 }
+function flatten(list) {
+    return list.reduce(function (flat, item) {
+        var flatItem = Array.isArray(item) ? flatten(item) : item;
+        return flat.concat(flatItem);
+    }, []);
+}
+exports.flatten = flatten;
 /**
  * Extract all the LazyRoutes from a module. This extracts all `loadChildren` keys from this
  * module and all statically referred modules.
@@ -99,9 +107,8 @@ function _assertRoute(map, route) {
  */
 function _extractLazyRoutesFromStaticModule(staticSymbol, reflector, host, ROUTES) {
     var moduleMetadata = _getNgModuleMetadata(staticSymbol, reflector);
-    var allRoutes = (moduleMetadata.imports || [])
-        .filter(function (i) { return 'providers' in i; })
-        .reduce(function (mem, m) {
+    var imports = flatten(moduleMetadata.imports || []);
+    var allRoutes = imports.filter(function (i) { return 'providers' in i; }).reduce(function (mem, m) {
         return mem.concat(_collectRoutes(m.providers || [], reflector, ROUTES));
     }, _collectRoutes(moduleMetadata.providers || [], reflector, ROUTES));
     var lazyRoutes = _collectLoadChildren(allRoutes).reduce(function (acc, route) {
@@ -110,8 +117,13 @@ function _extractLazyRoutesFromStaticModule(staticSymbol, reflector, host, ROUTE
         acc.push({ routeDef: routeDef, absoluteFilePath: absoluteFilePath });
         return acc;
     }, []);
-    var importedSymbols = (moduleMetadata.imports || [])
-        .filter(function (i) { return i instanceof compiler_1.StaticSymbol; });
+    var importedSymbols = imports
+        .filter(function (i) { return i instanceof compiler_1.StaticSymbol || i.ngModule instanceof compiler_1.StaticSymbol; })
+        .map(function (i) {
+        if (i instanceof compiler_1.StaticSymbol)
+            return i;
+        return i.ngModule;
+    });
     return importedSymbols
         .reduce(function (acc, i) {
         return acc.concat(_extractLazyRoutesFromStaticModule(i, reflector, host, ROUTES));

@@ -24,15 +24,9 @@ var _util = require('../../shared/util');
 
 var _worker = require('../../core/worker');
 
+var _test_utils = require('./test_utils');
+
 describe('evaluator', function () {
-  function XrefMock(queue) {
-    this.queue = queue || [];
-  }
-  XrefMock.prototype = {
-    fetchIfRef: function fetchIfRef() {
-      return this.queue.shift();
-    }
-  };
   function HandlerMock() {
     this.inputs = [];
   }
@@ -67,7 +61,7 @@ describe('evaluator', function () {
   beforeAll(function (done) {
     partialEvaluator = new _evaluator.PartialEvaluator({
       pdfManager: new PdfManagerMock(),
-      xref: new XrefMock(),
+      xref: new _test_utils.XRefMock(),
       handler: new HandlerMock(),
       pageIndex: 0
     });
