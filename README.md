@@ -193,7 +193,7 @@ Then add it to `pdf-component` in component's template
 
 ## Contribute
 
-Clone project and switch to latest version branch (right now `features/1.1.2`)
+Clone project and switch to latest version branch (right now `features/1.1.4`)
 
 ```
 npm start
