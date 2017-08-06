@@ -135,7 +135,11 @@ var PdfViewerComponent = (function () {
             return page.getOperatorList().then(function (opList) {
                 var svgGfx = new PDFJS.SVGGraphics(page.commonObjs, page.objs);
                 return svgGfx.getSVG(opList, viewport).then(function (svg) {
-                    container.appendChild(svg);
+                    var $div = document.createElement('div');
+                    $div.classList.add('page');
+                    $div.setAttribute('data-page-number', "" + page.pageNumber);
+                    $div.appendChild(svg);
+                    container.appendChild($div);
                 });
             });
         });

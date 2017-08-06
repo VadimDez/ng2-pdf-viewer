@@ -163,8 +163,15 @@ export class PdfViewerComponent implements OnChanges {
 
       return (<any>page).getOperatorList().then(function (opList) {
         let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
+
         return svgGfx.getSVG(opList, viewport).then(function (svg) {
-          container.appendChild(svg);
+          let $div = document.createElement('div');
+
+          $div.classList.add('page');
+          $div.setAttribute('data-page-number', `${ page.pageNumber }`);
+
+          $div.appendChild(svg);
+          container.appendChild($div);
         });
       });
     });
