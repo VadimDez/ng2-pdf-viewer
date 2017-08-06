@@ -3,6 +3,7 @@
 ## 1.1.4
 * Switched canvas to SVG rendering.
 * Changed text layer rendering.
+* [[#89](https://github.com/VadimDez/ng2-pdf-viewer/issues/89)] - Added `data-page-number` attribute
 
 ## 1.1.3
 * [[#46](https://github.com/VadimDez/ng2-pdf-viewer/issues/46)] - Retina display support
