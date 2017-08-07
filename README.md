@@ -89,6 +89,7 @@ export class AppComponent {
 * [original-size](#original-size)
 * [show-all](#show-all)
 * [after-load-complete](#after-load-complete)
+* [error](#error)
 
 #### [src]
 *accepts: string, object, UInt8Array*
@@ -177,6 +178,25 @@ And then use it in your template:
 ``` 
 (after-load-complete)="callBackFn($event)"
 ```
+
+#### (error)
+
+Error handling callback
+
+Define callback in your component's class
+
+```ts
+onError(error: any) {
+  // do anything
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(error)="onError($event)"
+```
+
 ## Contribute
 
 Clone project and switch to latest version branch (right now `features/1.1.4`, for the 2.0.0 switch to `feature/2.0.0`)
