@@ -1,8 +1,9 @@
 "use strict";
+var Observable_1 = require('../Observable');
 var ArrayObservable_1 = require('../observable/ArrayObservable');
 var mergeAll_1 = require('./mergeAll');
 var isScheduler_1 = require('../util/isScheduler');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Creates an output Observable which concurrently emits all values from every
  * given input Observable.
@@ -38,13 +39,13 @@ var isScheduler_1 = require('../util/isScheduler');
  * @see {@link mergeMapTo}
  * @see {@link mergeScan}
  *
- * @param {Observable} other An input Observable to merge with the source
+ * @param {ObservableInput} other An input Observable to merge with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
  * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
  * concurrency of input Observables.
- * @return {Observable} an Observable that emits items that are the result of
+ * @return {Observable} An Observable that emits items that are the result of
  * every input Observable.
  * @method merge
  * @owner Observable
@@ -107,7 +108,7 @@ exports.merge = merge;
  * @see {@link mergeMapTo}
  * @see {@link mergeScan}
  *
- * @param {...Observable} observables Input Observables to merge together.
+ * @param {...ObservableInput} observables Input Observables to merge together.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
  * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
@@ -135,7 +136,7 @@ function mergeStatic() {
     else if (typeof last === 'number') {
         concurrent = observables.pop();
     }
-    if (scheduler === null && observables.length === 1) {
+    if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable_1.Observable) {
         return observables[0];
     }
     return new ArrayObservable_1.ArrayObservable(observables, scheduler).lift(new mergeAll_1.MergeAllOperator(concurrent));

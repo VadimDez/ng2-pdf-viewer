@@ -35,7 +35,7 @@ var Subject = (function (_super) {
         this.hasError = false;
         this.thrownError = null;
     }
-    Subject.prototype[rxSubscriber_1.$$rxSubscriber] = function () {
+    Subject.prototype[rxSubscriber_1.rxSubscriber] = function () {
         return new SubjectSubscriber(this);
     };
     Subject.prototype.lift = function (operator) {

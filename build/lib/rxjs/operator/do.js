@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = require('../Subscriber');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Perform a side effect for every emission on the source Observable, but return
  * an Observable that is identical to the source.

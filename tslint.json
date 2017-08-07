@@ -30,6 +30,7 @@
     "no-eval": true,
     "no-string-literal": false,
     "no-trailing-whitespace": true,
+    "no-unused-variable": false,
     "no-use-before-declare": true,
     "one-line": [
       true,

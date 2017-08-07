@@ -24,9 +24,9 @@ import { Observable } from '../Observable';
  *
  * @see {@link min}
  *
- * @param {Function} optional comparer function that it will use instead of its default to compare the value of two
- * items.
- * @return {Observable} an Observable that emits item with the largest value.
+ * @param {Function} [comparer] - Optional comparer function that it will use instead of its default to compare the
+ * value of two items.
+ * @return {Observable} An Observable that emits item with the largest value.
  * @method max
  * @owner Observable
  */

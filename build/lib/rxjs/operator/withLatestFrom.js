@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Combines the source Observable with other Observables to create an Observable
  * whose values are calculated from the latest values of each, only when the
@@ -32,7 +32,7 @@ var subscribeToResult_1 = require('../util/subscribeToResult');
  *
  * @see {@link combineLatest}
  *
- * @param {Observable} other An input Observable to combine with the source
+ * @param {ObservableInput} other An input Observable to combine with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {Function} [project] Projection function for combining values
  * together. Receives all values in order of the Observables passed, where the

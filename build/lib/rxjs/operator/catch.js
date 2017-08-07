@@ -59,7 +59,7 @@ var subscribeToResult_1 = require('../util/subscribeToResult');
  * @param {function} selector a function that takes as arguments `err`, which is the error, and `caught`, which
  *  is the source observable, in case you'd like to "retry" that observable by returning it again. Whatever observable
  *  is returned by the `selector` will be used to continue the observable chain.
- * @return {Observable} an observable that originates from either the source or the observable returned by the
+ * @return {Observable} An observable that originates from either the source or the observable returned by the
  *  catch `selector` function.
  * @method catch
  * @name catch
@@ -107,9 +107,7 @@ var CatchSubscriber = (function (_super) {
                 _super.prototype.error.call(this, err2);
                 return;
             }
-            this.unsubscribe();
-            this.closed = false;
-            this.isStopped = false;
+            this._unsubscribeAndRecycle();
             this.add(subscribeToResult_1.subscribeToResult(this, result));
         }
     };

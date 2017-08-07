@@ -1,43 +1,31 @@
 /// <reference types="pdf" />
-import { ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { ElementRef, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-import 'pdfjs-dist/web/pdf_viewer';
-export declare class PdfViewerComponent implements OnChanges, OnInit {
+export declare class PdfViewerComponent implements OnChanges {
     private element;
-    private static CSS_UNITS;
     private _showAll;
     private _renderText;
-    private _stickToPage;
     private _originalSize;
     private _pdf;
     private _page;
     private _zoom;
     private _rotation;
-    private _externalLinkTarget;
-    private _pdfViewer;
-    private _pdfLinkService;
-    private lastLoaded;
-    private resizeTimeout;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
+    onError: EventEmitter<any>;
     constructor(element: ElementRef);
-    ngOnInit(): void;
-    onPageResize(): void;
-    ngOnChanges(changes: SimpleChanges): void;
     src: string | Uint8Array | PDFSource;
     page: any;
     pageChange: EventEmitter<number>;
     renderText: boolean;
     originalSize: boolean;
     showAll: boolean;
-    stickToPage: boolean;
     zoom: number;
     rotation: number;
-    externalLinkTarget: string;
-    setupViewer(): void;
-    render(): void;
-    updateSize(): void;
-    isValidPageNumber(page: number): boolean;
-    private setExternalLinkTarget(type);
+    ngOnChanges(changes: SimpleChanges): void;
     private loadPDF();
     private update();
+    private renderMultiplePages();
+    isValidPageNumber(page: number): boolean;
+    private renderPage(pageNumber);
+    private removeAllChildNodes(element);
 }

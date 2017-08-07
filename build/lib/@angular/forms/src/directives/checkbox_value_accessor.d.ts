@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, Renderer } from '@angular/core';
+import { ElementRef, Renderer2 } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
 export declare const CHECKBOX_VALUE_ACCESSOR: any;
 /**
@@ -23,7 +23,7 @@ export declare class CheckboxControlValueAccessor implements ControlValueAccesso
     private _elementRef;
     onChange: (_: any) => void;
     onTouched: () => void;
-    constructor(_renderer: Renderer, _elementRef: ElementRef);
+    constructor(_renderer: Renderer2, _elementRef: ElementRef);
     writeValue(value: any): void;
     registerOnChange(fn: (_: any) => {}): void;
     registerOnTouched(fn: () => {}): void;

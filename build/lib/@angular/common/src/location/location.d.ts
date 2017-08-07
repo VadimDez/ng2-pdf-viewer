@@ -1,6 +1,13 @@
 import { LocationStrategy } from './location_strategy';
+/** @experimental */
+export interface PopStateEvent {
+    pop?: boolean;
+    type?: string;
+    url?: string;
+}
 /**
- * `Location` is a service that applications can use to interact with a browser's URL.
+ * @whatItDoes `Location` is a service that applications can use to interact with a browser's URL.
+ * @description
  * Depending on which {@link LocationStrategy} is used, `Location` will either persist
  * to the URL's path or the URL's hash segment.
  *
@@ -16,19 +23,7 @@ import { LocationStrategy } from './location_strategy';
  * - `/my/app/user/123/` **is not** normalized
  *
  * ### Example
- *
- * ```
- * import {Component} from '@angular/core';
- * import {Location} from '@angular/common';
- *
- * @Component({selector: 'app-component'})
- * class AppCmp {
- *   constructor(location: Location) {
- *     location.go('/foo');
- *   }
- * }
- * ```
- *
+ * {@example common/location/ts/path_location_component.ts region='LocationComponent'}
  * @stable
  */
 export declare class Location {
@@ -74,7 +69,7 @@ export declare class Location {
     /**
      * Subscribe to the platform's `popState` events.
      */
-    subscribe(onNext: (value: any) => void, onThrow?: (exception: any) => void, onReturn?: () => void): Object;
+    subscribe(onNext: (value: PopStateEvent) => void, onThrow?: ((exception: any) => void) | null, onReturn?: (() => void) | null): Object;
     /**
      * Given a string of url parameters, prepend with '?' if needed, otherwise return parameters as
      * is.
@@ -85,7 +80,9 @@ export declare class Location {
      */
     static joinWithSlash(start: string, end: string): string;
     /**
-     * If url has a trailing slash, remove it, otherwise return url as is.
+     * If url has a trailing slash, remove it, otherwise return url as is. This
+     * method looks for the first occurence of either #, ?, or the end of the
+     * line as `/` characters after any of these should not be replaced.
      */
     static stripTrailingSlash(url: string): string;
 }

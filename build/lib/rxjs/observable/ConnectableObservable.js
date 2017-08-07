@@ -54,6 +54,8 @@ exports.ConnectableObservable = ConnectableObservable;
 exports.connectableObservableDescriptor = {
     operator: { value: null },
     _refCount: { value: 0, writable: true },
+    _subject: { value: null, writable: true },
+    _connection: { value: null, writable: true },
     _subscribe: { value: ConnectableObservable.prototype._subscribe },
     getSubject: { value: ConnectableObservable.prototype.getSubject },
     connect: { value: ConnectableObservable.prototype.connect },

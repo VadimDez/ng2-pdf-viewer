@@ -6,13 +6,13 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { NgModule, Type } from '@angular/core';
-import { ReflectorReader } from './private_import_core';
+import { CompileReflector } from './compile_reflector';
 /**
  * Resolves types to {@link NgModule}.
  */
 export declare class NgModuleResolver {
     private _reflector;
-    constructor(_reflector?: ReflectorReader);
+    constructor(_reflector: CompileReflector);
     isNgModule(type: any): boolean;
-    resolve(type: Type<any>, throwIfNotFound?: boolean): NgModule;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): NgModule | null;
 }

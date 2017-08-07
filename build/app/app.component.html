@@ -22,12 +22,36 @@
                 <input (change)="onFileSelected()" type="file" id="file">
             </div>
 
+            <div *ngIf="error" class="error mb">
+                {{ error.message | json }}
+            </div>
+
             <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="original-size">
                     <input type="checkbox" id="original-size" class="mdl-switch__input"
                            [checked]="originalSize"
                            [(ngModel)]="originalSize">
                     <span class="mdl-switch__label">Original size</span>
+                </label>
+            </div>
+
+            <div class="mb">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
+                    <input type="checkbox" id="render-text" class="mdl-switch__input"
+                           [checked]="renderText"
+                           [(ngModel)]="renderText"
+                    >
+                    <span class="mdl-switch__label">Render text layer</span>
+                </label>
+            </div>
+
+            <div class="mb">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="show-all">
+                    <input type="checkbox" id="show-all" class="mdl-switch__input"
+                           [checked]="showAll"
+                           [(ngModel)]="showAll"
+                    >
+                    <span class="mdl-switch__label">Show all pages</span>
                 </label>
             </div>
 
@@ -51,18 +75,7 @@
                 </button>
             </div>
 
-
-            <div>
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="stick-to-page">
-                <input type="checkbox" id="stick-to-page" class="mdl-switch__input"
-                       [checked]="stickToPage"
-                       [(ngModel)]="stickToPage"
-                >
-                <span class="mdl-switch__label">Stick to page</span>
-              </label>
-            </div>
-
-            <div mdl *ngIf="!showAll || stickToPage">
+            <div mdl *ngIf="!showAll">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
                     Previous
                 </button>
@@ -96,26 +109,15 @@
                 <button (click)="rotate(90)" class="mdl-button mdl-js-button">Rotate right</button>
             </div>
 
-            <div>
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
-                <input type="checkbox" id="render-text" class="mdl-switch__input"
-                       [checked]="renderText"
-                       [(ngModel)]="renderText"
-                >
-                <span class="mdl-switch__label">Render text layer</span>
-              </label>
-            </div>
-
-            <pdf-viewer #myPdfViewer
-                        [src]="pdfSrc"
+            <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
                         [rotation]="rotation"
                         [original-size]="originalSize"
                         [show-all]="showAll"
                         (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
-                        [stick-to-page]="stickToPage"
                         [render-text]="renderText"
+                        (error)="onError($event)"
             ></pdf-viewer>
 
         </div>

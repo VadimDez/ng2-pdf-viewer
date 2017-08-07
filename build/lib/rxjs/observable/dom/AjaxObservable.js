@@ -12,11 +12,7 @@ var Subscriber_1 = require('../../Subscriber');
 var map_1 = require('../../operator/map');
 function getCORSRequest() {
     if (root_1.root.XMLHttpRequest) {
-        var xhr = new root_1.root.XMLHttpRequest();
-        if ('withCredentials' in xhr) {
-            xhr.withCredentials = !!this.withCredentials;
-        }
-        return xhr;
+        return new root_1.root.XMLHttpRequest();
     }
     else if (!!root_1.root.XDomainRequest) {
         return new root_1.root.XDomainRequest();
@@ -70,6 +66,11 @@ function ajaxPut(url, body, headers) {
     return new AjaxObservable({ method: 'PUT', url: url, body: body, headers: headers });
 }
 exports.ajaxPut = ajaxPut;
+;
+function ajaxPatch(url, body, headers) {
+    return new AjaxObservable({ method: 'PATCH', url: url, body: body, headers: headers });
+}
+exports.ajaxPatch = ajaxPatch;
 ;
 function ajaxGetJSON(url, headers) {
     return new AjaxObservable({ method: 'GET', url: url, responseType: 'json', headers: headers })
@@ -147,6 +148,7 @@ var AjaxObservable = (function (_super) {
         create.post = ajaxPost;
         create.delete = ajaxDelete;
         create.put = ajaxPut;
+        create.patch = ajaxPatch;
         create.getJSON = ajaxGetJSON;
         return create;
     })();
@@ -209,9 +211,12 @@ var AjaxSubscriber = (function (_super) {
                 this.error(errorObject_1.errorObject.e);
                 return null;
             }
-            // timeout and responseType can be set once the XHR is open
+            // timeout, responseType and withCredentials can be set once the XHR is open
             xhr.timeout = request.timeout;
             xhr.responseType = request.responseType;
+            if ('withCredentials' in xhr) {
+                xhr.withCredentials = !!request.withCredentials;
+            }
             // set headers
             this.setHeaders(xhr, headers);
             // finally send the request

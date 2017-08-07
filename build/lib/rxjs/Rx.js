@@ -219,9 +219,9 @@ exports.Scheduler = Scheduler;
  * to retrieve an iterator from an object.
  */
 var Symbol = {
-    rxSubscriber: rxSubscriber_1.$$rxSubscriber,
-    observable: observable_1.$$observable,
-    iterator: iterator_1.$$iterator
+    rxSubscriber: rxSubscriber_1.rxSubscriber,
+    observable: observable_1.observable,
+    iterator: iterator_1.iterator
 };
 exports.Symbol = Symbol;
 //# sourceMappingURL=Rx.js.map

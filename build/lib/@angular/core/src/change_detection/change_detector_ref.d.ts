@@ -25,7 +25,7 @@ export declare abstract class ChangeDetectorRef {
      * class Cmp {
      *   numberOfTicks = 0;
      *
-     *   constructor(ref: ChangeDetectorRef) {
+     *   constructor(private ref: ChangeDetectorRef) {
      *     setInterval(() => {
      *       this.numberOfTicks ++
      *       // the following is required, otherwise the view will not be updated
@@ -60,7 +60,7 @@ export declare abstract class ChangeDetectorRef {
      *
      * ### Example
      *
-     * The following example defines a component with a large list of data.
+     * The following example defines a component with a large list of readonly data.
      * Imagine the data changes constantly, many times per second. For performance reasons,
      * we want to check and update the list every five seconds. We can do that by detaching
      * the component's change detector and doing a local check every five seconds.
@@ -112,7 +112,7 @@ export declare abstract class ChangeDetectorRef {
      *
      * ### Example
      *
-     * The following example defines a component with a large list of data.
+     * The following example defines a component with a large list of readonly data.
      * Imagine, the data changes constantly, many times per second. For performance reasons,
      * we want to check and update the list every five seconds.
      *

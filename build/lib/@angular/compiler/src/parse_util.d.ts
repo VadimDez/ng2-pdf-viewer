@@ -1,3 +1,4 @@
+import { CompileIdentifierMetadata } from './compile_metadata';
 export declare class ParseLocation {
     file: ParseSourceFile;
     offset: number;
@@ -5,6 +6,11 @@ export declare class ParseLocation {
     col: number;
     constructor(file: ParseSourceFile, offset: number, line: number, col: number);
     toString(): string;
+    moveBy(delta: number): ParseLocation;
+    getContext(maxChars: number, maxLines: number): {
+        before: string;
+        after: string;
+    } | null;
 }
 export declare class ParseSourceFile {
     content: string;
@@ -14,18 +20,20 @@ export declare class ParseSourceFile {
 export declare class ParseSourceSpan {
     start: ParseLocation;
     end: ParseLocation;
-    details: string;
-    constructor(start: ParseLocation, end: ParseLocation, details?: string);
+    details: string | null;
+    constructor(start: ParseLocation, end: ParseLocation, details?: string | null);
     toString(): string;
 }
 export declare enum ParseErrorLevel {
     WARNING = 0,
-    FATAL = 1,
+    ERROR = 1,
 }
 export declare class ParseError {
     span: ParseSourceSpan;
     msg: string;
     level: ParseErrorLevel;
     constructor(span: ParseSourceSpan, msg: string, level?: ParseErrorLevel);
+    contextualMessage(): string;
     toString(): string;
 }
+export declare function typeSourceSpan(kind: string, type: CompileIdentifierMetadata): ParseSourceSpan;

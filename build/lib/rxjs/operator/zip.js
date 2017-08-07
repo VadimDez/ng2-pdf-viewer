@@ -10,7 +10,7 @@ var Subscriber_1 = require('../Subscriber');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 var iterator_1 = require('../symbol/iterator');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * @param observables
  * @return {Observable<R>}
@@ -47,9 +47,9 @@ exports.zipProto = zipProto;
  *     .subscribe(x => console.log(x));
  *
  * // outputs
- * // { age: 7, name: 'Foo', isDev: true }
- * // { age: 5, name: 'Bar', isDev: true }
- * // { age: 9, name: 'Beer', isDev: false }
+ * // { age: 27, name: 'Foo', isDev: true }
+ * // { age: 25, name: 'Bar', isDev: true }
+ * // { age: 29, name: 'Beer', isDev: false }
  *
  * @param observables
  * @return {Observable<R>}
@@ -99,8 +99,8 @@ var ZipSubscriber = (function (_super) {
         if (isArray_1.isArray(value)) {
             iterators.push(new StaticArrayIterator(value));
         }
-        else if (typeof value[iterator_1.$$iterator] === 'function') {
-            iterators.push(new StaticIterator(value[iterator_1.$$iterator]()));
+        else if (typeof value[iterator_1.iterator] === 'function') {
+            iterators.push(new StaticIterator(value[iterator_1.iterator]()));
         }
         else {
             iterators.push(new ZipBufferIterator(this.destination, this, value));
@@ -109,6 +109,10 @@ var ZipSubscriber = (function (_super) {
     ZipSubscriber.prototype._complete = function () {
         var iterators = this.iterators;
         var len = iterators.length;
+        if (len === 0) {
+            this.destination.complete();
+            return;
+        }
         this.active = len;
         for (var i = 0; i < len; i++) {
             var iterator = iterators[i];
@@ -203,7 +207,7 @@ var StaticArrayIterator = (function () {
         this.length = 0;
         this.length = array.length;
     }
-    StaticArrayIterator.prototype[iterator_1.$$iterator] = function () {
+    StaticArrayIterator.prototype[iterator_1.iterator] = function () {
         return this;
     };
     StaticArrayIterator.prototype.next = function (value) {
@@ -234,7 +238,7 @@ var ZipBufferIterator = (function (_super) {
         this.buffer = [];
         this.isComplete = false;
     }
-    ZipBufferIterator.prototype[iterator_1.$$iterator] = function () {
+    ZipBufferIterator.prototype[iterator_1.iterator] = function () {
         return this;
     };
     // NOTE: there is actually a name collision here with Subscriber.next and Iterator.next

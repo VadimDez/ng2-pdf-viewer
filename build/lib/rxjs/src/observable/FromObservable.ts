@@ -1,4 +1,5 @@
 import { isArray } from '../util/isArray';
+import { isArrayLike } from '../util/isArrayLike';
 import { isPromise } from '../util/isPromise';
 import { PromiseObservable } from './PromiseObservable';
 import { IteratorObservable } from'./IteratorObservable';
@@ -6,13 +7,11 @@ import { ArrayObservable } from './ArrayObservable';
 import { ArrayLikeObservable } from './ArrayLikeObservable';
 
 import { IScheduler } from '../Scheduler';
-import { $$iterator } from '../symbol/iterator';
+import { iterator as Symbol_iterator } from '../symbol/iterator';
 import { Observable, ObservableInput } from '../Observable';
 import { Subscriber } from '../Subscriber';
 import { ObserveOnSubscriber } from '../operator/observeOn';
-import { $$observable } from '../symbol/observable';
-
-const isArrayLike = (<T>(x: any): x is ArrayLike<T> => x && typeof x.length === 'number');
+import { observable as Symbol_observable } from '../symbol/observable';
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -59,7 +58,7 @@ export class FromObservable<T> extends Observable<T> {
    *     i = 2 * i; // double it
    *   }
    * }
-   *  
+   *
    * var iterator = generateDoubles(3);
    * var result = Rx.Observable.from(iterator).take(10);
    * result.subscribe(x => console.log(x));
@@ -71,7 +70,7 @@ export class FromObservable<T> extends Observable<T> {
    * @see {@link fromEvent}
    * @see {@link fromEventPattern}
    * @see {@link fromPromise}
-   *  
+   *
    * @param {ObservableInput<T>} ish A subscribable object, a Promise, an
    * Observable-like, an Array, an iterable or an array-like object to be
    * converted.
@@ -85,7 +84,7 @@ export class FromObservable<T> extends Observable<T> {
    */
   static create<T>(ish: ObservableInput<T>, scheduler?: IScheduler): Observable<T> {
     if (ish != null) {
-      if (typeof ish[$$observable] === 'function') {
+      if (typeof ish[Symbol_observable] === 'function') {
         if (ish instanceof Observable && !scheduler) {
           return ish;
         }
@@ -94,7 +93,7 @@ export class FromObservable<T> extends Observable<T> {
         return new ArrayObservable<T>(ish, scheduler);
       } else if (isPromise(ish)) {
         return new PromiseObservable<T>(ish, scheduler);
-      } else if (typeof ish[$$iterator] === 'function' || typeof ish === 'string') {
+      } else if (typeof ish[Symbol_iterator] === 'function' || typeof ish === 'string') {
         return new IteratorObservable<T>(ish, scheduler);
       } else if (isArrayLike(ish)) {
         return new ArrayLikeObservable(ish, scheduler);
@@ -108,9 +107,9 @@ export class FromObservable<T> extends Observable<T> {
     const ish = this.ish;
     const scheduler = this.scheduler;
     if (scheduler == null) {
-      return ish[$$observable]().subscribe(subscriber);
+      return ish[Symbol_observable]().subscribe(subscriber);
     } else {
-      return ish[$$observable]().subscribe(new ObserveOnSubscriber(subscriber, scheduler, 0));
+      return ish[Symbol_observable]().subscribe(new ObserveOnSubscriber(subscriber, scheduler, 0));
     }
   }
 }

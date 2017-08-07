@@ -25,7 +25,7 @@ import { PipeTransform } from '@angular/core';
  * details see your native internationalization library.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
  *
  * ### Example
  *
@@ -36,7 +36,7 @@ import { PipeTransform } from '@angular/core';
 export declare class DecimalPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string;
+    transform(value: any, digits?: string): string | null;
 }
 /**
  * @ngModule CommonModule
@@ -50,7 +50,7 @@ export declare class DecimalPipe implements PipeTransform {
  * - `digitInfo` See {@link DecimalPipe} for detailed description.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
  *
  * ### Example
  *
@@ -61,7 +61,7 @@ export declare class DecimalPipe implements PipeTransform {
 export declare class PercentPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string;
+    transform(value: any, digits?: string): string | null;
 }
 /**
  * @ngModule CommonModule
@@ -79,7 +79,7 @@ export declare class PercentPipe implements PipeTransform {
  * - `digitInfo` See {@link DecimalPipe} for detailed description.
  *
  * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See {@linkDocs guide/browser-support} for details.
+ * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
  *
  * ### Example
  *
@@ -90,5 +90,6 @@ export declare class PercentPipe implements PipeTransform {
 export declare class CurrencyPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string;
+    transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string | null;
 }
+export declare function isNumeric(value: any): boolean;

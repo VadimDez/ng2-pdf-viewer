@@ -5,8 +5,8 @@ var SubscribeOnObservable_1 = require('../observable/SubscribeOnObservable');
  *
  * <img src="./img/subscribeOn.png" width="100%">
  *
- * @param {Scheduler} the IScheduler to perform subscription actions on.
- * @return {Observable<T>} the source Observable modified so that its subscriptions happen on the specified IScheduler
+ * @param {Scheduler} scheduler - The IScheduler to perform subscription actions on.
+ * @return {Observable<T>} The source Observable modified so that its subscriptions happen on the specified IScheduler.
  .
  * @method subscribeOn
  * @owner Observable

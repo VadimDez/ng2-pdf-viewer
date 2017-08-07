@@ -9,7 +9,7 @@ var isArray_1 = require('../util/isArray');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 var none = {};
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Combines multiple Observables to create an Observable whose values are
  * calculated from the latest values of each of its input Observables.
@@ -43,7 +43,7 @@ var none = {};
  * @see {@link merge}
  * @see {@link withLatestFrom}
  *
- * @param {Observable} other An input Observable to combine with the source
+ * @param {ObservableInput} other An input Observable to combine with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {function} [project] An optional function to project the values from
  * the combined latest values into a new value on the output Observable.

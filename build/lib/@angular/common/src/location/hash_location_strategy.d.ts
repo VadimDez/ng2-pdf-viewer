@@ -1,6 +1,8 @@
 import { LocationStrategy } from './location_strategy';
 import { LocationChangeListener, PlatformLocation } from './platform_location';
 /**
+ * @whatItDoes Use URL hash for storing application location data.
+ * @description
  * `HashLocationStrategy` is a {@link LocationStrategy} used to configure the
  * {@link Location} service to represent its state in the
  * [hash fragment](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax)
@@ -11,18 +13,7 @@ import { LocationChangeListener, PlatformLocation } from './platform_location';
  *
  * ### Example
  *
- * ```
- * import {Component, NgModule} from '@angular/core';
- * import {
- *   LocationStrategy,
- *   HashLocationStrategy
- * } from '@angular/common';
- *
- * @NgModule({
- *   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy}]
- * })
- * class AppModule {}
- * ```
+ * {@example common/location/ts/hash_location_component.ts region='LocationComponent'}
  *
  * @stable
  */

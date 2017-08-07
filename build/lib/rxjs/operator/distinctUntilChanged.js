@@ -7,7 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Subscriber_1 = require('../Subscriber');
 var tryCatch_1 = require('../util/tryCatch');
 var errorObject_1 = require('../util/errorObject');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item.
  *
@@ -42,8 +42,8 @@ var errorObject_1 = require('../util/errorObject');
  * @see {@link distinct}
  * @see {@link distinctUntilKeyChanged}
  *
- * @param {function} [compare] optional comparison function called to test if an item is distinct from the previous item in the source.
- * @return {Observable} an Observable that emits items from the source Observable with distinct values.
+ * @param {function} [compare] Optional comparison function called to test if an item is distinct from the previous item in the source.
+ * @return {Observable} An Observable that emits items from the source Observable with distinct values.
  * @method distinctUntilChanged
  * @owner Observable
  */

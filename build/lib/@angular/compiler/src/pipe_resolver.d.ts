@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Pipe, Type } from '@angular/core';
-import { ReflectorReader } from './private_import_core';
+import { CompileReflector } from './compile_reflector';
 /**
  * Resolve a `Type` for {@link Pipe}.
  *
@@ -16,10 +16,10 @@ import { ReflectorReader } from './private_import_core';
  */
 export declare class PipeResolver {
     private _reflector;
-    constructor(_reflector?: ReflectorReader);
+    constructor(_reflector: CompileReflector);
     isPipe(type: Type<any>): boolean;
     /**
      * Return {@link Pipe} for a given `Type`.
      */
-    resolve(type: Type<any>, throwIfNotFound?: boolean): Pipe;
+    resolve(type: Type<any>, throwIfNotFound?: boolean): Pipe | null;
 }

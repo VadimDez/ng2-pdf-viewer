@@ -6,9 +6,9 @@
 * found in the LICENSE file at https://angular.io/license
 */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (factory());
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(factory());
 }(this, (function () { 'use strict';
 
 /**
@@ -82,7 +82,7 @@
             this._scheduler = new Scheduler();
             this._microtasks = [];
             this._lastError = null;
-            this._uncaughtPromiseErrors = Promise[Zone['__symbol__']('uncaughtPromiseErrors')];
+            this._uncaughtPromiseErrors = Promise[Zone.__symbol__('uncaughtPromiseErrors')];
             this.pendingPeriodicTimers = [];
             this.pendingTimers = [];
             this.properties = { 'FakeAsyncTestZoneSpec': this };

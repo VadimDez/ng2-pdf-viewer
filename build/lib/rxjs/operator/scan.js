@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = require('../Subscriber');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Applies an accumulator function over the source Observable, and returns each
  * intermediate result, with an optional seed value.

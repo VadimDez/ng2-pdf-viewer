@@ -8,7 +8,7 @@ var tryCatch_1 = require('../util/tryCatch');
 var errorObject_1 = require('../util/errorObject');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Recursively projects each source value to an Observable which is merged in
  * the output Observable.

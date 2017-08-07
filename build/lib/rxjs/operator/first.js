@@ -50,7 +50,7 @@ var EmptyError_1 = require('../util/EmptyError');
  * - `index`: the "index" of the value from the source.
  * @param {R} [defaultValue] The default value emitted in case no valid value
  * was found on the source.
- * @return {Observable<T|R>} an Observable of the first item that matches the
+ * @return {Observable<T|R>} An Observable of the first item that matches the
  * condition.
  * @method first
  * @owner Observable

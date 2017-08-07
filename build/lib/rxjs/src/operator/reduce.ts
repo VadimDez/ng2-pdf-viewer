@@ -3,10 +3,10 @@ import { Operator } from '../Operator';
 import { Subscriber } from '../Subscriber';
 
 /* tslint:disable:max-line-length */
+export function reduce<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed: T[]): Observable<T[]>;
 export function reduce<T>(this: Observable<T>, accumulator: (acc: T, value: T, index: number) => T, seed?: T): Observable<T>;
-export function reduce<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed?: T[]): Observable<T[]>;
-export function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed?: R): Observable<R>;
-/* tslint:disable:max-line-length */
+export function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed: R): Observable<R>;
+/* tslint:enable:max-line-length */
 
 /**
  * Applies an accumulator function over the source Observable, and returns the
@@ -47,7 +47,6 @@ export function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T
  * @param {function(acc: R, value: T, index: number): R} accumulator The accumulator function
  * called on each source value.
  * @param {R} [seed] The initial accumulation value.
- * @return {Observable<R>} An observable of the accumulated values.
  * @return {Observable<R>} An Observable that emits a single value that is the
  * result of accumulating the values emitted by the source Observable.
  * @method reduce

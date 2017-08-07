@@ -22,6 +22,7 @@ export interface AjaxCreationMethod {
     get(url: string, headers?: Object): Observable<AjaxResponse>;
     post(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
     put(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+    patch(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
     delete(url: string, headers?: Object): Observable<AjaxResponse>;
     getJSON<T>(url: string, headers?: Object): Observable<T>;
 }
@@ -29,6 +30,7 @@ export declare function ajaxGet(url: string, headers?: Object): AjaxObservable<A
 export declare function ajaxPost(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
 export declare function ajaxDelete(url: string, headers?: Object): Observable<AjaxResponse>;
 export declare function ajaxPut(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
+export declare function ajaxPatch(url: string, body?: any, headers?: Object): Observable<AjaxResponse>;
 export declare function ajaxGetJSON<T>(url: string, headers?: Object): Observable<T>;
 /**
  * We need this JSDoc comment for affecting ESDoc.

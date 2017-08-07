@@ -32,3 +32,7 @@
 pdf-viewer {
     display: block;
 }
+
+.error {
+    color: #ff4146;
+}

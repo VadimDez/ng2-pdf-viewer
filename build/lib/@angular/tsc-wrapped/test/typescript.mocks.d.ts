@@ -5,6 +5,8 @@ export interface Directory {
 export declare class Host implements ts.LanguageServiceHost {
     private directory;
     private scripts;
+    private overrides;
+    private version;
     constructor(directory: Directory, scripts: string[]);
     getCompilationSettings(): ts.CompilerOptions;
     getScriptFileNames(): string[];
@@ -12,8 +14,11 @@ export declare class Host implements ts.LanguageServiceHost {
     getScriptSnapshot(fileName: string): ts.IScriptSnapshot;
     getCurrentDirectory(): string;
     getDefaultLibFileName(options: ts.CompilerOptions): string;
+    overrideFile(fileName: string, content: string): void;
+    addFile(fileName: string): void;
     private getFileContent(fileName);
 }
+export declare function open(directory: Directory, fileName: string): Directory | string | undefined;
 export declare class MockNode implements ts.Node {
     kind: ts.SyntaxKind;
     flags: ts.NodeFlags;
@@ -34,9 +39,11 @@ export declare class MockNode implements ts.Node {
     getText(sourceFile?: ts.SourceFile): string;
     getFirstToken(sourceFile?: ts.SourceFile): ts.Node;
     getLastToken(sourceFile?: ts.SourceFile): ts.Node;
+    forEachChild<T>(cbNode: (node: ts.Node) => T, cbNodeArray?: (nodes: ts.Node[]) => T): T;
 }
 export declare class MockIdentifier extends MockNode implements ts.Identifier {
     name: string;
+    kind: ts.SyntaxKind.Identifier;
     text: string;
     _primaryExpressionBrand: any;
     _memberExpressionBrand: any;
@@ -44,12 +51,13 @@ export declare class MockIdentifier extends MockNode implements ts.Identifier {
     _incrementExpressionBrand: any;
     _unaryExpressionBrand: any;
     _expressionBrand: any;
-    constructor(name: string, kind?: ts.SyntaxKind, flags?: ts.NodeFlags, pos?: number, end?: number);
+    constructor(name: string, kind?: ts.SyntaxKind.Identifier, flags?: ts.NodeFlags, pos?: number, end?: number);
 }
 export declare class MockVariableDeclaration extends MockNode implements ts.VariableDeclaration {
     name: ts.Identifier;
+    kind: ts.SyntaxKind.VariableDeclaration;
     _declarationBrand: any;
-    constructor(name: ts.Identifier, kind?: ts.SyntaxKind, flags?: ts.NodeFlags, pos?: number, end?: number);
+    constructor(name: ts.Identifier, kind?: ts.SyntaxKind.VariableDeclaration, flags?: ts.NodeFlags, pos?: number, end?: number);
     static of(name: string): MockVariableDeclaration;
 }
 export declare class MockSymbol implements ts.Symbol {
@@ -61,6 +69,7 @@ export declare class MockSymbol implements ts.Symbol {
     getName(): string;
     getDeclarations(): ts.Declaration[];
     getDocumentationComment(): ts.SymbolDisplayPart[];
+    getJsDocTags(): any[];
     static of(name: string): MockSymbol;
 }
 export declare function expectNoDiagnostics(diagnostics: ts.Diagnostic[]): void;

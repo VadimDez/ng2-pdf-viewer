@@ -2,64 +2,38 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
-import 'pdfjs-dist/web/pdf_viewer';
+PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div id="viewer" class="pdfViewer"></div></div>`
+  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
+  styles: [`
+.ng2-pdf-viewer--zoom {
+  overflow-x: scroll;
+}
+
+:host >>> .ng2-pdf-viewer-container .page {
+  background-color: #fff;
+}
+  `]
 })
 
-export class PdfViewerComponent implements OnChanges, OnInit {
-  private static CSS_UNITS: number = 96.0 / 72.0;
-  private _showAll: boolean = true; // TODO : _showAll is not working
-
+export class PdfViewerComponent implements OnChanges {
+  private _showAll: boolean = false;
   private _renderText: boolean = true;
-  private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
   private _pdf: PDFDocumentProxy;
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
 
-  private _externalLinkTarget: string = 'blank';
-  private _pdfViewer: any;
-  private _pdfLinkService: any;
-  private lastLoaded: string | Uint8Array | PDFSource;
-  private resizeTimeout: any;
-
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+  @Output('error') onError = new EventEmitter<any>();
 
-  constructor(private element: ElementRef) {
-    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-  }
-
-  ngOnInit() {
-    this.setupViewer();
-  }
-
-  onPageResize() {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-
-    this.resizeTimeout = setTimeout(() => {
-      this.updateSize();
-    }, 100);
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('src' in changes) {
-      this.loadPDF();
-    } else if (this._pdf) {
-      if ('renderText' in changes) {
-        this.setupViewer();
-      }
-      this.update();
-    }
-  }
+  constructor(private element: ElementRef) {}
 
   @Input()
   src: string | Uint8Array | PDFSource;
@@ -93,11 +67,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._showAll = value;
   }
 
-  @Input('stick-to-page')
-  set stickToPage(value: boolean) {
-    this._stickToPage = value;
-  }
-
   @Input('zoom')
   set zoom(value: number) {
     if (value <= 0) {
@@ -105,6 +74,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
 
     this._zoom = value;
+  }
+
+  get zoom() {
+    return this._zoom;
   }
 
   @Input('rotation')
@@ -117,75 +90,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._rotation = value;
   }
 
-  @Input('external-link-target')
-  set externalLinkTarget(value: string) {
-    this._externalLinkTarget = value;
-  }
-
-  public setupViewer() {
-    (<any>PDFJS).disableTextLayer = !this._renderText;
-
-    this.setExternalLinkTarget(this._externalLinkTarget);
-
-    this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-    let pdfOptions: any = {
-      container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
-      linkService: this._pdfLinkService
-    };
-
-    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-    this._pdfLinkService.setViewer(this._pdfViewer);
-  }
-
-  public render() {
-    if (!this.isValidPageNumber(this._page)) {
-      this._page = 1;
-    }
-
-    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
-      setTimeout(() => {
-        this._pdfViewer.pagesRotation = this._rotation;
-      });
-    }
-
-    if (this._stickToPage) {
-      setTimeout(() => {
-        this._pdfViewer.currentPageNumber = this._page;
-      });
-    }
-
-    this.updateSize();
-  }
-
-  public updateSize() {
-    this._pdf.getPage(this._pdfViewer._currentPageNumber).then((page: PDFPageProxy) => {
-      const scale = this._zoom * (this.element.nativeElement.offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-      this._pdfViewer._setScale(scale, !this._stickToPage);
-    });
-  }
-
-  public isValidPageNumber(page: number) {
-    return this._pdf.numPages >= page && page >= 1;
-  }
-
-  private setExternalLinkTarget(type: string) {
-    switch (type) {
-      case 'blank':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
-        break;
-      case 'none':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.NONE;
-        break;
-      case 'self':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.SELF;
-        break;
-      case 'parent':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.PARENT;
-        break;
-      case 'top':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
-        break;
+  ngOnChanges(changes: SimpleChanges) {
+    if ('src' in changes) {
+      this.loadPDF();
+    } else if (this._pdf) {
+      this.update();
     }
   }
 
@@ -194,32 +103,81 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    if (this.lastLoaded === this.src) {
-      this.update();
-      return;
-    }
+    PDFJS.getDocument(this.src)
+      .then(pdf => {
+        this._pdf = pdf;
 
-    const src = this.src;
-    PDFJS.getDocument(src).then((pdf: PDFDocumentProxy) => {
-      this._pdf = pdf;
-      this.lastLoaded = src;
+        this.afterLoadComplete.emit(pdf);
 
-      this.afterLoadComplete.emit(pdf);
-
-      this.update();
-    });
+        this.update();
+      }, (error: any) => {
+        this.onError.emit(error);
+      });
   }
 
   private update() {
-    if (this._pdfViewer) {
-      this._pdfViewer.setDocument(this._pdf);
-    }
-    if (this._pdfLinkService) {
-      this._pdfLinkService.setDocument(this._pdf, null);
-    }
-
     this.page = this._page;
 
-    this.render();
+    if (!this._showAll) {
+      this.renderPage(this._page);
+    } else {
+      this.renderMultiplePages();
+    }
+  }
+
+  private renderMultiplePages() {
+    let container = this.element.nativeElement.querySelector('div');
+
+    this.removeAllChildNodes(container);
+
+    // render pages synchronously
+    const render = (page: number) => {
+      this.renderPage(page).then(() => {
+        if (page < this._pdf.numPages) {
+          render(page + 1);
+        }
+      });
+    };
+
+    render(1);
+  }
+
+  public isValidPageNumber(page: number) {
+    return this._pdf.numPages >= page && page >= 1;
+  }
+
+  private renderPage(pageNumber: number): PDFPromise<void> {
+    return this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
+      let viewport = page.getViewport(this._zoom, this._rotation);
+      let container = this.element.nativeElement.querySelector('div');
+
+      if (!this._originalSize) {
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
+      }
+
+      if (!this._showAll) {
+        this.removeAllChildNodes(container);
+      }
+
+      return (<any>page).getOperatorList().then(function (opList) {
+        let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
+
+        return svgGfx.getSVG(opList, viewport).then(function (svg) {
+          let $div = document.createElement('div');
+
+          $div.classList.add('page');
+          $div.setAttribute('data-page-number', `${ page.pageNumber }`);
+
+          $div.appendChild(svg);
+          container.appendChild($div);
+        });
+      });
+    });
+  }
+
+  private removeAllChildNodes(element: HTMLElement) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
   }
 }

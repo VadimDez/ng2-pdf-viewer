@@ -1,5 +1,5 @@
 /*
- * SystemJS v0.20.5 Dev
+ * SystemJS v0.20.14 Dev
  */
 (function () {
 'use strict';
@@ -45,9 +45,11 @@ else if (typeof location != 'undefined') {
 // sanitize out the hash and querystring
 if (baseURI) {
   baseURI = baseURI.split('#')[0].split('?')[0];
-  baseURI = baseURI.substr(0, baseURI.lastIndexOf('/') + 1);
+  var slashIndex = baseURI.lastIndexOf('/');
+  if (slashIndex !== -1)
+    baseURI = baseURI.substr(0, slashIndex + 1);
 }
-else if (typeof process != 'undefined' && process.cwd) {
+else if (typeof process !== 'undefined' && process.cwd) {
   baseURI = 'file://' + (isWindows ? '/' : '') + process.cwd();
   if (isWindows)
     baseURI = baseURI.replace(/\\/g, '/');
@@ -94,10 +96,11 @@ function LoaderError__Check_error_message_for_loader_stack (childErr, newMessage
 /*
  * Optimized URL normalization assuming a syntax-valid URL parent
  */
-function throwResolveError () {
+function throwResolveError (relUrl, parentUrl) {
   throw new RangeError('Unable to resolve "' + relUrl + '" to ' + parentUrl);
 }
 function resolveIfNotPlain (relUrl, parentUrl) {
+  relUrl = relUrl.trim();
   var parentProtocol = parentUrl && parentUrl.substr(0, parentUrl.indexOf(':') + 1);
 
   var firstChar = relUrl[0];
@@ -110,8 +113,9 @@ function resolveIfNotPlain (relUrl, parentUrl) {
     return parentProtocol + relUrl;
   }
   // relative-url
-  else if (firstChar === '.' && (secondChar === '/' || secondChar === '.' && (relUrl[2] === '/' || relUrl.length === 2) || relUrl.length === 1)
-      || firstChar === '/') {
+  else if (firstChar === '.' && (secondChar === '/' || secondChar === '.' && (relUrl[2] === '/' || relUrl.length === 2 && (relUrl += '/')) ||
+      relUrl.length === 1  && (relUrl += '/')) ||
+      firstChar === '/') {
     var parentIsPlain = !parentProtocol || parentUrl[parentProtocol.length] !== '/';
 
     // read pathname from parent if a URL
@@ -151,14 +155,14 @@ function resolveIfNotPlain (relUrl, parentUrl) {
     var segmented = pathname.substr(0, pathname.lastIndexOf('/') + 1) + relUrl;
 
     var output = [];
-    var segmentIndex = undefined;
+    var segmentIndex = -1;
 
     for (var i = 0; i < segmented.length; i++) {
       // busy reading a segment - only terminate on '/'
-      if (segmentIndex !== undefined) {
+      if (segmentIndex !== -1) {
         if (segmented[i] === '/') {
-          output.push(segmented.substr(segmentIndex, i - segmentIndex + 1));
-          segmentIndex = undefined;
+          output.push(segmented.substring(segmentIndex, i + 1));
+          segmentIndex = -1;
         }
         continue;
       }
@@ -166,12 +170,12 @@ function resolveIfNotPlain (relUrl, parentUrl) {
       // new segment - check if it is relative
       if (segmented[i] === '.') {
         // ../ segment
-        if (segmented[i + 1] === '.' && (segmented[i + 2] === '/' || i === segmented.length - 2)) {
+        if (segmented[i + 1] === '.' && segmented[i + 2] === '/') {
           output.pop();
           i += 2;
         }
         // ./ segment
-        else if (segmented[i + 1] === '/' || i === segmented.length - 1) {
+        else if (segmented[i + 1] === '/') {
           i += 1;
         }
         else {
@@ -194,8 +198,8 @@ function resolveIfNotPlain (relUrl, parentUrl) {
       segmentIndex = i;
     }
     // finish reading out the last segment
-    if (segmentIndex !== undefined)
-      output.push(segmented.substr(segmentIndex, segmented.length - segmentIndex));
+    if (segmentIndex !== -1)
+      output.push(segmented.substr(segmentIndex));
 
     return parentUrl.substr(0, parentUrl.length - pathname.length) + output.join('');
   }
@@ -347,7 +351,6 @@ var iteratorSupport = typeof Symbol !== 'undefined' && Symbol.iterator;
 var REGISTRY = createSymbol('registry');
 function Registry() {
   this[REGISTRY] = {};
-  this._registry = REGISTRY;
 }
 // 4.4.1
 if (iteratorSupport) {
@@ -488,7 +491,7 @@ Module.evaluate = function (ns) {
  * - loader.register support
  * - hookable higher-level resolve
  * - instantiate hook returning a ModuleNamespace or undefined for es module loading
- * - loader error behaviour as in HTML and loader specs, clearing failed modules from registration cache synchronously
+ * - loader error behaviour as in HTML and loader specs, caching load and eval errors separately
  * - build tracing support by providing a .trace=true and .loads object format
  */
 
@@ -497,11 +500,26 @@ var REGISTER_INTERNAL = createSymbol('register-internal');
 function RegisterLoader$1 () {
   Loader.call(this);
 
+  var registryDelete = this.registry.delete;
+  this.registry.delete = function (key) {
+    var deleted = registryDelete.call(this, key);
+
+    // also delete from register registry if linked
+    if (records.hasOwnProperty(key) && !records[key].linkRecord) {
+      delete records[key];
+      deleted = true;
+    }
+
+    return deleted;
+  };
+
+  var records = {};
+
   this[REGISTER_INTERNAL] = {
     // last anonymous System.register call
     lastRegister: undefined,
     // in-flight es module load records
-    records: {}
+    records: records
   };
 
   // tracing
@@ -538,6 +556,9 @@ function createLoadRecord (state, key, registration) {
     // for already-loaded modules by adding themselves to their importerSetters
     importerSetters: undefined,
 
+    loadError: undefined,
+    evalError: undefined,
+
     // in-flight linking record
     linkRecord: {
       // promise for instantiated
@@ -560,9 +581,8 @@ function createLoadRecord (state, key, registration) {
       // indicates if the load and all its dependencies are instantiated and linked
       // but not yet executed
       // mostly just a performance shortpath to avoid rechecking the promises above
-      linked: false,
+      linked: false
 
-      error: undefined
       // NB optimization and way of ensuring module objects in setters
       // indicates setters which should run pre-execution of that dependency
       // setters is then just for completely executed module objects
@@ -576,28 +596,29 @@ function createLoadRecord (state, key, registration) {
 RegisterLoader$1.prototype[Loader.resolveInstantiate] = function (key, parentKey) {
   var loader = this;
   var state = this[REGISTER_INTERNAL];
-  var registry = loader.registry[loader.registry._registry];
+  var registry = this.registry[REGISTRY];
 
   return resolveInstantiate(loader, key, parentKey, registry, state)
   .then(function (instantiated) {
     if (instantiated instanceof ModuleNamespace)
       return instantiated;
 
-    // if already beaten to linked, return
-    if (instantiated.module)
-      return instantiated.module;
-
     // resolveInstantiate always returns a load record with a link record and no module value
+    var link = instantiated.linkRecord;
+
+    // if already beaten to done, return
+    if (!link) {
+      if (instantiated.module)
+        return instantiated.module;
+      throw instantiated.evalError;
+    }
+
     if (instantiated.linkRecord.linked)
       return ensureEvaluate(loader, instantiated, instantiated.linkRecord, registry, state, undefined);
 
     return instantiateDeps(loader, instantiated, instantiated.linkRecord, registry, state, [instantiated])
     .then(function () {
       return ensureEvaluate(loader, instantiated, instantiated.linkRecord, registry, state, undefined);
-    })
-    .catch(function (err) {
-      clearLoadErrors(loader, instantiated);
-      throw err;
     });
   });
 };
@@ -612,8 +633,11 @@ function resolveInstantiate (loader, key, parentKey, registry, state) {
   var load = state.records[key];
 
   // already linked but not in main registry is ignored
-  if (load && !load.module)
+  if (load && !load.module) {
+    if (load.loadError)
+      return Promise.reject(load.loadError);
     return instantiate(loader, load, load.linkRecord, registry, state);
+  }
 
   return loader.resolve(key, parentKey)
   .then(function (resolvedKey) {
@@ -630,6 +654,9 @@ function resolveInstantiate (loader, key, parentKey, registry, state) {
     // but keep any existing registration
     if (!load || load.module)
       load = createLoadRecord(state, resolvedKey, load && load.registration);
+
+    if (load.loadError)
+      return Promise.reject(load.loadError);
 
     var link = load.linkRecord;
     if (!link)
@@ -687,8 +714,7 @@ function instantiate (loader, load, link, registry, state) {
 
     // process System.registerDynamic declaration
     if (registration[2]) {
-      link.moduleObj.default = {};
-      link.moduleObj.__useDefault = true;
+      link.moduleObj.default = link.moduleObj.__useDefault = {};
       link.executingRequire = registration[1];
       link.execute = registration[2];
     }
@@ -708,7 +734,8 @@ function instantiate (loader, load, link, registry, state) {
     return load;
   })
   .catch(function (err) {
-    throw link.error = LoaderError__Check_error_message_for_loader_stack(err, 'Instantiating ' + load.key);
+    load.linkRecord = undefined;
+    throw load.loadError = load.loadError || LoaderError__Check_error_message_for_loader_stack(err, 'Instantiating ' + load.key);
   }));
 }
 
@@ -740,7 +767,7 @@ function resolveInstantiateDep (loader, key, parentKey, registry, state, traceDe
   return loader.resolve(key, parentKey)
   .then(function (resolvedKey) {
     if (traceDepMap)
-      traceDepMap[key] = key;
+      traceDepMap[key] = resolvedKey;
 
     // normalization shortpaths for already-normalized key
     var load = state.records[resolvedKey];
@@ -749,6 +776,9 @@ function resolveInstantiateDep (loader, key, parentKey, registry, state, traceDe
     // main loader registry always takes preference
     if (module && (!load || load.module && module !== load.module))
       return module;
+
+    if (load && load.loadError)
+      throw load.loadError;
 
     // already has a module value but not already in the registry (load.module)
     // means it was removed by registry.delete, so we should
@@ -770,6 +800,7 @@ function traceLoad (loader, load, link) {
   loader.loads[load.key] = {
     key: load.key,
     deps: link.dependencies,
+    dynamicDeps: [],
     depMap: link.depMap || {}
   };
 }
@@ -785,35 +816,40 @@ function registerDeclarative (loader, load, link, declare) {
   var moduleObj = link.moduleObj;
   var importerSetters = load.importerSetters;
 
-  var locked = false;
+  var definedExports = false;
 
   // closure especially not based on link to allow link record disposal
   var declared = declare.call(envGlobal, function (name, value) {
-    // export setter propogation with locking to avoid cycles
-    if (locked)
-      return;
-
     if (typeof name === 'object') {
-      for (var p in name)
-        if (p !== '__useDefault')
-          moduleObj[p] = name[p];
+      var changed = false;
+      for (var p in name) {
+        value = name[p];
+        if (p !== '__useDefault' && (!(p in moduleObj) || moduleObj[p] !== value)) {
+          changed = true;
+          moduleObj[p] = value;
+        }
+      }
+      if (changed === false)
+        return value;
     }
     else {
+      if ((definedExports || name in moduleObj) && moduleObj[name] === value)
+        return value;
       moduleObj[name] = value;
     }
 
-    locked = true;
     for (var i = 0; i < importerSetters.length; i++)
       importerSetters[i](moduleObj);
-    locked = false;
 
     return value;
   }, new ContextualLoader(loader, load.key));
 
   link.setters = declared.setters;
   link.execute = declared.execute;
-  if (declared.exports)
+  if (declared.exports) {
     link.moduleObj = moduleObj = declared.exports;
+    definedExports = true;
+  }
 }
 
 function instantiateDeps (loader, load, link, registry, state, seen) {
@@ -822,7 +858,7 @@ function instantiateDeps (loader, load, link, registry, state, seen) {
     var depsInstantiatePromises = Array(link.dependencies.length);
 
     for (var i = 0; i < link.dependencies.length; i++)
-      depsInstantiatePromises[i] = resolveInstantiateDep(loader, link.dependencies[i], load.key, registry, state, loader.trace && (link.depMap = {}));
+      depsInstantiatePromises[i] = resolveInstantiateDep(loader, link.dependencies[i], load.key, registry, state, loader.trace && link.depMap || (link.depMap = {}));
 
     return Promise.all(depsInstantiatePromises);
   })
@@ -840,6 +876,8 @@ function instantiateDeps (loader, load, link, registry, state, seen) {
             setter(instantiation);
           }
           else {
+            if (instantiation.loadError)
+              throw instantiation.loadError;
             setter(instantiation.module || instantiation.linkRecord.moduleObj);
             // this applies to both es and dynamic registrations
             if (instantiation.importerSetters)
@@ -860,8 +898,10 @@ function instantiateDeps (loader, load, link, registry, state, seen) {
       if (!depLink || depLink.linked)
         continue;
 
-      if (seen.indexOf(depLoad) !== -1)
+      if (seen.indexOf(depLoad) !== -1) {
+        deepDepsInstantiatePromises.push(depLink.depsInstantiatePromise);
         continue;
+      }
       seen.push(depLoad);
 
       deepDepsInstantiatePromises.push(instantiateDeps(loader, depLoad, depLoad.linkRecord, registry, state, seen));
@@ -879,49 +919,10 @@ function instantiateDeps (loader, load, link, registry, state, seen) {
     return load;
   })
   .catch(function (err) {
-    err = LoaderError__Check_error_message_for_loader_stack(err, 'Loading ' + load.key);
-
     // throw up the instantiateDeps stack
-    // loads are then synchonously cleared at the top-level through the clearLoadErrors helper below
-    // this then ensures avoiding partially unloaded tree states
-    link.error = link.error || err;
-
-    throw err;
+    link.depsInstantiatePromise = undefined;
+    throw LoaderError__Check_error_message_for_loader_stack(err, 'Loading ' + load.key);
   });
-}
-
-// clears an errored load and all its errored dependencies from the loads registry
-function clearLoadErrors (loader, load) {
-  var state = loader[REGISTER_INTERNAL];
-
-  // clear from loads
-  if (state.records[load.key] === load)
-    delete state.records[load.key];
-
-  var link = load.linkRecord;
-
-  if (!link)
-    return;
-
-  if (link.dependencyInstantiations)
-    link.dependencyInstantiations.forEach(function (depLoad, index) {
-      if (!depLoad || depLoad instanceof ModuleNamespace)
-        return;
-
-      if (depLoad.linkRecord) {
-        if (depLoad.linkRecord.error) {
-          // provides a circular reference check
-          if (state.records[depLoad.key] === depLoad)
-            clearLoadErrors(loader, depLoad);
-        }
-
-        // unregister setters for es dependency load records that will remain
-        if (link.setters && depLoad.importerSetters) {
-          var setterIndex = depLoad.importerSetters.indexOf(link.setters[index]);
-          depLoad.importerSetters.splice(setterIndex, 1);
-        }
-      }
-    });
 }
 
 /*
@@ -961,31 +962,34 @@ RegisterLoader$1.prototype.registerDynamic = function (key, deps, executingRequi
 };
 
 // ContextualLoader class
-// backwards-compatible with previous System.register context argument by exposing .id
+// backwards-compatible with previous System.register context argument by exposing .id, .key
 function ContextualLoader (loader, key) {
   this.loader = loader;
   this.key = this.id = key;
+  this.meta = {
+    url: key
+    // scriptElement: null
+  };
 }
-ContextualLoader.prototype.constructor = function () {
+/*ContextualLoader.prototype.constructor = function () {
   throw new TypeError('Cannot subclass the contextual loader only Reflect.Loader.');
-};
+};*/
 ContextualLoader.prototype.import = function (key) {
+  if (this.loader.trace)
+    this.loader.loads[this.key].dynamicDeps.push(key);
   return this.loader.import(key, this.key);
 };
-ContextualLoader.prototype.resolve = function (key) {
+/*ContextualLoader.prototype.resolve = function (key) {
   return this.loader.resolve(key, this.key);
-};
-ContextualLoader.prototype.load = function (key) {
-  return this.loader.load(key, this.key);
-};
+};*/
 
 // this is the execution function bound to the Module namespace record
 function ensureEvaluate (loader, load, link, registry, state, seen) {
   if (load.module)
     return load.module;
 
-  if (link.error)
-    throw link.error;
+  if (load.evalError)
+    throw load.evalError;
 
   if (seen && seen.indexOf(load) !== -1)
     return load.linkRecord.moduleObj;
@@ -993,10 +997,8 @@ function ensureEvaluate (loader, load, link, registry, state, seen) {
   // for ES loads we always run ensureEvaluate on top-level, so empty seen is passed regardless
   // for dynamic loads, we pass seen if also dynamic
   var err = doEvaluate(loader, load, link, registry, state, link.setters ? [] : seen || []);
-  if (err) {
-    clearLoadErrors(loader, load);
+  if (err)
     throw err;
-  }
 
   return load.module;
 }
@@ -1014,7 +1016,7 @@ function makeDynamicRequire (loader, key, dependencies, dependencyInstantiations
         else
           module = ensureEvaluate(loader, depLoad, depLoad.linkRecord, registry, state, seen);
 
-        return module.__useDefault ? module.default : module;
+        return module.__useDefault || module;
       }
     }
     throw new Error('Module ' + name + ' not declared as a System.registerDynamic dependency of ' + key);
@@ -1041,16 +1043,19 @@ function doEvaluate (loader, load, link, registry, state, seen) {
       // custom Module returned from instantiate
       depLink = depLoad.linkRecord;
       if (depLink && seen.indexOf(depLoad) === -1) {
-        if (depLink.error)
-          err = depLink.error;
+        if (depLoad.evalError)
+          err = depLoad.evalError;
         else
           // dynamic / declarative boundaries clear the "seen" list
           // we just let cross format circular throw as would happen in real implementations
           err = doEvaluate(loader, depLoad, depLink, registry, state, depLink.setters ? seen : []);
       }
 
-      if (err)
-        return link.error = LoaderError__Check_error_message_for_loader_stack(err, 'Evaluating ' + load.key);
+      if (err) {
+        load.linkRecord = undefined;
+        load.evalError = LoaderError__Check_error_message_for_loader_stack(err, 'Evaluating ' + load.key);
+        return load.evalError;
+      }
     }
   }
 
@@ -1069,10 +1074,10 @@ function doEvaluate (loader, load, link, registry, state, seen) {
       Object.defineProperty(module, 'exports', {
         configurable: true,
         set: function (exports) {
-          moduleObj.default = exports;
+          moduleObj.default = moduleObj.__useDefault = exports;
         },
         get: function () {
-          return moduleObj.default;
+          return moduleObj.__useDefault;
         }
       });
 
@@ -1087,18 +1092,25 @@ function doEvaluate (loader, load, link, registry, state, seen) {
 
       // pick up defineProperty calls to module.exports when we can
       if (module.exports !== moduleObj.default)
-        moduleObj.default = module.exports;
+        moduleObj.default = moduleObj.__useDefault = module.exports;
 
-      // __esModule flag extension support
-      if (moduleObj.default && moduleObj.default.__esModule)
-        for (var p in moduleObj.default)
-          if (Object.hasOwnProperty.call(moduleObj.default, p) && p !== 'default')
-            moduleObj[p] = moduleObj.default[p];
+      var moduleDefault = moduleObj.default;
+
+      // __esModule flag extension support via lifting
+      if (moduleDefault && moduleDefault.__esModule) {
+        for (var p in moduleDefault) {
+          if (Object.hasOwnProperty.call(moduleDefault, p))
+            moduleObj[p] = moduleDefault[p];
+        }
+      }
     }
   }
 
+  // dispose link record
+  load.linkRecord = undefined;
+
   if (err)
-    return link.error = LoaderError__Check_error_message_for_loader_stack(err, 'Evaluating ' + load.key);
+    return load.evalError = LoaderError__Check_error_message_for_loader_stack(err, 'Evaluating ' + load.key);
 
   registry[load.key] = load.module = new ModuleNamespace(link.moduleObj);
 
@@ -1111,9 +1123,6 @@ function doEvaluate (loader, load, link, registry, state, seen) {
         load.importerSetters[i](load.module);
     load.importerSetters = undefined;
   }
-
-  // dispose link record
-  load.linkRecord = undefined;
 }
 
 // {} is the closest we can get to call(undefined)
@@ -1153,7 +1162,7 @@ function protectedCreateNamespace (bindings) {
   if (bindings && bindings.__esModule)
     return new ModuleNamespace(bindings);
 
-  return new ModuleNamespace({ default: bindings, __useDefault: true });
+  return new ModuleNamespace({ default: bindings, __useDefault: bindings });
 }
 
 var hasStringTag;
@@ -1175,6 +1184,44 @@ function warn (msg, force) {
     console.warn(msg);
 }
 
+function checkInstantiateWasm (loader, wasmBuffer, processAnonRegister) {
+  var bytes = new Uint8Array(wasmBuffer);
+
+  // detect by leading bytes
+  // Can be (new Uint32Array(fetched))[0] === 0x6D736100 when working in Node
+  if (bytes[0] === 0 && bytes[1] === 97 && bytes[2] === 115) {
+    return WebAssembly.compile(wasmBuffer).then(function (m) {
+      var deps = [];
+      var setters = [];
+      var importObj = {};
+
+      // we can only set imports if supported (eg Safari doesnt support)
+      if (WebAssembly.Module.imports)
+        WebAssembly.Module.imports(m).forEach(function (i) {
+          var key = i.module;
+          setters.push(function (m) {
+            importObj[key] = m;
+          });
+          if (deps.indexOf(key) === -1)
+            deps.push(key);
+        });
+      loader.register(deps, function (_export) {
+        return {
+          setters: setters,
+          execute: function () {
+            _export(new WebAssembly.Instance(m, importObj).exports);
+          }
+        };
+      });
+      processAnonRegister();
+
+      return true;
+    });
+  }
+
+  return Promise.resolve(false);
+}
+
 var parentModuleContext;
 function loadNodeModule (key, baseURL) {
   if (key[0] === '.')
@@ -1182,7 +1229,7 @@ function loadNodeModule (key, baseURL) {
 
   if (!parentModuleContext) {
     var Module = this._nodeRequire('module');
-    var base = baseURL.substr(isWindows ? 8 : 7);
+    var base = decodeURI(baseURL.substr(isWindows ? 8 : 7));
     parentModuleContext = new Module(base);
     parentModuleContext.paths = Module._nodeModulePaths(base);
   }
@@ -1284,7 +1331,8 @@ if (isBrowser) {
       loadingScripts[i].err(msg);
       return;
     }
-    onerror.apply(this, arguments);
+    if (onerror)
+      onerror.apply(this, arguments);
   };
 }
 
@@ -1788,6 +1836,8 @@ function packageResolve (config, key, parentKey, metadata, parentMetadata, skipE
       metadata.packageKey = undefined;
       metadata.load = createMeta();
       metadata.load.format = 'json';
+      // ensure no loader
+      metadata.load.loader = '';
       return Promise.resolve(normalized);
     }
 
@@ -2157,7 +2207,7 @@ function doMap (loader, config, pkg, pkgKey, mapMatch, path, metadata, skipExten
     // first map condition to match is used
     for (var i = 0; i < conditions.length; i++) {
       var c = conditions[i].condition;
-      var value = readMemberExpression(c.prop, conditionValues[i].__useDefault ? conditionValues[i].default : conditionValues[i]);
+      var value = readMemberExpression(c.prop, '__useDefault' in conditionValues[i] ? conditionValues[i].__useDefault : conditionValues[i]);
       if (!c.negate && value || c.negate && !value)
         return conditions[i].map;
     }
@@ -2425,7 +2475,9 @@ function cloneObj (obj, maxDepth) {
   for (var p in obj) {
     var prop = obj[p];
     if (maxDepth > 1) {
-      if (typeof prop === 'object')
+      if (prop instanceof Array)
+        clone[p] = [].concat(prop);
+      else if (typeof prop === 'object')
         clone[p] = cloneObj(prop, maxDepth - 1);
       else if (p !== 'packageConfig')
         clone[p] = prop;
@@ -2522,12 +2574,17 @@ function setConfig (cfg, isEnvConfig) {
       var v = cfg.map[p];
 
       if (typeof v === 'string') {
-        config.map[p] = coreResolve.call(loader, config, v, undefined, false, false);
+        var mapped = coreResolve.call(loader, config, v, undefined, false, false);
+        if (mapped[mapped.length -1] === '/' && p[p.length - 1] !== ':' && p[p.length - 1] !== '/')
+          mapped = mapped.substr(0, mapped.length - 1);
+        config.map[p] = mapped;
       }
 
       // object map
       else {
-        var pkgName = coreResolve.call(loader, config, p, undefined, true, true);
+        var pkgName = coreResolve.call(loader, config, p[p.length - 1] !== '/' ? p + '/' : p, undefined, true, true);
+        pkgName = pkgName.substr(0, pkgName.length - 1);
+
         var pkg = config.packages[pkgName];
         if (!pkg) {
           pkg = config.packages[pkgName] = createPackage();
@@ -2564,7 +2621,7 @@ function setConfig (cfg, isEnvConfig) {
       if (p.match(/^([^\/]+:)?\/\/$/))
         throw new TypeError('"' + p + '" is not a valid package name.');
 
-      var pkgName = coreResolve.call(loader, config, p[p.length -1] !== '/' ? p + '/' : p, undefined, true, true);
+      var pkgName = coreResolve.call(loader, config, p[p.length - 1] !== '/' ? p + '/' : p, undefined, true, true);
       pkgName = pkgName.substr(0, pkgName.length - 1);
 
       setPkgConfig(config.packages[pkgName] = config.packages[pkgName] || createPackage(), cfg.packages[p], pkgName, false, config);
@@ -2797,8 +2854,6 @@ var formatHelpers = function (loader) {
       for (var i = 0; i < names.length; i++)
         dynamicRequires.push(loader.import(names[i], referer));
       Promise.all(dynamicRequires).then(function (modules) {
-        for (var i = 0; i < modules.length; i++)
-          modules[i] = modules[i].__useDefault ? modules[i].default : modules[i];
         if (callback)
           callback.apply(null, modules);
       }, errback);
@@ -2810,7 +2865,7 @@ var formatHelpers = function (loader) {
       var module = loader.get(normalized);
       if (!module)
         throw new Error('Module not already loaded loading "' + names + '" as ' + normalized + (referer ? ' from "' + referer + '".' : '.'));
-      return module.__useDefault ? module.default : module;
+      return '__useDefault' in module ? module.__useDefault : module;
     }
 
     else
@@ -3150,9 +3205,11 @@ function amdGetCJSDeps(source, requireIndex) {
 function wrapEsModuleExecute (execute) {
   return function (require, exports, module) {
     execute(require, exports, module);
-    Object.defineProperty(module.exports, '__esModule', {
-      value: true
-    });
+    exports = module.exports;
+    if ((typeof exports === 'object' || typeof exports === 'function') && !('__esModule' in exports))
+      Object.defineProperty(module.exports, '__esModule', {
+        value: true
+      });
   };
 }
 
@@ -3185,7 +3242,8 @@ if (typeof require !== 'undefined' && typeof process !== 'undefined' && !process
   nodeRequire = require;
 
 function setMetaEsModule (metadata, moduleValue) {
-  if (metadata.load.esModule && !('__esModule' in moduleValue))
+  if (metadata.load.esModule && (typeof moduleValue === 'object' || typeof moduleValue === 'function') &&
+      !('__esModule' in moduleValue))
     Object.defineProperty(moduleValue, '__esModule', {
       value: true
     });
@@ -3194,12 +3252,13 @@ function setMetaEsModule (metadata, moduleValue) {
 function instantiate$1 (key, processAnonRegister) {
   var loader = this;
   var config = this[CONFIG];
-  var metadata = this[METADATA][key];
   // first do bundles and depCache
   return (loadBundlesAndDepCache(config, this, key) || resolvedPromise)
   .then(function () {
     if (processAnonRegister())
       return;
+
+    var metadata = loader[METADATA][key];
 
     // node module loading
     if (key.substr(0, 6) === '@node/') {
@@ -3253,7 +3312,7 @@ function instantiate$1 (key, processAnonRegister) {
     });
   })
   .then(function (instantiated) {
-    loader[METADATA][key] = undefined;
+    delete loader[METADATA][key];
     return instantiated;
   });
 }
@@ -3287,21 +3346,21 @@ function loadBundlesAndDepCache (config, loader, key) {
       for (var i = 0; i < config.bundles[b].length; i++) {
         var curModule = config.bundles[b][i];
 
-        if (curModule == key) {
+        if (curModule === key) {
           matched = true;
           break;
         }
 
         // wildcard in bundles includes / boundaries
-        if (curModule.indexOf('*') != -1) {
+        if (curModule.indexOf('*') !== -1) {
           var parts = curModule.split('*');
-          if (parts.length != 2) {
+          if (parts.length !== 2) {
             config.bundles[b].splice(i--, 1);
             continue;
           }
 
-          if (key.substring(0, parts[0].length) == parts[0] &&
-              key.substr(key.length - parts[1].length, parts[1].length) == parts[1]) {
+          if (key.substr(0, parts[0].length) === parts[0] &&
+              key.substr(key.length - parts[1].length, parts[1].length) === parts[1]) {
             matched = true;
             break;
           }
@@ -3325,7 +3384,7 @@ function runFetchPipeline (loader, key, metadata, processAnonRegister, wasm) {
     if (!metadata.pluginModule || !metadata.pluginModule.locate)
       return;
 
-    return metadata.pluginModule.locate.call(loader, metadata.pluginLoad)
+    return Promise.resolve(metadata.pluginModule.locate.call(loader, metadata.pluginLoad))
     .then(function (address) {
       if (address)
         metadata.pluginLoad.address = address;
@@ -3337,10 +3396,11 @@ function runFetchPipeline (loader, key, metadata, processAnonRegister, wasm) {
     if (!metadata.pluginModule)
       return fetch$1(key, metadata.load.authorization, metadata.load.integrity, wasm);
 
-    if (!metadata.pluginModule.fetch)
-      return fetch$1(metadata.pluginArgument, metadata.load.authorization, metadata.load.integrity, wasm);
-
     wasm = false;
+
+    if (!metadata.pluginModule.fetch)
+      return fetch$1(metadata.pluginLoad.address, metadata.load.authorization, metadata.load.integrity, false);
+
     return metadata.pluginModule.fetch.call(loader, metadata.pluginLoad, function (load) {
       return fetch$1(load.address, metadata.load.authorization, metadata.load.integrity, false);
     });
@@ -3351,45 +3411,18 @@ function runFetchPipeline (loader, key, metadata, processAnonRegister, wasm) {
     if (!wasm || typeof fetched === 'string')
       return translateAndInstantiate(loader, key, fetched, metadata, processAnonRegister);
 
-    var bytes = new Uint8Array(fetched);
+    return checkInstantiateWasm(loader, fetched, processAnonRegister)
+    .then(function (wasmInstantiated) {
+      if (wasmInstantiated)
+        return;
 
-    // detect by leading bytes
-    if (bytes[0] === 0 && bytes[1] === 97 && bytes[2] === 115) {
-      return WebAssembly.compile(bytes).then(function (m) {
-        /* TODO handle imports when `WebAssembly.Module.imports` is implemented
-        if (WebAssembly.Module.imports) {
-          var deps = [];
-          var setters = [];
-          var importObj = {};
-          WebAssembly.Module.imports(m).forEach(function (i) {
-            var key = i.module;
-            setters.push(function (m) {
-              importObj[key] = m;
-            });
-            if (deps.indexOf(key) === -1)
-              deps.push(key);
-          });
-          loader.register(deps, function (_export) {
-            return {
-              setters: setters,
-              execute: function () {
-                _export(new WebAssembly.Instance(m, importObj).exports);
-              }
-            };
-          });
-        }*/
-        // for now we just load WASM without dependencies
-        var wasmModule = new WebAssembly.Instance(m, {});
-        return loader.newModule(wasmModule.exports);
-      });
-    }
-
-    // not wasm -> convert buffer into utf-8 string to execute as a module
-    // TextDecoder compatibility matches WASM currently. Need to keep checking this.
-    // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
-    var stringSource = new TextDecoder('utf-8').decode(bytes);
-    return translateAndInstantiate(loader, key, stringSource, metadata, processAnonRegister);
-  })
+      // not wasm -> convert buffer into utf-8 string to execute as a module
+      // TextDecoder compatibility matches WASM currently. Need to keep checking this.
+      // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
+      var stringSource = isBrowser ? new TextDecoder('utf-8').decode(new Uint8Array(fetched)) : fetched.toString();
+      return translateAndInstantiate(loader, key, stringSource, metadata, processAnonRegister);
+    });
+  });
 }
 
 function translateAndInstantiate (loader, key, source, metadata, processAnonRegister) {
@@ -3420,6 +3453,11 @@ function translateAndInstantiate (loader, key, source, metadata, processAnonRegi
     });
   })
   .then(function (source) {
+    if (!metadata.load.format && source.substring(0, 8) === '"bundle"') {
+      metadata.load.format = 'system';
+      return source;
+    }
+
     if (metadata.load.format === 'register' || !metadata.load.format && detectRegisterFormat(source)) {
       metadata.load.format = 'register';
       return source;
@@ -3477,7 +3515,8 @@ function translateAndInstantiate (loader, key, source, metadata, processAnonRegi
 
       case 'json':
         // warn.call(config, '"json" module format is deprecated.');
-        return loader.newModule({ default: JSON.parse(source), __useDefault: true });
+        var parsed = JSON.parse(source);
+        return loader.newModule({ default: parsed, __useDefault: parsed });
 
       case 'amd':
         var curDefine = envGlobal.define;
@@ -3660,16 +3699,15 @@ function transpile (loader, source, key, metadata, processAnonRegister) {
   // do transpilation
   return loader.import.call(loader, loader.transpiler)
   .then(function (transpiler) {
-    if (transpiler.__useDefault)
-      transpiler = transpiler.default;
+    transpiler = transpiler.__useDefault || transpiler;
 
     // translate hooks means this is a transpiler plugin instead of a raw implementation
     if (!transpiler.translate)
-      throw new Error(loader.transpier + ' is not a valid transpiler plugin.');
+      throw new Error(loader.transpiler + ' is not a valid transpiler plugin.');
 
     // if transpiler is the same as the plugin loader, then don't run twice
     if (transpiler === metadata.pluginModule)
-      return load.source;
+      return source;
 
     // convert the source map into an object for transpilation chaining
     if (typeof metadata.load.sourceMap === 'string')
@@ -3877,7 +3915,7 @@ SystemJSLoader$1.prototype.global = envGlobal;
 SystemJSLoader$1.prototype.import = function () {
   return RegisterLoader$1.prototype.import.apply(this, arguments)
   .then(function (m) {
-    return m.__useDefault ? m.default: m;
+    return '__useDefault' in m ? m.__useDefault : m;
   });
 };
 
@@ -3914,7 +3952,7 @@ function registryWarn(loader, method) {
 }
 SystemJSLoader$1.prototype.delete = function (key) {
   registryWarn(this, 'delete');
-  this.registry.delete(key);
+  return this.registry.delete(key);
 };
 SystemJSLoader$1.prototype.get = function (key) {
   registryWarn(this, 'get');
@@ -3946,7 +3984,7 @@ SystemJSLoader$1.prototype.registerDynamic = function (key, deps, executingRequi
   return RegisterLoader$1.prototype.registerDynamic.call(this, key, deps, executingRequire, execute);
 };
 
-SystemJSLoader$1.prototype.version = "0.20.5 Dev";
+SystemJSLoader$1.prototype.version = "0.20.14 Dev";
 
 var System = new SystemJSLoader$1();
 

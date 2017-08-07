@@ -29,7 +29,7 @@ import { Observable, SubscribableOrPromise } from '../Observable';
  * @see {@link sample}
  * @see {@link throttleTime}
  *
- * @param {function(value: T): Observable|Promise} durationSelector A function
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
  * that receives a value from the source Observable, for computing the silencing
  * duration for each source value, returned as an Observable or a Promise.
  * @return {Observable<T>} An Observable that performs the throttle operation to

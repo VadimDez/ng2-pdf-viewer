@@ -188,7 +188,7 @@
     same "printed page" as the copyright notice for easier
     identification within third-party archives.
 
- Copyright 2015-2016 Netflix, Inc., Microsoft Corp. and contributors
+ Copyright (c) 2015-2017 Google, Inc., Netflix, Inc., Microsoft Corp. and contributors
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -201,6 +201,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
+ 
 
  **/
 (function (global, factory) {
@@ -233,6 +234,62 @@ function __extends(d, b) {
     extendStatics(d, b);
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __values(o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+}
+
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+}
+
+
+
+
+
+
+
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator];
+    return m ? m.call(o) : typeof __values === "function" ? __values(o) : o[Symbol.iterator]();
 }
 
 /**
@@ -316,6 +373,9 @@ var Subscription = (function () {
          * @type {boolean}
          */
         this.closed = false;
+        this._parent = null;
+        this._parents = null;
+        this._subscriptions = null;
         if (unsubscribe) {
             this._unsubscribe = unsubscribe;
         }
@@ -332,9 +392,23 @@ var Subscription = (function () {
         if (this.closed) {
             return;
         }
+        var _a = this, _parent = _a._parent, _parents = _a._parents, _unsubscribe = _a._unsubscribe, _subscriptions = _a._subscriptions;
         this.closed = true;
-        var _a = this, _unsubscribe = _a._unsubscribe, _subscriptions = _a._subscriptions;
+        this._parent = null;
+        this._parents = null;
+        // null out _subscriptions first so any child subscriptions that attempt
+        // to remove themselves from this subscription will noop
         this._subscriptions = null;
+        var index = -1;
+        var len = _parents ? _parents.length : 0;
+        // if this._parent is null, then so is this._parents, and we
+        // don't have to remove ourselves from any parent subscriptions.
+        while (_parent) {
+            _parent.remove(this);
+            // if this._parents is null or index >= len,
+            // then _parent is set to null, and the loop exits
+            _parent = ++index < len && _parents[index] || null;
+        }
         if (isFunction(_unsubscribe)) {
             var trial = tryCatch(_unsubscribe).call(this);
             if (trial === errorObject) {
@@ -344,8 +418,8 @@ var Subscription = (function () {
             }
         }
         if (isArray(_subscriptions)) {
-            var index = -1;
-            var len = _subscriptions.length;
+            index = -1;
+            len = _subscriptions.length;
             while (++index < len) {
                 var sub = _subscriptions[index];
                 if (isObject(sub)) {
@@ -393,26 +467,31 @@ var Subscription = (function () {
         if (teardown === this) {
             return this;
         }
-        var sub = teardown;
+        var subscription = teardown;
         switch (typeof teardown) {
             case 'function':
-                sub = new Subscription(teardown);
+                subscription = new Subscription(teardown);
             case 'object':
-                if (sub.closed || typeof sub.unsubscribe !== 'function') {
-                    return sub;
+                if (subscription.closed || typeof subscription.unsubscribe !== 'function') {
+                    return subscription;
                 }
                 else if (this.closed) {
-                    sub.unsubscribe();
-                    return sub;
+                    subscription.unsubscribe();
+                    return subscription;
+                }
+                else if (typeof subscription._addParent !== 'function' /* quack quack */) {
+                    var tmp = subscription;
+                    subscription = new Subscription();
+                    subscription._subscriptions = [tmp];
                 }
                 break;
             default:
                 throw new Error('unrecognized teardown ' + teardown + ' added to Subscription.');
         }
-        var childSub = new ChildSubscription(sub, this);
-        this._subscriptions = this._subscriptions || [];
-        this._subscriptions.push(childSub);
-        return childSub;
+        var subscriptions = this._subscriptions || (this._subscriptions = []);
+        subscriptions.push(subscription);
+        subscription._addParent(this);
+        return subscription;
     };
     /**
      * Removes a Subscription from the internal list of subscriptions that will
@@ -421,10 +500,6 @@ var Subscription = (function () {
      * @return {void}
      */
     Subscription.prototype.remove = function (subscription) {
-        // HACK: This might be redundant because of the logic in `add()`
-        if (subscription == null || (subscription === this) || (subscription === Subscription.EMPTY)) {
-            return;
-        }
         var subscriptions = this._subscriptions;
         if (subscriptions) {
             var subscriptionIndex = subscriptions.indexOf(subscription);
@@ -433,26 +508,29 @@ var Subscription = (function () {
             }
         }
     };
+    Subscription.prototype._addParent = function (parent) {
+        var _a = this, _parent = _a._parent, _parents = _a._parents;
+        if (!_parent || _parent === parent) {
+            // If we don't have a parent, or the new parent is the same as the
+            // current parent, then set this._parent to the new parent.
+            this._parent = parent;
+        }
+        else if (!_parents) {
+            // If there's already one parent, but not multiple, allocate an Array to
+            // store the rest of the parent Subscriptions.
+            this._parents = [parent];
+        }
+        else if (_parents.indexOf(parent) === -1) {
+            // Only add the new parent to the _parents list if it's not already there.
+            _parents.push(parent);
+        }
+    };
     Subscription.EMPTY = (function (empty) {
         empty.closed = true;
         return empty;
     }(new Subscription()));
     return Subscription;
 }());
-var ChildSubscription = (function (_super) {
-    __extends(ChildSubscription, _super);
-    function ChildSubscription(_innerSub, _parent) {
-        _super.call(this);
-        this._innerSub = _innerSub;
-        this._parent = _parent;
-    }
-    ChildSubscription.prototype._unsubscribe = function () {
-        var _a = this, _innerSub = _a._innerSub, _parent = _a._parent;
-        _parent.remove(this);
-        _innerSub.unsubscribe();
-    };
-    return ChildSubscription;
-}(Subscription));
 function flattenUnsubscriptionErrors(errors) {
     return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError) ? err.errors : err); }, []);
 }
@@ -464,9 +542,12 @@ var empty = {
     complete: function () { }
 };
 
-var Symbol$1 = root.Symbol;
-var $$rxSubscriber = (typeof Symbol$1 === 'function' && typeof Symbol$1.for === 'function') ?
-    Symbol$1.for('rxSubscriber') : '@@rxSubscriber';
+var Symbol$2 = root.Symbol;
+var rxSubscriber = (typeof Symbol$2 === 'function' && typeof Symbol$2.for === 'function') ?
+    Symbol$2.for('rxSubscriber') : '@@rxSubscriber';
+/**
+ * @deprecated use rxSubscriber instead
+ */
 
 /**
  * Implements the {@link Observer} interface and extends the
@@ -520,7 +601,7 @@ var Subscriber = (function (_super) {
                 break;
         }
     }
-    Subscriber.prototype[$$rxSubscriber] = function () { return this; };
+    Subscriber.prototype[rxSubscriber] = function () { return this; };
     /**
      * A static factory for a Subscriber, given a (potentially partial) definition
      * of an Observer.
@@ -592,6 +673,17 @@ var Subscriber = (function (_super) {
         this.destination.complete();
         this.unsubscribe();
     };
+    Subscriber.prototype._unsubscribeAndRecycle = function () {
+        var _a = this, _parent = _a._parent, _parents = _a._parents;
+        this._parent = null;
+        this._parents = null;
+        this.unsubscribe();
+        this.closed = false;
+        this.isStopped = false;
+        this._parent = _parent;
+        this._parents = _parents;
+        return this;
+    };
     return Subscriber;
 }(Subscription));
 /**
@@ -601,23 +693,25 @@ var Subscriber = (function (_super) {
  */
 var SafeSubscriber = (function (_super) {
     __extends(SafeSubscriber, _super);
-    function SafeSubscriber(_parent, observerOrNext, error, complete) {
+    function SafeSubscriber(_parentSubscriber, observerOrNext, error, complete) {
         _super.call(this);
-        this._parent = _parent;
+        this._parentSubscriber = _parentSubscriber;
         var next;
         var context = this;
         if (isFunction(observerOrNext)) {
             next = observerOrNext;
         }
         else if (observerOrNext) {
-            context = observerOrNext;
             next = observerOrNext.next;
             error = observerOrNext.error;
             complete = observerOrNext.complete;
-            if (isFunction(context.unsubscribe)) {
-                this.add(context.unsubscribe.bind(context));
+            if (observerOrNext !== empty) {
+                context = Object.create(observerOrNext);
+                if (isFunction(context.unsubscribe)) {
+                    this.add(context.unsubscribe.bind(context));
+                }
+                context.unsubscribe = this.unsubscribe.bind(this);
             }
-            context.unsubscribe = this.unsubscribe.bind(this);
         }
         this._context = context;
         this._next = next;
@@ -626,49 +720,49 @@ var SafeSubscriber = (function (_super) {
     }
     SafeSubscriber.prototype.next = function (value) {
         if (!this.isStopped && this._next) {
-            var _parent = this._parent;
-            if (!_parent.syncErrorThrowable) {
+            var _parentSubscriber = this._parentSubscriber;
+            if (!_parentSubscriber.syncErrorThrowable) {
                 this.__tryOrUnsub(this._next, value);
             }
-            else if (this.__tryOrSetError(_parent, this._next, value)) {
+            else if (this.__tryOrSetError(_parentSubscriber, this._next, value)) {
                 this.unsubscribe();
             }
         }
     };
     SafeSubscriber.prototype.error = function (err) {
         if (!this.isStopped) {
-            var _parent = this._parent;
+            var _parentSubscriber = this._parentSubscriber;
             if (this._error) {
-                if (!_parent.syncErrorThrowable) {
+                if (!_parentSubscriber.syncErrorThrowable) {
                     this.__tryOrUnsub(this._error, err);
                     this.unsubscribe();
                 }
                 else {
-                    this.__tryOrSetError(_parent, this._error, err);
+                    this.__tryOrSetError(_parentSubscriber, this._error, err);
                     this.unsubscribe();
                 }
             }
-            else if (!_parent.syncErrorThrowable) {
+            else if (!_parentSubscriber.syncErrorThrowable) {
                 this.unsubscribe();
                 throw err;
             }
             else {
-                _parent.syncErrorValue = err;
-                _parent.syncErrorThrown = true;
+                _parentSubscriber.syncErrorValue = err;
+                _parentSubscriber.syncErrorThrown = true;
                 this.unsubscribe();
             }
         }
     };
     SafeSubscriber.prototype.complete = function () {
         if (!this.isStopped) {
-            var _parent = this._parent;
+            var _parentSubscriber = this._parentSubscriber;
             if (this._complete) {
-                if (!_parent.syncErrorThrowable) {
+                if (!_parentSubscriber.syncErrorThrowable) {
                     this.__tryOrUnsub(this._complete);
                     this.unsubscribe();
                 }
                 else {
-                    this.__tryOrSetError(_parent, this._complete);
+                    this.__tryOrSetError(_parentSubscriber, this._complete);
                     this.unsubscribe();
                 }
             }
@@ -698,10 +792,10 @@ var SafeSubscriber = (function (_super) {
         return false;
     };
     SafeSubscriber.prototype._unsubscribe = function () {
-        var _parent = this._parent;
+        var _parentSubscriber = this._parentSubscriber;
         this._context = null;
-        this._parent = null;
-        _parent.unsubscribe();
+        this._parentSubscriber = null;
+        _parentSubscriber.unsubscribe();
     };
     return SafeSubscriber;
 }(Subscriber));
@@ -711,8 +805,8 @@ function toSubscriber(nextOrObserver, error, complete) {
         if (nextOrObserver instanceof Subscriber) {
             return nextOrObserver;
         }
-        if (nextOrObserver[$$rxSubscriber]) {
-            return nextOrObserver[$$rxSubscriber]();
+        if (nextOrObserver[rxSubscriber]) {
+            return nextOrObserver[rxSubscriber]();
         }
     }
     if (!nextOrObserver && !error && !complete) {
@@ -738,7 +832,10 @@ function getSymbolObservable(context) {
     }
     return $$observable;
 }
-var $$observable = getSymbolObservable(root);
+var observable = getSymbolObservable(root);
+/**
+ * @deprecated use observable instead
+ */
 
 /**
  * A representation of any set of values over any amount of time. This the most basic building block
@@ -768,10 +865,10 @@ var Observable = (function () {
      * @return {Observable} a new observable with the Operator applied
      */
     Observable.prototype.lift = function (operator) {
-        var observable = new Observable();
-        observable.source = this;
-        observable.operator = operator;
-        return observable;
+        var observable$$1 = new Observable();
+        observable$$1.source = this;
+        observable$$1.operator = operator;
+        return observable$$1;
     };
     Observable.prototype.subscribe = function (observerOrNext, error, complete) {
         var operator = this.operator;
@@ -821,7 +918,10 @@ var Observable = (function () {
             throw new Error('no Promise impl found');
         }
         return new PromiseCtor(function (resolve, reject) {
-            var subscription = _this.subscribe(function (value) {
+            // Must be declared in a separate statement to avoid a RefernceError when
+            // accessing subscription below in the closure due to Temporal Dead Zone.
+            var subscription;
+            subscription = _this.subscribe(function (value) {
                 if (subscription) {
                     // if there is a subscription, then we can surmise
                     // the next handling is asynchronous. Any errors thrown
@@ -855,7 +955,7 @@ var Observable = (function () {
      * @method Symbol.observable
      * @return {Observable} this instance of the observable
      */
-    Observable.prototype[$$observable] = function () {
+    Observable.prototype[observable] = function () {
         return this;
     };
     // HACK: Since TypeScript inherits static properties too, we have to
@@ -950,7 +1050,7 @@ var Subject = (function (_super) {
         this.hasError = false;
         this.thrownError = null;
     }
-    Subject.prototype[$$rxSubscriber] = function () {
+    Subject.prototype[rxSubscriber] = function () {
         return new SubjectSubscriber(this);
     };
     Subject.prototype.lift = function (operator) {
@@ -1130,11 +1230,12 @@ var AsyncSubject = (function (_super) {
  */
 var BoundCallbackObservable = (function (_super) {
     __extends(BoundCallbackObservable, _super);
-    function BoundCallbackObservable(callbackFunc, selector, args, scheduler) {
+    function BoundCallbackObservable(callbackFunc, selector, args, context, scheduler) {
         _super.call(this);
         this.callbackFunc = callbackFunc;
         this.selector = selector;
         this.args = args;
+        this.context = context;
         this.scheduler = scheduler;
     }
     /* tslint:enable:max-line-length */
@@ -1148,10 +1249,62 @@ var BoundCallbackObservable = (function (_super) {
      * `bindCallback` is not an operator because its input and output are not
      * Observables. The input is a function `func` with some parameters, but the
      * last parameter must be a callback function that `func` calls when it is
-     * done. The output of `bindCallback` is a function that takes the same
-     * parameters as `func`, except the last one (the callback). When the output
-     * function is called with arguments, it will return an Observable where the
-     * results will be delivered to.
+     * done.
+     *
+     * The output of `bindCallback` is a function that takes the same parameters
+     * as `func`, except the last one (the callback). When the output function
+     * is called with arguments, it will return an Observable. If `func` function
+     * calls its callback with one argument, the Observable will emit that value.
+     * If on the other hand callback is called with multiple values, resulting
+     * Observable will emit an array with these arguments.
+     *
+     * It is very important to remember, that input function `func` is not called
+     * when output function is, but rather when Observable returned by output
+     * function is subscribed. This means if `func` makes AJAX request, that request
+     * will be made every time someone subscribes to resulting Observable, but not before.
+     *
+     * Optionally, selector function can be passed to `bindObservable`. That function
+     * takes the same arguments as callback, and returns value
+     * that will be emitted by Observable instead of callback parameters themselves.
+     * Even though by default multiple arguments passed to callback appear in the stream as array,
+     * selector function will be called with arguments directly, just as callback would.
+     * This means you can imagine default selector (when one is not provided explicitly)
+     * as function that aggregates all its arguments into array, or simply returns first argument,
+     * if there is only one.
+     *
+     * Last optional parameter - {@link Scheduler} - can be used to control when call
+     * to `func` happens after someone subscribes to Observable, as well as when results
+     * passed to callback will be emitted. By default subscription to Observable calls `func`
+     * synchronously, but using `Scheduler.async` as last parameter will defer call to input function,
+     * just like wrapping that call in `setTimeout` with time `0` would. So if you use async Scheduler
+     * and call `subscribe` on output Observable, all function calls that are currently executing,
+     * will end before `func` is invoked.
+     *
+     * When it comes to emitting results passed to callback, by default they are emitted
+     * immediately after `func` invokes callback. In particular, if callback is called synchronously,
+     * then subscription to resulting Observable will call `next` function synchronously as well.
+     * If you want to defer that call, using `Scheduler.async` will, again, do the job.
+     * This means that by using `Scheduler.async` you can, in a sense, ensure that `func`
+     * always calls its callback asynchronously, thus avoiding terrifying Zalgo.
+     *
+     * Note that Observable created by output function will always emit only one value
+     * and then complete right after. Even if `func` calls callback multiple times, values from
+     * second and following calls will never appear in the stream. If you need to
+     * listen for multiple calls, you probably want to use {@link fromEvent} or
+     * {@link fromEventPattern} instead.
+     *
+     * If `func` depends on some context (`this` property), that context will be set
+     * to the same context that output function has at call time. In particular, if `func`
+     * is called as method of some object, in order to preserve proper behaviour,
+     * it is recommended to set context of output function to that object as well,
+     * provided `func` is not already bound.
+     *
+     * If input function calls its callback in "node style" (i.e. first argument to callback is
+     * optional error parameter signaling whether call failed or not), {@link bindNodeCallback}
+     * provides convenient error handling and probably is a better choice.
+     * `bindCallback` will treat such functions without any difference and error parameter
+     * (whether passed or not) will always be interpreted as regular callback argument.
+     *
      *
      * @example <caption>Convert jQuery's getJSON to an Observable API</caption>
      * // Suppose we have jQuery.getJSON('/my/url', callback)
@@ -1159,13 +1312,64 @@ var BoundCallbackObservable = (function (_super) {
      * var result = getJSONAsObservable('/my/url');
      * result.subscribe(x => console.log(x), e => console.error(e));
      *
+     *
+     * @example <caption>Receive array of arguments passed to callback</caption>
+     * someFunction((a, b, c) => {
+     *   console.log(a); // 5
+     *   console.log(b); // 'some string'
+     *   console.log(c); // {someProperty: 'someValue'}
+     * });
+     *
+     * const boundSomeFunction = Rx.Observable.bindCallback(someFunction);
+     * boundSomeFunction().subscribe(values => {
+     *   console.log(values) // [5, 'some string', {someProperty: 'someValue'}]
+     * });
+     *
+     *
+     * @example <caption>Use bindCallback with selector function</caption>
+     * someFunction((a, b, c) => {
+     *   console.log(a); // 'a'
+     *   console.log(b); // 'b'
+     *   console.log(c); // 'c'
+     * });
+     *
+     * const boundSomeFunction = Rx.Observable.bindCallback(someFunction, (a, b, c) => a + b + c);
+     * boundSomeFunction().subscribe(value => {
+     *   console.log(value) // 'abc'
+     * });
+     *
+     *
+     * @example <caption>Compare behaviour with and without async Scheduler</caption>
+     * function iCallMyCallbackSynchronously(cb) {
+     *   cb();
+     * }
+     *
+     * const boundSyncFn = Rx.Observable.bindCallback(iCallMyCallbackSynchronously);
+     * const boundAsyncFn = Rx.Observable.bindCallback(iCallMyCallbackSynchronously, null, Rx.Scheduler.async);
+     *
+     * boundSyncFn().subscribe(() => console.log('I was sync!'));
+     * boundAsyncFn().subscribe(() => console.log('I was async!'));
+     * console.log('This happened...');
+     *
+     * // Logs:
+     * // I was sync!
+     * // This happened...
+     * // I was async!
+     *
+     *
+     * @example <caption>Use bindCallback on object method</caption>
+     * const boundMethod = Rx.Observable.bindCallback(someObject.methodWithCallback);
+     * boundMethod.call(someObject) // make sure methodWithCallback has access to someObject
+     * .subscribe(subscriber);
+     *
+     *
      * @see {@link bindNodeCallback}
      * @see {@link from}
      * @see {@link fromPromise}
      *
      * @param {function} func Function with a callback as the last parameter.
      * @param {function} [selector] A function which takes the arguments from the
-     * callback and maps those a value to emit on the output Observable.
+     * callback and maps those to a value to emit on the output Observable.
      * @param {Scheduler} [scheduler] The scheduler on which to schedule the
      * callbacks.
      * @return {function(...params: *): Observable} A function which returns the
@@ -1181,7 +1385,7 @@ var BoundCallbackObservable = (function (_super) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            return new BoundCallbackObservable(func, selector, args, scheduler);
+            return new BoundCallbackObservable(func, selector, args, this, scheduler);
         };
     };
     BoundCallbackObservable.prototype._subscribe = function (subscriber) {
@@ -1210,13 +1414,13 @@ var BoundCallbackObservable = (function (_super) {
                         }
                     }
                     else {
-                        subject.next(innerArgs.length === 1 ? innerArgs[0] : innerArgs);
+                        subject.next(innerArgs.length <= 1 ? innerArgs[0] : innerArgs);
                         subject.complete();
                     }
                 };
                 // use named function instance to avoid closure.
                 handler.source = this;
-                var result = tryCatch(callbackFunc).apply(this, args.concat(handler));
+                var result = tryCatch(callbackFunc).apply(this.context, args.concat(handler));
                 if (result === errorObject) {
                     subject.error(errorObject.e);
                 }
@@ -1224,12 +1428,12 @@ var BoundCallbackObservable = (function (_super) {
             return subject.subscribe(subscriber);
         }
         else {
-            return scheduler.schedule(BoundCallbackObservable.dispatch, 0, { source: this, subscriber: subscriber });
+            return scheduler.schedule(BoundCallbackObservable.dispatch, 0, { source: this, subscriber: subscriber, context: this.context });
         }
     };
     BoundCallbackObservable.dispatch = function (state) {
         var self = this;
-        var source = state.source, subscriber = state.subscriber;
+        var source = state.source, subscriber = state.subscriber, context = state.context;
         var callbackFunc = source.callbackFunc, args = source.args, scheduler = source.scheduler;
         var subject = source.subject;
         if (!subject) {
@@ -1251,13 +1455,13 @@ var BoundCallbackObservable = (function (_super) {
                     }
                 }
                 else {
-                    var value = innerArgs.length === 1 ? innerArgs[0] : innerArgs;
+                    var value = innerArgs.length <= 1 ? innerArgs[0] : innerArgs;
                     self.add(scheduler.schedule(dispatchNext, 0, { value: value, subject: subject }));
                 }
             };
             // use named function to pass values in without closure
             handler.source = source;
-            var result = tryCatch(callbackFunc).apply(this, args.concat(handler));
+            var result = tryCatch(callbackFunc).apply(context, args.concat(handler));
             if (result === errorObject) {
                 subject.error(errorObject.e);
             }
@@ -1287,11 +1491,12 @@ Observable.bindCallback = bindCallback;
  */
 var BoundNodeCallbackObservable = (function (_super) {
     __extends(BoundNodeCallbackObservable, _super);
-    function BoundNodeCallbackObservable(callbackFunc, selector, args, scheduler) {
+    function BoundNodeCallbackObservable(callbackFunc, selector, args, context, scheduler) {
         _super.call(this);
         this.callbackFunc = callbackFunc;
         this.selector = selector;
         this.args = args;
+        this.context = context;
         this.scheduler = scheduler;
     }
     /* tslint:enable:max-line-length */
@@ -1306,11 +1511,58 @@ var BoundNodeCallbackObservable = (function (_super) {
      * Observables. The input is a function `func` with some parameters, but the
      * last parameter must be a callback function that `func` calls when it is
      * done. The callback function is expected to follow Node.js conventions,
-     * where the first argument to the callback is an error, while remaining
-     * arguments are the callback result. The output of `bindNodeCallback` is a
-     * function that takes the same parameters as `func`, except the last one (the
-     * callback). When the output function is called with arguments, it will
-     * return an Observable where the results will be delivered to.
+     * where the first argument to the callback is an error object, signaling
+     * whether call was successful. If that object is passed to callback, it means
+     * something went wrong.
+     *
+     * The output of `bindNodeCallback` is a function that takes the same
+     * parameters as `func`, except the last one (the callback). When the output
+     * function is called with arguments, it will return an Observable.
+     * If `func` calls its callback with error parameter present, Observable will
+     * error with that value as well. If error parameter is not passed, Observable will emit
+     * second parameter. If there are more parameters (third and so on),
+     * Observable will emit an array with all arguments, except first error argument.
+     *
+     * Optionally `bindNodeCallback` accepts selector function, which allows you to
+     * make resulting Observable emit value computed by selector, instead of regular
+     * callback arguments. It works similarly to {@link bindCallback} selector, but
+     * Node.js-style error argument will never be passed to that function.
+     *
+     * Note that `func` will not be called at the same time output function is,
+     * but rather whenever resulting Observable is subscribed. By default call to
+     * `func` will happen synchronously after subscription, but that can be changed
+     * with proper {@link Scheduler} provided as optional third parameter. Scheduler
+     * can also control when values from callback will be emitted by Observable.
+     * To find out more, check out documentation for {@link bindCallback}, where
+     * Scheduler works exactly the same.
+     *
+     * As in {@link bindCallback}, context (`this` property) of input function will be set to context
+     * of returned function, when it is called.
+     *
+     * After Observable emits value, it will complete immediately. This means
+     * even if `func` calls callback again, values from second and consecutive
+     * calls will never appear on the stream. If you need to handle functions
+     * that call callbacks multiple times, check out {@link fromEvent} or
+     * {@link fromEventPattern} instead.
+     *
+     * Note that `bindNodeCallback` can be used in non-Node.js environments as well.
+     * "Node.js-style" callbacks are just a convention, so if you write for
+     * browsers or any other environment and API you use implements that callback style,
+     * `bindNodeCallback` can be safely used on that API functions as well.
+     *
+     * Remember that Error object passed to callback does not have to be an instance
+     * of JavaScript built-in `Error` object. In fact, it does not even have to an object.
+     * Error parameter of callback function is interpreted as "present", when value
+     * of that parameter is truthy. It could be, for example, non-zero number, non-empty
+     * string or boolean `true`. In all of these cases resulting Observable would error
+     * with that value. This means usually regular style callbacks will fail very often when
+     * `bindNodeCallback` is used. If your Observable errors much more often then you
+     * would expect, check if callback really is called in Node.js-style and, if not,
+     * switch to {@link bindCallback} instead.
+     *
+     * Note that even if error parameter is technically present in callback, but its value
+     * is falsy, it still won't appear in array emitted by Observable or in selector function.
+     *
      *
      * @example <caption>Read a file from the filesystem and get the data as an Observable</caption>
      * import * as fs from 'fs';
@@ -1318,13 +1570,52 @@ var BoundNodeCallbackObservable = (function (_super) {
      * var result = readFileAsObservable('./roadNames.txt', 'utf8');
      * result.subscribe(x => console.log(x), e => console.error(e));
      *
+     *
+     * @example <caption>Use on function calling callback with multiple arguments</caption>
+     * someFunction((err, a, b) => {
+     *   console.log(err); // null
+     *   console.log(a); // 5
+     *   console.log(b); // "some string"
+     * });
+     * var boundSomeFunction = Rx.Observable.bindNodeCallback(someFunction);
+     * boundSomeFunction()
+     * .subscribe(value => {
+     *   console.log(value); // [5, "some string"]
+     * });
+     *
+     *
+     * @example <caption>Use with selector function</caption>
+     * someFunction((err, a, b) => {
+     *   console.log(err); // undefined
+     *   console.log(a); // "abc"
+     *   console.log(b); // "DEF"
+     * });
+     * var boundSomeFunction = Rx.Observable.bindNodeCallback(someFunction, (a, b) => a + b);
+     * boundSomeFunction()
+     * .subscribe(value => {
+     *   console.log(value); // "abcDEF"
+     * });
+     *
+     *
+     * @example <caption>Use on function calling callback in regular style</caption>
+     * someFunction(a => {
+     *   console.log(a); // 5
+     * });
+     * var boundSomeFunction = Rx.Observable.bindNodeCallback(someFunction);
+     * boundSomeFunction()
+     * .subscribe(
+     *   value => {}             // never gets called
+     *   err => console.log(err) // 5
+     *);
+     *
+     *
      * @see {@link bindCallback}
      * @see {@link from}
      * @see {@link fromPromise}
      *
-     * @param {function} func Function with a callback as the last parameter.
+     * @param {function} func Function with a Node.js-style callback as the last parameter.
      * @param {function} [selector] A function which takes the arguments from the
-     * callback and maps those a value to emit on the output Observable.
+     * callback and maps those to a value to emit on the output Observable.
      * @param {Scheduler} [scheduler] The scheduler on which to schedule the
      * callbacks.
      * @return {function(...params: *): Observable} A function which returns the
@@ -1341,7 +1632,7 @@ var BoundNodeCallbackObservable = (function (_super) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            return new BoundNodeCallbackObservable(func, selector, args, scheduler);
+            return new BoundNodeCallbackObservable(func, selector, args, this, scheduler);
         };
     };
     BoundNodeCallbackObservable.prototype._subscribe = function (subscriber) {
@@ -1374,13 +1665,13 @@ var BoundNodeCallbackObservable = (function (_super) {
                         }
                     }
                     else {
-                        subject.next(innerArgs.length === 1 ? innerArgs[0] : innerArgs);
+                        subject.next(innerArgs.length <= 1 ? innerArgs[0] : innerArgs);
                         subject.complete();
                     }
                 };
                 // use named function instance to avoid closure.
                 handler.source = this;
-                var result = tryCatch(callbackFunc).apply(this, args.concat(handler));
+                var result = tryCatch(callbackFunc).apply(this.context, args.concat(handler));
                 if (result === errorObject) {
                     subject.error(errorObject.e);
                 }
@@ -1388,14 +1679,14 @@ var BoundNodeCallbackObservable = (function (_super) {
             return subject.subscribe(subscriber);
         }
         else {
-            return scheduler.schedule(dispatch, 0, { source: this, subscriber: subscriber });
+            return scheduler.schedule(dispatch, 0, { source: this, subscriber: subscriber, context: this.context });
         }
     };
     return BoundNodeCallbackObservable;
 }(Observable));
 function dispatch(state) {
     var self = this;
-    var source = state.source, subscriber = state.subscriber;
+    var source = state.source, subscriber = state.subscriber, context = state.context;
     // XXX: cast to `any` to access to the private field in `source`.
     var _a = source, callbackFunc = _a.callbackFunc, args = _a.args, scheduler = _a.scheduler;
     var subject = source.subject;
@@ -1410,7 +1701,7 @@ function dispatch(state) {
             var selector = source.selector, subject = source.subject;
             var err = innerArgs.shift();
             if (err) {
-                subject.error(err);
+                self.add(scheduler.schedule(dispatchError$1, 0, { err: err, subject: subject }));
             }
             else if (selector) {
                 var result_2 = tryCatch(selector).apply(this, innerArgs);
@@ -1422,15 +1713,15 @@ function dispatch(state) {
                 }
             }
             else {
-                var value = innerArgs.length === 1 ? innerArgs[0] : innerArgs;
+                var value = innerArgs.length <= 1 ? innerArgs[0] : innerArgs;
                 self.add(scheduler.schedule(dispatchNext$1, 0, { value: value, subject: subject }));
             }
         };
         // use named function to pass values in without closure
         handler.source = source;
-        var result = tryCatch(callbackFunc).apply(this, args.concat(handler));
+        var result = tryCatch(callbackFunc).apply(context, args.concat(handler));
         if (result === errorObject) {
-            subject.error(errorObject.e);
+            self.add(scheduler.schedule(dispatchError$1, 0, { err: errorObject.e, subject: subject }));
         }
     }
     self.add(subject.subscribe(subscriber));
@@ -1709,6 +2000,8 @@ var OuterSubscriber = (function (_super) {
     return OuterSubscriber;
 }(Subscriber));
 
+var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
+
 function isPromise(value) {
     return value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
 }
@@ -1742,7 +2035,10 @@ function symbolIteratorPonyfill(root$$1) {
         return '@@iterator';
     }
 }
-var $$iterator = symbolIteratorPonyfill(root);
+var iterator = symbolIteratorPonyfill(root);
+/**
+ * @deprecated use iterator instead
+ */
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -1787,7 +2083,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
             return result.subscribe(destination);
         }
     }
-    else if (isArray(result)) {
+    else if (isArrayLike(result)) {
         for (var i = 0, len = result.length; i < len && !destination.closed; i++) {
             destination.next(result[i]);
         }
@@ -1808,10 +2104,10 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
         });
         return destination;
     }
-    else if (result && typeof result[$$iterator] === 'function') {
-        var iterator = result[$$iterator]();
+    else if (result && typeof result[iterator] === 'function') {
+        var iterator$$1 = result[iterator]();
         do {
-            var item = iterator.next();
+            var item = iterator$$1.next();
             if (item.done) {
                 destination.complete();
                 break;
@@ -1822,8 +2118,8 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
             }
         } while (true);
     }
-    else if (result && typeof result[$$observable] === 'function') {
-        var obs = result[$$observable]();
+    else if (result && typeof result[observable] === 'function') {
+        var obs = result[observable]();
         if (typeof obs.subscribe !== 'function') {
             destination.error(new TypeError('Provided object does not correctly implement Symbol.observable'));
         }
@@ -1841,7 +2137,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
 }
 
 var none = {};
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Combines multiple Observables to create an Observable whose values are
  * calculated from the latest values of each of its input Observables.
@@ -1875,7 +2171,7 @@ var none = {};
  * @see {@link merge}
  * @see {@link withLatestFrom}
  *
- * @param {Observable} other An input Observable to combine with the source
+ * @param {ObservableInput} other An input Observable to combine with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {function} [project] An optional function to project the values from
  * the combined latest values into a new value on the output Observable.
@@ -1991,14 +2287,73 @@ var CombineLatestSubscriber = (function (_super) {
  * <img src="./img/combineLatest.png" width="100%">
  *
  * `combineLatest` combines the values from all the Observables passed as
- * arguments. This is done by subscribing to each Observable, in order, and
- * collecting an array of each of the most recent values any time any of the
- * input Observables emits, then either taking that array and passing it as
- * arguments to an optional `project` function and emitting the return value of
- * that, or just emitting the array of recent values directly if there is no
- * `project` function.
+ * arguments. This is done by subscribing to each Observable in order and,
+ * whenever any Observable emits, collecting an array of the most recent
+ * values from each Observable. So if you pass `n` Observables to operator,
+ * returned Observable will always emit an array of `n` values, in order
+ * corresponding to order of passed Observables (value from the first Observable
+ * on the first place and so on).
  *
- * @example <caption>Dynamically calculate the Body-Mass Index from an Observable of weight and one for height</caption>
+ * Static version of `combineLatest` accepts either an array of Observables
+ * or each Observable can be put directly as an argument. Note that array of
+ * Observables is good choice, if you don't know beforehand how many Observables
+ * you will combine. Passing empty array will result in Observable that
+ * completes immediately.
+ *
+ * To ensure output array has always the same length, `combineLatest` will
+ * actually wait for all input Observables to emit at least once,
+ * before it starts emitting results. This means if some Observable emits
+ * values before other Observables started emitting, all that values but last
+ * will be lost. On the other hand, is some Observable does not emit value but
+ * completes, resulting Observable will complete at the same moment without
+ * emitting anything, since it will be now impossible to include value from
+ * completed Observable in resulting array. Also, if some input Observable does
+ * not emit any value and never completes, `combineLatest` will also never emit
+ * and never complete, since, again, it will wait for all streams to emit some
+ * value.
+ *
+ * If at least one Observable was passed to `combineLatest` and all passed Observables
+ * emitted something, resulting Observable will complete when all combined
+ * streams complete. So even if some Observable completes, result of
+ * `combineLatest` will still emit values when other Observables do. In case
+ * of completed Observable, its value from now on will always be the last
+ * emitted value. On the other hand, if any Observable errors, `combineLatest`
+ * will error immediately as well, and all other Observables will be unsubscribed.
+ *
+ * `combineLatest` accepts as optional parameter `project` function, which takes
+ * as arguments all values that would normally be emitted by resulting Observable.
+ * `project` can return any kind of value, which will be then emitted by Observable
+ * instead of default array. Note that `project` does not take as argument that array
+ * of values, but values themselves. That means default `project` can be imagined
+ * as function that takes all its arguments and puts them into an array.
+ *
+ *
+ * @example <caption>Combine two timer Observables</caption>
+ * const firstTimer = Rx.Observable.timer(0, 1000); // emit 0, 1, 2... after every second, starting from now
+ * const secondTimer = Rx.Observable.timer(500, 1000); // emit 0, 1, 2... after every second, starting 0,5s from now
+ * const combinedTimers = Rx.Observable.combineLatest(firstTimer, secondTimer);
+ * combinedTimers.subscribe(value => console.log(value));
+ * // Logs
+ * // [0, 0] after 0.5s
+ * // [1, 0] after 1s
+ * // [1, 1] after 1.5s
+ * // [2, 1] after 2s
+ *
+ *
+ * @example <caption>Combine an array of Observables</caption>
+ * const observables = [1, 5, 10].map(
+ *   n => Rx.Observable.of(n).delay(n * 1000).startWith(0) // emit 0 and then emit n after n seconds
+ * );
+ * const combined = Rx.Observable.combineLatest(observables);
+ * combined.subscribe(value => console.log(value));
+ * // Logs
+ * // [0, 0, 0] immediately
+ * // [1, 0, 0] after 1s
+ * // [1, 5, 0] after 5s
+ * // [1, 5, 10] after 10s
+ *
+ *
+ * @example <caption>Use project function to dynamically calculate the Body-Mass Index</caption>
  * var weight = Rx.Observable.of(70, 72, 76, 79, 75);
  * var height = Rx.Observable.of(1.76, 1.77, 1.78);
  * var bmi = Rx.Observable.combineLatest(weight, height, (w, h) => w / (h * h));
@@ -2009,14 +2364,15 @@ var CombineLatestSubscriber = (function (_super) {
  * // BMI is 23.93948099205209
  * // BMI is 23.671253629592222
  *
+ *
  * @see {@link combineAll}
  * @see {@link merge}
  * @see {@link withLatestFrom}
  *
- * @param {Observable} observable1 An input Observable to combine with the
- * source Observable.
- * @param {Observable} observable2 An input Observable to combine with the
- * source Observable. More than one input Observables may be given as argument.
+ * @param {ObservableInput} observable1 An input Observable to combine with other Observables.
+ * @param {ObservableInput} observable2 An input Observable to combine with other Observables.
+ * More than one input Observables may be given as arguments
+ * or an array of Observables may be given as the first argument.
  * @param {function} [project] An optional function to project the values from
  * the combined latest values into a new value on the output Observable.
  * @param {Scheduler} [scheduler=null] The IScheduler to use for subscribing to
@@ -2151,7 +2507,7 @@ var MergeAllSubscriber = (function (_super) {
     return MergeAllSubscriber;
 }(OuterSubscriber));
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Creates an output Observable which sequentially emits all values from every
  * given input Observable after the current Observable.
@@ -2192,7 +2548,7 @@ var MergeAllSubscriber = (function (_super) {
  * @see {@link concatMap}
  * @see {@link concatMapTo}
  *
- * @param {Observable} other An input Observable to concatenate after the source
+ * @param {ObservableInput} other An input Observable to concatenate after the source
  * Observable. More than one input Observables may be given as argument.
  * @param {Scheduler} [scheduler=null] An optional IScheduler to schedule each
  * Observable subscription on.
@@ -2210,17 +2566,41 @@ function concat$1() {
 }
 /* tslint:enable:max-line-length */
 /**
- * Creates an output Observable which sequentially emits all values from every
- * given input Observable after the current Observable.
+ * Creates an output Observable which sequentially emits all values from given
+ * Observable and then moves on to the next.
  *
  * <span class="informal">Concatenates multiple Observables together by
  * sequentially emitting their values, one Observable after the other.</span>
  *
  * <img src="./img/concat.png" width="100%">
  *
- * Joins multiple Observables together by subscribing to them one at a time and
- * merging their results into the output Observable. Will wait for each
- * Observable to complete before moving on to the next.
+ * `concat` joins multiple Observables together, by subscribing to them one at a time and
+ * merging their results into the output Observable. You can pass either an array of
+ * Observables, or put them directly as arguments. Passing an empty array will result
+ * in Observable that completes immediately.
+ *
+ * `concat` will subscribe to first input Observable and emit all its values, without
+ * changing or affecting them in any way. When that Observable completes, it will
+ * subscribe to then next Observable passed and, again, emit its values. This will be
+ * repeated, until the operator runs out of Observables. When last input Observable completes,
+ * `concat` will complete as well. At any given moment only one Observable passed to operator
+ * emits values. If you would like to emit values from passed Observables concurrently, check out
+ * {@link merge} instead, especially with optional `concurrent` parameter. As a matter of fact,
+ * `concat` is an equivalent of `merge` operator with `concurrent` parameter set to `1`.
+ *
+ * Note that if some input Observable never completes, `concat` will also never complete
+ * and Observables following the one that did not complete will never be subscribed. On the other
+ * hand, if some Observable simply completes immediately after it is subscribed, it will be
+ * invisible for `concat`, which will just move on to the next Observable.
+ *
+ * If any Observable in chain errors, instead of passing control to the next Observable,
+ * `concat` will error immediately as well. Observables that would be subscribed after
+ * the one that emitted error, never will.
+ *
+ * If you pass to `concat` the same Observable many times, its stream of values
+ * will be "replayed" on every subscription, which means you can repeat given Observable
+ * as many times as you like. If passing the same Observable to `concat` 1000 times becomes tedious,
+ * you can always use {@link repeat}.
  *
  * @example <caption>Concatenate a timer counting from 0 to 3 with a synchronous sequence from 1 to 10</caption>
  * var timer = Rx.Observable.interval(1000).take(4);
@@ -2231,11 +2611,12 @@ function concat$1() {
  * // results in:
  * // 0 -1000ms-> 1 -1000ms-> 2 -1000ms-> 3 -immediate-> 1 ... 10
  *
- * @example <caption>Concatenate 3 Observables</caption>
+ *
+ * @example <caption>Concatenate an array of 3 Observables</caption>
  * var timer1 = Rx.Observable.interval(1000).take(10);
  * var timer2 = Rx.Observable.interval(2000).take(6);
  * var timer3 = Rx.Observable.interval(500).take(10);
- * var result = Rx.Observable.concat(timer1, timer2, timer3);
+ * var result = Rx.Observable.concat([timer1, timer2, timer3]); // note that array is passed
  * result.subscribe(x => console.log(x));
  *
  * // results in the following:
@@ -2244,12 +2625,30 @@ function concat$1() {
  * // -2000ms-> 0 -2000ms-> 1 -2000ms-> ... 5
  * // -500ms-> 0 -500ms-> 1 -500ms-> ... 9
  *
+ *
+ * @example <caption>Concatenate the same Observable to repeat it</caption>
+ * const timer = Rx.Observable.interval(1000).take(2);
+ *
+ * Rx.Observable.concat(timer, timer) // concating the same Observable!
+ * .subscribe(
+ *   value => console.log(value),
+ *   err => {},
+ *   () => console.log('...and it is done!')
+ * );
+ *
+ * // Logs:
+ * // 0 after 1s
+ * // 1 after 2s
+ * // 0 after 3s
+ * // 1 after 4s
+ * // "...and it is done!" also after 4s
+ *
  * @see {@link concatAll}
  * @see {@link concatMap}
  * @see {@link concatMapTo}
  *
- * @param {Observable} input1 An input Observable to concatenate with others.
- * @param {Observable} input2 An input Observable to concatenate with others.
+ * @param {ObservableInput} input1 An input Observable to concatenate with others.
+ * @param {ObservableInput} input2 An input Observable to concatenate with others.
  * More than one input Observables may be given as argument.
  * @param {Scheduler} [scheduler=null] An optional IScheduler to schedule each
  * Observable subscription on.
@@ -2269,7 +2668,7 @@ function concatStatic() {
     if (isScheduler(args[observables.length - 1])) {
         scheduler = args.pop();
     }
-    if (scheduler === null && observables.length === 1) {
+    if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable) {
         return observables[0];
     }
     return new ArrayObservable(observables, scheduler).lift(new MergeAllOperator(1));
@@ -2326,7 +2725,7 @@ var DeferObservable = (function (_super) {
      *
      * @see {@link create}
      *
-     * @param {function(): Observable|Promise} observableFactory The Observable
+     * @param {function(): SubscribableOrPromise} observableFactory The Observable
      * factory function to invoke for each Observer that subscribes to the output
      * Observable. May also return a Promise, which will be converted on the fly
      * to an Observable.
@@ -2599,24 +2998,24 @@ function dispatchError$2(arg) {
  */
 var IteratorObservable = (function (_super) {
     __extends(IteratorObservable, _super);
-    function IteratorObservable(iterator, scheduler) {
+    function IteratorObservable(iterator$$1, scheduler) {
         _super.call(this);
         this.scheduler = scheduler;
-        if (iterator == null) {
+        if (iterator$$1 == null) {
             throw new Error('iterator cannot be null.');
         }
-        this.iterator = getIterator(iterator);
+        this.iterator = getIterator(iterator$$1);
     }
-    IteratorObservable.create = function (iterator, scheduler) {
-        return new IteratorObservable(iterator, scheduler);
+    IteratorObservable.create = function (iterator$$1, scheduler) {
+        return new IteratorObservable(iterator$$1, scheduler);
     };
     IteratorObservable.dispatch = function (state) {
-        var index = state.index, hasError = state.hasError, iterator = state.iterator, subscriber = state.subscriber;
+        var index = state.index, hasError = state.hasError, iterator$$1 = state.iterator, subscriber = state.subscriber;
         if (hasError) {
             subscriber.error(state.error);
             return;
         }
-        var result = iterator.next();
+        var result = iterator$$1.next();
         if (result.done) {
             subscriber.complete();
             return;
@@ -2624,8 +3023,8 @@ var IteratorObservable = (function (_super) {
         subscriber.next(result.value);
         state.index = index + 1;
         if (subscriber.closed) {
-            if (typeof iterator.return === 'function') {
-                iterator.return();
+            if (typeof iterator$$1.return === 'function') {
+                iterator$$1.return();
             }
             return;
         }
@@ -2633,15 +3032,15 @@ var IteratorObservable = (function (_super) {
     };
     IteratorObservable.prototype._subscribe = function (subscriber) {
         var index = 0;
-        var _a = this, iterator = _a.iterator, scheduler = _a.scheduler;
+        var _a = this, iterator$$1 = _a.iterator, scheduler = _a.scheduler;
         if (scheduler) {
             return scheduler.schedule(IteratorObservable.dispatch, 0, {
-                index: index, iterator: iterator, subscriber: subscriber
+                index: index, iterator: iterator$$1, subscriber: subscriber
             });
         }
         else {
             do {
-                var result = iterator.next();
+                var result = iterator$$1.next();
                 if (result.done) {
                     subscriber.complete();
                     break;
@@ -2650,8 +3049,8 @@ var IteratorObservable = (function (_super) {
                     subscriber.next(result.value);
                 }
                 if (subscriber.closed) {
-                    if (typeof iterator.return === 'function') {
-                        iterator.return();
+                    if (typeof iterator$$1.return === 'function') {
+                        iterator$$1.return();
                     }
                     break;
                 }
@@ -2668,7 +3067,7 @@ var StringIterator = (function () {
         this.idx = idx;
         this.len = len;
     }
-    StringIterator.prototype[$$iterator] = function () { return (this); };
+    StringIterator.prototype[iterator] = function () { return (this); };
     StringIterator.prototype.next = function () {
         return this.idx < this.len ? {
             done: false,
@@ -2688,7 +3087,7 @@ var ArrayIterator = (function () {
         this.idx = idx;
         this.len = len;
     }
-    ArrayIterator.prototype[$$iterator] = function () { return this; };
+    ArrayIterator.prototype[iterator] = function () { return this; };
     ArrayIterator.prototype.next = function () {
         return this.idx < this.len ? {
             done: false,
@@ -2701,7 +3100,7 @@ var ArrayIterator = (function () {
     return ArrayIterator;
 }());
 function getIterator(obj) {
-    var i = obj[$$iterator];
+    var i = obj[iterator];
     if (!i && typeof obj === 'string') {
         return new StringIterator(obj);
     }
@@ -2711,7 +3110,7 @@ function getIterator(obj) {
     if (!i) {
         throw new TypeError('object is not iterable');
     }
-    return obj[$$iterator]();
+    return obj[iterator]();
 }
 var maxSafeInteger = Math.pow(2, 53) - 1;
 function toLength(o) {
@@ -2967,15 +3366,12 @@ var ObserveOnSubscriber = (function (_super) {
         this.delay = delay;
     }
     ObserveOnSubscriber.dispatch = function (arg) {
-        var notification = arg.notification, destination = arg.destination, subscription = arg.subscription;
+        var notification = arg.notification, destination = arg.destination;
         notification.observe(destination);
-        if (subscription) {
-            subscription.unsubscribe();
-        }
+        this.unsubscribe();
     };
     ObserveOnSubscriber.prototype.scheduleMessage = function (notification) {
-        var message = new ObserveOnMessage(notification, this.destination);
-        message.subscription = this.add(this.scheduler.schedule(ObserveOnSubscriber.dispatch, this.delay, message));
+        this.add(this.scheduler.schedule(ObserveOnSubscriber.dispatch, this.delay, new ObserveOnMessage(notification, this.destination)));
     };
     ObserveOnSubscriber.prototype._next = function (value) {
         this.scheduleMessage(Notification.createNext(value));
@@ -2996,7 +3392,6 @@ var ObserveOnMessage = (function () {
     return ObserveOnMessage;
 }());
 
-var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -3067,7 +3462,7 @@ var FromObservable = (function (_super) {
      */
     FromObservable.create = function (ish, scheduler) {
         if (ish != null) {
-            if (typeof ish[$$observable] === 'function') {
+            if (typeof ish[observable] === 'function') {
                 if (ish instanceof Observable && !scheduler) {
                     return ish;
                 }
@@ -3079,7 +3474,7 @@ var FromObservable = (function (_super) {
             else if (isPromise(ish)) {
                 return new PromiseObservable(ish, scheduler);
             }
-            else if (typeof ish[$$iterator] === 'function' || typeof ish === 'string') {
+            else if (typeof ish[iterator] === 'function' || typeof ish === 'string') {
                 return new IteratorObservable(ish, scheduler);
             }
             else if (isArrayLike(ish)) {
@@ -3092,10 +3487,10 @@ var FromObservable = (function (_super) {
         var ish = this.ish;
         var scheduler = this.scheduler;
         if (scheduler == null) {
-            return ish[$$observable]().subscribe(subscriber);
+            return ish[observable]().subscribe(subscriber);
         }
         else {
-            return ish[$$observable]().subscribe(new ObserveOnSubscriber(subscriber, scheduler, 0));
+            return ish[observable]().subscribe(new ObserveOnSubscriber(subscriber, scheduler, 0));
         }
     };
     return FromObservable;
@@ -3798,6 +4193,48 @@ var AsyncScheduler = (function (_super) {
     return AsyncScheduler;
 }(Scheduler$1));
 
+/**
+ *
+ * Async Scheduler
+ *
+ * <span class="informal">Schedule task as if you used setTimeout(task, duration)</span>
+ *
+ * `async` scheduler schedules tasks asynchronously, by putting them on the JavaScript
+ * event loop queue. It is best used to delay tasks in time or to schedule tasks repeating
+ * in intervals.
+ *
+ * If you just want to "defer" task, that is to perform it right after currently
+ * executing synchronous code ends (commonly achieved by `setTimeout(deferredTask, 0)`),
+ * better choice will be the {@link asap} scheduler.
+ *
+ * @example <caption>Use async scheduler to delay task</caption>
+ * const task = () => console.log('it works!');
+ *
+ * Rx.Scheduler.async.schedule(task, 2000);
+ *
+ * // After 2 seconds logs:
+ * // "it works!"
+ *
+ *
+ * @example <caption>Use async scheduler to repeat task in intervals</caption>
+ * function task(state) {
+ *   console.log(state);
+ *   this.schedule(state + 1, 1000); // `this` references currently executing Action,
+ *                                   // which we reschedule with new state and delay
+ * }
+ *
+ * Rx.Scheduler.async.schedule(task, 3000, 0);
+ *
+ * // Logs:
+ * // 0 after 3s
+ * // 1 after 4s
+ * // 2 after 5s
+ * // 3 after 6s
+ *
+ * @static true
+ * @name async
+ * @owner Scheduler
+ */
 var async = new AsyncScheduler(AsyncAction);
 
 /**
@@ -3882,7 +4319,7 @@ var interval = IntervalObservable.create;
 
 Observable.interval = interval;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Creates an output Observable which concurrently emits all values from every
  * given input Observable.
@@ -3918,13 +4355,13 @@ Observable.interval = interval;
  * @see {@link mergeMapTo}
  * @see {@link mergeScan}
  *
- * @param {Observable} other An input Observable to merge with the source
+ * @param {ObservableInput} other An input Observable to merge with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
  * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
  * concurrency of input Observables.
- * @return {Observable} an Observable that emits items that are the result of
+ * @return {Observable} An Observable that emits items that are the result of
  * every input Observable.
  * @method merge
  * @owner Observable
@@ -3986,7 +4423,7 @@ function merge$1() {
  * @see {@link mergeMapTo}
  * @see {@link mergeScan}
  *
- * @param {...Observable} observables Input Observables to merge together.
+ * @param {...ObservableInput} observables Input Observables to merge together.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
  * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
@@ -4014,7 +4451,7 @@ function mergeStatic() {
     else if (typeof last === 'number') {
         concurrent = observables.pop();
     }
-    if (scheduler === null && observables.length === 1) {
+    if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable) {
         return observables[0];
     }
     return new ArrayObservable(observables, scheduler).lift(new MergeAllOperator(concurrent));
@@ -4024,12 +4461,12 @@ var merge$$1 = mergeStatic;
 
 Observable.merge = merge$$1;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that mirrors the first source Observable to emit an item
- * from the combination of this Observable and supplied Observables
- * @param {...Observables} ...observables sources used to race for which Observable emits first.
- * @return {Observable} an Observable that mirrors the output of the first Observable to emit an item.
+ * from the combination of this Observable and supplied Observables.
+ * @param {...Observables} ...observables Sources used to race for which Observable emits first.
+ * @return {Observable} An Observable that mirrors the output of the first Observable to emit an item.
  * @method race
  * @owner Observable
  */
@@ -4184,7 +4621,7 @@ var of = ArrayObservable.of;
 
 Observable.of = of;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 function onErrorResumeNext() {
     var nextSources = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -4507,7 +4944,7 @@ var ErrorObservable = (function (_super) {
      * var result = Rx.Observable.throw(new Error('oops!')).startWith(7);
      * result.subscribe(x => console.log(x), e => console.error(e));
      *
-     * @example <caption>Map and flattens numbers to the sequence 'a', 'b', 'c', but throw an error for 13</caption>
+     * @example <caption>Map and flatten numbers to the sequence 'a', 'b', 'c', but throw an error for 13</caption>
      * var interval = Rx.Observable.interval(1000);
      * var result = interval.mergeMap(x =>
      *   x === 13 ?
@@ -4659,7 +5096,7 @@ var timer = TimerObservable.create;
 
 Observable.timer = timer;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * @param observables
  * @return {Observable<R>}
@@ -4695,9 +5132,9 @@ function zipProto() {
  *     .subscribe(x => console.log(x));
  *
  * // outputs
- * // { age: 7, name: 'Foo', isDev: true }
- * // { age: 5, name: 'Bar', isDev: true }
- * // { age: 9, name: 'Beer', isDev: false }
+ * // { age: 27, name: 'Foo', isDev: true }
+ * // { age: 25, name: 'Bar', isDev: true }
+ * // { age: 29, name: 'Beer', isDev: false }
  *
  * @param observables
  * @return {Observable<R>}
@@ -4745,8 +5182,8 @@ var ZipSubscriber = (function (_super) {
         if (isArray(value)) {
             iterators.push(new StaticArrayIterator(value));
         }
-        else if (typeof value[$$iterator] === 'function') {
-            iterators.push(new StaticIterator(value[$$iterator]()));
+        else if (typeof value[iterator] === 'function') {
+            iterators.push(new StaticIterator(value[iterator]()));
         }
         else {
             iterators.push(new ZipBufferIterator(this.destination, this, value));
@@ -4755,11 +5192,15 @@ var ZipSubscriber = (function (_super) {
     ZipSubscriber.prototype._complete = function () {
         var iterators = this.iterators;
         var len = iterators.length;
+        if (len === 0) {
+            this.destination.complete();
+            return;
+        }
         this.active = len;
         for (var i = 0; i < len; i++) {
-            var iterator = iterators[i];
-            if (iterator.stillUnsubscribed) {
-                this.add(iterator.subscribe(iterator, i));
+            var iterator$$1 = iterators[i];
+            if (iterator$$1.stillUnsubscribed) {
+                this.add(iterator$$1.subscribe(iterator$$1, i));
             }
             else {
                 this.active--; // not an observable
@@ -4778,19 +5219,19 @@ var ZipSubscriber = (function (_super) {
         var destination = this.destination;
         // abort if not all of them have values
         for (var i = 0; i < len; i++) {
-            var iterator = iterators[i];
-            if (typeof iterator.hasValue === 'function' && !iterator.hasValue()) {
+            var iterator$$1 = iterators[i];
+            if (typeof iterator$$1.hasValue === 'function' && !iterator$$1.hasValue()) {
                 return;
             }
         }
         var shouldComplete = false;
         var args = [];
         for (var i = 0; i < len; i++) {
-            var iterator = iterators[i];
-            var result = iterator.next();
+            var iterator$$1 = iterators[i];
+            var result = iterator$$1.next();
             // check to see if it's completed now that you've gotten
             // the next value.
-            if (iterator.hasCompleted()) {
+            if (iterator$$1.hasCompleted()) {
                 shouldComplete = true;
             }
             if (result.done) {
@@ -4823,9 +5264,9 @@ var ZipSubscriber = (function (_super) {
     return ZipSubscriber;
 }(Subscriber));
 var StaticIterator = (function () {
-    function StaticIterator(iterator) {
-        this.iterator = iterator;
-        this.nextResult = iterator.next();
+    function StaticIterator(iterator$$1) {
+        this.iterator = iterator$$1;
+        this.nextResult = iterator$$1.next();
     }
     StaticIterator.prototype.hasValue = function () {
         return true;
@@ -4848,7 +5289,7 @@ var StaticArrayIterator = (function () {
         this.length = 0;
         this.length = array.length;
     }
-    StaticArrayIterator.prototype[$$iterator] = function () {
+    StaticArrayIterator.prototype[iterator] = function () {
         return this;
     };
     StaticArrayIterator.prototype.next = function (value) {
@@ -4879,7 +5320,7 @@ var ZipBufferIterator = (function (_super) {
         this.buffer = [];
         this.isComplete = false;
     }
-    ZipBufferIterator.prototype[$$iterator] = function () {
+    ZipBufferIterator.prototype[iterator] = function () {
         return this;
     };
     // NOTE: there is actually a name collision here with Subscriber.next and Iterator.next
@@ -5002,11 +5443,7 @@ var MapSubscriber = (function (_super) {
 
 function getCORSRequest() {
     if (root.XMLHttpRequest) {
-        var xhr = new root.XMLHttpRequest();
-        if ('withCredentials' in xhr) {
-            xhr.withCredentials = !!this.withCredentials;
-        }
-        return xhr;
+        return new root.XMLHttpRequest();
     }
     else if (!!root.XDomainRequest) {
         return new root.XDomainRequest();
@@ -5055,6 +5492,10 @@ function ajaxDelete(url, headers) {
 
 function ajaxPut(url, body, headers) {
     return new AjaxObservable({ method: 'PUT', url: url, body: body, headers: headers });
+}
+
+function ajaxPatch(url, body, headers) {
+    return new AjaxObservable({ method: 'PATCH', url: url, body: body, headers: headers });
 }
 
 function ajaxGetJSON(url, headers) {
@@ -5132,6 +5573,7 @@ var AjaxObservable = (function (_super) {
         create.post = ajaxPost;
         create.delete = ajaxDelete;
         create.put = ajaxPut;
+        create.patch = ajaxPatch;
         create.getJSON = ajaxGetJSON;
         return create;
     })();
@@ -5193,9 +5635,12 @@ var AjaxSubscriber = (function (_super) {
                 this.error(errorObject.e);
                 return null;
             }
-            // timeout and responseType can be set once the XHR is open
+            // timeout, responseType and withCredentials can be set once the XHR is open
             xhr.timeout = request.timeout;
             xhr.responseType = request.responseType;
+            if ('withCredentials' in xhr) {
+                xhr.withCredentials = !!request.withCredentials;
+            }
             // set headers
             this.setHeaders(xhr, headers);
             // finally send the request
@@ -5439,6 +5884,67 @@ var QueueScheduler = (function (_super) {
     return QueueScheduler;
 }(AsyncScheduler));
 
+/**
+ *
+ * Queue Scheduler
+ *
+ * <span class="informal">Put every next task on a queue, instead of executing it immediately</span>
+ *
+ * `queue` scheduler, when used with delay, behaves the same as {@link async} scheduler.
+ *
+ * When used without delay, it schedules given task synchronously - executes it right when
+ * it is scheduled. However when called recursively, that is when inside the scheduled task,
+ * another task is scheduled with queue scheduler, instead of executing immediately as well,
+ * that task will be put on a queue and wait for current one to finish.
+ *
+ * This means that when you execute task with `queue` scheduler, you are sure it will end
+ * before any other task scheduled with that scheduler will start.
+ *
+ * @examples <caption>Schedule recursively first, then do something</caption>
+ *
+ * Rx.Scheduler.queue.schedule(() => {
+ *   Rx.Scheduler.queue.schedule(() => console.log('second')); // will not happen now, but will be put on a queue
+ *
+ *   console.log('first');
+ * });
+ *
+ * // Logs:
+ * // "first"
+ * // "second"
+ *
+ *
+ * @example <caption>Reschedule itself recursively</caption>
+ *
+ * Rx.Scheduler.queue.schedule(function(state) {
+ *   if (state !== 0) {
+ *     console.log('before', state);
+ *     this.schedule(state - 1); // `this` references currently executing Action,
+ *                               // which we reschedule with new state
+ *     console.log('after', state);
+ *   }
+ * }, 0, 3);
+ *
+ * // In scheduler that runs recursively, you would expect:
+ * // "before", 3
+ * // "before", 2
+ * // "before", 1
+ * // "after", 1
+ * // "after", 2
+ * // "after", 3
+ *
+ * // But with queue it logs:
+ * // "before", 3
+ * // "after", 3
+ * // "before", 2
+ * // "after", 2
+ * // "before", 1
+ * // "after", 1
+ *
+ *
+ * @static true
+ * @name queue
+ * @owner Scheduler
+ */
 var queue = new QueueScheduler(QueueAction);
 
 /**
@@ -5588,30 +6094,32 @@ var WebSocketSubject = (function (_super) {
      *
      * @example <caption>Wraps browser WebSocket</caption>
      *
-     * let subject = Observable.webSocket('ws://localhost:8081');
-     * subject.subscribe(
+     * let socket$ = Observable.webSocket('ws://localhost:8081');
+     *
+     * socket$.subscribe(
      *    (msg) => console.log('message received: ' + msg),
      *    (err) => console.log(err),
      *    () => console.log('complete')
      *  );
-     * subject.next(JSON.stringify({ op: 'hello' }));
+     *
+     * socket$.next(JSON.stringify({ op: 'hello' }));
      *
      * @example <caption>Wraps WebSocket from nodejs-websocket (using node.js)</caption>
      *
      * import { w3cwebsocket } from 'websocket';
      *
-     * let socket = new WebSocketSubject({
+     * let socket$ = Observable.webSocket({
      *   url: 'ws://localhost:8081',
      *   WebSocketCtor: w3cwebsocket
      * });
      *
-     * let subject = Observable.webSocket('ws://localhost:8081');
-     * subject.subscribe(
+     * socket$.subscribe(
      *    (msg) => console.log('message received: ' + msg),
      *    (err) => console.log(err),
      *    () => console.log('complete')
      *  );
-     * subject.next(JSON.stringify({ op: 'hello' }));
+     *
+     * socket$.next(JSON.stringify({ op: 'hello' }));
      *
      * @param {string | WebSocketSubjectConfig} urlConfigOrSource the source of the websocket as an url or a structure defining the websocket object
      * @return {WebSocketSubject}
@@ -5676,6 +6184,9 @@ var WebSocketSubject = (function (_super) {
                 new WebSocketCtor(this.url, this.protocol) :
                 new WebSocketCtor(this.url);
             this.socket = socket;
+            if (this.binaryType) {
+                this.socket.binaryType = this.binaryType;
+            }
         }
         catch (e) {
             observer.error(e);
@@ -5903,9 +6414,15 @@ var BufferCountOperator = (function () {
     function BufferCountOperator(bufferSize, startBufferEvery) {
         this.bufferSize = bufferSize;
         this.startBufferEvery = startBufferEvery;
+        if (!startBufferEvery || bufferSize === startBufferEvery) {
+            this.subscriberClass = BufferCountSubscriber;
+        }
+        else {
+            this.subscriberClass = BufferSkipCountSubscriber;
+        }
     }
     BufferCountOperator.prototype.call = function (subscriber, source) {
-        return source.subscribe(new BufferCountSubscriber(subscriber, this.bufferSize, this.startBufferEvery));
+        return source.subscribe(new this.subscriberClass(subscriber, this.bufferSize, this.startBufferEvery));
     };
     return BufferCountOperator;
 }());
@@ -5916,18 +6433,46 @@ var BufferCountOperator = (function () {
  */
 var BufferCountSubscriber = (function (_super) {
     __extends(BufferCountSubscriber, _super);
-    function BufferCountSubscriber(destination, bufferSize, startBufferEvery) {
+    function BufferCountSubscriber(destination, bufferSize) {
+        _super.call(this, destination);
+        this.bufferSize = bufferSize;
+        this.buffer = [];
+    }
+    BufferCountSubscriber.prototype._next = function (value) {
+        var buffer = this.buffer;
+        buffer.push(value);
+        if (buffer.length == this.bufferSize) {
+            this.destination.next(buffer);
+            this.buffer = [];
+        }
+    };
+    BufferCountSubscriber.prototype._complete = function () {
+        var buffer = this.buffer;
+        if (buffer.length > 0) {
+            this.destination.next(buffer);
+        }
+        _super.prototype._complete.call(this);
+    };
+    return BufferCountSubscriber;
+}(Subscriber));
+/**
+ * We need this JSDoc comment for affecting ESDoc.
+ * @ignore
+ * @extends {Ignored}
+ */
+var BufferSkipCountSubscriber = (function (_super) {
+    __extends(BufferSkipCountSubscriber, _super);
+    function BufferSkipCountSubscriber(destination, bufferSize, startBufferEvery) {
         _super.call(this, destination);
         this.bufferSize = bufferSize;
         this.startBufferEvery = startBufferEvery;
         this.buffers = [];
         this.count = 0;
     }
-    BufferCountSubscriber.prototype._next = function (value) {
-        var count = this.count++;
-        var _a = this, destination = _a.destination, bufferSize = _a.bufferSize, startBufferEvery = _a.startBufferEvery, buffers = _a.buffers;
-        var startOn = (startBufferEvery == null) ? bufferSize : startBufferEvery;
-        if (count % startOn === 0) {
+    BufferSkipCountSubscriber.prototype._next = function (value) {
+        var _a = this, bufferSize = _a.bufferSize, startBufferEvery = _a.startBufferEvery, buffers = _a.buffers, count = _a.count;
+        this.count++;
+        if (count % startBufferEvery === 0) {
             buffers.push([]);
         }
         for (var i = buffers.length; i--;) {
@@ -5935,13 +6480,12 @@ var BufferCountSubscriber = (function (_super) {
             buffer.push(value);
             if (buffer.length === bufferSize) {
                 buffers.splice(i, 1);
-                destination.next(buffer);
+                this.destination.next(buffer);
             }
         }
     };
-    BufferCountSubscriber.prototype._complete = function () {
-        var destination = this.destination;
-        var buffers = this.buffers;
+    BufferSkipCountSubscriber.prototype._complete = function () {
+        var _a = this, buffers = _a.buffers, destination = _a.destination;
         while (buffers.length > 0) {
             var buffer = buffers.shift();
             if (buffer.length > 0) {
@@ -5950,12 +6494,12 @@ var BufferCountSubscriber = (function (_super) {
         }
         _super.prototype._complete.call(this);
     };
-    return BufferCountSubscriber;
+    return BufferSkipCountSubscriber;
 }(Subscriber));
 
 Observable.prototype.bufferCount = bufferCount;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Buffers the source Observable values for a specific time period.
  *
@@ -6455,7 +6999,7 @@ Observable.prototype.bufferWhen = bufferWhen;
  * @param {function} selector a function that takes as arguments `err`, which is the error, and `caught`, which
  *  is the source observable, in case you'd like to "retry" that observable by returning it again. Whatever observable
  *  is returned by the `selector` will be used to continue the observable chain.
- * @return {Observable} an observable that originates from either the source or the observable returned by the
+ * @return {Observable} An observable that originates from either the source or the observable returned by the
  *  catch `selector` function.
  * @method catch
  * @name catch
@@ -6502,9 +7046,7 @@ var CatchSubscriber = (function (_super) {
                 _super.prototype.error.call(this, err2);
                 return;
             }
-            this.unsubscribe();
-            this.closed = false;
-            this.isStopped = false;
+            this._unsubscribeAndRecycle();
             this.add(subscribeToResult(this, result));
         }
     };
@@ -6564,7 +7106,7 @@ Observable.prototype.combineLatest = combineLatest$1;
 
 Observable.prototype.concat = concat$1;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Converts a higher-order Observable into a first-order Observable by
  * concatenating the inner Observables in order.
@@ -6619,7 +7161,7 @@ function concatAll() {
 
 Observable.prototype.concatAll = concatAll;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to an Observable which is merged in the output
  * Observable.
@@ -6658,7 +7200,7 @@ Observable.prototype.concatAll = concatAll;
  * @see {@link mergeScan}
  * @see {@link switchMap}
  *
- * @param {function(value: T, ?index: number): Observable} project A function
+ * @param {function(value: T, ?index: number): ObservableInput} project A function
  * that, when applied to an item emitted by the source Observable, returns an
  * Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
@@ -6779,7 +7321,7 @@ var MergeMapSubscriber = (function (_super) {
     return MergeMapSubscriber;
 }(OuterSubscriber));
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to an Observable which is merged in the output
  * Observable, in a serialized fashion waiting for each one to complete before
@@ -6821,7 +7363,7 @@ var MergeMapSubscriber = (function (_super) {
  * @see {@link mergeMap}
  * @see {@link switchMap}
  *
- * @param {function(value: T, ?index: number): Observable} project A function
+ * @param {function(value: T, ?index: number): ObservableInput} project A function
  * that, when applied to an item emitted by the source Observable, returns an
  * Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
@@ -6832,7 +7374,7 @@ var MergeMapSubscriber = (function (_super) {
  * - `innerValue`: the value that came from the projected Observable
  * - `outerIndex`: the "index" of the value that came from the source
  * - `innerIndex`: the "index" of the value from the projected Observable
- * @return {Observable} an observable of values merged from the projected
+ * @return {Observable} An observable of values merged from the projected
  * Observables as they were subscribed to, one at a time. Optionally, these
  * values may have been projected from a passed `projectResult` argument.
  * @return {Observable} An Observable that emits the result of applying the
@@ -6848,7 +7390,7 @@ function concatMap(project, resultSelector) {
 
 Observable.prototype.concatMap = concatMap;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to the same Observable which is merged multiple
  * times in the output Observable.
@@ -6874,7 +7416,7 @@ Observable.prototype.concatMap = concatMap;
  * @see {@link mergeScan}
  * @see {@link switchMapTo}
  *
- * @param {Observable} innerObservable An Observable to replace each value from
+ * @param {ObservableInput} innerObservable An Observable to replace each value from
  * the source Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
  * A function to produce the value on the output Observable based on the values
@@ -6992,7 +7534,7 @@ var MergeMapToSubscriber = (function (_super) {
     return MergeMapToSubscriber;
 }(OuterSubscriber));
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to the same Observable which is merged multiple
  * times in a serialized fashion on the output Observable.
@@ -7033,7 +7575,7 @@ var MergeMapToSubscriber = (function (_super) {
  * @see {@link mergeMapTo}
  * @see {@link switchMapTo}
  *
- * @param {Observable} innerObservable An Observable to replace each value from
+ * @param {ObservableInput} innerObservable An Observable to replace each value from
  * the source Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
  * A function to produce the value on the output Observable based on the values
@@ -7262,7 +7804,7 @@ Observable.prototype.dematerialize = dematerialize;
  * @see {@link delayWhen}
  * @see {@link throttle}
  *
- * @param {function(value: T): Observable|Promise} durationSelector A function
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
  * that receives a value from the source Observable, for computing the timeout
  * duration for each source value, returned as an Observable or a Promise.
  * @return {Observable} An Observable that delays the emissions of the source
@@ -7458,7 +8000,7 @@ function dispatchNext$3(subscriber) {
 
 Observable.prototype.debounceTime = debounceTime;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Emits a given value if the source Observable completes without emitting any
  * `next` value, otherwise mirrors the source Observable.
@@ -7905,9 +8447,9 @@ var Set = root.Set || minimalSetImpl();
  * @see {@link distinctUntilChanged}
  * @see {@link distinctUntilKeyChanged}
  *
- * @param {function} [keySelector] optional function to select which value you want to check as distinct.
- * @param {Observable} [flushes] optional Observable for flushing the internal HashSet of the operator.
- * @return {Observable} an Observable that emits items from the source Observable with distinct values.
+ * @param {function} [keySelector] Optional function to select which value you want to check as distinct.
+ * @param {Observable} [flushes] Optional Observable for flushing the internal HashSet of the operator.
+ * @return {Observable} An Observable that emits items from the source Observable with distinct values.
  * @method distinct
  * @owner Observable
  */
@@ -7977,7 +8519,7 @@ var DistinctSubscriber = (function (_super) {
 
 Observable.prototype.distinct = distinct;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item.
  *
@@ -8012,8 +8554,8 @@ Observable.prototype.distinct = distinct;
  * @see {@link distinct}
  * @see {@link distinctUntilKeyChanged}
  *
- * @param {function} [compare] optional comparison function called to test if an item is distinct from the previous item in the source.
- * @return {Observable} an Observable that emits items from the source Observable with distinct values.
+ * @param {function} [compare] Optional comparison function called to test if an item is distinct from the previous item in the source.
+ * @return {Observable} An Observable that emits items from the source Observable with distinct values.
  * @method distinctUntilChanged
  * @owner Observable
  */
@@ -8077,7 +8619,7 @@ var DistinctUntilChangedSubscriber = (function (_super) {
 
 Observable.prototype.distinctUntilChanged = distinctUntilChanged;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item,
  * using a property accessed by using the key provided to check if the two items are distinct.
@@ -8129,9 +8671,9 @@ Observable.prototype.distinctUntilChanged = distinctUntilChanged;
  * @see {@link distinct}
  * @see {@link distinctUntilChanged}
  *
- * @param {string} key string key for object property lookup on each item.
- * @param {function} [compare] optional comparison function called to test if an item is distinct from the previous item in the source.
- * @return {Observable} an Observable that emits items from the source Observable with distinct values based on the key specified.
+ * @param {string} key String key for object property lookup on each item.
+ * @param {function} [compare] Optional comparison function called to test if an item is distinct from the previous item in the source.
+ * @return {Observable} An Observable that emits items from the source Observable with distinct values based on the key specified.
  * @method distinctUntilKeyChanged
  * @owner Observable
  */
@@ -8146,7 +8688,7 @@ function distinctUntilKeyChanged(key, compare) {
 
 Observable.prototype.distinctUntilKeyChanged = distinctUntilKeyChanged;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Perform a side effect for every emission on the source Observable, but return
  * an Observable that is identical to the source.
@@ -8284,9 +8826,8 @@ Observable.prototype._do = _do;
  * @see {@link exhaustMap}
  * @see {@link zipAll}
  *
- * @return {Observable} Returns an Observable that takes a source of Observables
- * and propagates the first observable exclusively until it completes before
- * subscribing to the next.
+ * @return {Observable} An Observable that takes a source of Observables and propagates the first observable
+ * exclusively until it completes before subscribing to the next.
  * @method exhaust
  * @owner Observable
  */
@@ -8337,7 +8878,7 @@ var SwitchFirstSubscriber = (function (_super) {
 
 Observable.prototype.exhaust = exhaust;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to an Observable which is merged in the output
  * Observable only if the previous projected Observable has completed.
@@ -8366,7 +8907,7 @@ Observable.prototype.exhaust = exhaust;
  * @see {@link mergeMap}
  * @see {@link switchMap}
  *
- * @param {function(value: T, ?index: number): Observable} project A function
+ * @param {function(value: T, ?index: number): ObservableInput} project A function
  * that, when applied to an item emitted by the source Observable, returns an
  * Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
@@ -8468,7 +9009,7 @@ var SwitchFirstMapSubscriber = (function (_super) {
 
 Observable.prototype.exhaustMap = exhaustMap;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Recursively projects each source value to an Observable which is merged in
  * the output Observable.
@@ -8722,7 +9263,7 @@ var ElementAtSubscriber = (function (_super) {
 
 Observable.prototype.elementAt = elementAt;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Filter items emitted by the source Observable by only emitting those that
  * satisfy a specified predicate.
@@ -8812,8 +9353,8 @@ Observable.prototype.filter = filter;
 /**
  * Returns an Observable that mirrors the source Observable, but will call a specified function when
  * the source terminates on complete or error.
- * @param {function} callback function to be called when source terminates.
- * @return {Observable} an Observable that mirrors the source, but will call the specified function on termination.
+ * @param {function} callback Function to be called when source terminates.
+ * @return {Observable} An Observable that mirrors the source, but will call the specified function on termination.
  * @method finally
  * @owner Observable
  */
@@ -8846,7 +9387,7 @@ var FinallySubscriber = (function (_super) {
 Observable.prototype.finally = _finally;
 Observable.prototype._finally = _finally;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Emits only the first value emitted by the source Observable that meets some
  * condition.
@@ -9044,7 +9585,7 @@ var EmptyError = (function (_super) {
  * - `index`: the "index" of the value from the source.
  * @param {R} [defaultValue] The default value emitted in case no valid value
  * was found on the source.
- * @return {Observable<T|R>} an Observable of the first item that matches the
+ * @return {Observable<T|R>} An Observable of the first item that matches the
  * condition.
  * @method first
  * @owner Observable
@@ -9221,7 +9762,7 @@ var FastMap = (function () {
     return FastMap;
 }());
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Groups the items emitted by an Observable according to a specified criterion,
  * and emits these grouped items as `GroupedObservables`, one
@@ -9229,14 +9770,60 @@ var FastMap = (function () {
  *
  * <img src="./img/groupBy.png" width="100%">
  *
- * @param {function(value: T): K} keySelector a function that extracts the key
+ * @example <caption>Group objects by id and return as array</caption>
+ * Observable.of<Obj>({id: 1, name: 'aze1'},
+ *                    {id: 2, name: 'sf2'},
+ *                    {id: 2, name: 'dg2'},
+ *                    {id: 1, name: 'erg1'},
+ *                    {id: 1, name: 'df1'},
+ *                    {id: 2, name: 'sfqfb2'},
+ *                    {id: 3, name: 'qfs3'},
+ *                    {id: 2, name: 'qsgqsfg2'}
+ *     )
+ *     .groupBy(p => p.id)
+ *     .flatMap( (group$) => group$.reduce((acc, cur) => [...acc, cur], []))
+ *     .subscribe(p => console.log(p));
+ *
+ * // displays:
+ * // [ { id: 1, name: 'aze1' },
+ * //   { id: 1, name: 'erg1' },
+ * //   { id: 1, name: 'df1' } ]
+ * //
+ * // [ { id: 2, name: 'sf2' },
+ * //   { id: 2, name: 'dg2' },
+ * //   { id: 2, name: 'sfqfb2' },
+ * //   { id: 2, name: 'qsgqsfg2' } ]
+ * //
+ * // [ { id: 3, name: 'qfs3' } ]
+ *
+ * @example <caption>Pivot data on the id field</caption>
+ * Observable.of<Obj>({id: 1, name: 'aze1'},
+ *                    {id: 2, name: 'sf2'},
+ *                    {id: 2, name: 'dg2'},
+ *                    {id: 1, name: 'erg1'},
+ *                    {id: 1, name: 'df1'},
+ *                    {id: 2, name: 'sfqfb2'},
+ *                    {id: 3, name: 'qfs1'},
+ *                    {id: 2, name: 'qsgqsfg2'}
+ *                   )
+ *     .groupBy(p => p.id, p => p.anme)
+ *     .flatMap( (group$) => group$.reduce((acc, cur) => [...acc, cur], ["" + group$.key]))
+ *     .map(arr => ({'id': parseInt(arr[0]), 'values': arr.slice(1)}))
+ *     .subscribe(p => console.log(p));
+ *
+ * // displays:
+ * // { id: 1, values: [ 'aze1', 'erg1', 'df1' ] }
+ * // { id: 2, values: [ 'sf2', 'dg2', 'sfqfb2', 'qsgqsfg2' ] }
+ * // { id: 3, values: [ 'qfs1' ] }
+ *
+ * @param {function(value: T): K} keySelector A function that extracts the key
  * for each item.
- * @param {function(value: T): R} [elementSelector] a function that extracts the
+ * @param {function(value: T): R} [elementSelector] A function that extracts the
  * return element for each item.
  * @param {function(grouped: GroupedObservable<K,R>): Observable<any>} [durationSelector]
- * a function that returns an Observable to determine how long each group should
+ * A function that returns an Observable to determine how long each group should
  * exist.
- * @return {Observable<GroupedObservable<K,R>>} an Observable that emits
+ * @return {Observable<GroupedObservable<K,R>>} An Observable that emits
  * GroupedObservables, each of which corresponds to a unique key value and each
  * of which emits those items from the source Observable that share that key
  * value.
@@ -9449,7 +10036,7 @@ Observable.prototype.groupBy = groupBy;
  *
  * <img src="./img/ignoreElements.png" width="100%">
  *
- * @return {Observable} an empty Observable that only calls `complete`
+ * @return {Observable} An empty Observable that only calls `complete`
  * or `error`, based on which one is called by the source Observable.
  * @method ignoreElements
  * @owner Observable
@@ -9489,7 +10076,7 @@ Observable.prototype.ignoreElements = ignoreElements;
  *
  * <img src="./img/isEmpty.png" width="100%">
  *
- * @return {Observable} an Observable that emits a Boolean.
+ * @return {Observable} An Observable that emits a Boolean.
  * @method isEmpty
  * @owner Observable
  */
@@ -9562,7 +10149,7 @@ Observable.prototype.isEmpty = isEmpty;
  * @see {@link sample}
  * @see {@link throttle}
  *
- * @param {function(value: T): Observable|Promise} durationSelector A function
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
  * that receives a value from the source Observable, for computing the silencing
  * duration, returned as an Observable or a Promise.
  * @return {Observable<T>} An Observable that performs rate-limiting of
@@ -9728,7 +10315,7 @@ function dispatchNext$4(subscriber) {
 
 Observable.prototype.auditTime = auditTime;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits only the last item emitted by the source Observable.
  * It optionally takes a predicate function as a parameter, in which case, rather than emitting
@@ -9739,8 +10326,8 @@ Observable.prototype.auditTime = auditTime;
  *
  * @throws {EmptyError} Delivers an EmptyError to the Observer's `error`
  * callback if the Observable completes before any `next` notification was sent.
- * @param {function} predicate - the condition any source emitted item has to satisfy.
- * @return {Observable} an Observable that emits only the last item satisfying the given condition
+ * @param {function} predicate - The condition any source emitted item has to satisfy.
+ * @return {Observable} An Observable that emits only the last item satisfying the given condition
  * from the source, or an NoSuchElementException if no such items are emitted.
  * @throws - Throws if no items that match the predicate are emitted by the source Observable.
  * @method last
@@ -9861,9 +10448,9 @@ Observable.prototype.letBind = letProto;
  *     .every(x => x < 5)
  *     .subscribe(x => console.log(x)); // -> false
  *
- * @param {function} predicate a function for determining if an item meets a specified condition.
- * @param {any} [thisArg] optional object to use for `this` in the callback
- * @return {Observable} an Observable of booleans that determines if all items of the source Observable meet the condition specified.
+ * @param {function} predicate A function for determining if an item meets a specified condition.
+ * @param {any} [thisArg] Optional object to use for `this` in the callback.
+ * @return {Observable} An Observable of booleans that determines if all items of the source Observable meet the condition specified.
  * @method every
  * @owner Observable
  */
@@ -10063,7 +10650,7 @@ var MaterializeSubscriber = (function (_super) {
 
 Observable.prototype.materialize = materialize;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Applies an accumulator function over the source Observable, and returns the
  * accumulated result when the source completes, given an optional seed value.
@@ -10103,7 +10690,6 @@ Observable.prototype.materialize = materialize;
  * @param {function(acc: R, value: T, index: number): R} accumulator The accumulator function
  * called on each source value.
  * @param {R} [seed] The initial accumulation value.
- * @return {Observable<R>} An observable of the accumulated values.
  * @return {Observable<R>} An Observable that emits a single value that is the
  * result of accumulating the values emitted by the source Observable.
  * @method reduce
@@ -10205,9 +10791,9 @@ var ReduceSubscriber = (function (_super) {
  *
  * @see {@link min}
  *
- * @param {Function} optional comparer function that it will use instead of its default to compare the value of two
- * items.
- * @return {Observable} an Observable that emits item with the largest value.
+ * @param {Function} [comparer] - Optional comparer function that it will use instead of its default to compare the
+ * value of two items.
+ * @return {Observable} An Observable that emits item with the largest value.
  * @method max
  * @owner Observable
  */
@@ -10373,8 +10959,9 @@ Observable.prototype.mergeScan = mergeScan;
  *
  * @see {@link max}
  *
- * @param {Function} optional comparer function that it will use instead of its default to compare the value of two items.
- * @return {Observable<R>} an Observable that emits item with the smallest value.
+ * @param {Function} [comparer] - Optional comparer function that it will use instead of its default to compare the
+ * value of two items.
+ * @return {Observable<R>} An Observable that emits item with the smallest value.
  * @method min
  * @owner Observable
  */
@@ -10432,6 +11019,8 @@ var ConnectableObservable = (function (_super) {
 var connectableObservableDescriptor = {
     operator: { value: null },
     _refCount: { value: 0, writable: true },
+    _subject: { value: null, writable: true },
+    _connection: { value: null, writable: true },
     _subscribe: { value: ConnectableObservable.prototype._subscribe },
     getSubject: { value: ConnectableObservable.prototype.getSubject },
     connect: { value: ConnectableObservable.prototype.connect },
@@ -10538,21 +11127,21 @@ var RefCountSubscriber = (function (_super) {
     return RefCountSubscriber;
 }(Subscriber));
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits the results of invoking a specified selector on items
  * emitted by a ConnectableObservable that shares a single subscription to the underlying stream.
  *
  * <img src="./img/multicast.png" width="100%">
  *
- * @param {Function|Subject} Factory function to create an intermediate subject through
+ * @param {Function|Subject} subjectOrSubjectFactory - Factory function to create an intermediate subject through
  * which the source sequence's elements will be multicast to the selector function
  * or Subject to push source elements into.
- * @param {Function} Optional selector function that can use the multicasted source stream
+ * @param {Function} [selector] - Optional selector function that can use the multicasted source stream
  * as many times as needed, without causing multiple subscriptions to the source stream.
  * Subscribers to the given source will receive all notifications of the source from the
  * time of the subscription forward.
- * @return {Observable} an Observable that emits the results of invoking the selector
+ * @return {Observable} An Observable that emits the results of invoking the selector
  * on the items emitted by a `ConnectableObservable` that shares a single subscription to
  * the underlying stream.
  * @method multicast
@@ -10749,8 +11338,7 @@ Observable.prototype.partition = partition;
  *
  * @param {...string} properties The nested properties to pluck from each source
  * value (an object).
- * @return {Observable} Returns a new Observable of property values from the
- * source values.
+ * @return {Observable} A new Observable of property values from the source values.
  * @method pluck
  * @owner Observable
  */
@@ -10784,17 +11372,17 @@ function plucker(props, length) {
 
 Observable.prototype.pluck = pluck;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns a ConnectableObservable, which is a variety of Observable that waits until its connect method is called
  * before it begins emitting items to those Observers that have subscribed to it.
  *
  * <img src="./img/publish.png" width="100%">
  *
- * @param {Function} Optional selector function which can use the multicasted source sequence as many times as needed,
- * without causing multiple subscriptions to the source sequence.
+ * @param {Function} [selector] - Optional selector function which can use the multicasted source sequence as many times
+ * as needed, without causing multiple subscriptions to the source sequence.
  * Subscribers to the given source will receive all notifications of the source from the time of the subscription on.
- * @return a ConnectableObservable that upon connection causes the source Observable to emit items to its Observers.
+ * @return A ConnectableObservable that upon connection causes the source Observable to emit items to its Observers.
  * @method publish
  * @owner Observable
  */
@@ -10889,15 +11477,13 @@ Observable.prototype.race = race;
 Observable.prototype.reduce = reduce;
 
 /**
- * Returns an Observable that repeats the stream of items emitted by the source Observable at most count times,
- * on a particular IScheduler.
+ * Returns an Observable that repeats the stream of items emitted by the source Observable at most count times.
  *
  * <img src="./img/repeat.png" width="100%">
  *
- * @param {Scheduler} [scheduler] the IScheduler to emit the items on.
- * @param {number} [count] the number of times the source Observable items are repeated, a count of 0 will yield
+ * @param {number} [count] The number of times the source Observable items are repeated, a count of 0 will yield
  * an empty Observable.
- * @return {Observable} an Observable that repeats the stream of items emitted by the source Observable at most
+ * @return {Observable} An Observable that repeats the stream of items emitted by the source Observable at most
  * count times.
  * @method repeat
  * @owner Observable
@@ -10945,10 +11531,7 @@ var RepeatSubscriber = (function (_super) {
             else if (count > -1) {
                 this.count = count - 1;
             }
-            this.unsubscribe();
-            this.isStopped = false;
-            this.closed = false;
-            source.subscribe(this);
+            source.subscribe(this._unsubscribeAndRecycle());
         }
     };
     return RepeatSubscriber;
@@ -10957,18 +11540,16 @@ var RepeatSubscriber = (function (_super) {
 Observable.prototype.repeat = repeat;
 
 /**
- * Returns an Observable that emits the same values as the source observable with the exception of a `complete`.
- * A `complete` will cause the emission of the Throwable that cause the complete to the Observable returned from
- * notificationHandler. If that Observable calls onComplete or `complete` then retry will call `complete` or `error`
- * on the child subscription. Otherwise, this Observable will resubscribe to the source observable, on a particular
- * IScheduler.
+ * Returns an Observable that mirrors the source Observable with the exception of a `complete`. If the source
+ * Observable calls `complete`, this method will emit to the Observable returned from `notifier`. If that Observable
+ * calls `complete` or `error`, then this method will call `complete` or `error` on the child subscription. Otherwise
+ * this method will resubscribe to the source Observable.
  *
  * <img src="./img/repeatWhen.png" width="100%">
  *
- * @param {notificationHandler} receives an Observable of notifications with which a user can `complete` or `error`,
- * aborting the retry.
- * @param {scheduler} the IScheduler on which to subscribe to the source Observable.
- * @return {Observable} the source Observable modified with retry logic.
+ * @param {function(notifications: Observable): Observable} notifier - Receives an Observable of notifications with
+ * which a user can `complete` or `error`, aborting the repetition.
+ * @return {Observable} The source Observable modified with repeat logic.
  * @method repeatWhen
  * @owner Observable
  */
@@ -10998,8 +11579,8 @@ var RepeatWhenSubscriber = (function (_super) {
         this.sourceIsBeingSubscribedTo = true;
     }
     RepeatWhenSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
-        this.source.subscribe(this);
         this.sourceIsBeingSubscribedTo = true;
+        this.source.subscribe(this);
     };
     RepeatWhenSubscriber.prototype.notifyComplete = function (innerSub) {
         if (this.sourceIsBeingSubscribedTo === false) {
@@ -11015,7 +11596,7 @@ var RepeatWhenSubscriber = (function (_super) {
             else if (this.retriesSubscription.closed) {
                 return _super.prototype.complete.call(this);
             }
-            this.temporarilyUnsubscribe();
+            this._unsubscribeAndRecycle();
             this.notifications.next();
         }
     };
@@ -11031,6 +11612,17 @@ var RepeatWhenSubscriber = (function (_super) {
         }
         this.retries = null;
     };
+    RepeatWhenSubscriber.prototype._unsubscribeAndRecycle = function () {
+        var _a = this, notifications = _a.notifications, retries = _a.retries, retriesSubscription = _a.retriesSubscription;
+        this.notifications = null;
+        this.retries = null;
+        this.retriesSubscription = null;
+        _super.prototype._unsubscribeAndRecycle.call(this);
+        this.notifications = notifications;
+        this.retries = retries;
+        this.retriesSubscription = retriesSubscription;
+        return this;
+    };
     RepeatWhenSubscriber.prototype.subscribeToRetries = function () {
         this.notifications = new Subject();
         var retries = tryCatch(this.notifier)(this.notifications);
@@ -11040,28 +11632,15 @@ var RepeatWhenSubscriber = (function (_super) {
         this.retries = retries;
         this.retriesSubscription = subscribeToResult(this, retries);
     };
-    RepeatWhenSubscriber.prototype.temporarilyUnsubscribe = function () {
-        var _a = this, notifications = _a.notifications, retries = _a.retries, retriesSubscription = _a.retriesSubscription;
-        this.notifications = null;
-        this.retries = null;
-        this.retriesSubscription = null;
-        this.unsubscribe();
-        this.isStopped = false;
-        this.closed = false;
-        this.notifications = notifications;
-        this.retries = retries;
-        this.retriesSubscription = retriesSubscription;
-    };
     return RepeatWhenSubscriber;
 }(OuterSubscriber));
 
 Observable.prototype.repeatWhen = repeatWhen;
 
 /**
- * Returns an Observable that mirrors the source Observable, resubscribing to it if it calls `error` and the
- * predicate returns true for that specific exception and retry count.
- * If the source Observable calls `error`, this method will resubscribe to the source Observable for a maximum of
- * count resubscriptions (given as a number parameter) rather than propagating the `error` call.
+ * Returns an Observable that mirrors the source Observable with the exception of an `error`. If the source Observable
+ * calls `error`, this method will resubscribe to the source Observable for a maximum of `count` resubscriptions (given
+ * as a number parameter) rather than propagating the `error` call.
  *
  * <img src="./img/retry.png" width="100%">
  *
@@ -11069,8 +11648,8 @@ Observable.prototype.repeatWhen = repeatWhen;
  * during failed subscriptions. For example, if an Observable fails at first but emits [1, 2] then succeeds the second
  * time and emits: [1, 2, 3, 4, 5] then the complete stream of emissions and notifications
  * would be: [1, 2, 1, 2, 3, 4, 5, `complete`].
- * @param {number} number of retry attempts before failing.
- * @return {Observable} the source Observable modified with the retry logic.
+ * @param {number} count - Number of retry attempts before failing.
+ * @return {Observable} The source Observable modified with the retry logic.
  * @method retry
  * @owner Observable
  */
@@ -11109,10 +11688,7 @@ var RetrySubscriber = (function (_super) {
             else if (count > -1) {
                 this.count = count - 1;
             }
-            this.unsubscribe();
-            this.isStopped = false;
-            this.closed = false;
-            source.subscribe(this);
+            source.subscribe(this._unsubscribeAndRecycle());
         }
     };
     return RetrySubscriber;
@@ -11121,18 +11697,16 @@ var RetrySubscriber = (function (_super) {
 Observable.prototype.retry = retry;
 
 /**
- * Returns an Observable that emits the same values as the source observable with the exception of an `error`.
- * An `error` will cause the emission of the Throwable that cause the error to the Observable returned from
- * notificationHandler. If that Observable calls onComplete or `error` then retry will call `complete` or `error`
- * on the child subscription. Otherwise, this Observable will resubscribe to the source observable, on a particular
- * IScheduler.
+ * Returns an Observable that mirrors the source Observable with the exception of an `error`. If the source Observable
+ * calls `error`, this method will emit the Throwable that caused the error to the Observable returned from `notifier`.
+ * If that Observable calls `complete` or `error` then this method will call `complete` or `error` on the child
+ * subscription. Otherwise this method will resubscribe to the source Observable.
  *
  * <img src="./img/retryWhen.png" width="100%">
  *
- * @param {notificationHandler} receives an Observable of notifications with which a user can `complete` or `error`,
- * aborting the retry.
- * @param {scheduler} the IScheduler on which to subscribe to the source Observable.
- * @return {Observable} the source Observable modified with retry logic.
+ * @param {function(errors: Observable): Observable} notifier - Receives an Observable of notifications with which a
+ * user can `complete` or `error`, aborting the retry.
+ * @return {Observable} The source Observable modified with retry logic.
  * @method retryWhen
  * @owner Observable
  */
@@ -11178,8 +11752,7 @@ var RetryWhenSubscriber = (function (_super) {
                 this.errors = null;
                 this.retriesSubscription = null;
             }
-            this.unsubscribe();
-            this.closed = false;
+            this._unsubscribeAndRecycle();
             this.errors = errors;
             this.retries = retries;
             this.retriesSubscription = retriesSubscription;
@@ -11203,9 +11776,7 @@ var RetryWhenSubscriber = (function (_super) {
         this.errors = null;
         this.retries = null;
         this.retriesSubscription = null;
-        this.unsubscribe();
-        this.isStopped = false;
-        this.closed = false;
+        this._unsubscribeAndRecycle();
         this.errors = errors;
         this.retries = retries;
         this.retriesSubscription = retriesSubscription;
@@ -11381,7 +11952,7 @@ function dispatchNotification(state) {
 
 Observable.prototype.sampleTime = sampleTime;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Applies an accumulator function over the source Observable, and returns each
  * intermediate result, with an optional seed value.
@@ -11539,10 +12110,10 @@ Observable.prototype.scan = scan;
  * @see {@link zip}
  * @see {@link withLatestFrom}
  *
- * @param {Observable} compareTo the observable sequence to compare the source sequence to.
+ * @param {Observable} compareTo The observable sequence to compare the source sequence to.
  * @param {function} [comparor] An optional function to compare each value pair
  * @return {Observable} An Observable of a single boolean value representing whether or not
- * the values emitted by both observables were equal in sequence
+ * the values emitted by both observables were equal in sequence.
  * @method sequenceEqual
  * @owner Observable
  */
@@ -11659,7 +12230,7 @@ function shareSubjectFactory() {
  *
  * <img src="./img/share.png" width="100%">
  *
- * @return {Observable<T>} an Observable that upon connection causes the source Observable to emit items to its Observers
+ * @return {Observable<T>} An Observable that upon connection causes the source Observable to emit items to its Observers.
  * @method share
  * @owner Observable
  */
@@ -11678,8 +12249,8 @@ Observable.prototype.share = share;
  *
  * @throws {EmptyError} Delivers an EmptyError to the Observer's `error`
  * callback if the Observable completes before any `next` notification was sent.
- * @param {Function} a predicate function to evaluate items emitted by the source Observable.
- * @return {Observable<T>} an Observable that emits the single item emitted by the source Observable that matches
+ * @param {Function} predicate - A predicate function to evaluate items emitted by the source Observable.
+ * @return {Observable<T>} An Observable that emits the single item emitted by the source Observable that matches
  * the predicate.
  .
  * @method single
@@ -11722,19 +12293,17 @@ var SingleSubscriber = (function (_super) {
         }
     };
     SingleSubscriber.prototype._next = function (value) {
-        var predicate = this.predicate;
-        this.index++;
-        if (predicate) {
-            this.tryNext(value);
+        var index = this.index++;
+        if (this.predicate) {
+            this.tryNext(value, index);
         }
         else {
             this.applySingleValue(value);
         }
     };
-    SingleSubscriber.prototype.tryNext = function (value) {
+    SingleSubscriber.prototype.tryNext = function (value, index) {
         try {
-            var result = this.predicate(value, this.index, this.source);
-            if (result) {
+            if (this.predicate(value, index, this.source)) {
                 this.applySingleValue(value);
             }
         }
@@ -11758,18 +12327,18 @@ var SingleSubscriber = (function (_super) {
 Observable.prototype.single = single;
 
 /**
- * Returns an Observable that skips `n` items emitted by an Observable.
+ * Returns an Observable that skips the first `count` items emitted by the source Observable.
  *
  * <img src="./img/skip.png" width="100%">
  *
- * @param {Number} the `n` of times, items emitted by source Observable should be skipped.
- * @return {Observable} an Observable that skips values emitted by the source Observable.
+ * @param {Number} count - The number of times, items emitted by source Observable should be skipped.
+ * @return {Observable} An Observable that skips values emitted by the source Observable.
  *
  * @method skip
  * @owner Observable
  */
-function skip(total) {
-    return this.lift(new SkipOperator(total));
+function skip(count) {
+    return this.lift(new SkipOperator(count));
 }
 var SkipOperator = (function () {
     function SkipOperator(total) {
@@ -11807,9 +12376,9 @@ Observable.prototype.skip = skip;
  *
  * <img src="./img/skipUntil.png" width="100%">
  *
- * @param {Observable} the second Observable that has to emit an item before the source Observable's elements begin to
+ * @param {Observable} notifier - The second Observable that has to emit an item before the source Observable's elements begin to
  * be mirrored by the resulting Observable.
- * @return {Observable<T>} an Observable that skips items from the source Observable until the second Observable emits
+ * @return {Observable<T>} An Observable that skips items from the source Observable until the second Observable emits
  * an item, then emits the remaining items.
  * @method skipUntil
  * @owner Observable
@@ -11872,8 +12441,8 @@ Observable.prototype.skipUntil = skipUntil;
  *
  * <img src="./img/skipWhile.png" width="100%">
  *
- * @param {Function} predicate - a function to test each item emitted from the source Observable.
- * @return {Observable<T>} an Observable that begins emitting items emitted by the source Observable when the
+ * @param {Function} predicate - A function to test each item emitted from the source Observable.
+ * @return {Observable<T>} An Observable that begins emitting items emitted by the source Observable when the
  * specified predicate becomes false.
  * @method skipWhile
  * @owner Observable
@@ -11926,15 +12495,17 @@ var SkipWhileSubscriber = (function (_super) {
 
 Observable.prototype.skipWhile = skipWhile;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
- * Returns an Observable that emits the items in a specified Iterable before it begins to emit items emitted by the
- * source Observable.
+ * Returns an Observable that emits the items you specify as arguments before it begins to emit
+ * items emitted by the source Observable.
  *
  * <img src="./img/startWith.png" width="100%">
  *
- * @param {Values} an Iterable that contains the items you want the modified Observable to emit first.
- * @return {Observable} an Observable that emits the items in the specified Iterable and then emits the items
+ * @param {...T} values - Items you want the modified Observable to emit first.
+ * @param {Scheduler} [scheduler] - A {@link IScheduler} to use for scheduling
+ * the emissions of the `next` notifications.
+ * @return {Observable} An Observable that emits the items in the specified Iterable and then emits the items
  * emitted by the source Observable.
  * @method startWith
  * @owner Observable
@@ -12246,6 +12817,40 @@ var AsapScheduler = (function (_super) {
     return AsapScheduler;
 }(AsyncScheduler));
 
+/**
+ *
+ * Asap Scheduler
+ *
+ * <span class="informal">Perform task as fast as it can be performed asynchronously</span>
+ *
+ * `asap` scheduler behaves the same as {@link async} scheduler when you use it to delay task
+ * in time. If however you set delay to `0`, `asap` will wait for current synchronously executing
+ * code to end and then it will try to execute given task as fast as possible.
+ *
+ * `asap` scheduler will do its best to minimize time between end of currently executing code
+ * and start of scheduled task. This makes it best candidate for performing so called "deferring".
+ * Traditionally this was achieved by calling `setTimeout(deferredTask, 0)`, but that technique involves
+ * some (although minimal) unwanted delay.
+ *
+ * Note that using `asap` scheduler does not necessarily mean that your task will be first to process
+ * after currently executing code. In particular, if some task was also scheduled with `asap` before,
+ * that task will execute first. That being said, if you need to schedule task asynchronously, but
+ * as soon as possible, `asap` scheduler is your best bet.
+ *
+ * @example <caption>Compare async and asap scheduler</caption>
+ *
+ * Rx.Scheduler.async.schedule(() => console.log('async')); // scheduling 'async' first...
+ * Rx.Scheduler.asap.schedule(() => console.log('asap'));
+ *
+ * // Logs:
+ * // "asap"
+ * // "async"
+ * // ... but 'asap' goes first!
+ *
+ * @static true
+ * @name asap
+ * @owner Scheduler
+ */
 var asap = new AsapScheduler(AsapAction);
 
 /**
@@ -12294,8 +12899,8 @@ var SubscribeOnObservable = (function (_super) {
  *
  * <img src="./img/subscribeOn.png" width="100%">
  *
- * @param {Scheduler} the IScheduler to perform subscription actions on.
- * @return {Observable<T>} the source Observable modified so that its subscriptions happen on the specified IScheduler
+ * @param {Scheduler} scheduler - The IScheduler to perform subscription actions on.
+ * @return {Observable<T>} The source Observable modified so that its subscriptions happen on the specified IScheduler.
  .
  * @method subscribeOn
  * @owner Observable
@@ -12419,7 +13024,7 @@ var SwitchSubscriber = (function (_super) {
 Observable.prototype.switch = _switch;
 Observable.prototype._switch = _switch;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to an Observable which is merged in the output
  * Observable, emitting values only from the most recently projected Observable.
@@ -12449,7 +13054,7 @@ Observable.prototype._switch = _switch;
  * @see {@link switch}
  * @see {@link switchMapTo}
  *
- * @param {function(value: T, ?index: number): Observable} project A function
+ * @param {function(value: T, ?index: number): ObservableInput} project A function
  * that, when applied to an item emitted by the source Observable, returns an
  * Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
@@ -12552,7 +13157,7 @@ var SwitchMapSubscriber = (function (_super) {
 
 Observable.prototype.switchMap = switchMap;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to the same Observable which is flattened multiple
  * times with {@link switch} in the output Observable.
@@ -12578,7 +13183,7 @@ Observable.prototype.switchMap = switchMap;
  * @see {@link switchMap}
  * @see {@link mergeMapTo}
  *
- * @param {Observable} innerObservable An Observable to replace each value from
+ * @param {ObservableInput} innerObservable An Observable to replace each value from
  * the source Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
  * A function to produce the value on the output Observable based on the values
@@ -12588,8 +13193,6 @@ Observable.prototype.switchMap = switchMap;
  * - `innerValue`: the value that came from the projected Observable
  * - `outerIndex`: the "index" of the value that came from the source
  * - `innerIndex`: the "index" of the value from the projected Observable
- * @return {Observable} An Observable that emits items from the given
- * `innerObservable` every time a value is emitted on the source Observable.
  * @return {Observable} An Observable that emits items from the given
  * `innerObservable` (and optionally transformed through `resultSelector`) every
  * time a value is emitted on the source Observable, and taking only the values
@@ -13036,7 +13639,7 @@ Observable.prototype.takeWhile = takeWhile;
  * @see {@link sample}
  * @see {@link throttleTime}
  *
- * @param {function(value: T): Observable|Promise} durationSelector A function
+ * @param {function(value: T): SubscribableOrPromise} durationSelector A function
  * that receives a value from the source Observable, for computing the silencing
  * duration for each source value, returned as an Observable or a Promise.
  * @return {Observable<T>} An Observable that performs the throttle operation to
@@ -13302,61 +13905,43 @@ var TimeoutSubscriber = (function (_super) {
         this.waitFor = waitFor;
         this.scheduler = scheduler;
         this.errorInstance = errorInstance;
-        this.index = 0;
-        this._previousIndex = 0;
-        this._hasCompleted = false;
+        this.action = null;
         this.scheduleTimeout();
     }
-    Object.defineProperty(TimeoutSubscriber.prototype, "previousIndex", {
-        get: function () {
-            return this._previousIndex;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeoutSubscriber.prototype, "hasCompleted", {
-        get: function () {
-            return this._hasCompleted;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimeoutSubscriber.dispatchTimeout = function (state) {
-        var source = state.subscriber;
-        var currentIndex = state.index;
-        if (!source.hasCompleted && source.previousIndex === currentIndex) {
-            source.notifyTimeout();
-        }
+    TimeoutSubscriber.dispatchTimeout = function (subscriber) {
+        subscriber.error(subscriber.errorInstance);
     };
     TimeoutSubscriber.prototype.scheduleTimeout = function () {
-        var currentIndex = this.index;
-        this.scheduler.schedule(TimeoutSubscriber.dispatchTimeout, this.waitFor, { subscriber: this, index: currentIndex });
-        this.index++;
-        this._previousIndex = currentIndex;
+        var action = this.action;
+        if (action) {
+            // Recycle the action if we've already scheduled one. All the production
+            // Scheduler Actions mutate their state/delay time and return themeselves.
+            // VirtualActions are immutable, so they create and return a clone. In this
+            // case, we need to set the action reference to the most recent VirtualAction,
+            // to ensure that's the one we clone from next time.
+            this.action = action.schedule(this, this.waitFor);
+        }
+        else {
+            this.add(this.action = this.scheduler.schedule(TimeoutSubscriber.dispatchTimeout, this.waitFor, this));
+        }
     };
     TimeoutSubscriber.prototype._next = function (value) {
-        this.destination.next(value);
         if (!this.absoluteTimeout) {
             this.scheduleTimeout();
         }
+        _super.prototype._next.call(this, value);
     };
-    TimeoutSubscriber.prototype._error = function (err) {
-        this.destination.error(err);
-        this._hasCompleted = true;
-    };
-    TimeoutSubscriber.prototype._complete = function () {
-        this.destination.complete();
-        this._hasCompleted = true;
-    };
-    TimeoutSubscriber.prototype.notifyTimeout = function () {
-        this.error(this.errorInstance);
+    TimeoutSubscriber.prototype._unsubscribe = function () {
+        this.action = null;
+        this.scheduler = null;
+        this.errorInstance = null;
     };
     return TimeoutSubscriber;
 }(Subscriber));
 
 Observable.prototype.timeout = timeout;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * @param due
  * @param withObservable
@@ -13391,67 +13976,43 @@ var TimeoutWithOperator = (function () {
 var TimeoutWithSubscriber = (function (_super) {
     __extends(TimeoutWithSubscriber, _super);
     function TimeoutWithSubscriber(destination, absoluteTimeout, waitFor, withObservable, scheduler) {
-        _super.call(this);
-        this.destination = destination;
+        _super.call(this, destination);
         this.absoluteTimeout = absoluteTimeout;
         this.waitFor = waitFor;
         this.withObservable = withObservable;
         this.scheduler = scheduler;
-        this.timeoutSubscription = undefined;
-        this.index = 0;
-        this._previousIndex = 0;
-        this._hasCompleted = false;
-        destination.add(this);
+        this.action = null;
         this.scheduleTimeout();
     }
-    Object.defineProperty(TimeoutWithSubscriber.prototype, "previousIndex", {
-        get: function () {
-            return this._previousIndex;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TimeoutWithSubscriber.prototype, "hasCompleted", {
-        get: function () {
-            return this._hasCompleted;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TimeoutWithSubscriber.dispatchTimeout = function (state) {
-        var source = state.subscriber;
-        var currentIndex = state.index;
-        if (!source.hasCompleted && source.previousIndex === currentIndex) {
-            source.handleTimeout();
-        }
+    TimeoutWithSubscriber.dispatchTimeout = function (subscriber) {
+        var withObservable = subscriber.withObservable;
+        subscriber._unsubscribeAndRecycle();
+        subscriber.add(subscribeToResult(subscriber, withObservable));
     };
     TimeoutWithSubscriber.prototype.scheduleTimeout = function () {
-        var currentIndex = this.index;
-        var timeoutState = { subscriber: this, index: currentIndex };
-        this.scheduler.schedule(TimeoutWithSubscriber.dispatchTimeout, this.waitFor, timeoutState);
-        this.index++;
-        this._previousIndex = currentIndex;
+        var action = this.action;
+        if (action) {
+            // Recycle the action if we've already scheduled one. All the production
+            // Scheduler Actions mutate their state/delay time and return themeselves.
+            // VirtualActions are immutable, so they create and return a clone. In this
+            // case, we need to set the action reference to the most recent VirtualAction,
+            // to ensure that's the one we clone from next time.
+            this.action = action.schedule(this, this.waitFor);
+        }
+        else {
+            this.add(this.action = this.scheduler.schedule(TimeoutWithSubscriber.dispatchTimeout, this.waitFor, this));
+        }
     };
     TimeoutWithSubscriber.prototype._next = function (value) {
-        this.destination.next(value);
         if (!this.absoluteTimeout) {
             this.scheduleTimeout();
         }
+        _super.prototype._next.call(this, value);
     };
-    TimeoutWithSubscriber.prototype._error = function (err) {
-        this.destination.error(err);
-        this._hasCompleted = true;
-    };
-    TimeoutWithSubscriber.prototype._complete = function () {
-        this.destination.complete();
-        this._hasCompleted = true;
-    };
-    TimeoutWithSubscriber.prototype.handleTimeout = function () {
-        if (!this.closed) {
-            var withObservable = this.withObservable;
-            this.unsubscribe();
-            this.destination.add(this.timeoutSubscription = subscribeToResult(this, withObservable));
-        }
+    TimeoutWithSubscriber.prototype._unsubscribe = function () {
+        this.action = null;
+        this.scheduler = null;
+        this.withObservable = null;
     };
     return TimeoutWithSubscriber;
 }(OuterSubscriber));
@@ -13539,7 +14100,7 @@ var ToArraySubscriber = (function (_super) {
 
 Observable.prototype.toArray = toArray;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Converts an Observable sequence to a ES2015 compliant promise.
  *
@@ -13836,71 +14397,58 @@ var WindowCountSubscriber = (function (_super) {
 
 Observable.prototype.windowCount = windowCount;
 
-/**
- * Branch out the source Observable values as a nested Observable periodically
- * in time.
- *
- * <span class="informal">It's like {@link bufferTime}, but emits a nested
- * Observable instead of an array.</span>
- *
- * <img src="./img/windowTime.png" width="100%">
- *
- * Returns an Observable that emits windows of items it collects from the source
- * Observable. The output Observable starts a new window periodically, as
- * determined by the `windowCreationInterval` argument. It emits each window
- * after a fixed timespan, specified by the `windowTimeSpan` argument. When the
- * source Observable completes or encounters an error, the output Observable
- * emits the current window and propagates the notification from the source
- * Observable. If `windowCreationInterval` is not provided, the output
- * Observable starts a new window when the previous window of duration
- * `windowTimeSpan` completes.
- *
- * @example <caption>In every window of 1 second each, emit at most 2 click events</caption>
- * var clicks = Rx.Observable.fromEvent(document, 'click');
- * var result = clicks.windowTime(1000)
- *   .map(win => win.take(2)) // each window has at most 2 emissions
- *   .mergeAll(); // flatten the Observable-of-Observables
- * result.subscribe(x => console.log(x));
- *
- * @example <caption>Every 5 seconds start a window 1 second long, and emit at most 2 click events per window</caption>
- * var clicks = Rx.Observable.fromEvent(document, 'click');
- * var result = clicks.windowTime(1000, 5000)
- *   .map(win => win.take(2)) // each window has at most 2 emissions
- *   .mergeAll(); // flatten the Observable-of-Observables
- * result.subscribe(x => console.log(x));
- *
- * @see {@link window}
- * @see {@link windowCount}
- * @see {@link windowToggle}
- * @see {@link windowWhen}
- * @see {@link bufferTime}
- *
- * @param {number} windowTimeSpan The amount of time to fill each window.
- * @param {number} [windowCreationInterval] The interval at which to start new
- * windows.
- * @param {Scheduler} [scheduler=async] The scheduler on which to schedule the
- * intervals that determine window boundaries.
- * @return {Observable<Observable<T>>} An observable of windows, which in turn
- * are Observables.
- * @method windowTime
- * @owner Observable
- */
-function windowTime(windowTimeSpan, windowCreationInterval, scheduler) {
-    if (windowCreationInterval === void 0) { windowCreationInterval = null; }
-    if (scheduler === void 0) { scheduler = async; }
-    return this.lift(new WindowTimeOperator(windowTimeSpan, windowCreationInterval, scheduler));
+function windowTime(windowTimeSpan) {
+    var scheduler = async;
+    var windowCreationInterval = null;
+    var maxWindowSize = Number.POSITIVE_INFINITY;
+    if (isScheduler(arguments[3])) {
+        scheduler = arguments[3];
+    }
+    if (isScheduler(arguments[2])) {
+        scheduler = arguments[2];
+    }
+    else if (isNumeric(arguments[2])) {
+        maxWindowSize = arguments[2];
+    }
+    if (isScheduler(arguments[1])) {
+        scheduler = arguments[1];
+    }
+    else if (isNumeric(arguments[1])) {
+        windowCreationInterval = arguments[1];
+    }
+    return this.lift(new WindowTimeOperator(windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler));
 }
 var WindowTimeOperator = (function () {
-    function WindowTimeOperator(windowTimeSpan, windowCreationInterval, scheduler) {
+    function WindowTimeOperator(windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler) {
         this.windowTimeSpan = windowTimeSpan;
         this.windowCreationInterval = windowCreationInterval;
+        this.maxWindowSize = maxWindowSize;
         this.scheduler = scheduler;
     }
     WindowTimeOperator.prototype.call = function (subscriber, source) {
-        return source.subscribe(new WindowTimeSubscriber(subscriber, this.windowTimeSpan, this.windowCreationInterval, this.scheduler));
+        return source.subscribe(new WindowTimeSubscriber(subscriber, this.windowTimeSpan, this.windowCreationInterval, this.maxWindowSize, this.scheduler));
     };
     return WindowTimeOperator;
 }());
+var CountedSubject = (function (_super) {
+    __extends(CountedSubject, _super);
+    function CountedSubject() {
+        _super.apply(this, arguments);
+        this._numberOfNextedValues = 0;
+    }
+    CountedSubject.prototype.next = function (value) {
+        this._numberOfNextedValues++;
+        _super.prototype.next.call(this, value);
+    };
+    Object.defineProperty(CountedSubject.prototype, "numberOfNextedValues", {
+        get: function () {
+            return this._numberOfNextedValues;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return CountedSubject;
+}(Subject));
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore
@@ -13908,11 +14456,12 @@ var WindowTimeOperator = (function () {
  */
 var WindowTimeSubscriber = (function (_super) {
     __extends(WindowTimeSubscriber, _super);
-    function WindowTimeSubscriber(destination, windowTimeSpan, windowCreationInterval, scheduler) {
+    function WindowTimeSubscriber(destination, windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler) {
         _super.call(this, destination);
         this.destination = destination;
         this.windowTimeSpan = windowTimeSpan;
         this.windowCreationInterval = windowCreationInterval;
+        this.maxWindowSize = maxWindowSize;
         this.scheduler = scheduler;
         this.windows = [];
         var window = this.openWindow();
@@ -13934,6 +14483,9 @@ var WindowTimeSubscriber = (function (_super) {
             var window_1 = windows[i];
             if (!window_1.closed) {
                 window_1.next(value);
+                if (window_1.numberOfNextedValues >= this.maxWindowSize) {
+                    this.closeWindow(window_1);
+                }
             }
         }
     };
@@ -13955,7 +14507,7 @@ var WindowTimeSubscriber = (function (_super) {
         this.destination.complete();
     };
     WindowTimeSubscriber.prototype.openWindow = function () {
-        var window = new Subject();
+        var window = new CountedSubject();
         this.windows.push(window);
         var destination = this.destination;
         destination.next(window);
@@ -14282,7 +14834,7 @@ var WindowSubscriber$1 = (function (_super) {
 
 Observable.prototype.windowWhen = windowWhen;
 
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Combines the source Observable with other Observables to create an Observable
  * whose values are calculated from the latest values of each, only when the
@@ -14308,7 +14860,7 @@ Observable.prototype.windowWhen = windowWhen;
  *
  * @see {@link combineLatest}
  *
- * @param {Observable} other An input Observable to combine with the source
+ * @param {ObservableInput} other An input Observable to combine with the source
  * Observable. More than one input Observables may be given as argument.
  * @param {Function} [project] Projection function for combining values
  * together. Receives all values in order of the Observables passed, where the
@@ -14574,6 +15126,7 @@ var VirtualAction = (function (_super) {
         this.scheduler = scheduler;
         this.work = work;
         this.index = index;
+        this.active = true;
         this.index = scheduler.index = index;
     }
     VirtualAction.prototype.schedule = function (state, delay) {
@@ -14581,6 +15134,7 @@ var VirtualAction = (function (_super) {
         if (!this.id) {
             return _super.prototype.schedule.call(this, state, delay);
         }
+        this.active = false;
         // If an action is rescheduled, we save allocations by mutating its state,
         // pushing it to the end of the scheduler queue, and recycling the action.
         // But since the VirtualTimeScheduler is used for testing, VirtualActions
@@ -14600,6 +15154,11 @@ var VirtualAction = (function (_super) {
     VirtualAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
         return undefined;
+    };
+    VirtualAction.prototype._execute = function (state, delay) {
+        if (this.active === true) {
+            return _super.prototype._execute.call(this, state, delay);
+        }
     };
     VirtualAction.sortActions = function (a, b) {
         if (a.delay === b.delay) {
@@ -14939,6 +15498,36 @@ var AnimationFrameScheduler = (function (_super) {
     return AnimationFrameScheduler;
 }(AsyncScheduler));
 
+/**
+ *
+ * Animation Frame Scheduler
+ *
+ * <span class="informal">Perform task when `window.requestAnimationFrame` would fire</span>
+ *
+ * When `animationFrame` scheduler is used with delay, it will fall back to {@link async} scheduler
+ * behaviour.
+ *
+ * Without delay, `animationFrame` scheduler can be used to create smooth browser animations.
+ * It makes sure scheduled task will happen just before next browser content repaint,
+ * thus performing animations as efficiently as possible.
+ *
+ * @example <caption>Schedule div height animation</caption>
+ * const div = document.querySelector('.some-div');
+ *
+ * Rx.Scheduler.schedule(function(height) {
+ *   div.style.height = height + "px";
+ *
+ *   this.schedule(height + 1);  // `this` references currently executing Action,
+ *                               // which we reschedule with new state
+ * }, 0, 0);
+ *
+ * // You will see .some-div element growing in height
+ *
+ *
+ * @static true
+ * @name animationFrame
+ * @owner Scheduler
+ */
 var animationFrame = new AnimationFrameScheduler(AnimationFrameAction);
 
 /* tslint:disable:no-unused-variable */
@@ -14978,14 +15567,14 @@ var Scheduler = {
  * @property {Symbol|string} iterator The ES6 symbol to use as a property name
  * to retrieve an iterator from an object.
  */
-var Symbol = {
-    rxSubscriber: $$rxSubscriber,
-    observable: $$observable,
-    iterator: $$iterator
+var Symbol$1 = {
+    rxSubscriber: rxSubscriber,
+    observable: observable,
+    iterator: iterator
 };
 
 exports.Scheduler = Scheduler;
-exports.Symbol = Symbol;
+exports.Symbol = Symbol$1;
 exports.Subject = Subject;
 exports.AnonymousSubject = AnonymousSubject;
 exports.Observable = Observable;

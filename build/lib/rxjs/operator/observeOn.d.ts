@@ -4,7 +4,7 @@ import { Operator } from '../Operator';
 import { PartialObserver } from '../Observer';
 import { Subscriber } from '../Subscriber';
 import { Notification } from '../Notification';
-import { TeardownLogic, Subscription } from '../Subscription';
+import { TeardownLogic } from '../Subscription';
 import { Action } from '../scheduler/Action';
 /**
  * @see {@link Notification}
@@ -40,6 +40,5 @@ export declare class ObserveOnSubscriber<T> extends Subscriber<T> {
 export declare class ObserveOnMessage {
     notification: Notification<any>;
     destination: PartialObserver<any>;
-    subscription: Subscription;
     constructor(notification: Notification<any>, destination: PartialObserver<any>);
 }

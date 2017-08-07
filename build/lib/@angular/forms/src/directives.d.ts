@@ -23,7 +23,6 @@ export { FormGroupDirective } from './directives/reactive_directives/form_group_
 export { FormArrayName, FormGroupName } from './directives/reactive_directives/form_group_name';
 export { NgSelectOption, SelectControlValueAccessor } from './directives/select_control_value_accessor';
 export { NgSelectMultipleOption, SelectMultipleControlValueAccessor } from './directives/select_multiple_control_value_accessor';
-export { MaxLengthValidator, MinLengthValidator, PatternValidator, RequiredValidator } from './directives/validators';
 export declare const SHARED_FORM_DIRECTIVES: Type<any>[];
 export declare const TEMPLATE_DRIVEN_DIRECTIVES: Type<any>[];
 export declare const REACTIVE_DRIVEN_DIRECTIVES: Type<any>[];

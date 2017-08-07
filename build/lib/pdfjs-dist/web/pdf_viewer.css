@@ -212,6 +212,7 @@
 .annotationLayer .underlineAnnotation,
 .annotationLayer .squigglyAnnotation,
 .annotationLayer .strikeoutAnnotation,
+.annotationLayer .lineAnnotation svg line,
 .annotationLayer .fileAttachmentAnnotation {
   cursor: pointer;
 }
@@ -250,6 +251,10 @@
 .pdfViewer .page canvas {
   margin: 0;
   display: block;
+}
+
+.pdfViewer .page canvas[hidden] {
+  display: none;
 }
 
 .pdfViewer .page .loadingIcon {

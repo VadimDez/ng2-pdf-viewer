@@ -10,18 +10,16 @@ var errorObject_1 = require('../util/errorObject');
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
 /**
- * Returns an Observable that emits the same values as the source observable with the exception of a `complete`.
- * A `complete` will cause the emission of the Throwable that cause the complete to the Observable returned from
- * notificationHandler. If that Observable calls onComplete or `complete` then retry will call `complete` or `error`
- * on the child subscription. Otherwise, this Observable will resubscribe to the source observable, on a particular
- * IScheduler.
+ * Returns an Observable that mirrors the source Observable with the exception of a `complete`. If the source
+ * Observable calls `complete`, this method will emit to the Observable returned from `notifier`. If that Observable
+ * calls `complete` or `error`, then this method will call `complete` or `error` on the child subscription. Otherwise
+ * this method will resubscribe to the source Observable.
  *
  * <img src="./img/repeatWhen.png" width="100%">
  *
- * @param {notificationHandler} receives an Observable of notifications with which a user can `complete` or `error`,
- * aborting the retry.
- * @param {scheduler} the IScheduler on which to subscribe to the source Observable.
- * @return {Observable} the source Observable modified with retry logic.
+ * @param {function(notifications: Observable): Observable} notifier - Receives an Observable of notifications with
+ * which a user can `complete` or `error`, aborting the repetition.
+ * @return {Observable} The source Observable modified with repeat logic.
  * @method repeatWhen
  * @owner Observable
  */
@@ -52,8 +50,8 @@ var RepeatWhenSubscriber = (function (_super) {
         this.sourceIsBeingSubscribedTo = true;
     }
     RepeatWhenSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
-        this.source.subscribe(this);
         this.sourceIsBeingSubscribedTo = true;
+        this.source.subscribe(this);
     };
     RepeatWhenSubscriber.prototype.notifyComplete = function (innerSub) {
         if (this.sourceIsBeingSubscribedTo === false) {
@@ -69,7 +67,7 @@ var RepeatWhenSubscriber = (function (_super) {
             else if (this.retriesSubscription.closed) {
                 return _super.prototype.complete.call(this);
             }
-            this.temporarilyUnsubscribe();
+            this._unsubscribeAndRecycle();
             this.notifications.next();
         }
     };
@@ -85,6 +83,17 @@ var RepeatWhenSubscriber = (function (_super) {
         }
         this.retries = null;
     };
+    RepeatWhenSubscriber.prototype._unsubscribeAndRecycle = function () {
+        var _a = this, notifications = _a.notifications, retries = _a.retries, retriesSubscription = _a.retriesSubscription;
+        this.notifications = null;
+        this.retries = null;
+        this.retriesSubscription = null;
+        _super.prototype._unsubscribeAndRecycle.call(this);
+        this.notifications = notifications;
+        this.retries = retries;
+        this.retriesSubscription = retriesSubscription;
+        return this;
+    };
     RepeatWhenSubscriber.prototype.subscribeToRetries = function () {
         this.notifications = new Subject_1.Subject();
         var retries = tryCatch_1.tryCatch(this.notifier)(this.notifications);
@@ -93,18 +102,6 @@ var RepeatWhenSubscriber = (function (_super) {
         }
         this.retries = retries;
         this.retriesSubscription = subscribeToResult_1.subscribeToResult(this, retries);
-    };
-    RepeatWhenSubscriber.prototype.temporarilyUnsubscribe = function () {
-        var _a = this, notifications = _a.notifications, retries = _a.retries, retriesSubscription = _a.retriesSubscription;
-        this.notifications = null;
-        this.retries = null;
-        this.retriesSubscription = null;
-        this.unsubscribe();
-        this.isStopped = false;
-        this.closed = false;
-        this.notifications = notifications;
-        this.retries = retries;
-        this.retriesSubscription = retriesSubscription;
     };
     return RepeatWhenSubscriber;
 }(OuterSubscriber_1.OuterSubscriber));

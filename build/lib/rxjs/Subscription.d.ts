@@ -25,6 +25,8 @@ export declare class Subscription implements ISubscription {
      * @type {boolean}
      */
     closed: boolean;
+    protected _parent: Subscription;
+    protected _parents: Subscription[];
     private _subscriptions;
     /**
      * @param {function(): void} [unsubscribe] A function describing how to
@@ -64,10 +66,5 @@ export declare class Subscription implements ISubscription {
      * @return {void}
      */
     remove(subscription: Subscription): void;
-}
-export declare class ChildSubscription extends Subscription {
-    private _innerSub;
-    private _parent;
-    constructor(_innerSub: ISubscription, _parent: Subscription);
-    _unsubscribe(): void;
+    private _addParent(parent);
 }

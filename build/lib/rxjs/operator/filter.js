@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = require('../Subscriber');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Filter items emitted by the source Observable by only emitting those that
  * satisfy a specified predicate.

@@ -1,6 +1,6 @@
 "use strict";
 var distinctUntilChanged_1 = require('./distinctUntilChanged');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item,
  * using a property accessed by using the key provided to check if the two items are distinct.
@@ -52,9 +52,9 @@ var distinctUntilChanged_1 = require('./distinctUntilChanged');
  * @see {@link distinct}
  * @see {@link distinctUntilChanged}
  *
- * @param {string} key string key for object property lookup on each item.
- * @param {function} [compare] optional comparison function called to test if an item is distinct from the previous item in the source.
- * @return {Observable} an Observable that emits items from the source Observable with distinct values based on the key specified.
+ * @param {string} key String key for object property lookup on each item.
+ * @param {function} [compare] Optional comparison function called to test if an item is distinct from the previous item in the source.
+ * @return {Observable} An Observable that emits items from the source Observable with distinct values based on the key specified.
  * @method distinctUntilKeyChanged
  * @owner Observable
  */

@@ -6,9 +6,9 @@
 * found in the LICENSE file at https://angular.io/license
 */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (factory());
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(factory());
 }(this, (function () { 'use strict';
 
 /**
@@ -103,7 +103,6 @@
         };
         return modifyArguments(args, syncTest, asyncTest);
     }
-    
     context.describe = context.suite = Mocha.describe = function () {
         return mochaOriginal.describe.apply(this, wrapDescribeInZone(arguments));
     };

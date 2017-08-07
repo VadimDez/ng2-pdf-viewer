@@ -1,6 +1,6 @@
 "use strict";
 var root_1 = require('../util/root');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Converts an Observable sequence to a ES2015 compliant promise.
  *

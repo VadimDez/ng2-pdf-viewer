@@ -12,6 +12,7 @@ export declare class BoundNodeCallbackObservable<T> extends Observable<T> {
     private callbackFunc;
     private selector;
     private args;
+    private context;
     scheduler: IScheduler;
     subject: AsyncSubject<T>;
     static create<R>(callbackFunc: (callback: (err: any, result: R) => any) => any, selector?: void, scheduler?: IScheduler): () => Observable<R>;
@@ -23,6 +24,6 @@ export declare class BoundNodeCallbackObservable<T> extends Observable<T> {
     static create<T, T2, T3, T4, T5, T6, R>(callbackFunc: (v1: T, v2: T2, v3: T3, v4: T4, v5: T5, v6: T6, callback: (err: any, result: R) => any) => any, selector?: void, scheduler?: IScheduler): (v1: T, v2: T2, v3: T3, v4: T4, v5: T5, v6: T6) => Observable<R>;
     static create<T>(callbackFunc: Function, selector?: void, scheduler?: IScheduler): (...args: any[]) => Observable<T>;
     static create<T>(callbackFunc: Function, selector?: (...args: any[]) => T, scheduler?: IScheduler): (...args: any[]) => Observable<T>;
-    constructor(callbackFunc: Function, selector: Function, args: any[], scheduler: IScheduler);
+    constructor(callbackFunc: Function, selector: Function, args: any[], context: any, scheduler: IScheduler);
     protected _subscribe(subscriber: Subscriber<T | T[]>): Subscription;
 }

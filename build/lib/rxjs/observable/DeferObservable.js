@@ -54,7 +54,7 @@ var DeferObservable = (function (_super) {
      *
      * @see {@link create}
      *
-     * @param {function(): Observable|Promise} observableFactory The Observable
+     * @param {function(): SubscribableOrPromise} observableFactory The Observable
      * factory function to invoke for each Observer that subscribes to the output
      * Observable. May also return a Promise, which will be converted on the fly
      * to an Observable.

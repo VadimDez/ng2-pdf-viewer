@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var OuterSubscriber_1 = require('../OuterSubscriber');
 var subscribeToResult_1 = require('../util/subscribeToResult');
-/* tslint:disable:max-line-length */
+/* tslint:enable:max-line-length */
 /**
  * Projects each source value to the same Observable which is merged multiple
  * times in the output Observable.
@@ -32,7 +32,7 @@ var subscribeToResult_1 = require('../util/subscribeToResult');
  * @see {@link mergeScan}
  * @see {@link switchMapTo}
  *
- * @param {Observable} innerObservable An Observable to replace each value from
+ * @param {ObservableInput} innerObservable An Observable to replace each value from
  * the source Observable.
  * @param {function(outerValue: T, innerValue: I, outerIndex: number, innerIndex: number): any} [resultSelector]
  * A function to produce the value on the output Observable based on the values

@@ -5,8 +5,13 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { OnChanges, SimpleChanges } from '@angular/core';
+import { OnChanges, Provider, SimpleChanges } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 import { AbstractControl } from '../model';
+/** @experimental */
+export declare type ValidationErrors = {
+    [key: string]: any;
+};
 /**
  * An interface that can be implemented by classes that can act as validators.
  *
@@ -27,12 +32,15 @@ import { AbstractControl } from '../model';
  * @stable
  */
 export interface Validator {
-    validate(c: AbstractControl): {
-        [key: string]: any;
-    };
+    validate(c: AbstractControl): ValidationErrors | null;
     registerOnValidatorChange?(fn: () => void): void;
 }
-export declare const REQUIRED_VALIDATOR: any;
+/** @experimental */
+export interface AsyncValidator extends Validator {
+    validate(c: AbstractControl): Promise<ValidationErrors | null> | Observable<ValidationErrors | null>;
+}
+export declare const REQUIRED_VALIDATOR: Provider;
+export declare const CHECKBOX_REQUIRED_VALIDATOR: Provider;
 /**
  * A Directive that adds the `required` validator to any controls marked with the
  * `required` attribute, via the {@link NG_VALIDATORS} binding.
@@ -48,25 +56,61 @@ export declare const REQUIRED_VALIDATOR: any;
 export declare class RequiredValidator implements Validator {
     private _required;
     private _onChange;
-    required: boolean;
-    validate(c: AbstractControl): {
-        [key: string]: any;
-    };
+    required: boolean | string;
+    validate(c: AbstractControl): ValidationErrors | null;
+    registerOnValidatorChange(fn: () => void): void;
+}
+/**
+ * A Directive that adds the `required` validator to checkbox controls marked with the
+ * `required` attribute, via the {@link NG_VALIDATORS} binding.
+ *
+ * ### Example
+ *
+ * ```
+ * <input type="checkbox" name="active" ngModel required>
+ * ```
+ *
+ * @experimental
+ */
+export declare class CheckboxRequiredValidator extends RequiredValidator {
+    validate(c: AbstractControl): ValidationErrors | null;
+}
+/**
+ * Provider which adds {@link EmailValidator} to {@link NG_VALIDATORS}.
+ */
+export declare const EMAIL_VALIDATOR: any;
+/**
+ * A Directive that adds the `email` validator to controls marked with the
+ * `email` attribute, via the {@link NG_VALIDATORS} binding.
+ *
+ * ### Example
+ *
+ * ```
+ * <input type="email" name="email" ngModel email>
+ * <input type="email" name="email" ngModel email="true">
+ * <input type="email" name="email" ngModel [email]="true">
+ * ```
+ *
+ * @experimental
+ */
+export declare class EmailValidator implements Validator {
+    private _enabled;
+    private _onChange;
+    email: boolean | string;
+    validate(c: AbstractControl): ValidationErrors | null;
     registerOnValidatorChange(fn: () => void): void;
 }
 /**
  * @stable
  */
 export interface ValidatorFn {
-    (c: AbstractControl): {
-        [key: string]: any;
-    };
+    (c: AbstractControl): ValidationErrors | null;
 }
 /**
  * @stable
  */
 export interface AsyncValidatorFn {
-    (c: AbstractControl): any;
+    (c: AbstractControl): Promise<ValidationErrors | null> | Observable<ValidationErrors | null>;
 }
 /**
  * Provider which adds {@link MinLengthValidator} to {@link NG_VALIDATORS}.
@@ -87,9 +131,7 @@ export declare class MinLengthValidator implements Validator, OnChanges {
     private _onChange;
     minlength: string;
     ngOnChanges(changes: SimpleChanges): void;
-    validate(c: AbstractControl): {
-        [key: string]: any;
-    };
+    validate(c: AbstractControl): ValidationErrors | null;
     registerOnValidatorChange(fn: () => void): void;
     private _createValidator();
 }
@@ -113,9 +155,7 @@ export declare class MaxLengthValidator implements Validator, OnChanges {
     private _onChange;
     maxlength: string;
     ngOnChanges(changes: SimpleChanges): void;
-    validate(c: AbstractControl): {
-        [key: string]: any;
-    };
+    validate(c: AbstractControl): ValidationErrors | null;
     registerOnValidatorChange(fn: () => void): void;
     private _createValidator();
 }
@@ -136,11 +176,9 @@ export declare const PATTERN_VALIDATOR: any;
 export declare class PatternValidator implements Validator, OnChanges {
     private _validator;
     private _onChange;
-    pattern: string;
+    pattern: string | RegExp;
     ngOnChanges(changes: SimpleChanges): void;
-    validate(c: AbstractControl): {
-        [key: string]: any;
-    };
+    validate(c: AbstractControl): ValidationErrors | null;
     registerOnValidatorChange(fn: () => void): void;
     private _createValidator();
 }

@@ -1,9 +1,9 @@
 import { Observable } from '../Observable';
 import { Operator } from '../Operator';
 import { Subscriber } from '../Subscriber';
+export declare function reduce<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed: T[]): Observable<T[]>;
 export declare function reduce<T>(this: Observable<T>, accumulator: (acc: T, value: T, index: number) => T, seed?: T): Observable<T>;
-export declare function reduce<T>(this: Observable<T>, accumulator: (acc: T[], value: T, index: number) => T[], seed?: T[]): Observable<T[]>;
-export declare function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed?: R): Observable<R>;
+export declare function reduce<T, R>(this: Observable<T>, accumulator: (acc: R, value: T, index: number) => R, seed: R): Observable<R>;
 export declare class ReduceOperator<T, R> implements Operator<T, R> {
     private accumulator;
     private seed;
