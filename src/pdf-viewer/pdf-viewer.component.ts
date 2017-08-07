@@ -5,6 +5,7 @@ import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
 import 'pdfjs-dist/build/pdf.combined';
+PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
   selector: 'pdf-viewer',
@@ -14,9 +15,8 @@ import 'pdfjs-dist/build/pdf.combined';
   overflow-x: scroll;
 }
 
-:host >>> .ng2-pdf-viewer-container > div {
-  position: relative;
-  z-index: 0;
+:host >>> .ng2-pdf-viewer-container .page {
+  background-color: #fff;
 }
   `]
 })
