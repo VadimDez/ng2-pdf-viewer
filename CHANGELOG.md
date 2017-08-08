@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+* [[#98](https://github.com/VadimDez/ng2-pdf-viewer/issues/98)] - PDF Auto Resize
+
 ## 1.1.5
 * [[#124](https://github.com/VadimDez/ng2-pdf-viewer/issues/124)] - PDF background disappeared after update to 1.1.4
 

@@ -10,6 +10,7 @@ export declare class PdfViewerComponent implements OnChanges {
     private _page;
     private _zoom;
     private _rotation;
+    private resizeTimeout;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     onError: EventEmitter<any>;
     constructor(element: ElementRef);
@@ -24,8 +25,10 @@ export declare class PdfViewerComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges): void;
     private loadPDF();
     private update();
+    private render();
     private renderMultiplePages();
     private isValidPageNumber(page);
     private renderPage(pageNumber);
     private removeAllChildNodes(element);
+    private onPageResize();
 }

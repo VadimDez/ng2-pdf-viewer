@@ -152,7 +152,7 @@ export class PdfViewerComponent implements OnChanges {
     render(1);
   }
 
-  public isValidPageNumber(page: number) {
+  private isValidPageNumber(page: number): boolean {
     return this._pdf.numPages >= page && page >= 1;
   }
 
