@@ -9,7 +9,12 @@ PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"></div>`,
+  template: `
+      <div class="ng2-pdf-viewer-container"
+           [ngClass]="{'ng2-pdf-viewer--zoom': zoom < 1}"
+           (window:resize)="onPageResize()"
+      ></div>
+  `,
   styles: [`
 .ng2-pdf-viewer--zoom {
   overflow-x: scroll;
@@ -29,6 +34,7 @@ export class PdfViewerComponent implements OnChanges {
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
+  private resizeTimeout: NodeJS.Timer;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('error') onError = new EventEmitter<any>();
@@ -118,6 +124,10 @@ export class PdfViewerComponent implements OnChanges {
   private update() {
     this.page = this._page;
 
+    this.render();
+  }
+
+  private render() {
     if (!this._showAll) {
       this.renderPage(this._page);
     } else {
@@ -179,5 +189,15 @@ export class PdfViewerComponent implements OnChanges {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
+  }
+
+  private onPageResize() {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.resizeTimeout = setTimeout(() => {
+      this.render();
+    }, 100);
   }
 }
