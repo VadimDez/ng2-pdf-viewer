@@ -1,4 +1,4 @@
-<h1 align="center">Angular2 PDF Viewer</h1>
+<h1 align="center">Angular2+ PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
     <img src="https://img.shields.io/npm/dm/ng2-pdf-viewer.svg?style=flat" alt="downloads">
@@ -9,11 +9,16 @@
   <a href="https://david-dm.org/vadimdez/ng2-pdf-viewer" title="dependencies status">
     <img src="https://david-dm.org/vadimdez/ng2-pdf-viewer/status.svg"/>
   </a>
+  <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
+    <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
+  </a>
 </p>
 
-> PDF Viewer Component for Angular 2
+> PDF Viewer Component for Angular 2+
 
-[Demo page](https://vadimdez.github.io/ng2-pdf-viewer/)
+### Demo page
+
+[https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
 ## Install
 
@@ -87,6 +92,7 @@ export class AppComponent {
 * [error](#error)
 
 #### [src]
+*accepts: string, object, UInt8Array*
 
 Pass pdf location
  
@@ -105,7 +111,7 @@ Options object for loading protected PDF would be
  }
  ```
  
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L108-L132).
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L83-L130).
 
 
 #### [page]
@@ -193,7 +199,7 @@ Then add it to `pdf-component` in component's template
 
 ## Contribute
 
-Clone project and switch to latest version branch (right now `features/1.1.5`)
+Clone the project
 
 ```
 npm start

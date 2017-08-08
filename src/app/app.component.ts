@@ -11,6 +11,7 @@ import { Component } from '@angular/core';
 })
 
 export class AppComponent {
+
   pdfSrc: string = './pdf-test.pdf';
 
   // or pass options as object

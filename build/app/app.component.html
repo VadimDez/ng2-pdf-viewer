@@ -9,6 +9,7 @@
             <div>
                 <h2>Angular 2+ PDF Viewer</h2>
             </div>
+          
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input [(ngModel)]="pdfSrc" [value]="pdfSrc" class="mdl-textfield__input" type="text" id="pdf-src">
                 <label class="mdl-textfield__label" for="pdf-src">Set URL of the PDF file</label>
@@ -38,8 +39,9 @@
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
                     <input type="checkbox" id="render-text" class="mdl-switch__input"
                            [checked]="renderText"
-                           [(ngModel)]="renderText">
-                    <span class="mdl-switch__label">Render text</span>
+                           [(ngModel)]="renderText"
+                    >
+                    <span class="mdl-switch__label">Render text layer</span>
                 </label>
             </div>
 

@@ -22,10 +22,8 @@ var PdfViewerComponent = (function () {
             if (this._pdf && !this.isValidPageNumber(_page)) {
                 _page = 1;
             }
-            if (this._page !== _page) {
-                this._page = _page;
-                this.pageChange.emit(_page);
-            }
+            this._page = _page;
+            this.pageChange.emit(_page);
         },
         enumerable: true,
         configurable: true
@@ -99,6 +97,9 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.update = function () {
         this.page = this._page;
+        this.render();
+    };
+    PdfViewerComponent.prototype.render = function () {
         if (!this._showAll) {
             this.renderPage(this._page);
         }
@@ -150,12 +151,21 @@ var PdfViewerComponent = (function () {
             element.removeChild(element.firstChild);
         }
     };
+    PdfViewerComponent.prototype.onPageResize = function () {
+        var _this = this;
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        this.resizeTimeout = setTimeout(function () {
+            _this.render();
+        }, 100);
+    };
     return PdfViewerComponent;
 }());
 PdfViewerComponent.decorators = [
     { type: core_1.Component, args: [{
                 selector: 'pdf-viewer',
-                template: "<div class=\"ng2-pdf-viewer-container\" [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"></div>",
+                template: "\n      <div class=\"ng2-pdf-viewer-container\"\n           [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"\n           (window:resize)=\"onPageResize()\"\n      ></div>\n  ",
                 styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container .page {\n  background-color: #fff;\n}\n  "]
             },] },
 ];
@@ -166,7 +176,7 @@ PdfViewerComponent.propDecorators = {
     'afterLoadComplete': [{ type: core_1.Output, args: ['after-load-complete',] },],
     'onError': [{ type: core_1.Output, args: ['error',] },],
     'src': [{ type: core_1.Input },],
-    'page': [{ type: core_1.Input },],
+    'page': [{ type: core_1.Input, args: ['page',] },],
     'pageChange': [{ type: core_1.Output },],
     'renderText': [{ type: core_1.Input, args: ['render-text',] },],
     'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
