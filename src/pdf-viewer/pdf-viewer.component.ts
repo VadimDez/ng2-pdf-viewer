@@ -104,6 +104,16 @@ export class PdfViewerComponent implements OnChanges {
     }
   }
 
+  public onPageResize() {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.resizeTimeout = setTimeout(() => {
+      this.render();
+    }, 100);
+  }
+
   private loadPDF() {
     if (!this.src) {
       return;
@@ -189,15 +199,5 @@ export class PdfViewerComponent implements OnChanges {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
-  }
-
-  private onPageResize() {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-
-    this.resizeTimeout = setTimeout(() => {
-      this.render();
-    }, 100);
   }
 }
