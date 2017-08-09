@@ -81,6 +81,15 @@ var PdfViewerComponent = (function () {
             this.update();
         }
     };
+    PdfViewerComponent.prototype.onPageResize = function () {
+        var _this = this;
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        this.resizeTimeout = setTimeout(function () {
+            _this.render();
+        }, 100);
+    };
     PdfViewerComponent.prototype.loadPDF = function () {
         var _this = this;
         if (!this.src) {
@@ -150,15 +159,6 @@ var PdfViewerComponent = (function () {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-    };
-    PdfViewerComponent.prototype.onPageResize = function () {
-        var _this = this;
-        if (this.resizeTimeout) {
-            clearTimeout(this.resizeTimeout);
-        }
-        this.resizeTimeout = setTimeout(function () {
-            _this.render();
-        }, 100);
     };
     return PdfViewerComponent;
 }());
