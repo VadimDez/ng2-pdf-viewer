@@ -23,6 +23,7 @@ export declare class PdfViewerComponent implements OnChanges {
     zoom: number;
     rotation: number;
     ngOnChanges(changes: SimpleChanges): void;
+    onPageResize(): void;
     private loadPDF();
     private update();
     private render();
@@ -30,5 +31,4 @@ export declare class PdfViewerComponent implements OnChanges {
     private isValidPageNumber(page);
     private renderPage(pageNumber);
     private removeAllChildNodes(element);
-    private onPageResize();
 }
