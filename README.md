@@ -204,7 +204,7 @@ Clone the project
 ```
 npm start
 ```
-and open
+and then open
 ```
 http://localhost:8000/
 ```
