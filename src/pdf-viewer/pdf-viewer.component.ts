@@ -38,6 +38,7 @@ export class PdfViewerComponent implements OnChanges {
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('error') onError = new EventEmitter<any>();
+  @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {}
 
@@ -119,7 +120,13 @@ export class PdfViewerComponent implements OnChanges {
       return;
     }
 
-    PDFJS.getDocument(this.src)
+    let loadingTask: any = PDFJS.getDocument(this.src);
+
+    loadingTask.onProgress = (progressData: PDFProgressData) => {
+      this.onProgress.emit(progressData);
+    };
+
+    (<PDFPromise<PDFDocumentProxy>>loadingTask.promise)
       .then(pdf => {
         this._pdf = pdf;
 

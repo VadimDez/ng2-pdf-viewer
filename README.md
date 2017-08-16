@@ -90,6 +90,7 @@ export class AppComponent {
 * [show-all](#show-all)
 * [after-load-complete](#after-load-complete)
 * [error](#error)
+* [on-progress](#on-progress)
 
 #### [src]
 *accepts: string, object, UInt8Array*
@@ -195,6 +196,24 @@ Then add it to `pdf-component` in component's template
 
 ```html
 (error)="onError($event)"
+```
+
+#### (on-progress)
+
+Loading progress callback - provides progress information `total` and `loaded` bytes. Is called several times during pdf loading phase.
+
+Define callback in your component's class
+
+```ts
+onProgress(progressData: PDFProgressData) {
+  // do anything with progress data. For example progress indicator
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(on-progress)="onProgress($event)"
 ```
 
 ## Contribute

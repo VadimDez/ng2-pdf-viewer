@@ -10,6 +10,7 @@ var AppComponent = (function () {
         this.originalSize = false;
         this.showAll = true;
         this.renderText = true;
+        this.isLoaded = false;
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
@@ -32,11 +33,19 @@ var AppComponent = (function () {
         }
     };
     AppComponent.prototype.afterLoadComplete = function (pdf) {
-        this.error = null;
         this.pdf = pdf;
+        this.isLoaded = true;
     };
     AppComponent.prototype.onError = function (error) {
         this.error = error;
+    };
+    AppComponent.prototype.onProgress = function (progressData) {
+        this.progressData = progressData;
+        this.isLoaded = false;
+        this.error = null;
+    };
+    AppComponent.prototype.getInt = function (value) {
+        return Math.round(value);
     };
     return AppComponent;
 }());

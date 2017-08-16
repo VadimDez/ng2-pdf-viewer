@@ -14,6 +14,7 @@ var PdfViewerComponent = (function () {
         this._rotation = 0;
         this.afterLoadComplete = new core_1.EventEmitter();
         this.onError = new core_1.EventEmitter();
+        this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
     }
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
@@ -95,7 +96,11 @@ var PdfViewerComponent = (function () {
         if (!this.src) {
             return;
         }
-        PDFJS.getDocument(this.src)
+        var loadingTask = PDFJS.getDocument(this.src);
+        loadingTask.onProgress = function (progressData) {
+            _this.onProgress.emit(progressData);
+        };
+        loadingTask.promise
             .then(function (pdf) {
             _this._pdf = pdf;
             _this.afterLoadComplete.emit(pdf);
@@ -175,6 +180,7 @@ PdfViewerComponent.ctorParameters = function () { return [
 PdfViewerComponent.propDecorators = {
     'afterLoadComplete': [{ type: core_1.Output, args: ['after-load-complete',] },],
     'onError': [{ type: core_1.Output, args: ['error',] },],
+    'onProgress': [{ type: core_1.Output, args: ['on-progress',] },],
     'src': [{ type: core_1.Input },],
     'page': [{ type: core_1.Input, args: ['page',] },],
     'pageChange': [{ type: core_1.Output },],
