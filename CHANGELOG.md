@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.2
+* [[#94](https://github.com/VadimDez/ng2-pdf-viewer/issues/94)] - Add load progress callback
+
 ## 1.2.1
 * [[#130](https://github.com/VadimDez/ng2-pdf-viewer/issues/130)] - ng build --prod fails for AOT
 

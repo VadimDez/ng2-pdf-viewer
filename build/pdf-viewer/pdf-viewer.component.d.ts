@@ -13,6 +13,7 @@ export declare class PdfViewerComponent implements OnChanges {
     private resizeTimeout;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
     onError: EventEmitter<any>;
+    onProgress: EventEmitter<PDFProgressData>;
     constructor(element: ElementRef);
     src: string | Uint8Array | PDFSource;
     page: any;

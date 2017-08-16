@@ -36,3 +36,24 @@ pdf-viewer {
 .error {
     color: #ff4146;
 }
+
+#progress {
+    margin-top: 50px;
+    width: 100px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+#progress .bar,
+#progress .bg {
+    height: 20px;
+}
+#progress .bg {
+    background-color: #e3e3e3;
+}
+#progress .bar {
+    width: 0;
+    max-width: 100%;
+    background-color: #3f51b5;
+    transition: .5s width;
+}
