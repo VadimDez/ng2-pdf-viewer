@@ -31,6 +31,8 @@ export class AppComponent {
   showAll: boolean = true;
   pdf: any;
   renderText: boolean = true;
+  progressData: PDFProgressData;
+  isLoaded: boolean = false;
 
   incrementPage(amount: number) {
     this.page += amount;
@@ -66,8 +68,8 @@ export class AppComponent {
    * @param pdf
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
-    this.error = null; // clear error
     this.pdf = pdf;
+    this.isLoaded = true;
   }
 
   /**
@@ -77,5 +79,19 @@ export class AppComponent {
    */
   onError(error: any) {
     this.error = error; // set error
+  }
+
+  /**
+   * Pdf loading progress callback
+   * @param {PDFProgressData} progressData
+   */
+  onProgress(progressData: PDFProgressData) {
+    this.progressData = progressData;
+    this.isLoaded = false;
+    this.error = null; // clear error
+  }
+
+  getInt(value: number): number {
+    return Math.round(value);
   }
 }

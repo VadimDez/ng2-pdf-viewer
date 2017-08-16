@@ -109,6 +109,13 @@
                 <button (click)="rotate(90)" class="mdl-button mdl-js-button">Rotate right</button>
             </div>
 
+            <div *ngIf="!isLoaded && !error && progressData" id="progress">
+                <div class="bg">
+                    <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
+                </div>
+                <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
+            </div>
+
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
                         [rotation]="rotation"
@@ -118,6 +125,7 @@
                         [zoom]="zoom"
                         [render-text]="renderText"
                         (error)="onError($event)"
+                        (on-progress)="onProgress($event)"
             ></pdf-viewer>
 
         </div>

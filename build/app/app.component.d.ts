@@ -9,10 +9,14 @@ export declare class AppComponent {
     showAll: boolean;
     pdf: any;
     renderText: boolean;
+    progressData: PDFProgressData;
+    isLoaded: boolean;
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
     rotate(angle: number): void;
     onFileSelected(): void;
     afterLoadComplete(pdf: PDFDocumentProxy): void;
     onError(error: any): void;
+    onProgress(progressData: PDFProgressData): void;
+    getInt(value: number): number;
 }
