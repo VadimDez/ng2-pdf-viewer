@@ -1,0 +1,194 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = require("@angular/core");
+require("pdfjs-dist/build/pdf.combined");
+PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
+var PdfViewerComponent = (function () {
+    function PdfViewerComponent(element) {
+        this.element = element;
+        this._showAll = false;
+        this._renderText = true;
+        this._originalSize = true;
+        this._page = 1;
+        this._zoom = 1;
+        this._rotation = 0;
+        this.afterLoadComplete = new core_1.EventEmitter();
+        this.onError = new core_1.EventEmitter();
+        this.onProgress = new core_1.EventEmitter();
+        this.pageChange = new core_1.EventEmitter(true);
+    }
+    Object.defineProperty(PdfViewerComponent.prototype, "page", {
+        set: function (_page) {
+            _page = parseInt(_page, 10);
+            if (this._pdf && !this.isValidPageNumber(_page)) {
+                _page = 1;
+            }
+            this._page = _page;
+            this.pageChange.emit(_page);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PdfViewerComponent.prototype, "renderText", {
+        set: function (renderText) {
+            this._renderText = renderText;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PdfViewerComponent.prototype, "originalSize", {
+        set: function (originalSize) {
+            this._originalSize = originalSize;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PdfViewerComponent.prototype, "showAll", {
+        set: function (value) {
+            this._showAll = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PdfViewerComponent.prototype, "zoom", {
+        get: function () {
+            return this._zoom;
+        },
+        set: function (value) {
+            if (value <= 0) {
+                return;
+            }
+            this._zoom = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PdfViewerComponent.prototype, "rotation", {
+        set: function (value) {
+            if (!(typeof value === 'number' && value % 90 === 0)) {
+                console.warn('Invalid pages rotation angle.');
+                return;
+            }
+            this._rotation = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    PdfViewerComponent.prototype.ngOnChanges = function (changes) {
+        if ('src' in changes) {
+            this.loadPDF();
+        }
+        else if (this._pdf) {
+            this.update();
+        }
+    };
+    PdfViewerComponent.prototype.onPageResize = function () {
+        var _this = this;
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+        }
+        this.resizeTimeout = setTimeout(function () {
+            _this.render();
+        }, 100);
+    };
+    PdfViewerComponent.prototype.loadPDF = function () {
+        var _this = this;
+        if (!this.src) {
+            return;
+        }
+        var loadingTask = PDFJS.getDocument(this.src);
+        loadingTask.onProgress = function (progressData) {
+            _this.onProgress.emit(progressData);
+        };
+        loadingTask.promise
+            .then(function (pdf) {
+            _this._pdf = pdf;
+            _this.afterLoadComplete.emit(pdf);
+            _this.update();
+        }, function (error) {
+            _this.onError.emit(error);
+        });
+    };
+    PdfViewerComponent.prototype.update = function () {
+        this.page = this._page;
+        this.render();
+    };
+    PdfViewerComponent.prototype.render = function () {
+        if (!this._showAll) {
+            this.renderPage(this._page);
+        }
+        else {
+            this.renderMultiplePages();
+        }
+    };
+    PdfViewerComponent.prototype.renderMultiplePages = function () {
+        var _this = this;
+        var container = this.element.nativeElement.querySelector('div');
+        this.removeAllChildNodes(container);
+        var render = function (page) {
+            _this.renderPage(page).then(function () {
+                if (page < _this._pdf.numPages) {
+                    render(page + 1);
+                }
+            });
+        };
+        render(1);
+    };
+    PdfViewerComponent.prototype.isValidPageNumber = function (page) {
+        return this._pdf.numPages >= page && page >= 1;
+    };
+    PdfViewerComponent.prototype.renderPage = function (pageNumber) {
+        var _this = this;
+        return this._pdf.getPage(pageNumber).then(function (page) {
+            var viewport = page.getViewport(_this._zoom, _this._rotation);
+            var container = _this.element.nativeElement.querySelector('div');
+            if (!_this._originalSize) {
+                viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
+            }
+            if (!_this._showAll) {
+                _this.removeAllChildNodes(container);
+            }
+            return page.getOperatorList().then(function (opList) {
+                var svgGfx = new PDFJS.SVGGraphics(page.commonObjs, page.objs);
+                return svgGfx.getSVG(opList, viewport).then(function (svg) {
+                    var $div = document.createElement('div');
+                    $div.classList.add('page');
+                    $div.setAttribute('data-page-number', "" + page.pageNumber);
+                    $div.appendChild(svg);
+                    container.appendChild($div);
+                });
+            });
+        });
+    };
+    PdfViewerComponent.prototype.removeAllChildNodes = function (element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    };
+    return PdfViewerComponent;
+}());
+PdfViewerComponent.decorators = [
+    { type: core_1.Component, args: [{
+                selector: 'pdf-viewer',
+                template: "\n      <div class=\"ng2-pdf-viewer-container\"\n           [ngClass]=\"{'ng2-pdf-viewer--zoom': zoom < 1}\"\n           (window:resize)=\"onPageResize()\"\n      ></div>\n  ",
+                styles: ["\n.ng2-pdf-viewer--zoom {\n  overflow-x: scroll;\n}\n\n:host >>> .ng2-pdf-viewer-container .page {\n  background-color: #fff;\n}\n  "]
+            },] },
+];
+PdfViewerComponent.ctorParameters = function () { return [
+    { type: core_1.ElementRef, },
+]; };
+PdfViewerComponent.propDecorators = {
+    'afterLoadComplete': [{ type: core_1.Output, args: ['after-load-complete',] },],
+    'onError': [{ type: core_1.Output, args: ['error',] },],
+    'onProgress': [{ type: core_1.Output, args: ['on-progress',] },],
+    'src': [{ type: core_1.Input },],
+    'page': [{ type: core_1.Input, args: ['page',] },],
+    'pageChange': [{ type: core_1.Output },],
+    'renderText': [{ type: core_1.Input, args: ['render-text',] },],
+    'originalSize': [{ type: core_1.Input, args: ['original-size',] },],
+    'showAll': [{ type: core_1.Input, args: ['show-all',] },],
+    'zoom': [{ type: core_1.Input, args: ['zoom',] },],
+    'rotation': [{ type: core_1.Input, args: ['rotation',] },],
+};
+exports.PdfViewerComponent = PdfViewerComponent;
+//# sourceMappingURL=pdf-viewer.component.js.map

@@ -270,15 +270,17 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _page: number = 1;
   private _zoom: number = 1;
   private _rotation: number = 0;
-  private _showAll: boolean = false;
+  private _showAll: boolean = true;
 
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
   private lastLoaded: string | Uint8Array | PDFSource;
-  private resizeTimeout: any;
+  private resizeTimeout: NodeJS.Timer;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+  @Output('error') onError = new EventEmitter<any>();
+  @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {
     PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
@@ -288,7 +290,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.setupViewer();
   }
 
-  onPageResize() {
+  public onPageResize() {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
@@ -355,6 +357,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._zoom = value;
   }
 
+  get zoom() {
+    return this._zoom;
+  }
+
   @Input('rotation')
   set rotation(value: number) {
     if (!(typeof value === 'number' && value % 90 === 0)) {
@@ -376,7 +382,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.setExternalLinkTarget(this._externalLinkTarget);
 
     this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-    let pdfOptions: any = {
+    let pdfOptions: PDFViewerParams | any = {
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this._pdfLinkService
@@ -384,26 +390,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
     this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
     this._pdfLinkService.setViewer(this._pdfViewer);
-  }
-
-  public render() {
-    if (!this.isValidPageNumber(this._page)) {
-      this._page = 1;
-    }
-
-    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
-      setTimeout(() => {
-        this._pdfViewer.pagesRotation = this._rotation;
-      });
-    }
-
-    if (this._stickToPage) {
-      setTimeout(() => {
-        this._pdfViewer.currentPageNumber = this._page;
-      });
-    }
-
-    this.updateSize();
   }
 
   public updateSize() {
@@ -419,7 +405,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     }
   }
 
-  public isValidPageNumber(page: number) {
+  private isValidPageNumber(page: number): boolean {
     return this._pdf.numPages >= page && page >= 1;
   }
 
@@ -453,8 +439,14 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
+    let loadingTask: any = PDFJS.getDocument(this.src);
+
+    loadingTask.onProgress = (progressData: PDFProgressData) => {
+      this.onProgress.emit(progressData);
+    };
+
     const src = this.src;
-    PDFJS.getDocument(<any>src)
+    (<PDFPromise<PDFDocumentProxy>>loadingTask.promise)
       .then((pdf: PDFDocumentProxy) => {
         this._pdf = pdf;
         this.lastLoaded = src;
@@ -462,6 +454,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         this.afterLoadComplete.emit(pdf);
 
         this.update();
+      }, (error: any) => {
+        this.onError.emit(error);
       });
   }
 
@@ -469,6 +463,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     if (this._pdfViewer) {
       this._pdfViewer.setDocument(this._pdf);
     }
+
     if (this._pdfLinkService) {
       this._pdfLinkService.setDocument(this._pdf, null);
     }
@@ -476,5 +471,83 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.page = this._page;
 
     this.render();
+  }
+
+  private render() {
+    if (!this._showAll) {
+      this.renderPage(this._page);
+    } else {
+      this.renderMultiplePages();
+    }
+  }
+
+  private renderMultiplePages() {
+    // let container = this.element.nativeElement.querySelector('div');
+    //
+    // this.removeAllChildNodes(container);
+    //
+    // // render pages synchronously
+    // const render = (page: number) => {
+    //   this.renderPage(page).then(() => {
+    //     if (page < this._pdf.numPages) {
+    //       render(page + 1);
+    //     }
+    //   });
+    // };
+    //
+    // render(1);
+
+    if (!this.isValidPageNumber(this._page)) {
+      this._page = 1;
+    }
+
+    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+      setTimeout(() => {
+        this._pdfViewer.pagesRotation = this._rotation;
+      });
+    }
+
+    if (this._stickToPage) {
+      setTimeout(() => {
+        this._pdfViewer.currentPageNumber = this._page;
+      });
+    }
+
+    this.updateSize();
+  }
+
+  private renderPage(pageNumber: number): PDFPromise<void> {
+    return this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
+      let viewport = page.getViewport(this._zoom, this._rotation);
+      let container = this.element.nativeElement.querySelector('div');
+
+      if (!this._originalSize) {
+        viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
+      }
+
+      if (!this._showAll) {
+        this.removeAllChildNodes(container);
+      }
+
+      return (<any>page).getOperatorList().then(function (opList) {
+        let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
+
+        return svgGfx.getSVG(opList, viewport).then(function (svg) {
+          let $div = document.createElement('div');
+
+          $div.classList.add('page');
+          $div.setAttribute('data-page-number', `${ page.pageNumber }`);
+
+          $div.appendChild(svg);
+          container.appendChild($div);
+        });
+      });
+    });
+  }
+
+  private removeAllChildNodes(element: HTMLElement) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
   }
 }

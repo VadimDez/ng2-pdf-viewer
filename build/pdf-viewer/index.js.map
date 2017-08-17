@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/pdf-viewer/index.ts"],"names":[],"mappings":";;AAGA,+DAA4D;AAAnD,oDAAA,kBAAkB,CAAA","file":"index.js","sourceRoot":"","sourcesContent":["/**\n * Created by vadimdez on 01/11/2016.\n */\nexport { PdfViewerComponent } from './pdf-viewer.component';\n"]}

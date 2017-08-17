@@ -1,0 +1,87 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "@angular/animations",
+        "scope": "@angular",
+        "escapedName": "@angular%2fanimations",
+        "name": "@angular/animations",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
+  "_from": "@angular/animations@latest",
+  "_id": "@angular/animations@4.1.0",
+  "_inCache": true,
+  "_location": "/@angular/animations",
+  "_nodeVersion": "6.10.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/animations-4.1.0.tgz_1493222430228_0.9947860387619585"
+  },
+  "_npmUser": {
+    "name": "angular",
+    "email": "angular-core+npm@google.com"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "@angular/animations",
+    "scope": "@angular",
+    "escapedName": "@angular%2fanimations",
+    "name": "@angular/animations",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#DEV:/",
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/animations/-/animations-4.1.0.tgz",
+  "_shasum": "97b642aee01b5406e03ec65e499342ba91e2dd38",
+  "_shrinkwrap": null,
+  "_spec": "@angular/animations",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "author": {
+    "name": "angular"
+  },
+  "bugs": {
+    "url": "https://github.com/angular/angular/issues"
+  },
+  "dependencies": {},
+  "description": "Angular - animations integration with web-animationss",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "97b642aee01b5406e03ec65e499342ba91e2dd38",
+    "tarball": "https://registry.npmjs.org/@angular/animations/-/animations-4.1.0.tgz"
+  },
+  "es2015": "./@angular/animations.js",
+  "homepage": "https://github.com/angular/angular#readme",
+  "license": "MIT",
+  "main": "./bundles/animations.umd.js",
+  "maintainers": [
+    {
+      "name": "angular",
+      "email": "angular-core+npm@google.com"
+    }
+  ],
+  "module": "./@angular/animations.es5.js",
+  "name": "@angular/animations",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "@angular/core": "4.1.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/angular.git"
+  },
+  "scripts": {},
+  "typings": "./animations.d.ts",
+  "version": "4.1.0"
+}

@@ -1,8 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, ViewChild } from '@angular/core';
-import {PdfViewerComponent} from "../pdf-viewer/pdf-viewer.component";
+import { Component } from '@angular/core';
 
 @Component({
   moduleId: module.id,
@@ -12,8 +11,6 @@ import {PdfViewerComponent} from "../pdf-viewer/pdf-viewer.component";
 })
 
 export class AppComponent {
-
-  @ViewChild('myPdfViewer') pdfViewer:PdfViewerComponent;
 
   pdfSrc: string = './pdf-test.pdf';
 
@@ -26,12 +23,17 @@ export class AppComponent {
   //// }
   // };
 
+  error: any;
   page: number = 1;
   rotation: number = 0;
   zoom: number = 1.0;
   originalSize: boolean = false;
   pdf: any;
   renderText: boolean = true;
+  progressData: PDFProgressData;
+  isLoaded: boolean = false;
+  stickToPage = false;
+  showAll = true;
 
   incrementPage(amount: number) {
     this.page += amount;
@@ -68,5 +70,29 @@ export class AppComponent {
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
+    this.isLoaded = true;
+  }
+
+  /**
+   * Handle error callback
+   *
+   * @param error
+   */
+  onError(error: any) {
+    this.error = error; // set error
+  }
+
+  /**
+   * Pdf loading progress callback
+   * @param {PDFProgressData} progressData
+   */
+  onProgress(progressData: PDFProgressData) {
+    this.progressData = progressData;
+    this.isLoaded = false;
+    this.error = null; // clear error
+  }
+
+  getInt(value: number): number {
+    return Math.round(value);
   }
 }

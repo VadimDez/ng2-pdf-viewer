@@ -88,8 +88,11 @@ export class AppComponent {
 * [zoom](#zoom)
 * [original-size](#original-size)
 * [after-load-complete](#after-load-complete)
+* [error](#error)
+* [on-progress](#on-progress)
 
 #### [src]
+*accepts: string, object, UInt8Array*
 
 Pass pdf location
  
@@ -108,7 +111,7 @@ Options object for loading protected PDF would be
  }
  ```
  
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L108-L132).
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L83-L130).
 
 
 #### [page]
@@ -199,11 +202,51 @@ And then use it in your template:
 ``` 
 (after-load-complete)="callBackFn($event)"
 ```
-## Develop
+
+#### (error)
+
+Error handling callback
+
+Define callback in your component's class
+
+```ts
+onError(error: any) {
+  // do anything
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(error)="onError($event)"
+```
+
+#### (on-progress)
+
+Loading progress callback - provides progress information `total` and `loaded` bytes. Is called several times during pdf loading phase.
+
+Define callback in your component's class
+
+```ts
+onProgress(progressData: PDFProgressData) {
+  // do anything with progress data. For example progress indicator
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(on-progress)="onProgress($event)"
+```
+
+## Contribute
+
+Clone the project
+
 ```
 npm start
 ```
-and open
+and then open
 ```
 http://localhost:8000/
 ```
@@ -211,3 +254,4 @@ http://localhost:8000/
 ## License
 
 [MIT](https://tldrlegal.com/license/mit-license) © [Vadym Yatsyuk](https://github.com/vadimdez)
+

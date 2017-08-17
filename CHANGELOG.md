@@ -9,6 +9,33 @@
 
 * `[show-all]` is removed - use `[stick-to-page]` in combination with `[page]`
 
+## 1.2.2
+* [[#94](https://github.com/VadimDez/ng2-pdf-viewer/issues/94)] - Add load progress callback
+
+## 1.2.1
+* [[#130](https://github.com/VadimDez/ng2-pdf-viewer/issues/130)] - ng build --prod fails for AOT
+
+## 1.2.0
+* [[#98](https://github.com/VadimDez/ng2-pdf-viewer/issues/98)] - PDF Auto Resize
+
+## 1.1.5
+* [[#124](https://github.com/VadimDez/ng2-pdf-viewer/issues/124)] - PDF background disappeared after update to 1.1.4
+
+## 1.1.4
+* Switched canvas to SVG rendering.
+* Changed text layer rendering.
+* [[#89](https://github.com/VadimDez/ng2-pdf-viewer/issues/89)] - Added `data-page-number` attribute
+
+## 1.1.3
+* [[#46](https://github.com/VadimDez/ng2-pdf-viewer/issues/46)] - Retina display support
+
+## 1.1.2
+* [[#112](https://github.com/VadimDez/ng2-pdf-viewer/issues/112)] - Error handling
+* Updated documentation
+
+## 1.1.1
+* [[#111](https://github.com/VadimDez/ng2-pdf-viewer/issues/111)] - out of order
+
 ## 1.1.0
 * [[#72](https://github.com/VadimDez/ng2-pdf-viewer/issues/72)] - Updated for Angular 4
 
