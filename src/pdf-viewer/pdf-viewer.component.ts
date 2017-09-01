@@ -11,7 +11,7 @@ import 'pdfjs-dist/web/pdf_viewer';
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div id="viewer" class="pdfViewer"></div></div>`,
+  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div class="pdfViewer"></div></div>`,
   styles: [
 `
 :host /deep/ .textLayer {
@@ -382,7 +382,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.setExternalLinkTarget(this._externalLinkTarget);
 
     this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-    let pdfOptions: PDFViewerParams | any = {
+
+    const pdfOptions: PDFViewerParams | any = {
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this._pdfLinkService
@@ -395,7 +396,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   public updateSize() {
     if (!this._originalSize) {
       const offsetWidth = this.element.nativeElement.offsetWidth;
-
       this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
         const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
         this._pdfViewer._setScale(scale, !this._stickToPage);
@@ -460,6 +460,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private update() {
+    this.setupViewer();
+
     if (this._pdfViewer) {
       this._pdfViewer.setDocument(this._pdf);
     }
@@ -482,20 +484,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private renderMultiplePages() {
-    // let container = this.element.nativeElement.querySelector('div');
-    //
-    // this.removeAllChildNodes(container);
-    //
-    // // render pages synchronously
-    // const render = (page: number) => {
-    //   this.renderPage(page).then(() => {
-    //     if (page < this._pdf.numPages) {
-    //       render(page + 1);
-    //     }
-    //   });
-    // };
-    //
-    // render(1);
+    // this.setupViewer();
 
     if (!this.isValidPageNumber(this._page)) {
       this._page = 1;
@@ -516,8 +505,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.updateSize();
   }
 
-  private renderPage(pageNumber: number): PDFPromise<void> {
-    return this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
+  private renderPage(pageNumber: number) {
+    this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('div');
 
@@ -525,23 +514,24 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
       }
 
-      if (!this._showAll) {
-        this.removeAllChildNodes(container);
-      }
+      const offsetWidth = this.element.nativeElement.offsetWidth;
+      const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
+      // this._pdfViewer._setScale(scale, !this._stickToPage);
 
-      return (<any>page).getOperatorList().then(function (opList) {
-        let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
+      this.removeAllChildNodes(container);
 
-        return svgGfx.getSVG(opList, viewport).then(function (svg) {
-          let $div = document.createElement('div');
+      let pdfOptions: PDFViewerParams | any = {
+        container: container,
+        removePageBorders: true,
+        linkService: this._pdfLinkService,
+        defaultViewport: viewport,
+        scale
+      };
 
-          $div.classList.add('page');
-          $div.setAttribute('data-page-number', `${ page.pageNumber }`);
+      let pdfPageView = new (<any>PDFJS).PDFPageView(pdfOptions);
 
-          $div.appendChild(svg);
-          container.appendChild($div);
-        });
-      });
+      pdfPageView.setPdfPage(page);
+      return pdfPageView.draw();
     });
   }
 
