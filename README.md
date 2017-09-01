@@ -81,16 +81,16 @@ export class AppComponent {
 
 ## Options
 
-* [src](#src)
-* [page](#page)
-* [render-text](#render-text)
-* [rotation](#rotation)
-* [zoom](#zoom)
-* [original-size](#original-size)
-* [show-all](#show-all)
-* [after-load-complete](#after-load-complete)
-* [error](#error)
-* [on-progress](#on-progress)
+* [[src]](#src)
+* [[(page)]](#page)
+* [[render-text]](#render-text)
+* [[rotation]](#rotation)
+* [[zoom]](#zoom)
+* [[original-size]](#original-size)
+* [[show-all]](#show-all)
+* [(after-load-complete)](#after-load-complete)
+* [(error)](#error)
+* [(on-progress)](#on-progress)
 
 #### [src]
 *accepts: string, object, UInt8Array*

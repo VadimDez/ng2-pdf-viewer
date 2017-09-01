@@ -94,6 +94,17 @@ describe('SVGGraphics', function () {
         return svgImg;
       });
     }
+    it('should fail require("zlib") unless in Node.js', function () {
+      function testFunc() {
+        require('zlib');
+      }
+      expect(testFunc.toString()).toMatch(/\srequire\(["']zlib["']\)/);
+      if ((0, _util.isNodeJS)()) {
+        expect(testFunc).not.toThrow();
+      } else {
+        expect(testFunc).toThrow();
+      }
+    });
     it('should produce a reasonably small svg:image', function (done) {
       if (!(0, _util.isNodeJS)()) {
         pending('zlib.deflateSync is not supported in non-Node environments.');

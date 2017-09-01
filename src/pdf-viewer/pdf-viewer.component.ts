@@ -4,7 +4,7 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
-import 'pdfjs-dist/build/pdf.combined';
+import 'pdfjs-dist/build/pdf.min';
 PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
@@ -40,7 +40,9 @@ export class PdfViewerComponent implements OnChanges {
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
-  constructor(private element: ElementRef) {}
+  constructor(private element: ElementRef) {
+    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+  }
 
   @Input()
   src: string | Uint8Array | PDFSource;

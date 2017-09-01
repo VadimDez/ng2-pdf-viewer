@@ -8,7 +8,7 @@
     var packages = {
         'app': { main: 'main.js', defaultExtension: 'js' },
         'rxjs': { defaultExtension: 'js' },
-        'pdfjs-dist': { main: '/build/pdf.js', defaultExtension: 'js' },
+        'pdfjs-dist': { main: '/build/pdf.min.js', defaultExtension: 'js' },
     };
     [
         'common',

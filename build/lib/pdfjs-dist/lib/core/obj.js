@@ -574,21 +574,29 @@ var Catalog = function CatalogClosure() {
     }
     var destDict = params.destDict;
     if (!(0, _primitives.isDict)(destDict)) {
-      (0, _util.warn)('Catalog_parseDestDictionary: "destDict" must be a dictionary.');
+      (0, _util.warn)('parseDestDictionary: "destDict" must be a dictionary.');
       return;
     }
     var resultObj = params.resultObj;
     if ((typeof resultObj === 'undefined' ? 'undefined' : _typeof(resultObj)) !== 'object') {
-      (0, _util.warn)('Catalog_parseDestDictionary: "resultObj" must be an object.');
+      (0, _util.warn)('parseDestDictionary: "resultObj" must be an object.');
       return;
     }
     var docBaseUrl = params.docBaseUrl || null;
     var action = destDict.get('A'),
         url,
         dest;
+    if (!(0, _primitives.isDict)(action) && destDict.has('Dest')) {
+      action = destDict.get('Dest');
+    }
     if ((0, _primitives.isDict)(action)) {
-      var linkType = action.get('S').name;
-      switch (linkType) {
+      var actionType = action.get('S');
+      if (!(0, _primitives.isName)(actionType)) {
+        (0, _util.warn)('parseDestDictionary: Invalid type in Action dictionary.');
+        return;
+      }
+      var actionName = actionType.name;
+      switch (actionName) {
         case 'URI':
           url = action.get('URI');
           if ((0, _primitives.isName)(url)) {
@@ -654,7 +662,7 @@ var Catalog = function CatalogClosure() {
             }
           }
         default:
-          (0, _util.warn)('Catalog_parseDestDictionary: Unrecognized link type "' + linkType + '".');
+          (0, _util.warn)('parseDestDictionary: Unsupported Action type "' + actionName + '".');
           break;
       }
     } else if (destDict.has('Dest')) {
@@ -996,9 +1004,16 @@ var XRef = function XRefClosure() {
     },
     readXRef: function XRef_readXRef(recoveryMode) {
       var stream = this.stream;
+      var startXRefParsedCache = Object.create(null);
       try {
         while (this.startXRefQueue.length) {
           var startXRef = this.startXRefQueue[0];
+          if (startXRefParsedCache[startXRef]) {
+            (0, _util.warn)('readXRef - skipping XRef table since it was already parsed.');
+            this.startXRefQueue.shift();
+            continue;
+          }
+          startXRefParsedCache[startXRef] = true;
           stream.pos = startXRef + stream.start;
           var parser = new _parser.Parser(new _parser.Lexer(stream), true, this);
           var obj = parser.getObj();
@@ -1102,13 +1117,19 @@ var XRef = function XRefClosure() {
       var obj1 = parser.getObj();
       var obj2 = parser.getObj();
       var obj3 = parser.getObj();
-      if (!(0, _util.isInt)(obj1) || parseInt(obj1, 10) !== num || !(0, _util.isInt)(obj2) || parseInt(obj2, 10) !== gen || !(0, _primitives.isCmd)(obj3)) {
+      if (!Number.isInteger(obj1)) {
+        obj1 = parseInt(obj1, 10);
+      }
+      if (!Number.isInteger(obj2)) {
+        obj2 = parseInt(obj2, 10);
+      }
+      if (obj1 !== num || obj2 !== gen || !(0, _primitives.isCmd)(obj3)) {
         throw new _util.FormatError('bad XRef entry');
       }
-      if (!(0, _primitives.isCmd)(obj3, 'obj')) {
+      if (obj3.cmd !== 'obj') {
         if (obj3.cmd.indexOf('obj') === 0) {
           num = parseInt(obj3.cmd.substring(3), 10);
-          if (!isNaN(num)) {
+          if (!Number.isNaN(num)) {
             return num;
           }
         }

@@ -23,6 +23,12 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = require('../shared/util');
 
+var _global_scope = require('../shared/global_scope');
+
+var _global_scope2 = _interopRequireDefault(_global_scope);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DEFAULT_LINK_REL = 'noopener noreferrer nofollow';
@@ -207,7 +213,7 @@ function getFilenameFromUrl(url) {
   return url.substring(url.lastIndexOf('/', end) + 1, end);
 }
 function getDefaultSetting(id) {
-  var globalSettings = _util.globalScope.PDFJS;
+  var globalSettings = _global_scope2.default.PDFJS;
   switch (id) {
     case 'pdfBug':
       return globalSettings ? globalSettings.pdfBug : false;

@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-require("pdfjs-dist/build/pdf.combined");
+require("pdfjs-dist/build/pdf.min");
 PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
@@ -25,6 +25,7 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
+        PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
     }
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
         set: function (_page) {
