@@ -73,21 +73,7 @@ var ViewHistory = function () {
     key: '_readFromStorage',
     value: function _readFromStorage() {
       return new Promise(function (resolve) {
-        var value = localStorage.getItem('pdfjs.history');
-        if (!value) {
-          var databaseStr = localStorage.getItem('database');
-          if (databaseStr) {
-            try {
-              var database = JSON.parse(databaseStr);
-              if (typeof database.files[0].fingerprint === 'string') {
-                localStorage.setItem('pdfjs.history', databaseStr);
-                localStorage.removeItem('database');
-                value = databaseStr;
-              }
-            } catch (ex) {}
-          }
-        }
-        resolve(value);
+        resolve(localStorage.getItem('pdfjs.history'));
       });
     }
   }, {

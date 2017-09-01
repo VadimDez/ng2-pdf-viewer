@@ -19,58 +19,80 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AnnotationLayer = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _dom_utils = require('./dom_utils');
 
 var _util = require('../shared/util');
 
-function AnnotationElementFactory() {}
-AnnotationElementFactory.prototype = {
-  create: function AnnotationElementFactory_create(parameters) {
-    var subtype = parameters.data.annotationType;
-    switch (subtype) {
-      case _util.AnnotationType.LINK:
-        return new LinkAnnotationElement(parameters);
-      case _util.AnnotationType.TEXT:
-        return new TextAnnotationElement(parameters);
-      case _util.AnnotationType.WIDGET:
-        var fieldType = parameters.data.fieldType;
-        switch (fieldType) {
-          case 'Tx':
-            return new TextWidgetAnnotationElement(parameters);
-          case 'Btn':
-            if (parameters.data.radioButton) {
-              return new RadioButtonWidgetAnnotationElement(parameters);
-            } else if (parameters.data.checkBox) {
-              return new CheckboxWidgetAnnotationElement(parameters);
-            }
-            (0, _util.warn)('Unimplemented button widget annotation: pushbutton');
-            break;
-          case 'Ch':
-            return new ChoiceWidgetAnnotationElement(parameters);
-        }
-        return new WidgetAnnotationElement(parameters);
-      case _util.AnnotationType.POPUP:
-        return new PopupAnnotationElement(parameters);
-      case _util.AnnotationType.LINE:
-        return new LineAnnotationElement(parameters);
-      case _util.AnnotationType.HIGHLIGHT:
-        return new HighlightAnnotationElement(parameters);
-      case _util.AnnotationType.UNDERLINE:
-        return new UnderlineAnnotationElement(parameters);
-      case _util.AnnotationType.SQUIGGLY:
-        return new SquigglyAnnotationElement(parameters);
-      case _util.AnnotationType.STRIKEOUT:
-        return new StrikeOutAnnotationElement(parameters);
-      case _util.AnnotationType.FILEATTACHMENT:
-        return new FileAttachmentAnnotationElement(parameters);
-      default:
-        return new AnnotationElement(parameters);
-    }
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AnnotationElementFactory = function () {
+  function AnnotationElementFactory() {
+    _classCallCheck(this, AnnotationElementFactory);
   }
-};
-var AnnotationElement = function AnnotationElementClosure() {
-  function AnnotationElement(parameters, isRenderable, ignoreBorder) {
-    this.isRenderable = isRenderable || false;
+
+  _createClass(AnnotationElementFactory, null, [{
+    key: 'create',
+    value: function create(parameters) {
+      var subtype = parameters.data.annotationType;
+      switch (subtype) {
+        case _util.AnnotationType.LINK:
+          return new LinkAnnotationElement(parameters);
+        case _util.AnnotationType.TEXT:
+          return new TextAnnotationElement(parameters);
+        case _util.AnnotationType.WIDGET:
+          var fieldType = parameters.data.fieldType;
+          switch (fieldType) {
+            case 'Tx':
+              return new TextWidgetAnnotationElement(parameters);
+            case 'Btn':
+              if (parameters.data.radioButton) {
+                return new RadioButtonWidgetAnnotationElement(parameters);
+              } else if (parameters.data.checkBox) {
+                return new CheckboxWidgetAnnotationElement(parameters);
+              }
+              (0, _util.warn)('Unimplemented button widget annotation: pushbutton');
+              break;
+            case 'Ch':
+              return new ChoiceWidgetAnnotationElement(parameters);
+          }
+          return new WidgetAnnotationElement(parameters);
+        case _util.AnnotationType.POPUP:
+          return new PopupAnnotationElement(parameters);
+        case _util.AnnotationType.LINE:
+          return new LineAnnotationElement(parameters);
+        case _util.AnnotationType.HIGHLIGHT:
+          return new HighlightAnnotationElement(parameters);
+        case _util.AnnotationType.UNDERLINE:
+          return new UnderlineAnnotationElement(parameters);
+        case _util.AnnotationType.SQUIGGLY:
+          return new SquigglyAnnotationElement(parameters);
+        case _util.AnnotationType.STRIKEOUT:
+          return new StrikeOutAnnotationElement(parameters);
+        case _util.AnnotationType.FILEATTACHMENT:
+          return new FileAttachmentAnnotationElement(parameters);
+        default:
+          return new AnnotationElement(parameters);
+      }
+    }
+  }]);
+
+  return AnnotationElementFactory;
+}();
+
+var AnnotationElement = function () {
+  function AnnotationElement(parameters) {
+    var isRenderable = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    var ignoreBorder = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+    _classCallCheck(this, AnnotationElement);
+
+    this.isRenderable = isRenderable;
     this.data = parameters.data;
     this.layer = parameters.layer;
     this.page = parameters.page;
@@ -83,8 +105,12 @@ var AnnotationElement = function AnnotationElementClosure() {
       this.container = this._createContainer(ignoreBorder);
     }
   }
-  AnnotationElement.prototype = {
-    _createContainer: function AnnotationElement_createContainer(ignoreBorder) {
+
+  _createClass(AnnotationElement, [{
+    key: '_createContainer',
+    value: function _createContainer() {
+      var ignoreBorder = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
       var data = this.data,
           page = this.page,
           viewport = this.viewport;
@@ -137,8 +163,10 @@ var AnnotationElement = function AnnotationElementClosure() {
       container.style.width = width + 'px';
       container.style.height = height + 'px';
       return container;
-    },
-    _createPopup: function AnnotationElement_createPopup(container, trigger, data) {
+    }
+  }, {
+    key: '_createPopup',
+    value: function _createPopup(container, trigger, data) {
       if (!trigger) {
         trigger = document.createElement('div');
         trigger.style.height = container.style.height;
@@ -156,19 +184,29 @@ var AnnotationElement = function AnnotationElementClosure() {
       var popup = popupElement.render();
       popup.style.left = container.style.width;
       container.appendChild(popup);
-    },
-    render: function AnnotationElement_render() {
-      throw new Error('Abstract method AnnotationElement.render called');
     }
-  };
+  }, {
+    key: 'render',
+    value: function render() {
+      throw new Error('Abstract method `AnnotationElement.render` called');
+    }
+  }]);
+
   return AnnotationElement;
 }();
-var LinkAnnotationElement = function LinkAnnotationElementClosure() {
+
+var LinkAnnotationElement = function (_AnnotationElement) {
+  _inherits(LinkAnnotationElement, _AnnotationElement);
+
   function LinkAnnotationElement(parameters) {
-    AnnotationElement.call(this, parameters, true);
+    _classCallCheck(this, LinkAnnotationElement);
+
+    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, true));
   }
-  _util.Util.inherit(LinkAnnotationElement, AnnotationElement, {
-    render: function LinkAnnotationElement_render() {
+
+  _createClass(LinkAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'linkAnnotation';
       var link = document.createElement('a');
       (0, _dom_utils.addLinkAttributes)(link, {
@@ -184,41 +222,53 @@ var LinkAnnotationElement = function LinkAnnotationElementClosure() {
       }
       this.container.appendChild(link);
       return this.container;
-    },
-    _bindLink: function _bindLink(link, destination) {
-      var _this = this;
+    }
+  }, {
+    key: '_bindLink',
+    value: function _bindLink(link, destination) {
+      var _this2 = this;
 
       link.href = this.linkService.getDestinationHash(destination);
       link.onclick = function () {
         if (destination) {
-          _this.linkService.navigateTo(destination);
+          _this2.linkService.navigateTo(destination);
         }
         return false;
       };
       if (destination) {
         link.className = 'internalLink';
       }
-    },
-    _bindNamedAction: function _bindNamedAction(link, action) {
-      var _this2 = this;
+    }
+  }, {
+    key: '_bindNamedAction',
+    value: function _bindNamedAction(link, action) {
+      var _this3 = this;
 
       link.href = this.linkService.getAnchorUrl('');
       link.onclick = function () {
-        _this2.linkService.executeNamedAction(action);
+        _this3.linkService.executeNamedAction(action);
         return false;
       };
       link.className = 'internalLink';
     }
-  });
+  }]);
+
   return LinkAnnotationElement;
-}();
-var TextAnnotationElement = function TextAnnotationElementClosure() {
+}(AnnotationElement);
+
+var TextAnnotationElement = function (_AnnotationElement2) {
+  _inherits(TextAnnotationElement, _AnnotationElement2);
+
   function TextAnnotationElement(parameters) {
+    _classCallCheck(this, TextAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable);
+    return _possibleConstructorReturn(this, (TextAnnotationElement.__proto__ || Object.getPrototypeOf(TextAnnotationElement)).call(this, parameters, isRenderable));
   }
-  _util.Util.inherit(TextAnnotationElement, AnnotationElement, {
-    render: function TextAnnotationElement_render() {
+
+  _createClass(TextAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'textAnnotation';
       var image = document.createElement('img');
       image.style.height = this.container.style.height;
@@ -233,28 +283,44 @@ var TextAnnotationElement = function TextAnnotationElementClosure() {
       this.container.appendChild(image);
       return this.container;
     }
-  });
+  }]);
+
   return TextAnnotationElement;
-}();
-var WidgetAnnotationElement = function WidgetAnnotationElementClosure() {
-  function WidgetAnnotationElement(parameters, isRenderable) {
-    AnnotationElement.call(this, parameters, isRenderable);
+}(AnnotationElement);
+
+var WidgetAnnotationElement = function (_AnnotationElement3) {
+  _inherits(WidgetAnnotationElement, _AnnotationElement3);
+
+  function WidgetAnnotationElement() {
+    _classCallCheck(this, WidgetAnnotationElement);
+
+    return _possibleConstructorReturn(this, (WidgetAnnotationElement.__proto__ || Object.getPrototypeOf(WidgetAnnotationElement)).apply(this, arguments));
   }
-  _util.Util.inherit(WidgetAnnotationElement, AnnotationElement, {
-    render: function WidgetAnnotationElement_render() {
+
+  _createClass(WidgetAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       return this.container;
     }
-  });
+  }]);
+
   return WidgetAnnotationElement;
-}();
-var TextWidgetAnnotationElement = function TextWidgetAnnotationElementClosure() {
-  var TEXT_ALIGNMENT = ['left', 'center', 'right'];
+}(AnnotationElement);
+
+var TextWidgetAnnotationElement = function (_WidgetAnnotationElem) {
+  _inherits(TextWidgetAnnotationElement, _WidgetAnnotationElem);
+
   function TextWidgetAnnotationElement(parameters) {
+    _classCallCheck(this, TextWidgetAnnotationElement);
+
     var isRenderable = parameters.renderInteractiveForms || !parameters.data.hasAppearance && !!parameters.data.fieldValue;
-    WidgetAnnotationElement.call(this, parameters, isRenderable);
+    return _possibleConstructorReturn(this, (TextWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(TextWidgetAnnotationElement)).call(this, parameters, isRenderable));
   }
-  _util.Util.inherit(TextWidgetAnnotationElement, WidgetAnnotationElement, {
-    render: function TextWidgetAnnotationElement_render() {
+
+  _createClass(TextWidgetAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      var TEXT_ALIGNMENT = ['left', 'center', 'right'];
       this.container.className = 'textWidgetAnnotation';
       var element = null;
       if (this.renderInteractiveForms) {
@@ -292,8 +358,10 @@ var TextWidgetAnnotationElement = function TextWidgetAnnotationElementClosure() 
       }
       this.container.appendChild(element);
       return this.container;
-    },
-    _setTextStyle: function TextWidgetAnnotationElement_setTextStyle(element, font) {
+    }
+  }, {
+    key: '_setTextStyle',
+    value: function _setTextStyle(element, font) {
       var style = element.style;
       style.fontSize = this.data.fontSize + 'px';
       style.direction = this.data.fontDirection < 0 ? 'rtl' : 'ltr';
@@ -306,15 +374,23 @@ var TextWidgetAnnotationElement = function TextWidgetAnnotationElementClosure() 
       var fallbackName = font.fallbackName || 'Helvetica, sans-serif';
       style.fontFamily = fontFamily + fallbackName;
     }
-  });
+  }]);
+
   return TextWidgetAnnotationElement;
-}();
-var CheckboxWidgetAnnotationElement = function CheckboxWidgetAnnotationElementClosure() {
+}(WidgetAnnotationElement);
+
+var CheckboxWidgetAnnotationElement = function (_WidgetAnnotationElem2) {
+  _inherits(CheckboxWidgetAnnotationElement, _WidgetAnnotationElem2);
+
   function CheckboxWidgetAnnotationElement(parameters) {
-    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
+    _classCallCheck(this, CheckboxWidgetAnnotationElement);
+
+    return _possibleConstructorReturn(this, (CheckboxWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(CheckboxWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
   }
-  _util.Util.inherit(CheckboxWidgetAnnotationElement, WidgetAnnotationElement, {
-    render: function CheckboxWidgetAnnotationElement_render() {
+
+  _createClass(CheckboxWidgetAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'buttonWidgetAnnotation checkBox';
       var element = document.createElement('input');
       element.disabled = this.data.readOnly;
@@ -325,15 +401,23 @@ var CheckboxWidgetAnnotationElement = function CheckboxWidgetAnnotationElementCl
       this.container.appendChild(element);
       return this.container;
     }
-  });
+  }]);
+
   return CheckboxWidgetAnnotationElement;
-}();
-var RadioButtonWidgetAnnotationElement = function RadioButtonWidgetAnnotationElementClosure() {
+}(WidgetAnnotationElement);
+
+var RadioButtonWidgetAnnotationElement = function (_WidgetAnnotationElem3) {
+  _inherits(RadioButtonWidgetAnnotationElement, _WidgetAnnotationElem3);
+
   function RadioButtonWidgetAnnotationElement(parameters) {
-    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
+    _classCallCheck(this, RadioButtonWidgetAnnotationElement);
+
+    return _possibleConstructorReturn(this, (RadioButtonWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(RadioButtonWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
   }
-  _util.Util.inherit(RadioButtonWidgetAnnotationElement, WidgetAnnotationElement, {
-    render: function RadioButtonWidgetAnnotationElement_render() {
+
+  _createClass(RadioButtonWidgetAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'buttonWidgetAnnotation radioButton';
       var element = document.createElement('input');
       element.disabled = this.data.readOnly;
@@ -345,15 +429,23 @@ var RadioButtonWidgetAnnotationElement = function RadioButtonWidgetAnnotationEle
       this.container.appendChild(element);
       return this.container;
     }
-  });
+  }]);
+
   return RadioButtonWidgetAnnotationElement;
-}();
-var ChoiceWidgetAnnotationElement = function ChoiceWidgetAnnotationElementClosure() {
+}(WidgetAnnotationElement);
+
+var ChoiceWidgetAnnotationElement = function (_WidgetAnnotationElem4) {
+  _inherits(ChoiceWidgetAnnotationElement, _WidgetAnnotationElem4);
+
   function ChoiceWidgetAnnotationElement(parameters) {
-    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
+    _classCallCheck(this, ChoiceWidgetAnnotationElement);
+
+    return _possibleConstructorReturn(this, (ChoiceWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(ChoiceWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
   }
-  _util.Util.inherit(ChoiceWidgetAnnotationElement, WidgetAnnotationElement, {
-    render: function ChoiceWidgetAnnotationElement_render() {
+
+  _createClass(ChoiceWidgetAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'choiceWidgetAnnotation';
       var selectElement = document.createElement('select');
       selectElement.disabled = this.data.readOnly;
@@ -376,17 +468,25 @@ var ChoiceWidgetAnnotationElement = function ChoiceWidgetAnnotationElementClosur
       this.container.appendChild(selectElement);
       return this.container;
     }
-  });
+  }]);
+
   return ChoiceWidgetAnnotationElement;
-}();
-var PopupAnnotationElement = function PopupAnnotationElementClosure() {
-  var IGNORE_TYPES = ['Line'];
+}(WidgetAnnotationElement);
+
+var PopupAnnotationElement = function (_AnnotationElement4) {
+  _inherits(PopupAnnotationElement, _AnnotationElement4);
+
   function PopupAnnotationElement(parameters) {
+    _classCallCheck(this, PopupAnnotationElement);
+
     var isRenderable = !!(parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable);
+    return _possibleConstructorReturn(this, (PopupAnnotationElement.__proto__ || Object.getPrototypeOf(PopupAnnotationElement)).call(this, parameters, isRenderable));
   }
-  _util.Util.inherit(PopupAnnotationElement, AnnotationElement, {
-    render: function PopupAnnotationElement_render() {
+
+  _createClass(PopupAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      var IGNORE_TYPES = ['Line'];
       this.container.className = 'popupAnnotation';
       if (IGNORE_TYPES.indexOf(this.data.parentType) >= 0) {
         return this.container;
@@ -410,12 +510,15 @@ var PopupAnnotationElement = function PopupAnnotationElementClosure() {
       this.container.appendChild(popup.render());
       return this.container;
     }
-  });
+  }]);
+
   return PopupAnnotationElement;
-}();
-var PopupElement = function PopupElementClosure() {
-  var BACKGROUND_ENLIGHT = 0.7;
+}(AnnotationElement);
+
+var PopupElement = function () {
   function PopupElement(parameters) {
+    _classCallCheck(this, PopupElement);
+
     this.container = parameters.container;
     this.trigger = parameters.trigger;
     this.color = parameters.color;
@@ -424,8 +527,11 @@ var PopupElement = function PopupElementClosure() {
     this.hideWrapper = parameters.hideWrapper || false;
     this.pinned = false;
   }
-  PopupElement.prototype = {
-    render: function PopupElement_render() {
+
+  _createClass(PopupElement, [{
+    key: 'render',
+    value: function render() {
+      var BACKGROUND_ENLIGHT = 0.7;
       var wrapper = document.createElement('div');
       wrapper.className = 'popupWrapper';
       this.hideElement = this.hideWrapper ? wrapper : this.container;
@@ -450,8 +556,10 @@ var PopupElement = function PopupElementClosure() {
       popup.appendChild(contents);
       wrapper.appendChild(popup);
       return wrapper;
-    },
-    _formatContents: function PopupElement_formatContents(contents) {
+    }
+  }, {
+    key: '_formatContents',
+    value: function _formatContents(contents) {
       var p = document.createElement('p');
       var lines = contents.split(/(?:\r\n?|\n)/);
       for (var i = 0, ii = lines.length; i < ii; ++i) {
@@ -462,15 +570,21 @@ var PopupElement = function PopupElementClosure() {
         }
       }
       return p;
-    },
-    _toggle: function PopupElement_toggle() {
+    }
+  }, {
+    key: '_toggle',
+    value: function _toggle() {
       if (this.pinned) {
         this._hide(true);
       } else {
         this._show(true);
       }
-    },
-    _show: function PopupElement_show(pin) {
+    }
+  }, {
+    key: '_show',
+    value: function _show() {
+      var pin = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
       if (pin) {
         this.pinned = true;
       }
@@ -478,8 +592,12 @@ var PopupElement = function PopupElementClosure() {
         this.hideElement.removeAttribute('hidden');
         this.container.style.zIndex += 1;
       }
-    },
-    _hide: function PopupElement_hide(unpin) {
+    }
+  }, {
+    key: '_hide',
+    value: function _hide() {
+      var unpin = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
       if (unpin) {
         this.pinned = false;
       }
@@ -488,17 +606,25 @@ var PopupElement = function PopupElementClosure() {
         this.container.style.zIndex -= 1;
       }
     }
-  };
+  }]);
+
   return PopupElement;
 }();
-var LineAnnotationElement = function LineAnnotationElementClosure() {
-  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+var LineAnnotationElement = function (_AnnotationElement5) {
+  _inherits(LineAnnotationElement, _AnnotationElement5);
+
   function LineAnnotationElement(parameters) {
+    _classCallCheck(this, LineAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable, true);
+    return _possibleConstructorReturn(this, (LineAnnotationElement.__proto__ || Object.getPrototypeOf(LineAnnotationElement)).call(this, parameters, isRenderable, true));
   }
-  _util.Util.inherit(LineAnnotationElement, AnnotationElement, {
-    render: function LineAnnotationElement_render() {
+
+  _createClass(LineAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      var SVG_NS = 'http://www.w3.org/2000/svg';
       this.container.className = 'lineAnnotation';
       var data = this.data;
       var width = data.rect[2] - data.rect[0];
@@ -521,87 +647,129 @@ var LineAnnotationElement = function LineAnnotationElementClosure() {
       this._createPopup(this.container, line, this.data);
       return this.container;
     }
-  });
+  }]);
+
   return LineAnnotationElement;
-}();
-var HighlightAnnotationElement = function HighlightAnnotationElementClosure() {
+}(AnnotationElement);
+
+var HighlightAnnotationElement = function (_AnnotationElement6) {
+  _inherits(HighlightAnnotationElement, _AnnotationElement6);
+
   function HighlightAnnotationElement(parameters) {
+    _classCallCheck(this, HighlightAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable, true);
+    return _possibleConstructorReturn(this, (HighlightAnnotationElement.__proto__ || Object.getPrototypeOf(HighlightAnnotationElement)).call(this, parameters, isRenderable, true));
   }
-  _util.Util.inherit(HighlightAnnotationElement, AnnotationElement, {
-    render: function HighlightAnnotationElement_render() {
+
+  _createClass(HighlightAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'highlightAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  });
+  }]);
+
   return HighlightAnnotationElement;
-}();
-var UnderlineAnnotationElement = function UnderlineAnnotationElementClosure() {
+}(AnnotationElement);
+
+var UnderlineAnnotationElement = function (_AnnotationElement7) {
+  _inherits(UnderlineAnnotationElement, _AnnotationElement7);
+
   function UnderlineAnnotationElement(parameters) {
+    _classCallCheck(this, UnderlineAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable, true);
+    return _possibleConstructorReturn(this, (UnderlineAnnotationElement.__proto__ || Object.getPrototypeOf(UnderlineAnnotationElement)).call(this, parameters, isRenderable, true));
   }
-  _util.Util.inherit(UnderlineAnnotationElement, AnnotationElement, {
-    render: function UnderlineAnnotationElement_render() {
+
+  _createClass(UnderlineAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'underlineAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  });
+  }]);
+
   return UnderlineAnnotationElement;
-}();
-var SquigglyAnnotationElement = function SquigglyAnnotationElementClosure() {
+}(AnnotationElement);
+
+var SquigglyAnnotationElement = function (_AnnotationElement8) {
+  _inherits(SquigglyAnnotationElement, _AnnotationElement8);
+
   function SquigglyAnnotationElement(parameters) {
+    _classCallCheck(this, SquigglyAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable, true);
+    return _possibleConstructorReturn(this, (SquigglyAnnotationElement.__proto__ || Object.getPrototypeOf(SquigglyAnnotationElement)).call(this, parameters, isRenderable, true));
   }
-  _util.Util.inherit(SquigglyAnnotationElement, AnnotationElement, {
-    render: function SquigglyAnnotationElement_render() {
+
+  _createClass(SquigglyAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'squigglyAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  });
+  }]);
+
   return SquigglyAnnotationElement;
-}();
-var StrikeOutAnnotationElement = function StrikeOutAnnotationElementClosure() {
+}(AnnotationElement);
+
+var StrikeOutAnnotationElement = function (_AnnotationElement9) {
+  _inherits(StrikeOutAnnotationElement, _AnnotationElement9);
+
   function StrikeOutAnnotationElement(parameters) {
+    _classCallCheck(this, StrikeOutAnnotationElement);
+
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    AnnotationElement.call(this, parameters, isRenderable, true);
+    return _possibleConstructorReturn(this, (StrikeOutAnnotationElement.__proto__ || Object.getPrototypeOf(StrikeOutAnnotationElement)).call(this, parameters, isRenderable, true));
   }
-  _util.Util.inherit(StrikeOutAnnotationElement, AnnotationElement, {
-    render: function StrikeOutAnnotationElement_render() {
+
+  _createClass(StrikeOutAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'strikeoutAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  });
+  }]);
+
   return StrikeOutAnnotationElement;
-}();
-var FileAttachmentAnnotationElement = function FileAttachmentAnnotationElementClosure() {
+}(AnnotationElement);
+
+var FileAttachmentAnnotationElement = function (_AnnotationElement10) {
+  _inherits(FileAttachmentAnnotationElement, _AnnotationElement10);
+
   function FileAttachmentAnnotationElement(parameters) {
-    AnnotationElement.call(this, parameters, true);
-    var file = this.data.file;
-    this.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
-    this.content = file.content;
-    this.linkService.onFileAttachmentAnnotation({
+    _classCallCheck(this, FileAttachmentAnnotationElement);
+
+    var _this16 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
+
+    var file = _this16.data.file;
+    _this16.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
+    _this16.content = file.content;
+    _this16.linkService.onFileAttachmentAnnotation({
       id: (0, _util.stringToPDFString)(file.filename),
       filename: file.filename,
       content: file.content
     });
+    return _this16;
   }
-  _util.Util.inherit(FileAttachmentAnnotationElement, AnnotationElement, {
-    render: function FileAttachmentAnnotationElement_render() {
+
+  _createClass(FileAttachmentAnnotationElement, [{
+    key: 'render',
+    value: function render() {
       this.container.className = 'fileAttachmentAnnotation';
       var trigger = document.createElement('div');
       trigger.style.height = this.container.style.height;
@@ -612,27 +780,35 @@ var FileAttachmentAnnotationElement = function FileAttachmentAnnotationElementCl
       }
       this.container.appendChild(trigger);
       return this.container;
-    },
-    _download: function FileAttachmentAnnotationElement_download() {
+    }
+  }, {
+    key: '_download',
+    value: function _download() {
       if (!this.downloadManager) {
         (0, _util.warn)('Download cannot be started due to unavailable download manager');
         return;
       }
       this.downloadManager.downloadData(this.content, this.filename, '');
     }
-  });
+  }]);
+
   return FileAttachmentAnnotationElement;
-}();
-var AnnotationLayer = function AnnotationLayerClosure() {
-  return {
-    render: function AnnotationLayer_render(parameters) {
-      var annotationElementFactory = new AnnotationElementFactory();
+}(AnnotationElement);
+
+var AnnotationLayer = function () {
+  function AnnotationLayer() {
+    _classCallCheck(this, AnnotationLayer);
+  }
+
+  _createClass(AnnotationLayer, null, [{
+    key: 'render',
+    value: function render(parameters) {
       for (var i = 0, ii = parameters.annotations.length; i < ii; i++) {
         var data = parameters.annotations[i];
         if (!data) {
           continue;
         }
-        var element = annotationElementFactory.create({
+        var element = AnnotationElementFactory.create({
           data: data,
           layer: parameters.div,
           page: parameters.page,
@@ -646,8 +822,10 @@ var AnnotationLayer = function AnnotationLayerClosure() {
           parameters.div.appendChild(element.render());
         }
       }
-    },
-    update: function AnnotationLayer_update(parameters) {
+    }
+  }, {
+    key: 'update',
+    value: function update(parameters) {
       for (var i = 0, ii = parameters.annotations.length; i < ii; i++) {
         var data = parameters.annotations[i];
         var element = parameters.div.querySelector('[data-annotation-id="' + data.id + '"]');
@@ -657,6 +835,9 @@ var AnnotationLayer = function AnnotationLayerClosure() {
       }
       parameters.div.removeAttribute('hidden');
     }
-  };
+  }]);
+
+  return AnnotationLayer;
 }();
+
 exports.AnnotationLayer = AnnotationLayer;

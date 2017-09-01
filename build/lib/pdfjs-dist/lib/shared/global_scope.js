@@ -14,7 +14,4 @@
  */
 'use strict';
 
-var pdfjsVersion = '1.9.512';
-var pdfjsBuild = '066fea9c';
-var pdfjsCoreWorker = require('./core/worker.js');
-exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
+module.exports = typeof window !== 'undefined' && window.Math === Math ? window : typeof global !== 'undefined' && global.Math === Math ? global : typeof self !== 'undefined' && self.Math === Math ? self : {};

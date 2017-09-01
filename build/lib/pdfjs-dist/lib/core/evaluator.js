@@ -751,9 +751,6 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
           var fn = operation.fn;
           switch (fn | 0) {
             case _util.OPS.paintXObject:
-              if (args[0].code) {
-                break;
-              }
               var name = args[0].name;
               if (!name) {
                 (0, _util.warn)('XObject must be referred to by name.');
@@ -1373,9 +1370,6 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
                 break;
               case _util.OPS.paintXObject:
                 flushTextContentItem();
-                if (args[0].code) {
-                  break;
-                }
                 if (!xobjs) {
                   xobjs = resources.get('XObject') || _primitives.Dict.empty;
                 }
@@ -2029,7 +2023,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         capHeight: descriptor.get('CapHeight'),
         flags: descriptor.get('Flags'),
         italicAngle: descriptor.get('ItalicAngle'),
-        coded: false
+        isType3Font: false
       };
       var cMapPromise;
       if (composite) {

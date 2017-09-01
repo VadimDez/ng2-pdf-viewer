@@ -1,6 +1,6 @@
 /// <reference types="pdf" />
 import { ElementRef, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import 'pdfjs-dist/build/pdf.combined';
+import 'pdfjs-dist/build/pdf.min';
 export declare class PdfViewerComponent implements OnChanges {
     private element;
     private _showAll;
