@@ -201,7 +201,7 @@ var PDFImage = function PDFImageClosure() {
     }
     if (inverseDecode) {
       for (i = 0; i < actualLength; i++) {
-        data[i] = ~data[i];
+        data[i] ^= 0xFF;
       }
     }
     return {

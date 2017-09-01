@@ -19,10 +19,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DownloadManager = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _pdf = require('../pdf');
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 ;
-function download(blobUrl, filename) {
+function _download(blobUrl, filename) {
   var a = document.createElement('a');
   if (a.click) {
     a.href = blobUrl;
@@ -41,34 +45,48 @@ function download(blobUrl, filename) {
     window.open(blobUrl, '_parent');
   }
 }
-function DownloadManager() {}
-DownloadManager.prototype = {
-  downloadUrl: function DownloadManager_downloadUrl(url, filename) {
-    if (!(0, _pdf.createValidAbsoluteUrl)(url, 'http://example.com')) {
-      return;
-    }
-    download(url + '#pdfjs.action=download', filename);
-  },
-  downloadData: function DownloadManager_downloadData(data, filename, contentType) {
-    if (navigator.msSaveBlob) {
-      return navigator.msSaveBlob(new Blob([data], { type: contentType }), filename);
-    }
-    var blobUrl = (0, _pdf.createObjectURL)(data, contentType, _pdf.PDFJS.disableCreateObjectURL);
-    download(blobUrl, filename);
-  },
-  download: function DownloadManager_download(blob, url, filename) {
-    if (navigator.msSaveBlob) {
-      if (!navigator.msSaveBlob(blob, filename)) {
-        this.downloadUrl(url, filename);
-      }
-      return;
-    }
-    if (_pdf.PDFJS.disableCreateObjectURL) {
-      this.downloadUrl(url, filename);
-      return;
-    }
-    var blobUrl = URL.createObjectURL(blob);
-    download(blobUrl, filename);
+
+var DownloadManager = function () {
+  function DownloadManager() {
+    _classCallCheck(this, DownloadManager);
   }
-};
+
+  _createClass(DownloadManager, [{
+    key: 'downloadUrl',
+    value: function downloadUrl(url, filename) {
+      if (!(0, _pdf.createValidAbsoluteUrl)(url, 'http://example.com')) {
+        return;
+      }
+      _download(url + '#pdfjs.action=download', filename);
+    }
+  }, {
+    key: 'downloadData',
+    value: function downloadData(data, filename, contentType) {
+      if (navigator.msSaveBlob) {
+        return navigator.msSaveBlob(new Blob([data], { type: contentType }), filename);
+      }
+      var blobUrl = (0, _pdf.createObjectURL)(data, contentType, _pdf.PDFJS.disableCreateObjectURL);
+      _download(blobUrl, filename);
+    }
+  }, {
+    key: 'download',
+    value: function download(blob, url, filename) {
+      if (navigator.msSaveBlob) {
+        if (!navigator.msSaveBlob(blob, filename)) {
+          this.downloadUrl(url, filename);
+        }
+        return;
+      }
+      if (_pdf.PDFJS.disableCreateObjectURL) {
+        this.downloadUrl(url, filename);
+        return;
+      }
+      var blobUrl = URL.createObjectURL(blob);
+      _download(blobUrl, filename);
+    }
+  }]);
+
+  return DownloadManager;
+}();
+
 exports.DownloadManager = DownloadManager;

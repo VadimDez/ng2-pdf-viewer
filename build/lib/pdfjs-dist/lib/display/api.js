@@ -31,9 +31,15 @@ var _font_loader = require('./font_loader');
 
 var _canvas = require('./canvas');
 
+var _global_scope = require('../shared/global_scope');
+
+var _global_scope2 = _interopRequireDefault(_global_scope);
+
 var _metadata = require('./metadata');
 
 var _transport_stream = require('./transport_stream');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -662,7 +668,7 @@ var LoopbackPort = function () {
           cloned.set(value, result);
           return result;
         }
-        result = (0, _util.isArray)(value) ? [] : {};
+        result = Array.isArray(value) ? [] : {};
         cloned.set(value, result);
         for (var i in value) {
           var desc,
@@ -1131,10 +1137,10 @@ var WorkerTransport = function WorkerTransportClosure() {
               break;
             }
             var fontRegistry = null;
-            if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _util.globalScope.FontInspector && _util.globalScope['FontInspector'].enabled) {
+            if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _global_scope2.default.FontInspector && _global_scope2.default['FontInspector'].enabled) {
               fontRegistry = {
                 registerFont: function registerFont(font, url) {
-                  _util.globalScope['FontInspector'].fontAdded(font, url);
+                  _global_scope2.default['FontInspector'].fontAdded(font, url);
                 }
               };
             }
@@ -1476,8 +1482,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
       if (this.cancelled) {
         return;
       }
-      if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _util.globalScope.StepperManager && _util.globalScope.StepperManager.enabled) {
-        this.stepper = _util.globalScope.StepperManager.create(this.pageNumber - 1);
+      if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _global_scope2.default.StepperManager && _global_scope2.default.StepperManager.enabled) {
+        this.stepper = _global_scope2.default.StepperManager.create(this.pageNumber - 1);
         this.stepper.init(this.operatorList);
         this.stepper.nextBreakPoint = this.stepper.getNextBreakPoint();
       }
@@ -1575,8 +1581,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.8.609';
-  exports.build = build = 'f83bd721';
+  exports.version = version = '1.9.512';
+  exports.build = build = '066fea9c';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
