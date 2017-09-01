@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.3
+* [[#146](https://github.com/VadimDez/ng2-pdf-viewer/issues/146)] - Load web worker separately, use minified version of pdfjs
+
 ## 1.2.2
 * [[#94](https://github.com/VadimDez/ng2-pdf-viewer/issues/94)] - Add load progress callback
 
