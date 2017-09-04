@@ -1294,7 +1294,7 @@ var WorkerTransport = function WorkerTransportClosure() {
     getPage: function WorkerTransport_getPage(pageNumber, capability) {
       var _this13 = this;
 
-      if (!(0, _util.isInt)(pageNumber) || pageNumber <= 0 || pageNumber > this.numPages) {
+      if (!Number.isInteger(pageNumber) || pageNumber <= 0 || pageNumber > this.numPages) {
         return Promise.reject(new Error('Invalid page request'));
       }
       var pageIndex = pageNumber - 1;
@@ -1581,8 +1581,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.9.512';
-  exports.build = build = '066fea9c';
+  exports.version = version = '1.9.524';
+  exports.build = build = 'cd25a51a';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;

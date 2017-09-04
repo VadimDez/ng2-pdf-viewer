@@ -96,7 +96,6 @@ var DefaultExternalServices = {
 };
 var PDFViewerApplication = {
   initialBookmark: document.location.hash.substring(1),
-  initialDestination: null,
   initialized: false,
   fellback: false,
   appConfig: null,
@@ -649,19 +648,14 @@ var PDFViewerApplication = {
     firstPagePromise.then(function (pdfPage) {
       _this6.loadingBar.setWidth(_this6.appConfig.viewerContainer);
       if (!_pdf.PDFJS.disableHistory && !_this6.isViewerEmbedded) {
-        if (!_this6.viewerPrefs['showPreviousViewOnLoad']) {
-          _this6.pdfHistory.clearHistoryState();
-        }
-        _this6.pdfHistory.initialize(_this6.documentFingerprint);
-        if (_this6.pdfHistory.initialDestination) {
-          _this6.initialDestination = _this6.pdfHistory.initialDestination;
-        } else if (_this6.pdfHistory.initialBookmark) {
+        var resetHistory = !_this6.viewerPrefs['showPreviousViewOnLoad'];
+        _this6.pdfHistory.initialize(id, resetHistory);
+        if (_this6.pdfHistory.initialBookmark) {
           _this6.initialBookmark = _this6.pdfHistory.initialBookmark;
         }
       }
       var initialParams = {
-        destination: _this6.initialDestination,
-        bookmark: _this6.initialBookmark,
+        bookmark: null,
         hash: null
       };
       var storePromise = store.getMultiple({
@@ -695,20 +689,20 @@ var PDFViewerApplication = {
         var hash = _ref4.hash,
             sidebarView = _ref4.sidebarView;
 
-        _this6.setInitialView(hash, { sidebarView: sidebarView });
+        initialParams.bookmark = _this6.initialBookmark;
         initialParams.hash = hash;
+        _this6.setInitialView(hash, { sidebarView: sidebarView });
         if (!_this6.isViewerEmbedded) {
           pdfViewer.focus();
         }
         return pagesPromise;
       }).then(function () {
-        if (!initialParams.destination && !initialParams.bookmark && !initialParams.hash) {
+        if (!initialParams.bookmark && !initialParams.hash) {
           return;
         }
         if (pdfViewer.hasEqualPageSizes) {
           return;
         }
-        _this6.initialDestination = initialParams.destination;
         _this6.initialBookmark = initialParams.bookmark;
         pdfViewer.currentScaleValue = pdfViewer.currentScaleValue;
         _this6.setInitialView(initialParams.hash);
@@ -798,12 +792,8 @@ var PDFViewerApplication = {
 
     this.isInitialViewSet = true;
     this.pdfSidebar.setInitialView(sidebarView);
-    if (this.initialDestination) {
-      this.pdfLinkService.navigateTo(this.initialDestination);
-      this.initialDestination = null;
-    } else if (this.initialBookmark) {
+    if (this.initialBookmark) {
       this.pdfLinkService.setHash(this.initialBookmark);
-      this.pdfHistory.push({ hash: this.initialBookmark }, true);
       this.initialBookmark = null;
     } else if (storedHash) {
       this.pdfLinkService.setHash(storedHash);
@@ -1265,7 +1255,6 @@ function webViewerUpdateViewarea(evt) {
   var href = PDFViewerApplication.pdfLinkService.getAnchorUrl(location.pdfOpenParams);
   PDFViewerApplication.appConfig.toolbar.viewBookmark.href = href;
   PDFViewerApplication.appConfig.secondaryToolbar.viewBookmarkButton.href = href;
-  PDFViewerApplication.pdfHistory.updateCurrentBookmark(location.pdfOpenParams, location.pageNumber);
   var currentPage = PDFViewerApplication.pdfViewer.getPageView(PDFViewerApplication.page - 1);
   var loading = currentPage.renderingState !== _pdf_rendering_queue.RenderingStates.FINISHED;
   PDFViewerApplication.toolbar.updateLoadingIndicatorState(loading);
@@ -1284,16 +1273,14 @@ function webViewerResize() {
   pdfViewer.update();
 }
 function webViewerHashchange(evt) {
-  if (PDFViewerApplication.pdfHistory.isHashChangeUnlocked) {
-    var hash = evt.hash;
-    if (!hash) {
-      return;
-    }
-    if (!PDFViewerApplication.isInitialViewSet) {
-      PDFViewerApplication.initialBookmark = hash;
-    } else {
-      PDFViewerApplication.pdfLinkService.setHash(hash);
-    }
+  var hash = evt.hash;
+  if (!hash) {
+    return;
+  }
+  if (!PDFViewerApplication.isInitialViewSet) {
+    PDFViewerApplication.initialBookmark = hash;
+  } else if (!PDFViewerApplication.pdfHistory.popStateInProgress) {
+    PDFViewerApplication.pdfLinkService.setHash(hash);
   }
 }
 var webViewerFileInputChange = void 0;
@@ -1657,22 +1644,6 @@ function webViewerKeyDown(evt) {
   if (!handled && !isViewerInPresentationMode) {
     if (evt.keyCode >= 33 && evt.keyCode <= 40 || evt.keyCode === 32 && curElementTagName !== 'BUTTON') {
       ensureViewerFocused = true;
-    }
-  }
-  if (cmd === 2) {
-    switch (evt.keyCode) {
-      case 37:
-        if (isViewerInPresentationMode) {
-          PDFViewerApplication.pdfHistory.back();
-          handled = true;
-        }
-        break;
-      case 39:
-        if (isViewerInPresentationMode) {
-          PDFViewerApplication.pdfHistory.forward();
-          handled = true;
-        }
-        break;
     }
   }
   if (ensureViewerFocused && !pdfViewer.containsElement(curElement)) {

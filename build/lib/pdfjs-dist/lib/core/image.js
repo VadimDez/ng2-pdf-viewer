@@ -165,7 +165,7 @@ var PDFImage = function PDFImageClosure() {
       if (mask) {
         if ((0, _primitives.isStream)(mask)) {
           maskPromise = handleImageData(mask, nativeDecoder);
-        } else if ((0, _util.isArray)(mask)) {
+        } else if (Array.isArray(mask)) {
           maskPromise = Promise.resolve(mask);
         } else {
           (0, _util.warn)('Unsupported mask format.');
@@ -326,7 +326,7 @@ var PDFImage = function PDFImageClosure() {
           if (sw !== width || sh !== height) {
             alphaBuf = resizeImageMask(alphaBuf, mask.bpc, sw, sh, width, height);
           }
-        } else if ((0, _util.isArray)(mask)) {
+        } else if (Array.isArray(mask)) {
           alphaBuf = new Uint8Array(width * height);
           var numComps = this.numComps;
           for (i = 0, ii = width * height; i < ii; ++i) {

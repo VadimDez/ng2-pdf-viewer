@@ -1446,7 +1446,7 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
     }
     this.dict = dict;
     var algorithm = dict.get('V');
-    if (!(0, _util.isInt)(algorithm) || algorithm !== 1 && algorithm !== 2 && algorithm !== 4 && algorithm !== 5) {
+    if (!Number.isInteger(algorithm) || algorithm !== 1 && algorithm !== 2 && algorithm !== 4 && algorithm !== 5) {
       throw new _util.FormatError('unsupported encryption algorithm');
     }
     this.algorithm = algorithm;
@@ -1467,7 +1467,7 @@ var CipherTransformFactory = function CipherTransformFactoryClosure() {
         }
       }
     }
-    if (!(0, _util.isInt)(keyLength) || keyLength < 40 || keyLength % 8 !== 0) {
+    if (!Number.isInteger(keyLength) || keyLength < 40 || keyLength % 8 !== 0) {
       throw new _util.FormatError('invalid key length');
     }
     var ownerPassword = (0, _util.stringToBytes)(dict.get('O')).subarray(0, 32);

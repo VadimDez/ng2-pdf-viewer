@@ -1399,7 +1399,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
                 xObjStateManager = new StateManager(currentState);
                 matrix = xobj.dict.getArray('Matrix');
 
-                if ((0, _util.isArray)(matrix) && matrix.length === 6) {
+                if (Array.isArray(matrix) && matrix.length === 6) {
                   xObjStateManager.transform(matrix);
                 }
                 enqueueChunk();
@@ -1730,7 +1730,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
           for (i = 0, ii = widths.length; i < ii; i++) {
             start = xref.fetchIfRef(widths[i++]);
             code = xref.fetchIfRef(widths[i]);
-            if ((0, _util.isArray)(code)) {
+            if (Array.isArray(code)) {
               for (j = 0, jj = code.length; j < jj; j++) {
                 glyphsWidths[start++] = xref.fetchIfRef(code[j]);
               }
@@ -1750,7 +1750,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
             for (i = 0, ii = vmetrics.length; i < ii; i++) {
               start = xref.fetchIfRef(vmetrics[i++]);
               code = xref.fetchIfRef(vmetrics[i]);
-              if ((0, _util.isArray)(code)) {
+              if (Array.isArray(code)) {
                 for (j = 0, jj = code.length; j < jj; j++) {
                   glyphsVMetrics[start++] = [xref.fetchIfRef(code[j++]), xref.fetchIfRef(code[j++]), xref.fetchIfRef(code[j])];
                 }
@@ -1865,7 +1865,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         if (!df) {
           throw new _util.FormatError('Descendant fonts are not specified');
         }
-        dict = (0, _util.isArray)(df) ? this.xref.fetchIfRef(df[0]) : df;
+        dict = Array.isArray(df) ? this.xref.fetchIfRef(df[0]) : df;
         type = dict.get('Subtype');
         if (!(0, _primitives.isName)(type)) {
           throw new _util.FormatError('invalid font Subtype');
@@ -1888,7 +1888,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               hash.update(entry.name);
             } else if ((0, _primitives.isRef)(entry)) {
               hash.update(entry.toString());
-            } else if ((0, _util.isArray)(entry)) {
+            } else if (Array.isArray(entry)) {
               var diffLength = entry.length,
                   diffBuf = new Array(diffLength);
               for (var j = 0; j < diffLength; j++) {

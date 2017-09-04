@@ -711,7 +711,7 @@ var JpegStream = function JpegStreamClosure() {
     }
     var jpegImage = new _jpg.JpegImage();
     var decodeArr = this.dict.getArray('Decode', 'D');
-    if (this.forceRGB && (0, _util.isArray)(decodeArr)) {
+    if (this.forceRGB && Array.isArray(decodeArr)) {
       var bitsPerComponent = this.dict.get('BitsPerComponent') || 8;
       var decodeArrLength = decodeArr.length;
       var transform = new Int32Array(decodeArrLength);
@@ -730,7 +730,7 @@ var JpegStream = function JpegStreamClosure() {
     }
     if ((0, _primitives.isDict)(this.params)) {
       var colorTransform = this.params.get('ColorTransform');
-      if ((0, _util.isInt)(colorTransform)) {
+      if (Number.isInteger(colorTransform)) {
         jpegImage.colorTransform = colorTransform;
       }
     }

@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-require("pdfjs-dist/build/pdf.min");
+require("pdfjs-dist/build/pdf");
 PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {

@@ -165,10 +165,10 @@ var IdentityCMap = function IdentityCMapClosure() {
       throw new Error('should not call mapCidOne');
     },
     lookup: function lookup(code) {
-      return (0, _util.isInt)(code) && code <= 0xffff ? code : undefined;
+      return Number.isInteger(code) && code <= 0xffff ? code : undefined;
     },
     contains: function contains(code) {
-      return (0, _util.isInt)(code) && code <= 0xffff;
+      return Number.isInteger(code) && code <= 0xffff;
     },
     forEach: function forEach(callback) {
       for (var i = 0; i <= 0xffff; i++) {
@@ -176,7 +176,7 @@ var IdentityCMap = function IdentityCMapClosure() {
       }
     },
     charCodeOf: function charCodeOf(value) {
-      return (0, _util.isInt)(value) && value <= 0xffff ? value : -1;
+      return Number.isInteger(value) && value <= 0xffff ? value : -1;
     },
     getMap: function getMap() {
       var map = new Array(0x10000);
@@ -472,7 +472,7 @@ var CMapFactory = function CMapFactoryClosure() {
     }
   }
   function expectInt(obj) {
-    if (!(0, _util.isInt)(obj)) {
+    if (!Number.isInteger(obj)) {
       throw new _util.FormatError('Malformed CMap: expected int.');
     }
   }
@@ -508,8 +508,8 @@ var CMapFactory = function CMapFactoryClosure() {
       expectString(obj);
       var high = strToInt(obj);
       obj = lexer.getObj();
-      if ((0, _util.isInt)(obj) || (0, _util.isString)(obj)) {
-        var dstLow = (0, _util.isInt)(obj) ? String.fromCharCode(obj) : obj;
+      if (Number.isInteger(obj) || (0, _util.isString)(obj)) {
+        var dstLow = Number.isInteger(obj) ? String.fromCharCode(obj) : obj;
         cMap.mapBfRange(low, high, dstLow);
       } else if ((0, _primitives.isCmd)(obj, '[')) {
         obj = lexer.getObj();
@@ -586,7 +586,7 @@ var CMapFactory = function CMapFactoryClosure() {
   }
   function parseWMode(cMap, lexer) {
     var obj = lexer.getObj();
-    if ((0, _util.isInt)(obj)) {
+    if (Number.isInteger(obj)) {
       cMap.vertical = !!obj;
     }
   }

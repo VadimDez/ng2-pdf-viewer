@@ -4,7 +4,7 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges
 } from '@angular/core';
-import 'pdfjs-dist/build/pdf.min';
+import 'pdfjs-dist/build/pdf';
 PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({

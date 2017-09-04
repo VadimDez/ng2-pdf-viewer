@@ -63,17 +63,26 @@ var IPDFHistory = function () {
   }
 
   _createClass(IPDFHistory, [{
-    key: 'forward',
-    value: function forward() {}
+    key: 'initialize',
+    value: function initialize(fingerprint) {
+      var resetHistory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    }
+  }, {
+    key: 'push',
+    value: function push(_ref2) {
+      var namedDest = _ref2.namedDest,
+          explicitDest = _ref2.explicitDest,
+          pageNumber = _ref2.pageNumber;
+    }
+  }, {
+    key: 'pushCurrentPosition',
+    value: function pushCurrentPosition() {}
   }, {
     key: 'back',
     value: function back() {}
   }, {
-    key: 'push',
-    value: function push(params) {}
-  }, {
-    key: 'updateNextHashParam',
-    value: function updateNextHashParam(hash) {}
+    key: 'forward',
+    value: function forward() {}
   }]);
 
   return IPDFHistory;

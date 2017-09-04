@@ -671,7 +671,7 @@ var CFFParser = function CFFParserClosure() {
         return;
       }
       var privateOffset = parentDict.getByName('Private');
-      if (!(0, _util.isArray)(privateOffset) || privateOffset.length !== 2) {
+      if (!Array.isArray(privateOffset) || privateOffset.length !== 2) {
         parentDict.removeByName('Private');
         return;
       }
@@ -988,12 +988,12 @@ var CFFDict = function CFFDictClosure() {
     };
     for (var i = 0, ii = layout.length; i < ii; ++i) {
       var entry = layout[i];
-      var key = (0, _util.isArray)(entry[0]) ? (entry[0][0] << 8) + entry[0][1] : entry[0];
+      var key = Array.isArray(entry[0]) ? (entry[0][0] << 8) + entry[0][1] : entry[0];
       tables.keyToNameMap[key] = entry[1];
       tables.nameToKeyMap[entry[1]] = key;
       tables.types[key] = entry[2];
       tables.defaults[key] = entry[3];
-      tables.opcodes[key] = (0, _util.isArray)(entry[0]) ? entry[0] : [entry[0]];
+      tables.opcodes[key] = Array.isArray(entry[0]) ? entry[0] : [entry[0]];
       tables.order.push(key);
     }
     return tables;
@@ -1303,10 +1303,10 @@ var CFFCompiler = function CFFCompilerClosure() {
         }
         var values = dict.values[key];
         var types = dict.types[key];
-        if (!(0, _util.isArray)(types)) {
+        if (!Array.isArray(types)) {
           types = [types];
         }
-        if (!(0, _util.isArray)(values)) {
+        if (!Array.isArray(values)) {
           values = [values];
         }
         if (values.length === 0) {
