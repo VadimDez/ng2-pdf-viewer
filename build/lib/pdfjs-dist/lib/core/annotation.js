@@ -163,7 +163,7 @@ var Annotation = function () {
   }, {
     key: 'setFlags',
     value: function setFlags(flags) {
-      this.flags = (0, _util.isInt)(flags) && flags > 0 ? flags : 0;
+      this.flags = Number.isInteger(flags) && flags > 0 ? flags : 0;
     }
   }, {
     key: 'hasFlag',
@@ -173,7 +173,7 @@ var Annotation = function () {
   }, {
     key: 'setRectangle',
     value: function setRectangle(rectangle) {
-      if ((0, _util.isArray)(rectangle) && rectangle.length === 4) {
+      if (Array.isArray(rectangle) && rectangle.length === 4) {
         this.rectangle = _util.Util.normalizeRect(rectangle);
       } else {
         this.rectangle = [0, 0, 0, 0];
@@ -183,7 +183,7 @@ var Annotation = function () {
     key: 'setColor',
     value: function setColor(color) {
       var rgbColor = new Uint8Array(3);
-      if (!(0, _util.isArray)(color)) {
+      if (!Array.isArray(color)) {
         this.color = rgbColor;
         return;
       }
@@ -225,7 +225,7 @@ var Annotation = function () {
         }
       } else if (borderStyle.has('Border')) {
         var array = borderStyle.getArray('Border');
-        if ((0, _util.isArray)(array) && array.length >= 3) {
+        if (Array.isArray(array) && array.length >= 3) {
           this.borderStyle.setHorizontalCornerRadius(array[0]);
           this.borderStyle.setVerticalCornerRadius(array[1]);
           this.borderStyle.setWidth(array[2]);
@@ -379,7 +379,7 @@ var AnnotationBorderStyle = function () {
   }, {
     key: 'setDashArray',
     value: function setDashArray(dashArray) {
-      if ((0, _util.isArray)(dashArray) && dashArray.length > 0) {
+      if (Array.isArray(dashArray) && dashArray.length > 0) {
         var isValid = true;
         var allZeros = true;
         for (var i = 0, len = dashArray.length; i < len; i++) {
@@ -439,7 +439,7 @@ var WidgetAnnotation = function (_Annotation) {
     data.fieldType = (0, _primitives.isName)(fieldType) ? fieldType.name : null;
     _this2.fieldResources = _util.Util.getInheritableProperty(dict, 'DR') || _primitives.Dict.empty;
     data.fieldFlags = _util.Util.getInheritableProperty(dict, 'Ff');
-    if (!(0, _util.isInt)(data.fieldFlags) || data.fieldFlags < 0) {
+    if (!Number.isInteger(data.fieldFlags) || data.fieldFlags < 0) {
       data.fieldFlags = 0;
     }
     data.readOnly = _this2.hasFieldFlag(_util.AnnotationFieldFlag.READONLY);
@@ -503,12 +503,12 @@ var TextWidgetAnnotation = function (_WidgetAnnotation) {
 
     _this3.data.fieldValue = (0, _util.stringToPDFString)(_this3.data.fieldValue || '');
     var alignment = _util.Util.getInheritableProperty(params.dict, 'Q');
-    if (!(0, _util.isInt)(alignment) || alignment < 0 || alignment > 2) {
+    if (!Number.isInteger(alignment) || alignment < 0 || alignment > 2) {
       alignment = null;
     }
     _this3.data.textAlignment = alignment;
     var maximumLength = _util.Util.getInheritableProperty(params.dict, 'MaxLen');
-    if (!(0, _util.isInt)(maximumLength) || maximumLength < 0) {
+    if (!Number.isInteger(maximumLength) || maximumLength < 0) {
       maximumLength = null;
     }
     _this3.data.maxLen = maximumLength;
@@ -599,18 +599,18 @@ var ChoiceWidgetAnnotation = function (_WidgetAnnotation3) {
 
     _this5.data.options = [];
     var options = _util.Util.getInheritableProperty(params.dict, 'Opt');
-    if ((0, _util.isArray)(options)) {
+    if (Array.isArray(options)) {
       var xref = params.xref;
       for (var i = 0, ii = options.length; i < ii; i++) {
         var option = xref.fetchIfRef(options[i]);
-        var isOptionArray = (0, _util.isArray)(option);
+        var isOptionArray = Array.isArray(option);
         _this5.data.options[i] = {
           exportValue: isOptionArray ? xref.fetchIfRef(option[0]) : option,
           displayValue: isOptionArray ? xref.fetchIfRef(option[1]) : option
         };
       }
     }
-    if (!(0, _util.isArray)(_this5.data.fieldValue)) {
+    if (!Array.isArray(_this5.data.fieldValue)) {
       _this5.data.fieldValue = [_this5.data.fieldValue];
     }
     _this5.data.combo = _this5.hasFieldFlag(_util.AnnotationFieldFlag.COMBO);

@@ -16,8 +16,6 @@
 
 var _fonts = require('../../core/fonts');
 
-var _util = require('../../shared/util');
-
 var checkProblematicCharRanges = function checkProblematicCharRanges() {
   function printRange(limits) {
     return '[' + limits.lower.toString('16').toUpperCase() + ', ' + limits.upper.toString('16').toUpperCase() + ')';
@@ -33,7 +31,7 @@ var checkProblematicCharRanges = function checkProblematicCharRanges() {
       lower: _fonts.ProblematicCharRanges[i],
       upper: _fonts.ProblematicCharRanges[i + 1]
     };
-    if (!(0, _util.isInt)(limits.lower) || !(0, _util.isInt)(limits.upper)) {
+    if (!Number.isInteger(limits.lower) || !Number.isInteger(limits.upper)) {
       throw new Error('Range endpoints must be integers: ' + printRange(limits));
     }
     if (limits.lower < 0 || limits.upper < 0) {

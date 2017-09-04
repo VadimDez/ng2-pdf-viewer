@@ -971,10 +971,10 @@ var SVGGraphics = function SVGGraphics() {
         this.paintInlineImageXObject(imgData, mask);
       },
       paintFormXObjectBegin: function SVGGraphics_paintFormXObjectBegin(matrix, bbox) {
-        if ((0, _util.isArray)(matrix) && matrix.length === 6) {
+        if (Array.isArray(matrix) && matrix.length === 6) {
           this.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
         }
-        if ((0, _util.isArray)(bbox) && bbox.length === 4) {
+        if (Array.isArray(bbox) && bbox.length === 4) {
           var width = bbox[2] - bbox[0];
           var height = bbox[3] - bbox[1];
           var cliprect = document.createElementNS(NS, 'svg:rect');
