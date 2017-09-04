@@ -89,7 +89,7 @@ var PDFFunction = function PDFFunctionClosure() {
       return this.fromIR(IR);
     },
     parseArray: function PDFFunction_parseArray(xref, fnObj) {
-      if (!(0, _util.isArray)(fnObj)) {
+      if (!Array.isArray(fnObj)) {
         return this.parse(xref, fnObj);
       }
       var fnArray = [];
@@ -207,7 +207,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var c0 = dict.getArray('C0') || [0];
       var c1 = dict.getArray('C1') || [1];
       var n = dict.get('N');
-      if (!(0, _util.isArray)(c0) || !(0, _util.isArray)(c1)) {
+      if (!Array.isArray(c0) || !Array.isArray(c1)) {
         throw new _util.FormatError('Illegal dictionary for interpolated function');
       }
       var length = c0.length;

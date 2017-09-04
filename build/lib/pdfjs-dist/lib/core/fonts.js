@@ -206,7 +206,7 @@ var IdentityToUnicodeMap = function IdentityToUnicodeMapClosure() {
       return undefined;
     },
     charCodeOf: function charCodeOf(v) {
-      return (0, _util.isInt)(v) && v >= this.firstChar && v <= this.lastChar ? v : -1;
+      return Number.isInteger(v) && v >= this.firstChar && v <= this.lastChar ? v : -1;
     },
     amend: function amend(map) {
       throw new Error('Should not call amend()');
@@ -2368,7 +2368,7 @@ var Type1Font = function Type1FontClosure() {
           continue;
         }
         var value = properties.privateData[field];
-        if ((0, _util.isArray)(value)) {
+        if (Array.isArray(value)) {
           for (var j = value.length - 1; j > 0; j--) {
             value[j] -= value[j - 1];
           }

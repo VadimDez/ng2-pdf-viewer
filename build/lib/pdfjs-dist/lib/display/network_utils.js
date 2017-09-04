@@ -42,9 +42,8 @@ function validateRangeRequestCapabilities(_ref) {
   if (contentEncoding !== 'identity') {
     return returnValues;
   }
-  var length = getResponseHeader('Content-Length');
-  length = parseInt(length, 10);
-  if (!(0, _util.isInt)(length)) {
+  var length = parseInt(getResponseHeader('Content-Length'), 10);
+  if (!Number.isInteger(length)) {
     return returnValues;
   }
   returnValues.suggestedLength = length;

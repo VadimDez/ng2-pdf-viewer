@@ -193,4 +193,96 @@ describe('ui_utils', function () {
       expect(count).toEqual(2);
     });
   });
+  describe('waitOnEventOrTimeout', function () {
+    var eventBus = void 0;
+    beforeAll(function (done) {
+      eventBus = new _ui_utils.EventBus();
+      done();
+    });
+    afterAll(function () {
+      eventBus = null;
+    });
+    it('should reject invalid parameters', function (done) {
+      var invalidTarget = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: 'window',
+        name: 'DOMContentLoaded'
+      }).then(function () {
+        throw new Error('Should reject invalid parameters.');
+      }, function (reason) {
+        expect(reason instanceof Error).toEqual(true);
+      });
+      var invalidName = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: eventBus,
+        name: ''
+      }).then(function () {
+        throw new Error('Should reject invalid parameters.');
+      }, function (reason) {
+        expect(reason instanceof Error).toEqual(true);
+      });
+      var invalidDelay = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: eventBus,
+        name: 'pagerendered',
+        delay: -1000
+      }).then(function () {
+        throw new Error('Should reject invalid parameters.');
+      }, function (reason) {
+        expect(reason instanceof Error).toEqual(true);
+      });
+      Promise.all([invalidTarget, invalidName, invalidDelay]).then(done, done.fail);
+    });
+    it('should resolve on event, using the DOM', function (done) {
+      if ((0, _util.isNodeJS)()) {
+        pending('Document in not supported in Node.js.');
+      }
+      var button = document.createElement('button');
+      var buttonClicked = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: button,
+        name: 'click',
+        delay: 10000
+      });
+      button.click();
+      buttonClicked.then(function (type) {
+        expect(type).toEqual(_ui_utils.WaitOnType.EVENT);
+        done();
+      }, done.fail);
+    });
+    it('should resolve on timeout, using the DOM', function (done) {
+      if ((0, _util.isNodeJS)()) {
+        pending('Document in not supported in Node.js.');
+      }
+      var button = document.createElement('button');
+      var buttonClicked = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: button,
+        name: 'click',
+        delay: 10
+      });
+      buttonClicked.then(function (type) {
+        expect(type).toEqual(_ui_utils.WaitOnType.TIMEOUT);
+        done();
+      }, done.fail);
+    });
+    it('should resolve on event, using the EventBus', function (done) {
+      var pageRendered = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: eventBus,
+        name: 'pagerendered',
+        delay: 10000
+      });
+      eventBus.dispatch('pagerendered');
+      pageRendered.then(function (type) {
+        expect(type).toEqual(_ui_utils.WaitOnType.EVENT);
+        done();
+      }, done.fail);
+    });
+    it('should resolve on timeout, using the EventBus', function (done) {
+      var pageRendered = (0, _ui_utils.waitOnEventOrTimeout)({
+        target: eventBus,
+        name: 'pagerendered',
+        delay: 10
+      });
+      pageRendered.then(function (type) {
+        expect(type).toEqual(_ui_utils.WaitOnType.TIMEOUT);
+        done();
+      }, done.fail);
+    });
+  });
 });
