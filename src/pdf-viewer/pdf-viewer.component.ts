@@ -188,16 +188,20 @@ export class PdfViewerComponent implements OnChanges {
         this.removeAllChildNodes(container);
       }
 
-      return (<any>page).getOperatorList().then(function (opList) {
+      return (<any>page).getOperatorList().then( (opList) => {
         let svgGfx = new (<any>PDFJS).SVGGraphics((<any>page).commonObjs, (<any>page).objs);
 
-        return svgGfx.getSVG(opList, viewport).then(function (svg) {
+        return svgGfx.getSVG(opList, viewport).then( (svg) => {
           let $div = document.createElement('div');
 
           $div.classList.add('page');
           $div.setAttribute('data-page-number', `${ page.pageNumber }`);
 
           $div.appendChild(svg);
+
+          this.convertAttributeToInlineStyle($div, 'font-family');
+          this.convertAttributeToInlineStyle($div, 'font-size');
+
           container.appendChild($div);
         });
       });
@@ -207,6 +211,15 @@ export class PdfViewerComponent implements OnChanges {
   private removeAllChildNodes(element: HTMLElement) {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
+    }
+  }
+
+  private convertAttributeToInlineStyle(parent: HTMLElement, attribute: string) {
+    const matchElements = parent.querySelectorAll(`[${attribute}]`);
+    for (let i = 0, l = matchElements.length; i < l; i++) {
+      const element = matchElements[i];
+      const oldStyle = element.getAttribute('style') || '';
+      element.setAttribute('style', `${oldStyle} ${attribute}: ${element.getAttribute(attribute)};`);
     }
   }
 }
