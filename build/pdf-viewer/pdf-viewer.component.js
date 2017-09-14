@@ -156,6 +156,8 @@ var PdfViewerComponent = (function () {
                     $div.classList.add('page');
                     $div.setAttribute('data-page-number', "" + page.pageNumber);
                     $div.appendChild(svg);
+                    _this.convertAttributeToInlineStyle($div, 'font-family');
+                    _this.convertAttributeToInlineStyle($div, 'font-size');
                     container.appendChild($div);
                 });
             });
@@ -164,6 +166,14 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.removeAllChildNodes = function (element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
+        }
+    };
+    PdfViewerComponent.prototype.convertAttributeToInlineStyle = function (parent, attribute) {
+        var matchElements = parent.querySelectorAll("[" + attribute + "]");
+        for (var i = 0, l = matchElements.length; i < l; i++) {
+            var element = matchElements[i];
+            var oldStyle = element.getAttribute('style') || '';
+            element.setAttribute('style', oldStyle + " " + attribute + ": " + element.getAttribute(attribute) + ";");
         }
     };
     return PdfViewerComponent;

@@ -215,11 +215,11 @@ export class PdfViewerComponent implements OnChanges {
   }
 
   private convertAttributeToInlineStyle(parent: HTMLElement, attribute: string) {
-    const matchElements = parent.querySelectorAll(`[${attribute}]`);
+    const matchElements = parent.querySelectorAll(`[${ attribute }]`);
     for (let i = 0, l = matchElements.length; i < l; i++) {
       const element = matchElements[i];
       const oldStyle = element.getAttribute('style') || '';
-      element.setAttribute('style', `${oldStyle} ${attribute}: ${element.getAttribute(attribute)};`);
+      element.setAttribute('style', `${ oldStyle } ${ attribute }: ${ element.getAttribute(attribute) };`);
     }
   }
 }
