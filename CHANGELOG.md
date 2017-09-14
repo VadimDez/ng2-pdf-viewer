@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.6
+* [[#140](https://github.com/VadimDez/ng2-pdf-viewer/issues/140)] - Incorrect Font and Font Size Rendering
+* [[#151](https://github.com/VadimDez/ng2-pdf-viewer/pull/151)] - force inline style to prevent css override font-family and font-size
+
 ## 1.2.5
 * Update dist
 
