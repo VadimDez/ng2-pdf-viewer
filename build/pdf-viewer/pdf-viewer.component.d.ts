@@ -32,4 +32,5 @@ export declare class PdfViewerComponent implements OnChanges {
     private isValidPageNumber(page);
     private renderPage(pageNumber);
     private removeAllChildNodes(element);
+    private convertAttributeToInlineStyle(parent, attribute);
 }
