@@ -319,7 +319,7 @@ var TilingPattern = function TilingPatternClosure() {
       var tmpCtx = tmpCanvas.context;
       var graphics = canvasGraphicsFactory.createCanvasGraphics(tmpCtx);
       graphics.groupLevel = owner.groupLevel;
-      this.setFillAndStrokeStyleToContext(tmpCtx, paintType, color);
+      this.setFillAndStrokeStyleToContext(graphics, paintType, color);
       this.setScale(width, height, xstep, ystep);
       this.transformToScale(graphics);
       var tmpTranslate = [1, 0, 0, 1, -topLeft[0], -topLeft[1]];
@@ -349,17 +349,23 @@ var TilingPattern = function TilingPatternClosure() {
         graphics.endPath();
       }
     },
-    setFillAndStrokeStyleToContext: function setFillAndStrokeStyleToContext(context, paintType, color) {
+    setFillAndStrokeStyleToContext: function setFillAndStrokeStyleToContext(graphics, paintType, color) {
+      var context = graphics.ctx,
+          current = graphics.current;
       switch (paintType) {
         case PaintType.COLORED:
           var ctx = this.ctx;
           context.fillStyle = ctx.fillStyle;
           context.strokeStyle = ctx.strokeStyle;
+          current.fillColor = ctx.fillStyle;
+          current.strokeColor = ctx.strokeStyle;
           break;
         case PaintType.UNCOLORED:
           var cssColor = _util.Util.makeCssRgb(color[0], color[1], color[2]);
           context.fillStyle = cssColor;
           context.strokeStyle = cssColor;
+          current.fillColor = cssColor;
+          current.strokeColor = cssColor;
           break;
         default:
           throw new _util.FormatError('Unsupported paint type: ' + paintType);

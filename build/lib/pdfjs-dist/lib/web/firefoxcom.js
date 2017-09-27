@@ -31,11 +31,11 @@ var _preferences = require('./preferences');
 
 var _app = require('./app');
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 {
   throw new Error('Module "pdfjs-web/firefoxcom" shall not be used outside ' + 'FIREFOX and MOZCENTRAL builds.');
@@ -79,16 +79,23 @@ var FirefoxCom = function FirefoxComClosure() {
     }
   };
 }();
-var DownloadManager = function DownloadManagerClosure() {
-  function DownloadManager() {}
-  DownloadManager.prototype = {
-    downloadUrl: function DownloadManager_downloadUrl(url, filename) {
+
+var DownloadManager = function () {
+  function DownloadManager() {
+    _classCallCheck(this, DownloadManager);
+  }
+
+  _createClass(DownloadManager, [{
+    key: 'downloadUrl',
+    value: function downloadUrl(url, filename) {
       FirefoxCom.request('download', {
         originalUrl: url,
         filename: filename
       });
-    },
-    downloadData: function DownloadManager_downloadData(data, filename, contentType) {
+    }
+  }, {
+    key: 'downloadData',
+    value: function downloadData(data, filename, contentType) {
       var blobUrl = (0, _pdf.createObjectURL)(data, contentType, false);
       FirefoxCom.request('download', {
         blobUrl: blobUrl,
@@ -96,16 +103,18 @@ var DownloadManager = function DownloadManagerClosure() {
         filename: filename,
         isAttachment: true
       });
-    },
-    download: function DownloadManager_download(blob, url, filename) {
+    }
+  }, {
+    key: 'download',
+    value: function download(blob, url, filename) {
       var _this = this;
 
-      var blobUrl = window.URL.createObjectURL(blob);
+      var blobUrl = URL.createObjectURL(blob);
       var onResponse = function onResponse(err) {
         if (err && _this.onerror) {
           _this.onerror(err);
         }
-        window.URL.revokeObjectURL(blobUrl);
+        URL.revokeObjectURL(blobUrl);
       };
       FirefoxCom.request('download', {
         blobUrl: blobUrl,
@@ -113,7 +122,8 @@ var DownloadManager = function DownloadManagerClosure() {
         filename: filename
       }, onResponse);
     }
-  };
+  }]);
+
   return DownloadManager;
 }();
 
@@ -214,7 +224,7 @@ _app.PDFViewerApplication.externalServices = {
     FirefoxCom.request('updateFindControlState', data);
   },
   initPassiveLoading: function initPassiveLoading(callbacks) {
-    var pdfDataRangeTransport;
+    var pdfDataRangeTransport = void 0;
     window.addEventListener('message', function windowMessage(e) {
       if (e.source !== null) {
         console.warn('Rejected untrusted message from ' + e.origin);

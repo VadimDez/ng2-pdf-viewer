@@ -86,7 +86,7 @@ var PDFLinkService = function () {
             });
             return;
           }
-        } else if ((destRef | 0) === destRef) {
+        } else if (Number.isInteger(destRef)) {
           pageNumber = destRef + 1;
         } else {
           console.error('PDFLinkService.navigateTo: "' + destRef + '" is not ' + ('a valid destination reference, for dest="' + dest + '".'));
@@ -302,6 +302,14 @@ var PDFLinkService = function () {
     set: function set(value) {
       this.pdfViewer.currentPageNumber = value;
     }
+  }, {
+    key: 'rotation',
+    get: function get() {
+      return this.pdfViewer.pagesRotation;
+    },
+    set: function set(value) {
+      this.pdfViewer.pagesRotation = value;
+    }
   }]);
 
   return PDFLinkService;
@@ -317,7 +325,7 @@ function isValidExplicitDestination(dest) {
     return false;
   }
   var page = dest[0];
-  if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && typeof page.num === 'number' && (page.num | 0) === page.num && typeof page.gen === 'number' && (page.gen | 0) === page.gen) && !(typeof page === 'number' && (page | 0) === page && page >= 0)) {
+  if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && Number.isInteger(page.num) && Number.isInteger(page.gen)) && !(Number.isInteger(page) && page >= 0)) {
     return false;
   }
   var zoom = dest[1];
@@ -395,6 +403,12 @@ var SimpleLinkService = function () {
     value: function cachePageRef(pageNum, pageRef) {}
   }, {
     key: 'page',
+    get: function get() {
+      return 0;
+    },
+    set: function set(value) {}
+  }, {
+    key: 'rotation',
     get: function get() {
       return 0;
     },

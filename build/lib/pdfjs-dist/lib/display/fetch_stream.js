@@ -32,7 +32,7 @@ function createFetchOptions(headers, withCredentials) {
     method: 'GET',
     headers: headers,
     mode: 'cors',
-    credentials: withCredentials ? 'include' : 'omit',
+    credentials: withCredentials ? 'include' : 'same-origin',
     redirect: 'follow'
   };
 }
@@ -108,7 +108,7 @@ var PDFFetchStreamReader = function () {
     }
     var url = this._stream.source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
-      if (!(0, _network_utils.validateResponseStatus)(response.status, _this._stream.isHttp)) {
+      if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);
       }
       _this._reader = response.body.getReader();
@@ -221,7 +221,7 @@ var PDFFetchStreamRangeReader = function () {
     this._headers.append('Range', 'bytes=' + rangeStr);
     var url = this._stream.source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
-      if (!(0, _network_utils.validateResponseStatus)(response.status, _this3._stream.isHttp)) {
+      if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);
       }
       _this3._readCapability.resolve();
