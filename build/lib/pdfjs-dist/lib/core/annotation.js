@@ -86,6 +86,14 @@ var AnnotationFactory = function () {
           return new PopupAnnotation(parameters);
         case 'Line':
           return new LineAnnotation(parameters);
+        case 'Square':
+          return new SquareAnnotation(parameters);
+        case 'Circle':
+          return new CircleAnnotation(parameters);
+        case 'PolyLine':
+          return new PolylineAnnotation(parameters);
+        case 'Polygon':
+          return new PolygonAnnotation(parameters);
         case 'Highlight':
           return new HighlightAnnotation(parameters);
         case 'Underline':
@@ -94,6 +102,8 @@ var AnnotationFactory = function () {
           return new SquigglyAnnotation(parameters);
         case 'StrikeOut':
           return new StrikeOutAnnotation(parameters);
+        case 'Stamp':
+          return new StampAnnotation(parameters);
         case 'FileAttachment':
           return new FileAttachmentAnnotation(parameters);
         default:
@@ -346,7 +356,7 @@ var AnnotationBorderStyle = function () {
   _createClass(AnnotationBorderStyle, [{
     key: 'setWidth',
     value: function setWidth(width) {
-      if (width === (width | 0)) {
+      if (Number.isInteger(width)) {
         this.width = width;
       }
     }
@@ -404,14 +414,14 @@ var AnnotationBorderStyle = function () {
   }, {
     key: 'setHorizontalCornerRadius',
     value: function setHorizontalCornerRadius(radius) {
-      if (radius === (radius | 0)) {
+      if (Number.isInteger(radius)) {
         this.horizontalCornerRadius = radius;
       }
     }
   }, {
     key: 'setVerticalCornerRadius',
     value: function setVerticalCornerRadius(radius) {
-      if (radius === (radius | 0)) {
+      if (Number.isInteger(radius)) {
         this.verticalCornerRadius = radius;
       }
     }
@@ -722,83 +732,171 @@ var LineAnnotation = function (_Annotation5) {
   return LineAnnotation;
 }(Annotation);
 
-var HighlightAnnotation = function (_Annotation6) {
-  _inherits(HighlightAnnotation, _Annotation6);
+var SquareAnnotation = function (_Annotation6) {
+  _inherits(SquareAnnotation, _Annotation6);
+
+  function SquareAnnotation(parameters) {
+    _classCallCheck(this, SquareAnnotation);
+
+    var _this10 = _possibleConstructorReturn(this, (SquareAnnotation.__proto__ || Object.getPrototypeOf(SquareAnnotation)).call(this, parameters));
+
+    _this10.data.annotationType = _util.AnnotationType.SQUARE;
+    _this10._preparePopup(parameters.dict);
+    return _this10;
+  }
+
+  return SquareAnnotation;
+}(Annotation);
+
+var CircleAnnotation = function (_Annotation7) {
+  _inherits(CircleAnnotation, _Annotation7);
+
+  function CircleAnnotation(parameters) {
+    _classCallCheck(this, CircleAnnotation);
+
+    var _this11 = _possibleConstructorReturn(this, (CircleAnnotation.__proto__ || Object.getPrototypeOf(CircleAnnotation)).call(this, parameters));
+
+    _this11.data.annotationType = _util.AnnotationType.CIRCLE;
+    _this11._preparePopup(parameters.dict);
+    return _this11;
+  }
+
+  return CircleAnnotation;
+}(Annotation);
+
+var PolylineAnnotation = function (_Annotation8) {
+  _inherits(PolylineAnnotation, _Annotation8);
+
+  function PolylineAnnotation(parameters) {
+    _classCallCheck(this, PolylineAnnotation);
+
+    var _this12 = _possibleConstructorReturn(this, (PolylineAnnotation.__proto__ || Object.getPrototypeOf(PolylineAnnotation)).call(this, parameters));
+
+    _this12.data.annotationType = _util.AnnotationType.POLYLINE;
+    var dict = parameters.dict;
+    var rawVertices = dict.getArray('Vertices');
+    _this12.data.vertices = [];
+    for (var i = 0, ii = rawVertices.length; i < ii; i += 2) {
+      _this12.data.vertices.push({
+        x: rawVertices[i],
+        y: rawVertices[i + 1]
+      });
+    }
+    _this12._preparePopup(dict);
+    return _this12;
+  }
+
+  return PolylineAnnotation;
+}(Annotation);
+
+var PolygonAnnotation = function (_PolylineAnnotation) {
+  _inherits(PolygonAnnotation, _PolylineAnnotation);
+
+  function PolygonAnnotation(parameters) {
+    _classCallCheck(this, PolygonAnnotation);
+
+    var _this13 = _possibleConstructorReturn(this, (PolygonAnnotation.__proto__ || Object.getPrototypeOf(PolygonAnnotation)).call(this, parameters));
+
+    _this13.data.annotationType = _util.AnnotationType.POLYGON;
+    return _this13;
+  }
+
+  return PolygonAnnotation;
+}(PolylineAnnotation);
+
+var HighlightAnnotation = function (_Annotation9) {
+  _inherits(HighlightAnnotation, _Annotation9);
 
   function HighlightAnnotation(parameters) {
     _classCallCheck(this, HighlightAnnotation);
 
-    var _this10 = _possibleConstructorReturn(this, (HighlightAnnotation.__proto__ || Object.getPrototypeOf(HighlightAnnotation)).call(this, parameters));
+    var _this14 = _possibleConstructorReturn(this, (HighlightAnnotation.__proto__ || Object.getPrototypeOf(HighlightAnnotation)).call(this, parameters));
 
-    _this10.data.annotationType = _util.AnnotationType.HIGHLIGHT;
-    _this10._preparePopup(parameters.dict);
-    return _this10;
+    _this14.data.annotationType = _util.AnnotationType.HIGHLIGHT;
+    _this14._preparePopup(parameters.dict);
+    return _this14;
   }
 
   return HighlightAnnotation;
 }(Annotation);
 
-var UnderlineAnnotation = function (_Annotation7) {
-  _inherits(UnderlineAnnotation, _Annotation7);
+var UnderlineAnnotation = function (_Annotation10) {
+  _inherits(UnderlineAnnotation, _Annotation10);
 
   function UnderlineAnnotation(parameters) {
     _classCallCheck(this, UnderlineAnnotation);
 
-    var _this11 = _possibleConstructorReturn(this, (UnderlineAnnotation.__proto__ || Object.getPrototypeOf(UnderlineAnnotation)).call(this, parameters));
+    var _this15 = _possibleConstructorReturn(this, (UnderlineAnnotation.__proto__ || Object.getPrototypeOf(UnderlineAnnotation)).call(this, parameters));
 
-    _this11.data.annotationType = _util.AnnotationType.UNDERLINE;
-    _this11._preparePopup(parameters.dict);
-    return _this11;
+    _this15.data.annotationType = _util.AnnotationType.UNDERLINE;
+    _this15._preparePopup(parameters.dict);
+    return _this15;
   }
 
   return UnderlineAnnotation;
 }(Annotation);
 
-var SquigglyAnnotation = function (_Annotation8) {
-  _inherits(SquigglyAnnotation, _Annotation8);
+var SquigglyAnnotation = function (_Annotation11) {
+  _inherits(SquigglyAnnotation, _Annotation11);
 
   function SquigglyAnnotation(parameters) {
     _classCallCheck(this, SquigglyAnnotation);
 
-    var _this12 = _possibleConstructorReturn(this, (SquigglyAnnotation.__proto__ || Object.getPrototypeOf(SquigglyAnnotation)).call(this, parameters));
+    var _this16 = _possibleConstructorReturn(this, (SquigglyAnnotation.__proto__ || Object.getPrototypeOf(SquigglyAnnotation)).call(this, parameters));
 
-    _this12.data.annotationType = _util.AnnotationType.SQUIGGLY;
-    _this12._preparePopup(parameters.dict);
-    return _this12;
+    _this16.data.annotationType = _util.AnnotationType.SQUIGGLY;
+    _this16._preparePopup(parameters.dict);
+    return _this16;
   }
 
   return SquigglyAnnotation;
 }(Annotation);
 
-var StrikeOutAnnotation = function (_Annotation9) {
-  _inherits(StrikeOutAnnotation, _Annotation9);
+var StrikeOutAnnotation = function (_Annotation12) {
+  _inherits(StrikeOutAnnotation, _Annotation12);
 
   function StrikeOutAnnotation(parameters) {
     _classCallCheck(this, StrikeOutAnnotation);
 
-    var _this13 = _possibleConstructorReturn(this, (StrikeOutAnnotation.__proto__ || Object.getPrototypeOf(StrikeOutAnnotation)).call(this, parameters));
+    var _this17 = _possibleConstructorReturn(this, (StrikeOutAnnotation.__proto__ || Object.getPrototypeOf(StrikeOutAnnotation)).call(this, parameters));
 
-    _this13.data.annotationType = _util.AnnotationType.STRIKEOUT;
-    _this13._preparePopup(parameters.dict);
-    return _this13;
+    _this17.data.annotationType = _util.AnnotationType.STRIKEOUT;
+    _this17._preparePopup(parameters.dict);
+    return _this17;
   }
 
   return StrikeOutAnnotation;
 }(Annotation);
 
-var FileAttachmentAnnotation = function (_Annotation10) {
-  _inherits(FileAttachmentAnnotation, _Annotation10);
+var StampAnnotation = function (_Annotation13) {
+  _inherits(StampAnnotation, _Annotation13);
+
+  function StampAnnotation(parameters) {
+    _classCallCheck(this, StampAnnotation);
+
+    var _this18 = _possibleConstructorReturn(this, (StampAnnotation.__proto__ || Object.getPrototypeOf(StampAnnotation)).call(this, parameters));
+
+    _this18.data.annotationType = _util.AnnotationType.STAMP;
+    _this18._preparePopup(parameters.dict);
+    return _this18;
+  }
+
+  return StampAnnotation;
+}(Annotation);
+
+var FileAttachmentAnnotation = function (_Annotation14) {
+  _inherits(FileAttachmentAnnotation, _Annotation14);
 
   function FileAttachmentAnnotation(parameters) {
     _classCallCheck(this, FileAttachmentAnnotation);
 
-    var _this14 = _possibleConstructorReturn(this, (FileAttachmentAnnotation.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotation)).call(this, parameters));
+    var _this19 = _possibleConstructorReturn(this, (FileAttachmentAnnotation.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotation)).call(this, parameters));
 
     var file = new _obj.FileSpec(parameters.dict.get('FS'), parameters.xref);
-    _this14.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
-    _this14.data.file = file.serializable;
-    _this14._preparePopup(parameters.dict);
-    return _this14;
+    _this19.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
+    _this19.data.file = file.serializable;
+    _this19._preparePopup(parameters.dict);
+    return _this19;
   }
 
   return FileAttachmentAnnotation;

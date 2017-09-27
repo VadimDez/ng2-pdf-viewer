@@ -37,6 +37,8 @@ var _crypto = require('./crypto');
 
 var _parser = require('./parser');
 
+var _function = require('./function');
+
 var Page = function PageClosure() {
   var DEFAULT_USER_UNIT = 1.0;
   var LETTER_SIZE_MEDIABOX = [0, 0, 612, 792];
@@ -474,6 +476,8 @@ var PDFDocument = function PDFDocumentClosure() {
         }
       };
       this.catalog = new _obj.Catalog(this.pdfManager, this.xref, pageFactory);
+      var evaluatorOptions = this.pdfManager.evaluatorOptions;
+      _function.PDFFunction.setIsEvalSupported(evaluatorOptions.isEvalSupported);
     },
     get numPages() {
       var linearization = this.linearization;

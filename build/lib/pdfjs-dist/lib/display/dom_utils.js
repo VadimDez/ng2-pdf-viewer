@@ -17,7 +17,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DOMCMapReaderFactory = exports.DOMCanvasFactory = exports.DEFAULT_LINK_REL = exports.getDefaultSetting = exports.LinkTarget = exports.getFilenameFromUrl = exports.isValidUrl = exports.isExternalLinkTargetSet = exports.addLinkAttributes = exports.RenderingCancelledException = exports.CustomStyle = undefined;
+exports.SimpleXMLParser = exports.DOMSVGFactory = exports.DOMCMapReaderFactory = exports.DOMCanvasFactory = exports.DEFAULT_LINK_REL = exports.getDefaultSetting = exports.LinkTarget = exports.getFilenameFromUrl = exports.isValidUrl = exports.isExternalLinkTargetSet = exports.addLinkAttributes = exports.RenderingCancelledException = exports.CustomStyle = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -32,6 +32,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DEFAULT_LINK_REL = 'noopener noreferrer nofollow';
+var SVG_NS = 'http://www.w3.org/2000/svg';
 
 var DOMCanvasFactory = function () {
   function DOMCanvasFactory() {
@@ -138,6 +139,164 @@ var DOMCMapReaderFactory = function () {
   }]);
 
   return DOMCMapReaderFactory;
+}();
+
+var DOMSVGFactory = function () {
+  function DOMSVGFactory() {
+    _classCallCheck(this, DOMSVGFactory);
+  }
+
+  _createClass(DOMSVGFactory, [{
+    key: 'create',
+    value: function create(width, height) {
+      (0, _util.assert)(width > 0 && height > 0, 'Invalid SVG dimensions');
+      var svg = document.createElementNS(SVG_NS, 'svg:svg');
+      svg.setAttribute('version', '1.1');
+      svg.setAttribute('width', width + 'px');
+      svg.setAttribute('height', height + 'px');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      return svg;
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement(type) {
+      (0, _util.assert)(typeof type === 'string', 'Invalid SVG element type');
+      return document.createElementNS(SVG_NS, type);
+    }
+  }]);
+
+  return DOMSVGFactory;
+}();
+
+var SimpleDOMNode = function () {
+  function SimpleDOMNode(nodeName, nodeValue) {
+    _classCallCheck(this, SimpleDOMNode);
+
+    this.nodeName = nodeName;
+    this.nodeValue = nodeValue;
+    Object.defineProperty(this, 'parentNode', {
+      value: null,
+      writable: true
+    });
+  }
+
+  _createClass(SimpleDOMNode, [{
+    key: 'hasChildNodes',
+    value: function hasChildNodes() {
+      return this.childNodes && this.childNodes.length > 0;
+    }
+  }, {
+    key: 'firstChild',
+    get: function get() {
+      return this.childNodes[0];
+    }
+  }, {
+    key: 'nextSibling',
+    get: function get() {
+      var index = this.parentNode.childNodes.indexOf(this);
+      return this.parentNode.childNodes[index + 1];
+    }
+  }, {
+    key: 'textContent',
+    get: function get() {
+      if (!this.childNodes) {
+        return this.nodeValue || '';
+      }
+      return this.childNodes.map(function (child) {
+        return child.textContent;
+      }).join('');
+    }
+  }]);
+
+  return SimpleDOMNode;
+}();
+
+var SimpleXMLParser = function () {
+  function SimpleXMLParser() {
+    _classCallCheck(this, SimpleXMLParser);
+  }
+
+  _createClass(SimpleXMLParser, [{
+    key: 'parseFromString',
+    value: function parseFromString(data) {
+      var _this2 = this;
+
+      var nodes = [];
+      data = data.replace(/<\?[\s\S]*?\?>|<!--[\s\S]*?-->/g, '').trim();
+      data = data.replace(/<!DOCTYPE[^>\[]+(\[[^\]]+)?[^>]+>/g, '').trim();
+      data = data.replace(/>([^<][\s\S]*?)</g, function (all, text) {
+        var length = nodes.length;
+        var node = new SimpleDOMNode('#text', _this2._decodeXML(text));
+        nodes.push(node);
+        if (node.textContent.trim().length === 0) {
+          return '><';
+        }
+        return '>' + length + ',<';
+      });
+      data = data.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, function (all, text) {
+        var length = nodes.length;
+        var node = new SimpleDOMNode('#text', text);
+        nodes.push(node);
+        return length + ',';
+      });
+      var regex = /<([\w\:]+)((?:[\s\w:=]|'[^']*'|"[^"]*")*)(?:\/>|>([\d,]*)<\/[^>]+>)/g;
+      var lastLength = void 0;
+      do {
+        lastLength = nodes.length;
+        data = data.replace(regex, function (all, name, attrs, data) {
+          var length = nodes.length;
+          var node = new SimpleDOMNode(name);
+          var children = [];
+          if (data) {
+            data = data.split(',');
+            data.pop();
+            data.forEach(function (child) {
+              var childNode = nodes[+child];
+              childNode.parentNode = node;
+              children.push(childNode);
+            });
+          }
+          node.childNodes = children;
+          nodes.push(node);
+          return length + ',';
+        });
+      } while (lastLength < nodes.length);
+      return { documentElement: nodes.pop() };
+    }
+  }, {
+    key: '_decodeXML',
+    value: function _decodeXML(text) {
+      if (text.indexOf('&') < 0) {
+        return text;
+      }
+      return text.replace(/&(#(x[0-9a-f]+|\d+)|\w+);/gi, function (all, entityName, number) {
+        if (number) {
+          if (number[0] === 'x') {
+            number = parseInt(number.substring(1), 16);
+          } else {
+            number = +number;
+          }
+          return String.fromCharCode(number);
+        }
+        switch (entityName) {
+          case 'amp':
+            return '&';
+          case 'lt':
+            return '<';
+          case 'gt':
+            return '>';
+          case 'quot':
+            return '\"';
+          case 'apos':
+            return '\'';
+        }
+        return '&' + entityName + ';';
+      });
+    }
+  }]);
+
+  return SimpleXMLParser;
 }();
 
 var CustomStyle = function CustomStyleClosure() {
@@ -300,3 +459,5 @@ exports.getDefaultSetting = getDefaultSetting;
 exports.DEFAULT_LINK_REL = DEFAULT_LINK_REL;
 exports.DOMCanvasFactory = DOMCanvasFactory;
 exports.DOMCMapReaderFactory = DOMCMapReaderFactory;
+exports.DOMSVGFactory = DOMSVGFactory;
+exports.SimpleXMLParser = SimpleXMLParser;

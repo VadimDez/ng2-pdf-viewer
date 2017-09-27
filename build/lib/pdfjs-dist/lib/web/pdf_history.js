@@ -31,7 +31,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var HASH_CHANGE_TIMEOUT = 1000;
 var POSITION_UPDATED_THRESHOLD = 50;
-var UPDATE_VIEWAREA_TIMEOUT = 2000;
+var UPDATE_VIEWAREA_TIMEOUT = 1000;
 function getCurrentHash() {
   return document.location.hash;
 }
@@ -44,7 +44,8 @@ function parseCurrentHash(linkService) {
   }
   return {
     hash: hash,
-    page: page
+    page: page,
+    rotation: linkService.rotation
   };
 }
 
@@ -61,6 +62,7 @@ var PDFHistory = function () {
     this.eventBus = eventBus || (0, _dom_events.getGlobalEventBus)();
     this.initialized = false;
     this.initialBookmark = null;
+    this.initialRotation = null;
     this._boundEvents = Object.create(null);
     this._isViewerInPresentationMode = false;
     this._isPagesLoaded = false;
@@ -89,6 +91,7 @@ var PDFHistory = function () {
       var state = window.history.state;
       this.initialized = true;
       this.initialBookmark = null;
+      this.initialRotation = null;
       this._popStateInProgress = false;
       this._blockHashChange = 0;
       this._currentHash = getCurrentHash();
@@ -99,7 +102,8 @@ var PDFHistory = function () {
       if (!this._isValidState(state) || resetHistory) {
         var _parseCurrentHash = parseCurrentHash(this.linkService),
             hash = _parseCurrentHash.hash,
-            page = _parseCurrentHash.page;
+            page = _parseCurrentHash.page,
+            rotation = _parseCurrentHash.rotation;
 
         if (!hash || reInitialized || resetHistory) {
           this._pushOrReplaceState(null, true);
@@ -107,12 +111,16 @@ var PDFHistory = function () {
         }
         this._pushOrReplaceState({
           hash: hash,
-          page: page
+          page: page,
+          rotation: rotation
         }, true);
         return;
       }
       var destination = state.destination;
       this._updateInternalState(destination, state.uid, true);
+      if (destination.rotation !== undefined) {
+        this.initialRotation = destination.rotation;
+      }
       if (destination.dest) {
         this.initialBookmark = JSON.stringify(destination.dest);
         this._destination.page = null;
@@ -125,6 +133,8 @@ var PDFHistory = function () {
   }, {
     key: 'push',
     value: function push(_ref2) {
+      var _this2 = this;
+
       var namedDest = _ref2.namedDest,
           explicitDest = _ref2.explicitDest,
           pageNumber = _ref2.pageNumber;
@@ -153,8 +163,15 @@ var PDFHistory = function () {
       this._pushOrReplaceState({
         dest: explicitDest,
         hash: hash,
-        page: pageNumber
+        page: pageNumber,
+        rotation: this.linkService.rotation
       }, forceReplace);
+      if (!this._popStateInProgress) {
+        this._popStateInProgress = true;
+        Promise.resolve().then(function () {
+          _this2._popStateInProgress = false;
+        });
+      }
     }
   }, {
     key: 'pushCurrentPosition',
@@ -262,6 +279,10 @@ var PDFHistory = function () {
     value: function _updateInternalState(destination, uid) {
       var removeTemporary = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
+      if (this._updateViewareaTimeout) {
+        clearTimeout(this._updateViewareaTimeout);
+        this._updateViewareaTimeout = null;
+      }
       if (removeTemporary && destination && destination.temporary) {
         delete destination.temporary;
       }
@@ -273,7 +294,7 @@ var PDFHistory = function () {
   }, {
     key: '_updateViewarea',
     value: function _updateViewarea(_ref3) {
-      var _this2 = this;
+      var _this3 = this;
 
       var location = _ref3.location;
 
@@ -284,7 +305,8 @@ var PDFHistory = function () {
       this._position = {
         hash: this._isViewerInPresentationMode ? 'page=' + location.pageNumber : location.pdfOpenParams.substring(1),
         page: this.linkService.page,
-        first: location.pageNumber
+        first: location.pageNumber,
+        rotation: location.rotation
       };
       if (this._popStateInProgress) {
         return;
@@ -294,17 +316,17 @@ var PDFHistory = function () {
       }
       if (UPDATE_VIEWAREA_TIMEOUT > 0) {
         this._updateViewareaTimeout = setTimeout(function () {
-          if (!_this2._popStateInProgress) {
-            _this2._tryPushCurrentPosition(true);
+          if (!_this3._popStateInProgress) {
+            _this3._tryPushCurrentPosition(true);
           }
-          _this2._updateViewareaTimeout = null;
+          _this3._updateViewareaTimeout = null;
         }, UPDATE_VIEWAREA_TIMEOUT);
       }
     }
   }, {
     key: '_popState',
     value: function _popState(_ref4) {
-      var _this3 = this;
+      var _this4 = this;
 
       var state = _ref4.state;
 
@@ -316,11 +338,13 @@ var PDFHistory = function () {
 
         var _parseCurrentHash2 = parseCurrentHash(this.linkService),
             hash = _parseCurrentHash2.hash,
-            page = _parseCurrentHash2.page;
+            page = _parseCurrentHash2.page,
+            rotation = _parseCurrentHash2.rotation;
 
         this._pushOrReplaceState({
           hash: hash,
-          page: page
+          page: page,
+          rotation: rotation
         }, true);
         return;
       }
@@ -335,27 +359,14 @@ var PDFHistory = function () {
           name: 'hashchange',
           delay: HASH_CHANGE_TIMEOUT
         }).then(function () {
-          _this3._blockHashChange--;
+          _this4._blockHashChange--;
         });
-      }
-      if (state.uid < this._currentUid && this._position && this._destination) {
-        var shouldGoBack = false;
-        if (this._destination.temporary) {
-          this._pushOrReplaceState(this._position);
-          shouldGoBack = true;
-        } else if (this._destination.page && this._destination.page !== this._position.first && this._destination.page !== this._position.page) {
-          this._pushOrReplaceState(this._destination);
-          this._pushOrReplaceState(this._position);
-          shouldGoBack = true;
-        }
-        if (shouldGoBack) {
-          this._currentUid = state.uid;
-          window.history.back();
-          return;
-        }
       }
       var destination = state.destination;
       this._updateInternalState(destination, state.uid, true);
+      if ((0, _ui_utils.isValidRotation)(destination.rotation)) {
+        this.linkService.rotation = destination.rotation;
+      }
       if (destination.dest) {
         this.linkService.navigateTo(destination.dest);
       } else if (destination.hash) {
@@ -364,13 +375,13 @@ var PDFHistory = function () {
         this.linkService.page = destination.page;
       }
       Promise.resolve().then(function () {
-        _this3._popStateInProgress = false;
+        _this4._popStateInProgress = false;
       });
     }
   }, {
     key: '_bindEvents',
     value: function _bindEvents() {
-      var _this4 = this;
+      var _this5 = this;
 
       var _boundEvents = this._boundEvents,
           eventBus = this.eventBus;
@@ -378,8 +389,8 @@ var PDFHistory = function () {
       _boundEvents.updateViewarea = this._updateViewarea.bind(this);
       _boundEvents.popState = this._popState.bind(this);
       _boundEvents.pageHide = function (evt) {
-        if (!_this4._destination) {
-          _this4._tryPushCurrentPosition();
+        if (!_this5._destination) {
+          _this5._tryPushCurrentPosition();
         }
       };
       eventBus.on('updateviewarea', _boundEvents.updateViewarea);

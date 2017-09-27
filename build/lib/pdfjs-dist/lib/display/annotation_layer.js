@@ -66,6 +66,14 @@ var AnnotationElementFactory = function () {
           return new PopupAnnotationElement(parameters);
         case _util.AnnotationType.LINE:
           return new LineAnnotationElement(parameters);
+        case _util.AnnotationType.SQUARE:
+          return new SquareAnnotationElement(parameters);
+        case _util.AnnotationType.CIRCLE:
+          return new CircleAnnotationElement(parameters);
+        case _util.AnnotationType.POLYLINE:
+          return new PolylineAnnotationElement(parameters);
+        case _util.AnnotationType.POLYGON:
+          return new PolygonAnnotationElement(parameters);
         case _util.AnnotationType.HIGHLIGHT:
           return new HighlightAnnotationElement(parameters);
         case _util.AnnotationType.UNDERLINE:
@@ -74,6 +82,8 @@ var AnnotationElementFactory = function () {
           return new SquigglyAnnotationElement(parameters);
         case _util.AnnotationType.STRIKEOUT:
           return new StrikeOutAnnotationElement(parameters);
+        case _util.AnnotationType.STAMP:
+          return new StampAnnotationElement(parameters);
         case _util.AnnotationType.FILEATTACHMENT:
           return new FileAttachmentAnnotationElement(parameters);
         default:
@@ -101,6 +111,7 @@ var AnnotationElement = function () {
     this.downloadManager = parameters.downloadManager;
     this.imageResourcesPath = parameters.imageResourcesPath;
     this.renderInteractiveForms = parameters.renderInteractiveForms;
+    this.svgFactory = parameters.svgFactory;
     if (isRenderable) {
       this.container = this._createContainer(ignoreBorder);
     }
@@ -201,7 +212,8 @@ var LinkAnnotationElement = function (_AnnotationElement) {
   function LinkAnnotationElement(parameters) {
     _classCallCheck(this, LinkAnnotationElement);
 
-    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, true));
+    var isRenderable = !!(parameters.data.url || parameters.data.dest || parameters.data.action);
+    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, isRenderable));
   }
 
   _createClass(LinkAnnotationElement, [{
@@ -486,7 +498,7 @@ var PopupAnnotationElement = function (_AnnotationElement4) {
   _createClass(PopupAnnotationElement, [{
     key: 'render',
     value: function render() {
-      var IGNORE_TYPES = ['Line'];
+      var IGNORE_TYPES = ['Line', 'Square', 'Circle', 'PolyLine', 'Polygon'];
       this.container.className = 'popupAnnotation';
       if (IGNORE_TYPES.indexOf(this.data.parentType) >= 0) {
         return this.container;
@@ -624,27 +636,21 @@ var LineAnnotationElement = function (_AnnotationElement5) {
   _createClass(LineAnnotationElement, [{
     key: 'render',
     value: function render() {
-      var SVG_NS = 'http://www.w3.org/2000/svg';
       this.container.className = 'lineAnnotation';
       var data = this.data;
       var width = data.rect[2] - data.rect[0];
       var height = data.rect[3] - data.rect[1];
-      var svg = document.createElementNS(SVG_NS, 'svg:svg');
-      svg.setAttributeNS(null, 'version', '1.1');
-      svg.setAttributeNS(null, 'width', width + 'px');
-      svg.setAttributeNS(null, 'height', height + 'px');
-      svg.setAttributeNS(null, 'preserveAspectRatio', 'none');
-      svg.setAttributeNS(null, 'viewBox', '0 0 ' + width + ' ' + height);
-      var line = document.createElementNS(SVG_NS, 'svg:line');
-      line.setAttributeNS(null, 'x1', data.rect[2] - data.lineCoordinates[0]);
-      line.setAttributeNS(null, 'y1', data.rect[3] - data.lineCoordinates[1]);
-      line.setAttributeNS(null, 'x2', data.rect[2] - data.lineCoordinates[2]);
-      line.setAttributeNS(null, 'y2', data.rect[3] - data.lineCoordinates[3]);
-      line.setAttributeNS(null, 'stroke-width', data.borderStyle.width);
-      line.setAttributeNS(null, 'stroke', 'transparent');
+      var svg = this.svgFactory.create(width, height);
+      var line = this.svgFactory.createElement('svg:line');
+      line.setAttribute('x1', data.rect[2] - data.lineCoordinates[0]);
+      line.setAttribute('y1', data.rect[3] - data.lineCoordinates[1]);
+      line.setAttribute('x2', data.rect[2] - data.lineCoordinates[2]);
+      line.setAttribute('y2', data.rect[3] - data.lineCoordinates[3]);
+      line.setAttribute('stroke-width', data.borderStyle.width);
+      line.setAttribute('stroke', 'transparent');
       svg.appendChild(line);
       this.container.append(svg);
-      this._createPopup(this.container, line, this.data);
+      this._createPopup(this.container, line, data);
       return this.container;
     }
   }]);
@@ -652,8 +658,145 @@ var LineAnnotationElement = function (_AnnotationElement5) {
   return LineAnnotationElement;
 }(AnnotationElement);
 
-var HighlightAnnotationElement = function (_AnnotationElement6) {
-  _inherits(HighlightAnnotationElement, _AnnotationElement6);
+var SquareAnnotationElement = function (_AnnotationElement6) {
+  _inherits(SquareAnnotationElement, _AnnotationElement6);
+
+  function SquareAnnotationElement(parameters) {
+    _classCallCheck(this, SquareAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (SquareAnnotationElement.__proto__ || Object.getPrototypeOf(SquareAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(SquareAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'squareAnnotation';
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var borderWidth = data.borderStyle.width;
+      var square = this.svgFactory.createElement('svg:rect');
+      square.setAttribute('x', borderWidth / 2);
+      square.setAttribute('y', borderWidth / 2);
+      square.setAttribute('width', width - borderWidth);
+      square.setAttribute('height', height - borderWidth);
+      square.setAttribute('stroke-width', borderWidth);
+      square.setAttribute('stroke', 'transparent');
+      square.setAttribute('fill', 'none');
+      svg.appendChild(square);
+      this.container.append(svg);
+      this._createPopup(this.container, square, data);
+      return this.container;
+    }
+  }]);
+
+  return SquareAnnotationElement;
+}(AnnotationElement);
+
+var CircleAnnotationElement = function (_AnnotationElement7) {
+  _inherits(CircleAnnotationElement, _AnnotationElement7);
+
+  function CircleAnnotationElement(parameters) {
+    _classCallCheck(this, CircleAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (CircleAnnotationElement.__proto__ || Object.getPrototypeOf(CircleAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(CircleAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'circleAnnotation';
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var borderWidth = data.borderStyle.width;
+      var circle = this.svgFactory.createElement('svg:ellipse');
+      circle.setAttribute('cx', width / 2);
+      circle.setAttribute('cy', height / 2);
+      circle.setAttribute('rx', width / 2 - borderWidth / 2);
+      circle.setAttribute('ry', height / 2 - borderWidth / 2);
+      circle.setAttribute('stroke-width', borderWidth);
+      circle.setAttribute('stroke', 'transparent');
+      circle.setAttribute('fill', 'none');
+      svg.appendChild(circle);
+      this.container.append(svg);
+      this._createPopup(this.container, circle, data);
+      return this.container;
+    }
+  }]);
+
+  return CircleAnnotationElement;
+}(AnnotationElement);
+
+var PolylineAnnotationElement = function (_AnnotationElement8) {
+  _inherits(PolylineAnnotationElement, _AnnotationElement8);
+
+  function PolylineAnnotationElement(parameters) {
+    _classCallCheck(this, PolylineAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+
+    var _this14 = _possibleConstructorReturn(this, (PolylineAnnotationElement.__proto__ || Object.getPrototypeOf(PolylineAnnotationElement)).call(this, parameters, isRenderable, true));
+
+    _this14.containerClassName = 'polylineAnnotation';
+    _this14.svgElementName = 'svg:polyline';
+    return _this14;
+  }
+
+  _createClass(PolylineAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = this.containerClassName;
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var vertices = data.vertices;
+      var points = [];
+      for (var i = 0, ii = vertices.length; i < ii; i++) {
+        var x = vertices[i].x - data.rect[0];
+        var y = data.rect[3] - vertices[i].y;
+        points.push(x + ',' + y);
+      }
+      points = points.join(' ');
+      var borderWidth = data.borderStyle.width;
+      var polyline = this.svgFactory.createElement(this.svgElementName);
+      polyline.setAttribute('points', points);
+      polyline.setAttribute('stroke-width', borderWidth);
+      polyline.setAttribute('stroke', 'transparent');
+      polyline.setAttribute('fill', 'none');
+      svg.appendChild(polyline);
+      this.container.append(svg);
+      this._createPopup(this.container, polyline, data);
+      return this.container;
+    }
+  }]);
+
+  return PolylineAnnotationElement;
+}(AnnotationElement);
+
+var PolygonAnnotationElement = function (_PolylineAnnotationEl) {
+  _inherits(PolygonAnnotationElement, _PolylineAnnotationEl);
+
+  function PolygonAnnotationElement(parameters) {
+    _classCallCheck(this, PolygonAnnotationElement);
+
+    var _this15 = _possibleConstructorReturn(this, (PolygonAnnotationElement.__proto__ || Object.getPrototypeOf(PolygonAnnotationElement)).call(this, parameters));
+
+    _this15.containerClassName = 'polygonAnnotation';
+    _this15.svgElementName = 'svg:polygon';
+    return _this15;
+  }
+
+  return PolygonAnnotationElement;
+}(PolylineAnnotationElement);
+
+var HighlightAnnotationElement = function (_AnnotationElement9) {
+  _inherits(HighlightAnnotationElement, _AnnotationElement9);
 
   function HighlightAnnotationElement(parameters) {
     _classCallCheck(this, HighlightAnnotationElement);
@@ -676,8 +819,8 @@ var HighlightAnnotationElement = function (_AnnotationElement6) {
   return HighlightAnnotationElement;
 }(AnnotationElement);
 
-var UnderlineAnnotationElement = function (_AnnotationElement7) {
-  _inherits(UnderlineAnnotationElement, _AnnotationElement7);
+var UnderlineAnnotationElement = function (_AnnotationElement10) {
+  _inherits(UnderlineAnnotationElement, _AnnotationElement10);
 
   function UnderlineAnnotationElement(parameters) {
     _classCallCheck(this, UnderlineAnnotationElement);
@@ -700,8 +843,8 @@ var UnderlineAnnotationElement = function (_AnnotationElement7) {
   return UnderlineAnnotationElement;
 }(AnnotationElement);
 
-var SquigglyAnnotationElement = function (_AnnotationElement8) {
-  _inherits(SquigglyAnnotationElement, _AnnotationElement8);
+var SquigglyAnnotationElement = function (_AnnotationElement11) {
+  _inherits(SquigglyAnnotationElement, _AnnotationElement11);
 
   function SquigglyAnnotationElement(parameters) {
     _classCallCheck(this, SquigglyAnnotationElement);
@@ -724,8 +867,8 @@ var SquigglyAnnotationElement = function (_AnnotationElement8) {
   return SquigglyAnnotationElement;
 }(AnnotationElement);
 
-var StrikeOutAnnotationElement = function (_AnnotationElement9) {
-  _inherits(StrikeOutAnnotationElement, _AnnotationElement9);
+var StrikeOutAnnotationElement = function (_AnnotationElement12) {
+  _inherits(StrikeOutAnnotationElement, _AnnotationElement12);
 
   function StrikeOutAnnotationElement(parameters) {
     _classCallCheck(this, StrikeOutAnnotationElement);
@@ -748,23 +891,47 @@ var StrikeOutAnnotationElement = function (_AnnotationElement9) {
   return StrikeOutAnnotationElement;
 }(AnnotationElement);
 
-var FileAttachmentAnnotationElement = function (_AnnotationElement10) {
-  _inherits(FileAttachmentAnnotationElement, _AnnotationElement10);
+var StampAnnotationElement = function (_AnnotationElement13) {
+  _inherits(StampAnnotationElement, _AnnotationElement13);
+
+  function StampAnnotationElement(parameters) {
+    _classCallCheck(this, StampAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (StampAnnotationElement.__proto__ || Object.getPrototypeOf(StampAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(StampAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'stampAnnotation';
+      if (!this.data.hasPopup) {
+        this._createPopup(this.container, null, this.data);
+      }
+      return this.container;
+    }
+  }]);
+
+  return StampAnnotationElement;
+}(AnnotationElement);
+
+var FileAttachmentAnnotationElement = function (_AnnotationElement14) {
+  _inherits(FileAttachmentAnnotationElement, _AnnotationElement14);
 
   function FileAttachmentAnnotationElement(parameters) {
     _classCallCheck(this, FileAttachmentAnnotationElement);
 
-    var _this16 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
+    var _this21 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
 
-    var file = _this16.data.file;
-    _this16.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
-    _this16.content = file.content;
-    _this16.linkService.onFileAttachmentAnnotation({
+    var file = _this21.data.file;
+    _this21.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
+    _this21.content = file.content;
+    _this21.linkService.onFileAttachmentAnnotation({
       id: (0, _util.stringToPDFString)(file.filename),
       filename: file.filename,
       content: file.content
     });
-    return _this16;
+    return _this21;
   }
 
   _createClass(FileAttachmentAnnotationElement, [{
@@ -816,7 +983,8 @@ var AnnotationLayer = function () {
           linkService: parameters.linkService,
           downloadManager: parameters.downloadManager,
           imageResourcesPath: parameters.imageResourcesPath || (0, _dom_utils.getDefaultSetting)('imageResourcesPath'),
-          renderInteractiveForms: parameters.renderInteractiveForms || false
+          renderInteractiveForms: parameters.renderInteractiveForms || false,
+          svgFactory: new _dom_utils.DOMSVGFactory()
         });
         if (element.isRenderable) {
           parameters.div.appendChild(element.render());

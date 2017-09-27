@@ -17,72 +17,100 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-function fixMetadata(meta) {
-  return meta.replace(/>\\376\\377([^<]+)/g, function (all, codes) {
-    var bytes = codes.replace(/\\([0-3])([0-7])([0-7])/g, function (code, d1, d2, d3) {
-      return String.fromCharCode(d1 * 64 + d2 * 8 + d3 * 1);
-    });
-    var chars = '';
-    for (var i = 0; i < bytes.length; i += 2) {
-      var code = bytes.charCodeAt(i) * 256 + bytes.charCodeAt(i + 1);
-      chars += code >= 32 && code < 127 && code !== 60 && code !== 62 && code !== 38 ? String.fromCharCode(code) : '&#x' + (0x10000 + code).toString(16).substring(1) + ';';
-    }
-    return '>' + chars;
-  });
-}
-function Metadata(meta) {
-  if (typeof meta === 'string') {
-    meta = fixMetadata(meta);
-    var parser = new DOMParser();
-    meta = parser.parseFromString(meta, 'application/xml');
-  } else if (!(meta instanceof Document)) {
-    throw new Error('Metadata: Invalid metadata object');
+exports.Metadata = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _util = require('../shared/util');
+
+var _dom_utils = require('./dom_utils');
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Metadata = function () {
+  function Metadata(data) {
+    _classCallCheck(this, Metadata);
+
+    (0, _util.assert)(typeof data === 'string', 'Metadata: input is not a string');
+    data = this._repair(data);
+    var parser = new _dom_utils.SimpleXMLParser();
+    data = parser.parseFromString(data);
+    this._metadata = Object.create(null);
+    this._parse(data);
   }
-  this.metaDocument = meta;
-  this.metadata = Object.create(null);
-  this.parse();
-}
-Metadata.prototype = {
-  parse: function Metadata_parse() {
-    var doc = this.metaDocument;
-    var rdf = doc.documentElement;
-    if (rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
-      rdf = rdf.firstChild;
-      while (rdf && rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
-        rdf = rdf.nextSibling;
-      }
+
+  _createClass(Metadata, [{
+    key: '_repair',
+    value: function _repair(data) {
+      return data.replace(/>\\376\\377([^<]+)/g, function (all, codes) {
+        var bytes = codes.replace(/\\([0-3])([0-7])([0-7])/g, function (code, d1, d2, d3) {
+          return String.fromCharCode(d1 * 64 + d2 * 8 + d3 * 1);
+        });
+        var chars = '';
+        for (var i = 0, ii = bytes.length; i < ii; i += 2) {
+          var code = bytes.charCodeAt(i) * 256 + bytes.charCodeAt(i + 1);
+          if (code >= 32 && code < 127 && code !== 60 && code !== 62 && code !== 38) {
+            chars += String.fromCharCode(code);
+          } else {
+            chars += '&#x' + (0x10000 + code).toString(16).substring(1) + ';';
+          }
+        }
+        return '>' + chars;
+      });
     }
-    var nodeName = rdf ? rdf.nodeName.toLowerCase() : null;
-    if (!rdf || nodeName !== 'rdf:rdf' || !rdf.hasChildNodes()) {
-      return;
-    }
-    var children = rdf.childNodes,
-        desc,
-        entry,
-        name,
-        i,
-        ii,
-        length,
-        iLength;
-    for (i = 0, length = children.length; i < length; i++) {
-      desc = children[i];
-      if (desc.nodeName.toLowerCase() !== 'rdf:description') {
-        continue;
+  }, {
+    key: '_parse',
+    value: function _parse(domDocument) {
+      var rdf = domDocument.documentElement;
+      if (rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
+        rdf = rdf.firstChild;
+        while (rdf && rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
+          rdf = rdf.nextSibling;
+        }
       }
-      for (ii = 0, iLength = desc.childNodes.length; ii < iLength; ii++) {
-        if (desc.childNodes[ii].nodeName.toLowerCase() !== '#text') {
-          entry = desc.childNodes[ii];
-          name = entry.nodeName.toLowerCase();
-          this.metadata[name] = entry.textContent.trim();
+      var nodeName = rdf ? rdf.nodeName.toLowerCase() : null;
+      if (!rdf || nodeName !== 'rdf:rdf' || !rdf.hasChildNodes()) {
+        return;
+      }
+      var children = rdf.childNodes;
+      for (var i = 0, ii = children.length; i < ii; i++) {
+        var desc = children[i];
+        if (desc.nodeName.toLowerCase() !== 'rdf:description') {
+          continue;
+        }
+        for (var j = 0, jj = desc.childNodes.length; j < jj; j++) {
+          if (desc.childNodes[j].nodeName.toLowerCase() !== '#text') {
+            var entry = desc.childNodes[j];
+            var name = entry.nodeName.toLowerCase();
+            this._metadata[name] = entry.textContent.trim();
+          }
         }
       }
     }
-  },
-  get: function Metadata_get(name) {
-    return this.metadata[name] || null;
-  },
-  has: function Metadata_has(name) {
-    return typeof this.metadata[name] !== 'undefined';
-  }
-};
+  }, {
+    key: 'get',
+    value: function get(name) {
+      return this._metadata[name] || null;
+    }
+  }, {
+    key: 'getAll',
+    value: function getAll() {
+      return this._metadata;
+    }
+  }, {
+    key: 'has',
+    value: function has(name) {
+      return typeof this._metadata[name] !== 'undefined';
+    }
+  }, {
+    key: 'metadata',
+    get: function get() {
+      (0, _util.deprecated)('`metadata` getter; use `getAll()` instead.');
+      return this.getAll();
+    }
+  }]);
+
+  return Metadata;
+}();
+
 exports.Metadata = Metadata;

@@ -1092,14 +1092,19 @@ var Font = function FontClosure() {
         }
       }
       function sanitizeGlyph(source, sourceStart, sourceEnd, dest, destStart, hintsValid) {
+        var glyphProfile = {
+          length: 0,
+          sizeOfInstructions: 0
+        };
         if (sourceEnd - sourceStart <= 12) {
-          return 0;
+          return glyphProfile;
         }
         var glyf = source.subarray(sourceStart, sourceEnd);
         var contoursCount = glyf[0] << 8 | glyf[1];
         if (contoursCount & 0x8000) {
           dest.set(glyf, destStart);
-          return glyf.length;
+          glyphProfile.length = glyf.length;
+          return glyphProfile;
         }
         var i,
             j = 10,
@@ -1111,6 +1116,7 @@ var Font = function FontClosure() {
         }
         var instructionsStart = j;
         var instructionsLength = glyf[j] << 8 | glyf[j + 1];
+        glyphProfile.sizeOfInstructions = instructionsLength;
         j += 2 + instructionsLength;
         var instructionsEnd = j;
         var coordinatesLength = 0;
@@ -1128,11 +1134,11 @@ var Font = function FontClosure() {
           }
         }
         if (coordinatesLength === 0) {
-          return 0;
+          return glyphProfile;
         }
         var glyphDataLength = j + coordinatesLength;
         if (glyphDataLength > glyf.length) {
-          return 0;
+          return glyphProfile;
         }
         if (!hintsValid && instructionsLength > 0) {
           dest.set(glyf.subarray(0, instructionsStart), destStart);
@@ -1142,15 +1148,18 @@ var Font = function FontClosure() {
           if (glyf.length - glyphDataLength > 3) {
             glyphDataLength = glyphDataLength + 3 & ~3;
           }
-          return glyphDataLength;
+          glyphProfile.length = glyphDataLength;
+          return glyphProfile;
         }
         if (glyf.length - glyphDataLength > 3) {
           glyphDataLength = glyphDataLength + 3 & ~3;
           dest.set(glyf.subarray(0, glyphDataLength), destStart);
-          return glyphDataLength;
+          glyphProfile.length = glyphDataLength;
+          return glyphProfile;
         }
         dest.set(glyf, destStart);
-        return glyf.length;
+        glyphProfile.length = glyf.length;
+        return glyphProfile;
       }
       function sanitizeHead(head, numGlyphs, locaLength) {
         var data = head.data;
@@ -1177,7 +1186,7 @@ var Font = function FontClosure() {
           }
         }
       }
-      function sanitizeGlyphLocations(loca, glyf, numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry) {
+      function sanitizeGlyphLocations(loca, glyf, numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry, maxSizeOfInstructions) {
         var itemSize, itemDecode, itemEncode;
         if (isGlyphLocationsLong) {
           itemSize = 4;
@@ -1212,7 +1221,7 @@ var Font = function FontClosure() {
         var newGlyfData = new Uint8Array(oldGlyfDataLength);
         var startOffset = itemDecode(locaData, 0);
         var writeOffset = 0;
-        var missingGlyphData = Object.create(null);
+        var missingGlyphs = Object.create(null);
         itemEncode(locaData, 0, writeOffset);
         var i, j;
         var locaCount = dupFirstEntry ? numGlyphs - 1 : numGlyphs;
@@ -1224,9 +1233,13 @@ var Font = function FontClosure() {
           if (endOffset > oldGlyfDataLength) {
             startOffset = endOffset;
           }
-          var newLength = sanitizeGlyph(oldGlyfData, startOffset, endOffset, newGlyfData, writeOffset, hintsValid);
+          var glyphProfile = sanitizeGlyph(oldGlyfData, startOffset, endOffset, newGlyfData, writeOffset, hintsValid);
+          var newLength = glyphProfile.length;
           if (newLength === 0) {
-            missingGlyphData[i] = true;
+            missingGlyphs[i] = true;
+          }
+          if (glyphProfile.sizeOfInstructions > maxSizeOfInstructions) {
+            maxSizeOfInstructions = glyphProfile.sizeOfInstructions;
           }
           writeOffset += newLength;
           itemEncode(locaData, j, writeOffset);
@@ -1238,9 +1251,7 @@ var Font = function FontClosure() {
             itemEncode(locaData, j, simpleGlyph.length);
           }
           glyf.data = simpleGlyph;
-          return missingGlyphData;
-        }
-        if (dupFirstEntry) {
+        } else if (dupFirstEntry) {
           var firstEntryLength = itemDecode(locaData, itemSize);
           if (newGlyfData.length > firstEntryLength + writeOffset) {
             glyf.data = newGlyfData.subarray(0, firstEntryLength + writeOffset);
@@ -1253,7 +1264,10 @@ var Font = function FontClosure() {
         } else {
           glyf.data = newGlyfData.subarray(0, writeOffset);
         }
-        return missingGlyphData;
+        return {
+          missingGlyphs: missingGlyphs,
+          maxSizeOfInstructions: maxSizeOfInstructions
+        };
       }
       function readPostScriptTable(post, properties, maxpNumGlyphs) {
         var start = (font.start ? font.start : 0) + post.offset;
@@ -1657,6 +1671,7 @@ var Font = function FontClosure() {
       var version = font.getInt32();
       var numGlyphs = font.getUint16();
       var maxFunctionDefs = 0;
+      var maxSizeOfInstructions = 0;
       if (version >= 0x00010000 && tables['maxp'].length >= 22) {
         font.pos += 8;
         var maxZones = font.getUint16();
@@ -1666,6 +1681,8 @@ var Font = function FontClosure() {
         }
         font.pos += 4;
         maxFunctionDefs = font.getUint16();
+        font.pos += 6;
+        maxSizeOfInstructions = font.getUint16();
       }
       var dupFirstEntry = false;
       if (properties.type === 'CIDFontType2' && properties.toUnicode && properties.toUnicode.get(0) > '\0') {
@@ -1688,7 +1705,12 @@ var Font = function FontClosure() {
       var missingGlyphs = Object.create(null);
       if (isTrueType) {
         var isGlyphLocationsLong = int16(tables['head'].data[50], tables['head'].data[51]);
-        missingGlyphs = sanitizeGlyphLocations(tables['loca'], tables['glyf'], numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry);
+        var glyphsInfo = sanitizeGlyphLocations(tables['loca'], tables['glyf'], numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry, maxSizeOfInstructions);
+        missingGlyphs = glyphsInfo.missingGlyphs;
+        if (version >= 0x00010000 && tables['maxp'].length >= 22) {
+          tables['maxp'].data[26] = glyphsInfo.maxSizeOfInstructions >> 8;
+          tables['maxp'].data[27] = glyphsInfo.maxSizeOfInstructions & 255;
+        }
       }
       if (!tables['hhea']) {
         throw new _util.FormatError('Required "hhea" table is not found');

@@ -193,6 +193,26 @@ describe('ui_utils', function () {
       expect(count).toEqual(2);
     });
   });
+  describe('isValidRotation', function () {
+    it('should reject non-integer angles', function () {
+      expect((0, _ui_utils.isValidRotation)()).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)(null)).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)(NaN)).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)([90])).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)('90')).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)(90.5)).toEqual(false);
+    });
+    it('should reject non-multiple of 90 degree angles', function () {
+      expect((0, _ui_utils.isValidRotation)(45)).toEqual(false);
+      expect((0, _ui_utils.isValidRotation)(-123)).toEqual(false);
+    });
+    it('should accept valid angles', function () {
+      expect((0, _ui_utils.isValidRotation)(0)).toEqual(true);
+      expect((0, _ui_utils.isValidRotation)(90)).toEqual(true);
+      expect((0, _ui_utils.isValidRotation)(-270)).toEqual(true);
+      expect((0, _ui_utils.isValidRotation)(540)).toEqual(true);
+    });
+  });
   describe('waitOnEventOrTimeout', function () {
     var eventBus = void 0;
     beforeAll(function (done) {

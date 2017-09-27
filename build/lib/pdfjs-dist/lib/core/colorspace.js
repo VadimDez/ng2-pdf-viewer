@@ -136,9 +136,6 @@ var ColorSpace = function ColorSpaceClosure() {
   };
   ColorSpace.parse = function ColorSpace_parse(cs, xref, res) {
     var IR = ColorSpace.parseToIR(cs, xref, res);
-    if (IR instanceof AlternateCS) {
-      return IR;
-    }
     return ColorSpace.fromIR(IR);
   };
   ColorSpace.fromIR = function ColorSpace_fromIR(IR) {

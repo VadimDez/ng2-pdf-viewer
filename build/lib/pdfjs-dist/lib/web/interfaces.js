@@ -52,6 +52,10 @@ var IPDFLinkService = function () {
     key: 'page',
     get: function get() {},
     set: function set(value) {}
+  }, {
+    key: 'rotation',
+    get: function get() {},
+    set: function set(value) {}
   }]);
 
   return IPDFLinkService;

@@ -61,7 +61,8 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     maxImageSize: -1,
     disableFontFace: false,
     nativeImageDecoderSupport: _util.NativeImageDecoding.DECODE,
-    ignoreErrors: false
+    ignoreErrors: false,
+    isEvalSupported: true
   };
   function NativeImageDecoder(xref, resources, handler, forceDataSchema) {
     this.xref = xref;
@@ -1724,7 +1725,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var defaultVMetrics;
       var i, ii, j, jj, start, code, widths;
       if (properties.composite) {
-        defaultWidth = dict.get('DW') || 1000;
+        defaultWidth = dict.has('DW') ? dict.get('DW') : 1000;
         widths = dict.get('W');
         if (widths) {
           for (i = 0, ii = widths.length; i < ii; i++) {

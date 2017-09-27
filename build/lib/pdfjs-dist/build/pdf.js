@@ -1525,7 +1525,7 @@ module.exports = !__w_pdfjs_require__(15)(function () {
 "use strict";
 
 
-var dP = __w_pdfjs_require__(7);
+var dP = __w_pdfjs_require__(8);
 var createDesc = __w_pdfjs_require__(18);
 module.exports = __w_pdfjs_require__(3) ? function (object, key, value) {
   return dP.f(object, key, createDesc(1, value));
@@ -1541,58 +1541,10 @@ module.exports = __w_pdfjs_require__(3) ? function (object, key, value) {
 "use strict";
 
 
-var hasOwnProperty = {}.hasOwnProperty;
-module.exports = function (it, key) {
-  return hasOwnProperty.call(it, key);
-};
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var toInteger = __w_pdfjs_require__(12);
-var min = Math.min;
-module.exports = function (it) {
-  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0;
-};
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var anObject = __w_pdfjs_require__(17);
-var IE8_DOM_DEFINE = __w_pdfjs_require__(31);
-var toPrimitive = __w_pdfjs_require__(22);
-var dP = Object.defineProperty;
-exports.f = __w_pdfjs_require__(3) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-  anObject(O);
-  P = toPrimitive(P, true);
-  anObject(Attributes);
-  if (IE8_DOM_DEFINE) try {
-    return dP(O, P, Attributes);
-  } catch (e) {}
-  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-  if ('value' in Attributes) O[P] = Attributes.value;
-  return O;
-};
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DOMCMapReaderFactory = exports.DOMCanvasFactory = exports.DEFAULT_LINK_REL = exports.getDefaultSetting = exports.LinkTarget = exports.getFilenameFromUrl = exports.isValidUrl = exports.isExternalLinkTargetSet = exports.addLinkAttributes = exports.RenderingCancelledException = exports.CustomStyle = undefined;
+exports.SimpleXMLParser = exports.DOMSVGFactory = exports.DOMCMapReaderFactory = exports.DOMCanvasFactory = exports.DEFAULT_LINK_REL = exports.getDefaultSetting = exports.LinkTarget = exports.getFilenameFromUrl = exports.isValidUrl = exports.isExternalLinkTargetSet = exports.addLinkAttributes = exports.RenderingCancelledException = exports.CustomStyle = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -1607,6 +1559,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DEFAULT_LINK_REL = 'noopener noreferrer nofollow';
+var SVG_NS = 'http://www.w3.org/2000/svg';
 
 var DOMCanvasFactory = function () {
   function DOMCanvasFactory() {
@@ -1713,6 +1666,164 @@ var DOMCMapReaderFactory = function () {
   }]);
 
   return DOMCMapReaderFactory;
+}();
+
+var DOMSVGFactory = function () {
+  function DOMSVGFactory() {
+    _classCallCheck(this, DOMSVGFactory);
+  }
+
+  _createClass(DOMSVGFactory, [{
+    key: 'create',
+    value: function create(width, height) {
+      (0, _util.assert)(width > 0 && height > 0, 'Invalid SVG dimensions');
+      var svg = document.createElementNS(SVG_NS, 'svg:svg');
+      svg.setAttribute('version', '1.1');
+      svg.setAttribute('width', width + 'px');
+      svg.setAttribute('height', height + 'px');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      return svg;
+    }
+  }, {
+    key: 'createElement',
+    value: function createElement(type) {
+      (0, _util.assert)(typeof type === 'string', 'Invalid SVG element type');
+      return document.createElementNS(SVG_NS, type);
+    }
+  }]);
+
+  return DOMSVGFactory;
+}();
+
+var SimpleDOMNode = function () {
+  function SimpleDOMNode(nodeName, nodeValue) {
+    _classCallCheck(this, SimpleDOMNode);
+
+    this.nodeName = nodeName;
+    this.nodeValue = nodeValue;
+    Object.defineProperty(this, 'parentNode', {
+      value: null,
+      writable: true
+    });
+  }
+
+  _createClass(SimpleDOMNode, [{
+    key: 'hasChildNodes',
+    value: function hasChildNodes() {
+      return this.childNodes && this.childNodes.length > 0;
+    }
+  }, {
+    key: 'firstChild',
+    get: function get() {
+      return this.childNodes[0];
+    }
+  }, {
+    key: 'nextSibling',
+    get: function get() {
+      var index = this.parentNode.childNodes.indexOf(this);
+      return this.parentNode.childNodes[index + 1];
+    }
+  }, {
+    key: 'textContent',
+    get: function get() {
+      if (!this.childNodes) {
+        return this.nodeValue || '';
+      }
+      return this.childNodes.map(function (child) {
+        return child.textContent;
+      }).join('');
+    }
+  }]);
+
+  return SimpleDOMNode;
+}();
+
+var SimpleXMLParser = function () {
+  function SimpleXMLParser() {
+    _classCallCheck(this, SimpleXMLParser);
+  }
+
+  _createClass(SimpleXMLParser, [{
+    key: 'parseFromString',
+    value: function parseFromString(data) {
+      var _this2 = this;
+
+      var nodes = [];
+      data = data.replace(/<\?[\s\S]*?\?>|<!--[\s\S]*?-->/g, '').trim();
+      data = data.replace(/<!DOCTYPE[^>\[]+(\[[^\]]+)?[^>]+>/g, '').trim();
+      data = data.replace(/>([^<][\s\S]*?)</g, function (all, text) {
+        var length = nodes.length;
+        var node = new SimpleDOMNode('#text', _this2._decodeXML(text));
+        nodes.push(node);
+        if (node.textContent.trim().length === 0) {
+          return '><';
+        }
+        return '>' + length + ',<';
+      });
+      data = data.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, function (all, text) {
+        var length = nodes.length;
+        var node = new SimpleDOMNode('#text', text);
+        nodes.push(node);
+        return length + ',';
+      });
+      var regex = /<([\w\:]+)((?:[\s\w:=]|'[^']*'|"[^"]*")*)(?:\/>|>([\d,]*)<\/[^>]+>)/g;
+      var lastLength = void 0;
+      do {
+        lastLength = nodes.length;
+        data = data.replace(regex, function (all, name, attrs, data) {
+          var length = nodes.length;
+          var node = new SimpleDOMNode(name);
+          var children = [];
+          if (data) {
+            data = data.split(',');
+            data.pop();
+            data.forEach(function (child) {
+              var childNode = nodes[+child];
+              childNode.parentNode = node;
+              children.push(childNode);
+            });
+          }
+          node.childNodes = children;
+          nodes.push(node);
+          return length + ',';
+        });
+      } while (lastLength < nodes.length);
+      return { documentElement: nodes.pop() };
+    }
+  }, {
+    key: '_decodeXML',
+    value: function _decodeXML(text) {
+      if (text.indexOf('&') < 0) {
+        return text;
+      }
+      return text.replace(/&(#(x[0-9a-f]+|\d+)|\w+);/gi, function (all, entityName, number) {
+        if (number) {
+          if (number[0] === 'x') {
+            number = parseInt(number.substring(1), 16);
+          } else {
+            number = +number;
+          }
+          return String.fromCharCode(number);
+        }
+        switch (entityName) {
+          case 'amp':
+            return '&';
+          case 'lt':
+            return '<';
+          case 'gt':
+            return '>';
+          case 'quot':
+            return '\"';
+          case 'apos':
+            return '\'';
+        }
+        return '&' + entityName + ';';
+      });
+    }
+  }]);
+
+  return SimpleXMLParser;
 }();
 
 var CustomStyle = function CustomStyleClosure() {
@@ -1875,6 +1986,56 @@ exports.getDefaultSetting = getDefaultSetting;
 exports.DEFAULT_LINK_REL = DEFAULT_LINK_REL;
 exports.DOMCanvasFactory = DOMCanvasFactory;
 exports.DOMCMapReaderFactory = DOMCMapReaderFactory;
+exports.DOMSVGFactory = DOMSVGFactory;
+exports.SimpleXMLParser = SimpleXMLParser;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var hasOwnProperty = {}.hasOwnProperty;
+module.exports = function (it, key) {
+  return hasOwnProperty.call(it, key);
+};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var toInteger = __w_pdfjs_require__(12);
+var min = Math.min;
+module.exports = function (it) {
+  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0;
+};
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var anObject = __w_pdfjs_require__(17);
+var IE8_DOM_DEFINE = __w_pdfjs_require__(31);
+var toPrimitive = __w_pdfjs_require__(22);
+var dP = Object.defineProperty;
+exports.f = __w_pdfjs_require__(3) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+  anObject(O);
+  P = toPrimitive(P, true);
+  anObject(Attributes);
+  if (IE8_DOM_DEFINE) try {
+    return dP(O, P, Attributes);
+  } catch (e) {}
+  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
+  if ('value' in Attributes) O[P] = Attributes.value;
+  return O;
+};
 
 /***/ }),
 /* 9 */
@@ -2062,7 +2223,7 @@ module.exports = function (it, S) {
 
 var global = __w_pdfjs_require__(2);
 var hide = __w_pdfjs_require__(4);
-var has = __w_pdfjs_require__(5);
+var has = __w_pdfjs_require__(6);
 var SRC = __w_pdfjs_require__(11)('src');
 var TO_STRING = 'toString';
 var $toString = Function[TO_STRING];
@@ -2160,8 +2321,8 @@ module.exports = 'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,
 "use strict";
 
 
-var def = __w_pdfjs_require__(7).f;
-var has = __w_pdfjs_require__(5);
+var def = __w_pdfjs_require__(8).f;
+var has = __w_pdfjs_require__(6);
 var TAG = __w_pdfjs_require__(1)('toStringTag');
 module.exports = function (it, tag, stat) {
   if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, {
@@ -2222,10 +2383,7 @@ function createResponseStatusError(status, url) {
   }
   return new _util.UnexpectedResponseException('Unexpected server response (' + status + ') while retrieving PDF "' + url + '".', status);
 }
-function validateResponseStatus(status, isHttp) {
-  if (!isHttp) {
-    return status === 0;
-  }
+function validateResponseStatus(status) {
   return status === 200 || status === 206;
 }
 exports.createResponseStatusError = createResponseStatusError;
@@ -2384,7 +2542,7 @@ module.exports = function (it, Constructor, name, forbiddenField) {
 
 
 var toInteger = __w_pdfjs_require__(12);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 module.exports = function (it) {
   if (it === undefined) return 0;
   var number = toInteger(it);
@@ -2413,7 +2571,7 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 "use strict";
 
 
-var has = __w_pdfjs_require__(5);
+var has = __w_pdfjs_require__(6);
 var toIObject = __w_pdfjs_require__(19);
 var arrayIndexOf = __w_pdfjs_require__(42)(false);
 var IE_PROTO = __w_pdfjs_require__(26)('IE_PROTO');
@@ -2463,7 +2621,7 @@ module.exports = function (it) {
 
 
 var toIObject = __w_pdfjs_require__(19);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 var toAbsoluteIndex = __w_pdfjs_require__(20);
 module.exports = function (IS_INCLUDES) {
   return function ($this, el, fromIndex) {
@@ -2505,7 +2663,7 @@ module.exports = function (key) {
 
 var toObject = __w_pdfjs_require__(13);
 var toAbsoluteIndex = __w_pdfjs_require__(20);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 module.exports = function fill(value) {
   var O = toObject(this);
   var length = toLength(O.length);
@@ -2589,7 +2747,7 @@ module.exports = Object.create || function create(O, Properties) {
 "use strict";
 
 
-var has = __w_pdfjs_require__(5);
+var has = __w_pdfjs_require__(6);
 var toObject = __w_pdfjs_require__(13);
 var IE_PROTO = __w_pdfjs_require__(26)('IE_PROTO');
 var ObjectProto = Object.prototype;
@@ -2620,7 +2778,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _util = __w_pdfjs_require__(0);
 
-var _dom_utils = __w_pdfjs_require__(8);
+var _dom_utils = __w_pdfjs_require__(5);
 
 var _font_loader = __w_pdfjs_require__(83);
 
@@ -2788,6 +2946,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   if (worker.destroyed) {
     return Promise.reject(new Error('Worker was destroyed'));
   }
+  var apiVersion = '1.9.602';
   source.disableAutoFetch = (0, _dom_utils.getDefaultSetting)('disableAutoFetch');
   source.disableStream = (0, _dom_utils.getDefaultSetting)('disableStream');
   source.chunkedViewerLoading = !!pdfDataRangeTransport;
@@ -2797,6 +2956,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
+    apiVersion: apiVersion,
     source: {
       data: source.data,
       url: source.url,
@@ -2811,7 +2971,8 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
     postMessageTransfers: (0, _dom_utils.getDefaultSetting)('postMessageTransfers') && !isPostMessageTransfersDisabled,
     docBaseUrl: source.docBaseUrl,
     nativeImageDecoderSupport: source.nativeImageDecoderSupport,
-    ignoreErrors: source.ignoreErrors
+    ignoreErrors: source.ignoreErrors,
+    isEvalSupported: (0, _dom_utils.getDefaultSetting)('isEvalSupported')
   }).then(function (workerId) {
     if (worker.destroyed) {
       throw new Error('Worker was destroyed');
@@ -4176,8 +4337,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.9.524';
-  exports.build = build = 'cd25a51a';
+  exports.version = version = '1.9.602';
+  exports.build = build = '25806d17';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
@@ -4202,7 +4363,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.WebGLUtils = undefined;
 
-var _dom_utils = __w_pdfjs_require__(8);
+var _dom_utils = __w_pdfjs_require__(5);
 
 var _util = __w_pdfjs_require__(0);
 
@@ -4567,74 +4728,102 @@ exports.WebGLUtils = WebGLUtils;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-function fixMetadata(meta) {
-  return meta.replace(/>\\376\\377([^<]+)/g, function (all, codes) {
-    var bytes = codes.replace(/\\([0-3])([0-7])([0-7])/g, function (code, d1, d2, d3) {
-      return String.fromCharCode(d1 * 64 + d2 * 8 + d3 * 1);
-    });
-    var chars = '';
-    for (var i = 0; i < bytes.length; i += 2) {
-      var code = bytes.charCodeAt(i) * 256 + bytes.charCodeAt(i + 1);
-      chars += code >= 32 && code < 127 && code !== 60 && code !== 62 && code !== 38 ? String.fromCharCode(code) : '&#x' + (0x10000 + code).toString(16).substring(1) + ';';
-    }
-    return '>' + chars;
-  });
-}
-function Metadata(meta) {
-  if (typeof meta === 'string') {
-    meta = fixMetadata(meta);
-    var parser = new DOMParser();
-    meta = parser.parseFromString(meta, 'application/xml');
-  } else if (!(meta instanceof Document)) {
-    throw new Error('Metadata: Invalid metadata object');
+exports.Metadata = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _util = __w_pdfjs_require__(0);
+
+var _dom_utils = __w_pdfjs_require__(5);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Metadata = function () {
+  function Metadata(data) {
+    _classCallCheck(this, Metadata);
+
+    (0, _util.assert)(typeof data === 'string', 'Metadata: input is not a string');
+    data = this._repair(data);
+    var parser = new _dom_utils.SimpleXMLParser();
+    data = parser.parseFromString(data);
+    this._metadata = Object.create(null);
+    this._parse(data);
   }
-  this.metaDocument = meta;
-  this.metadata = Object.create(null);
-  this.parse();
-}
-Metadata.prototype = {
-  parse: function Metadata_parse() {
-    var doc = this.metaDocument;
-    var rdf = doc.documentElement;
-    if (rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
-      rdf = rdf.firstChild;
-      while (rdf && rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
-        rdf = rdf.nextSibling;
-      }
+
+  _createClass(Metadata, [{
+    key: '_repair',
+    value: function _repair(data) {
+      return data.replace(/>\\376\\377([^<]+)/g, function (all, codes) {
+        var bytes = codes.replace(/\\([0-3])([0-7])([0-7])/g, function (code, d1, d2, d3) {
+          return String.fromCharCode(d1 * 64 + d2 * 8 + d3 * 1);
+        });
+        var chars = '';
+        for (var i = 0, ii = bytes.length; i < ii; i += 2) {
+          var code = bytes.charCodeAt(i) * 256 + bytes.charCodeAt(i + 1);
+          if (code >= 32 && code < 127 && code !== 60 && code !== 62 && code !== 38) {
+            chars += String.fromCharCode(code);
+          } else {
+            chars += '&#x' + (0x10000 + code).toString(16).substring(1) + ';';
+          }
+        }
+        return '>' + chars;
+      });
     }
-    var nodeName = rdf ? rdf.nodeName.toLowerCase() : null;
-    if (!rdf || nodeName !== 'rdf:rdf' || !rdf.hasChildNodes()) {
-      return;
-    }
-    var children = rdf.childNodes,
-        desc,
-        entry,
-        name,
-        i,
-        ii,
-        length,
-        iLength;
-    for (i = 0, length = children.length; i < length; i++) {
-      desc = children[i];
-      if (desc.nodeName.toLowerCase() !== 'rdf:description') {
-        continue;
+  }, {
+    key: '_parse',
+    value: function _parse(domDocument) {
+      var rdf = domDocument.documentElement;
+      if (rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
+        rdf = rdf.firstChild;
+        while (rdf && rdf.nodeName.toLowerCase() !== 'rdf:rdf') {
+          rdf = rdf.nextSibling;
+        }
       }
-      for (ii = 0, iLength = desc.childNodes.length; ii < iLength; ii++) {
-        if (desc.childNodes[ii].nodeName.toLowerCase() !== '#text') {
-          entry = desc.childNodes[ii];
-          name = entry.nodeName.toLowerCase();
-          this.metadata[name] = entry.textContent.trim();
+      var nodeName = rdf ? rdf.nodeName.toLowerCase() : null;
+      if (!rdf || nodeName !== 'rdf:rdf' || !rdf.hasChildNodes()) {
+        return;
+      }
+      var children = rdf.childNodes;
+      for (var i = 0, ii = children.length; i < ii; i++) {
+        var desc = children[i];
+        if (desc.nodeName.toLowerCase() !== 'rdf:description') {
+          continue;
+        }
+        for (var j = 0, jj = desc.childNodes.length; j < jj; j++) {
+          if (desc.childNodes[j].nodeName.toLowerCase() !== '#text') {
+            var entry = desc.childNodes[j];
+            var name = entry.nodeName.toLowerCase();
+            this._metadata[name] = entry.textContent.trim();
+          }
         }
       }
     }
-  },
-  get: function Metadata_get(name) {
-    return this.metadata[name] || null;
-  },
-  has: function Metadata_has(name) {
-    return typeof this.metadata[name] !== 'undefined';
-  }
-};
+  }, {
+    key: 'get',
+    value: function get(name) {
+      return this._metadata[name] || null;
+    }
+  }, {
+    key: 'getAll',
+    value: function getAll() {
+      return this._metadata;
+    }
+  }, {
+    key: 'has',
+    value: function has(name) {
+      return typeof this._metadata[name] !== 'undefined';
+    }
+  }, {
+    key: 'metadata',
+    get: function get() {
+      (0, _util.deprecated)('`metadata` getter; use `getAll()` instead.');
+      return this.getAll();
+    }
+  }]);
+
+  return Metadata;
+}();
+
 exports.Metadata = Metadata;
 
 /***/ }),
@@ -4651,7 +4840,7 @@ exports.AnnotationLayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _dom_utils = __w_pdfjs_require__(8);
+var _dom_utils = __w_pdfjs_require__(5);
 
 var _util = __w_pdfjs_require__(0);
 
@@ -4696,6 +4885,14 @@ var AnnotationElementFactory = function () {
           return new PopupAnnotationElement(parameters);
         case _util.AnnotationType.LINE:
           return new LineAnnotationElement(parameters);
+        case _util.AnnotationType.SQUARE:
+          return new SquareAnnotationElement(parameters);
+        case _util.AnnotationType.CIRCLE:
+          return new CircleAnnotationElement(parameters);
+        case _util.AnnotationType.POLYLINE:
+          return new PolylineAnnotationElement(parameters);
+        case _util.AnnotationType.POLYGON:
+          return new PolygonAnnotationElement(parameters);
         case _util.AnnotationType.HIGHLIGHT:
           return new HighlightAnnotationElement(parameters);
         case _util.AnnotationType.UNDERLINE:
@@ -4704,6 +4901,8 @@ var AnnotationElementFactory = function () {
           return new SquigglyAnnotationElement(parameters);
         case _util.AnnotationType.STRIKEOUT:
           return new StrikeOutAnnotationElement(parameters);
+        case _util.AnnotationType.STAMP:
+          return new StampAnnotationElement(parameters);
         case _util.AnnotationType.FILEATTACHMENT:
           return new FileAttachmentAnnotationElement(parameters);
         default:
@@ -4731,6 +4930,7 @@ var AnnotationElement = function () {
     this.downloadManager = parameters.downloadManager;
     this.imageResourcesPath = parameters.imageResourcesPath;
     this.renderInteractiveForms = parameters.renderInteractiveForms;
+    this.svgFactory = parameters.svgFactory;
     if (isRenderable) {
       this.container = this._createContainer(ignoreBorder);
     }
@@ -4831,7 +5031,8 @@ var LinkAnnotationElement = function (_AnnotationElement) {
   function LinkAnnotationElement(parameters) {
     _classCallCheck(this, LinkAnnotationElement);
 
-    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, true));
+    var isRenderable = !!(parameters.data.url || parameters.data.dest || parameters.data.action);
+    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, isRenderable));
   }
 
   _createClass(LinkAnnotationElement, [{
@@ -5116,7 +5317,7 @@ var PopupAnnotationElement = function (_AnnotationElement4) {
   _createClass(PopupAnnotationElement, [{
     key: 'render',
     value: function render() {
-      var IGNORE_TYPES = ['Line'];
+      var IGNORE_TYPES = ['Line', 'Square', 'Circle', 'PolyLine', 'Polygon'];
       this.container.className = 'popupAnnotation';
       if (IGNORE_TYPES.indexOf(this.data.parentType) >= 0) {
         return this.container;
@@ -5254,27 +5455,21 @@ var LineAnnotationElement = function (_AnnotationElement5) {
   _createClass(LineAnnotationElement, [{
     key: 'render',
     value: function render() {
-      var SVG_NS = 'http://www.w3.org/2000/svg';
       this.container.className = 'lineAnnotation';
       var data = this.data;
       var width = data.rect[2] - data.rect[0];
       var height = data.rect[3] - data.rect[1];
-      var svg = document.createElementNS(SVG_NS, 'svg:svg');
-      svg.setAttributeNS(null, 'version', '1.1');
-      svg.setAttributeNS(null, 'width', width + 'px');
-      svg.setAttributeNS(null, 'height', height + 'px');
-      svg.setAttributeNS(null, 'preserveAspectRatio', 'none');
-      svg.setAttributeNS(null, 'viewBox', '0 0 ' + width + ' ' + height);
-      var line = document.createElementNS(SVG_NS, 'svg:line');
-      line.setAttributeNS(null, 'x1', data.rect[2] - data.lineCoordinates[0]);
-      line.setAttributeNS(null, 'y1', data.rect[3] - data.lineCoordinates[1]);
-      line.setAttributeNS(null, 'x2', data.rect[2] - data.lineCoordinates[2]);
-      line.setAttributeNS(null, 'y2', data.rect[3] - data.lineCoordinates[3]);
-      line.setAttributeNS(null, 'stroke-width', data.borderStyle.width);
-      line.setAttributeNS(null, 'stroke', 'transparent');
+      var svg = this.svgFactory.create(width, height);
+      var line = this.svgFactory.createElement('svg:line');
+      line.setAttribute('x1', data.rect[2] - data.lineCoordinates[0]);
+      line.setAttribute('y1', data.rect[3] - data.lineCoordinates[1]);
+      line.setAttribute('x2', data.rect[2] - data.lineCoordinates[2]);
+      line.setAttribute('y2', data.rect[3] - data.lineCoordinates[3]);
+      line.setAttribute('stroke-width', data.borderStyle.width);
+      line.setAttribute('stroke', 'transparent');
       svg.appendChild(line);
       this.container.append(svg);
-      this._createPopup(this.container, line, this.data);
+      this._createPopup(this.container, line, data);
       return this.container;
     }
   }]);
@@ -5282,8 +5477,145 @@ var LineAnnotationElement = function (_AnnotationElement5) {
   return LineAnnotationElement;
 }(AnnotationElement);
 
-var HighlightAnnotationElement = function (_AnnotationElement6) {
-  _inherits(HighlightAnnotationElement, _AnnotationElement6);
+var SquareAnnotationElement = function (_AnnotationElement6) {
+  _inherits(SquareAnnotationElement, _AnnotationElement6);
+
+  function SquareAnnotationElement(parameters) {
+    _classCallCheck(this, SquareAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (SquareAnnotationElement.__proto__ || Object.getPrototypeOf(SquareAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(SquareAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'squareAnnotation';
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var borderWidth = data.borderStyle.width;
+      var square = this.svgFactory.createElement('svg:rect');
+      square.setAttribute('x', borderWidth / 2);
+      square.setAttribute('y', borderWidth / 2);
+      square.setAttribute('width', width - borderWidth);
+      square.setAttribute('height', height - borderWidth);
+      square.setAttribute('stroke-width', borderWidth);
+      square.setAttribute('stroke', 'transparent');
+      square.setAttribute('fill', 'none');
+      svg.appendChild(square);
+      this.container.append(svg);
+      this._createPopup(this.container, square, data);
+      return this.container;
+    }
+  }]);
+
+  return SquareAnnotationElement;
+}(AnnotationElement);
+
+var CircleAnnotationElement = function (_AnnotationElement7) {
+  _inherits(CircleAnnotationElement, _AnnotationElement7);
+
+  function CircleAnnotationElement(parameters) {
+    _classCallCheck(this, CircleAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (CircleAnnotationElement.__proto__ || Object.getPrototypeOf(CircleAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(CircleAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'circleAnnotation';
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var borderWidth = data.borderStyle.width;
+      var circle = this.svgFactory.createElement('svg:ellipse');
+      circle.setAttribute('cx', width / 2);
+      circle.setAttribute('cy', height / 2);
+      circle.setAttribute('rx', width / 2 - borderWidth / 2);
+      circle.setAttribute('ry', height / 2 - borderWidth / 2);
+      circle.setAttribute('stroke-width', borderWidth);
+      circle.setAttribute('stroke', 'transparent');
+      circle.setAttribute('fill', 'none');
+      svg.appendChild(circle);
+      this.container.append(svg);
+      this._createPopup(this.container, circle, data);
+      return this.container;
+    }
+  }]);
+
+  return CircleAnnotationElement;
+}(AnnotationElement);
+
+var PolylineAnnotationElement = function (_AnnotationElement8) {
+  _inherits(PolylineAnnotationElement, _AnnotationElement8);
+
+  function PolylineAnnotationElement(parameters) {
+    _classCallCheck(this, PolylineAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+
+    var _this14 = _possibleConstructorReturn(this, (PolylineAnnotationElement.__proto__ || Object.getPrototypeOf(PolylineAnnotationElement)).call(this, parameters, isRenderable, true));
+
+    _this14.containerClassName = 'polylineAnnotation';
+    _this14.svgElementName = 'svg:polyline';
+    return _this14;
+  }
+
+  _createClass(PolylineAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = this.containerClassName;
+      var data = this.data;
+      var width = data.rect[2] - data.rect[0];
+      var height = data.rect[3] - data.rect[1];
+      var svg = this.svgFactory.create(width, height);
+      var vertices = data.vertices;
+      var points = [];
+      for (var i = 0, ii = vertices.length; i < ii; i++) {
+        var x = vertices[i].x - data.rect[0];
+        var y = data.rect[3] - vertices[i].y;
+        points.push(x + ',' + y);
+      }
+      points = points.join(' ');
+      var borderWidth = data.borderStyle.width;
+      var polyline = this.svgFactory.createElement(this.svgElementName);
+      polyline.setAttribute('points', points);
+      polyline.setAttribute('stroke-width', borderWidth);
+      polyline.setAttribute('stroke', 'transparent');
+      polyline.setAttribute('fill', 'none');
+      svg.appendChild(polyline);
+      this.container.append(svg);
+      this._createPopup(this.container, polyline, data);
+      return this.container;
+    }
+  }]);
+
+  return PolylineAnnotationElement;
+}(AnnotationElement);
+
+var PolygonAnnotationElement = function (_PolylineAnnotationEl) {
+  _inherits(PolygonAnnotationElement, _PolylineAnnotationEl);
+
+  function PolygonAnnotationElement(parameters) {
+    _classCallCheck(this, PolygonAnnotationElement);
+
+    var _this15 = _possibleConstructorReturn(this, (PolygonAnnotationElement.__proto__ || Object.getPrototypeOf(PolygonAnnotationElement)).call(this, parameters));
+
+    _this15.containerClassName = 'polygonAnnotation';
+    _this15.svgElementName = 'svg:polygon';
+    return _this15;
+  }
+
+  return PolygonAnnotationElement;
+}(PolylineAnnotationElement);
+
+var HighlightAnnotationElement = function (_AnnotationElement9) {
+  _inherits(HighlightAnnotationElement, _AnnotationElement9);
 
   function HighlightAnnotationElement(parameters) {
     _classCallCheck(this, HighlightAnnotationElement);
@@ -5306,8 +5638,8 @@ var HighlightAnnotationElement = function (_AnnotationElement6) {
   return HighlightAnnotationElement;
 }(AnnotationElement);
 
-var UnderlineAnnotationElement = function (_AnnotationElement7) {
-  _inherits(UnderlineAnnotationElement, _AnnotationElement7);
+var UnderlineAnnotationElement = function (_AnnotationElement10) {
+  _inherits(UnderlineAnnotationElement, _AnnotationElement10);
 
   function UnderlineAnnotationElement(parameters) {
     _classCallCheck(this, UnderlineAnnotationElement);
@@ -5330,8 +5662,8 @@ var UnderlineAnnotationElement = function (_AnnotationElement7) {
   return UnderlineAnnotationElement;
 }(AnnotationElement);
 
-var SquigglyAnnotationElement = function (_AnnotationElement8) {
-  _inherits(SquigglyAnnotationElement, _AnnotationElement8);
+var SquigglyAnnotationElement = function (_AnnotationElement11) {
+  _inherits(SquigglyAnnotationElement, _AnnotationElement11);
 
   function SquigglyAnnotationElement(parameters) {
     _classCallCheck(this, SquigglyAnnotationElement);
@@ -5354,8 +5686,8 @@ var SquigglyAnnotationElement = function (_AnnotationElement8) {
   return SquigglyAnnotationElement;
 }(AnnotationElement);
 
-var StrikeOutAnnotationElement = function (_AnnotationElement9) {
-  _inherits(StrikeOutAnnotationElement, _AnnotationElement9);
+var StrikeOutAnnotationElement = function (_AnnotationElement12) {
+  _inherits(StrikeOutAnnotationElement, _AnnotationElement12);
 
   function StrikeOutAnnotationElement(parameters) {
     _classCallCheck(this, StrikeOutAnnotationElement);
@@ -5378,23 +5710,47 @@ var StrikeOutAnnotationElement = function (_AnnotationElement9) {
   return StrikeOutAnnotationElement;
 }(AnnotationElement);
 
-var FileAttachmentAnnotationElement = function (_AnnotationElement10) {
-  _inherits(FileAttachmentAnnotationElement, _AnnotationElement10);
+var StampAnnotationElement = function (_AnnotationElement13) {
+  _inherits(StampAnnotationElement, _AnnotationElement13);
+
+  function StampAnnotationElement(parameters) {
+    _classCallCheck(this, StampAnnotationElement);
+
+    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
+    return _possibleConstructorReturn(this, (StampAnnotationElement.__proto__ || Object.getPrototypeOf(StampAnnotationElement)).call(this, parameters, isRenderable, true));
+  }
+
+  _createClass(StampAnnotationElement, [{
+    key: 'render',
+    value: function render() {
+      this.container.className = 'stampAnnotation';
+      if (!this.data.hasPopup) {
+        this._createPopup(this.container, null, this.data);
+      }
+      return this.container;
+    }
+  }]);
+
+  return StampAnnotationElement;
+}(AnnotationElement);
+
+var FileAttachmentAnnotationElement = function (_AnnotationElement14) {
+  _inherits(FileAttachmentAnnotationElement, _AnnotationElement14);
 
   function FileAttachmentAnnotationElement(parameters) {
     _classCallCheck(this, FileAttachmentAnnotationElement);
 
-    var _this16 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
+    var _this21 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
 
-    var file = _this16.data.file;
-    _this16.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
-    _this16.content = file.content;
-    _this16.linkService.onFileAttachmentAnnotation({
+    var file = _this21.data.file;
+    _this21.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
+    _this21.content = file.content;
+    _this21.linkService.onFileAttachmentAnnotation({
       id: (0, _util.stringToPDFString)(file.filename),
       filename: file.filename,
       content: file.content
     });
-    return _this16;
+    return _this21;
   }
 
   _createClass(FileAttachmentAnnotationElement, [{
@@ -5446,7 +5802,8 @@ var AnnotationLayer = function () {
           linkService: parameters.linkService,
           downloadManager: parameters.downloadManager,
           imageResourcesPath: parameters.imageResourcesPath || (0, _dom_utils.getDefaultSetting)('imageResourcesPath'),
-          renderInteractiveForms: parameters.renderInteractiveForms || false
+          renderInteractiveForms: parameters.renderInteractiveForms || false,
+          svgFactory: new _dom_utils.DOMSVGFactory()
         });
         if (element.isRenderable) {
           parameters.div.appendChild(element.render());
@@ -5486,7 +5843,7 @@ exports.renderTextLayer = undefined;
 
 var _util = __w_pdfjs_require__(0);
 
-var _dom_utils = __w_pdfjs_require__(8);
+var _dom_utils = __w_pdfjs_require__(5);
 
 var renderTextLayer = function renderTextLayerClosure() {
   var MAX_TEXT_DIVS_TO_RENDER = 100000;
@@ -6038,6 +6395,8 @@ exports.SVGGraphics = undefined;
 
 var _util = __w_pdfjs_require__(0);
 
+var _dom_utils = __w_pdfjs_require__(5);
+
 var SVGGraphics = function SVGGraphics() {
   throw new Error('Not implemented: SVGGraphics');
 };
@@ -6282,7 +6641,7 @@ var SVGGraphics = function SVGGraphics() {
       return opTree;
     }
     function pf(value) {
-      if (value === (value | 0)) {
+      if (Number.isInteger(value)) {
         return value.toString();
       }
       var s = value.toFixed(10);
@@ -6315,6 +6674,7 @@ var SVGGraphics = function SVGGraphics() {
       return 'matrix(' + pf(m[0]) + ' ' + pf(m[1]) + ' ' + pf(m[2]) + ' ' + pf(m[3]) + ' ' + pf(m[4]) + ' ' + pf(m[5]) + ')';
     }
     function SVGGraphics(commonObjs, objs, forceDataSchema) {
+      this.svgFactory = new _dom_utils.DOMSVGFactory();
       this.current = new SVGExtraState();
       this.transformMatrix = _util.IDENTITY_MATRIX;
       this.transformStack = [];
@@ -6328,7 +6688,6 @@ var SVGGraphics = function SVGGraphics() {
       this.cssStyle = null;
       this.forceDataSchema = !!forceDataSchema;
     }
-    var NS = 'http://www.w3.org/2000/svg';
     var XML_NS = 'http://www.w3.org/XML/1998/namespace';
     var XLINK_NS = 'http://www.w3.org/1999/xlink';
     var LINE_CAP_STYLES = ['butt', 'round', 'square'];
@@ -6574,11 +6933,11 @@ var SVGGraphics = function SVGGraphics() {
         this.current.x = this.current.lineX = 0;
         this.current.y = this.current.lineY = 0;
         current.xcoords = [];
-        current.tspan = document.createElementNS(NS, 'svg:tspan');
+        current.tspan = this.svgFactory.createElement('svg:tspan');
         current.tspan.setAttributeNS(null, 'font-family', current.fontFamily);
         current.tspan.setAttributeNS(null, 'font-size', pf(current.fontSize) + 'px');
         current.tspan.setAttributeNS(null, 'y', pf(-current.y));
-        current.txtElement = document.createElementNS(NS, 'svg:text');
+        current.txtElement = this.svgFactory.createElement('svg:text');
         current.txtElement.appendChild(current.tspan);
       },
       beginText: function SVGGraphics_beginText() {
@@ -6586,9 +6945,9 @@ var SVGGraphics = function SVGGraphics() {
         this.current.y = this.current.lineY = 0;
         this.current.textMatrix = _util.IDENTITY_MATRIX;
         this.current.lineMatrix = _util.IDENTITY_MATRIX;
-        this.current.tspan = document.createElementNS(NS, 'svg:tspan');
-        this.current.txtElement = document.createElementNS(NS, 'svg:text');
-        this.current.txtgrp = document.createElementNS(NS, 'svg:g');
+        this.current.tspan = this.svgFactory.createElement('svg:tspan');
+        this.current.txtElement = this.svgFactory.createElement('svg:text');
+        this.current.txtgrp = this.svgFactory.createElement('svg:g');
         this.current.xcoords = [];
       },
       moveText: function SVGGraphics_moveText(x, y) {
@@ -6596,7 +6955,7 @@ var SVGGraphics = function SVGGraphics() {
         this.current.x = this.current.lineX += x;
         this.current.y = this.current.lineY += y;
         current.xcoords = [];
-        current.tspan = document.createElementNS(NS, 'svg:tspan');
+        current.tspan = this.svgFactory.createElement('svg:tspan');
         current.tspan.setAttributeNS(null, 'font-family', current.fontFamily);
         current.tspan.setAttributeNS(null, 'font-size', pf(current.fontSize) + 'px');
         current.tspan.setAttributeNS(null, 'y', pf(-current.y));
@@ -6673,7 +7032,7 @@ var SVGGraphics = function SVGGraphics() {
       },
       addFontStyle: function SVGGraphics_addFontStyle(fontObj) {
         if (!this.cssStyle) {
-          this.cssStyle = document.createElementNS(NS, 'svg:style');
+          this.cssStyle = this.svgFactory.createElement('svg:style');
           this.cssStyle.setAttributeNS(null, 'type', 'text/css');
           this.defs.appendChild(this.cssStyle);
         }
@@ -6702,7 +7061,7 @@ var SVGGraphics = function SVGGraphics() {
         current.fontFamily = fontObj.loadedName;
         current.fontWeight = bold;
         current.fontStyle = italic;
-        current.tspan = document.createElementNS(NS, 'svg:tspan');
+        current.tspan = this.svgFactory.createElement('svg:tspan');
         current.tspan.setAttributeNS(null, 'y', pf(-current.y));
         current.xcoords = [];
       },
@@ -6732,7 +7091,7 @@ var SVGGraphics = function SVGGraphics() {
       setFillRGBColor: function SVGGraphics_setFillRGBColor(r, g, b) {
         var color = _util.Util.makeCssRgb(r, g, b);
         this.current.fillColor = color;
-        this.current.tspan = document.createElementNS(NS, 'svg:tspan');
+        this.current.tspan = this.svgFactory.createElement('svg:tspan');
         this.current.xcoords = [];
       },
       setDash: function SVGGraphics_setDash(dashArray, dashPhase) {
@@ -6743,7 +7102,7 @@ var SVGGraphics = function SVGGraphics() {
         var current = this.current;
         var x = current.x,
             y = current.y;
-        current.path = document.createElementNS(NS, 'svg:path');
+        current.path = this.svgFactory.createElement('svg:path');
         var d = [];
         var opLength = ops.length;
         for (var i = 0, j = 0; i < opLength; i++) {
@@ -6803,7 +7162,7 @@ var SVGGraphics = function SVGGraphics() {
         var current = this.current;
         var clipId = 'clippath' + clipCount;
         clipCount++;
-        var clipPath = document.createElementNS(NS, 'svg:clipPath');
+        var clipPath = this.svgFactory.createElement('svg:clipPath');
         clipPath.setAttributeNS(null, 'id', clipId);
         clipPath.setAttributeNS(null, 'transform', pm(this.transformMatrix));
         var clipElement = current.element.cloneNode();
@@ -6917,7 +7276,7 @@ var SVGGraphics = function SVGGraphics() {
       },
       paintSolidColorImageMask: function SVGGraphics_paintSolidColorImageMask() {
         var current = this.current;
-        var rect = document.createElementNS(NS, 'svg:rect');
+        var rect = this.svgFactory.createElement('svg:rect');
         rect.setAttributeNS(null, 'x', '0');
         rect.setAttributeNS(null, 'y', '0');
         rect.setAttributeNS(null, 'width', '1px');
@@ -6927,7 +7286,7 @@ var SVGGraphics = function SVGGraphics() {
       },
       paintJpegXObject: function SVGGraphics_paintJpegXObject(objId, w, h) {
         var imgObj = this.objs.get(objId);
-        var imgEl = document.createElementNS(NS, 'svg:image');
+        var imgEl = this.svgFactory.createElement('svg:image');
         imgEl.setAttributeNS(XLINK_NS, 'xlink:href', imgObj.src);
         imgEl.setAttributeNS(null, 'width', pf(w));
         imgEl.setAttributeNS(null, 'height', pf(h));
@@ -6948,14 +7307,14 @@ var SVGGraphics = function SVGGraphics() {
         var width = imgData.width;
         var height = imgData.height;
         var imgSrc = convertImgDataToPng(imgData, this.forceDataSchema);
-        var cliprect = document.createElementNS(NS, 'svg:rect');
+        var cliprect = this.svgFactory.createElement('svg:rect');
         cliprect.setAttributeNS(null, 'x', '0');
         cliprect.setAttributeNS(null, 'y', '0');
         cliprect.setAttributeNS(null, 'width', pf(width));
         cliprect.setAttributeNS(null, 'height', pf(height));
         this.current.element = cliprect;
         this.clip('nonzero');
-        var imgEl = document.createElementNS(NS, 'svg:image');
+        var imgEl = this.svgFactory.createElement('svg:image');
         imgEl.setAttributeNS(XLINK_NS, 'xlink:href', imgSrc);
         imgEl.setAttributeNS(null, 'x', '0');
         imgEl.setAttributeNS(null, 'y', pf(-height));
@@ -6974,9 +7333,9 @@ var SVGGraphics = function SVGGraphics() {
         var height = imgData.height;
         var fillColor = current.fillColor;
         current.maskId = 'mask' + maskCount++;
-        var mask = document.createElementNS(NS, 'svg:mask');
+        var mask = this.svgFactory.createElement('svg:mask');
         mask.setAttributeNS(null, 'id', current.maskId);
-        var rect = document.createElementNS(NS, 'svg:rect');
+        var rect = this.svgFactory.createElement('svg:rect');
         rect.setAttributeNS(null, 'x', '0');
         rect.setAttributeNS(null, 'y', '0');
         rect.setAttributeNS(null, 'width', pf(width));
@@ -6994,7 +7353,7 @@ var SVGGraphics = function SVGGraphics() {
         if (Array.isArray(bbox) && bbox.length === 4) {
           var width = bbox[2] - bbox[0];
           var height = bbox[3] - bbox[1];
-          var cliprect = document.createElementNS(NS, 'svg:rect');
+          var cliprect = this.svgFactory.createElement('svg:rect');
           cliprect.setAttributeNS(null, 'x', bbox[0]);
           cliprect.setAttributeNS(null, 'y', bbox[1]);
           cliprect.setAttributeNS(null, 'width', pf(width));
@@ -7005,25 +7364,21 @@ var SVGGraphics = function SVGGraphics() {
         }
       },
       paintFormXObjectEnd: function SVGGraphics_paintFormXObjectEnd() {},
-      _initialize: function SVGGraphics_initialize(viewport) {
-        var svg = document.createElementNS(NS, 'svg:svg');
-        svg.setAttributeNS(null, 'version', '1.1');
-        svg.setAttributeNS(null, 'width', viewport.width + 'px');
-        svg.setAttributeNS(null, 'height', viewport.height + 'px');
-        svg.setAttributeNS(null, 'preserveAspectRatio', 'none');
-        svg.setAttributeNS(null, 'viewBox', '0 0 ' + viewport.width + ' ' + viewport.height);
-        var definitions = document.createElementNS(NS, 'svg:defs');
+      _initialize: function _initialize(viewport) {
+        var svg = this.svgFactory.create(viewport.width, viewport.height);
+        var definitions = this.svgFactory.createElement('svg:defs');
         svg.appendChild(definitions);
         this.defs = definitions;
-        var rootGroup = document.createElementNS(NS, 'svg:g');
+        var rootGroup = this.svgFactory.createElement('svg:g');
         rootGroup.setAttributeNS(null, 'transform', pm(viewport.transform));
         svg.appendChild(rootGroup);
         this.svg = rootGroup;
         return svg;
       },
+
       _ensureClipGroup: function SVGGraphics_ensureClipGroup() {
         if (!this.current.clipGroup) {
-          var clipGroup = document.createElementNS(NS, 'svg:g');
+          var clipGroup = this.svgFactory.createElement('svg:g');
           clipGroup.setAttributeNS(null, 'clip-path', this.current.activeClipUrl);
           this.svg.appendChild(clipGroup);
           this.current.clipGroup = clipGroup;
@@ -7032,7 +7387,7 @@ var SVGGraphics = function SVGGraphics() {
       },
       _ensureTransformGroup: function SVGGraphics_ensureTransformGroup() {
         if (!this.tgrp) {
-          this.tgrp = document.createElementNS(NS, 'svg:g');
+          this.tgrp = this.svgFactory.createElement('svg:g');
           this.tgrp.setAttributeNS(null, 'transform', pm(this.transformMatrix));
           if (this.current.activeClipUrl) {
             this._ensureClipGroup().appendChild(this.tgrp);
@@ -7055,14 +7410,14 @@ exports.SVGGraphics = SVGGraphics;
 "use strict";
 
 
-var pdfjsVersion = '1.9.524';
-var pdfjsBuild = 'cd25a51a';
+var pdfjsVersion = '1.9.602';
+var pdfjsBuild = '25806d17';
 var pdfjsSharedUtil = __w_pdfjs_require__(0);
 var pdfjsDisplayGlobal = __w_pdfjs_require__(82);
 var pdfjsDisplayAPI = __w_pdfjs_require__(48);
 var pdfjsDisplayTextLayer = __w_pdfjs_require__(52);
 var pdfjsDisplayAnnotationLayer = __w_pdfjs_require__(51);
-var pdfjsDisplayDOMUtils = __w_pdfjs_require__(8);
+var pdfjsDisplayDOMUtils = __w_pdfjs_require__(5);
 var pdfjsDisplaySVG = __w_pdfjs_require__(53);
 {
   if (pdfjsSharedUtil.isNodeJS()) {
@@ -8673,11 +9028,11 @@ if (__w_pdfjs_require__(3)) {
   var hide = __w_pdfjs_require__(4);
   var redefineAll = __w_pdfjs_require__(35);
   var toInteger = __w_pdfjs_require__(12);
-  var toLength = __w_pdfjs_require__(6);
+  var toLength = __w_pdfjs_require__(7);
   var toIndex = __w_pdfjs_require__(37);
   var toAbsoluteIndex = __w_pdfjs_require__(20);
   var toPrimitive = __w_pdfjs_require__(22);
-  var has = __w_pdfjs_require__(5);
+  var has = __w_pdfjs_require__(6);
   var classof = __w_pdfjs_require__(45);
   var isObject = __w_pdfjs_require__(10);
   var toObject = __w_pdfjs_require__(13);
@@ -8697,7 +9052,7 @@ if (__w_pdfjs_require__(3)) {
   var setSpecies = __w_pdfjs_require__(76);
   var arrayFill = __w_pdfjs_require__(44);
   var arrayCopyWithin = __w_pdfjs_require__(77);
-  var $DP = __w_pdfjs_require__(7);
+  var $DP = __w_pdfjs_require__(8);
   var $GOPD = __w_pdfjs_require__(78);
   var dP = $DP.f;
   var gOPD = $GOPD.f;
@@ -9111,10 +9466,10 @@ var redefineAll = __w_pdfjs_require__(35);
 var fails = __w_pdfjs_require__(15);
 var anInstance = __w_pdfjs_require__(36);
 var toInteger = __w_pdfjs_require__(12);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 var toIndex = __w_pdfjs_require__(37);
 var gOPN = __w_pdfjs_require__(38).f;
-var dP = __w_pdfjs_require__(7).f;
+var dP = __w_pdfjs_require__(8).f;
 var arrayFill = __w_pdfjs_require__(44);
 var setToStringTag = __w_pdfjs_require__(28);
 var ARRAY_BUFFER = 'ArrayBuffer';
@@ -9393,7 +9748,7 @@ module.exports = function (it) {
 "use strict";
 
 
-var dP = __w_pdfjs_require__(7);
+var dP = __w_pdfjs_require__(8);
 var anObject = __w_pdfjs_require__(17);
 var getKeys = __w_pdfjs_require__(62);
 module.exports = __w_pdfjs_require__(3) ? Object.defineProperties : function defineProperties(O, Properties) {
@@ -9454,7 +9809,7 @@ module.exports = __w_pdfjs_require__(16).getIteratorMethod = function (it) {
 var ctx = __w_pdfjs_require__(24);
 var IObject = __w_pdfjs_require__(40);
 var toObject = __w_pdfjs_require__(13);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 var asc = __w_pdfjs_require__(66);
 module.exports = function (TYPE, $create) {
   var IS_MAP = TYPE == 1;
@@ -9627,7 +9982,7 @@ var LIBRARY = __w_pdfjs_require__(21);
 var $export = __w_pdfjs_require__(30);
 var redefine = __w_pdfjs_require__(23);
 var hide = __w_pdfjs_require__(4);
-var has = __w_pdfjs_require__(5);
+var has = __w_pdfjs_require__(6);
 var Iterators = __w_pdfjs_require__(14);
 var $iterCreate = __w_pdfjs_require__(74);
 var setToStringTag = __w_pdfjs_require__(28);
@@ -9760,7 +10115,7 @@ module.exports = function (exec, skipClosing) {
 
 
 var global = __w_pdfjs_require__(2);
-var dP = __w_pdfjs_require__(7);
+var dP = __w_pdfjs_require__(8);
 var DESCRIPTORS = __w_pdfjs_require__(3);
 var SPECIES = __w_pdfjs_require__(1)('species');
 module.exports = function (KEY) {
@@ -9782,7 +10137,7 @@ module.exports = function (KEY) {
 
 var toObject = __w_pdfjs_require__(13);
 var toAbsoluteIndex = __w_pdfjs_require__(20);
-var toLength = __w_pdfjs_require__(6);
+var toLength = __w_pdfjs_require__(7);
 module.exports = [].copyWithin || function copyWithin(target, start) {
   var O = toObject(this);
   var len = toLength(O.length);
@@ -9815,7 +10170,7 @@ var pIE = __w_pdfjs_require__(79);
 var createDesc = __w_pdfjs_require__(18);
 var toIObject = __w_pdfjs_require__(19);
 var toPrimitive = __w_pdfjs_require__(22);
-var has = __w_pdfjs_require__(5);
+var has = __w_pdfjs_require__(6);
 var IE8_DOM_DEFINE = __w_pdfjs_require__(31);
 var gOPD = Object.getOwnPropertyDescriptor;
 exports.f = __w_pdfjs_require__(3) ? gOPD : function getOwnPropertyDescriptor(O, P) {
@@ -12894,7 +13249,7 @@ exports.PDFJS = exports.isWorker = exports.globalScope = undefined;
 
 var _api = __w_pdfjs_require__(48);
 
-var _dom_utils = __w_pdfjs_require__(8);
+var _dom_utils = __w_pdfjs_require__(5);
 
 var _util = __w_pdfjs_require__(0);
 
@@ -12918,8 +13273,8 @@ if (!_global_scope2.default.PDFJS) {
 }
 var PDFJS = _global_scope2.default.PDFJS;
 {
-  PDFJS.version = '1.9.524';
-  PDFJS.build = 'cd25a51a';
+  PDFJS.version = '1.9.602';
+  PDFJS.build = '25806d17';
 }
 PDFJS.pdfBug = false;
 if (PDFJS.verbosity !== undefined) {
@@ -15372,7 +15727,7 @@ var TilingPattern = function TilingPatternClosure() {
       var tmpCtx = tmpCanvas.context;
       var graphics = canvasGraphicsFactory.createCanvasGraphics(tmpCtx);
       graphics.groupLevel = owner.groupLevel;
-      this.setFillAndStrokeStyleToContext(tmpCtx, paintType, color);
+      this.setFillAndStrokeStyleToContext(graphics, paintType, color);
       this.setScale(width, height, xstep, ystep);
       this.transformToScale(graphics);
       var tmpTranslate = [1, 0, 0, 1, -topLeft[0], -topLeft[1]];
@@ -15402,17 +15757,23 @@ var TilingPattern = function TilingPatternClosure() {
         graphics.endPath();
       }
     },
-    setFillAndStrokeStyleToContext: function setFillAndStrokeStyleToContext(context, paintType, color) {
+    setFillAndStrokeStyleToContext: function setFillAndStrokeStyleToContext(graphics, paintType, color) {
+      var context = graphics.ctx,
+          current = graphics.current;
       switch (paintType) {
         case PaintType.COLORED:
           var ctx = this.ctx;
           context.fillStyle = ctx.fillStyle;
           context.strokeStyle = ctx.strokeStyle;
+          current.fillColor = ctx.fillStyle;
+          current.strokeColor = ctx.strokeStyle;
           break;
         case PaintType.UNCOLORED:
           var cssColor = _util.Util.makeCssRgb(color[0], color[1], color[2]);
           context.fillStyle = cssColor;
           context.strokeStyle = cssColor;
+          current.fillColor = cssColor;
+          current.strokeColor = cssColor;
           break;
         default:
           throw new _util.FormatError('Unsupported paint type: ' + paintType);
@@ -16062,7 +16423,8 @@ var PDFNodeStreamFsFullReader = function (_BaseFullReader2) {
 
     var _this7 = _possibleConstructorReturn(this, (PDFNodeStreamFsFullReader.__proto__ || Object.getPrototypeOf(PDFNodeStreamFsFullReader)).call(this, stream));
 
-    fs.lstat(_this7._url.path, function (error, stat) {
+    var path = decodeURI(_this7._url.path);
+    fs.lstat(path, function (error, stat) {
       if (error) {
         _this7._errored = true;
         _this7._reason = error;
@@ -16070,7 +16432,7 @@ var PDFNodeStreamFsFullReader = function (_BaseFullReader2) {
         return;
       }
       _this7._contentLength = stat.size;
-      _this7._setReadableStream(fs.createReadStream(_this7._url.path));
+      _this7._setReadableStream(fs.createReadStream(path));
       _this7._headersCapability.resolve();
     });
     return _this7;
@@ -16087,7 +16449,7 @@ var PDFNodeStreamFsRangeReader = function (_BaseRangeReader2) {
 
     var _this8 = _possibleConstructorReturn(this, (PDFNodeStreamFsRangeReader.__proto__ || Object.getPrototypeOf(PDFNodeStreamFsRangeReader)).call(this, stream));
 
-    _this8._setReadableStream(fs.createReadStream(_this8._url.path, {
+    _this8._setReadableStream(fs.createReadStream(decodeURI(_this8._url.path), {
       start: start,
       end: end - 1
     }));
@@ -16124,7 +16486,7 @@ function createFetchOptions(headers, withCredentials) {
     method: 'GET',
     headers: headers,
     mode: 'cors',
-    credentials: withCredentials ? 'include' : 'omit',
+    credentials: withCredentials ? 'include' : 'same-origin',
     redirect: 'follow'
   };
 }
@@ -16200,7 +16562,7 @@ var PDFFetchStreamReader = function () {
     }
     var url = this._stream.source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
-      if (!(0, _network_utils.validateResponseStatus)(response.status, _this._stream.isHttp)) {
+      if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);
       }
       _this._reader = response.body.getReader();
@@ -16313,7 +16675,7 @@ var PDFFetchStreamRangeReader = function () {
     this._headers.append('Range', 'bytes=' + rangeStr);
     var url = this._stream.source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
-      if (!(0, _network_utils.validateResponseStatus)(response.status, _this3._stream.isHttp)) {
+      if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);
       }
       _this3._readCapability.resolve();

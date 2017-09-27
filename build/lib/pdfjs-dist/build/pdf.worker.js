@@ -2291,6 +2291,16 @@ var PredictorStream = function PredictorStreamClosure() {
         buffer[pos] = buffer[pos - colors] + rawBytes[i];
         pos++;
       }
+    } else if (bits === 16) {
+      var bytesPerPixel = colors * 2;
+      for (i = 0; i < bytesPerPixel; ++i) {
+        buffer[pos++] = rawBytes[i];
+      }
+      for (; i < rowBytes; i += 2) {
+        var sum = ((rawBytes[i] & 0xFF) << 8) + (rawBytes[i + 1] & 0xFF) + ((buffer[pos - bytesPerPixel] & 0xFF) << 8) + (buffer[pos - bytesPerPixel + 1] & 0xFF);
+        buffer[pos++] = sum >> 8 & 0xFF;
+        buffer[pos++] = sum & 0xFF;
+      }
     } else {
       var compArray = new Uint8Array(colors + 1);
       var bitMask = (1 << bits) - 1;
@@ -2787,7 +2797,9 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
   function CCITTFaxStream(str, maybeLength, params) {
     this.str = str;
     this.dict = str.dict;
-    params = params || _primitives.Dict.empty;
+    if (!(0, _primitives.isDict)(params)) {
+      params = _primitives.Dict.empty;
+    }
     this.encoding = params.get('K') || 0;
     this.eoline = params.get('EndOfLine') || false;
     this.byteAlign = params.get('EncodedByteAlign') || false;
@@ -2808,6 +2820,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
     this.inputBits = 0;
     this.inputBuf = 0;
     this.outputBits = 0;
+    this.rowsDone = false;
     var code1;
     while ((code1 = this.lookBits(12)) === 0) {
       this.eatBits(1);
@@ -2877,6 +2890,9 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
     var columns = this.columns;
     var refPos, blackPixels, bits, i;
     if (this.outputBits === 0) {
+      if (this.rowsDone) {
+        this.eof = true;
+      }
       if (this.eof) {
         return null;
       }
@@ -3042,7 +3058,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
         this.inputBits &= ~7;
       }
       if (!this.eoblock && this.row === this.rows - 1) {
-        this.eof = true;
+        this.rowsDone = true;
       } else {
         code1 = this.lookBits(12);
         if (this.eoline) {
@@ -3063,7 +3079,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
           this.eof = true;
         }
       }
-      if (!this.eof && this.encoding > 0) {
+      if (!this.eof && this.encoding > 0 && !this.rowsDone) {
         this.nextLine2D = !this.lookBits(1);
         this.eatBits(1);
       }
@@ -3498,7 +3514,7 @@ module.exports = function (it) {
 
 var anObject = __w_pdfjs_require__(19);
 var IE8_DOM_DEFINE = __w_pdfjs_require__(35);
-var toPrimitive = __w_pdfjs_require__(25);
+var toPrimitive = __w_pdfjs_require__(26);
 var dP = Object.defineProperty;
 exports.f = __w_pdfjs_require__(5) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
   anObject(O);
@@ -3588,7 +3604,7 @@ var _util = __w_pdfjs_require__(0);
 
 var _primitives = __w_pdfjs_require__(1);
 
-var _function = __w_pdfjs_require__(32);
+var _function = __w_pdfjs_require__(24);
 
 var ColorSpace = function ColorSpaceClosure() {
   function resizeRgbImage(src, bpc, w1, h1, w2, h2, alpha01, dest) {
@@ -3701,9 +3717,6 @@ var ColorSpace = function ColorSpaceClosure() {
   };
   ColorSpace.parse = function ColorSpace_parse(cs, xref, res) {
     var IR = ColorSpace.parseToIR(cs, xref, res);
-    if (IR instanceof AlternateCS) {
-      return IR;
-    }
     return ColorSpace.fromIR(IR);
   };
   ColorSpace.fromIR = function ColorSpace_fromIR(IR) {
@@ -5075,7 +5088,7 @@ var Parser = function ParserClosure() {
       var params = dict.get('DecodeParms', 'DP');
       if ((0, _primitives.isName)(filter)) {
         if (Array.isArray(params)) {
-          params = this.xref.fetchIfRef(params[0]);
+          (0, _util.warn)('/DecodeParms should not contain an Array, ' + 'when /Filter contains a Name.');
         }
         return this.makeFilter(stream, filter.name, length, params);
       }
@@ -5601,149 +5614,6 @@ exports.Parser = Parser;
 "use strict";
 
 
-module.exports = false;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var isObject = __w_pdfjs_require__(10);
-module.exports = function (it, S) {
-  if (!isObject(it)) return it;
-  var fn, val;
-  if (S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-  if (typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it))) return val;
-  if (!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
-  throw TypeError("Can't convert object to primitive value");
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var global = __w_pdfjs_require__(4);
-var hide = __w_pdfjs_require__(6);
-var has = __w_pdfjs_require__(7);
-var SRC = __w_pdfjs_require__(11)('src');
-var TO_STRING = 'toString';
-var $toString = Function[TO_STRING];
-var TPL = ('' + $toString).split(TO_STRING);
-__w_pdfjs_require__(18).inspectSource = function (it) {
-  return $toString.call(it);
-};
-(module.exports = function (O, key, val, safe) {
-  var isFunction = typeof val == 'function';
-  if (isFunction) has(val, 'name') || hide(val, 'name', key);
-  if (O[key] === val) return;
-  if (isFunction) has(val, SRC) || hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
-  if (O === global) {
-    O[key] = val;
-  } else if (!safe) {
-    delete O[key];
-    hide(O, key, val);
-  } else if (O[key]) {
-    O[key] = val;
-  } else {
-    hide(O, key, val);
-  }
-})(Function.prototype, TO_STRING, function toString() {
-  return typeof this == 'function' && this[SRC] || $toString.call(this);
-});
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var aFunction = __w_pdfjs_require__(37);
-module.exports = function (fn, that, length) {
-  aFunction(fn);
-  if (that === undefined) return fn;
-  switch (length) {
-    case 1:
-      return function (a) {
-        return fn.call(that, a);
-      };
-    case 2:
-      return function (a, b) {
-        return fn.call(that, a, b);
-      };
-    case 3:
-      return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-  }
-  return function () {
-    return fn.apply(that, arguments);
-  };
-};
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var toString = {}.toString;
-module.exports = function (it) {
-  return toString.call(it).slice(8, -1);
-};
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var shared = __w_pdfjs_require__(47)('keys');
-var uid = __w_pdfjs_require__(11);
-module.exports = function (key) {
-  return shared[key] || (shared[key] = uid(key));
-};
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-module.exports = 'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'.split(',');
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-var def = __w_pdfjs_require__(9).f;
-var has = __w_pdfjs_require__(7);
-var TAG = __w_pdfjs_require__(2)('toStringTag');
-module.exports = function (it, tag, stat) {
-  if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, {
-    configurable: true,
-    value: tag
-  });
-};
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -5757,12 +5627,24 @@ var _primitives = __w_pdfjs_require__(1);
 
 var _ps_parser = __w_pdfjs_require__(95);
 
+var IsEvalSupportedCached = {
+  get value() {
+    return (0, _util.shadow)(this, 'value', (0, _util.isEvalSupported)());
+  }
+};
 var PDFFunction = function PDFFunctionClosure() {
   var CONSTRUCT_SAMPLED = 0;
   var CONSTRUCT_INTERPOLATED = 2;
   var CONSTRUCT_STICHED = 3;
   var CONSTRUCT_POSTSCRIPT = 4;
+  var isEvalSupported = true;
   return {
+    setIsEvalSupported: function setIsEvalSupported() {
+      var support = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+      isEvalSupported = support !== false;
+    },
+
     getSampleArray: function PDFFunction_getSampleArray(size, outputSize, bps, str) {
       var i, ii;
       var length = 1;
@@ -6034,9 +5916,11 @@ var PDFFunction = function PDFFunctionClosure() {
       var domain = IR[1];
       var range = IR[2];
       var code = IR[3];
-      var compiled = new PostScriptCompiler().compile(code, domain, range);
-      if (compiled) {
-        return new Function('src', 'srcOffset', 'dest', 'destOffset', compiled);
+      if (isEvalSupported && IsEvalSupportedCached.value) {
+        var compiled = new PostScriptCompiler().compile(code, domain, range);
+        if (compiled) {
+          return new Function('src', 'srcOffset', 'dest', 'destOffset', compiled);
+        }
       }
       (0, _util.info)('Unable to compile PS function');
       var numOutputs = range.length >> 1;
@@ -6616,7 +6500,7 @@ var PostScriptCompiler = function PostScriptCompilerClosure() {
               return null;
             }
             n = num1.number;
-            if (n < 0 || (n | 0) !== n || stack.length < n) {
+            if (n < 0 || !Number.isInteger(n) || stack.length < n) {
               return null;
             }
             ast1 = stack[stack.length - n - 1];
@@ -6660,7 +6544,7 @@ var PostScriptCompiler = function PostScriptCompilerClosure() {
             }
             j = num2.number;
             n = num1.number;
-            if (n <= 0 || (n | 0) !== n || (j | 0) !== j || stack.length < n) {
+            if (n <= 0 || !Number.isInteger(n) || !Number.isInteger(j) || stack.length < n) {
               return null;
             }
             j = (j % n + n) % n;
@@ -6709,6 +6593,149 @@ exports.isPDFFunction = isPDFFunction;
 exports.PDFFunction = PDFFunction;
 exports.PostScriptEvaluator = PostScriptEvaluator;
 exports.PostScriptCompiler = PostScriptCompiler;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+module.exports = false;
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var isObject = __w_pdfjs_require__(10);
+module.exports = function (it, S) {
+  if (!isObject(it)) return it;
+  var fn, val;
+  if (S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
+  if (typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it))) return val;
+  if (!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it))) return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var global = __w_pdfjs_require__(4);
+var hide = __w_pdfjs_require__(6);
+var has = __w_pdfjs_require__(7);
+var SRC = __w_pdfjs_require__(11)('src');
+var TO_STRING = 'toString';
+var $toString = Function[TO_STRING];
+var TPL = ('' + $toString).split(TO_STRING);
+__w_pdfjs_require__(18).inspectSource = function (it) {
+  return $toString.call(it);
+};
+(module.exports = function (O, key, val, safe) {
+  var isFunction = typeof val == 'function';
+  if (isFunction) has(val, 'name') || hide(val, 'name', key);
+  if (O[key] === val) return;
+  if (isFunction) has(val, SRC) || hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
+  if (O === global) {
+    O[key] = val;
+  } else if (!safe) {
+    delete O[key];
+    hide(O, key, val);
+  } else if (O[key]) {
+    O[key] = val;
+  } else {
+    hide(O, key, val);
+  }
+})(Function.prototype, TO_STRING, function toString() {
+  return typeof this == 'function' && this[SRC] || $toString.call(this);
+});
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var aFunction = __w_pdfjs_require__(37);
+module.exports = function (fn, that, length) {
+  aFunction(fn);
+  if (that === undefined) return fn;
+  switch (length) {
+    case 1:
+      return function (a) {
+        return fn.call(that, a);
+      };
+    case 2:
+      return function (a, b) {
+        return fn.call(that, a, b);
+      };
+    case 3:
+      return function (a, b, c) {
+        return fn.call(that, a, b, c);
+      };
+  }
+  return function () {
+    return fn.apply(that, arguments);
+  };
+};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var toString = {}.toString;
+module.exports = function (it) {
+  return toString.call(it).slice(8, -1);
+};
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var shared = __w_pdfjs_require__(47)('keys');
+var uid = __w_pdfjs_require__(11);
+module.exports = function (key) {
+  return shared[key] || (shared[key] = uid(key));
+};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+module.exports = 'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'.split(',');
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+var def = __w_pdfjs_require__(9).f;
+var has = __w_pdfjs_require__(7);
+var TAG = __w_pdfjs_require__(2)('toStringTag');
+module.exports = function (it, tag, stat) {
+  if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, {
+    configurable: true,
+    value: tag
+  });
+};
 
 /***/ }),
 /* 33 */
@@ -11259,8 +11286,8 @@ exports.getDingbatsGlyphsUnicode = getDingbatsGlyphsUnicode;
 var global = __w_pdfjs_require__(4);
 var core = __w_pdfjs_require__(18);
 var hide = __w_pdfjs_require__(6);
-var redefine = __w_pdfjs_require__(26);
-var ctx = __w_pdfjs_require__(27);
+var redefine = __w_pdfjs_require__(27);
+var ctx = __w_pdfjs_require__(28);
 var PROTOTYPE = 'prototype';
 var $export = function $export(type, name, source) {
   var IS_FORCED = type & $export.F;
@@ -11372,7 +11399,7 @@ module.exports = {
 "use strict";
 
 
-var redefine = __w_pdfjs_require__(26);
+var redefine = __w_pdfjs_require__(27);
 module.exports = function (target, src, safe) {
   for (var key in src) {
     redefine(target, key, src[key], safe);
@@ -11418,7 +11445,7 @@ module.exports = function (it) {
 
 
 var $keys = __w_pdfjs_require__(43);
-var hiddenKeys = __w_pdfjs_require__(30).concat('length', 'prototype');
+var hiddenKeys = __w_pdfjs_require__(31).concat('length', 'prototype');
 exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
   return $keys(O, hiddenKeys);
 };
@@ -11433,7 +11460,7 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 var has = __w_pdfjs_require__(7);
 var toIObject = __w_pdfjs_require__(21);
 var arrayIndexOf = __w_pdfjs_require__(46)(false);
-var IE_PROTO = __w_pdfjs_require__(29)('IE_PROTO');
+var IE_PROTO = __w_pdfjs_require__(30)('IE_PROTO');
 module.exports = function (object, names) {
   var O = toIObject(object);
   var i = 0;
@@ -11455,7 +11482,7 @@ module.exports = function (object, names) {
 "use strict";
 
 
-var cof = __w_pdfjs_require__(28);
+var cof = __w_pdfjs_require__(29);
 module.exports = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
   return cof(it) == 'String' ? it.split('') : Object(it);
 };
@@ -11542,7 +11569,7 @@ module.exports = function fill(value) {
 "use strict";
 
 
-var cof = __w_pdfjs_require__(28);
+var cof = __w_pdfjs_require__(29);
 var TAG = __w_pdfjs_require__(2)('toStringTag');
 var ARG = cof(function () {
   return arguments;
@@ -11566,8 +11593,8 @@ module.exports = function (it) {
 
 var anObject = __w_pdfjs_require__(19);
 var dPs = __w_pdfjs_require__(70);
-var enumBugKeys = __w_pdfjs_require__(30);
-var IE_PROTO = __w_pdfjs_require__(29)('IE_PROTO');
+var enumBugKeys = __w_pdfjs_require__(31);
+var IE_PROTO = __w_pdfjs_require__(30)('IE_PROTO');
 var Empty = function Empty() {};
 var PROTOTYPE = 'prototype';
 var _createDict = function createDict() {
@@ -11608,7 +11635,7 @@ module.exports = Object.create || function create(O, Properties) {
 
 var has = __w_pdfjs_require__(7);
 var toObject = __w_pdfjs_require__(13);
-var IE_PROTO = __w_pdfjs_require__(29)('IE_PROTO');
+var IE_PROTO = __w_pdfjs_require__(30)('IE_PROTO');
 var ObjectProto = Object.prototype;
 module.exports = Object.getPrototypeOf || function (O) {
   O = toObject(O);
@@ -17500,7 +17527,7 @@ var _standard_fonts = __w_pdfjs_require__(59);
 
 var _pattern = __w_pdfjs_require__(101);
 
-var _function = __w_pdfjs_require__(32);
+var _function = __w_pdfjs_require__(24);
 
 var _parser = __w_pdfjs_require__(23);
 
@@ -17522,7 +17549,8 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     maxImageSize: -1,
     disableFontFace: false,
     nativeImageDecoderSupport: _util.NativeImageDecoding.DECODE,
-    ignoreErrors: false
+    ignoreErrors: false,
+    isEvalSupported: true
   };
   function NativeImageDecoder(xref, resources, handler, forceDataSchema) {
     this.xref = xref;
@@ -19185,7 +19213,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var defaultVMetrics;
       var i, ii, j, jj, start, code, widths;
       if (properties.composite) {
-        defaultWidth = dict.get('DW') || 1000;
+        defaultWidth = dict.has('DW') ? dict.get('DW') : 1000;
         widths = dict.get('W');
         if (widths) {
           for (i = 0, ii = widths.length; i < ii; i++) {
@@ -24512,8 +24540,8 @@ exports.getUnicodeForGlyph = getUnicodeForGlyph;
 "use strict";
 
 
-var pdfjsVersion = '1.9.524';
-var pdfjsBuild = 'cd25a51a';
+var pdfjsVersion = '1.9.602';
+var pdfjsBuild = '25806d17';
 var pdfjsCoreWorker = __w_pdfjs_require__(62);
 exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
 
@@ -24717,6 +24745,11 @@ var WorkerMessageHandler = {
     var terminated = false;
     var cancelXHRs = null;
     var WorkerTasks = [];
+    var apiVersion = docParams.apiVersion;
+    var workerVersion = '1.9.602';
+    if (apiVersion !== null && apiVersion !== workerVersion) {
+      throw new Error('The API version "' + apiVersion + '" does not match ' + ('the Worker version "' + workerVersion + '".'));
+    }
     var docId = docParams.docId;
     var docBaseUrl = docParams.docBaseUrl;
     var workerHandlerName = docParams.docId + '_worker';
@@ -24908,7 +24941,8 @@ var WorkerMessageHandler = {
         maxImageSize: data.maxImageSize === undefined ? -1 : data.maxImageSize,
         disableFontFace: data.disableFontFace,
         nativeImageDecoderSupport: data.nativeImageDecoderSupport,
-        ignoreErrors: data.ignoreErrors
+        ignoreErrors: data.ignoreErrors,
+        isEvalSupported: data.isEvalSupported
       };
       getPdfManager(data, evaluatorOptions).then(function (newPdfManager) {
         if (terminated) {
@@ -26664,13 +26698,13 @@ __w_pdfjs_require__(67)('Uint8', 1, function (init) {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 if (__w_pdfjs_require__(5)) {
-  var LIBRARY = __w_pdfjs_require__(24);
+  var LIBRARY = __w_pdfjs_require__(25);
   var global = __w_pdfjs_require__(4);
   var fails = __w_pdfjs_require__(17);
   var $export = __w_pdfjs_require__(34);
   var $typed = __w_pdfjs_require__(38);
   var $buffer = __w_pdfjs_require__(68);
-  var ctx = __w_pdfjs_require__(27);
+  var ctx = __w_pdfjs_require__(28);
   var anInstance = __w_pdfjs_require__(40);
   var propertyDesc = __w_pdfjs_require__(20);
   var hide = __w_pdfjs_require__(6);
@@ -26679,7 +26713,7 @@ if (__w_pdfjs_require__(5)) {
   var toLength = __w_pdfjs_require__(8);
   var toIndex = __w_pdfjs_require__(41);
   var toAbsoluteIndex = __w_pdfjs_require__(22);
-  var toPrimitive = __w_pdfjs_require__(25);
+  var toPrimitive = __w_pdfjs_require__(26);
   var has = __w_pdfjs_require__(7);
   var classof = __w_pdfjs_require__(49);
   var isObject = __w_pdfjs_require__(10);
@@ -27107,7 +27141,7 @@ if (__w_pdfjs_require__(5)) {
 
 var global = __w_pdfjs_require__(4);
 var DESCRIPTORS = __w_pdfjs_require__(5);
-var LIBRARY = __w_pdfjs_require__(24);
+var LIBRARY = __w_pdfjs_require__(25);
 var $typed = __w_pdfjs_require__(38);
 var hide = __w_pdfjs_require__(6);
 var redefineAll = __w_pdfjs_require__(39);
@@ -27119,7 +27153,7 @@ var toIndex = __w_pdfjs_require__(41);
 var gOPN = __w_pdfjs_require__(42).f;
 var dP = __w_pdfjs_require__(9).f;
 var arrayFill = __w_pdfjs_require__(48);
-var setToStringTag = __w_pdfjs_require__(31);
+var setToStringTag = __w_pdfjs_require__(32);
 var ARRAY_BUFFER = 'ArrayBuffer';
 var DATA_VIEW = 'DataView';
 var PROTOTYPE = 'prototype';
@@ -27418,7 +27452,7 @@ module.exports = __w_pdfjs_require__(5) ? Object.defineProperties : function def
 
 
 var $keys = __w_pdfjs_require__(43);
-var enumBugKeys = __w_pdfjs_require__(30);
+var enumBugKeys = __w_pdfjs_require__(31);
 module.exports = Object.keys || function keys(O) {
   return $keys(O, enumBugKeys);
 };
@@ -27454,7 +27488,7 @@ module.exports = __w_pdfjs_require__(18).getIteratorMethod = function (it) {
 "use strict";
 
 
-var ctx = __w_pdfjs_require__(27);
+var ctx = __w_pdfjs_require__(28);
 var IObject = __w_pdfjs_require__(44);
 var toObject = __w_pdfjs_require__(13);
 var toLength = __w_pdfjs_require__(8);
@@ -27538,7 +27572,7 @@ module.exports = function (original) {
 "use strict";
 
 
-var cof = __w_pdfjs_require__(28);
+var cof = __w_pdfjs_require__(29);
 module.exports = Array.isArray || function isArray(arg) {
   return cof(arg) == 'Array';
 };
@@ -27626,14 +27660,14 @@ module.exports = function (done, value) {
 "use strict";
 
 
-var LIBRARY = __w_pdfjs_require__(24);
+var LIBRARY = __w_pdfjs_require__(25);
 var $export = __w_pdfjs_require__(34);
-var redefine = __w_pdfjs_require__(26);
+var redefine = __w_pdfjs_require__(27);
 var hide = __w_pdfjs_require__(6);
 var has = __w_pdfjs_require__(7);
 var Iterators = __w_pdfjs_require__(14);
 var $iterCreate = __w_pdfjs_require__(83);
-var setToStringTag = __w_pdfjs_require__(31);
+var setToStringTag = __w_pdfjs_require__(32);
 var getPrototypeOf = __w_pdfjs_require__(51);
 var ITERATOR = __w_pdfjs_require__(2)('iterator');
 var BUGGY = !([].keys && 'next' in [].keys());
@@ -27710,7 +27744,7 @@ module.exports = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCE
 
 var create = __w_pdfjs_require__(50);
 var descriptor = __w_pdfjs_require__(20);
-var setToStringTag = __w_pdfjs_require__(31);
+var setToStringTag = __w_pdfjs_require__(32);
 var IteratorPrototype = {};
 __w_pdfjs_require__(6)(IteratorPrototype, __w_pdfjs_require__(2)('iterator'), function () {
   return this;
@@ -27817,7 +27851,7 @@ module.exports = [].copyWithin || function copyWithin(target, start) {
 var pIE = __w_pdfjs_require__(88);
 var createDesc = __w_pdfjs_require__(20);
 var toIObject = __w_pdfjs_require__(21);
-var toPrimitive = __w_pdfjs_require__(25);
+var toPrimitive = __w_pdfjs_require__(26);
 var has = __w_pdfjs_require__(7);
 var IE8_DOM_DEFINE = __w_pdfjs_require__(35);
 var gOPD = Object.getOwnPropertyDescriptor;
@@ -31097,6 +31131,8 @@ var _crypto = __w_pdfjs_require__(56);
 
 var _parser = __w_pdfjs_require__(23);
 
+var _function = __w_pdfjs_require__(24);
+
 var Page = function PageClosure() {
   var DEFAULT_USER_UNIT = 1.0;
   var LETTER_SIZE_MEDIABOX = [0, 0, 612, 792];
@@ -31534,6 +31570,8 @@ var PDFDocument = function PDFDocumentClosure() {
         }
       };
       this.catalog = new _obj.Catalog(this.pdfManager, this.xref, pageFactory);
+      var evaluatorOptions = this.pdfManager.evaluatorOptions;
+      _function.PDFFunction.setIsEvalSupported(evaluatorOptions.isEvalSupported);
     },
     get numPages() {
       var linearization = this.linearization;
@@ -32181,8 +32219,8 @@ var Jbig2Image = function Jbig2ImageClosure() {
           symbolHeight += rdh;
           symbolBitmap = decodeRefinement(symbolWidth, symbolHeight, refinementTemplateIndex, symbolBitmap, (rdw >> 1) + rdx, (rdh >> 1) + rdy, false, refinementAt, decodingContext);
         }
-        var offsetT = t - (referenceCorner & 1 ? 0 : symbolHeight);
-        var offsetS = currentS - (referenceCorner & 2 ? symbolWidth : 0);
+        var offsetT = t - (referenceCorner & 1 ? 0 : symbolHeight - 1);
+        var offsetS = currentS - (referenceCorner & 2 ? symbolWidth - 1 : 0);
         var s2, t2, symbolRow;
         if (transposed) {
           for (s2 = 0; s2 < symbolHeight; s2++) {
@@ -35778,14 +35816,19 @@ var Font = function FontClosure() {
         }
       }
       function sanitizeGlyph(source, sourceStart, sourceEnd, dest, destStart, hintsValid) {
+        var glyphProfile = {
+          length: 0,
+          sizeOfInstructions: 0
+        };
         if (sourceEnd - sourceStart <= 12) {
-          return 0;
+          return glyphProfile;
         }
         var glyf = source.subarray(sourceStart, sourceEnd);
         var contoursCount = glyf[0] << 8 | glyf[1];
         if (contoursCount & 0x8000) {
           dest.set(glyf, destStart);
-          return glyf.length;
+          glyphProfile.length = glyf.length;
+          return glyphProfile;
         }
         var i,
             j = 10,
@@ -35797,6 +35840,7 @@ var Font = function FontClosure() {
         }
         var instructionsStart = j;
         var instructionsLength = glyf[j] << 8 | glyf[j + 1];
+        glyphProfile.sizeOfInstructions = instructionsLength;
         j += 2 + instructionsLength;
         var instructionsEnd = j;
         var coordinatesLength = 0;
@@ -35814,11 +35858,11 @@ var Font = function FontClosure() {
           }
         }
         if (coordinatesLength === 0) {
-          return 0;
+          return glyphProfile;
         }
         var glyphDataLength = j + coordinatesLength;
         if (glyphDataLength > glyf.length) {
-          return 0;
+          return glyphProfile;
         }
         if (!hintsValid && instructionsLength > 0) {
           dest.set(glyf.subarray(0, instructionsStart), destStart);
@@ -35828,15 +35872,18 @@ var Font = function FontClosure() {
           if (glyf.length - glyphDataLength > 3) {
             glyphDataLength = glyphDataLength + 3 & ~3;
           }
-          return glyphDataLength;
+          glyphProfile.length = glyphDataLength;
+          return glyphProfile;
         }
         if (glyf.length - glyphDataLength > 3) {
           glyphDataLength = glyphDataLength + 3 & ~3;
           dest.set(glyf.subarray(0, glyphDataLength), destStart);
-          return glyphDataLength;
+          glyphProfile.length = glyphDataLength;
+          return glyphProfile;
         }
         dest.set(glyf, destStart);
-        return glyf.length;
+        glyphProfile.length = glyf.length;
+        return glyphProfile;
       }
       function sanitizeHead(head, numGlyphs, locaLength) {
         var data = head.data;
@@ -35863,7 +35910,7 @@ var Font = function FontClosure() {
           }
         }
       }
-      function sanitizeGlyphLocations(loca, glyf, numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry) {
+      function sanitizeGlyphLocations(loca, glyf, numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry, maxSizeOfInstructions) {
         var itemSize, itemDecode, itemEncode;
         if (isGlyphLocationsLong) {
           itemSize = 4;
@@ -35898,7 +35945,7 @@ var Font = function FontClosure() {
         var newGlyfData = new Uint8Array(oldGlyfDataLength);
         var startOffset = itemDecode(locaData, 0);
         var writeOffset = 0;
-        var missingGlyphData = Object.create(null);
+        var missingGlyphs = Object.create(null);
         itemEncode(locaData, 0, writeOffset);
         var i, j;
         var locaCount = dupFirstEntry ? numGlyphs - 1 : numGlyphs;
@@ -35910,9 +35957,13 @@ var Font = function FontClosure() {
           if (endOffset > oldGlyfDataLength) {
             startOffset = endOffset;
           }
-          var newLength = sanitizeGlyph(oldGlyfData, startOffset, endOffset, newGlyfData, writeOffset, hintsValid);
+          var glyphProfile = sanitizeGlyph(oldGlyfData, startOffset, endOffset, newGlyfData, writeOffset, hintsValid);
+          var newLength = glyphProfile.length;
           if (newLength === 0) {
-            missingGlyphData[i] = true;
+            missingGlyphs[i] = true;
+          }
+          if (glyphProfile.sizeOfInstructions > maxSizeOfInstructions) {
+            maxSizeOfInstructions = glyphProfile.sizeOfInstructions;
           }
           writeOffset += newLength;
           itemEncode(locaData, j, writeOffset);
@@ -35924,9 +35975,7 @@ var Font = function FontClosure() {
             itemEncode(locaData, j, simpleGlyph.length);
           }
           glyf.data = simpleGlyph;
-          return missingGlyphData;
-        }
-        if (dupFirstEntry) {
+        } else if (dupFirstEntry) {
           var firstEntryLength = itemDecode(locaData, itemSize);
           if (newGlyfData.length > firstEntryLength + writeOffset) {
             glyf.data = newGlyfData.subarray(0, firstEntryLength + writeOffset);
@@ -35939,7 +35988,10 @@ var Font = function FontClosure() {
         } else {
           glyf.data = newGlyfData.subarray(0, writeOffset);
         }
-        return missingGlyphData;
+        return {
+          missingGlyphs: missingGlyphs,
+          maxSizeOfInstructions: maxSizeOfInstructions
+        };
       }
       function readPostScriptTable(post, properties, maxpNumGlyphs) {
         var start = (font.start ? font.start : 0) + post.offset;
@@ -36343,6 +36395,7 @@ var Font = function FontClosure() {
       var version = font.getInt32();
       var numGlyphs = font.getUint16();
       var maxFunctionDefs = 0;
+      var maxSizeOfInstructions = 0;
       if (version >= 0x00010000 && tables['maxp'].length >= 22) {
         font.pos += 8;
         var maxZones = font.getUint16();
@@ -36352,6 +36405,8 @@ var Font = function FontClosure() {
         }
         font.pos += 4;
         maxFunctionDefs = font.getUint16();
+        font.pos += 6;
+        maxSizeOfInstructions = font.getUint16();
       }
       var dupFirstEntry = false;
       if (properties.type === 'CIDFontType2' && properties.toUnicode && properties.toUnicode.get(0) > '\0') {
@@ -36374,7 +36429,12 @@ var Font = function FontClosure() {
       var missingGlyphs = Object.create(null);
       if (isTrueType) {
         var isGlyphLocationsLong = int16(tables['head'].data[50], tables['head'].data[51]);
-        missingGlyphs = sanitizeGlyphLocations(tables['loca'], tables['glyf'], numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry);
+        var glyphsInfo = sanitizeGlyphLocations(tables['loca'], tables['glyf'], numGlyphs, isGlyphLocationsLong, hintsValid, dupFirstEntry, maxSizeOfInstructions);
+        missingGlyphs = glyphsInfo.missingGlyphs;
+        if (version >= 0x00010000 && tables['maxp'].length >= 22) {
+          tables['maxp'].data[26] = glyphsInfo.maxSizeOfInstructions >> 8;
+          tables['maxp'].data[27] = glyphsInfo.maxSizeOfInstructions & 255;
+        }
       }
       if (!tables['hhea']) {
         throw new _util.FormatError('Required "hhea" table is not found');
@@ -38140,7 +38200,7 @@ var Type1CharString = function Type1CharStringClosure() {
       var start = stackLength - howManyArgs;
       for (var i = start; i < stackLength; i++) {
         var value = this.stack[i];
-        if (value === (value | 0)) {
+        if (Number.isInteger(value)) {
           this.output.push(28, value >> 8 & 0xff, value & 0xff);
         } else {
           value = 65536 * value | 0;
@@ -38471,7 +38531,7 @@ var _colorspace = __w_pdfjs_require__(15);
 
 var _primitives = __w_pdfjs_require__(1);
 
-var _function = __w_pdfjs_require__(32);
+var _function = __w_pdfjs_require__(24);
 
 var ShadingType = {
   FUNCTION_BASED: 1,
@@ -43133,6 +43193,14 @@ var AnnotationFactory = function () {
           return new PopupAnnotation(parameters);
         case 'Line':
           return new LineAnnotation(parameters);
+        case 'Square':
+          return new SquareAnnotation(parameters);
+        case 'Circle':
+          return new CircleAnnotation(parameters);
+        case 'PolyLine':
+          return new PolylineAnnotation(parameters);
+        case 'Polygon':
+          return new PolygonAnnotation(parameters);
         case 'Highlight':
           return new HighlightAnnotation(parameters);
         case 'Underline':
@@ -43141,6 +43209,8 @@ var AnnotationFactory = function () {
           return new SquigglyAnnotation(parameters);
         case 'StrikeOut':
           return new StrikeOutAnnotation(parameters);
+        case 'Stamp':
+          return new StampAnnotation(parameters);
         case 'FileAttachment':
           return new FileAttachmentAnnotation(parameters);
         default:
@@ -43393,7 +43463,7 @@ var AnnotationBorderStyle = function () {
   _createClass(AnnotationBorderStyle, [{
     key: 'setWidth',
     value: function setWidth(width) {
-      if (width === (width | 0)) {
+      if (Number.isInteger(width)) {
         this.width = width;
       }
     }
@@ -43451,14 +43521,14 @@ var AnnotationBorderStyle = function () {
   }, {
     key: 'setHorizontalCornerRadius',
     value: function setHorizontalCornerRadius(radius) {
-      if (radius === (radius | 0)) {
+      if (Number.isInteger(radius)) {
         this.horizontalCornerRadius = radius;
       }
     }
   }, {
     key: 'setVerticalCornerRadius',
     value: function setVerticalCornerRadius(radius) {
-      if (radius === (radius | 0)) {
+      if (Number.isInteger(radius)) {
         this.verticalCornerRadius = radius;
       }
     }
@@ -43769,83 +43839,171 @@ var LineAnnotation = function (_Annotation5) {
   return LineAnnotation;
 }(Annotation);
 
-var HighlightAnnotation = function (_Annotation6) {
-  _inherits(HighlightAnnotation, _Annotation6);
+var SquareAnnotation = function (_Annotation6) {
+  _inherits(SquareAnnotation, _Annotation6);
+
+  function SquareAnnotation(parameters) {
+    _classCallCheck(this, SquareAnnotation);
+
+    var _this10 = _possibleConstructorReturn(this, (SquareAnnotation.__proto__ || Object.getPrototypeOf(SquareAnnotation)).call(this, parameters));
+
+    _this10.data.annotationType = _util.AnnotationType.SQUARE;
+    _this10._preparePopup(parameters.dict);
+    return _this10;
+  }
+
+  return SquareAnnotation;
+}(Annotation);
+
+var CircleAnnotation = function (_Annotation7) {
+  _inherits(CircleAnnotation, _Annotation7);
+
+  function CircleAnnotation(parameters) {
+    _classCallCheck(this, CircleAnnotation);
+
+    var _this11 = _possibleConstructorReturn(this, (CircleAnnotation.__proto__ || Object.getPrototypeOf(CircleAnnotation)).call(this, parameters));
+
+    _this11.data.annotationType = _util.AnnotationType.CIRCLE;
+    _this11._preparePopup(parameters.dict);
+    return _this11;
+  }
+
+  return CircleAnnotation;
+}(Annotation);
+
+var PolylineAnnotation = function (_Annotation8) {
+  _inherits(PolylineAnnotation, _Annotation8);
+
+  function PolylineAnnotation(parameters) {
+    _classCallCheck(this, PolylineAnnotation);
+
+    var _this12 = _possibleConstructorReturn(this, (PolylineAnnotation.__proto__ || Object.getPrototypeOf(PolylineAnnotation)).call(this, parameters));
+
+    _this12.data.annotationType = _util.AnnotationType.POLYLINE;
+    var dict = parameters.dict;
+    var rawVertices = dict.getArray('Vertices');
+    _this12.data.vertices = [];
+    for (var i = 0, ii = rawVertices.length; i < ii; i += 2) {
+      _this12.data.vertices.push({
+        x: rawVertices[i],
+        y: rawVertices[i + 1]
+      });
+    }
+    _this12._preparePopup(dict);
+    return _this12;
+  }
+
+  return PolylineAnnotation;
+}(Annotation);
+
+var PolygonAnnotation = function (_PolylineAnnotation) {
+  _inherits(PolygonAnnotation, _PolylineAnnotation);
+
+  function PolygonAnnotation(parameters) {
+    _classCallCheck(this, PolygonAnnotation);
+
+    var _this13 = _possibleConstructorReturn(this, (PolygonAnnotation.__proto__ || Object.getPrototypeOf(PolygonAnnotation)).call(this, parameters));
+
+    _this13.data.annotationType = _util.AnnotationType.POLYGON;
+    return _this13;
+  }
+
+  return PolygonAnnotation;
+}(PolylineAnnotation);
+
+var HighlightAnnotation = function (_Annotation9) {
+  _inherits(HighlightAnnotation, _Annotation9);
 
   function HighlightAnnotation(parameters) {
     _classCallCheck(this, HighlightAnnotation);
 
-    var _this10 = _possibleConstructorReturn(this, (HighlightAnnotation.__proto__ || Object.getPrototypeOf(HighlightAnnotation)).call(this, parameters));
+    var _this14 = _possibleConstructorReturn(this, (HighlightAnnotation.__proto__ || Object.getPrototypeOf(HighlightAnnotation)).call(this, parameters));
 
-    _this10.data.annotationType = _util.AnnotationType.HIGHLIGHT;
-    _this10._preparePopup(parameters.dict);
-    return _this10;
+    _this14.data.annotationType = _util.AnnotationType.HIGHLIGHT;
+    _this14._preparePopup(parameters.dict);
+    return _this14;
   }
 
   return HighlightAnnotation;
 }(Annotation);
 
-var UnderlineAnnotation = function (_Annotation7) {
-  _inherits(UnderlineAnnotation, _Annotation7);
+var UnderlineAnnotation = function (_Annotation10) {
+  _inherits(UnderlineAnnotation, _Annotation10);
 
   function UnderlineAnnotation(parameters) {
     _classCallCheck(this, UnderlineAnnotation);
 
-    var _this11 = _possibleConstructorReturn(this, (UnderlineAnnotation.__proto__ || Object.getPrototypeOf(UnderlineAnnotation)).call(this, parameters));
+    var _this15 = _possibleConstructorReturn(this, (UnderlineAnnotation.__proto__ || Object.getPrototypeOf(UnderlineAnnotation)).call(this, parameters));
 
-    _this11.data.annotationType = _util.AnnotationType.UNDERLINE;
-    _this11._preparePopup(parameters.dict);
-    return _this11;
+    _this15.data.annotationType = _util.AnnotationType.UNDERLINE;
+    _this15._preparePopup(parameters.dict);
+    return _this15;
   }
 
   return UnderlineAnnotation;
 }(Annotation);
 
-var SquigglyAnnotation = function (_Annotation8) {
-  _inherits(SquigglyAnnotation, _Annotation8);
+var SquigglyAnnotation = function (_Annotation11) {
+  _inherits(SquigglyAnnotation, _Annotation11);
 
   function SquigglyAnnotation(parameters) {
     _classCallCheck(this, SquigglyAnnotation);
 
-    var _this12 = _possibleConstructorReturn(this, (SquigglyAnnotation.__proto__ || Object.getPrototypeOf(SquigglyAnnotation)).call(this, parameters));
+    var _this16 = _possibleConstructorReturn(this, (SquigglyAnnotation.__proto__ || Object.getPrototypeOf(SquigglyAnnotation)).call(this, parameters));
 
-    _this12.data.annotationType = _util.AnnotationType.SQUIGGLY;
-    _this12._preparePopup(parameters.dict);
-    return _this12;
+    _this16.data.annotationType = _util.AnnotationType.SQUIGGLY;
+    _this16._preparePopup(parameters.dict);
+    return _this16;
   }
 
   return SquigglyAnnotation;
 }(Annotation);
 
-var StrikeOutAnnotation = function (_Annotation9) {
-  _inherits(StrikeOutAnnotation, _Annotation9);
+var StrikeOutAnnotation = function (_Annotation12) {
+  _inherits(StrikeOutAnnotation, _Annotation12);
 
   function StrikeOutAnnotation(parameters) {
     _classCallCheck(this, StrikeOutAnnotation);
 
-    var _this13 = _possibleConstructorReturn(this, (StrikeOutAnnotation.__proto__ || Object.getPrototypeOf(StrikeOutAnnotation)).call(this, parameters));
+    var _this17 = _possibleConstructorReturn(this, (StrikeOutAnnotation.__proto__ || Object.getPrototypeOf(StrikeOutAnnotation)).call(this, parameters));
 
-    _this13.data.annotationType = _util.AnnotationType.STRIKEOUT;
-    _this13._preparePopup(parameters.dict);
-    return _this13;
+    _this17.data.annotationType = _util.AnnotationType.STRIKEOUT;
+    _this17._preparePopup(parameters.dict);
+    return _this17;
   }
 
   return StrikeOutAnnotation;
 }(Annotation);
 
-var FileAttachmentAnnotation = function (_Annotation10) {
-  _inherits(FileAttachmentAnnotation, _Annotation10);
+var StampAnnotation = function (_Annotation13) {
+  _inherits(StampAnnotation, _Annotation13);
+
+  function StampAnnotation(parameters) {
+    _classCallCheck(this, StampAnnotation);
+
+    var _this18 = _possibleConstructorReturn(this, (StampAnnotation.__proto__ || Object.getPrototypeOf(StampAnnotation)).call(this, parameters));
+
+    _this18.data.annotationType = _util.AnnotationType.STAMP;
+    _this18._preparePopup(parameters.dict);
+    return _this18;
+  }
+
+  return StampAnnotation;
+}(Annotation);
+
+var FileAttachmentAnnotation = function (_Annotation14) {
+  _inherits(FileAttachmentAnnotation, _Annotation14);
 
   function FileAttachmentAnnotation(parameters) {
     _classCallCheck(this, FileAttachmentAnnotation);
 
-    var _this14 = _possibleConstructorReturn(this, (FileAttachmentAnnotation.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotation)).call(this, parameters));
+    var _this19 = _possibleConstructorReturn(this, (FileAttachmentAnnotation.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotation)).call(this, parameters));
 
     var file = new _obj.FileSpec(parameters.dict.get('FS'), parameters.xref);
-    _this14.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
-    _this14.data.file = file.serializable;
-    _this14._preparePopup(parameters.dict);
-    return _this14;
+    _this19.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
+    _this19.data.file = file.serializable;
+    _this19._preparePopup(parameters.dict);
+    return _this19;
   }
 
   return FileAttachmentAnnotation;
