@@ -508,7 +508,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private renderPage(pageNumber: number) {
     this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
-      let container = this.element.nativeElement.querySelector('div');
+      let container = this.element.nativeElement.querySelector('.pdfViewer');
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);

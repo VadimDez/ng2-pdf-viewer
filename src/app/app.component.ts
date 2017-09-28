@@ -33,7 +33,7 @@ export class AppComponent {
   progressData: PDFProgressData;
   isLoaded: boolean = false;
   stickToPage = false;
-  showAll = false;
+  showAll = true;
 
   incrementPage(amount: number) {
     this.page += amount;

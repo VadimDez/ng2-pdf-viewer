@@ -227,7 +227,7 @@ var PdfViewerComponent = (function () {
         var _this = this;
         this._pdf.getPage(pageNumber).then(function (page) {
             var viewport = page.getViewport(_this._zoom, _this._rotation);
-            var container = _this.element.nativeElement.querySelector('div');
+            var container = _this.element.nativeElement.querySelector('.pdfViewer');
             if (!_this._originalSize) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
             }
