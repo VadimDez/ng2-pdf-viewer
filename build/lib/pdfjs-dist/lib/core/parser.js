@@ -110,9 +110,9 @@ var Parser = function ParserClosure() {
             return buf1;
         }
       }
-      if ((0, _util.isInt)(buf1)) {
+      if (Number.isInteger(buf1)) {
         var num = buf1;
-        if ((0, _util.isInt)(this.buf1) && (0, _primitives.isCmd)(this.buf2, 'R')) {
+        if (Number.isInteger(this.buf1) && (0, _primitives.isCmd)(this.buf2, 'R')) {
           var ref = new _primitives.Ref(num, this.buf1);
           this.shift();
           this.shift();
@@ -129,18 +129,18 @@ var Parser = function ParserClosure() {
       }
       return buf1;
     },
-    findDefaultInlineStreamEnd: function Parser_findDefaultInlineStreamEnd(stream) {
+    findDefaultInlineStreamEnd: function findDefaultInlineStreamEnd(stream) {
       var E = 0x45,
           I = 0x49,
           SPACE = 0x20,
           LF = 0xA,
           CR = 0xD;
+      var n = 10,
+          NUL = 0x0;
       var startPos = stream.pos,
           state = 0,
-          ch,
-          i,
-          n,
-          followingBytes;
+          ch = void 0,
+          maybeEIPos = void 0;
       while ((ch = stream.getByte()) !== -1) {
         if (state === 0) {
           state = ch === E ? 1 : 0;
@@ -149,10 +149,13 @@ var Parser = function ParserClosure() {
         } else {
           (0, _util.assert)(state === 2);
           if (ch === SPACE || ch === LF || ch === CR) {
-            n = 5;
-            followingBytes = stream.peekBytes(n);
-            for (i = 0; i < n; i++) {
+            maybeEIPos = stream.pos;
+            var followingBytes = stream.peekBytes(n);
+            for (var i = 0, ii = followingBytes.length; i < ii; i++) {
               ch = followingBytes[i];
+              if (ch === NUL && followingBytes[i + 1] !== NUL) {
+                continue;
+              }
               if (ch !== LF && ch !== CR && (ch < SPACE || ch > 0x7F)) {
                 state = 0;
                 break;
@@ -166,8 +169,16 @@ var Parser = function ParserClosure() {
           }
         }
       }
+      if (ch === -1) {
+        (0, _util.warn)('findDefaultInlineStreamEnd: ' + 'Reached the end of the stream without finding a valid EI marker');
+        if (maybeEIPos) {
+          (0, _util.warn)('... trying to recover by using the last "EI" occurrence.');
+          stream.skip(-(stream.pos - maybeEIPos));
+        }
+      }
       return stream.pos - 4 - startPos;
     },
+
     findDCTDecodeInlineStreamEnd: function Parser_findDCTDecodeInlineStreamEnd(stream) {
       var startPos = stream.pos,
           foundEOI = false,
@@ -320,7 +331,7 @@ var Parser = function ParserClosure() {
           filterName;
       if ((0, _primitives.isName)(filter)) {
         filterName = filter.name;
-      } else if ((0, _util.isArray)(filter)) {
+      } else if (Array.isArray(filter)) {
         var filterZero = this.xref.fetchIfRef(filter[0]);
         if ((0, _primitives.isName)(filterZero)) {
           filterName = filterZero.name;
@@ -351,11 +362,12 @@ var Parser = function ParserClosure() {
           b += a;
         }
         adler32 = b % 65521 << 16 | a % 65521;
-        if (this.imageCache.adler32 === adler32) {
+        var cacheEntry = this.imageCache[adler32];
+        if (cacheEntry !== undefined) {
           this.buf2 = _primitives.Cmd.get('EI');
           this.shift();
-          this.imageCache[adler32].reset();
-          return this.imageCache[adler32];
+          cacheEntry.reset();
+          return cacheEntry;
         }
       }
       if (cipherTransform) {
@@ -377,7 +389,7 @@ var Parser = function ParserClosure() {
       lexer.skipToNextLine();
       var pos = stream.pos - 1;
       var length = dict.get('Length');
-      if (!(0, _util.isInt)(length)) {
+      if (!Number.isInteger(length)) {
         (0, _util.info)('Bad ' + length + ' attribute in stream');
         length = 0;
       }
@@ -442,13 +454,13 @@ var Parser = function ParserClosure() {
       var filter = dict.get('Filter', 'F');
       var params = dict.get('DecodeParms', 'DP');
       if ((0, _primitives.isName)(filter)) {
-        if ((0, _util.isArray)(params)) {
-          params = this.xref.fetchIfRef(params[0]);
+        if (Array.isArray(params)) {
+          (0, _util.warn)('/DecodeParms should not contain an Array, ' + 'when /Filter contains a Name.');
         }
         return this.makeFilter(stream, filter.name, length, params);
       }
       var maybeLength = length;
-      if ((0, _util.isArray)(filter)) {
+      if (Array.isArray(filter)) {
         var filterArray = filter;
         var paramsArray = params;
         for (var i = 0, ii = filterArray.length; i < ii; ++i) {
@@ -457,7 +469,7 @@ var Parser = function ParserClosure() {
             throw new _util.FormatError('Bad filter name: ' + filter);
           }
           params = null;
-          if ((0, _util.isArray)(paramsArray) && i in paramsArray) {
+          if (Array.isArray(paramsArray) && i in paramsArray) {
             params = this.xref.fetchIfRef(paramsArray[i]);
           }
           stream = this.makeFilter(stream, filter.name, maybeLength, params);
@@ -917,7 +929,7 @@ var Linearization = {
   create: function LinearizationCreate(stream) {
     function getInt(name, allowZeroValue) {
       var obj = linDict.get(name);
-      if ((0, _util.isInt)(obj) && (allowZeroValue ? obj >= 0 : obj > 0)) {
+      if (Number.isInteger(obj) && (allowZeroValue ? obj >= 0 : obj > 0)) {
         return obj;
       }
       throw new Error('The "' + name + '" parameter in the linearization ' + 'dictionary is invalid.');
@@ -926,9 +938,9 @@ var Linearization = {
       var hints = linDict.get('H'),
           hintsLength,
           item;
-      if ((0, _util.isArray)(hints) && ((hintsLength = hints.length) === 2 || hintsLength === 4)) {
+      if (Array.isArray(hints) && ((hintsLength = hints.length) === 2 || hintsLength === 4)) {
         for (var index = 0; index < hintsLength; index++) {
-          if (!((0, _util.isInt)(item = hints[index]) && item > 0)) {
+          if (!(Number.isInteger(item = hints[index]) && item > 0)) {
             throw new Error('Hint (' + index + ') in the linearization dictionary is invalid.');
           }
         }
@@ -942,7 +954,7 @@ var Linearization = {
     var obj3 = parser.getObj();
     var linDict = parser.getObj();
     var obj, length;
-    if (!((0, _util.isInt)(obj1) && (0, _util.isInt)(obj2) && (0, _primitives.isCmd)(obj3, 'obj') && (0, _primitives.isDict)(linDict) && (0, _util.isNum)(obj = linDict.get('Linearized')) && obj > 0)) {
+    if (!(Number.isInteger(obj1) && Number.isInteger(obj2) && (0, _primitives.isCmd)(obj3, 'obj') && (0, _primitives.isDict)(linDict) && (0, _util.isNum)(obj = linDict.get('Linearized')) && obj > 0)) {
       return null;
     } else if ((length = getInt('L')) !== stream.length) {
       throw new Error('The "L" parameter in the linearization dictionary ' + 'does not equal the stream length.');

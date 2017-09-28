@@ -37,6 +37,8 @@ var _crypto = require('./crypto');
 
 var _parser = require('./parser');
 
+var _function = require('./function');
+
 var Page = function PageClosure() {
   var DEFAULT_USER_UNIT = 1.0;
   var LETTER_SIZE_MEDIABOX = [0, 0, 612, 792];
@@ -101,14 +103,14 @@ var Page = function PageClosure() {
     },
     get mediaBox() {
       var mediaBox = this.getInheritedPageProp('MediaBox', true);
-      if (!(0, _util.isArray)(mediaBox) || mediaBox.length !== 4) {
+      if (!Array.isArray(mediaBox) || mediaBox.length !== 4) {
         return (0, _util.shadow)(this, 'mediaBox', LETTER_SIZE_MEDIABOX);
       }
       return (0, _util.shadow)(this, 'mediaBox', mediaBox);
     },
     get cropBox() {
       var cropBox = this.getInheritedPageProp('CropBox', true);
-      if (!(0, _util.isArray)(cropBox) || cropBox.length !== 4) {
+      if (!Array.isArray(cropBox) || cropBox.length !== 4) {
         return (0, _util.shadow)(this, 'cropBox', this.mediaBox);
       }
       return (0, _util.shadow)(this, 'cropBox', cropBox);
@@ -143,7 +145,7 @@ var Page = function PageClosure() {
     getContentStream: function Page_getContentStream() {
       var content = this.content;
       var stream;
-      if ((0, _util.isArray)(content)) {
+      if (Array.isArray(content)) {
         var xref = this.xref;
         var i,
             n = content.length;
@@ -289,10 +291,9 @@ var Page = function PageClosure() {
     get annotations() {
       var annotations = [];
       var annotationRefs = this.getInheritedPageProp('Annots') || [];
-      var annotationFactory = new _annotation.AnnotationFactory();
       for (var i = 0, n = annotationRefs.length; i < n; ++i) {
         var annotationRef = annotationRefs[i];
-        var annotation = annotationFactory.create(this.xref, annotationRef, this.pdfManager, this.idFactory);
+        var annotation = _annotation.AnnotationFactory.create(this.xref, annotationRef, this.pdfManager, this.idFactory);
         if (annotation) {
           annotations.push(annotation);
         }
@@ -367,7 +368,7 @@ var PDFDocument = function PDFDocumentClosure() {
         if (this.acroForm) {
           this.xfa = this.acroForm.get('XFA');
           var fields = this.acroForm.get('Fields');
-          if ((!fields || !(0, _util.isArray)(fields) || fields.length === 0) && !this.xfa) {
+          if ((!fields || !Array.isArray(fields) || fields.length === 0) && !this.xfa) {
             this.acroForm = null;
           }
         }
@@ -475,6 +476,8 @@ var PDFDocument = function PDFDocumentClosure() {
         }
       };
       this.catalog = new _obj.Catalog(this.pdfManager, this.xref, pageFactory);
+      var evaluatorOptions = this.pdfManager.evaluatorOptions;
+      _function.PDFFunction.setIsEvalSupported(evaluatorOptions.isEvalSupported);
     },
     get numPages() {
       var linearization = this.linearization;
@@ -516,7 +519,7 @@ var PDFDocument = function PDFDocumentClosure() {
           hash,
           fileID = '';
       var idArray = xref.trailer.get('ID');
-      if (idArray && (0, _util.isArray)(idArray) && idArray[0] && (0, _util.isString)(idArray[0]) && idArray[0] !== EMPTY_FINGERPRINT) {
+      if (Array.isArray(idArray) && idArray[0] && (0, _util.isString)(idArray[0]) && idArray[0] !== EMPTY_FINGERPRINT) {
         hash = (0, _util.stringToBytes)(idArray[0]);
       } else {
         if (this.stream.ensureRange) {

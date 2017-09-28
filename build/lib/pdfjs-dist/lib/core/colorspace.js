@@ -136,13 +136,10 @@ var ColorSpace = function ColorSpaceClosure() {
   };
   ColorSpace.parse = function ColorSpace_parse(cs, xref, res) {
     var IR = ColorSpace.parseToIR(cs, xref, res);
-    if (IR instanceof AlternateCS) {
-      return IR;
-    }
     return ColorSpace.fromIR(IR);
   };
   ColorSpace.fromIR = function ColorSpace_fromIR(IR) {
-    var name = (0, _util.isArray)(IR) ? IR[0] : IR;
+    var name = Array.isArray(IR) ? IR[0] : IR;
     var whitePoint, blackPoint, gamma;
     switch (name) {
       case 'DeviceGrayCS':
@@ -215,7 +212,7 @@ var ColorSpace = function ColorSpaceClosure() {
           throw new _util.FormatError('unrecognized colorspace ' + cs.name);
       }
     }
-    if ((0, _util.isArray)(cs)) {
+    if (Array.isArray(cs)) {
       var mode = xref.fetchIfRef(cs[0]).name;
       var numComps, params, alt, whitePoint, blackPoint, gamma;
       switch (mode) {
@@ -280,7 +277,7 @@ var ColorSpace = function ColorSpaceClosure() {
         case 'Separation':
         case 'DeviceN':
           var name = xref.fetchIfRef(cs[1]);
-          numComps = (0, _util.isArray)(name) ? name.length : 1;
+          numComps = Array.isArray(name) ? name.length : 1;
           alt = ColorSpace.parseToIR(cs[2], xref, res);
           var tintFnIR = _function.PDFFunction.getIR(xref, xref.fetchIfRef(cs[3]));
           return ['AlternateCS', numComps, alt, tintFnIR];
@@ -297,7 +294,7 @@ var ColorSpace = function ColorSpaceClosure() {
     throw new _util.FormatError('unrecognized color space object: "' + cs + '"');
   };
   ColorSpace.isDefaultDecode = function ColorSpace_isDefaultDecode(decode, n) {
-    if (!(0, _util.isArray)(decode)) {
+    if (!Array.isArray(decode)) {
       return true;
     }
     if (n * 2 !== decode.length) {
