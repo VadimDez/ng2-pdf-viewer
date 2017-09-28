@@ -394,6 +394,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   public updateSize() {
+    if (!this._showAll) {
+      this.renderPage(this._page);
+      return;
+    }
+
     if (!this._originalSize) {
       const offsetWidth = this.element.nativeElement.offsetWidth;
       this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
@@ -460,10 +465,12 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private update() {
-    this.setupViewer();
+    if (this._showAll) {
+      this.setupViewer();
 
-    if (this._pdfViewer) {
-      this._pdfViewer.setDocument(this._pdf);
+      if (this._pdfViewer) {
+        this._pdfViewer.setDocument(this._pdf);
+      }
     }
 
     if (this._pdfLinkService) {
@@ -520,16 +527,25 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
       this.removeAllChildNodes(container);
 
+      (<any>PDFJS).disableTextLayer = !this._renderText;
+
+      this.setExternalLinkTarget(this._externalLinkTarget);
+
+      this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
+
       let pdfOptions: PDFViewerParams | any = {
         container: container,
         removePageBorders: true,
         linkService: this._pdfLinkService,
         defaultViewport: viewport,
-        scale
+        scale,
+        id: this._page,
+        textLayerFactory: new (<any>PDFJS).DefaultTextLayerFactory(),
+        annotationLayerFactory: new (<any>PDFJS).DefaultAnnotationLayerFactory()
       };
 
       let pdfPageView = new (<any>PDFJS).PDFPageView(pdfOptions);
-
+      this._pdfLinkService.setViewer(pdfPageView);
       pdfPageView.setPdfPage(page);
       return pdfPageView.draw();
     });

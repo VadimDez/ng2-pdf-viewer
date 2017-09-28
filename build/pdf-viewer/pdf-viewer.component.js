@@ -130,6 +130,10 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
+        if (!this._showAll) {
+            this.renderPage(this._page);
+            return;
+        }
         if (!this._originalSize) {
             var offsetWidth_1 = this.element.nativeElement.offsetWidth;
             this._pdf.getPage(this._pdfViewer.currentPageNumber).then(function (page) {
@@ -188,9 +192,11 @@ var PdfViewerComponent = (function () {
         });
     };
     PdfViewerComponent.prototype.update = function () {
-        this.setupViewer();
-        if (this._pdfViewer) {
-            this._pdfViewer.setDocument(this._pdf);
+        if (this._showAll) {
+            this.setupViewer();
+            if (this._pdfViewer) {
+                this._pdfViewer.setDocument(this._pdf);
+            }
         }
         if (this._pdfLinkService) {
             this._pdfLinkService.setDocument(this._pdf, null);
@@ -234,14 +240,21 @@ var PdfViewerComponent = (function () {
             var offsetWidth = _this.element.nativeElement.offsetWidth;
             var scale = _this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
             _this.removeAllChildNodes(container);
+            PDFJS.disableTextLayer = !_this._renderText;
+            _this.setExternalLinkTarget(_this._externalLinkTarget);
+            _this._pdfLinkService = new PDFJS.PDFLinkService();
             var pdfOptions = {
                 container: container,
                 removePageBorders: true,
                 linkService: _this._pdfLinkService,
                 defaultViewport: viewport,
-                scale: scale
+                scale: scale,
+                id: _this._page,
+                textLayerFactory: new PDFJS.DefaultTextLayerFactory(),
+                annotationLayerFactory: new PDFJS.DefaultAnnotationLayerFactory()
             };
             var pdfPageView = new PDFJS.PDFPageView(pdfOptions);
+            _this._pdfLinkService.setViewer(pdfPageView);
             pdfPageView.setPdfPage(page);
             return pdfPageView.draw();
         });
