@@ -2,3 +2,5 @@
 node_modules/
 aot/
 .history/
+dist/
+build/

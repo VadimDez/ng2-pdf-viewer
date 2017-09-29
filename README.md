@@ -67,15 +67,13 @@ import { Component } from '@angular/core';
       <input type="number" placeholder="Page" [(ngModel)]="page">
   </div>
   <pdf-viewer [src]="pdfSrc" 
-              [page]="page" 
-              [original-size]="true" 
+              [render-text]="true"
               style="display: block;"
   ></pdf-viewer>
   `
 })
 export class AppComponent {
   pdfSrc: string = '/pdf-test.pdf';
-  page: number = 1;
 }
 ```
 
@@ -83,6 +81,8 @@ export class AppComponent {
 
 * [[src]](#src)
 * [[(page)]](#page)
+* [[stick-to-page]](#stick-to-page)
+* [[external-link-target]](#external-link-target)
 * [[render-text]](#render-text)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
@@ -116,6 +116,8 @@ Options object for loading protected PDF would be
 
 
 #### [page]
+_number_
+
 Page number
 
 ```
@@ -126,13 +128,40 @@ supports two way data binding as well
 [(page)]="pageVariable"
 ```
 
+#### [stick-to-page]
+_boolean_
+
+Works in combination with `page` and sticks view to the page
+
+```
+[stick-to-page]="true"
+
+```
+
 #### [render-text]
+_boolean_
+
 Enable text rendering, allows to select text
 ```
 [render-text]="true"
 ```
 
+#### [external-link-target]
+_string_
+
+Link target
+* `blank`
+* `none`
+* `self`
+* `parent`
+* `top`
+```
+[external-link-target]="'blank'"
+```
+
 #### [rotation]
+_number_
+
 Rotate PDF
 
 *Allowed step is 90 degree, ex. 0, 90, 180*
@@ -141,12 +170,15 @@ Rotate PDF
 ```
 
 #### [zoom]
+_number_
+
 Zoom pdf
 ```
 [zoom]="0.5"
 ```
 
 #### [original-size]
+_boolean_
 
 if set to *true* - size will be as same as original document
 
@@ -154,14 +186,6 @@ if set to *false* - size will be as same as container block
 
 ```
 [original-size]="true"
-```
-
-#### [show-all]
-
-Show single or all pages altogether
-
-```
-[show-all]="true"
 ```
 
 #### (after-load-complete)

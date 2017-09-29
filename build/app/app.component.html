@@ -76,7 +76,18 @@
                 </button>
             </div>
 
-            <div mdl *ngIf="!showAll">
+
+            <div *ngIf="showAll">
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="stick-to-page">
+                <input type="checkbox" id="stick-to-page" class="mdl-switch__input"
+                       [checked]="stickToPage"
+                       [(ngModel)]="stickToPage"
+                >
+                <span class="mdl-switch__label">Stick to page</span>
+              </label>
+            </div>
+
+            <div mdl *ngIf="stickToPage && showAll || !showAll">
                 <button (click)="incrementPage(-1)" class="mdl-button mdl-js-button">
                     Previous
                 </button>
@@ -121,10 +132,12 @@
                         [(page)]="page"
                         [rotation]="rotation"
                         [original-size]="originalSize"
-                        [show-all]="showAll"
                         (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
+                        [show-all]="showAll"
+                        [stick-to-page]="stickToPage"
                         [render-text]="renderText"
+                        [external-link-target]="'blank'"
                         (error)="onError($event)"
                         (on-progress)="onProgress($event)"
             ></pdf-viewer>

@@ -6,11 +6,13 @@ export declare class AppComponent {
     rotation: number;
     zoom: number;
     originalSize: boolean;
-    showAll: boolean;
     pdf: any;
     renderText: boolean;
     progressData: PDFProgressData;
     isLoaded: boolean;
+    stickToPage: boolean;
+    showAll: boolean;
+    constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
     rotate(angle: number): void;

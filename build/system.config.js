@@ -1,14 +1,13 @@
-(function (global) {
+(function () {
     var map = {
         'app': './',
         'rxjs': 'lib/rxjs',
         '@angular': 'lib/@angular',
-        'pdfjs-dist': 'lib/pdfjs-dist',
+        'pdfjs-dist': 'lib/pdfjs-dist/'
     };
     var packages = {
         'app': { main: 'main.js', defaultExtension: 'js' },
-        'rxjs': { defaultExtension: 'js' },
-        'pdfjs-dist': { main: '/build/pdf.min.js', defaultExtension: 'js' },
+        'rxjs': { defaultExtension: 'js' }
     };
     [
         'common',
@@ -24,9 +23,6 @@
         map: map,
         packages: packages
     };
-    if (global.filterSystemConfig) {
-        global.filterSystemConfig(config);
-    }
     SystemJS.config(config);
-})(this);
+})();
 //# sourceMappingURL=system.config.js.map

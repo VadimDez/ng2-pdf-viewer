@@ -8,9 +8,10 @@ var AppComponent = (function () {
         this.rotation = 0;
         this.zoom = 1.0;
         this.originalSize = false;
-        this.showAll = true;
         this.renderText = true;
         this.isLoaded = false;
+        this.stickToPage = false;
+        this.showAll = true;
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
@@ -47,16 +48,16 @@ var AppComponent = (function () {
     AppComponent.prototype.getInt = function (value) {
         return Math.round(value);
     };
+    AppComponent.decorators = [
+        { type: core_1.Component, args: [{
+                    moduleId: module.id,
+                    selector: 'pdf-viewer-app',
+                    templateUrl: './app.component.html',
+                    styleUrls: ['./app.component.css']
+                },] },
+    ];
+    AppComponent.ctorParameters = function () { return []; };
     return AppComponent;
 }());
-AppComponent.decorators = [
-    { type: core_1.Component, args: [{
-                moduleId: module.id,
-                selector: 'pdf-viewer-app',
-                templateUrl: './app.component.html',
-                styleUrls: ['./app.component.css']
-            },] },
-];
-AppComponent.ctorParameters = function () { return []; };
 exports.AppComponent = AppComponent;
 //# sourceMappingURL=app.component.js.map
