@@ -3,11 +3,22 @@
 ## 2.0.0
 * [[#36](https://github.com/VadimDez/ng2-pdf-viewer/pull/36)] - Render text layer, hyperlinks, progressive loading, etc. 
 * [[#18](https://github.com/VadimDez/ng2-pdf-viewer/issues/18)] - Is it possible to enable hyperlinks in the rendered PDF?
-* Other changes
-
-### Breaking changes
-
-* `[show-all]` is removed - use `[stick-to-page]` in combination with `[page]`
+* [[#165](https://github.com/VadimDez/ng2-pdf-viewer/issues/165)] - pdf.js and pdf.worker.js using different versions
+* [[#50](https://github.com/VadimDez/ng2-pdf-viewer/issues/50)] - Default Rotation
+* [[#164](https://github.com/VadimDez/ng2-pdf-viewer/issues/164)] - Doesn't load blob url with 1.2.7
+* [[#160](https://github.com/VadimDez/ng2-pdf-viewer/issues/160)] - some pdf showing in invert color
+* [[#156](https://github.com/VadimDez/ng2-pdf-viewer/issues/156)] - Chrome error: Invalid SVG dimensions when 'original-size' = false
+* [[#154](https://github.com/VadimDez/ng2-pdf-viewer/issues/154)] - Multiple display issues on Safari (iOS+Desktop)
+* [[#147](https://github.com/VadimDez/ng2-pdf-viewer/issues/147)] - GET http://localhost:4200/nullUniGB-UCS2-H 404 (Not Found)
+* [[#145](https://github.com/VadimDez/ng2-pdf-viewer/issues/145)] - Issue since update from 1.1.1 to 1.2.1 and not fixed in 1.2.2
+* [[#144](https://github.com/VadimDez/ng2-pdf-viewer/issues/144)] - pdf annotation not shown in svg format
+* [[#142](https://github.com/VadimDez/ng2-pdf-viewer/issues/142)] - Error: <svg:path> attribute d: Expected moveto path command ('M' or 'm'), "L 2318.47 6033.1…".
+* [[#141](https://github.com/VadimDez/ng2-pdf-viewer/issues/141)] - Mirror/Upside Down document display
+* [[#139](https://github.com/VadimDez/ng2-pdf-viewer/issues/139)] - PDF from pdfmake not loading
+* [[#134](https://github.com/VadimDez/ng2-pdf-viewer/issues/134)] - PDF not loading. Shows black color
+* [[#108](https://github.com/VadimDez/ng2-pdf-viewer/issues/108)] - PDF is loading as plain text as well as PDF, overlapping
+* [[#92](https://github.com/VadimDez/ng2-pdf-viewer/issues/92)] - Performance error
+* [[#80](https://github.com/VadimDez/ng2-pdf-viewer/issues/80)] - One by one page 
 
 ## 1.2.7
 Updated dependencies
