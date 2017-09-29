@@ -21,7 +21,7 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
-        PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        PDFJS.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS.version + "/pdf.worker.min.js";
     }
     PdfViewerComponent.prototype.ngOnInit = function () {
         this.setupViewer();

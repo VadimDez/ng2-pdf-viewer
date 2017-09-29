@@ -285,7 +285,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {
-    PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+    PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
   }
 
   ngOnInit() {
@@ -493,8 +493,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private renderMultiplePages() {
-    // this.setupViewer();
-
     if (!this.isValidPageNumber(this._page)) {
       this._page = 1;
     }
