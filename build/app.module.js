@@ -15,15 +15,15 @@ var index_1 = require("./pdf-viewer/index");
 var AppModule = (function () {
     function AppModule() {
     }
+    AppModule = __decorate([
+        core_1.NgModule({
+            imports: [platform_browser_1.BrowserModule, forms_1.FormsModule],
+            declarations: [mdl_1.MDL, app_component_1.AppComponent, index_1.PdfViewerComponent],
+            bootstrap: [app_component_1.AppComponent]
+        })
+    ], AppModule);
     return AppModule;
 }());
-AppModule = __decorate([
-    core_1.NgModule({
-        imports: [platform_browser_1.BrowserModule, forms_1.FormsModule],
-        declarations: [mdl_1.MDL, app_component_1.AppComponent, index_1.PdfViewerComponent],
-        bootstrap: [app_component_1.AppComponent]
-    })
-], AppModule);
 exports.AppModule = AppModule;
 
 //# sourceMappingURL=app.module.js.map
