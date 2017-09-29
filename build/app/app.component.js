@@ -48,16 +48,16 @@ var AppComponent = (function () {
     AppComponent.prototype.getInt = function (value) {
         return Math.round(value);
     };
+    AppComponent.decorators = [
+        { type: core_1.Component, args: [{
+                    moduleId: module.id,
+                    selector: 'pdf-viewer-app',
+                    templateUrl: './app.component.html',
+                    styleUrls: ['./app.component.css']
+                },] },
+    ];
+    AppComponent.ctorParameters = function () { return []; };
     return AppComponent;
 }());
-AppComponent.decorators = [
-    { type: core_1.Component, args: [{
-                moduleId: module.id,
-                selector: 'pdf-viewer-app',
-                templateUrl: './app.component.html',
-                styleUrls: ['./app.component.css']
-            },] },
-];
-AppComponent.ctorParameters = function () { return []; };
 exports.AppComponent = AppComponent;
 //# sourceMappingURL=app.component.js.map

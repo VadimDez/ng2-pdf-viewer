@@ -81,6 +81,9 @@ var NodeCMapReaderFactory = function () {
 
       var name = _ref2.name;
 
+      if (!this.baseUrl) {
+        return Promise.reject(new Error('CMap baseUrl must be specified, ' + 'see "PDFJS.cMapUrl" (and also "PDFJS.cMapPacked").'));
+      }
       if (!name) {
         return Promise.reject(new Error('CMap name must be specified.'));
       }

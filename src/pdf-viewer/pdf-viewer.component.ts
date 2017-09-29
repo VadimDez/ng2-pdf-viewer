@@ -523,7 +523,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
       const offsetWidth = this.element.nativeElement.offsetWidth;
       const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-      // this._pdfViewer._setScale(scale, !this._stickToPage);
 
       this.removeAllChildNodes(container);
 

@@ -19,8 +19,14 @@ var _document = require('../../core/document');
 describe('document', function () {
   describe('Page', function () {
     it('should create correct objId using the idFactory', function () {
-      var page1 = new _document.Page({}, null, 0, null, null, null, null);
-      var page2 = new _document.Page({}, null, 1, null, null, null, null);
+      var page1 = new _document.Page({
+        pdfManager: {},
+        pageIndex: 0
+      });
+      var page2 = new _document.Page({
+        pdfManager: {},
+        pageIndex: 1
+      });
       var idFactory1 = page1.idFactory,
           idFactory2 = page2.idFactory;
       expect(idFactory1.createObjId()).toEqual('p0_1');

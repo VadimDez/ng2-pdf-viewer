@@ -193,7 +193,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   if (worker.destroyed) {
     return Promise.reject(new Error('Worker was destroyed'));
   }
-  var apiVersion = '1.9.602';
+  var apiVersion = '1.9.607';
   source.disableAutoFetch = (0, _dom_utils.getDefaultSetting)('disableAutoFetch');
   source.disableStream = (0, _dom_utils.getDefaultSetting)('disableStream');
   source.chunkedViewerLoading = !!pdfDataRangeTransport;
@@ -1584,8 +1584,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.9.602';
-  exports.build = build = '25806d17';
+  exports.version = version = '1.9.607';
+  exports.build = build = 'b3f84112';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
