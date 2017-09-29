@@ -45,7 +45,16 @@ var Page = function PageClosure() {
   function isAnnotationRenderable(annotation, intent) {
     return intent === 'display' && annotation.viewable || intent === 'print' && annotation.printable;
   }
-  function Page(pdfManager, xref, pageIndex, pageDict, ref, fontCache, builtInCMapCache) {
+  function Page(_ref) {
+    var pdfManager = _ref.pdfManager,
+        xref = _ref.xref,
+        pageIndex = _ref.pageIndex,
+        pageDict = _ref.pageDict,
+        ref = _ref.ref,
+        fontCache = _ref.fontCache,
+        builtInCMapCache = _ref.builtInCMapCache,
+        pdfFunctionFactory = _ref.pdfFunctionFactory;
+
     this.pdfManager = pdfManager;
     this.pageIndex = pageIndex;
     this.pageDict = pageDict;
@@ -53,6 +62,7 @@ var Page = function PageClosure() {
     this.ref = ref;
     this.fontCache = fontCache;
     this.builtInCMapCache = builtInCMapCache;
+    this.pdfFunctionFactory = pdfFunctionFactory;
     this.evaluatorOptions = pdfManager.evaluatorOptions;
     this.resourcesPromise = null;
     var uniquePrefix = 'p' + this.pageIndex + '_';
@@ -172,13 +182,13 @@ var Page = function PageClosure() {
         return objectLoader.load();
       });
     },
-    getOperatorList: function getOperatorList(_ref) {
+    getOperatorList: function getOperatorList(_ref2) {
       var _this2 = this;
 
-      var handler = _ref.handler,
-          task = _ref.task,
-          intent = _ref.intent,
-          renderInteractiveForms = _ref.renderInteractiveForms;
+      var handler = _ref2.handler,
+          task = _ref2.task,
+          intent = _ref2.intent,
+          renderInteractiveForms = _ref2.renderInteractiveForms;
 
       var contentStreamPromise = this.pdfManager.ensure(this, 'getContentStream');
       var resourcesPromise = this.loadResources(['ExtGState', 'ColorSpace', 'Pattern', 'Shading', 'XObject', 'Font']);
@@ -190,12 +200,13 @@ var Page = function PageClosure() {
         idFactory: this.idFactory,
         fontCache: this.fontCache,
         builtInCMapCache: this.builtInCMapCache,
-        options: this.evaluatorOptions
+        options: this.evaluatorOptions,
+        pdfFunctionFactory: this.pdfFunctionFactory
       });
       var dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
-      var pageListPromise = dataPromises.then(function (_ref2) {
-        var _ref3 = _slicedToArray(_ref2, 1),
-            contentStream = _ref3[0];
+      var pageListPromise = dataPromises.then(function (_ref3) {
+        var _ref4 = _slicedToArray(_ref3, 1),
+            contentStream = _ref4[0];
 
         var opList = new _evaluator.OperatorList(intent, handler, _this2.pageIndex);
         handler.send('StartRenderPage', {
@@ -213,10 +224,10 @@ var Page = function PageClosure() {
         });
       });
       var annotationsPromise = this.pdfManager.ensure(this, 'annotations');
-      return Promise.all([pageListPromise, annotationsPromise]).then(function (_ref4) {
-        var _ref5 = _slicedToArray(_ref4, 2),
-            pageOpList = _ref5[0],
-            annotations = _ref5[1];
+      return Promise.all([pageListPromise, annotationsPromise]).then(function (_ref5) {
+        var _ref6 = _slicedToArray(_ref5, 2),
+            pageOpList = _ref6[0],
+            annotations = _ref6[1];
 
         if (annotations.length === 0) {
           pageOpList.flush(true);
@@ -241,21 +252,21 @@ var Page = function PageClosure() {
         });
       });
     },
-    extractTextContent: function extractTextContent(_ref6) {
+    extractTextContent: function extractTextContent(_ref7) {
       var _this3 = this;
 
-      var handler = _ref6.handler,
-          task = _ref6.task,
-          normalizeWhitespace = _ref6.normalizeWhitespace,
-          sink = _ref6.sink,
-          combineTextItems = _ref6.combineTextItems;
+      var handler = _ref7.handler,
+          task = _ref7.task,
+          normalizeWhitespace = _ref7.normalizeWhitespace,
+          sink = _ref7.sink,
+          combineTextItems = _ref7.combineTextItems;
 
       var contentStreamPromise = this.pdfManager.ensure(this, 'getContentStream');
       var resourcesPromise = this.loadResources(['ExtGState', 'XObject', 'Font']);
       var dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
-      return dataPromises.then(function (_ref7) {
-        var _ref8 = _slicedToArray(_ref7, 1),
-            contentStream = _ref8[0];
+      return dataPromises.then(function (_ref8) {
+        var _ref9 = _slicedToArray(_ref8, 1),
+            contentStream = _ref9[0];
 
         var partialEvaluator = new _evaluator.PartialEvaluator({
           pdfManager: _this3.pdfManager,
@@ -265,7 +276,8 @@ var Page = function PageClosure() {
           idFactory: _this3.idFactory,
           fontCache: _this3.fontCache,
           builtInCMapCache: _this3.builtInCMapCache,
-          options: _this3.evaluatorOptions
+          options: _this3.evaluatorOptions,
+          pdfFunctionFactory: _this3.pdfFunctionFactory
         });
         return partialEvaluator.getTextContent({
           stream: contentStream,
@@ -321,6 +333,11 @@ var PDFDocument = function PDFDocumentClosure() {
     this.pdfManager = pdfManager;
     this.stream = stream;
     this.xref = new _obj.XRef(stream, pdfManager);
+    var evaluatorOptions = pdfManager.evaluatorOptions;
+    this.pdfFunctionFactory = new _function.PDFFunctionFactory({
+      xref: this.xref,
+      isEvalSupported: evaluatorOptions.isEvalSupported
+    });
   }
   function find(stream, needle, limit, backwards) {
     var pos = stream.pos;
@@ -472,12 +489,19 @@ var PDFDocument = function PDFDocumentClosure() {
       this.xref.parse(recoveryMode);
       var pageFactory = {
         createPage: function createPage(pageIndex, dict, ref, fontCache, builtInCMapCache) {
-          return new Page(_this4.pdfManager, _this4.xref, pageIndex, dict, ref, fontCache, builtInCMapCache);
+          return new Page({
+            pdfManager: _this4.pdfManager,
+            xref: _this4.xref,
+            pageIndex: pageIndex,
+            pageDict: dict,
+            ref: ref,
+            fontCache: fontCache,
+            builtInCMapCache: builtInCMapCache,
+            pdfFunctionFactory: _this4.pdfFunctionFactory
+          });
         }
       };
       this.catalog = new _obj.Catalog(this.pdfManager, this.xref, pageFactory);
-      var evaluatorOptions = this.pdfManager.evaluatorOptions;
-      _function.PDFFunction.setIsEvalSupported(evaluatorOptions.isEvalSupported);
     },
     get numPages() {
       var linearization = this.linearization;
