@@ -547,6 +547,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
       let pdfPageView = new (<any>PDFJS).PDFPageView(pdfOptions);
       this._pdfLinkService.setViewer(pdfPageView);
+
+      if (this._rotation !== 0 || pdfPageView.rotation !== this._rotation) {
+        pdfPageView.rotation = this._rotation;
+      }
+
       pdfPageView.setPdfPage(page);
       return pdfPageView.draw();
     });

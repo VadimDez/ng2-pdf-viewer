@@ -256,6 +256,9 @@ var PdfViewerComponent = (function () {
             };
             var pdfPageView = new PDFJS.PDFPageView(pdfOptions);
             _this._pdfLinkService.setViewer(pdfPageView);
+            if (_this._rotation !== 0 || pdfPageView.rotation !== _this._rotation) {
+                pdfPageView.rotation = _this._rotation;
+            }
             pdfPageView.setPdfPage(page);
             return pdfPageView.draw();
         });
