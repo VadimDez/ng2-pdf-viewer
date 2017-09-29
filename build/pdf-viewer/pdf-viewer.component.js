@@ -5,6 +5,7 @@ var pdfjs = require("pdfjs-dist/build/pdf.min");
 window['pdfjs-dist/build/pdf'] = pdfjs;
 require("pdfjs-dist/web/compatibility");
 require("pdfjs-dist/web/pdf_viewer");
+PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
         this.element = element;

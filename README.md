@@ -79,17 +79,18 @@ export class AppComponent {
 
 ## Options
 
-* [src](#src)
-* [page](#page)
-* [stick-to-page](#stick-to-page)
-* [render-text](#render-text)
-* [external-link-target](#external-link-target)
-* [rotation](#rotation)
-* [zoom](#zoom)
-* [original-size](#original-size)
-* [after-load-complete](#after-load-complete)
-* [error](#error)
-* [on-progress](#on-progress)
+* [[src]](#src)
+* [[(page)]](#page)
+* [[stick-to-page]](#stick-to-page)
+* [[external-link-target]](#external-link-target)
+* [[render-text]](#render-text)
+* [[rotation]](#rotation)
+* [[zoom]](#zoom)
+* [[original-size]](#original-size)
+* [[show-all]](#show-all)
+* [(after-load-complete)](#after-load-complete)
+* [(error)](#error)
+* [(on-progress)](#on-progress)
 
 #### [src]
 *accepts: string, object, UInt8Array*

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-require("pdfjs-dist/build/pdf.combined");
+require("pdfjs-dist/build/pdf");
 PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
@@ -16,6 +16,7 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
+        PDFJS.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
     }
     Object.defineProperty(PdfViewerComponent.prototype, "page", {
         set: function (_page) {
@@ -155,6 +156,8 @@ var PdfViewerComponent = (function () {
                     $div.classList.add('page');
                     $div.setAttribute('data-page-number', "" + page.pageNumber);
                     $div.appendChild(svg);
+                    _this.convertAttributeToInlineStyle($div, 'font-family');
+                    _this.convertAttributeToInlineStyle($div, 'font-size');
                     container.appendChild($div);
                 });
             });
@@ -163,6 +166,14 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.removeAllChildNodes = function (element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
+        }
+    };
+    PdfViewerComponent.prototype.convertAttributeToInlineStyle = function (parent, attribute) {
+        var matchElements = parent.querySelectorAll("[" + attribute + "]");
+        for (var i = 0, l = matchElements.length; i < l; i++) {
+            var element = matchElements[i];
+            var oldStyle = element.getAttribute('style') || '';
+            element.setAttribute('style', oldStyle + " " + attribute + ": " + element.getAttribute(attribute) + ";");
         }
     };
     return PdfViewerComponent;

@@ -9,6 +9,22 @@
 
 * `[show-all]` is removed - use `[stick-to-page]` in combination with `[page]`
 
+## 1.2.7
+Updated dependencies
+
+## 1.2.6
+* [[#140](https://github.com/VadimDez/ng2-pdf-viewer/issues/140)] - Incorrect Font and Font Size Rendering
+* [[#151](https://github.com/VadimDez/ng2-pdf-viewer/pull/151)] - force inline style to prevent css override font-family and font-size
+
+## 1.2.5
+* Update dist
+
+## 1.2.4
+* [[#150](https://github.com/VadimDez/ng2-pdf-viewer/issues/150)] - Used not minified version of pdfjs
+
+## 1.2.3
+* [[#146](https://github.com/VadimDez/ng2-pdf-viewer/issues/146)] - Load web worker separately, use minified version of pdfjs
+
 ## 1.2.2
 * [[#94](https://github.com/VadimDez/ng2-pdf-viewer/issues/94)] - Add load progress callback
 

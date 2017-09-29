@@ -9,6 +9,8 @@ window['pdfjs-dist/build/pdf'] = pdfjs;
 import 'pdfjs-dist/web/compatibility';
 import 'pdfjs-dist/web/pdf_viewer';
 
+PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
+
 @Component({
   selector: 'pdf-viewer',
   template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div class="pdfViewer"></div></div>`,
