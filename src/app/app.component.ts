@@ -28,11 +28,29 @@ export class AppComponent {
   rotation: number = 0;
   zoom: number = 1.0;
   originalSize: boolean = false;
-  showAll: boolean = true;
   pdf: any;
   renderText: boolean = true;
   progressData: PDFProgressData;
   isLoaded: boolean = false;
+  stickToPage = false;
+  showAll = true;
+
+  constructor() {
+    // Load pdf
+    // let xhr = new XMLHttpRequest();
+    // xhr.open('GET', 'http://localhost:8000/pdf-test.pdf', true);
+    // xhr.responseType = 'blob';
+    //
+    // xhr.onload = (e: any) => {
+    //   console.log(xhr);
+    //   if (xhr.status === 200) {
+    //     let blob = new Blob([xhr.response], {type: 'application/pdf'});
+    //     this.pdfSrc = URL.createObjectURL(blob);
+    //   }
+    // };
+    //
+    // xhr.send();
+  }
 
   incrementPage(amount: number) {
     this.page += amount;
