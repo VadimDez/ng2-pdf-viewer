@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var pdfjs = require("pdfjs-dist/build/pdf.min");
+var pdfjs = require("pdfjs-dist/build/pdf");
 window['pdfjs-dist/build/pdf'] = pdfjs;
 require("pdfjs-dist/web/compatibility");
 require("pdfjs-dist/web/pdf_viewer");

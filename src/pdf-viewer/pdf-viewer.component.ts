@@ -4,7 +4,7 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
 } from '@angular/core';
-import * as pdfjs from 'pdfjs-dist/build/pdf.min';
+import * as pdfjs from 'pdfjs-dist/build/pdf';
 window['pdfjs-dist/build/pdf'] = pdfjs;
 import 'pdfjs-dist/web/compatibility';
 import 'pdfjs-dist/web/pdf_viewer';
