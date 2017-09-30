@@ -13,7 +13,7 @@ PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize($event)"><div class="pdfViewer"></div></div>`,
+  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize()"><div class="pdfViewer"></div></div>`,
   styles: [
 `
 :host /deep/ .textLayer {
