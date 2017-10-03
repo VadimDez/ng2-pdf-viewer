@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2
+* [[#174](https://github.com/VadimDez/ng2-pdf-viewer/issues/174)] - 2.0.1 no more scrollbar while zooming
+
 ## 2.0.1
 * [[#171](https://github.com/VadimDez/ng2-pdf-viewer/issues/171)] - AOT compile issue
 * [[#172](https://github.com/VadimDez/ng2-pdf-viewer/issues/172)] - error

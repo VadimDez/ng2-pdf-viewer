@@ -4,7 +4,7 @@ import 'pdfjs-dist/web/compatibility';
 import 'pdfjs-dist/web/pdf_viewer';
 export declare class PdfViewerComponent implements OnChanges, OnInit {
     private element;
-    private static CSS_UNITS;
+    static CSS_UNITS: number;
     private _renderText;
     private _stickToPage;
     private _originalSize;
@@ -38,11 +38,12 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     setupViewer(): void;
     updateSize(): void;
     private isValidPageNumber(page);
-    private setExternalLinkTarget(type);
+    static setExternalLinkTarget(type: string): void;
     private loadPDF();
     private update();
     private render();
     private renderMultiplePages();
     private renderPage(pageNumber);
-    private removeAllChildNodes(element);
+    static removeAllChildNodes(element: HTMLElement): void;
+    private getScale(viewportWidth);
 }
