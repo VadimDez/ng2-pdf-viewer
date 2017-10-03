@@ -266,7 +266,7 @@ PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 })
 
 export class PdfViewerComponent implements OnChanges, OnInit {
-  private static CSS_UNITS: number = 96.0 / 72.0;
+  static CSS_UNITS: number = 96.0 / 72.0;
 
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
@@ -384,7 +384,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   public setupViewer() {
     (<any>PDFJS).disableTextLayer = !this._renderText;
 
-    this.setExternalLinkTarget(this._externalLinkTarget);
+    PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
     this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
 
@@ -404,22 +404,21 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    if (!this._originalSize) {
-      const offsetWidth = this.element.nativeElement.offsetWidth;
-      this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
-        const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-        this._pdfViewer._setScale(scale, !this._stickToPage);
-      });
-    } else {
+    if (this._originalSize) {
       this._pdfViewer._setScale(this._zoom, true);
+      return;
     }
+
+    this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
+      this._pdfViewer._setScale(this.getScale(page.getViewport(1).width), !this._stickToPage);
+    });
   }
 
   private isValidPageNumber(page: number): boolean {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  private setExternalLinkTarget(type: string) {
+  static setExternalLinkTarget(type: string) {
     switch (type) {
       case 'blank':
         (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
@@ -488,10 +487,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private render() {
-    if (!this._showAll) {
-      this.renderPage(this._page);
-    } else {
+    if (this._showAll) {
       this.renderMultiplePages();
+    } else {
+      this.renderPage(this._page);
     }
   }
 
@@ -524,14 +523,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
       }
 
-      const offsetWidth = this.element.nativeElement.offsetWidth;
-      const scale = this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-
-      this.removeAllChildNodes(container);
+      PdfViewerComponent.removeAllChildNodes(container);
 
       (<any>PDFJS).disableTextLayer = !this._renderText;
 
-      this.setExternalLinkTarget(this._externalLinkTarget);
+      PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
       this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
 
@@ -540,7 +536,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         removePageBorders: true,
         linkService: this._pdfLinkService,
         defaultViewport: viewport,
-        scale,
+        scale: this.getScale(page.getViewport(1).width),
         id: this._page,
         textLayerFactory: new (<any>PDFJS).DefaultTextLayerFactory(),
         annotationLayerFactory: new (<any>PDFJS).DefaultAnnotationLayerFactory()
@@ -558,9 +554,14 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     });
   }
 
-  private removeAllChildNodes(element: HTMLElement) {
+  static removeAllChildNodes(element: HTMLElement) {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
+  }
+
+  private getScale(viewportWidth) {
+    const offsetWidth = this.element.nativeElement.offsetWidth;
+    return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
   }
 }

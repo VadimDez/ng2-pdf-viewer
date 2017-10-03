@@ -119,7 +119,7 @@ var PdfViewerComponent = (function () {
     });
     PdfViewerComponent.prototype.setupViewer = function () {
         PDFJS.disableTextLayer = !this._renderText;
-        this.setExternalLinkTarget(this._externalLinkTarget);
+        PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
         this._pdfLinkService = new PDFJS.PDFLinkService();
         var pdfOptions = {
             container: this.element.nativeElement.querySelector('div'),
@@ -135,21 +135,18 @@ var PdfViewerComponent = (function () {
             this.renderPage(this._page);
             return;
         }
-        if (!this._originalSize) {
-            var offsetWidth_1 = this.element.nativeElement.offsetWidth;
-            this._pdf.getPage(this._pdfViewer.currentPageNumber).then(function (page) {
-                var scale = _this._zoom * (offsetWidth_1 / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-                _this._pdfViewer._setScale(scale, !_this._stickToPage);
-            });
-        }
-        else {
+        if (this._originalSize) {
             this._pdfViewer._setScale(this._zoom, true);
+            return;
         }
+        this._pdf.getPage(this._pdfViewer.currentPageNumber).then(function (page) {
+            _this._pdfViewer._setScale(_this.getScale(page.getViewport(1).width), !_this._stickToPage);
+        });
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
         return this._pdf.numPages >= page && page >= 1;
     };
-    PdfViewerComponent.prototype.setExternalLinkTarget = function (type) {
+    PdfViewerComponent.setExternalLinkTarget = function (type) {
         switch (type) {
             case 'blank':
                 PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK;
@@ -206,11 +203,11 @@ var PdfViewerComponent = (function () {
         this.render();
     };
     PdfViewerComponent.prototype.render = function () {
-        if (!this._showAll) {
-            this.renderPage(this._page);
+        if (this._showAll) {
+            this.renderMultiplePages();
         }
         else {
-            this.renderMultiplePages();
+            this.renderPage(this._page);
         }
     };
     PdfViewerComponent.prototype.renderMultiplePages = function () {
@@ -238,18 +235,16 @@ var PdfViewerComponent = (function () {
             if (!_this._originalSize) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
             }
-            var offsetWidth = _this.element.nativeElement.offsetWidth;
-            var scale = _this._zoom * (offsetWidth / page.getViewport(1).width) / PdfViewerComponent.CSS_UNITS;
-            _this.removeAllChildNodes(container);
+            PdfViewerComponent.removeAllChildNodes(container);
             PDFJS.disableTextLayer = !_this._renderText;
-            _this.setExternalLinkTarget(_this._externalLinkTarget);
+            PdfViewerComponent.setExternalLinkTarget(_this._externalLinkTarget);
             _this._pdfLinkService = new PDFJS.PDFLinkService();
             var pdfOptions = {
                 container: container,
                 removePageBorders: true,
                 linkService: _this._pdfLinkService,
                 defaultViewport: viewport,
-                scale: scale,
+                scale: _this.getScale(page.getViewport(1).width),
                 id: _this._page,
                 textLayerFactory: new PDFJS.DefaultTextLayerFactory(),
                 annotationLayerFactory: new PDFJS.DefaultAnnotationLayerFactory()
@@ -263,10 +258,14 @@ var PdfViewerComponent = (function () {
             return pdfPageView.draw();
         });
     };
-    PdfViewerComponent.prototype.removeAllChildNodes = function (element) {
+    PdfViewerComponent.removeAllChildNodes = function (element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
+    };
+    PdfViewerComponent.prototype.getScale = function (viewportWidth) {
+        var offsetWidth = this.element.nativeElement.offsetWidth;
+        return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
     };
     PdfViewerComponent.CSS_UNITS = 96.0 / 72.0;
     PdfViewerComponent.decorators = [
