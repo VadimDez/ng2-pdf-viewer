@@ -16,6 +16,9 @@ PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
   template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize()"><div class="pdfViewer"></div></div>`,
   styles: [
 `
+.ng2-pdf-viewer-container {
+    overflow-x: auto;
+}
 :host /deep/ .textLayer {
   position: absolute;
   left: 0;
