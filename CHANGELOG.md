@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2
+* [[#174](https://github.com/VadimDez/ng2-pdf-viewer/issues/174)] - 2.0.1 no more scrollbar while zooming
+
+## 2.0.1
+* [[#171](https://github.com/VadimDez/ng2-pdf-viewer/issues/171)] - AOT compile issue
+* [[#172](https://github.com/VadimDez/ng2-pdf-viewer/issues/172)] - error
+
 ## 2.0.0
 * [[#36](https://github.com/VadimDez/ng2-pdf-viewer/pull/36)] - Render text layer, hyperlinks, progressive loading, etc. 
 * [[#18](https://github.com/VadimDez/ng2-pdf-viewer/issues/18)] - Is it possible to enable hyperlinks in the rendered PDF?

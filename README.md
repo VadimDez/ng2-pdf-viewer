@@ -62,10 +62,6 @@ import { Component } from '@angular/core';
       <label>PDF src</label>
       <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
   </div>
-  <div>
-      <label>Page:</label>
-      <input type="number" placeholder="Page" [(ngModel)]="page">
-  </div>
   <pdf-viewer [src]="pdfSrc" 
               [render-text]="true"
               style="display: block;"
