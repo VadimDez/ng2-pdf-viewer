@@ -131,7 +131,6 @@ Works in combination with `page` and sticks view to the page
 
 ```
 [stick-to-page]="true"
-
 ```
 
 #### [render-text]
