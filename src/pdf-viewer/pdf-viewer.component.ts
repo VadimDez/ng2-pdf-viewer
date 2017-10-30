@@ -518,9 +518,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
       let container = this.element.nativeElement.querySelector('.pdfViewer');
+      let scale = this._zoom;
 
       if (!this._originalSize) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
+        scale = this.getScale(page.getViewport(1).width);
       }
 
       PdfViewerComponent.removeAllChildNodes(container);
@@ -532,11 +534,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
 
       let pdfOptions: PDFViewerParams | any = {
-        container: container,
+        container,
         removePageBorders: true,
         linkService: this._pdfLinkService,
         defaultViewport: viewport,
-        scale: this.getScale(page.getViewport(1).width),
+        scale,
         id: this._page,
         textLayerFactory: new (<any>PDFJS).DefaultTextLayerFactory(),
         annotationLayerFactory: new (<any>PDFJS).DefaultAnnotationLayerFactory()
