@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
 import * as pdfjs from 'pdfjs-dist/build/pdf';
 window['pdfjs-dist/build/pdf'] = pdfjs;
@@ -13,7 +13,7 @@ PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container" (window:resize)="onPageResize()"><div class="pdfViewer"></div></div>`,
+  template: `<div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>`,
   styles: [
 `
 .ng2-pdf-viewer-container {
@@ -276,7 +276,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _zoom: number = 1;
   private _rotation: number = 0;
   private _showAll: boolean = true;
-
+  private _canAutoResize: boolean = true;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
@@ -291,11 +291,17 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
   }
 
+
   ngOnInit() {
     this.setupViewer();
   }
 
+  @HostListener('window:resize', [])
   public onPageResize() {
+    if (!this._canAutoResize) {
+      return;
+    }
+
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
@@ -379,6 +385,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Input('external-link-target')
   set externalLinkTarget(value: string) {
     this._externalLinkTarget = value;
+  }
+
+  @Input('autoresize')
+  set autoresize(value: boolean) {
+    this._canAutoResize = Boolean(value);
   }
 
   public setupViewer() {

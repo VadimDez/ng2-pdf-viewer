@@ -33,7 +33,8 @@ export class AppComponent {
   progressData: PDFProgressData;
   isLoaded: boolean = false;
   stickToPage = false;
-  showAll = true;
+  showAll: boolean = true;
+  autoresize: boolean = true;
 
   constructor() {
     // Load pdf
