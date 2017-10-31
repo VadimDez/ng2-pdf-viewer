@@ -21,6 +21,7 @@ var AppComponent = (function () {
         this.isLoaded = false;
         this.stickToPage = false;
         this.showAll = true;
+        this.autoresize = true;
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;

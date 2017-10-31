@@ -8,6 +8,7 @@
         <div class="page-content">
             <div>
                 <h2>Angular 2+ PDF Viewer</h2>
+                <p>Angular 2+ Component to render PDF</p>
             </div>
           
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -43,6 +44,16 @@
                            [(ngModel)]="renderText"
                     >
                     <span class="mdl-switch__label">Render text layer</span>
+                </label>
+            </div>
+
+            <div class="mb">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="autoresize">
+                    <input type="checkbox" id="autoresize" class="mdl-switch__input"
+                           [checked]="autoresize"
+                           [(ngModel)]="autoresize"
+                    >
+                    <span class="mdl-switch__label">Auto resize</span>
                 </label>
             </div>
 
@@ -138,6 +149,7 @@
                         [stick-to-page]="stickToPage"
                         [render-text]="renderText"
                         [external-link-target]="'blank'"
+                        [autoresize]="autoresize"
                         (error)="onError($event)"
                         (on-progress)="onProgress($event)"
             ></pdf-viewer>

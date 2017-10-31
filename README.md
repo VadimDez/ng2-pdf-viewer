@@ -84,6 +84,7 @@ export class AppComponent {
 * [[zoom]](#zoom)
 * [[original-size]](#original-size)
 * [[show-all]](#show-all)
+* [[autoresize]](#autoresize)
 * [(after-load-complete)](#after-load-complete)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
@@ -131,7 +132,6 @@ Works in combination with `page` and sticks view to the page
 
 ```
 [stick-to-page]="true"
-
 ```
 
 #### [render-text]
@@ -182,6 +182,22 @@ if set to *false* - size will be as same as container block
 
 ```
 [original-size]="true"
+```
+
+#### [show-all]
+
+Show single or all pages altogether
+
+```
+[show-all]="true"
+```
+
+#### [autoresize]
+
+Turn on or off auto resize
+
+```
+[autoresize]="true"
 ```
 
 #### (after-load-complete)

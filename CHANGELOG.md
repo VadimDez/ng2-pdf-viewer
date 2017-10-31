@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+* [[#190](https://github.com/VadimDez/ng2-pdf-viewer/pull/190)] - Fixed original size for showAll=false
+* [[#57](https://github.com/VadimDez/ng2-pdf-viewer/issues/57)] - Disable autoresize
+
 ## 2.0.2
 * [[#174](https://github.com/VadimDez/ng2-pdf-viewer/issues/174)] - 2.0.1 no more scrollbar while zooming
 

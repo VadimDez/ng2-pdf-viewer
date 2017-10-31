@@ -12,6 +12,7 @@ export declare class AppComponent {
     isLoaded: boolean;
     stickToPage: boolean;
     showAll: boolean;
+    autoresize: boolean;
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
