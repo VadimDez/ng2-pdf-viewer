@@ -48,6 +48,16 @@
             </div>
 
             <div class="mb">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="autoresize">
+                    <input type="checkbox" id="autoresize" class="mdl-switch__input"
+                           [checked]="autoresize"
+                           [(ngModel)]="autoresize"
+                    >
+                    <span class="mdl-switch__label">Auto resize</span>
+                </label>
+            </div>
+
+            <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="show-all">
                     <input type="checkbox" id="show-all" class="mdl-switch__input"
                            [checked]="showAll"
@@ -139,6 +149,7 @@
                         [stick-to-page]="stickToPage"
                         [render-text]="renderText"
                         [external-link-target]="'blank'"
+                        [autoresize]="autoresize"
                         (error)="onError($event)"
                         (on-progress)="onProgress($event)"
             ></pdf-viewer>

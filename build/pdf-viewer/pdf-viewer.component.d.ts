@@ -13,6 +13,7 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     private _zoom;
     private _rotation;
     private _showAll;
+    private _canAutoResize;
     private _externalLinkTarget;
     private _pdfViewer;
     private _pdfLinkService;
@@ -35,6 +36,7 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     zoom: number;
     rotation: number;
     externalLinkTarget: string;
+    autoresize: boolean;
     setupViewer(): void;
     updateSize(): void;
     private isValidPageNumber(page);
