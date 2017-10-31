@@ -232,8 +232,10 @@ var PdfViewerComponent = (function () {
         this._pdf.getPage(pageNumber).then(function (page) {
             var viewport = page.getViewport(_this._zoom, _this._rotation);
             var container = _this.element.nativeElement.querySelector('.pdfViewer');
+            var scale = _this._zoom;
             if (!_this._originalSize) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
+                scale = _this.getScale(page.getViewport(1).width);
             }
             PdfViewerComponent.removeAllChildNodes(container);
             PDFJS.disableTextLayer = !_this._renderText;
@@ -244,7 +246,7 @@ var PdfViewerComponent = (function () {
                 removePageBorders: true,
                 linkService: _this._pdfLinkService,
                 defaultViewport: viewport,
-                scale: _this.getScale(page.getViewport(1).width),
+                scale: scale,
                 id: _this._page,
                 textLayerFactory: new PDFJS.DefaultTextLayerFactory(),
                 annotationLayerFactory: new PDFJS.DefaultAnnotationLayerFactory()
