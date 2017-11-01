@@ -5,6 +5,21 @@
     margin-right: auto;
 }
 
+.mdl-layout__content header {
+    color: #fff;
+    background-color: #3f51b5;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.mdl-layout__content header svg {
+    fill: #fff;
+    width: 56px;
+    height: 56px;
+}
+
 @media all and (max-width: 480px) {
     .page-content {
         width: 100%;
