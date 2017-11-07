@@ -1,1 +1,2 @@
-export { PdfViewerComponent } from './pdf-viewer.component';
+export declare class PdfViewerModule {
+}
