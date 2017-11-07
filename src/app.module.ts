@@ -6,11 +6,15 @@ import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { MDL } from './app/mdl';
-import { PdfViewerComponent } from './pdf-viewer/index';
+import { PdfViewerModule } from './pdf-viewer/index';
 
 @NgModule({
-  imports: [BrowserModule, FormsModule],
-  declarations: [MDL, AppComponent, PdfViewerComponent],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    PdfViewerModule
+  ],
+  declarations: [MDL, AppComponent],
   bootstrap: [AppComponent]
 })
 
