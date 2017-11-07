@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.0
+* [[#196](https://github.com/VadimDez/ng2-pdf-viewer/issues/196)] - ng2-pdf-viewer breaks the AOT build with Angular CLI 1.5.0
+* [[#187](https://github.com/VadimDez/ng2-pdf-viewer/issues/187)] - ng build fails when AOT is enabled
+
 ## 2.0.3
 * [[#190](https://github.com/VadimDez/ng2-pdf-viewer/pull/190)] - Fixed original size for showAll=false
 * [[#57](https://github.com/VadimDez/ng2-pdf-viewer/issues/57)] - Disable autoresize
