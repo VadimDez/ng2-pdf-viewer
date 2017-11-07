@@ -11,8 +11,12 @@ var AppModule = (function () {
     }
     AppModule.decorators = [
         { type: core_1.NgModule, args: [{
-                    imports: [platform_browser_1.BrowserModule, forms_1.FormsModule],
-                    declarations: [mdl_1.MDL, app_component_1.AppComponent, index_1.PdfViewerComponent],
+                    imports: [
+                        platform_browser_1.BrowserModule,
+                        forms_1.FormsModule,
+                        index_1.PdfViewerModule
+                    ],
+                    declarations: [mdl_1.MDL, app_component_1.AppComponent],
                     bootstrap: [app_component_1.AppComponent]
                 },] },
     ];
