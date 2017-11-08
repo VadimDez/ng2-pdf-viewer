@@ -185,6 +185,7 @@ if set to *false* - size will be as same as container block
 ```
 
 #### [show-all]
+_boolean_
 
 Show single or all pages altogether
 
@@ -193,6 +194,7 @@ Show single or all pages altogether
 ```
 
 #### [autoresize]
+_boolean_
 
 Turn on or off auto resize
 
