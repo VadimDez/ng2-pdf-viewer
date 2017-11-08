@@ -196,7 +196,9 @@ Show single or all pages altogether
 #### [autoresize]
 _boolean_
 
-Turn on or off auto resize
+Turn on or off auto resize.
+
+**!Important** To make `[autoresize]` work - make sure that `[original-size]="false"` and `pdf-viewer` tag has `max-width` or `dipslay` are set.
 
 ```
 [autoresize]="true"
