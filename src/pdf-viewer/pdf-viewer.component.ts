@@ -277,6 +277,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _rotation: number = 0;
   private _showAll: boolean = true;
   private _canAutoResize: boolean = true;
+  private _fitToPage: boolean = true;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
@@ -392,6 +393,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._canAutoResize = Boolean(value);
   }
 
+  @Input('fit-to-page')
+  set fitToPage(value: boolean) {
+    this._fitToPage = Boolean(value);
+  }
+
   public setupViewer() {
     (<any>PDFJS).disableTextLayer = !this._renderText;
 
@@ -421,7 +427,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       let stickToPage = true;
 
       // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-      if (!this._originalSize || viewport.width > this.element.nativeElement.offsetWidth) {
+      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
         scale = this.getScale(page.getViewport(1).width);
         stickToPage = !this._stickToPage;
       }
@@ -537,7 +543,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       let scale = this._zoom;
 
       // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-      if (!this._originalSize || viewport.width > this.element.nativeElement.offsetWidth) {
+      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
         scale = this.getScale(page.getViewport(1).width);
       }
