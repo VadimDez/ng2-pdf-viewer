@@ -277,7 +277,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _rotation: number = 0;
   private _showAll: boolean = true;
   private _canAutoResize: boolean = true;
-  private _fitToPage: boolean = true;
+  private _fitToPage: boolean = false;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
