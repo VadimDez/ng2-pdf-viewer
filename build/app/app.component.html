@@ -45,6 +45,16 @@
                 </label>
             </div>
 
+            <div class="mb" [hidden]="!originalSize">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="fit-to-size">
+                    <input type="checkbox" id="fit-to-size" class="mdl-switch__input"
+                           [checked]="fitToPage"
+                           [(ngModel)]="fitToPage"
+                    >
+                    <span class="mdl-switch__label">Fit to page</span>
+                </label>
+            </div>
+
             <div class="mb">
                 <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="render-text">
                     <input type="checkbox" id="render-text" class="mdl-switch__input"
@@ -151,6 +161,7 @@
                         [(page)]="page"
                         [rotation]="rotation"
                         [original-size]="originalSize"
+                        [fit-to-page]="fitToPage"
                         (after-load-complete)="afterLoadComplete($event)"
                         [zoom]="zoom"
                         [show-all]="showAll"
