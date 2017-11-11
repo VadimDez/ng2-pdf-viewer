@@ -83,6 +83,7 @@ export class AppComponent {
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
 * [[original-size]](#original-size)
+* [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
 * [(after-load-complete)](#after-load-complete)
@@ -184,7 +185,17 @@ if set to *false* - size will be as same as container block
 [original-size]="true"
 ```
 
+#### [fit-to-page]
+_boolean_
+
+Works in combination with `[original-size]="true"`. You can show your document in original size, and make sure that it's not bigger then container block.
+
+```
+[fit-to-page]="false"
+```
+
 #### [show-all]
+_boolean_
 
 Show single or all pages altogether
 
@@ -193,8 +204,11 @@ Show single or all pages altogether
 ```
 
 #### [autoresize]
+_boolean_
 
-Turn on or off auto resize
+Turn on or off auto resize.
+
+**!Important** To make `[autoresize]` work - make sure that `[original-size]="false"` and `pdf-viewer` tag has `max-width` or `dipslay` are set.
 
 ```
 [autoresize]="true"

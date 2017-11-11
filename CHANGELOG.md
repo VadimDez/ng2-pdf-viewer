@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.1
+* [[#194](https://github.com/VadimDez/ng2-pdf-viewer/pull/194)] - Fit original document into the viewport.
+* [[#206](https://github.com/VadimDez/ng2-pdf-viewer/pull/206)] - Updated Readme for new [fit-to-page] option.
+
 ## 3.0.0
 * [[#196](https://github.com/VadimDez/ng2-pdf-viewer/issues/196)] - ng2-pdf-viewer breaks the AOT build with Angular CLI 1.5.0
 * [[#187](https://github.com/VadimDez/ng2-pdf-viewer/issues/187)] - ng build fails when AOT is enabled

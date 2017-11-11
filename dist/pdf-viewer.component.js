@@ -17,6 +17,7 @@ var PdfViewerComponent = (function () {
         this._rotation = 0;
         this._showAll = true;
         this._canAutoResize = true;
+        this._fitToPage = false;
         this._externalLinkTarget = 'blank';
         this.afterLoadComplete = new core_1.EventEmitter();
         this.onError = new core_1.EventEmitter();
@@ -128,6 +129,13 @@ var PdfViewerComponent = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(PdfViewerComponent.prototype, "fitToPage", {
+        set: function (value) {
+            this._fitToPage = Boolean(value);
+        },
+        enumerable: true,
+        configurable: true
+    });
     PdfViewerComponent.prototype.setupViewer = function () {
         PDFJS.disableTextLayer = !this._renderText;
         PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
@@ -146,12 +154,15 @@ var PdfViewerComponent = (function () {
             this.renderPage(this._page);
             return;
         }
-        if (this._originalSize) {
-            this._pdfViewer._setScale(this._zoom, true);
-            return;
-        }
         this._pdf.getPage(this._pdfViewer.currentPageNumber).then(function (page) {
-            _this._pdfViewer._setScale(_this.getScale(page.getViewport(1).width), !_this._stickToPage);
+            var viewport = page.getViewport(_this._zoom, _this._rotation);
+            var scale = _this._zoom;
+            var stickToPage = true;
+            if (!_this._originalSize || (_this._fitToPage && viewport.width > _this.element.nativeElement.offsetWidth)) {
+                scale = _this.getScale(page.getViewport(1).width);
+                stickToPage = !_this._stickToPage;
+            }
+            _this._pdfViewer._setScale(scale, stickToPage);
         });
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
@@ -244,7 +255,7 @@ var PdfViewerComponent = (function () {
             var viewport = page.getViewport(_this._zoom, _this._rotation);
             var container = _this.element.nativeElement.querySelector('.pdfViewer');
             var scale = _this._zoom;
-            if (!_this._originalSize) {
+            if (!_this._originalSize || (_this._fitToPage && viewport.width > _this.element.nativeElement.offsetWidth)) {
                 viewport = page.getViewport(_this.element.nativeElement.offsetWidth / viewport.width, _this._rotation);
                 scale = _this.getScale(page.getViewport(1).width);
             }
@@ -309,6 +320,7 @@ var PdfViewerComponent = (function () {
         'rotation': [{ type: core_1.Input, args: ['rotation',] },],
         'externalLinkTarget': [{ type: core_1.Input, args: ['external-link-target',] },],
         'autoresize': [{ type: core_1.Input, args: ['autoresize',] },],
+        'fitToPage': [{ type: core_1.Input, args: ['fit-to-page',] },],
     };
     return PdfViewerComponent;
 }());

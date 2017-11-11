@@ -277,6 +277,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _rotation: number = 0;
   private _showAll: boolean = true;
   private _canAutoResize: boolean = true;
+  private _fitToPage: boolean = false;
   private _externalLinkTarget: string = 'blank';
   private _pdfViewer: any;
   private _pdfLinkService: any;
@@ -392,6 +393,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this._canAutoResize = Boolean(value);
   }
 
+  @Input('fit-to-page')
+  set fitToPage(value: boolean) {
+    this._fitToPage = Boolean(value);
+  }
+
   public setupViewer() {
     (<any>PDFJS).disableTextLayer = !this._renderText;
 
@@ -415,13 +421,18 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    if (this._originalSize) {
-      this._pdfViewer._setScale(this._zoom, true);
-      return;
-    }
-
     this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
-      this._pdfViewer._setScale(this.getScale(page.getViewport(1).width), !this._stickToPage);
+      const viewport = page.getViewport(this._zoom, this._rotation);
+      let scale = this._zoom;
+      let stickToPage = true;
+
+      // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
+        scale = this.getScale(page.getViewport(1).width);
+        stickToPage = !this._stickToPage;
+      }
+
+      this._pdfViewer._setScale(scale, stickToPage);
     });
   }
 
@@ -531,7 +542,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       let container = this.element.nativeElement.querySelector('.pdfViewer');
       let scale = this._zoom;
 
-      if (!this._originalSize) {
+      // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
         viewport = page.getViewport(this.element.nativeElement.offsetWidth / viewport.width, this._rotation);
         scale = this.getScale(page.getViewport(1).width);
       }

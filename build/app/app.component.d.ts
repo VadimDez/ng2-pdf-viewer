@@ -13,6 +13,7 @@ export declare class AppComponent {
     stickToPage: boolean;
     showAll: boolean;
     autoresize: boolean;
+    fitToPage: boolean;
     constructor();
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
