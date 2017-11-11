@@ -35,6 +35,7 @@ export class AppComponent {
   stickToPage = false;
   showAll: boolean = true;
   autoresize: boolean = true;
+  fitToPage: boolean = false;
 
   constructor() {
     // Load pdf
