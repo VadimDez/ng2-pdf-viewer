@@ -1,49 +1,33 @@
 {
   "_args": [
     [
-      {
-        "raw": "@angular/compiler@^4.1.0",
-        "scope": "@angular",
-        "escapedName": "@angular%2fcompiler",
-        "name": "@angular/compiler",
-        "rawSpec": "^4.1.0",
-        "spec": ">=4.1.0 <5.0.0",
-        "type": "range"
-      },
+      "@angular/compiler@5.0.2",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/compiler@>=4.1.0 <5.0.0",
-  "_id": "@angular/compiler@4.3.3",
-  "_inCache": true,
+  "_development": true,
+  "_from": "@angular/compiler@5.0.2",
+  "_id": "@angular/compiler@5.0.2",
+  "_inBundle": false,
+  "_integrity": "sha1-2GXUNyJ83RYYP4eQCjiJPY9fsTk=",
   "_location": "/@angular/compiler",
-  "_nodeVersion": "6.9.5",
-  "_npmOperationalInternal": {
-    "host": "s3://npm-registry-packages",
-    "tmp": "tmp/compiler-4.3.3.tgz_1501704640400_0.5984973816666752"
-  },
-  "_npmUser": {
-    "name": "angular",
-    "email": "angular-core+npm@google.com"
-  },
-  "_npmVersion": "3.10.10",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/compiler@^4.1.0",
-    "scope": "@angular",
-    "escapedName": "@angular%2fcompiler",
+    "type": "version",
+    "registry": true,
+    "raw": "@angular/compiler@5.0.2",
     "name": "@angular/compiler",
-    "rawSpec": "^4.1.0",
-    "spec": ">=4.1.0 <5.0.0",
-    "type": "range"
+    "escapedName": "@angular%2fcompiler",
+    "scope": "@angular",
+    "rawSpec": "5.0.2",
+    "saveSpec": null,
+    "fetchSpec": "5.0.2"
   },
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-4.3.3.tgz",
-  "_shasum": "8c1582fe28a784401325e51a04a9b36b6712033e",
-  "_shrinkwrap": null,
-  "_spec": "@angular/compiler@^4.1.0",
+  "_resolved": "https://registry.npmjs.org/@angular/compiler/-/compiler-5.0.2.tgz",
+  "_spec": "5.0.2",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -55,34 +39,16 @@
     "tslib": "^1.7.1"
   },
   "description": "Angular - the compiler library",
-  "devDependencies": {},
-  "directories": {},
-  "dist": {
-    "shasum": "8c1582fe28a784401325e51a04a9b36b6712033e",
-    "tarball": "https://registry.npmjs.org/@angular/compiler/-/compiler-4.3.3.tgz"
-  },
-  "es2015": "./@angular/compiler.js",
+  "es2015": "./esm2015/compiler.js",
   "homepage": "https://github.com/angular/angular#readme",
   "license": "MIT",
   "main": "./bundles/compiler.umd.js",
-  "maintainers": [
-    {
-      "name": "angular",
-      "email": "angular-core+npm@google.com"
-    }
-  ],
-  "module": "./@angular/compiler.es5.js",
+  "module": "./esm5/compiler.js",
   "name": "@angular/compiler",
-  "optionalDependencies": {},
-  "peerDependencies": {
-    "@angular/core": "4.3.3"
-  },
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/angular/angular.git"
   },
-  "scripts": {},
   "typings": "./compiler.d.ts",
-  "version": "4.3.3"
+  "version": "5.0.2"
 }

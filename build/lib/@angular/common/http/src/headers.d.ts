@@ -1,6 +1,6 @@
 /**
  * Immutable set of Http headers, with lazy parsing.
- * @experimental
+ * @stable
  */
 export declare class HttpHeaders {
     /**

@@ -7,4 +7,4 @@
  */
 import { GeneratedFile } from '@angular/compiler';
 import * as ts from 'typescript';
-export declare function getAngularEmitterTransformFactory(generatedFiles: GeneratedFile[]): () => (sourceFile: ts.SourceFile) => ts.SourceFile;
+export declare function getAngularEmitterTransformFactory(generatedFiles: Map<string, GeneratedFile>): () => (sourceFile: ts.SourceFile) => ts.SourceFile;

@@ -1,13 +1,16 @@
+import { CompileReflector } from '../compile_reflector';
 import { EmitterVisitorContext } from './abstract_emitter';
 import { AbstractJsEmitterVisitor } from './abstract_js_emitter';
 import * as o from './output_ast';
-export declare function jitStatements(sourceUrl: string, statements: o.Statement[]): {
+export declare function jitStatements(sourceUrl: string, statements: o.Statement[], reflector: CompileReflector, createSourceMaps: boolean): {
     [key: string]: any;
 };
 export declare class JitEmitterVisitor extends AbstractJsEmitterVisitor {
+    private reflector;
     private _evalArgNames;
     private _evalArgValues;
     private _evalExportedVars;
+    constructor(reflector: CompileReflector);
     createReturnStmt(ctx: EmitterVisitorContext): void;
     getArgs(): {
         [key: string]: any;

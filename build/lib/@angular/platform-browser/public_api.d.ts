@@ -8,6 +8,6 @@
 /**
  * @module
  * @description
- * Entry point for all public APIs of the platform-browser package.
+ * Entry point for all public APIs of this package.
  */
 export * from './src/platform-browser';

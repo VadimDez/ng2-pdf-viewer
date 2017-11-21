@@ -31,9 +31,8 @@ import { Observable } from 'rxjs/Observable';
  * @stable
  */
 export declare class QueryList<T> {
-    private _dirty;
+    readonly dirty: boolean;
     private _results;
-    private _emitter;
     readonly changes: Observable<any>;
     readonly length: number;
     readonly first: T;
@@ -75,5 +74,5 @@ export declare class QueryList<T> {
     /** internal */
     setDirty(): void;
     /** internal */
-    readonly dirty: boolean;
+    destroy(): void;
 }

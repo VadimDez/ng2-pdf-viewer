@@ -72,7 +72,6 @@ import { TemplateRef, ViewContainerRef } from '@angular/core';
  *
  * Simple form:
  * - `<div *ngIf="condition">...</div>`
- * - `<div template="ngIf condition">...</div>`
  * - `<ng-template [ngIf]="condition"><div>...</div></ng-template>`
  *
  * Form with an else block:

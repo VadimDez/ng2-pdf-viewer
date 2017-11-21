@@ -6,3 +6,4 @@
  * found in the LICENSE file at https://angular.io/license
  */
 export { DOMTestComponentRenderer as ɵDOMTestComponentRenderer } from './dom_test_component_renderer';
+export { platformCoreDynamicTesting as ɵplatformCoreDynamicTesting } from './platform_core_dynamic_testing';

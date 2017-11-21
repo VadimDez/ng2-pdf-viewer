@@ -74,7 +74,6 @@ export declare class NgForOfContext<T> {
  * ### Syntax
  *
  * - `<li *ngFor="let item of items; index as i; trackBy: trackByFn">...</li>`
- * - `<li template="ngFor let item of items; index as i; trackBy: trackByFn">...</li>`
  *
  * With `<ng-template>` element:
  *
@@ -106,12 +105,4 @@ export declare class NgForOf<T> implements DoCheck, OnChanges {
     private _applyChanges(changes);
     private _perViewChange(view, record);
 }
-/**
- * @deprecated from v4.0.0 - Use NgForOf<any> instead.
- */
-export declare type NgFor = NgForOf<any>;
-/**
- * @deprecated from v4.0.0 - Use NgForOf instead.
- */
-export declare const NgFor: typeof NgForOf;
 export declare function getTypeNameForDebugging(type: any): string;

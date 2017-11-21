@@ -12,17 +12,14 @@ import { LocationChangeListener, PlatformLocation } from '@angular/common';
  */
 export declare class ServerPlatformLocation implements PlatformLocation {
     private _doc;
-    private _path;
-    private _search;
-    private _hash;
+    readonly pathname: string;
+    readonly search: string;
+    readonly hash: string;
     private _hashUpdate;
     constructor(_doc: any, _config: any);
     getBaseHrefFromDOM(): string;
     onPopState(fn: LocationChangeListener): void;
     onHashChange(fn: LocationChangeListener): void;
-    readonly pathname: string;
-    readonly search: string;
-    readonly hash: string;
     readonly url: string;
     private setHash(value, oldUrl);
     replaceState(state: any, title: string, newUrl: string): void;

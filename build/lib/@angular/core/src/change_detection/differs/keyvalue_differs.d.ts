@@ -5,8 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Provider } from '../../di';
-import { ChangeDetectorRef } from '../change_detector_ref';
+import { StaticProvider } from '../../di';
 /**
  * A differ that tracks changes made to an object over time.
  *
@@ -95,10 +94,6 @@ export interface KeyValueDifferFactory {
      * Create a `KeyValueDiffer`.
      */
     create<K, V>(): KeyValueDiffer<K, V>;
-    /**
-     * @deprecated v4.0.0 - ChangeDetectorRef is not used and is no longer a parameter
-     */
-    create<K, V>(_cdr?: ChangeDetectorRef): KeyValueDiffer<K, V>;
 }
 /**
  * A repository of different Map diffing strategies used by NgClass, NgStyle, and others.
@@ -117,8 +112,8 @@ export declare class KeyValueDiffers {
      * {@link KeyValueDiffers} instance.
      *
      * The following example shows how to extend an existing list of factories,
-           * which will only be applied to the injector for this component and its children.
-           * This step is all that's required to make a new {@link KeyValueDiffer} available.
+     * which will only be applied to the injector for this component and its children.
+     * This step is all that's required to make a new {@link KeyValueDiffer} available.
      *
      * ### Example
      *
@@ -130,6 +125,6 @@ export declare class KeyValueDiffers {
      * })
      * ```
      */
-    static extend<S>(factories: KeyValueDifferFactory[]): Provider;
+    static extend<S>(factories: KeyValueDifferFactory[]): StaticProvider;
     find(kv: any): KeyValueDifferFactory;
 }

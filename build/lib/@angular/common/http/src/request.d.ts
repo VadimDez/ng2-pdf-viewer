@@ -15,7 +15,7 @@ import { HttpParams } from './params';
  * assumed to be immutable. To modify a `HttpRequest`, the `clone`
  * method should be used.
  *
- * @experimental
+ * @stable
  */
 export declare class HttpRequest<T> {
     readonly url: string;

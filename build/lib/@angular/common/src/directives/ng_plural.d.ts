@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { TemplateRef, ViewContainerRef } from '@angular/core';
-import { NgLocalization } from '../localization';
+import { NgLocalization } from '../i18n/localization';
 import { SwitchView } from './ng_switch';
 /**
  * @ngModule CommonModule

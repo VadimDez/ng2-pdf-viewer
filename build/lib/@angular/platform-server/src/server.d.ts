@@ -6,9 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ɵAnimationEngine } from '@angular/animations/browser';
-import { NgZone, PlatformRef, Provider, RendererFactory2 } from '@angular/core';
+import { NgZone, PlatformRef, Provider, RendererFactory2, StaticProvider } from '@angular/core';
 import { ɵAnimationRendererFactory } from '@angular/platform-browser/animations';
-export declare const INTERNAL_SERVER_PLATFORM_PROVIDERS: Array<any>;
+export declare const INTERNAL_SERVER_PLATFORM_PROVIDERS: StaticProvider[];
 export declare function instantiateServerRendererFactory(renderer: RendererFactory2, engine: ɵAnimationEngine, zone: NgZone): ɵAnimationRendererFactory;
 export declare const SERVER_RENDER_PROVIDERS: Provider[];
 /**
@@ -21,10 +21,10 @@ export declare class ServerModule {
 /**
  * @experimental
  */
-export declare const platformServer: (extraProviders?: Provider[] | undefined) => PlatformRef;
+export declare const platformServer: (extraProviders?: StaticProvider[] | undefined) => PlatformRef;
 /**
  * The server platform that supports the runtime compiler.
  *
  * @experimental
  */
-export declare const platformDynamicServer: (extraProviders?: Provider[] | undefined) => PlatformRef;
+export declare const platformDynamicServer: (extraProviders?: StaticProvider[] | undefined) => PlatformRef;

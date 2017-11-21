@@ -168,7 +168,7 @@ var TypeScriptSymbolQuery = (function () {
                 var type_1 = this.checker.getTypeAtLocation(parameter.type);
                 if (type_1.symbol.name == 'TemplateRef' && isReferenceType(type_1)) {
                     var typeReference = type_1;
-                    if (typeReference.typeArguments.length === 1) {
+                    if (typeReference.typeArguments && typeReference.typeArguments.length === 1) {
                         return typeReference.typeArguments[0].symbol;
                     }
                 }
@@ -207,6 +207,11 @@ var TypeWrapper = (function () {
     function TypeWrapper(tsType, context) {
         this.tsType = tsType;
         this.context = context;
+        this.kind = 'type';
+        this.language = 'typescript';
+        this.type = undefined;
+        this.container = undefined;
+        this.public = true;
         if (!tsType) {
             throw Error('Internal: null type');
         }
@@ -216,31 +221,6 @@ var TypeWrapper = (function () {
             var symbol = this.tsType.symbol;
             return (symbol && symbol.name) || '<anonymous>';
         },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeWrapper.prototype, "kind", {
-        get: function () { return 'type'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeWrapper.prototype, "language", {
-        get: function () { return 'typescript'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeWrapper.prototype, "type", {
-        get: function () { return undefined; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeWrapper.prototype, "container", {
-        get: function () { return undefined; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TypeWrapper.prototype, "public", {
-        get: function () { return true; },
         enumerable: true,
         configurable: true
     });
@@ -257,7 +237,10 @@ var TypeWrapper = (function () {
         configurable: true
     });
     Object.defineProperty(TypeWrapper.prototype, "definition", {
-        get: function () { return definitionFromTsSymbol(this.tsType.getSymbol()); },
+        get: function () {
+            var symbol = this.tsType.getSymbol();
+            return symbol ? definitionFromTsSymbol(symbol) : undefined;
+        },
         enumerable: true,
         configurable: true
     });
@@ -274,6 +257,8 @@ var TypeWrapper = (function () {
 var SymbolWrapper = (function () {
     function SymbolWrapper(symbol, context) {
         this.context = context;
+        this.nullable = false;
+        this.language = 'typescript';
         this.symbol = symbol && context && (symbol.flags & ts.SymbolFlags.Alias) ?
             context.checker.getAliasedSymbol(symbol) :
             symbol;
@@ -285,11 +270,6 @@ var SymbolWrapper = (function () {
     });
     Object.defineProperty(SymbolWrapper.prototype, "kind", {
         get: function () { return this.callable ? 'method' : 'property'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolWrapper.prototype, "language", {
-        get: function () { return 'typescript'; },
         enumerable: true,
         configurable: true
     });
@@ -313,11 +293,6 @@ var SymbolWrapper = (function () {
     });
     Object.defineProperty(SymbolWrapper.prototype, "callable", {
         get: function () { return typeCallable(this.tsType); },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SymbolWrapper.prototype, "nullable", {
-        get: function () { return false; },
         enumerable: true,
         configurable: true
     });
@@ -361,6 +336,9 @@ var SymbolWrapper = (function () {
 var DeclaredSymbol = (function () {
     function DeclaredSymbol(declaration) {
         this.declaration = declaration;
+        this.language = 'ng-template';
+        this.nullable = false;
+        this.public = true;
     }
     Object.defineProperty(DeclaredSymbol.prototype, "name", {
         get: function () { return this.declaration.name; },
@@ -369,11 +347,6 @@ var DeclaredSymbol = (function () {
     });
     Object.defineProperty(DeclaredSymbol.prototype, "kind", {
         get: function () { return this.declaration.kind; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DeclaredSymbol.prototype, "language", {
-        get: function () { return 'ng-template'; },
         enumerable: true,
         configurable: true
     });
@@ -389,16 +362,6 @@ var DeclaredSymbol = (function () {
     });
     Object.defineProperty(DeclaredSymbol.prototype, "callable", {
         get: function () { return this.declaration.type.callable; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DeclaredSymbol.prototype, "nullable", {
-        get: function () { return false; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DeclaredSymbol.prototype, "public", {
-        get: function () { return true; },
         enumerable: true,
         configurable: true
     });
@@ -577,19 +540,15 @@ var PipeSymbol = (function () {
     function PipeSymbol(pipe, context) {
         this.pipe = pipe;
         this.context = context;
+        this.kind = 'pipe';
+        this.language = 'typescript';
+        this.container = undefined;
+        this.callable = true;
+        this.nullable = false;
+        this.public = true;
     }
     Object.defineProperty(PipeSymbol.prototype, "name", {
         get: function () { return this.pipe.name; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PipeSymbol.prototype, "kind", {
-        get: function () { return 'pipe'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PipeSymbol.prototype, "language", {
-        get: function () { return 'typescript'; },
         enumerable: true,
         configurable: true
     });
@@ -598,28 +557,11 @@ var PipeSymbol = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(PipeSymbol.prototype, "container", {
-        get: function () { return undefined; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PipeSymbol.prototype, "callable", {
-        get: function () { return true; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PipeSymbol.prototype, "nullable", {
-        get: function () { return false; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PipeSymbol.prototype, "public", {
-        get: function () { return true; },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(PipeSymbol.prototype, "definition", {
-        get: function () { return definitionFromTsSymbol(this.tsType.getSymbol()); },
+        get: function () {
+            var symbol = this.tsType.getSymbol();
+            return symbol ? definitionFromTsSymbol(symbol) : undefined;
+        },
         enumerable: true,
         configurable: true
     });
@@ -697,18 +639,14 @@ function findClassSymbolInContext(type, context) {
 }
 var EmptyTable = (function () {
     function EmptyTable() {
+        this.size = 0;
     }
-    Object.defineProperty(EmptyTable.prototype, "size", {
-        get: function () { return 0; },
-        enumerable: true,
-        configurable: true
-    });
     EmptyTable.prototype.get = function (key) { return undefined; };
     EmptyTable.prototype.has = function (key) { return false; };
     EmptyTable.prototype.values = function () { return []; };
+    EmptyTable.instance = new EmptyTable();
     return EmptyTable;
 }());
-EmptyTable.instance = new EmptyTable();
 function findTsConfig(fileName) {
     var dir = path.dirname(fileName);
     while (fs.existsSync(dir)) {

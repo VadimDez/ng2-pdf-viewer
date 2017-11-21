@@ -8,10 +8,15 @@
 import { ɵStyleData } from '@angular/animations';
 import { AnimationEngineInstruction } from '../render/animation_engine_instruction';
 export interface AnimationTimelineInstruction extends AnimationEngineInstruction {
+    element: any;
     keyframes: ɵStyleData[];
+    preStyleProps: string[];
+    postStyleProps: string[];
     duration: number;
     delay: number;
     totalTime: number;
-    easing: string | null | undefined;
+    easing: string | null;
+    stretchStartingKeyframe?: boolean;
+    subTimeline: boolean;
 }
-export declare function createTimelineInstruction(keyframes: ɵStyleData[], duration: number, delay: number, easing: string | null | undefined): AnimationTimelineInstruction;
+export declare function createTimelineInstruction(element: any, keyframes: ɵStyleData[], preStyleProps: string[], postStyleProps: string[], duration: number, delay: number, easing?: string | null, subTimeline?: boolean): AnimationTimelineInstruction;

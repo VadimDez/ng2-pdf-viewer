@@ -12,10 +12,10 @@
  */
 export declare class Version {
     full: string;
-    constructor(full: string);
     readonly major: string;
     readonly minor: string;
     readonly patch: string;
+    constructor(full: string);
 }
 /**
  * @stable

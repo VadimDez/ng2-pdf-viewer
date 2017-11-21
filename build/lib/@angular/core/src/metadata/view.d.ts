@@ -8,15 +8,15 @@
 /**
  * Defines template and style encapsulation options available for Component's {@link Component}.
  *
- * See {@link Component#encapsulation}.
+ * See {@link Component#encapsulation encapsulation}.
  * @stable
  */
 export declare enum ViewEncapsulation {
     /**
      * Emulate `Native` scoping of styles by adding an attribute containing surrogate id to the Host
-     * Element and pre-processing the style rules provided via
-     * {@link Component#styles} or {@link Component#styleUrls}, and adding the new Host Element
-     * attribute to all selectors.
+     * Element and pre-processing the style rules provided via {@link Component#styles styles} or
+     * {@link Component#styleUrls styleUrls}, and adding the new Host Element attribute to all
+     * selectors.
      *
      * This is the default option.
      */
@@ -32,54 +32,4 @@ export declare enum ViewEncapsulation {
      * Don't provide any template or style encapsulation.
      */
     None = 2,
-}
-/**
- * Metadata properties available for configuring Views.
- *
- * For details on the `@Component` annotation, see {@link Component}.
- *
- * ### Example
- *
- * ```
- * @Component({
- *   selector: 'greet',
- *   template: 'Hello {{name}}!',
- * })
- * class Greet {
- *   name: string;
- *
- *   constructor() {
- *     this.name = 'World';
- *   }
- * }
- * ```
- *
- * @deprecated Use Component instead.
- *
- * {@link Component}
- */
-export declare class ViewMetadata {
-    /** {@link Component#templateUrl} */
-    templateUrl: string | undefined;
-    /** {@link Component#template} */
-    template: string | undefined;
-    /** {@link Component#stylesUrl} */
-    styleUrls: string[] | undefined;
-    /** {@link Component#styles} */
-    styles: string[] | undefined;
-    /** {@link Component#encapsulation} */
-    encapsulation: ViewEncapsulation | undefined;
-    /** {@link Component#animation} */
-    animations: any[] | undefined;
-    /** {@link Component#interpolation} */
-    interpolation: [string, string] | undefined;
-    constructor(opts?: {
-        templateUrl?: string;
-        template?: string;
-        encapsulation?: ViewEncapsulation;
-        styles?: string[];
-        styleUrls?: string[];
-        animations?: any[];
-        interpolation?: [string, string];
-    });
 }

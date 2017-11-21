@@ -9,7 +9,7 @@ import { PipeTransform } from '@angular/core';
 /**
  * @ngModule CommonModule
  * @whatItDoes Formats a number according to locale rules.
- * @howToUse `number_expression | number[:digitInfo]`
+ * @howToUse `number_expression | number[:digitInfo[:locale]]`
  *
  * Formats a number as text. Group sizing and separator and other locale-specific
  * configurations are based on the active locale.
@@ -20,12 +20,11 @@ import { PipeTransform } from '@angular/core';
  *   - `minIntegerDigits` is the minimum number of integer digits to use. Defaults to `1`.
  *   - `minFractionDigits` is the minimum number of digits after fraction. Defaults to `0`.
  *   - `maxFractionDigits` is the maximum number of digits after fraction. Defaults to `3`.
+ *  - `locale` is a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
+ * default)
  *
  * For more information on the acceptable range for each of these numbers and other
  * details see your native internationalization library.
- *
- * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
  *
  * ### Example
  *
@@ -36,60 +35,61 @@ import { PipeTransform } from '@angular/core';
 export declare class DecimalPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string | null;
+    transform(value: any, digits?: string, locale?: string): string | null;
 }
 /**
  * @ngModule CommonModule
  * @whatItDoes Formats a number as a percentage according to locale rules.
- * @howToUse `number_expression | percent[:digitInfo]`
+ * @howToUse `number_expression | percent[:digitInfo[:locale]]`
  *
  * @description
  *
  * Formats a number as percentage.
  *
  * - `digitInfo` See {@link DecimalPipe} for detailed description.
- *
- * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
+ *  - `locale` is a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
+ * default)
  *
  * ### Example
  *
- * {@example common/pipes/ts/number_pipe.ts region='PercentPipe'}
+ * {@example common/pipes/ts/percent_pipe.ts region='PercentPipe'}
  *
  * @stable
  */
 export declare class PercentPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, digits?: string): string | null;
+    transform(value: any, digits?: string, locale?: string): string | null;
 }
 /**
  * @ngModule CommonModule
  * @whatItDoes Formats a number as currency using locale rules.
- * @howToUse `number_expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]`
+ * @howToUse `number_expression | currency[:currencyCode[:display[:digitInfo[:locale]]]]`
  * @description
  *
  * Use `currency` to format a number as currency.
  *
  * - `currencyCode` is the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code, such
  *    as `USD` for the US dollar and `EUR` for the euro.
- * - `symbolDisplay` is a boolean indicating whether to use the currency symbol or code.
- *   - `true`: use symbol (e.g. `$`).
- *   - `false`(default): use code (e.g. `USD`).
+ * - `display` indicates whether to show the currency symbol or the code.
+ *   - `code`: use code (e.g. `USD`).
+ *   - `symbol`(default): use symbol (e.g. `$`).
+ *   - `symbol-narrow`: some countries have two symbols for their currency, one regular and one
+ *   narrow (e.g. the canadian dollar CAD has the symbol `CA$` and the symbol-narrow `$`).
+ *   - boolean (deprecated from v5): `true` for symbol and false for `code`
+ *   If there is no narrow symbol for the chosen currency, the regular symbol will be used.
  * - `digitInfo` See {@link DecimalPipe} for detailed description.
- *
- * WARNING: this pipe uses the Internationalization API which is not yet available in all browsers
- * and may require a polyfill. See [Browser Support](guide/browser-support) for details.
+ *  - `locale` is a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
+ * default)
  *
  * ### Example
  *
- * {@example common/pipes/ts/number_pipe.ts region='CurrencyPipe'}
+ * {@example common/pipes/ts/currency_pipe.ts region='CurrencyPipe'}
  *
  * @stable
  */
 export declare class CurrencyPipe implements PipeTransform {
     private _locale;
     constructor(_locale: string);
-    transform(value: any, currencyCode?: string, symbolDisplay?: boolean, digits?: string): string | null;
+    transform(value: any, currencyCode?: string, display?: 'code' | 'symbol' | 'symbol-narrow' | boolean, digits?: string, locale?: string): string | null;
 }
-export declare function isNumeric(value: any): boolean;

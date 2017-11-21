@@ -3,17 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var AppComponent = (function () {
     function AppComponent() {
-        this.pdfSrc = './pdf-test.pdf';
-        this.page = 1;
-        this.rotation = 0;
-        this.zoom = 1.0;
-        this.originalSize = false;
-        this.renderText = true;
-        this.isLoaded = false;
-        this.stickToPage = false;
-        this.showAll = true;
-        this.autoresize = true;
-        this.fitToPage = false;
     }
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
@@ -50,15 +39,6 @@ var AppComponent = (function () {
     AppComponent.prototype.getInt = function (value) {
         return Math.round(value);
     };
-    AppComponent.decorators = [
-        { type: core_1.Component, args: [{
-                    moduleId: module.id,
-                    selector: 'pdf-viewer-app',
-                    templateUrl: './app.component.html',
-                    styleUrls: ['./app.component.css']
-                },] },
-    ];
-    AppComponent.ctorParameters = function () { return []; };
     return AppComponent;
 }());
 exports.AppComponent = AppComponent;

@@ -47,7 +47,7 @@ function getReferences(info) {
                 name: reference.name,
                 kind: 'reference',
                 type: type || info.query.getBuiltinType(symbols_1.BuiltinType.Any),
-                get definition() { return getDefintionOf(info, reference); }
+                get definition() { return getDefinitionOf(info, reference); }
             });
         };
         for (var _i = 0, references_1 = references; _i < references_1.length; _i++) {
@@ -73,7 +73,7 @@ function getReferences(info) {
     compiler_1.templateVisitAll(visitor, info.templateAst);
     return result;
 }
-function getDefintionOf(info, ast) {
+function getDefinitionOf(info, ast) {
     if (info.fileName) {
         var templateOffset = info.offset;
         return [{
@@ -114,7 +114,7 @@ function getVarDeclarations(info, path) {
                 }
                 result.push({
                     name: name_1,
-                    kind: 'variable', type: type, get definition() { return getDefintionOf(info, variable); }
+                    kind: 'variable', type: type, get definition() { return getDefinitionOf(info, variable); }
                 });
             };
             for (var _i = 0, _a = current.variables; _i < _a.length; _i++) {

@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import { CompileDirectiveMetadata, CompileStylesheetMetadata } from './compile_metadata';
 import { UrlResolver } from './url_resolver';
 import { OutputContext } from './util';
@@ -20,8 +27,8 @@ export declare class StyleCompiler {
     private _shadowCss;
     constructor(_urlResolver: UrlResolver);
     compileComponent(outputCtx: OutputContext, comp: CompileDirectiveMetadata): CompiledStylesheet;
-    compileStyles(outputCtx: OutputContext, comp: CompileDirectiveMetadata, stylesheet: CompileStylesheetMetadata): CompiledStylesheet;
+    compileStyles(outputCtx: OutputContext, comp: CompileDirectiveMetadata, stylesheet: CompileStylesheetMetadata, shim?: boolean): CompiledStylesheet;
     needsStyleShim(comp: CompileDirectiveMetadata): boolean;
-    private _compileStyles(outputCtx, comp, stylesheet, isComponentStylesheet);
+    private _compileStyles(outputCtx, comp, stylesheet, shim, isComponentStylesheet);
     private _shimIfNeeded(style, shim);
 }

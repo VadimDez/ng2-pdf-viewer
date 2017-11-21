@@ -10,6 +10,11 @@ import { AnimationPlayer } from '@angular/animations';
  * @experimental
  */
 export declare class NoopAnimationDriver implements AnimationDriver {
+    validateStyleProperty(prop: string): boolean;
+    matchesElement(element: any, selector: string): boolean;
+    containsElement(elm1: any, elm2: any): boolean;
+    query(element: any, selector: string, multi: boolean): any[];
+    computeStyle(element: any, prop: string, defaultValue?: string): string;
     animate(element: any, keyframes: {
         [key: string]: string | number;
     }[], duration: number, delay: number, easing: string, previousPlayers?: any[]): AnimationPlayer;
@@ -19,6 +24,11 @@ export declare class NoopAnimationDriver implements AnimationDriver {
  */
 export declare abstract class AnimationDriver {
     static NOOP: AnimationDriver;
+    abstract validateStyleProperty(prop: string): boolean;
+    abstract matchesElement(element: any, selector: string): boolean;
+    abstract containsElement(elm1: any, elm2: any): boolean;
+    abstract query(element: any, selector: string, multi: boolean): any[];
+    abstract computeStyle(element: any, prop: string, defaultValue?: string): string;
     abstract animate(element: any, keyframes: {
         [key: string]: string | number;
     }[], duration: number, delay: number, easing?: string | null, previousPlayers?: any[]): any;

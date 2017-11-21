@@ -12,19 +12,16 @@
  * `Key` should not be created directly. {@link ReflectiveInjector} creates keys automatically when
  * resolving
  * providers.
- * @experimental
+ * @deprecated No replacement
  */
 export declare class ReflectiveKey {
     token: Object;
     id: number;
+    readonly displayName: string;
     /**
      * Private
      */
     constructor(token: Object, id: number);
-    /**
-     * Returns a stringified token.
-     */
-    readonly displayName: string;
     /**
      * Retrieves a `Key` for a token.
      */

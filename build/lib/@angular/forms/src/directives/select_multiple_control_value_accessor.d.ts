@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, OnDestroy, Provider, Renderer2 } from '@angular/core';
+import { ElementRef, OnDestroy, Renderer2, StaticProvider } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
-export declare const SELECT_MULTIPLE_VALUE_ACCESSOR: Provider;
+export declare const SELECT_MULTIPLE_VALUE_ACCESSOR: StaticProvider;
 /**
  * The accessor for writing a value and listening to changes on a select element.
  *

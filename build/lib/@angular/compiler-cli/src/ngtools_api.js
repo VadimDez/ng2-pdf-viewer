@@ -6,106 +6,75 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * This is a private API for the ngtools toolkit.
- *
- * This API should be stable for NG 2. It can be removed in NG 4..., but should be replaced by
- * something else.
- */
-var compiler_1 = require("@angular/compiler");
-var codegen_1 = require("./codegen");
-var compiler_host_1 = require("./compiler_host");
-var extractor_1 = require("./extractor");
-var ngtools_impl_1 = require("./ngtools_impl");
-var path_mapped_compiler_host_1 = require("./path_mapped_compiler_host");
-/**
- * A ModuleResolutionHostAdapter that overrides the readResource() method with the one
- * passed in the interface.
- */
-var CustomLoaderModuleResolutionHostAdapter = (function (_super) {
-    __extends(CustomLoaderModuleResolutionHostAdapter, _super);
-    function CustomLoaderModuleResolutionHostAdapter(_readResource, host) {
-        var _this = _super.call(this, host) || this;
-        _this._readResource = _readResource;
-        return _this;
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
     }
-    CustomLoaderModuleResolutionHostAdapter.prototype.readResource = function (path) { return this._readResource(path); };
-    return CustomLoaderModuleResolutionHostAdapter;
-}(compiler_host_1.ModuleResolutionHostAdapter));
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var compiler_host_1 = require("./transformers/compiler_host");
+var entry_points_1 = require("./transformers/entry_points");
 /**
  * @internal
- * @private
+ * @deprecatd Use ngtools_api2 instead!
  */
 var NgTools_InternalApi_NG_2 = (function () {
     function NgTools_InternalApi_NG_2() {
     }
     /**
      * @internal
-     * @private
      */
     NgTools_InternalApi_NG_2.codeGen = function (options) {
-        var hostContext = new CustomLoaderModuleResolutionHostAdapter(options.readResource, options.host);
-        var cliOptions = {
-            i18nFormat: options.i18nFormat,
-            i18nFile: options.i18nFile,
-            locale: options.locale,
-            missingTranslation: options.missingTranslation,
-            basePath: options.basePath
-        };
-        var ngOptions = options.angularCompilerOptions;
-        if (ngOptions.enableSummariesForJit === undefined) {
-            // default to false
-            ngOptions.enableSummariesForJit = false;
-        }
-        // Create the Code Generator.
-        var codeGenerator = codegen_1.CodeGenerator.create(ngOptions, cliOptions, options.program, options.host, hostContext);
-        return codeGenerator.codegen();
+        throw throwNotSupportedError();
     };
     /**
      * @internal
-     * @private
      */
     NgTools_InternalApi_NG_2.listLazyRoutes = function (options) {
-        var angularCompilerOptions = options.angularCompilerOptions;
-        var program = options.program;
-        var moduleResolutionHost = new compiler_host_1.ModuleResolutionHostAdapter(options.host);
-        var usePathMapping = !!angularCompilerOptions.rootDirs && angularCompilerOptions.rootDirs.length > 0;
-        var ngCompilerHost = usePathMapping ?
-            new path_mapped_compiler_host_1.PathMappedCompilerHost(program, angularCompilerOptions, moduleResolutionHost) :
-            new compiler_host_1.CompilerHost(program, angularCompilerOptions, moduleResolutionHost);
-        var symbolCache = new compiler_1.StaticSymbolCache();
-        var summaryResolver = new compiler_1.AotSummaryResolver(ngCompilerHost, symbolCache);
-        var symbolResolver = new compiler_1.StaticSymbolResolver(ngCompilerHost, symbolCache, summaryResolver);
-        var staticReflector = new compiler_1.StaticReflector(summaryResolver, symbolResolver);
-        var routeMap = ngtools_impl_1.listLazyRoutesOfModule(options.entryModule, ngCompilerHost, staticReflector);
-        return Object.keys(routeMap).reduce(function (acc, route) {
-            acc[route] = routeMap[route].absoluteFilePath;
-            return acc;
-        }, {});
+        // TODO(tbosch): Also throwNotSupportedError once Angular CLI 1.5.1 ships,
+        // as we only needed this to support Angular CLI 1.5.0 rc.*
+        var ngProgram = entry_points_1.createProgram({
+            rootNames: options.program.getRootFileNames(),
+            options: __assign({}, options.angularCompilerOptions, { collectAllErrors: true }),
+            host: options.host
+        });
+        var lazyRoutes = ngProgram.listLazyRoutes(options.entryModule);
+        // reset the referencedFiles that the ng.Program added to the SourceFiles
+        // as the host might be caching the source files!
+        for (var _i = 0, _a = options.program.getSourceFiles(); _i < _a.length; _i++) {
+            var sourceFile = _a[_i];
+            var originalReferences = compiler_host_1.getOriginalReferences(sourceFile);
+            if (originalReferences) {
+                sourceFile.referencedFiles = originalReferences;
+            }
+        }
+        var result = {};
+        lazyRoutes.forEach(function (lazyRoute) {
+            var route = lazyRoute.route;
+            var referencedFilePath = lazyRoute.referencedModule.filePath;
+            if (result[route] && result[route] != referencedFilePath) {
+                throw new Error("Duplicated path in loadChildren detected: \"" + route + "\" is used in 2 loadChildren, " +
+                    ("but they point to different modules \"(" + result[route] + " and ") +
+                    ("\"" + referencedFilePath + "\"). Webpack cannot distinguish on context and would fail to ") +
+                    'load the proper one.');
+            }
+            result[route] = referencedFilePath;
+        });
+        return result;
     };
     /**
      * @internal
-     * @private
      */
     NgTools_InternalApi_NG_2.extractI18n = function (options) {
-        var hostContext = new CustomLoaderModuleResolutionHostAdapter(options.readResource, options.host);
-        // Create the i18n extractor.
-        var locale = options.locale || null;
-        var extractor = extractor_1.Extractor.create(options.angularCompilerOptions, options.program, options.host, locale, hostContext);
-        return extractor.extract(options.i18nFormat, options.outFile || null);
+        throw throwNotSupportedError();
     };
     return NgTools_InternalApi_NG_2;
 }());
 exports.NgTools_InternalApi_NG_2 = NgTools_InternalApi_NG_2;
+function throwNotSupportedError() {
+    throw new Error("Please update @angular/cli. Angular 5+ requires at least Angular CLI 1.5+");
+}
 //# sourceMappingURL=ngtools_api.js.map

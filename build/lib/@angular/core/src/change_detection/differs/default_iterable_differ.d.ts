@@ -8,8 +8,8 @@ export declare class DefaultIterableDifferFactory implements IterableDifferFacto
  * @deprecated v4.0.0 - Should not be part of public API.
  */
 export declare class DefaultIterableDiffer<V> implements IterableDiffer<V>, IterableChanges<V> {
-    private _length;
-    private _collection;
+    readonly length: number;
+    readonly collection: V[] | Iterable<V> | null;
     private _linkedRecords;
     private _unlinkedRecords;
     private _previousItHead;
@@ -25,8 +25,6 @@ export declare class DefaultIterableDiffer<V> implements IterableDiffer<V>, Iter
     private _identityChangesTail;
     private _trackByFn;
     constructor(trackByFn?: TrackByFunction<V>);
-    readonly collection: V[] | Iterable<V> | null;
-    readonly length: number;
     forEachItem(fn: (record: IterableChangeRecord_<V>) => void): void;
     forEachOperation(fn: (item: IterableChangeRecord<V>, previousIndex: number | null, currentIndex: number | null) => void): void;
     forEachPreviousItem(fn: (record: IterableChangeRecord_<V>) => void): void;
@@ -39,7 +37,6 @@ export declare class DefaultIterableDiffer<V> implements IterableDiffer<V>, Iter
     check(collection: NgIterable<V>): boolean;
     readonly isDirty: boolean;
     private _addToRemovals(record);
-    toString(): string;
 }
 /**
  * @stable
@@ -50,5 +47,4 @@ export declare class IterableChangeRecord_<V> implements IterableChangeRecord<V>
     currentIndex: number | null;
     previousIndex: number | null;
     constructor(item: V, trackById: any);
-    toString(): string;
 }

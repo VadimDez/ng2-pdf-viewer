@@ -1,9 +1,16 @@
-import { PlatformRef, Provider } from '@angular/core';
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+import { PlatformRef, StaticProvider } from '@angular/core';
 export * from './private_export_testing';
 /**
  * @stable
  */
-export declare const platformBrowserDynamicTesting: (extraProviders?: Provider[] | undefined) => PlatformRef;
+export declare const platformBrowserDynamicTesting: (extraProviders?: StaticProvider[] | undefined) => PlatformRef;
 /**
  * NgModule for testing.
  *

@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { EventEmitter } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup } from '../model';
+import { AfterViewInit, EventEmitter } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, FormHooks } from '../model';
 import { ControlContainer } from './control_container';
 import { Form } from './form_interface';
 import { NgControl } from './ng_control';
@@ -36,6 +36,13 @@ export declare const formDirectiveProvider: any;
  * triggered a form submission. The `ngSubmit` event will be emitted with the original form
  * submission event.
  *
+ * In template driven forms, all `<form>` tags are automatically tagged as `NgForm`.
+ * If you want to import the `FormsModule` but skip its usage in some forms,
+ * for example, to use native HTML5 validation, you can add `ngNoForm` and the `<form>`
+ * tags won't create an `NgForm` directive. In reactive forms, using `ngNoForm` is
+ * unnecessary because the `<form>` tags are inert. In that case, you would
+ * refrain from using the `formGroup` directive.
+ *
  * {@example forms/ts/simpleForm/simple_form_example.ts region='Component'}
  *
  * * **npm package**: `@angular/forms`
@@ -44,12 +51,30 @@ export declare const formDirectiveProvider: any;
  *
  *  @stable
  */
-export declare class NgForm extends ControlContainer implements Form {
-    private _submitted;
+export declare class NgForm extends ControlContainer implements Form, AfterViewInit {
+    readonly submitted: boolean;
+    private _directives;
     form: FormGroup;
     ngSubmit: EventEmitter<{}>;
+    /**
+     * Options for the `NgForm` instance. Accepts the following properties:
+     *
+     * **updateOn**: Serves as the default `updateOn` value for all child `NgModels` below it
+     * (unless a child has explicitly set its own value for this in `ngModelOptions`).
+     * Potential values: `'change'` | `'blur'` | `'submit'`
+     *
+     * ```html
+     * <form [ngFormOptions]="{updateOn: 'blur'}">
+     *    <input name="one" ngModel>  <!-- this ngModel will update on blur -->
+     * </form>
+     * ```
+     *
+     */
+    options: {
+        updateOn?: FormHooks;
+    };
     constructor(validators: any[], asyncValidators: any[]);
-    readonly submitted: boolean;
+    ngAfterViewInit(): void;
     readonly formDirective: Form;
     readonly control: FormGroup;
     readonly path: string[];
@@ -69,4 +94,5 @@ export declare class NgForm extends ControlContainer implements Form {
     onSubmit($event: Event): boolean;
     onReset(): void;
     resetForm(value?: any): void;
+    private _setUpdateStrategy();
 }

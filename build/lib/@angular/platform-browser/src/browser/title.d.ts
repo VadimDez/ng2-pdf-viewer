@@ -13,7 +13,6 @@ export declare class Title {
     constructor(_doc: any);
     /**
      * Get the title of the current HTML document.
-     * @returns {string}
      */
     getTitle(): string;
     /**

@@ -10,7 +10,7 @@ export declare const JSONP_ERR_WRONG_RESPONSE_TYPE = "JSONP requests must use Js
  *
  * In the browser, this should always be the `window` object.
  *
- * @experimental
+ * @stable
  */
 export declare abstract class JsonpCallbackContext {
     [key: string]: (data: any) => void;
@@ -19,7 +19,7 @@ export declare abstract class JsonpCallbackContext {
  * `HttpBackend` that only processes `HttpRequest` with the JSONP method,
  * by performing JSONP style requests.
  *
- * @experimental
+ * @stable
  */
 export declare class JsonpClientBackend implements HttpBackend {
     private callbackMap;
@@ -38,7 +38,7 @@ export declare class JsonpClientBackend implements HttpBackend {
  * An `HttpInterceptor` which identifies requests with the method JSONP and
  * shifts them to the `JsonpClientBackend`.
  *
- * @experimental
+ * @stable
  */
 export declare class JsonpInterceptor {
     private jsonp;

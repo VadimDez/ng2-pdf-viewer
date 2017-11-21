@@ -15,4 +15,6 @@ export declare function isPropertyUpdated(changes: {
     [key: string]: any;
 }, viewModel: any): boolean;
 export declare function isBuiltInAccessor(valueAccessor: ControlValueAccessor): boolean;
+export declare function syncPendingControls(form: FormGroup, directives: NgControl[]): void;
 export declare function selectValueAccessor(dir: NgControl, valueAccessors: ControlValueAccessor[]): ControlValueAccessor | null;
+export declare function removeDir<T>(list: T[], el: T): void;

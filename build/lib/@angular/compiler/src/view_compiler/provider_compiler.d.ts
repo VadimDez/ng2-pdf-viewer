@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ɵNodeFlags as NodeFlags } from '@angular/core';
 import { CompileDiDependencyMetadata, CompileEntryComponentMetadata } from '../compile_metadata';
 import { CompileReflector } from '../compile_reflector';
+import { NodeFlags } from '../core';
 import { LifecycleHooks } from '../lifecycle_reflector';
 import * as o from '../output/output_ast';
 import { ProviderAst } from '../template_parser/template_ast';

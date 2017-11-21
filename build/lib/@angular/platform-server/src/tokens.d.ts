@@ -21,3 +21,10 @@ export interface PlatformConfig {
  * @experimental
  */
 export declare const INITIAL_CONFIG: InjectionToken<PlatformConfig>;
+/**
+ * A function that will be executed when calling `renderModuleFactory` or `renderModule` just
+ * before current platform state is rendered to string.
+ *
+ * @experimental
+ */
+export declare const BEFORE_APP_SERIALIZED: InjectionToken<(() => void)[]>;

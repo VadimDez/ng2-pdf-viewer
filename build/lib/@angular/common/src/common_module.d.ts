@@ -5,3 +5,10 @@
  */
 export declare class CommonModule {
 }
+/**
+ * A module that contains the deprecated i18n pipes.
+ *
+ * @deprecated from v5
+ */
+export declare class DeprecatedI18NPipesModule {
+}

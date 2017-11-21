@@ -69,18 +69,6 @@ export interface AttributeDecorator {
      *
      * {@example core/ts/metadata/metadata.ts region='attributeFactory'}
      *
-     * ### Example as ES5 DSL
-     *
-     * ```
-     * var MyComponent = ng
-     *   .Component({...})
-     *   .Class({
-     *     constructor: [new ng.Attribute('title'), function(title) {
-     *       ...
-     *     }]
-     *   })
-     * ```
-     *
      * ### Example as ES5 annotation
      *
      * ```

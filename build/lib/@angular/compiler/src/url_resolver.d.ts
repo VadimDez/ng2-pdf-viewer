@@ -5,19 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { InjectionToken } from '@angular/core';
 /**
  * Create a {@link UrlResolver} with no package prefix.
  */
 export declare function createUrlResolverWithoutPackagePrefix(): UrlResolver;
 export declare function createOfflineCompileUrlResolver(): UrlResolver;
-/**
- * A default provider for {@link PACKAGE_ROOT_URL} that maps to '/'.
- */
-export declare const DEFAULT_PACKAGE_URL_PROVIDER: {
-    provide: InjectionToken<string>;
-    useValue: string;
-};
 /**
  * Used by the {@link Compiler} when resolving HTML and CSS template URLs.
  *
@@ -34,19 +26,13 @@ export declare const DEFAULT_PACKAGE_URL_PROVIDER: {
  * Attacker-controlled data introduced by a template could expose your
  * application to XSS risks. For more detail, see the [Security Guide](http://g.co/ng/security).
  */
-export declare class UrlResolver {
-    private _packagePrefix;
-    constructor(_packagePrefix?: string | null);
-    /**
-     * Resolves the `url` given the `baseUrl`:
-     * - when the `url` is null, the `baseUrl` is returned,
-     * - if `url` is relative ('path/to/here', './path/to/here'), the resolved url is a combination of
-     * `baseUrl` and `url`,
-     * - if `url` is absolute (it has a scheme: 'http://', 'https://' or start with '/'), the `url` is
-     * returned as is (ignoring the `baseUrl`)
-     */
+export interface UrlResolver {
     resolve(baseUrl: string, url: string): string;
 }
+export interface UrlResolverCtor {
+    new (packagePrefix?: string | null): UrlResolver;
+}
+export declare const UrlResolver: UrlResolverCtor;
 /**
  * Extract the scheme of a URL.
  */

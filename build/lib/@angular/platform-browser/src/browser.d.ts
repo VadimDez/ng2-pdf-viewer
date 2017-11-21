@@ -1,16 +1,16 @@
-import { ErrorHandler, ModuleWithProviders, PlatformRef, Provider } from '@angular/core';
-export declare const INTERNAL_BROWSER_PLATFORM_PROVIDERS: Provider[];
+import { ErrorHandler, ModuleWithProviders, PlatformRef, StaticProvider } from '@angular/core';
+export declare const INTERNAL_BROWSER_PLATFORM_PROVIDERS: StaticProvider[];
 /**
  * @security Replacing built-in sanitization providers exposes the application to XSS risks.
  * Attacker-controlled data introduced by an unsanitized provider could expose your
  * application to XSS risks. For more detail, see the [Security Guide](http://g.co/ng/security).
  * @experimental
  */
-export declare const BROWSER_SANITIZATION_PROVIDERS: Array<any>;
+export declare const BROWSER_SANITIZATION_PROVIDERS: StaticProvider[];
 /**
  * @stable
  */
-export declare const platformBrowser: (extraProviders?: Provider[]) => PlatformRef;
+export declare const platformBrowser: (extraProviders?: StaticProvider[]) => PlatformRef;
 export declare function initDomAdapter(): void;
 export declare function errorHandler(): ErrorHandler;
 export declare function _document(): any;

@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { PlatformRef } from './application_ref';
-import { Provider } from './di';
+import { StaticProvider } from './di';
 /**
  * This platform has to be included in any other platform
  *
  * @experimental
  */
-export declare const platformCore: (extraProviders?: Provider[] | undefined) => PlatformRef;
+export declare const platformCore: (extraProviders?: StaticProvider[] | undefined) => PlatformRef;

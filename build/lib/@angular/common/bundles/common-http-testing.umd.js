@@ -1,150 +1,47 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v5.0.2
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common/http'), require('@angular/core'), require('rxjs/Observable')) :
-	typeof define === 'function' && define.amd ? define(['exports', '@angular/common/http', '@angular/core', 'rxjs/Observable'], factory) :
-	(factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}, global.ng.common.http = global.ng.common.http || {}, global.ng.common.http.testing = global.ng.common.http.testing || {}),global.ng.common.http,global.ng.core,global.Rx));
+	typeof define === 'function' && define.amd ? define('@angular/common/http/testing', ['exports', '@angular/common/http', '@angular/core', 'rxjs/Observable'], factory) :
+	(factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}, global.ng.common.http = global.ng.common.http || {}, global.ng.common.http.testing = {}),global.ng.common.http,global.ng.core,global.Rx));
 }(this, (function (exports,_angular_common_http,_angular_core,rxjs_Observable) { 'use strict';
 
 /**
- * @license Angular v4.3.3
+ * @license Angular v5.0.2
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
  */
+/**
+ * Defines a matcher for requests based on URL, method, or both.
+ *
+ * \@stable
+ * @record
+ */
+
 /**
  * Controller to be injected into tests, that allows for mocking and flushing
  * of requests.
  *
- * \@experimental
+ * \@stable
  * @abstract
  */
 var HttpTestingController = (function () {
     function HttpTestingController() {
     }
-    /**
-     * Search for requests that match the given parameter, without any expectations.
-     * @abstract
-     * @param {?} match
-     * @return {?}
-     */
-    HttpTestingController.prototype.match = function (match) { };
-    /**
-     * Expect that a single request has been made which matches the given URL, and return its
-     * mock.
-     *
-     * If no such request has been made, or more than one such request has been made, fail with an
-     * error message including the given request description, if any.
-     * @abstract
-     * @param {?} url
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectOne = function (url, description) { };
-    /**
-     * Expect that a single request has been made which matches the given parameters, and return
-     * its mock.
-     *
-     * If no such request has been made, or more than one such request has been made, fail with an
-     * error message including the given request description, if any.
-     * @abstract
-     * @param {?} params
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectOne = function (params, description) { };
-    /**
-     * Expect that a single request has been made which matches the given predicate function, and
-     * return its mock.
-     *
-     * If no such request has been made, or more than one such request has been made, fail with an
-     * error message including the given request description, if any.
-     * @abstract
-     * @param {?} matchFn
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectOne = function (matchFn, description) { };
-    /**
-     * Expect that a single request has been made which matches the given condition, and return
-     * its mock.
-     *
-     * If no such request has been made, or more than one such request has been made, fail with an
-     * error message including the given request description, if any.
-     * @abstract
-     * @param {?} match
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectOne = function (match, description) { };
-    /**
-     * Expect that no requests have been made which match the given URL.
-     *
-     * If a matching request has been made, fail with an error message including the given request
-     * description, if any.
-     * @abstract
-     * @param {?} url
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectNone = function (url, description) { };
-    /**
-     * Expect that no requests have been made which match the given parameters.
-     *
-     * If a matching request has been made, fail with an error message including the given request
-     * description, if any.
-     * @abstract
-     * @param {?} params
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectNone = function (params, description) { };
-    /**
-     * Expect that no requests have been made which match the given predicate function.
-     *
-     * If a matching request has been made, fail with an error message including the given request
-     * description, if any.
-     * @abstract
-     * @param {?} matchFn
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectNone = function (matchFn, description) { };
-    /**
-     * Expect that no requests have been made which match the given condition.
-     *
-     * If a matching request has been made, fail with an error message including the given request
-     * description, if any.
-     * @abstract
-     * @param {?} match
-     * @param {?=} description
-     * @return {?}
-     */
-    HttpTestingController.prototype.expectNone = function (match, description) { };
-    /**
-     * Verify that no unmatched requests are outstanding.
-     *
-     * If any requests are outstanding, fail with an error message indicating which requests were not
-     * handled.
-     *
-     * If `ignoreCancelled` is not set (the default), `verify()` will also fail if cancelled requests
-     * were not explicitly matched.
-     * @abstract
-     * @param {?=} opts
-     * @return {?}
-     */
-    HttpTestingController.prototype.verify = function (opts) { };
     return HttpTestingController;
 }());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -158,13 +55,9 @@ var HttpTestingController = (function () {
  * This interface allows access to the underlying `HttpRequest`, and allows
  * responding with `HttpEvent`s or `HttpErrorResponse`s.
  *
- * \@experimental
+ * \@stable
  */
 var TestRequest = (function () {
-    /**
-     * @param {?} request
-     * @param {?} observer
-     */
     function TestRequest(request, observer) {
         this.request = request;
         this.observer = observer;
@@ -176,12 +69,21 @@ var TestRequest = (function () {
     Object.defineProperty(TestRequest.prototype, "cancelled", {
         /**
          * Whether the request was cancelled after it was sent.
+         */
+        get: /**
+         * Whether the request was cancelled after it was sent.
          * @return {?}
          */
-        get: function () { return this._cancelled; },
+        function () { return this._cancelled; },
         enumerable: true,
         configurable: true
     });
+    /**
+     * Resolve the request by returning a body plus additional HTTP information (such as response
+     * headers) if provided.
+     *
+     * Both successful and unsuccessful responses can be delivered via `flush()`.
+     */
     /**
      * Resolve the request by returning a body plus additional HTTP information (such as response
      * headers) if provided.
@@ -191,7 +93,16 @@ var TestRequest = (function () {
      * @param {?=} opts
      * @return {?}
      */
-    TestRequest.prototype.flush = function (body, opts) {
+    TestRequest.prototype.flush = /**
+     * Resolve the request by returning a body plus additional HTTP information (such as response
+     * headers) if provided.
+     *
+     * Both successful and unsuccessful responses can be delivered via `flush()`.
+     * @param {?} body
+     * @param {?=} opts
+     * @return {?}
+     */
+    function (body, opts) {
         if (opts === void 0) { opts = {}; }
         if (this.cancelled) {
             throw new Error("Cannot flush a cancelled request.");
@@ -223,11 +134,20 @@ var TestRequest = (function () {
     };
     /**
      * Resolve the request by returning an `ErrorEvent` (e.g. simulating a network failure).
+     */
+    /**
+     * Resolve the request by returning an `ErrorEvent` (e.g. simulating a network failure).
      * @param {?} error
      * @param {?=} opts
      * @return {?}
      */
-    TestRequest.prototype.error = function (error, opts) {
+    TestRequest.prototype.error = /**
+     * Resolve the request by returning an `ErrorEvent` (e.g. simulating a network failure).
+     * @param {?} error
+     * @param {?=} opts
+     * @return {?}
+     */
+    function (error, opts) {
         if (opts === void 0) { opts = {}; }
         if (this.cancelled) {
             throw new Error("Cannot return an error for a cancelled request.");
@@ -247,10 +167,20 @@ var TestRequest = (function () {
     /**
      * Deliver an arbitrary `HttpEvent` (such as a progress event) on the response stream for this
      * request.
+     */
+    /**
+     * Deliver an arbitrary `HttpEvent` (such as a progress event) on the response stream for this
+     * request.
      * @param {?} event
      * @return {?}
      */
-    TestRequest.prototype.event = function (event) {
+    TestRequest.prototype.event = /**
+     * Deliver an arbitrary `HttpEvent` (such as a progress event) on the response stream for this
+     * request.
+     * @param {?} event
+     * @return {?}
+     */
+    function (event) {
         if (this.cancelled) {
             throw new Error("Cannot send events to a cancelled request.");
         }
@@ -358,6 +288,11 @@ function _maybeConvertBody(responseType, body) {
             throw new Error("Unsupported responseType: " + responseType);
     }
 }
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -374,7 +309,7 @@ function _maybeConvertBody(responseType, body) {
  * requests were made and then flush them. In the end, a verify() method asserts
  * that no unexpected requests were made.
  *
- * \@experimental
+ * \@stable
  */
 var HttpClientTestingBackend = (function () {
     function HttpClientTestingBackend() {
@@ -385,10 +320,18 @@ var HttpClientTestingBackend = (function () {
     }
     /**
      * Handle an incoming request by queueing it in the list of open requests.
+     */
+    /**
+     * Handle an incoming request by queueing it in the list of open requests.
      * @param {?} req
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.handle = function (req) {
+    HttpClientTestingBackend.prototype.handle = /**
+     * Handle an incoming request by queueing it in the list of open requests.
+     * @param {?} req
+     * @return {?}
+     */
+    function (req) {
         var _this = this;
         return new rxjs_Observable.Observable(function (observer) {
             var /** @type {?} */ testReq = new TestRequest(req, observer);
@@ -402,7 +345,12 @@ var HttpClientTestingBackend = (function () {
      * @param {?} match
      * @return {?}
      */
-    HttpClientTestingBackend.prototype._match = function (match) {
+    HttpClientTestingBackend.prototype._match = /**
+     * Helper function to search for requests in the list of open requests.
+     * @param {?} match
+     * @return {?}
+     */
+    function (match) {
         if (typeof match === 'string') {
             return this.open.filter(function (testReq) { return testReq.request.urlWithParams === match; });
         }
@@ -410,17 +358,29 @@ var HttpClientTestingBackend = (function () {
             return this.open.filter(function (testReq) { return match(testReq.request); });
         }
         else {
-            return this.open.filter(function (testReq) { return (!match.method || testReq.request.method === match.method.toUpperCase()) &&
-                (!match.url || testReq.request.urlWithParams === match.url); });
+            return this.open.filter(function (testReq) {
+                return (!match.method || testReq.request.method === match.method.toUpperCase()) &&
+                    (!match.url || testReq.request.urlWithParams === match.url);
+            });
         }
     };
+    /**
+     * Search for requests in the list of open requests, and return all that match
+     * without asserting anything about the number of matches.
+     */
     /**
      * Search for requests in the list of open requests, and return all that match
      * without asserting anything about the number of matches.
      * @param {?} match
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.match = function (match) {
+    HttpClientTestingBackend.prototype.match = /**
+     * Search for requests in the list of open requests, and return all that match
+     * without asserting anything about the number of matches.
+     * @param {?} match
+     * @return {?}
+     */
+    function (match) {
         var _this = this;
         var /** @type {?} */ results = this._match(match);
         results.forEach(function (result) {
@@ -437,11 +397,28 @@ var HttpClientTestingBackend = (function () {
      *
      * Requests returned through this API will no longer be in the list of open requests,
      * and thus will not match twice.
+     */
+    /**
+     * Expect that a single outstanding request matches the given matcher, and return
+     * it.
+     *
+     * Requests returned through this API will no longer be in the list of open requests,
+     * and thus will not match twice.
      * @param {?} match
      * @param {?=} description
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.expectOne = function (match, description) {
+    HttpClientTestingBackend.prototype.expectOne = /**
+     * Expect that a single outstanding request matches the given matcher, and return
+     * it.
+     *
+     * Requests returned through this API will no longer be in the list of open requests,
+     * and thus will not match twice.
+     * @param {?} match
+     * @param {?=} description
+     * @return {?}
+     */
+    function (match, description) {
         description = description || this.descriptionFromMatcher(match);
         var /** @type {?} */ matches = this.match(match);
         if (matches.length > 1) {
@@ -455,11 +432,22 @@ var HttpClientTestingBackend = (function () {
     /**
      * Expect that no outstanding requests match the given matcher, and throw an error
      * if any do.
+     */
+    /**
+     * Expect that no outstanding requests match the given matcher, and throw an error
+     * if any do.
      * @param {?} match
      * @param {?=} description
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.expectNone = function (match, description) {
+    HttpClientTestingBackend.prototype.expectNone = /**
+     * Expect that no outstanding requests match the given matcher, and throw an error
+     * if any do.
+     * @param {?} match
+     * @param {?=} description
+     * @return {?}
+     */
+    function (match, description) {
         description = description || this.descriptionFromMatcher(match);
         var /** @type {?} */ matches = this.match(match);
         if (matches.length > 0) {
@@ -468,10 +456,18 @@ var HttpClientTestingBackend = (function () {
     };
     /**
      * Validate that there are no outstanding requests.
+     */
+    /**
+     * Validate that there are no outstanding requests.
      * @param {?=} opts
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.verify = function (opts) {
+    HttpClientTestingBackend.prototype.verify = /**
+     * Validate that there are no outstanding requests.
+     * @param {?=} opts
+     * @return {?}
+     */
+    function (opts) {
         if (opts === void 0) { opts = {}; }
         var /** @type {?} */ open = this.open;
         // It's possible that some requests may be cancelled, and this is expected.
@@ -494,7 +490,11 @@ var HttpClientTestingBackend = (function () {
      * @param {?} matcher
      * @return {?}
      */
-    HttpClientTestingBackend.prototype.descriptionFromMatcher = function (matcher) {
+    HttpClientTestingBackend.prototype.descriptionFromMatcher = /**
+     * @param {?} matcher
+     * @return {?}
+     */
+    function (matcher) {
         if (typeof matcher === 'string') {
             return "Match URL: " + matcher;
         }
@@ -507,15 +507,18 @@ var HttpClientTestingBackend = (function () {
             return "Match by function: " + matcher.name;
         }
     };
+    HttpClientTestingBackend.decorators = [
+        { type: _angular_core.Injectable },
+    ];
+    /** @nocollapse */
+    HttpClientTestingBackend.ctorParameters = function () { return []; };
     return HttpClientTestingBackend;
 }());
-HttpClientTestingBackend.decorators = [
-    { type: _angular_core.Injectable },
-];
+
 /**
- * @nocollapse
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
  */
-HttpClientTestingBackend.ctorParameters = function () { return []; };
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -528,29 +531,27 @@ HttpClientTestingBackend.ctorParameters = function () { return []; };
  *
  * Inject `HttpTestingController` to expect and flush requests in your tests.
  *
- * \@experimental
+ * \@stable
  */
 var HttpClientTestingModule = (function () {
     function HttpClientTestingModule() {
     }
+    HttpClientTestingModule.decorators = [
+        { type: _angular_core.NgModule, args: [{
+                    imports: [
+                        _angular_common_http.HttpClientModule,
+                    ],
+                    providers: [
+                        HttpClientTestingBackend,
+                        { provide: _angular_common_http.HttpBackend, useExisting: HttpClientTestingBackend },
+                        { provide: HttpTestingController, useExisting: HttpClientTestingBackend },
+                    ],
+                },] },
+    ];
+    /** @nocollapse */
+    HttpClientTestingModule.ctorParameters = function () { return []; };
     return HttpClientTestingModule;
 }());
-HttpClientTestingModule.decorators = [
-    { type: _angular_core.NgModule, args: [{
-                imports: [
-                    _angular_common_http.HttpClientModule,
-                ],
-                providers: [
-                    HttpClientTestingBackend,
-                    { provide: _angular_common_http.HttpBackend, useExisting: HttpClientTestingBackend },
-                    { provide: HttpTestingController, useExisting: HttpClientTestingBackend },
-                ],
-            },] },
-];
-/**
- * @nocollapse
- */
-HttpClientTestingModule.ctorParameters = function () { return []; };
 
 exports.HttpTestingController = HttpTestingController;
 exports.HttpClientTestingModule = HttpClientTestingModule;

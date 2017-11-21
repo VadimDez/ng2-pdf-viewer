@@ -11,7 +11,7 @@ import { AnimationRenderer } from './animation_renderer';
 export declare class BrowserAnimationBuilder extends AnimationBuilder {
     private _nextAnimationId;
     private _renderer;
-    constructor(rootRenderer: RendererFactory2);
+    constructor(rootRenderer: RendererFactory2, doc: any);
     build(animation: AnimationMetadata | AnimationMetadata[]): AnimationFactory;
 }
 export declare class BrowserAnimationFactory extends AnimationFactory {

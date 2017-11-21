@@ -1,13 +1,6 @@
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * Generated bundle index. Do not edit.
  */
-/**
- * @module
- * @description
- * Entry point for all public APIs of the platform-browser-dynamic package.
- */
-export * from './src/platform-browser-dynamic';
+export * from './public_api';
+export { JitCompilerFactory as ɵa } from './src/compiler_factory';
+export { CachedResourceLoader as ɵb } from './src/resource_loader/resource_loader_cache';

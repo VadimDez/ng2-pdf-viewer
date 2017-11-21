@@ -17,7 +17,7 @@ export declare function checkAndUpdateBinding(view: ViewData, def: NodeDef, bind
 export declare function checkBindingNoChanges(view: ViewData, def: NodeDef, bindingIdx: number, value: any): void;
 export declare function markParentViewsForCheck(view: ViewData): void;
 export declare function markParentViewsForCheckProjectedViews(view: ViewData, endView: ViewData): void;
-export declare function dispatchEvent(view: ViewData, nodeIndex: number, eventName: string, event: any): boolean;
+export declare function dispatchEvent(view: ViewData, nodeIndex: number, eventName: string, event: any): boolean | undefined;
 export declare function declaredViewContainer(view: ViewData): ElementData | null;
 /**
  * for component views, this is the host element.

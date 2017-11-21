@@ -28,10 +28,6 @@ export declare class DebugNode {
         [key: string]: any;
     };
     readonly providerTokens: any[];
-    /**
-     * @deprecated since v4
-     */
-    readonly source: string;
 }
 /**
  * @experimental All debugging apis are currently experimental.

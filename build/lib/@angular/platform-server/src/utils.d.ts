@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { NgModuleFactory, Provider, Type } from '@angular/core';
+import { NgModuleFactory, StaticProvider, Type } from '@angular/core';
 /**
  * Renders a Module to string.
  *
@@ -21,7 +21,7 @@ import { NgModuleFactory, Provider, Type } from '@angular/core';
 export declare function renderModule<T>(module: Type<T>, options: {
     document?: string;
     url?: string;
-    extraProviders?: Provider[];
+    extraProviders?: StaticProvider[];
 }): Promise<string>;
 /**
  * Renders a {@link NgModuleFactory} to string.
@@ -35,5 +35,5 @@ export declare function renderModule<T>(module: Type<T>, options: {
 export declare function renderModuleFactory<T>(moduleFactory: NgModuleFactory<T>, options: {
     document?: string;
     url?: string;
-    extraProviders?: Provider[];
+    extraProviders?: StaticProvider[];
 }): Promise<string>;

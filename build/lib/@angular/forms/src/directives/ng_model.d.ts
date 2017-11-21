@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { EventEmitter, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { FormControl } from '../model';
+import { FormControl, FormHooks } from '../model';
 import { ControlContainer } from './control_container';
 import { ControlValueAccessor } from './control_value_accessor';
 import { NgControl } from './ng_control';
@@ -71,25 +71,64 @@ export declare const formControlBinding: any;
  *  @stable
  */
 export declare class NgModel extends NgControl implements OnChanges, OnDestroy {
+    readonly control: FormControl;
     viewModel: any;
     name: string;
     isDisabled: boolean;
     model: any;
+    /**
+     * Options object for this `ngModel` instance. You can configure the following properties:
+     *
+     * **name**: An alternative to setting the name attribute on the form control element.
+     * Sometimes, especially with custom form components, the name attribute might be used
+     * as an `@Input` property for a different purpose. In cases like these, you can configure
+     * the `ngModel` name through this option.
+     *
+     * ```html
+     * <form>
+     *   <my-person-control name="Nancy" ngModel [ngModelOptions]="{name: 'user'}">
+     *   </my-person-control>
+     * </form>
+     * <!-- form value: {user: ''} -->
+     * ```
+     *
+     * **standalone**: Defaults to false. If this is set to true, the `ngModel` will not
+     * register itself with its parent form, and will act as if it's not in the form. This
+     * can be handy if you have form meta-controls, a.k.a. form elements nested in
+     * the `<form>` tag that control the display of the form, but don't contain form data.
+     *
+     * ```html
+     * <form>
+     *   <input name="login" ngModel placeholder="Login">
+     *   <input type="checkbox" ngModel [ngModelOptions]="{standalone: true}"> Show more options?
+     * </form>
+     * <!-- form value: {login: ''} -->
+     * ```
+     *
+     * **updateOn**: Defaults to `'change'`. Defines the event upon which the form control
+     * value and validity will update. Also accepts `'blur'` and `'submit'`.
+     *
+     * ```html
+     * <input [(ngModel)]="firstName" [ngModelOptions]="{updateOn: 'blur'}">
+     * ```
+     *
+     */
     options: {
         name?: string;
         standalone?: boolean;
+        updateOn?: FormHooks;
     };
     update: EventEmitter<{}>;
     constructor(parent: ControlContainer, validators: Array<Validator | ValidatorFn>, asyncValidators: Array<AsyncValidator | AsyncValidatorFn>, valueAccessors: ControlValueAccessor[]);
     ngOnChanges(changes: SimpleChanges): void;
     ngOnDestroy(): void;
-    readonly control: FormControl;
     readonly path: string[];
     readonly formDirective: any;
     readonly validator: ValidatorFn | null;
     readonly asyncValidator: AsyncValidatorFn | null;
     viewToModelUpdate(newValue: any): void;
     private _setUpControl();
+    private _setUpdateStrategy();
     private _isStandalone();
     private _setUpStandalone();
     private _checkForErrors();

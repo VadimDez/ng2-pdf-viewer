@@ -2,7 +2,7 @@ import { KeyValueChangeRecord, KeyValueChanges, KeyValueDiffer, KeyValueDifferFa
 export declare class DefaultKeyValueDifferFactory<K, V> implements KeyValueDifferFactory {
     constructor();
     supports(obj: any): boolean;
-    create<K, V>(): DefaultKeyValueDiffer<K, V>;
+    create<K, V>(): KeyValueDiffer<K, V>;
 }
 export declare class DefaultKeyValueDiffer<K, V> implements KeyValueDiffer<K, V>, KeyValueChanges<K, V> {
     private _records;

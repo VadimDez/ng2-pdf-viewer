@@ -24,12 +24,13 @@ export declare const formDirectiveProvider: any;
  *
  * **Set value**: You can set the form's initial value when instantiating the
  * {@link FormGroup}, or you can set it programmatically later using the {@link FormGroup}'s
- * {@link AbstractControl#setValue} or {@link AbstractControl#patchValue} methods.
+ * {@link AbstractControl#setValue setValue} or {@link AbstractControl#patchValue patchValue}
+ * methods.
  *
  * **Listen to value**: If you want to listen to changes in the value of the form, you can subscribe
- * to the {@link FormGroup}'s {@link AbstractControl#valueChanges} event.  You can also listen to
- * its {@link AbstractControl#statusChanges} event to be notified when the validation status is
- * re-calculated.
+ * to the {@link FormGroup}'s {@link AbstractControl#valueChanges valueChanges} event.  You can also
+ * listen to its {@link AbstractControl#statusChanges statusChanges} event to be notified when the
+ * validation status is re-calculated.
  *
  * Furthermore, you can listen to the directive's `ngSubmit` event to be notified when the user has
  * triggered a form submission. The `ngSubmit` event will be emitted with the original form
@@ -50,14 +51,13 @@ export declare const formDirectiveProvider: any;
 export declare class FormGroupDirective extends ControlContainer implements Form, OnChanges {
     private _validators;
     private _asyncValidators;
-    private _submitted;
+    readonly submitted: boolean;
     private _oldForm;
     directives: FormControlName[];
     form: FormGroup;
     ngSubmit: EventEmitter<{}>;
     constructor(_validators: any[], _asyncValidators: any[]);
     ngOnChanges(changes: SimpleChanges): void;
-    readonly submitted: boolean;
     readonly formDirective: Form;
     readonly control: FormGroup;
     readonly path: string[];

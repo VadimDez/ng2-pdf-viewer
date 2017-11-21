@@ -6,13 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Observable } from 'rxjs/Observable';
-import { ErrorHandler } from '../src/error_handler';
-import { ApplicationInitStatus } from './application_init';
-import { Console } from './console';
-import { InjectionToken, Injector, Provider } from './di';
+import { InjectionToken, Injector, StaticProvider } from './di';
 import { CompilerOptions } from './linker/compiler';
 import { ComponentFactory, ComponentRef } from './linker/component_factory';
-import { ComponentFactoryResolver } from './linker/component_factory_resolver';
 import { NgModuleFactory, NgModuleRef } from './linker/ng_module_factory';
 import { ViewRef } from './linker/view_ref';
 import { Type } from './type';
@@ -60,7 +56,7 @@ export declare function createPlatform(injector: Injector): PlatformRef;
  *
  * @experimental APIs related to application bootstrap are currently under review.
  */
-export declare function createPlatformFactory(parentPlatformFactory: ((extraProviders?: Provider[]) => PlatformRef) | null, name: string, providers?: Provider[]): (extraProviders?: Provider[]) => PlatformRef;
+export declare function createPlatformFactory(parentPlatformFactory: ((extraProviders?: StaticProvider[]) => PlatformRef) | null, name: string, providers?: StaticProvider[]): (extraProviders?: StaticProvider[]) => PlatformRef;
 /**
  * Checks that there currently is a platform which contains the given token as a provider.
  *
@@ -80,6 +76,21 @@ export declare function destroyPlatform(): void;
  */
 export declare function getPlatform(): PlatformRef | null;
 /**
+ * Provides additional options to the bootstraping process.
+ *
+ * @stable
+ */
+export interface BootstrapOptions {
+    /**
+     * Optionally specify which `NgZone` should be used.
+     *
+     * - Provide your own `NgZone` instance.
+     * - `zone.js` - Use default `NgZone` which requires `Zone.js`.
+     * - `noop` - Use `NoopNgZone` which does nothing.
+     */
+    ngZone?: NgZone | 'zone.js' | 'noop';
+}
+/**
  * The Angular platform is the entry point for Angular on a web page. Each page
  * has exactly one platform, and services (such as reflection) which are common
  * to every Angular application running on the page are bound in its scope.
@@ -89,7 +100,11 @@ export declare function getPlatform(): PlatformRef | null;
  *
  * @stable
  */
-export declare abstract class PlatformRef {
+export declare class PlatformRef {
+    private _injector;
+    private _modules;
+    private _destroyListeners;
+    private _destroyed;
     /**
      * Creates an instance of an `@NgModule` for the given platform
      * for offline compilation.
@@ -113,7 +128,7 @@ export declare abstract class PlatformRef {
      *
      * @experimental APIs related to application bootstrap are currently under review.
      */
-    abstract bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>>;
+    bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>, options?: BootstrapOptions): Promise<NgModuleRef<M>>;
     /**
      * Creates an instance of an `@NgModule` for a given platform using the given runtime compiler.
      *
@@ -129,48 +144,53 @@ export declare abstract class PlatformRef {
      * ```
      * @stable
      */
-    abstract bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: CompilerOptions | CompilerOptions[]): Promise<NgModuleRef<M>>;
+    bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: (CompilerOptions & BootstrapOptions) | Array<CompilerOptions & BootstrapOptions>): Promise<NgModuleRef<M>>;
+    private _moduleDoBootstrap(moduleRef);
     /**
      * Register a listener to be called when the platform is disposed.
      */
-    abstract onDestroy(callback: () => void): void;
+    onDestroy(callback: () => void): void;
     /**
      * Retrieve the platform {@link Injector}, which is the parent injector for
      * every Angular application on the page and provides singleton providers.
      */
-    readonly abstract injector: Injector;
+    readonly injector: Injector;
     /**
      * Destroy the Angular platform and all Angular applications on the page.
      */
-    abstract destroy(): void;
-    readonly abstract destroyed: boolean;
-}
-/**
- * workaround https://github.com/angular/tsickle/issues/350
- * @suppress {checkTypes}
- */
-export declare class PlatformRef_ extends PlatformRef {
-    private _injector;
-    private _modules;
-    private _destroyListeners;
-    private _destroyed;
-    constructor(_injector: Injector);
-    onDestroy(callback: () => void): void;
-    readonly injector: Injector;
-    readonly destroyed: boolean;
     destroy(): void;
-    bootstrapModuleFactory<M>(moduleFactory: NgModuleFactory<M>): Promise<NgModuleRef<M>>;
-    private _bootstrapModuleFactoryWithZone<M>(moduleFactory, ngZone?);
-    bootstrapModule<M>(moduleType: Type<M>, compilerOptions?: CompilerOptions | CompilerOptions[]): Promise<NgModuleRef<M>>;
-    private _bootstrapModuleWithZone<M>(moduleType, compilerOptions?, ngZone?);
-    private _moduleDoBootstrap(moduleRef);
+    readonly destroyed: boolean;
 }
 /**
  * A reference to an Angular application running on a page.
  *
  * @stable
  */
-export declare abstract class ApplicationRef {
+export declare class ApplicationRef {
+    private _zone;
+    private _console;
+    private _injector;
+    private _exceptionHandler;
+    private _componentFactoryResolver;
+    private _initStatus;
+    private _bootstrapListeners;
+    private _views;
+    private _runningTick;
+    private _enforceNoNewChanges;
+    private _stable;
+    /**
+     * Get a list of component types registered to this application.
+     * This list is populated even before the component is created.
+     */
+    readonly componentTypes: Type<any>[];
+    /**
+     * Get a list of components registered to this application.
+     */
+    readonly components: ComponentRef<any>[];
+    /**
+     * Returns an Observable that indicates when the application is stable or unstable.
+     */
+    readonly isStable: Observable<boolean>;
     /**
      * Bootstrap a new component at the root level of the application.
      *
@@ -186,7 +206,7 @@ export declare abstract class ApplicationRef {
      * ### Example
      * {@example core/ts/platform/platform.ts region='longform'}
      */
-    abstract bootstrap<C>(componentFactory: ComponentFactory<C> | Type<C>, rootSelectorOrNode?: string | any): ComponentRef<C>;
+    bootstrap<C>(componentOrFactory: ComponentFactory<C> | Type<C>, rootSelectorOrNode?: string | any): ComponentRef<C>;
     /**
      * Invoke this method to explicitly process change detection and its side-effects.
      *
@@ -197,64 +217,21 @@ export declare abstract class ApplicationRef {
      * In this case, Angular throws an error, since an Angular application can only have one change
      * detection pass during which all change detection must complete.
      */
-    abstract tick(): void;
-    /**
-     * Get a list of component types registered to this application.
-     * This list is populated even before the component is created.
-     */
-    readonly abstract componentTypes: Type<any>[];
-    /**
-     * Get a list of components registered to this application.
-     */
-    readonly abstract components: ComponentRef<any>[];
+    tick(): void;
     /**
      * Attaches a view so that it will be dirty checked.
      * The view will be automatically detached when it is destroyed.
      * This will throw if the view is already attached to a ViewContainer.
      */
-    abstract attachView(view: ViewRef): void;
+    attachView(viewRef: ViewRef): void;
     /**
      * Detaches a view from dirty checking again.
      */
-    abstract detachView(view: ViewRef): void;
+    detachView(viewRef: ViewRef): void;
+    private _loadComponent(componentRef);
+    private _unloadComponent(componentRef);
     /**
      * Returns the number of attached views.
      */
-    readonly abstract viewCount: number;
-    /**
-     * Returns an Observable that indicates when the application is stable or unstable.
-     */
-    readonly abstract isStable: Observable<boolean>;
-}
-/**
- * workaround https://github.com/angular/tsickle/issues/350
- * @suppress {checkTypes}
- */
-export declare class ApplicationRef_ extends ApplicationRef {
-    private _zone;
-    private _console;
-    private _injector;
-    private _exceptionHandler;
-    private _componentFactoryResolver;
-    private _initStatus;
-    private _bootstrapListeners;
-    private _rootComponents;
-    private _rootComponentTypes;
-    private _views;
-    private _runningTick;
-    private _enforceNoNewChanges;
-    private _isStable;
-    private _stable;
-    constructor(_zone: NgZone, _console: Console, _injector: Injector, _exceptionHandler: ErrorHandler, _componentFactoryResolver: ComponentFactoryResolver, _initStatus: ApplicationInitStatus);
-    attachView(viewRef: ViewRef): void;
-    detachView(viewRef: ViewRef): void;
-    bootstrap<C>(componentOrFactory: ComponentFactory<C> | Type<C>, rootSelectorOrNode?: string | any): ComponentRef<C>;
-    private _loadComponent(componentRef);
-    private _unloadComponent(componentRef);
-    tick(): void;
-    ngOnDestroy(): void;
     readonly viewCount: number;
-    readonly componentTypes: Type<any>[];
-    readonly components: ComponentRef<any>[];
-    readonly isStable: Observable<boolean>;
 }

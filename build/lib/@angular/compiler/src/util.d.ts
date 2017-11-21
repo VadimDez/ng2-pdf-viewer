@@ -1,7 +1,12 @@
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 import * as o from './output/output_ast';
 import { ParseError } from './parse_util';
-export declare const MODULE_SUFFIX = "";
-export declare function camelCaseToDashCase(input: string): string;
 export declare function dashCaseToCamelCase(input: string): string;
 export declare function splitAtColon(input: string, defaultValues: string[]): string[];
 export declare function splitAtPeriod(input: string, defaultValues: string[]): string[];
@@ -39,4 +44,24 @@ export interface OutputContext {
     genFilePath: string;
     statements: o.Statement[];
     importExpr(reference: any, typeParams?: o.Type[] | null): o.Expression;
+}
+export declare function stringify(token: any): string;
+/**
+ * Lazily retrieves the reference value from a forwardRef.
+ */
+export declare function resolveForwardRef(type: any): any;
+/**
+ * Determine if the argument is shaped like a Promise
+ */
+export declare function isPromise(obj: any): obj is Promise<any>;
+export declare class Version {
+    full: string;
+    readonly major: string;
+    readonly minor: string;
+    readonly patch: string;
+    constructor(full: string);
+}
+export interface Console {
+    log(message: string): void;
+    warn(message: string): void;
 }

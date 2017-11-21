@@ -12,11 +12,11 @@
  */
 export declare enum ChangeDetectionStrategy {
     /**
-     * `OnPush` means that the change detector's mode will be set to `CheckOnce` during hydration.
+     * `OnPush` means that the change detector's mode will be initially set to `CheckOnce`.
      */
     OnPush = 0,
     /**
-     * `Default` means that the change detector's mode will be set to `CheckAlways` during hydration.
+     * `Default` means that the change detector's mode will be initially set to `CheckAlways`.
      */
     Default = 1,
 }

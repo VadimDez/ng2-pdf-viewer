@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { SecurityContext } from '@angular/core';
 import { AstPath } from '../ast_path';
 import { CompileDirectiveSummary, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { SecurityContext } from '../core';
 import { AST } from '../expression_parser/ast';
 import { LifecycleHooks } from '../lifecycle_reflector';
 import { ParseSourceSpan } from '../parse_util';
@@ -65,9 +65,9 @@ export declare class BoundElementPropertyAst implements TemplateAst {
     value: AST;
     unit: string | null;
     sourceSpan: ParseSourceSpan;
+    readonly isAnimation: boolean;
     constructor(name: string, type: PropertyBindingType, securityContext: SecurityContext, value: AST, unit: string | null, sourceSpan: ParseSourceSpan);
     visit(visitor: TemplateAstVisitor, context: any): any;
-    readonly isAnimation: boolean;
 }
 /**
  * A binding for an element event (e.g. `(event)="handler()"`) or an animation trigger event (e.g.
@@ -80,10 +80,10 @@ export declare class BoundEventAst implements TemplateAst {
     handler: AST;
     sourceSpan: ParseSourceSpan;
     static calcFullName(name: string, target: string | null, phase: string | null): string;
-    constructor(name: string, target: string | null, phase: string | null, handler: AST, sourceSpan: ParseSourceSpan);
-    visit(visitor: TemplateAstVisitor, context: any): any;
     readonly fullName: string;
     readonly isAnimation: boolean;
+    constructor(name: string, target: string | null, phase: string | null, handler: AST, sourceSpan: ParseSourceSpan);
+    visit(visitor: TemplateAstVisitor, context: any): any;
 }
 /**
  * A reference declaration on an element (e.g. `let someName="expression"`).

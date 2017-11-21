@@ -5,9 +5,9 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ElementRef, Provider, Renderer2 } from '@angular/core';
+import { ElementRef, Renderer2, StaticProvider } from '@angular/core';
 import { ControlValueAccessor } from './control_value_accessor';
-export declare const RANGE_VALUE_ACCESSOR: Provider;
+export declare const RANGE_VALUE_ACCESSOR: StaticProvider;
 /**
  * The accessor for writing a range value and listening to changes that is used by the
  * {@link NgModel}, {@link FormControlDirective}, and {@link FormControlName} directives.

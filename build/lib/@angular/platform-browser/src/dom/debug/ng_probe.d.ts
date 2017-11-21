@@ -12,16 +12,7 @@ import * as core from '@angular/core';
  * with it.
  */
 export declare function inspectNativeElement(element: any): core.DebugNode | null;
-/**
- * Deprecated. Use the one from '@angular/core'.
- * @deprecated
- */
-export declare class NgProbeToken {
-    name: string;
-    token: any;
-    constructor(name: string, token: any);
-}
-export declare function _createNgProbe(extraTokens: NgProbeToken[], coreTokens: core.NgProbeToken[]): any;
+export declare function _createNgProbe(coreTokens: core.NgProbeToken[]): any;
 /**
  * Providers which support debugging Angular applications (e.g. via `ng.probe`).
  */

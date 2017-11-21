@@ -22,4 +22,4 @@ export { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, I18nPluralPipe, I18nSel
 /**
  * A collection of Angular pipes that are likely to be used in each and every application.
  */
-export declare const COMMON_PIPES: (typeof AsyncPipe | typeof DecimalPipe | typeof PercentPipe | typeof CurrencyPipe | typeof DatePipe | typeof I18nPluralPipe | typeof I18nSelectPipe | typeof SlicePipe)[];
+export declare const COMMON_PIPES: (typeof DatePipe | typeof AsyncPipe | typeof I18nPluralPipe | typeof I18nSelectPipe | typeof DecimalPipe | typeof PercentPipe | typeof CurrencyPipe | typeof SlicePipe)[];

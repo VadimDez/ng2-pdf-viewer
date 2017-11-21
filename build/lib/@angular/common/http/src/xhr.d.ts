@@ -5,7 +5,7 @@ import { HttpEvent } from './response';
 /**
  * A wrapper around the `XMLHttpRequest` constructor.
  *
- * @experimental
+ * @stable
  */
 export declare abstract class XhrFactory {
     abstract build(): XMLHttpRequest;
@@ -13,7 +13,7 @@ export declare abstract class XhrFactory {
 /**
  * A factory for @{link HttpXhrBackend} that uses the `XMLHttpRequest` browser API.
  *
- * @experimental
+ * @stable
  */
 export declare class BrowserXhr implements XhrFactory {
     constructor();
@@ -23,7 +23,7 @@ export declare class BrowserXhr implements XhrFactory {
  * An `HttpBackend` which uses the XMLHttpRequest API to send
  * requests to a backend server.
  *
- * @experimental
+ * @stable
  */
 export declare class HttpXhrBackend implements HttpBackend {
     private xhrFactory;

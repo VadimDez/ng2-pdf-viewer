@@ -10,7 +10,7 @@
  * @description
  * Entry point for all public APIs of the common package.
  */
-import { Version } from '@angular/core';
+import { Version } from '@angular/compiler';
 /**
  * @stable
  */

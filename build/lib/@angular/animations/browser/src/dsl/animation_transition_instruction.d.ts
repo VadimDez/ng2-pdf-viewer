@@ -9,6 +9,7 @@ import { ɵStyleData } from '@angular/animations';
 import { AnimationEngineInstruction } from '../render/animation_engine_instruction';
 import { AnimationTimelineInstruction } from './animation_timeline_instruction';
 export interface AnimationTransitionInstruction extends AnimationEngineInstruction {
+    element: any;
     triggerName: string;
     isRemovalTransition: boolean;
     fromState: string;
@@ -16,5 +17,17 @@ export interface AnimationTransitionInstruction extends AnimationEngineInstructi
     toState: string;
     toStyles: ɵStyleData;
     timelines: AnimationTimelineInstruction[];
+    queriedElements: any[];
+    preStyleProps: Map<any, {
+        [prop: string]: boolean;
+    }>;
+    postStyleProps: Map<any, {
+        [prop: string]: boolean;
+    }>;
+    errors?: any[];
 }
-export declare function createTransitionInstruction(triggerName: string, fromState: string, toState: string, isRemovalTransition: boolean, fromStyles: ɵStyleData, toStyles: ɵStyleData, timelines: AnimationTimelineInstruction[]): AnimationTransitionInstruction;
+export declare function createTransitionInstruction(element: any, triggerName: string, fromState: string, toState: string, isRemovalTransition: boolean, fromStyles: ɵStyleData, toStyles: ɵStyleData, timelines: AnimationTimelineInstruction[], queriedElements: any[], preStyleProps: Map<any, {
+    [prop: string]: boolean;
+}>, postStyleProps: Map<any, {
+    [prop: string]: boolean;
+}>, errors?: any[]): AnimationTransitionInstruction;

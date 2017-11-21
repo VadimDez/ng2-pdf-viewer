@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { DoCheck, ElementRef, IterableDiffers, KeyValueDiffers, Renderer } from '@angular/core';
+import { DoCheck, ElementRef, IterableDiffers, KeyValueDiffers, Renderer2 } from '@angular/core';
 /**
  * @ngModule CommonModule
  *
@@ -43,7 +43,7 @@ export declare class NgClass implements DoCheck {
     private _keyValueDiffer;
     private _initialClasses;
     private _rawClass;
-    constructor(_iterableDiffers: IterableDiffers, _keyValueDiffers: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer);
+    constructor(_iterableDiffers: IterableDiffers, _keyValueDiffers: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer2);
     klass: string;
     ngClass: string | string[] | Set<string> | {
         [klass: string]: any;

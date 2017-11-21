@@ -5,7 +5,7 @@ import { HttpParams } from './params';
 import { HttpRequest } from './request';
 import { HttpEvent, HttpResponse } from './response';
 /**
- * @experimental
+ * @stable
  */
 export declare type HttpObserve = 'body' | 'events' | 'response';
 /**
@@ -15,7 +15,7 @@ export declare type HttpObserve = 'body' | 'events' | 'response';
  * Each request method has multiple signatures, and the return type varies according to which
  * signature is called (mainly the values of `observe` and `responseType`).
  *
- * @experimental
+ * @stable
  */
 export declare class HttpClient {
     private handler;
@@ -31,9 +31,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -45,9 +49,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -59,9 +67,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -73,8 +85,12 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
-        params?: HttpParams;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         observe: 'events';
         reportProgress?: boolean;
         responseType: 'arraybuffer';
@@ -87,9 +103,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -101,9 +121,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -115,10 +139,14 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         reportProgress?: boolean;
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         withCredentials?: boolean;
     }): Observable<HttpEvent<any>>;
@@ -129,10 +157,14 @@ export declare class HttpClient {
      */
     request<R>(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         reportProgress?: boolean;
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         withCredentials?: boolean;
     }): Observable<HttpEvent<R>>;
@@ -143,9 +175,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -157,9 +193,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -171,9 +211,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -185,10 +229,14 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         reportProgress?: boolean;
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         withCredentials?: boolean;
     }): Observable<HttpResponse<Object>>;
@@ -199,10 +247,14 @@ export declare class HttpClient {
      */
     request<R>(method: string, url: string, options: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         reportProgress?: boolean;
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         withCredentials?: boolean;
     }): Observable<HttpResponse<R>>;
@@ -213,9 +265,13 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options?: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         reportProgress?: boolean;
         withCredentials?: boolean;
@@ -227,9 +283,13 @@ export declare class HttpClient {
      */
     request<R>(method: string, url: string, options?: {
         body?: any;
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         responseType?: 'json';
         reportProgress?: boolean;
         withCredentials?: boolean;
@@ -242,8 +302,12 @@ export declare class HttpClient {
      */
     request(method: string, url: string, options?: {
         body?: any;
-        headers?: HttpHeaders;
-        params?: HttpParams;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         observe?: HttpObserve;
         reportProgress?: boolean;
         responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
@@ -255,9 +319,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -268,9 +336,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -281,9 +353,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -294,9 +370,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -307,9 +387,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -320,9 +404,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -333,9 +421,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -346,9 +438,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     delete<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -359,9 +455,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -372,9 +472,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -385,9 +489,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -398,9 +506,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     delete(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -411,9 +523,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     delete<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -424,9 +540,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     delete(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -437,9 +557,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     delete<T>(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -450,9 +574,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -463,9 +591,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -476,9 +608,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -489,9 +625,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -502,9 +642,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -515,9 +659,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -528,9 +676,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -541,9 +693,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     get<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -554,9 +710,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -567,9 +727,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -580,9 +744,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -593,9 +761,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     get(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -606,9 +778,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     get<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -619,9 +795,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     get(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -632,9 +812,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     get<T>(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -645,17 +829,25 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
     }): Observable<ArrayBuffer>;
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -666,9 +858,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -679,9 +875,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -692,9 +892,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -705,9 +909,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -718,9 +926,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -731,9 +943,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     head<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -744,9 +960,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -757,9 +977,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -770,9 +994,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -783,9 +1011,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     head(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -796,9 +1028,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     head<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -809,9 +1045,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     head(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -822,9 +1062,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     head<T>(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -847,9 +1091,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -860,9 +1108,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -873,9 +1125,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -886,9 +1142,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -899,9 +1159,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -912,9 +1176,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -925,9 +1193,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -938,9 +1210,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     options<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -951,9 +1227,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -964,9 +1244,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -977,9 +1261,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -990,9 +1278,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     options(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1003,9 +1295,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     options<T>(url: string, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1016,9 +1312,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     options(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1029,9 +1329,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     options<T>(url: string, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1042,9 +1346,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1055,9 +1363,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1068,9 +1380,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1081,9 +1397,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1094,9 +1414,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1107,9 +1431,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1120,9 +1448,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1133,9 +1465,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     patch<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1146,9 +1482,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1159,9 +1499,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1172,9 +1516,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1185,9 +1533,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1198,9 +1550,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     patch<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1211,9 +1567,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     patch(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1224,9 +1584,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     patch<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1237,9 +1601,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1250,9 +1618,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1263,9 +1635,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1276,9 +1652,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1289,9 +1669,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1302,9 +1686,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1315,9 +1703,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1328,9 +1720,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     post<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1341,9 +1737,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1354,9 +1754,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1367,9 +1771,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1380,9 +1788,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     post(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1393,9 +1805,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     post<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1406,9 +1822,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     post(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1419,9 +1839,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     post<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1432,9 +1856,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `ArrayBuffer`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1445,9 +1873,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `Blob`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1458,9 +1890,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as a `string`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1471,9 +1907,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `ArrayBuffer`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1484,9 +1924,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Blob`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1497,9 +1941,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `string`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1510,9 +1958,13 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `Object`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1523,7 +1975,9 @@ export declare class HttpClient {
      * @return an `Observable` of all `HttpEvent`s for the request, with a body type of `T`.
      */
     put<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'events';
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1534,9 +1988,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `ArrayBuffer`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'arraybuffer';
         withCredentials?: boolean;
@@ -1547,9 +2005,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Blob`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'blob';
         withCredentials?: boolean;
@@ -1560,9 +2022,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `string`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType: 'text';
         withCredentials?: boolean;
@@ -1573,9 +2039,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `Object`.
      */
     put(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1586,9 +2056,13 @@ export declare class HttpClient {
      * @return an `Observable` of the `HttpResponse` for the request, with a body type of `T`.
      */
     put<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe: 'response';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1599,9 +2073,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as an `Object`.
      */
     put(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;
@@ -1612,9 +2090,13 @@ export declare class HttpClient {
      * @return an `Observable` of the body as type `T`.
      */
     put<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders;
+        headers?: HttpHeaders | {
+            [header: string]: string | string[];
+        };
         observe?: 'body';
-        params?: HttpParams;
+        params?: HttpParams | {
+            [param: string]: string | string[];
+        };
         reportProgress?: boolean;
         responseType?: 'json';
         withCredentials?: boolean;

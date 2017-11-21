@@ -14,9 +14,7 @@ export declare class ApplicationInitStatus {
     private resolve;
     private reject;
     private initialized;
-    private _donePromise;
-    private _done;
-    constructor(appInits: (() => any)[]);
-    readonly done: boolean;
     readonly donePromise: Promise<any>;
+    readonly done: boolean;
+    constructor(appInits: (() => any)[]);
 }

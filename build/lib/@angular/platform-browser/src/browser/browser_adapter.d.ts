@@ -87,6 +87,7 @@ export declare class BrowserDomAdapter extends GenericBrowserDomAdapter {
     removeAttributeNS(element: Element, ns: string, name: string): void;
     templateAwareRoot(el: Node): any;
     createHtmlDocument(): HTMLDocument;
+    getDefaultDocument(): Document;
     getBoundingClientRect(el: Element): any;
     getTitle(doc: Document): string;
     setTitle(doc: Document, newTitle: string): void;

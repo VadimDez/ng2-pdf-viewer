@@ -5,10 +5,11 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { MissingTranslationStrategy, ɵConsole as Console } from '@angular/core';
+import { MissingTranslationStrategy } from '../core';
 import { HtmlParser } from '../ml_parser/html_parser';
 import { InterpolationConfig } from '../ml_parser/interpolation_config';
 import { ParseTreeResult } from '../ml_parser/parser';
+import { Console } from '../util';
 export declare class I18NHtmlParser implements HtmlParser {
     private _htmlParser;
     getTagDefinition: any;
