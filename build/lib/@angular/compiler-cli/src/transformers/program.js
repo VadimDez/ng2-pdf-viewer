@@ -15,7 +15,6 @@ var ts = require("typescript");
 var compiler_host_1 = require("../compiler_host");
 var check_types_1 = require("../diagnostics/check_types");
 var api_1 = require("./api");
-var api_2 = require("./api");
 var node_emitter_transform_1 = require("./node_emitter_transform");
 var GENERATED_FILES = /\.ngfactory\.js$|\.ngstyle\.js$|\.ngsummary\.js$/;
 var SUMMARY_JSON_FILES = /\.ngsummary.json$/;
@@ -81,10 +80,10 @@ var AngularCompilerProgram = (function () {
     AngularCompilerProgram.prototype.getLazyRoutes = function (cancellationToken) { return {}; };
     AngularCompilerProgram.prototype.emit = function (_a) {
         var _this = this;
-        var _b = _a.emitFlags, emitFlags = _b === void 0 ? api_2.EmitFlags.Default : _b, cancellationToken = _a.cancellationToken;
+        var _b = _a.emitFlags, emitFlags = _b === void 0 ? api_1.EmitFlags.Default : _b, cancellationToken = _a.cancellationToken;
         var emitMap = new Map();
         var result = this.programWithStubs.emit(
-        /* targetSourceFile */ undefined, createWriteFileCallback(emitFlags, this.host, this.collector, this.options, emitMap), cancellationToken, (emitFlags & (api_2.EmitFlags.DTS | api_2.EmitFlags.JS)) == api_2.EmitFlags.DTS, {
+        /* targetSourceFile */ undefined, createWriteFileCallback(emitFlags, this.host, this.collector, this.options, emitMap), cancellationToken, (emitFlags & (api_1.EmitFlags.DTS | api_1.EmitFlags.JS)) == api_1.EmitFlags.DTS, {
             after: this.options.skipTemplateCodegen ? [] : [node_emitter_transform_1.getAngularEmitterTransformFactory(this.generatedFiles)]
         });
         this.generatedFiles.forEach(function (file) {
@@ -275,7 +274,7 @@ function createWriteFileCallback(emitFlags, host, collector, ngOptions, emitMap)
             emitMap.set(sourceFiles[0].fileName, fileName);
         }
     };
-    return (emitFlags & api_2.EmitFlags.Metadata) != 0 ? withMetadata : withoutMetadata;
+    return (emitFlags & api_1.EmitFlags.Metadata) != 0 ? withMetadata : withoutMetadata;
 }
 function getNgOptionDiagnostics(options) {
     if (options.annotationsAs) {

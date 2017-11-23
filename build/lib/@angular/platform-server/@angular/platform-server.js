@@ -1,5 +1,5 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -1808,7 +1808,6 @@ class ServerRendererFactory2 {
         this.schema = new DomElementSchemaRegistry();
         this.defaultRenderer = new DefaultServerRenderer2(document, ngZone, this.schema);
     }
-    ;
     /**
      * @param {?} element
      * @param {?} type
@@ -2349,7 +2348,7 @@ function renderModuleFactory(moduleFactory, options) {
 /**
  * \@stable
  */
-const VERSION = new Version('4.3.3');
+const VERSION = new Version('4.4.6');
 
 /**
  * @license

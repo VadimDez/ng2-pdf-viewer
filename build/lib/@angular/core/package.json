@@ -1,49 +1,33 @@
 {
   "_args": [
     [
-      {
-        "raw": "@angular/core@^4.1.0",
-        "scope": "@angular",
-        "escapedName": "@angular%2fcore",
-        "name": "@angular/core",
-        "rawSpec": "^4.1.0",
-        "spec": ">=4.1.0 <5.0.0",
-        "type": "range"
-      },
+      "@angular/core@4.4.6",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
-  "_from": "@angular/core@>=4.1.0 <5.0.0",
-  "_id": "@angular/core@4.3.3",
-  "_inCache": true,
+  "_development": true,
+  "_from": "@angular/core@4.4.6",
+  "_id": "@angular/core@4.4.6",
+  "_inBundle": false,
+  "_integrity": "sha1-EwMf0Q3P5DiHVBmzjyESCVi8I1Q=",
   "_location": "/@angular/core",
-  "_nodeVersion": "6.9.5",
-  "_npmOperationalInternal": {
-    "host": "s3://npm-registry-packages",
-    "tmp": "tmp/core-4.3.3.tgz_1501704644635_0.11592919286340475"
-  },
-  "_npmUser": {
-    "name": "angular",
-    "email": "angular-core+npm@google.com"
-  },
-  "_npmVersion": "3.10.10",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "@angular/core@^4.1.0",
-    "scope": "@angular",
-    "escapedName": "@angular%2fcore",
+    "type": "version",
+    "registry": true,
+    "raw": "@angular/core@4.4.6",
     "name": "@angular/core",
-    "rawSpec": "^4.1.0",
-    "spec": ">=4.1.0 <5.0.0",
-    "type": "range"
+    "escapedName": "@angular%2fcore",
+    "scope": "@angular",
+    "rawSpec": "4.4.6",
+    "saveSpec": null,
+    "fetchSpec": "4.4.6"
   },
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/@angular/core/-/core-4.3.3.tgz",
-  "_shasum": "8e6a76914661db407fa2d88dd2441c4c016ff625",
-  "_shrinkwrap": null,
-  "_spec": "@angular/core@^4.1.0",
+  "_resolved": "https://registry.npmjs.org/@angular/core/-/core-4.4.6.tgz",
+  "_spec": "4.4.6",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -55,35 +39,20 @@
     "tslib": "^1.7.1"
   },
   "description": "Angular - the core framework",
-  "devDependencies": {},
-  "directories": {},
-  "dist": {
-    "shasum": "8e6a76914661db407fa2d88dd2441c4c016ff625",
-    "tarball": "https://registry.npmjs.org/@angular/core/-/core-4.3.3.tgz"
-  },
   "es2015": "./@angular/core.js",
   "homepage": "https://github.com/angular/angular#readme",
   "license": "MIT",
   "main": "./bundles/core.umd.js",
-  "maintainers": [
-    {
-      "name": "angular",
-      "email": "angular-core+npm@google.com"
-    }
-  ],
   "module": "./@angular/core.es5.js",
   "name": "@angular/core",
-  "optionalDependencies": {},
   "peerDependencies": {
     "rxjs": "^5.0.1",
     "zone.js": "^0.8.4"
   },
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/angular/angular.git"
   },
-  "scripts": {},
   "typings": "./core.d.ts",
-  "version": "4.3.3"
+  "version": "4.4.6"
 }

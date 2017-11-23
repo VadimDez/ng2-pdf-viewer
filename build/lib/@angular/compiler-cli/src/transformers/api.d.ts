@@ -30,6 +30,7 @@ export interface CompilerOptions extends ts.CompilerOptions {
     annotationsAs?: 'decorators' | 'static fields';
     trace?: boolean;
     enableLegacyTemplate?: boolean;
+    preserveWhitespaces?: boolean;
 }
 export interface ModuleFilenameResolver {
     /**

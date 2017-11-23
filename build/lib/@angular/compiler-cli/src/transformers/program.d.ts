@@ -1,5 +1,4 @@
-import { CompilerHost, CompilerOptions } from './api';
-import { Program } from './api';
+import { CompilerHost, CompilerOptions, Program } from './api';
 export declare function createProgram({rootNames, options, host, oldProgram}: {
     rootNames: string[];
     options: CompilerOptions;

@@ -1,4 +1,3 @@
 import * as ts from 'typescript';
-import { ModuleFilenameResolver } from './api';
-import { CompilerOptions } from './api';
+import { CompilerOptions, ModuleFilenameResolver } from './api';
 export declare function createModuleFilenameResolver(tsHost: ts.ModuleResolutionHost, options: CompilerOptions): ModuleFilenameResolver;

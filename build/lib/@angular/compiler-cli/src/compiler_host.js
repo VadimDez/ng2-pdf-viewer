@@ -85,7 +85,6 @@ var CompilerHost = (function () {
         }
         return result;
     };
-    ;
     /**
      * We want a moduleId that will appear in import statements in the generated code.
      * These need to be in a form that system.js can load, so absolute file paths don't work.
