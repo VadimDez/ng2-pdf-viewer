@@ -1,11 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
-var pdfjs = require("pdfjs-dist/build/pdf");
-window['pdfjs-dist/build/pdf'] = pdfjs;
-require("pdfjs-dist/web/compatibility");
-require("pdfjs-dist/web/pdf_viewer");
-PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
+function isSSR() {
+    return typeof window === 'undefined';
+}
+if (!isSSR()) {
+    window['pdfjs-dist/build/pdf'] = require('pdfjs-dist/build/pdf');
+    require('pdfjs-dist/web/compatibility');
+    require('pdfjs-dist/web/pdf_viewer');
+    PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
+}
+else {
+}
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
@@ -23,10 +29,14 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
-        PDFJS.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS.version + "/pdf.worker.min.js";
+        if (!isSSR()) {
+            PDFJS.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS.version + "/pdf.worker.min.js";
+        }
     }
     PdfViewerComponent.prototype.ngOnInit = function () {
-        this.setupViewer();
+        if (!isSSR()) {
+            this.setupViewer();
+        }
     };
     PdfViewerComponent.prototype.onPageResize = function () {
         var _this = this;
@@ -41,6 +51,9 @@ var PdfViewerComponent = (function () {
         }, 100);
     };
     PdfViewerComponent.prototype.ngOnChanges = function (changes) {
+        if (isSSR()) {
+            return;
+        }
         if ('src' in changes) {
             this.loadPDF();
         }

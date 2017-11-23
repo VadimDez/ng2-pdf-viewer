@@ -16,7 +16,8 @@
     "clean": "gulp clean",
     "compile": "gulp compile",
     "build": "gulp build",
-    "start": "npm run build && concurrently --kill-others \"gulp watch\" \"lite-server\""
+    "start": "npm run build && concurrently --kill-others \"gulp watch\" \"lite-server\"",
+    "copy": "cp -R ./build/pdf-viewer/ ./dist/"
   },
   "repository": {
     "type": "git",
