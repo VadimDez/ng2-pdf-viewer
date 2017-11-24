@@ -1,16 +1,16 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('tslib'), require('@angular/core'), require('rxjs/observable/of'), require('rxjs/operator/concatMap'), require('rxjs/operator/filter'), require('rxjs/operator/map'), require('@angular/common'), require('rxjs/Observable')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'tslib', '@angular/core', 'rxjs/observable/of', 'rxjs/operator/concatMap', 'rxjs/operator/filter', 'rxjs/operator/map', '@angular/common', 'rxjs/Observable'], factory) :
-	(factory((global.ng = global.ng || {}, global.ng.commmon = global.ng.commmon || {}, global.ng.commmon.http = global.ng.commmon.http || {}),global.tslib_1,global.ng.core,global.rxjs_observable_of,global.rxjs_operator_concatMap,global.rxjs_operator_filter,global.rxjs_operator_map,global._angular_common,global.Rx));
+	(factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}, global.ng.common.http = global.ng.common.http || {}),global.tslib_1,global.ng.core,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global._angular_common,global.Rx));
 }(this, (function (exports,tslib_1,_angular_core,rxjs_observable_of,rxjs_operator_concatMap,rxjs_operator_filter,rxjs_operator_map,_angular_common,rxjs_Observable) { 'use strict';
 
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -1643,7 +1643,13 @@ var HttpXhrBackend = (function () {
             }
             // Set the responseType if one was requested.
             if (req.responseType) {
-                xhr.responseType = (req.responseType.toLowerCase());
+                var /** @type {?} */ responseType = req.responseType.toLowerCase();
+                // JSON responses need to be processed as text. This is because if the server
+                // returns an XSSI-prefixed JSON response, the browser will fail to parse it,
+                // xhr.response will be null, and xhr.responseText cannot be accessed to
+                // retrieve the prefixed JSON data in order to strip the prefix. Thus, all JSON
+                // is parsed by first requesting text and then applying JSON.parse.
+                xhr.responseType = (((responseType !== 'json') ? responseType : 'text'));
             }
             // Serialize the request body if one is present. If not, this will be set to null.
             var /** @type {?} */ reqBody = req.serializeBody();
@@ -1683,11 +1689,6 @@ var HttpXhrBackend = (function () {
                 if (status !== 204) {
                     // Use XMLHttpRequest.response if set, responseText otherwise.
                     body = (typeof xhr.response === 'undefined') ? xhr.responseText : xhr.response;
-                    // Strip a common XSSI prefix from string responses.
-                    // TODO: determine if this behavior should be optional and moved to an interceptor.
-                    if (typeof body === 'string') {
-                        body = body.replace(XSSI_PREFIX, '');
-                    }
                 }
                 // Normalize another potential bug (this one comes from CORS).
                 if (status === 0) {
@@ -1700,8 +1701,9 @@ var HttpXhrBackend = (function () {
                 var /** @type {?} */ ok = status >= 200 && status < 300;
                 // Check whether the body needs to be parsed as JSON (in many cases the browser
                 // will have done that already).
-                if (ok && typeof body === 'string' && req.responseType === 'json') {
+                if (ok && req.responseType === 'json' && typeof body === 'string') {
                     // Attempt the parse. If it fails, a parse error should be delivered to the user.
+                    body = body.replace(XSSI_PREFIX, '');
                     try {
                         body = JSON.parse(body);
                     }
@@ -1710,6 +1712,16 @@ var HttpXhrBackend = (function () {
                         ok = false;
                         // The parse error contains the text of the body that failed to parse.
                         body = ({ error: error, text: body });
+                    }
+                }
+                else if (!ok && req.responseType === 'json' && typeof body === 'string') {
+                    try {
+                        // Attempt to parse the body as JSON.
+                        body = JSON.parse(body);
+                    }
+                    catch (error) {
+                        // Cannot be certain that the body was meant to be parsed as JSON.
+                        // Leave the body as a string.
                     }
                 }
                 if (ok) {

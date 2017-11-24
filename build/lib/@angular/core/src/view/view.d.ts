@@ -1,5 +1,5 @@
 import { ArgumentType, NodeDef, RootData, ViewData, ViewDefinition, ViewFlags, ViewUpdateFn } from './types';
-export declare function viewDef(flags: ViewFlags, nodes: NodeDef[], updateDirectives?: ViewUpdateFn, updateRenderer?: ViewUpdateFn): ViewDefinition;
+export declare function viewDef(flags: ViewFlags, nodes: NodeDef[], updateDirectives?: null | ViewUpdateFn, updateRenderer?: null | ViewUpdateFn): ViewDefinition;
 export declare function createEmbeddedView(parent: ViewData, anchorDef: NodeDef, viewDef: ViewDefinition, context?: any): ViewData;
 export declare function createRootView(root: RootData, def: ViewDefinition, context?: any): ViewData;
 export declare function createComponentView(parentView: ViewData, nodeDef: NodeDef, viewDef: ViewDefinition, hostElement: any): ViewData;

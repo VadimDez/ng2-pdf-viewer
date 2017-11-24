@@ -1,5 +1,5 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -36,7 +36,7 @@ function __extends(d, b) {
 }
 
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -51,8 +51,9 @@ var BrowserAnimationBuilder = (function (_super) {
     __extends(BrowserAnimationBuilder, _super);
     /**
      * @param {?} rootRenderer
+     * @param {?} doc
      */
-    function BrowserAnimationBuilder(rootRenderer) {
+    function BrowserAnimationBuilder(rootRenderer, doc) {
         var _this = _super.call(this) || this;
         _this._nextAnimationId = 0;
         var typeData = {
@@ -61,7 +62,7 @@ var BrowserAnimationBuilder = (function (_super) {
             styles: [],
             data: { animation: [] }
         };
-        _this._renderer = rootRenderer.createRenderer(document.body, typeData);
+        _this._renderer = rootRenderer.createRenderer(doc.body, typeData);
         return _this;
     }
     /**
@@ -85,6 +86,7 @@ BrowserAnimationBuilder.decorators = [
  */
 BrowserAnimationBuilder.ctorParameters = function () { return [
     { type: _angular_core.RendererFactory2, },
+    { type: undefined, decorators: [{ type: _angular_core.Inject, args: [_angular_platformBrowser.DOCUMENT,] },] },
 ]; };
 var BrowserAnimationFactory = (function (_super) {
     __extends(BrowserAnimationFactory, _super);
@@ -553,7 +555,8 @@ var AnimationRenderer = (function (_super) {
     AnimationRenderer.prototype.setProperty = function (el, name, value) {
         if (name.charAt(0) == ANIMATION_PREFIX) {
             if (name.charAt(1) == '.' && name == DISABLE_ANIMATIONS_FLAG) {
-                this.disableAnimations(el, !!value);
+                value = value === undefined ? true : !!value;
+                this.disableAnimations(el, /** @type {?} */ (value));
             }
             else {
                 this.engine.process(this.namespaceId, el, name.substr(1), value);

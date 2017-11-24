@@ -37,7 +37,4 @@ export declare class DefaultValueAccessor implements ControlValueAccessor {
     registerOnChange(fn: (_: any) => void): void;
     registerOnTouched(fn: () => void): void;
     setDisabledState(isDisabled: boolean): void;
-    _handleInput(value: any): void;
-    _compositionStart(): void;
-    _compositionEnd(value: any): void;
 }

@@ -1,11 +1,11 @@
 import * as tslib_1 from "tslib";
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
-import { Injectable, NgModule, NgZone, RendererFactory2, ViewEncapsulation } from '@angular/core';
-import { BrowserModule, ɵDomRendererFactory2 } from '@angular/platform-browser';
+import { Inject, Injectable, NgModule, NgZone, RendererFactory2, ViewEncapsulation } from '@angular/core';
+import { BrowserModule, DOCUMENT, ɵDomRendererFactory2 } from '@angular/platform-browser';
 import { AnimationBuilder, AnimationFactory, sequence } from '@angular/animations';
 import { AnimationDriver, ɵAnimationEngine, ɵAnimationStyleNormalizer, ɵNoopAnimationDriver, ɵWebAnimationsDriver, ɵWebAnimationsStyleNormalizer, ɵsupportsWebAnimations } from '@angular/animations/browser';
 /**
@@ -19,8 +19,9 @@ var BrowserAnimationBuilder = (function (_super) {
     tslib_1.__extends(BrowserAnimationBuilder, _super);
     /**
      * @param {?} rootRenderer
+     * @param {?} doc
      */
-    function BrowserAnimationBuilder(rootRenderer) {
+    function BrowserAnimationBuilder(rootRenderer, doc) {
         var _this = _super.call(this) || this;
         _this._nextAnimationId = 0;
         var typeData = {
@@ -29,7 +30,7 @@ var BrowserAnimationBuilder = (function (_super) {
             styles: [],
             data: { animation: [] }
         };
-        _this._renderer = rootRenderer.createRenderer(document.body, typeData);
+        _this._renderer = rootRenderer.createRenderer(doc.body, typeData);
         return _this;
     }
     /**
@@ -53,6 +54,7 @@ BrowserAnimationBuilder.decorators = [
  */
 BrowserAnimationBuilder.ctorParameters = function () { return [
     { type: RendererFactory2, },
+    { type: undefined, decorators: [{ type: Inject, args: [DOCUMENT,] },] },
 ]; };
 var BrowserAnimationFactory = (function (_super) {
     tslib_1.__extends(BrowserAnimationFactory, _super);
@@ -521,7 +523,8 @@ var AnimationRenderer = (function (_super) {
     AnimationRenderer.prototype.setProperty = function (el, name, value) {
         if (name.charAt(0) == ANIMATION_PREFIX) {
             if (name.charAt(1) == '.' && name == DISABLE_ANIMATIONS_FLAG) {
-                this.disableAnimations(el, !!value);
+                value = value === undefined ? true : !!value;
+                this.disableAnimations(el, /** @type {?} */ (value));
             }
             else {
                 this.engine.process(this.namespaceId, el, name.substr(1), value);

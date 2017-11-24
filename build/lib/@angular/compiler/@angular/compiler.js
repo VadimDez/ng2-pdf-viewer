@@ -1,5 +1,5 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -20,7 +20,7 @@ import { ANALYZE_FOR_ENTRY_COMPONENTS, Attribute, COMPILER_OPTIONS, CUSTOM_ELEME
 /**
  * \@stable
  */
-const VERSION = new Version('4.3.3');
+const VERSION = new Version('4.4.6');
 
 /**
  * @license
@@ -978,6 +978,10 @@ const NAMED_ENTITIES = {
     'zwj': '\u200D',
     'zwnj': '\u200C',
 };
+// The &ngsp; pseudo-entity is denoting a space. see:
+// https://github.com/dart-lang/angular/blob/0bb611387d29d65b5af7f9d2515ab571fd3fbee4/_tests/test/compiler/preserve_whitespace_test.dart
+const NGSP_UNICODE = '\uE500';
+NAMED_ENTITIES['ngsp'] = NGSP_UNICODE;
 
 /**
  * @license
@@ -1719,103 +1723,6 @@ function utf8Encode(str) {
 // group 2: "event" from "(event)"
 // group 3: "@trigger" from "@trigger"
 const HOST_REG_EXP = /^(?:(?:\[([^\]]+)\])|(?:\(([^\)]+)\)))|(\@[-\w]+)$/;
-class CompileAnimationEntryMetadata {
-    /**
-     * @param {?=} name
-     * @param {?=} definitions
-     */
-    constructor(name = null, definitions = null) {
-        this.name = name;
-        this.definitions = definitions;
-    }
-}
-/**
- * @abstract
- */
-class CompileAnimationStateMetadata {
-}
-class CompileAnimationStateDeclarationMetadata extends CompileAnimationStateMetadata {
-    /**
-     * @param {?} stateNameExpr
-     * @param {?} styles
-     */
-    constructor(stateNameExpr, styles) {
-        super();
-        this.stateNameExpr = stateNameExpr;
-        this.styles = styles;
-    }
-}
-class CompileAnimationStateTransitionMetadata extends CompileAnimationStateMetadata {
-    /**
-     * @param {?} stateChangeExpr
-     * @param {?} steps
-     */
-    constructor(stateChangeExpr, steps) {
-        super();
-        this.stateChangeExpr = stateChangeExpr;
-        this.steps = steps;
-    }
-}
-/**
- * @abstract
- */
-class CompileAnimationMetadata {
-}
-class CompileAnimationKeyframesSequenceMetadata extends CompileAnimationMetadata {
-    /**
-     * @param {?=} steps
-     */
-    constructor(steps = []) {
-        super();
-        this.steps = steps;
-    }
-}
-class CompileAnimationStyleMetadata extends CompileAnimationMetadata {
-    /**
-     * @param {?} offset
-     * @param {?=} styles
-     */
-    constructor(offset, styles = null) {
-        super();
-        this.offset = offset;
-        this.styles = styles;
-    }
-}
-class CompileAnimationAnimateMetadata extends CompileAnimationMetadata {
-    /**
-     * @param {?=} timings
-     * @param {?=} styles
-     */
-    constructor(timings = 0, styles = null) {
-        super();
-        this.timings = timings;
-        this.styles = styles;
-    }
-}
-/**
- * @abstract
- */
-class CompileAnimationWithStepsMetadata extends CompileAnimationMetadata {
-    /**
-     * @param {?=} steps
-     */
-    constructor(steps = null) {
-        super();
-        this.steps = steps;
-    }
-}
-class CompileAnimationSequenceMetadata extends CompileAnimationWithStepsMetadata {
-    /**
-     * @param {?=} steps
-     */
-    constructor(steps = null) { super(steps); }
-}
-class CompileAnimationGroupMetadata extends CompileAnimationWithStepsMetadata {
-    /**
-     * @param {?=} steps
-     */
-    constructor(steps = null) { super(steps); }
-}
 /**
  * @param {?} name
  * @return {?}
@@ -1939,7 +1846,7 @@ class CompileTemplateMetadata {
     /**
      * @param {?} __0
      */
-    constructor({ encapsulation, template, templateUrl, styles, styleUrls, externalStylesheets, animations, ngContentSelectors, interpolation, isInline }) {
+    constructor({ encapsulation, template, templateUrl, styles, styleUrls, externalStylesheets, animations, ngContentSelectors, interpolation, isInline, preserveWhitespaces }) {
         this.encapsulation = encapsulation;
         this.template = template;
         this.templateUrl = templateUrl;
@@ -1953,13 +1860,13 @@ class CompileTemplateMetadata {
         }
         this.interpolation = interpolation;
         this.isInline = isInline;
+        this.preserveWhitespaces = preserveWhitespaces;
     }
     /**
      * @return {?}
      */
     toSummary() {
         return {
-            animations: this.animations.map(anim => anim.name),
             ngContentSelectors: this.ngContentSelectors,
             encapsulation: this.encapsulation,
         };
@@ -2105,7 +2012,8 @@ function createHostComponentMeta(hostTypeReference, compMeta, hostViewType) {
             animations: [],
             isInline: true,
             externalStylesheets: [],
-            interpolation: null
+            interpolation: null,
+            preserveWhitespaces: false,
         }),
         exportAs: null,
         changeDetection: ChangeDetectionStrategy.Default,
@@ -2424,12 +2332,21 @@ class CompilerConfig {
     /**
      * @param {?=} __0
      */
-    constructor({ defaultEncapsulation = ViewEncapsulation.Emulated, useJit = true, missingTranslation, enableLegacyTemplate } = {}) {
+    constructor({ defaultEncapsulation = ViewEncapsulation.Emulated, useJit = true, missingTranslation, enableLegacyTemplate, preserveWhitespaces } = {}) {
         this.defaultEncapsulation = defaultEncapsulation;
         this.useJit = !!useJit;
         this.missingTranslation = missingTranslation || null;
         this.enableLegacyTemplate = enableLegacyTemplate !== false;
+        this.preserveWhitespaces = preserveWhitespacesDefault(noUndefined(preserveWhitespaces));
     }
+}
+/**
+ * @param {?} preserveWhitespacesOption
+ * @param {?=} defaultSetting
+ * @return {?}
+ */
+function preserveWhitespacesDefault(preserveWhitespacesOption, defaultSetting = true) {
+    return preserveWhitespacesOption === null ? defaultSetting : preserveWhitespacesOption;
 }
 
 /**
@@ -3758,7 +3675,6 @@ class InterpolationConfig {
         assertInterpolationSymbols('interpolation', markers);
         return new InterpolationConfig(markers[0], markers[1]);
     }
-    ;
 }
 const DEFAULT_INTERPOLATION_CONFIG = new InterpolationConfig('{{', '}}');
 
@@ -7842,7 +7758,6 @@ class RecurseVisitor {
      * @return {?}
      */
     visitText(text, context) { }
-    ;
     /**
      * @param {?} container
      * @param {?=} context
@@ -7873,14 +7788,12 @@ class RecurseVisitor {
      * @return {?}
      */
     visitPlaceholder(ph, context) { }
-    ;
     /**
      * @param {?} ph
      * @param {?=} context
      * @return {?}
      */
     visitIcuPlaceholder(ph, context) { }
-    ;
 }
 
 /**
@@ -8959,7 +8872,6 @@ class Doctype {
         this.rootTag = rootTag;
         this.dtd = dtd;
     }
-    ;
     /**
      * @param {?} visitor
      * @return {?}
@@ -8991,7 +8903,6 @@ class Text$2 {
      * @param {?} unescapedValue
      */
     constructor(unescapedValue) { this.value = _escapeXml(unescapedValue); }
-    ;
     /**
      * @param {?} visitor
      * @return {?}
@@ -10727,6 +10638,114 @@ function createTokenForExternalReference(reflector, reference) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+const PRESERVE_WS_ATTR_NAME = 'ngPreserveWhitespaces';
+const SKIP_WS_TRIM_TAGS = new Set(['pre', 'template', 'textarea', 'script', 'style']);
+// Equivalent to \s with \u00a0 (non-breaking space) excluded.
+// Based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+const WS_CHARS = ' \f\n\r\t\v\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff';
+const NO_WS_REGEXP = new RegExp(`[^${WS_CHARS}]`);
+const WS_REPLACE_REGEXP = new RegExp(`[${WS_CHARS}]{2,}`, 'g');
+/**
+ * @param {?} attrs
+ * @return {?}
+ */
+function hasPreserveWhitespacesAttr(attrs) {
+    return attrs.some((attr) => attr.name === PRESERVE_WS_ATTR_NAME);
+}
+/**
+ * Angular Dart introduced &ngsp; as a placeholder for non-removable space, see:
+ * https://github.com/dart-lang/angular/blob/0bb611387d29d65b5af7f9d2515ab571fd3fbee4/_tests/test/compiler/preserve_whitespace_test.dart#L25-L32
+ * In Angular Dart &ngsp; is converted to the 0xE500 PUA (Private Use Areas) unicode character
+ * and later on replaced by a space. We are re-implementing the same idea here.
+ * @param {?} value
+ * @return {?}
+ */
+function replaceNgsp(value) {
+    // lexer is replacing the &ngsp; pseudo-entity with NGSP_UNICODE
+    return value.replace(new RegExp(NGSP_UNICODE, 'g'), ' ');
+}
+/**
+ * This visitor can walk HTML parse tree and remove / trim text nodes using the following rules:
+ * - consider spaces, tabs and new lines as whitespace characters;
+ * - drop text nodes consisting of whitespace characters only;
+ * - for all other text nodes replace consecutive whitespace characters with one space;
+ * - convert &ngsp; pseudo-entity to a single space;
+ *
+ * Removal and trimming of whitespaces have positive performance impact (less code to generate
+ * while compiling templates, faster view creation). At the same time it can be "destructive"
+ * in some cases (whitespaces can influence layout). Because of the potential of breaking layout
+ * this visitor is not activated by default in Angular 4 and people need to explicitly opt-in for
+ * whitespace removal. The default option for whitespace removal will be revisited post Angular 5
+ * and might be changed to "on" by default.
+ */
+class WhitespaceVisitor {
+    /**
+     * @param {?} element
+     * @param {?} context
+     * @return {?}
+     */
+    visitElement(element, context) {
+        if (SKIP_WS_TRIM_TAGS.has(element.name) || hasPreserveWhitespacesAttr(element.attrs)) {
+            // don't descent into elements where we need to preserve whitespaces
+            // but still visit all attributes to eliminate one used as a market to preserve WS
+            return new Element(element.name, visitAll(this, element.attrs), element.children, element.sourceSpan, element.startSourceSpan, element.endSourceSpan);
+        }
+        return new Element(element.name, element.attrs, visitAll(this, element.children), element.sourceSpan, element.startSourceSpan, element.endSourceSpan);
+    }
+    /**
+     * @param {?} attribute
+     * @param {?} context
+     * @return {?}
+     */
+    visitAttribute(attribute, context) {
+        return attribute.name !== PRESERVE_WS_ATTR_NAME ? attribute : null;
+    }
+    /**
+     * @param {?} text
+     * @param {?} context
+     * @return {?}
+     */
+    visitText(text, context) {
+        const /** @type {?} */ isNotBlank = text.value.match(NO_WS_REGEXP);
+        if (isNotBlank) {
+            return new Text(replaceNgsp(text.value).replace(WS_REPLACE_REGEXP, ' '), text.sourceSpan);
+        }
+        return null;
+    }
+    /**
+     * @param {?} comment
+     * @param {?} context
+     * @return {?}
+     */
+    visitComment(comment, context) { return comment; }
+    /**
+     * @param {?} expansion
+     * @param {?} context
+     * @return {?}
+     */
+    visitExpansion(expansion, context) { return expansion; }
+    /**
+     * @param {?} expansionCase
+     * @param {?} context
+     * @return {?}
+     */
+    visitExpansionCase(expansionCase, context) { return expansionCase; }
+}
+/**
+ * @param {?} htmlAstWithErrors
+ * @return {?}
+ */
+function removeWhitespaces(htmlAstWithErrors) {
+    return new ParseTreeResult(visitAll(new WhitespaceVisitor(), htmlAstWithErrors.rootNodes), htmlAstWithErrors.errors);
+}
+
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 // http://cldr.unicode.org/index/cldr-spec/plural-rules
 const PLURAL_CASES = ['zero', 'one', 'two', 'few', 'many', 'other'];
 /**
@@ -11567,7 +11586,7 @@ function extractStyleUrls(resolver, baseUrl, cssText) {
     return new StyleWithImports(modifiedCssText, foundUrls);
 }
 const CSS_IMPORT_REGEXP = /@import\s+(?:url\()?\s*(?:(?:['"]([^'"]*))|([^;\)\s]*))[^;]*;?/g;
-const CSS_COMMENT_REGEXP = /\/\*.+?\*\//g;
+const CSS_COMMENT_REGEXP = /\/\*[\s\S]+?\*\//g;
 const URL_WITH_SCHEMA_REGEXP = /^([^:/?#]+):/;
 
 /**
@@ -11836,7 +11855,7 @@ class BindingParser {
         // This will occur when a @trigger is not paired with an expression.
         // For animations it is valid to not have an expression since */void
         // states will be applied by angular when the element is attached/detached
-        const /** @type {?} */ ast = this._parseBinding(expression || 'null', false, sourceSpan);
+        const /** @type {?} */ ast = this._parseBinding(expression || 'undefined', false, sourceSpan);
         targetMatchableAttrs.push([name, /** @type {?} */ ((ast.source))]);
         targetProps.push(new BoundProperty(name, ast, BoundPropertyType.ANIMATION, sourceSpan));
     }
@@ -12300,10 +12319,11 @@ class TemplateParser {
      * @param {?} pipes
      * @param {?} schemas
      * @param {?} templateUrl
+     * @param {?} preserveWhitespaces
      * @return {?}
      */
-    parse(component, template, directives, pipes, schemas, templateUrl) {
-        const /** @type {?} */ result = this.tryParse(component, template, directives, pipes, schemas, templateUrl);
+    parse(component, template, directives, pipes, schemas, templateUrl, preserveWhitespaces) {
+        const /** @type {?} */ result = this.tryParse(component, template, directives, pipes, schemas, templateUrl, preserveWhitespaces);
         const /** @type {?} */ warnings = ((result.errors)).filter(error => error.level === ParseErrorLevel.WARNING)
             .filter(warnOnlyOnce([TEMPLATE_ATTR_DEPRECATION_WARNING, TEMPLATE_ELEMENT_DEPRECATION_WARNING]));
         const /** @type {?} */ errors = ((result.errors)).filter(error => error.level === ParseErrorLevel.ERROR);
@@ -12323,10 +12343,15 @@ class TemplateParser {
      * @param {?} pipes
      * @param {?} schemas
      * @param {?} templateUrl
+     * @param {?} preserveWhitespaces
      * @return {?}
      */
-    tryParse(component, template, directives, pipes, schemas, templateUrl) {
-        return this.tryParseHtml(this.expandHtml(/** @type {?} */ ((this._htmlParser)).parse(template, templateUrl, true, this.getInterpolationConfig(component))), component, directives, pipes, schemas);
+    tryParse(component, template, directives, pipes, schemas, templateUrl, preserveWhitespaces) {
+        let /** @type {?} */ htmlParseResult = ((this._htmlParser)).parse(template, templateUrl, true, this.getInterpolationConfig(component));
+        if (!preserveWhitespaces) {
+            htmlParseResult = removeWhitespaces(htmlParseResult);
+        }
+        return this.tryParseHtml(this.expandHtml(htmlParseResult), component, directives, pipes, schemas);
     }
     /**
      * @param {?} htmlAstWithErrors
@@ -12479,9 +12504,10 @@ class TemplateParseVisitor {
      */
     visitText(text, parent) {
         const /** @type {?} */ ngContentIndex = ((parent.findNgContentIndex(TEXT_CSS_SELECTOR)));
-        const /** @type {?} */ expr = this._bindingParser.parseInterpolation(text.value, /** @type {?} */ ((text.sourceSpan)));
+        const /** @type {?} */ valueNoNgsp = replaceNgsp(text.value);
+        const /** @type {?} */ expr = this._bindingParser.parseInterpolation(valueNoNgsp, /** @type {?} */ ((text.sourceSpan)));
         return expr ? new BoundTextAst(expr, ngContentIndex, /** @type {?} */ ((text.sourceSpan))) :
-            new TextAst(text.value, ngContentIndex, /** @type {?} */ ((text.sourceSpan)));
+            new TextAst(valueNoNgsp, ngContentIndex, /** @type {?} */ ((text.sourceSpan)));
     }
     /**
      * @param {?} attribute
@@ -12760,7 +12786,7 @@ class TemplateParseVisitor {
             this._createDirectivePropertyAsts(directive.inputs, props, directiveProperties, targetBoundDirectivePropNames);
             elementOrDirectiveRefs.forEach((elOrDirRef) => {
                 if ((elOrDirRef.value.length === 0 && directive.isComponent) ||
-                    (directive.exportAs == elOrDirRef.value)) {
+                    (elOrDirRef.isReferenceToDirective(directive))) {
                     targetReferences.push(new ReferenceAst(elOrDirRef.name, createTokenForReference(directive.type.reference), elOrDirRef.sourceSpan));
                     matchedReferences.add(elOrDirRef.name);
                 }
@@ -13015,6 +13041,13 @@ class NonBindableVisitor {
      */
     visitExpansionCase(expansionCase, context) { return expansionCase; }
 }
+/**
+ * A reference to an element or directive in a template. E.g., the reference in this template:
+ *
+ * <div #myMenu="coolMenu">
+ *
+ * would be {name: 'myMenu', value: 'coolMenu', sourceSpan: ...}
+ */
 class ElementOrDirectiveRef {
     /**
      * @param {?} name
@@ -13026,6 +13059,22 @@ class ElementOrDirectiveRef {
         this.value = value;
         this.sourceSpan = sourceSpan;
     }
+    /**
+     * Gets whether this is a reference to the given directive.
+     * @param {?} directive
+     * @return {?}
+     */
+    isReferenceToDirective(directive) {
+        return splitExportAs(directive.exportAs).indexOf(this.value) !== -1;
+    }
+}
+/**
+ * Splits a raw, potentially comma-delimted `exportAs` value into an array of names.
+ * @param {?} exportAs
+ * @return {?}
+ */
+function splitExportAs(exportAs) {
+    return exportAs ? exportAs.split(',').map(e => e.trim()) : [];
 }
 /**
  * @param {?} classAttrValue
@@ -13577,6 +13626,10 @@ class DirectiveNormalizer {
         else {
             throw syntaxError(`No template specified for component ${ɵstringify(prenormData.componentType)}`);
         }
+        if (isDefined(prenormData.preserveWhitespaces) &&
+            typeof prenormData.preserveWhitespaces !== 'boolean') {
+            throw syntaxError(`The preserveWhitespaces option for component ${ɵstringify(prenormData.componentType)} must be a boolean`);
+        }
         return SyncAsync.then(this.normalizeTemplateOnly(prenormData), (result) => this.normalizeExternalStylesheets(result));
     }
     /**
@@ -13635,7 +13688,8 @@ class DirectiveNormalizer {
             ngContentSelectors: visitor.ngContentSelectors,
             animations: prenormData.animations,
             interpolation: prenormData.interpolation, isInline,
-            externalStylesheets: []
+            externalStylesheets: [],
+            preserveWhitespaces: preserveWhitespacesDefault(prenormData.preserveWhitespaces, this._config.preserveWhitespaces),
         });
     }
     /**
@@ -13654,6 +13708,7 @@ class DirectiveNormalizer {
             animations: templateMeta.animations,
             interpolation: templateMeta.interpolation,
             isInline: templateMeta.isInline,
+            preserveWhitespaces: templateMeta.preserveWhitespaces,
         }));
     }
     /**
@@ -13930,7 +13985,8 @@ class DirectiveResolver {
                 styleUrls: directive.styleUrls,
                 encapsulation: directive.encapsulation,
                 animations: directive.animations,
-                interpolation: directive.interpolation
+                interpolation: directive.interpolation,
+                preserveWhitespaces: directive.preserveWhitespaces,
             });
         }
         else {
@@ -14316,7 +14372,6 @@ class JitSummaryResolver {
      * @return {?}
      */
     isLibraryFile(fileName) { return false; }
-    ;
     /**
      * @param {?} fileName
      * @return {?}
@@ -14329,7 +14384,6 @@ class JitSummaryResolver {
     resolveSummary(reference) {
         return this._summaries.get(reference) || null;
     }
-    ;
     /**
      * @param {?} filePath
      * @return {?}
@@ -14345,7 +14399,6 @@ class JitSummaryResolver {
      * @return {?}
      */
     addSummary(summary) { this._summaries.set(summary.symbol, summary); }
-    ;
 }
 JitSummaryResolver.decorators = [
     { type: CompilerInjectable },
@@ -14602,7 +14655,8 @@ class CompileMetadataResolver {
                 styles: template.styles,
                 styleUrls: template.styleUrls,
                 animations: template.animations,
-                interpolation: template.interpolation
+                interpolation: template.interpolation,
+                preserveWhitespaces: template.preserveWhitespaces
             });
             if (ɵisPromise(templateMeta) && isSync) {
                 this._reportError(componentStillLoadingError(directiveType), directiveType);
@@ -14650,7 +14704,8 @@ class CompileMetadataResolver {
                 interpolation: noUndefined(dirMeta.interpolation),
                 isInline: !!dirMeta.template,
                 externalStylesheets: [],
-                ngContentSelectors: []
+                ngContentSelectors: [],
+                preserveWhitespaces: noUndefined(dirMeta.preserveWhitespaces),
             });
         }
         let /** @type {?} */ changeDetectionStrategy = ((null));
@@ -18223,7 +18278,7 @@ class EmitterVisitorContext {
     spanOf(line, column) {
         const /** @type {?} */ emittedLine = this._lines[line - this._preambleLineCount];
         if (emittedLine) {
-            let /** @type {?} */ columnsLeft = column - emittedLine.indent;
+            let /** @type {?} */ columnsLeft = column - _createIndent(emittedLine.indent).length;
             for (let /** @type {?} */ partIndex = 0; partIndex < emittedLine.parts.length; partIndex++) {
                 const /** @type {?} */ part = emittedLine.parts[partIndex];
                 if (part.length > columnsLeft) {
@@ -20109,7 +20164,6 @@ class SafeSelector {
             return pseudo + replaceBy;
         });
     }
-    ;
     /**
      * @param {?} content
      * @return {?}
@@ -21338,14 +21392,10 @@ class ViewCompileResult {
 }
 class ViewCompiler {
     /**
-     * @param {?} _config
      * @param {?} _reflector
-     * @param {?} _schemaRegistry
      */
-    constructor(_config, _reflector, _schemaRegistry) {
-        this._config = _config;
+    constructor(_reflector) {
         this._reflector = _reflector;
-        this._schemaRegistry = _schemaRegistry;
     }
     /**
      * @param {?} outputCtx
@@ -21392,9 +21442,7 @@ ViewCompiler.decorators = [
  * @nocollapse
  */
 ViewCompiler.ctorParameters = () => [
-    { type: CompilerConfig, },
     { type: CompileReflector, },
-    { type: ElementSchemaRegistry, },
 ];
 const LOG_VAR$1 = variable('_l');
 const VIEW_VAR = variable('_v');
@@ -21548,12 +21596,15 @@ class ViewBuilder {
      * @return {?}
      */
     visitText(ast, context) {
-        // textDef(ngContentIndex: number, constants: string[]): NodeDef;
+        // Static text nodes have no check function
+        const /** @type {?} */ checkIndex = -1;
         this.nodes.push(() => ({
             sourceSpan: ast.sourceSpan,
             nodeFlags: 2 /* TypeText */,
             nodeDef: importExpr(Identifiers.textDef).callFn([
-                literal(ast.ngContentIndex), literalArr([literal(ast.value)])
+                literal(checkIndex),
+                literal(ast.ngContentIndex),
+                literalArr([literal(ast.value)]),
             ])
         }));
     }
@@ -21569,12 +21620,16 @@ class ViewBuilder {
         const /** @type {?} */ astWithSource = (ast.value);
         const /** @type {?} */ inter = (astWithSource.ast);
         const /** @type {?} */ updateRendererExpressions = inter.expressions.map((expr, bindingIndex) => this._preprocessUpdateExpression({ nodeIndex, bindingIndex, sourceSpan: ast.sourceSpan, context: COMP_VAR, value: expr }));
-        // textDef(ngContentIndex: number, constants: string[]): NodeDef;
+        // Check index is the same as the node index during compilation
+        // They might only differ at runtime
+        const /** @type {?} */ checkIndex = nodeIndex;
         this.nodes[nodeIndex] = () => ({
             sourceSpan: ast.sourceSpan,
             nodeFlags: 2 /* TypeText */,
             nodeDef: importExpr(Identifiers.textDef).callFn([
-                literal(ast.ngContentIndex), literalArr(inter.strings.map(s => literal(s)))
+                literal(checkIndex),
+                literal(ast.ngContentIndex),
+                literalArr(inter.strings.map(s => literal(s))),
             ]),
             updateRenderer: updateRendererExpressions
         });
@@ -21655,18 +21710,14 @@ class ViewBuilder {
             compView = this.outputCtx.importExpr(compAst.directive.componentViewType);
             compRendererType = this.outputCtx.importExpr(compAst.directive.rendererType);
         }
-        // elementDef(
-        //   flags: NodeFlags, matchedQueriesDsl: [string | number, QueryValueType][],
-        //   ngContentIndex: number, childCount: number, namespaceAndName: string,
-        //   fixedAttrs: [string, string][] = [],
-        //   bindings?: [BindingFlags, string, string | SecurityContext][],
-        //   outputs?: ([OutputType.ElementOutput | OutputType.DirectiveHostOutput, string, string])[],
-        //   handleEvent?: ElementHandleEventFn,
-        //   componentView?: () => ViewDefinition, componentRendererType?: RendererType2): NodeDef;
+        // Check index is the same as the node index during compilation
+        // They might only differ at runtime
+        const /** @type {?} */ checkIndex = nodeIndex;
         this.nodes[nodeIndex] = () => ({
             sourceSpan: ast.sourceSpan,
             nodeFlags: 1 /* TypeElement */ | flags,
             nodeDef: importExpr(Identifiers.elementDef).callFn([
+                literal(checkIndex),
                 literal(flags),
                 queryMatchesExpr,
                 literal(ast.ngContentIndex),
@@ -21846,19 +21897,21 @@ class ViewBuilder {
             context: dirContextExpr,
             eventAst: hostEventAst, dirAst,
         }));
-        // directiveDef(
-        //   flags: NodeFlags, matchedQueries: [string, QueryValueType][], childCount: number, ctor:
-        //   any,
-        //   deps: ([DepFlags, any] | any)[], props?: {[name: string]: [number, string]},
-        //   outputs?: {[name: string]: string}, component?: () => ViewDefinition): NodeDef;
+        // Check index is the same as the node index during compilation
+        // They might only differ at runtime
+        const /** @type {?} */ checkIndex = nodeIndex;
         this.nodes[nodeIndex] = () => ({
             sourceSpan: dirAst.sourceSpan,
             nodeFlags: 16384 /* TypeDirective */ | flags,
             nodeDef: importExpr(Identifiers.directiveDef).callFn([
-                literal(flags), queryMatchExprs.length ? literalArr(queryMatchExprs) : NULL_EXPR,
-                literal(childCount), providerExpr, depsExpr,
+                literal(checkIndex),
+                literal(flags),
+                queryMatchExprs.length ? literalArr(queryMatchExprs) : NULL_EXPR,
+                literal(childCount),
+                providerExpr,
+                depsExpr,
                 inputDefs.length ? new LiteralMapExpr(inputDefs) : NULL_EXPR,
-                outputDefs.length ? new LiteralMapExpr(outputDefs) : NULL_EXPR
+                outputDefs.length ? new LiteralMapExpr(outputDefs) : NULL_EXPR,
             ]),
             updateDirectives: updateDirectiveExpressions,
             directive: dirAst.directive.type,
@@ -21963,39 +22016,43 @@ class ViewBuilder {
      * @param {?} argCount
      * @return {?}
      */
-    createLiteralArrayConverter(sourceSpan, argCount) {
+    _createLiteralArrayConverter(sourceSpan, argCount) {
         if (argCount === 0) {
             const /** @type {?} */ valueExpr = importExpr(Identifiers.EMPTY_ARRAY);
             return () => valueExpr;
         }
-        const /** @type {?} */ nodeIndex = this.nodes.length;
-        // pureArrayDef(argCount: number): NodeDef;
+        const /** @type {?} */ checkIndex = this.nodes.length;
         this.nodes.push(() => ({
             sourceSpan,
             nodeFlags: 32 /* TypePureArray */,
-            nodeDef: importExpr(Identifiers.pureArrayDef).callFn([literal(argCount)])
+            nodeDef: importExpr(Identifiers.pureArrayDef).callFn([
+                literal(checkIndex),
+                literal(argCount),
+            ])
         }));
-        return (args) => callCheckStmt(nodeIndex, args);
+        return (args) => callCheckStmt(checkIndex, args);
     }
     /**
      * @param {?} sourceSpan
      * @param {?} keys
      * @return {?}
      */
-    createLiteralMapConverter(sourceSpan, keys) {
+    _createLiteralMapConverter(sourceSpan, keys) {
         if (keys.length === 0) {
             const /** @type {?} */ valueExpr = importExpr(Identifiers.EMPTY_MAP);
             return () => valueExpr;
         }
-        // function pureObjectDef(propToIndex: {[p: string]: number}): NodeDef
         const /** @type {?} */ map = literalMap(keys.map((e, i) => (Object.assign({}, e, { value: literal(i) }))));
-        const /** @type {?} */ nodeIndex = this.nodes.length;
+        const /** @type {?} */ checkIndex = this.nodes.length;
         this.nodes.push(() => ({
             sourceSpan,
             nodeFlags: 64 /* TypePureObject */,
-            nodeDef: importExpr(Identifiers.pureObjectDef).callFn([map])
+            nodeDef: importExpr(Identifiers.pureObjectDef).callFn([
+                literal(checkIndex),
+                map,
+            ])
         }));
-        return (args) => callCheckStmt(nodeIndex, args);
+        return (args) => callCheckStmt(checkIndex, args);
     }
     /**
      * @param {?} expression
@@ -22003,15 +22060,17 @@ class ViewBuilder {
      * @param {?} argCount
      * @return {?}
      */
-    createPipeConverter(expression, name, argCount) {
+    _createPipeConverter(expression, name, argCount) {
         const /** @type {?} */ pipe = ((this.usedPipes.find((pipeSummary) => pipeSummary.name === name)));
         if (pipe.pure) {
-            const /** @type {?} */ nodeIndex = this.nodes.length;
-            // function purePipeDef(argCount: number): NodeDef;
+            const /** @type {?} */ checkIndex = this.nodes.length;
             this.nodes.push(() => ({
                 sourceSpan: expression.sourceSpan,
                 nodeFlags: 128 /* TypePurePipe */,
-                nodeDef: importExpr(Identifiers.purePipeDef).callFn([literal(argCount)])
+                nodeDef: importExpr(Identifiers.purePipeDef).callFn([
+                    literal(checkIndex),
+                    literal(argCount),
+                ])
             }));
             // find underlying pipe in the component view
             let /** @type {?} */ compViewExpr = VIEW_VAR;
@@ -22022,7 +22081,7 @@ class ViewBuilder {
             }
             const /** @type {?} */ pipeNodeIndex = compBuilder.purePipeNodeIndices[name];
             const /** @type {?} */ pipeValueExpr = importExpr(Identifiers.nodeValue).callFn([compViewExpr, literal(pipeNodeIndex)]);
-            return (args) => callUnwrapValue(expression.nodeIndex, expression.bindingIndex, callCheckStmt(nodeIndex, [pipeValueExpr].concat(args)));
+            return (args) => callUnwrapValue(expression.nodeIndex, expression.bindingIndex, callCheckStmt(checkIndex, [pipeValueExpr].concat(args)));
         }
         else {
             const /** @type {?} */ nodeIndex = this._createPipe(expression.sourceSpan, pipe);
@@ -22057,6 +22116,11 @@ class ViewBuilder {
         return nodeIndex;
     }
     /**
+     * For the AST in `UpdateExpression.value`:
+     * - create nodes for pipes, literal arrays and, literal maps,
+     * - update the AST to replace pipes, literal arrays and, literal maps with calls to check fn.
+     *
+     * WARNING: This might create new nodeDefs (for pipes and literal arrays and literal maps)!
      * @param {?} expression
      * @return {?}
      */
@@ -22067,9 +22131,9 @@ class ViewBuilder {
             sourceSpan: expression.sourceSpan,
             context: expression.context,
             value: convertPropertyBindingBuiltins({
-                createLiteralArrayConverter: (argCount) => this.createLiteralArrayConverter(expression.sourceSpan, argCount),
-                createLiteralMapConverter: (keys) => this.createLiteralMapConverter(expression.sourceSpan, keys),
-                createPipeConverter: (name, argCount) => this.createPipeConverter(expression, name, argCount)
+                createLiteralArrayConverter: (argCount) => this._createLiteralArrayConverter(expression.sourceSpan, argCount),
+                createLiteralMapConverter: (keys) => this._createLiteralMapConverter(expression.sourceSpan, keys),
+                createPipeConverter: (name, argCount) => this._createPipeConverter(expression, name, argCount)
             }, expression.value)
         };
     }
@@ -23065,7 +23129,6 @@ class AotCompiler {
         if (this._enableSummariesForJit) {
             return [summaryJson, this._codegenSourceModule(srcFileUrl, forJitOutputCtx)];
         }
-        
         return [summaryJson];
     }
     /**
@@ -23077,9 +23140,10 @@ class AotCompiler {
         const /** @type {?} */ ngModule = ((this._metadataResolver.getNgModuleMetadata(ngModuleType)));
         const /** @type {?} */ providers = [];
         if (this._localeId) {
+            const /** @type {?} */ normalizedLocale = this._localeId.replace(/_/g, '-');
             providers.push({
                 token: createTokenForExternalReference(this._reflector, Identifiers.LOCALE_ID),
-                useValue: this._localeId,
+                useValue: normalizedLocale,
             });
         }
         if (this._translationFormat) {
@@ -23136,7 +23200,8 @@ class AotCompiler {
     _compileComponent(outputCtx, compMeta, ngModule, directiveIdentifiers, componentStyles, fileSuffix) {
         const /** @type {?} */ directives = directiveIdentifiers.map(dir => this._metadataResolver.getDirectiveSummary(dir.reference));
         const /** @type {?} */ pipes = ngModule.transitiveModule.pipes.map(pipe => this._metadataResolver.getPipeSummary(pipe.reference));
-        const { template: parsedTemplate, pipes: usedPipes } = this._templateParser.parse(compMeta, /** @type {?} */ ((((compMeta.template)).template)), directives, pipes, ngModule.schemas, templateSourceUrl(ngModule.type, compMeta, /** @type {?} */ ((compMeta.template))));
+        const /** @type {?} */ preserveWhitespaces = ((((compMeta)).template)).preserveWhitespaces;
+        const { template: parsedTemplate, pipes: usedPipes } = this._templateParser.parse(compMeta, /** @type {?} */ ((((compMeta.template)).template)), directives, pipes, ngModule.schemas, templateSourceUrl(ngModule.type, compMeta, /** @type {?} */ ((compMeta.template))), preserveWhitespaces);
         const /** @type {?} */ stylesExpr = componentStyles ? variable(componentStyles.stylesVar) : literalArr([]);
         const /** @type {?} */ viewResult = this._viewCompiler.compileComponent(outputCtx, compMeta, parsedTemplate, stylesExpr, usedPipes);
         if (componentStyles) {
@@ -23834,7 +23899,9 @@ class StaticReflector {
                     for (const /** @type {?} */ item of ((expression))) {
                         // Check for a spread expression
                         if (item && item.__symbolic === 'spread') {
-                            const /** @type {?} */ spreadArray = simplify(item.expression);
+                            // We call with references as 0 because we require the actual value and cannot
+                            // tolerate a reference here.
+                            const /** @type {?} */ spreadArray = simplifyInContext(context, item.expression, depth, 0);
                             if (Array.isArray(spreadArray)) {
                                 for (const /** @type {?} */ spreadItem of spreadArray) {
                                     result.push(spreadItem);
@@ -23853,13 +23920,14 @@ class StaticReflector {
                 if (expression instanceof StaticSymbol) {
                     // Stop simplification at builtin symbols or if we are in a reference context
                     if (expression === self.injectionToken || expression === self.opaqueToken ||
-                        self.conversionMap.has(expression) || references > 0) {
+                        self.conversionMap.has(expression) ||
+                        (references > 0 && !expression.members.length)) {
                         return expression;
                     }
                     else {
                         const /** @type {?} */ staticSymbol = expression;
                         const /** @type {?} */ declarationValue = resolveReferenceValue(staticSymbol);
-                        if (declarationValue) {
+                        if (declarationValue != null) {
                             return simplifyInContext(staticSymbol, declarationValue, depth + 1, references);
                         }
                         else {
@@ -23941,8 +24009,8 @@ class StaticReflector {
                                 }
                                 return null;
                             case 'index':
-                                let /** @type {?} */ indexTarget = simplify(expression['expression']);
-                                let /** @type {?} */ index = simplify(expression['index']);
+                                let /** @type {?} */ indexTarget = simplifyInContext(context, expression['expression'], depth, 0);
+                                let /** @type {?} */ index = simplifyInContext(context, expression['index'], depth, 0);
                                 if (indexTarget && isPrimitive(index))
                                     return indexTarget[index];
                                 return null;
@@ -23955,7 +24023,7 @@ class StaticReflector {
                                     selectContext =
                                         self.getStaticSymbol(selectTarget.filePath, selectTarget.name, members);
                                     const /** @type {?} */ declarationValue = resolveReferenceValue(selectContext);
-                                    if (declarationValue) {
+                                    if (declarationValue != null) {
                                         return simplifyInContext(selectContext, declarationValue, depth + 1, references);
                                     }
                                     else {
@@ -24835,6 +24903,7 @@ function createAotCompiler(compilerHost, options) {
         useJit: false,
         enableLegacyTemplate: options.enableLegacyTemplate !== false,
         missingTranslation: options.missingTranslation,
+        preserveWhitespaces: options.preserveWhitespaces,
     });
     const /** @type {?} */ normalizer = new DirectiveNormalizer({ get: (url) => compilerHost.loadResource(url) }, urlResolver, htmlParser, config);
     const /** @type {?} */ expressionParser = new Parser(new Lexer());
@@ -24842,7 +24911,7 @@ function createAotCompiler(compilerHost, options) {
     const /** @type {?} */ tmplParser = new TemplateParser(config, staticReflector, expressionParser, elementSchemaRegistry, htmlParser, console, []);
     const /** @type {?} */ resolver = new CompileMetadataResolver(config, new NgModuleResolver(staticReflector), new DirectiveResolver(staticReflector), new PipeResolver(staticReflector), summaryResolver, elementSchemaRegistry, normalizer, console, symbolCache, staticReflector);
     // TODO(vicb): do not pass options.i18nFormat here
-    const /** @type {?} */ viewCompiler = new ViewCompiler(config, staticReflector, elementSchemaRegistry);
+    const /** @type {?} */ viewCompiler = new ViewCompiler(staticReflector);
     const /** @type {?} */ compiler = new AotCompiler(config, compilerHost, staticReflector, resolver, tmplParser, new StyleCompiler(urlResolver), viewCompiler, new NgModuleCompiler(staticReflector), new TypeScriptEmitter(), summaryResolver, options.locale || null, options.i18nFormat || null, options.enableSummariesForJit || null, symbolResolver);
     return { compiler, reflector: staticReflector };
 }
@@ -26029,7 +26098,8 @@ class JitCompiler {
         const /** @type {?} */ compMeta = template.compMeta;
         const /** @type {?} */ externalStylesheetsByModuleUrl = new Map();
         const /** @type {?} */ outputContext = createOutputContext();
-        const /** @type {?} */ componentStylesheet = this._styleCompiler.compileComponent(outputContext, compMeta); /** @type {?} */
+        const /** @type {?} */ componentStylesheet = this._styleCompiler.compileComponent(outputContext, compMeta);
+        const /** @type {?} */ preserveWhitespaces = ((((compMeta)).template)).preserveWhitespaces; /** @type {?} */
         ((compMeta.template)).externalStylesheets.forEach((stylesheetMeta) => {
             const /** @type {?} */ compiledStylesheet = this._styleCompiler.compileStyles(createOutputContext(), compMeta, stylesheetMeta);
             externalStylesheetsByModuleUrl.set(/** @type {?} */ ((stylesheetMeta.moduleUrl)), compiledStylesheet);
@@ -26037,7 +26107,7 @@ class JitCompiler {
         this._resolveStylesCompileResult(componentStylesheet, externalStylesheetsByModuleUrl);
         const /** @type {?} */ directives = template.directives.map(dir => this._metadataResolver.getDirectiveSummary(dir.reference));
         const /** @type {?} */ pipes = template.ngModule.transitiveModule.pipes.map(pipe => this._metadataResolver.getPipeSummary(pipe.reference));
-        const { template: parsedTemplate, pipes: usedPipes } = this._templateParser.parse(compMeta, /** @type {?} */ ((((compMeta.template)).template)), directives, pipes, template.ngModule.schemas, templateSourceUrl(template.ngModule.type, template.compMeta, /** @type {?} */ ((template.compMeta.template))));
+        const { template: parsedTemplate, pipes: usedPipes } = this._templateParser.parse(compMeta, /** @type {?} */ ((((compMeta.template)).template)), directives, pipes, template.ngModule.schemas, templateSourceUrl(template.ngModule.type, template.compMeta, /** @type {?} */ ((template.compMeta.template))), preserveWhitespaces);
         const /** @type {?} */ compileResult = this._viewCompiler.compileComponent(outputContext, compMeta, parsedTemplate, variable(componentStylesheet.stylesVar), usedPipes);
         let /** @type {?} */ evalResult;
         if (!this._compilerConfig.useJit) {
@@ -26569,6 +26639,7 @@ class JitCompilerFactory {
             defaultEncapsulation: ViewEncapsulation.Emulated,
             missingTranslation: MissingTranslationStrategy.Warning,
             enableLegacyTemplate: true,
+            preserveWhitespaces: true,
         };
         this._defaultOptions = [compilerOptions, ...defaultOptions];
     }
@@ -26591,6 +26662,7 @@ class JitCompilerFactory {
                         defaultEncapsulation: opts.defaultEncapsulation,
                         missingTranslation: opts.missingTranslation,
                         enableLegacyTemplate: opts.enableLegacyTemplate,
+                        preserveWhitespaces: opts.preserveWhitespaces,
                     });
                 },
                 deps: []
@@ -26628,6 +26700,7 @@ function _mergeOptions(optionsArr) {
         providers: _mergeArrays(optionsArr.map(options => ((options.providers)))),
         missingTranslation: _lastDefined(optionsArr.map(options => options.missingTranslation)),
         enableLegacyTemplate: _lastDefined(optionsArr.map(options => options.enableLegacyTemplate)),
+        preserveWhitespaces: _lastDefined(optionsArr.map(options => options.preserveWhitespaces)),
     };
 }
 /**
@@ -26693,5 +26766,5 @@ function _mergeArrays(parts) {
 
 // This file only reexports content of the `src` folder. Keep it that way.
 
-export { VERSION, TEMPLATE_TRANSFORMS, CompilerConfig, JitCompiler, DirectiveResolver, PipeResolver, NgModuleResolver, DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig, NgModuleCompiler, AssertNotNull, BinaryOperator, BinaryOperatorExpr, BuiltinMethod, BuiltinVar, CastExpr, ClassStmt, CommaExpr, CommentStmt, ConditionalExpr, DeclareFunctionStmt, DeclareVarStmt, ExpressionStatement, ExternalExpr, ExternalReference, FunctionExpr, IfStmt, InstantiateExpr, InvokeFunctionExpr, InvokeMethodExpr, LiteralArrayExpr, LiteralExpr, LiteralMapExpr, NotExpr, ReadKeyExpr, ReadPropExpr, ReadVarExpr, ReturnStatement, ThrowStmt, TryCatchStmt, WriteKeyExpr, WritePropExpr, WriteVarExpr, StmtModifier, Statement, EmitterVisitorContext, ViewCompiler, getParseErrors, isSyntaxError, syntaxError, TextAst, BoundTextAst, AttrAst, BoundElementPropertyAst, BoundEventAst, ReferenceAst, VariableAst, ElementAst, EmbeddedTemplateAst, BoundDirectivePropertyAst, DirectiveAst, ProviderAst, ProviderAstType, NgContentAst, PropertyBindingType, NullTemplateVisitor, RecursiveTemplateAstVisitor, templateVisitAll, CompileAnimationEntryMetadata, CompileAnimationStateMetadata, CompileAnimationStateDeclarationMetadata, CompileAnimationStateTransitionMetadata, CompileAnimationMetadata, CompileAnimationKeyframesSequenceMetadata, CompileAnimationStyleMetadata, CompileAnimationAnimateMetadata, CompileAnimationWithStepsMetadata, CompileAnimationSequenceMetadata, CompileAnimationGroupMetadata, identifierName, identifierModuleUrl, viewClassName, rendererTypeName, hostViewClassName, componentFactoryName, CompileSummaryKind, tokenName, tokenReference, CompileStylesheetMetadata, CompileTemplateMetadata, CompileDirectiveMetadata, createHostComponentMeta, CompilePipeMetadata, CompileNgModuleMetadata, TransitiveCompileNgModuleMetadata, ProviderMeta, flatten, sourceUrl, templateSourceUrl, sharedStylesheetJitUrl, ngModuleJitUrl, templateJitUrl, createAotCompiler, AotCompiler, analyzeNgModules, analyzeAndValidateNgModules, extractProgramSymbols, GeneratedFile, toTypeScript, StaticReflector, StaticSymbol, StaticSymbolCache, ResolvedStaticSymbol, StaticSymbolResolver, unescapeIdentifier, AotSummaryResolver, AstPath, SummaryResolver, JitSummaryResolver, COMPILER_PROVIDERS, JitCompilerFactory, platformCoreDynamic, JitReflector, CompileReflector, createUrlResolverWithoutPackagePrefix, createOfflineCompileUrlResolver, DEFAULT_PACKAGE_URL_PROVIDER, UrlResolver, getUrlScheme, ResourceLoader, ElementSchemaRegistry, Extractor, I18NHtmlParser, MessageBundle, Serializer, Xliff, Xliff2, Xmb, Xtb, DirectiveNormalizer, ParserError, ParseSpan, AST, Quote, EmptyExpr, ImplicitReceiver, Chain, Conditional, PropertyRead, PropertyWrite, SafePropertyRead, KeyedRead, KeyedWrite, BindingPipe, LiteralPrimitive, LiteralArray, LiteralMap, Interpolation, Binary, PrefixNot, NonNullAssert, MethodCall, SafeMethodCall, FunctionCall, ASTWithSource, TemplateBinding, NullAstVisitor, RecursiveAstVisitor, AstTransformer, visitAstChildren, TokenType, Lexer, Token, EOF, isIdentifier, isQuote, SplitInterpolation, TemplateBindingParseResult, Parser, _ParseAST, ERROR_COLLECTOR_TOKEN, CompileMetadataResolver, Text, Expansion, ExpansionCase, Attribute$1 as Attribute, Element, Comment, visitAll, RecursiveVisitor, findNode, ParseTreeResult, TreeError, HtmlParser, HtmlTagDefinition, getHtmlTagDefinition, TagContentType, splitNsName, isNgContainer, isNgContent, isNgTemplate, getNsPrefix, mergeNsAndName, NAMED_ENTITIES, debugOutputAstAsTypeScript, TypeScriptEmitter, ParseLocation, ParseSourceFile, ParseSourceSpan, ParseErrorLevel, ParseError, typeSourceSpan, DomElementSchemaRegistry, CssSelector, SelectorMatcher, SelectorListContext, SelectorContext, StylesCompileDependency, CompiledStylesheet, StyleCompiler, TemplateParseError, TemplateParseResult, TemplateParser, splitClasses, createElementCssSelector, removeSummaryDuplicates };
+export { VERSION, TEMPLATE_TRANSFORMS, CompilerConfig, preserveWhitespacesDefault, JitCompiler, DirectiveResolver, PipeResolver, NgModuleResolver, DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig, NgModuleCompiler, AssertNotNull, BinaryOperator, BinaryOperatorExpr, BuiltinMethod, BuiltinVar, CastExpr, ClassStmt, CommaExpr, CommentStmt, ConditionalExpr, DeclareFunctionStmt, DeclareVarStmt, ExpressionStatement, ExternalExpr, ExternalReference, FunctionExpr, IfStmt, InstantiateExpr, InvokeFunctionExpr, InvokeMethodExpr, LiteralArrayExpr, LiteralExpr, LiteralMapExpr, NotExpr, ReadKeyExpr, ReadPropExpr, ReadVarExpr, ReturnStatement, ThrowStmt, TryCatchStmt, WriteKeyExpr, WritePropExpr, WriteVarExpr, StmtModifier, Statement, EmitterVisitorContext, ViewCompiler, getParseErrors, isSyntaxError, syntaxError, TextAst, BoundTextAst, AttrAst, BoundElementPropertyAst, BoundEventAst, ReferenceAst, VariableAst, ElementAst, EmbeddedTemplateAst, BoundDirectivePropertyAst, DirectiveAst, ProviderAst, ProviderAstType, NgContentAst, PropertyBindingType, NullTemplateVisitor, RecursiveTemplateAstVisitor, templateVisitAll, identifierName, identifierModuleUrl, viewClassName, rendererTypeName, hostViewClassName, componentFactoryName, CompileSummaryKind, tokenName, tokenReference, CompileStylesheetMetadata, CompileTemplateMetadata, CompileDirectiveMetadata, createHostComponentMeta, CompilePipeMetadata, CompileNgModuleMetadata, TransitiveCompileNgModuleMetadata, ProviderMeta, flatten, sourceUrl, templateSourceUrl, sharedStylesheetJitUrl, ngModuleJitUrl, templateJitUrl, createAotCompiler, AotCompiler, analyzeNgModules, analyzeAndValidateNgModules, extractProgramSymbols, GeneratedFile, toTypeScript, StaticReflector, StaticSymbol, StaticSymbolCache, ResolvedStaticSymbol, StaticSymbolResolver, unescapeIdentifier, AotSummaryResolver, AstPath, SummaryResolver, JitSummaryResolver, COMPILER_PROVIDERS, JitCompilerFactory, platformCoreDynamic, JitReflector, CompileReflector, createUrlResolverWithoutPackagePrefix, createOfflineCompileUrlResolver, DEFAULT_PACKAGE_URL_PROVIDER, UrlResolver, getUrlScheme, ResourceLoader, ElementSchemaRegistry, Extractor, I18NHtmlParser, MessageBundle, Serializer, Xliff, Xliff2, Xmb, Xtb, DirectiveNormalizer, ParserError, ParseSpan, AST, Quote, EmptyExpr, ImplicitReceiver, Chain, Conditional, PropertyRead, PropertyWrite, SafePropertyRead, KeyedRead, KeyedWrite, BindingPipe, LiteralPrimitive, LiteralArray, LiteralMap, Interpolation, Binary, PrefixNot, NonNullAssert, MethodCall, SafeMethodCall, FunctionCall, ASTWithSource, TemplateBinding, NullAstVisitor, RecursiveAstVisitor, AstTransformer, visitAstChildren, TokenType, Lexer, Token, EOF, isIdentifier, isQuote, SplitInterpolation, TemplateBindingParseResult, Parser, _ParseAST, ERROR_COLLECTOR_TOKEN, CompileMetadataResolver, Text, Expansion, ExpansionCase, Attribute$1 as Attribute, Element, Comment, visitAll, RecursiveVisitor, findNode, ParseTreeResult, TreeError, HtmlParser, HtmlTagDefinition, getHtmlTagDefinition, TagContentType, splitNsName, isNgContainer, isNgContent, isNgTemplate, getNsPrefix, mergeNsAndName, NAMED_ENTITIES, NGSP_UNICODE, debugOutputAstAsTypeScript, TypeScriptEmitter, ParseLocation, ParseSourceFile, ParseSourceSpan, ParseErrorLevel, ParseError, typeSourceSpan, DomElementSchemaRegistry, CssSelector, SelectorMatcher, SelectorListContext, SelectorContext, StylesCompileDependency, CompiledStylesheet, StyleCompiler, TemplateParseError, TemplateParseResult, TemplateParser, splitClasses, createElementCssSelector, removeSummaryDuplicates };
 //# sourceMappingURL=compiler.js.map

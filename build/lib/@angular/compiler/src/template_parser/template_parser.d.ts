@@ -43,11 +43,11 @@ export declare class TemplateParser {
     private _console;
     transforms: TemplateAstVisitor[];
     constructor(_config: CompilerConfig, _reflector: CompileReflector, _exprParser: Parser, _schemaRegistry: ElementSchemaRegistry, _htmlParser: I18NHtmlParser, _console: Console, transforms: TemplateAstVisitor[]);
-    parse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[], schemas: SchemaMetadata[], templateUrl: string): {
+    parse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[], schemas: SchemaMetadata[], templateUrl: string, preserveWhitespaces: boolean): {
         template: TemplateAst[];
         pipes: CompilePipeSummary[];
     };
-    tryParse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[], schemas: SchemaMetadata[], templateUrl: string): TemplateParseResult;
+    tryParse(component: CompileDirectiveMetadata, template: string, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[], schemas: SchemaMetadata[], templateUrl: string, preserveWhitespaces: boolean): TemplateParseResult;
     tryParseHtml(htmlAstWithErrors: ParseTreeResult, component: CompileDirectiveMetadata, directives: CompileDirectiveSummary[], pipes: CompilePipeSummary[], schemas: SchemaMetadata[]): TemplateParseResult;
     expandHtml(htmlAstWithErrors: ParseTreeResult, forced?: boolean): ParseTreeResult;
     getInterpolationConfig(component: CompileDirectiveMetadata): InterpolationConfig | undefined;

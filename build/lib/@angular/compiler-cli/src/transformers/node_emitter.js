@@ -218,7 +218,6 @@ var _NodeEmitterVisitor = (function () {
     _NodeEmitterVisitor.prototype.visitConditionalExpr = function (expr) {
         // TODO {chuckj}: Review use of ! on flaseCase. Should it be non-nullable?
         return this.record(expr, ts.createConditional(expr.condition.visitExpression(this, null), expr.trueCase.visitExpression(this, null), expr.falseCase.visitExpression(this, null)));
-        ;
     };
     _NodeEmitterVisitor.prototype.visitNotExpr = function (expr) {
         return this.record(expr, ts.createPrefix(ts.SyntaxKind.ExclamationToken, expr.condition.visitExpression(this, null)));

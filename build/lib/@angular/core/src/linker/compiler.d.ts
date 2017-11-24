@@ -82,6 +82,7 @@ export declare type CompilerOptions = {
     providers?: any[];
     missingTranslation?: MissingTranslationStrategy;
     enableLegacyTemplate?: boolean;
+    preserveWhitespaces?: boolean;
 };
 /**
  * Token to provide CompilerOptions in the platform injector.
