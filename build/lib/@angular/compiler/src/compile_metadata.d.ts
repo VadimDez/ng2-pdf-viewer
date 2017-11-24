@@ -8,53 +8,6 @@
 import { ChangeDetectionStrategy, ComponentFactory, RendererType2, SchemaMetadata, Type, ViewEncapsulation } from '@angular/core';
 import { StaticSymbol } from './aot/static_symbol';
 import { LifecycleHooks } from './lifecycle_reflector';
-export declare class CompileAnimationEntryMetadata {
-    name: string | null;
-    definitions: CompileAnimationStateMetadata[] | null;
-    constructor(name?: string | null, definitions?: CompileAnimationStateMetadata[] | null);
-}
-export declare abstract class CompileAnimationStateMetadata {
-}
-export declare class CompileAnimationStateDeclarationMetadata extends CompileAnimationStateMetadata {
-    stateNameExpr: string;
-    styles: CompileAnimationStyleMetadata;
-    constructor(stateNameExpr: string, styles: CompileAnimationStyleMetadata);
-}
-export declare class CompileAnimationStateTransitionMetadata extends CompileAnimationStateMetadata {
-    stateChangeExpr: string | StaticSymbol | ((stateA: string, stateB: string) => boolean);
-    steps: CompileAnimationMetadata;
-    constructor(stateChangeExpr: string | StaticSymbol | ((stateA: string, stateB: string) => boolean), steps: CompileAnimationMetadata);
-}
-export declare abstract class CompileAnimationMetadata {
-}
-export declare class CompileAnimationKeyframesSequenceMetadata extends CompileAnimationMetadata {
-    steps: CompileAnimationStyleMetadata[];
-    constructor(steps?: CompileAnimationStyleMetadata[]);
-}
-export declare class CompileAnimationStyleMetadata extends CompileAnimationMetadata {
-    offset: number;
-    styles: Array<string | {
-        [key: string]: string | number;
-    }> | null;
-    constructor(offset: number, styles?: Array<string | {
-        [key: string]: string | number;
-    }> | null);
-}
-export declare class CompileAnimationAnimateMetadata extends CompileAnimationMetadata {
-    timings: string | number;
-    styles: CompileAnimationStyleMetadata | CompileAnimationKeyframesSequenceMetadata | null;
-    constructor(timings?: string | number, styles?: CompileAnimationStyleMetadata | CompileAnimationKeyframesSequenceMetadata | null);
-}
-export declare abstract class CompileAnimationWithStepsMetadata extends CompileAnimationMetadata {
-    steps: CompileAnimationMetadata[] | null;
-    constructor(steps?: CompileAnimationMetadata[] | null);
-}
-export declare class CompileAnimationSequenceMetadata extends CompileAnimationWithStepsMetadata {
-    constructor(steps?: CompileAnimationMetadata[] | null);
-}
-export declare class CompileAnimationGroupMetadata extends CompileAnimationWithStepsMetadata {
-    constructor(steps?: CompileAnimationMetadata[] | null);
-}
 export declare function identifierName(compileIdentifier: CompileIdentifierMetadata | null | undefined): string | null;
 export declare function identifierModuleUrl(compileIdentifier: CompileIdentifierMetadata): string;
 export declare function viewClassName(compType: any, embeddedTemplateIndex: number): string;
@@ -143,7 +96,6 @@ export declare class CompileStylesheetMetadata {
  * Summary Metadata regarding compilation of a template.
  */
 export interface CompileTemplateSummary {
-    animations: string[] | null;
     ngContentSelectors: string[];
     encapsulation: ViewEncapsulation | null;
 }
@@ -161,7 +113,8 @@ export declare class CompileTemplateMetadata {
     animations: any[];
     ngContentSelectors: string[];
     interpolation: [string, string] | null;
-    constructor({encapsulation, template, templateUrl, styles, styleUrls, externalStylesheets, animations, ngContentSelectors, interpolation, isInline}: {
+    preserveWhitespaces: boolean;
+    constructor({encapsulation, template, templateUrl, styles, styleUrls, externalStylesheets, animations, ngContentSelectors, interpolation, isInline, preserveWhitespaces}: {
         encapsulation: ViewEncapsulation | null;
         template: string | null;
         templateUrl: string | null;
@@ -172,6 +125,7 @@ export declare class CompileTemplateMetadata {
         animations: any[];
         interpolation: [string, string] | null;
         isInline: boolean;
+        preserveWhitespaces: boolean;
     });
     toSummary(): CompileTemplateSummary;
 }

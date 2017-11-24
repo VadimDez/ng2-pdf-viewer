@@ -109,6 +109,11 @@ export interface AnimationTriggerMetadata extends AnimationMetadata {
 export interface AnimationStateMetadata extends AnimationMetadata {
     name: string;
     styles: AnimationStyleMetadata;
+    options?: {
+        params: {
+            [name: string]: any;
+        };
+    };
 }
 /**
  * Metadata representing the entry of animations. Instances of this interface are provided via the
@@ -216,6 +221,13 @@ export interface AnimationGroupMetadata extends AnimationMetadata {
  */
 export interface AnimationQueryOptions extends AnimationOptions {
     optional?: boolean;
+    /**
+     * Used to limit the total amount of results from the start of the query list.
+     *
+     * If a negative value is provided then the queried results will be limited from the
+     * end of the query list towards the beginning (e.g. if `limit: -3` is used then the
+     * final 3 (or less) queried results will be used for the animation).
+     */
     limit?: number;
 }
 /**
@@ -243,6 +255,11 @@ export interface AnimationStaggerMetadata extends AnimationMetadata {
  * within a template by referencing the name of the trigger followed by the expression value that
  the
  * trigger is bound to (in the form of `[@triggerName]="expression"`.
+ *
+ * Animation trigger bindings strigify values and then match the previous and current values against
+ * any linked transitions. If a boolean value is provided into the trigger binding then it will both
+ * be represented as `1` or `true` and `0` or `false` for a true and false boolean values
+ * respectively.
  *
  * ### Usage
  *
@@ -276,11 +293,12 @@ export interface AnimationStaggerMetadata extends AnimationMetadata {
  * <div [@myAnimationTrigger]="myStatusExp">...</div>
  * ```
  *
- * ## Disable Child Animations
+ * ## Disable Animations
  * A special animation control binding called `@.disabled` can be placed on an element which will
- then disable animations for any inner animation triggers situated within the element.
+ then disable animations for any inner animation triggers situated within the element as well as
+ any animations on the element itself.
  *
- * When true, the `@.disabled` binding will prevent inner animations from rendering. The example
+ * When true, the `@.disabled` binding will prevent all animations from rendering. The example
  below shows how to use this feature:
  *
  * ```ts
@@ -306,8 +324,8 @@ export interface AnimationStaggerMetadata extends AnimationMetadata {
  * The `@childAnimation` trigger will not animate because `@.disabled` prevents it from happening
  (when true).
  *
- * Note that `@.disbled` will only disable inner animations (any animations running on the same
- element will not be disabled).
+ * Note that `@.disbled` will only disable all animations (this means any animations running on
+ * the same element will also be disabled).
  *
  * ### Disabling Animations Application-wide
  * When an area of the template is set to have animations disabled, **all** inner components will
@@ -545,7 +563,11 @@ export declare function style(tokens: '*' | {
  *
  * @experimental Animation support is experimental.
  */
-export declare function state(name: string, styles: AnimationStyleMetadata): AnimationStateMetadata;
+export declare function state(name: string, styles: AnimationStyleMetadata, options?: {
+    params: {
+        [name: string]: any;
+    };
+}): AnimationStateMetadata;
 /**
  * `keyframes` is an animation-specific function that is designed to be used inside of Angular's
  * animation DSL language. If this information is new, please navigate to the {@link
@@ -695,6 +717,21 @@ export declare function keyframes(steps: AnimationStyleMetadata[]): AnimationKey
  * ])
  * ```
  *
+ * ### Boolean values
+ * if a trigger binding value is a boolean value then it can be matched using a transition
+ * expression that compares `true` and `false` or `1` and `0`.
+ *
+ * ```
+ * // in the template
+ * <div [@openClose]="open ? true : false">...</div>
+ *
+ * // in the component metadata
+ * trigger('openClose', [
+ *   state('true', style({ height: '*' })),
+ *   state('false', style({ height: '0px' })),
+ *   transition('false <=> true', animate(500))
+ * ])
+ * ```
  * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
  *
  * @experimental Animation support is experimental.
@@ -712,7 +749,7 @@ export declare function transition(stateChangeExpr: string, steps: AnimationMeta
  * var fadeAnimation = animation([
  *   style({ opacity: '{{ start }}' }),
  *   animate('{{ time }}',
- *     style({ opacity: '{{ end }}'))
+ *     style({ opacity: '{{ end }}'}))
  * ], { params: { time: '1000ms', start: 0, end: 1 }});
  * ```
  *

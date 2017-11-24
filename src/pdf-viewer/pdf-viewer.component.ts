@@ -4,12 +4,19 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
-import * as pdfjs from 'pdfjs-dist/build/pdf';
-window['pdfjs-dist/build/pdf'] = pdfjs;
-import 'pdfjs-dist/web/compatibility';
-import 'pdfjs-dist/web/pdf_viewer';
 
-PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
+function isSSR() {
+  return typeof window === 'undefined';
+}
+
+if (!isSSR()) {
+  window['pdfjs-dist/build/pdf'] = require('pdfjs-dist/build/pdf');
+  require('pdfjs-dist/web/compatibility');
+  require('pdfjs-dist/web/pdf_viewer');
+
+  PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
+}
+
 
 @Component({
   selector: 'pdf-viewer',
@@ -289,12 +296,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {
-    PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
+    if (!isSSR()) {
+      PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
+    }
   }
 
-
   ngOnInit() {
-    this.setupViewer();
+    if (!isSSR()) {
+      this.setupViewer();
+    }
   }
 
   @HostListener('window:resize', [])
@@ -313,6 +323,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (isSSR()) {
+      return;
+    }
+
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {

@@ -1,7 +1,5 @@
 /// <reference types="pdf" />
 import { ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
-import 'pdfjs-dist/web/compatibility';
-import 'pdfjs-dist/web/pdf_viewer';
 export declare class PdfViewerComponent implements OnChanges, OnInit {
     private element;
     static CSS_UNITS: number;

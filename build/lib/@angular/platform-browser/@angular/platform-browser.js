@@ -1,5 +1,5 @@
 /**
- * @license Angular v4.3.3
+ * @license Angular v4.4.6
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -105,13 +105,11 @@ class DomAdapter {
      * @return {?}
      */
     get attrToPropMap() { return this._attrToPropMap; }
-    ;
     /**
      * @param {?} value
      * @return {?}
      */
     set attrToPropMap(value) { this._attrToPropMap = value; }
-    ;
     /**
      * @abstract
      * @param {?} nodeA
@@ -2435,7 +2433,6 @@ class EventManagerPlugin {
         }
         return this.addEventListener(target, eventName, handler);
     }
-    ;
 }
 
 /**
@@ -2617,7 +2614,6 @@ class DomRendererFactory2 {
         this.rendererByCompId = new Map();
         this.defaultRenderer = new DefaultDomRenderer2(eventManager);
     }
-    ;
     /**
      * @param {?} element
      * @param {?} type
@@ -4299,7 +4295,7 @@ class By {
 /**
  * \@stable
  */
-const VERSION = new Version('4.3.3');
+const VERSION = new Version('4.4.6');
 
 /**
  * @license

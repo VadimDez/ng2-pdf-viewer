@@ -76,4 +76,6 @@ export declare class QueryList<T> {
     setDirty(): void;
     /** internal */
     readonly dirty: boolean;
+    /** internal */
+    destroy(): void;
 }

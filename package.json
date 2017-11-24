@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Angular2+ component for rendering PDF",
   "main": "dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -16,7 +16,8 @@
     "clean": "gulp clean",
     "compile": "gulp compile",
     "build": "gulp build",
-    "start": "npm run build && concurrently --kill-others \"gulp watch\" \"lite-server\""
+    "start": "npm run build && concurrently --kill-others \"gulp watch\" \"lite-server\"",
+    "copy": "cp -R ./build/pdf-viewer/ ./dist/"
   },
   "repository": {
     "type": "git",

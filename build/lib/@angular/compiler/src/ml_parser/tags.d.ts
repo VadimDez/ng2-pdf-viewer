@@ -34,3 +34,4 @@ export declare function mergeNsAndName(prefix: string, localName: string): strin
 export declare const NAMED_ENTITIES: {
     [k: string]: string;
 };
+export declare const NGSP_UNICODE = "";
