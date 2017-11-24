@@ -1,11 +1,7 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var Subscriber_1 = require('../Subscriber');
 var async_1 = require('../scheduler/async');
+var throttle_1 = require('../operators/throttle');
+var throttleTime_1 = require('../operators/throttleTime');
 /**
  * Emits a value from the source Observable, then ignores subsequent source
  * values for `duration` milliseconds, then repeats this process.
@@ -39,57 +35,16 @@ var async_1 = require('../scheduler/async');
  * emitting the last value, measured in milliseconds or the time unit determined
  * internally by the optional `scheduler`.
  * @param {Scheduler} [scheduler=async] The {@link IScheduler} to use for
- * managing the timers that handle the sampling.
+ * managing the timers that handle the throttling.
  * @return {Observable<T>} An Observable that performs the throttle operation to
  * limit the rate of emissions from the source.
  * @method throttleTime
  * @owner Observable
  */
-function throttleTime(duration, scheduler) {
+function throttleTime(duration, scheduler, config) {
     if (scheduler === void 0) { scheduler = async_1.async; }
-    return this.lift(new ThrottleTimeOperator(duration, scheduler));
+    if (config === void 0) { config = throttle_1.defaultThrottleConfig; }
+    return throttleTime_1.throttleTime(duration, scheduler, config)(this);
 }
 exports.throttleTime = throttleTime;
-var ThrottleTimeOperator = (function () {
-    function ThrottleTimeOperator(duration, scheduler) {
-        this.duration = duration;
-        this.scheduler = scheduler;
-    }
-    ThrottleTimeOperator.prototype.call = function (subscriber, source) {
-        return source.subscribe(new ThrottleTimeSubscriber(subscriber, this.duration, this.scheduler));
-    };
-    return ThrottleTimeOperator;
-}());
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @ignore
- * @extends {Ignored}
- */
-var ThrottleTimeSubscriber = (function (_super) {
-    __extends(ThrottleTimeSubscriber, _super);
-    function ThrottleTimeSubscriber(destination, duration, scheduler) {
-        _super.call(this, destination);
-        this.duration = duration;
-        this.scheduler = scheduler;
-    }
-    ThrottleTimeSubscriber.prototype._next = function (value) {
-        if (!this.throttled) {
-            this.add(this.throttled = this.scheduler.schedule(dispatchNext, this.duration, { subscriber: this }));
-            this.destination.next(value);
-        }
-    };
-    ThrottleTimeSubscriber.prototype.clearThrottle = function () {
-        var throttled = this.throttled;
-        if (throttled) {
-            throttled.unsubscribe();
-            this.remove(throttled);
-            this.throttled = null;
-        }
-    };
-    return ThrottleTimeSubscriber;
-}(Subscriber_1.Subscriber));
-function dispatchNext(arg) {
-    var subscriber = arg.subscriber;
-    subscriber.clearThrottle();
-}
 //# sourceMappingURL=throttleTime.js.map

@@ -67,11 +67,11 @@ var AsyncAction = (function (_super) {
     AsyncAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
         // If this action is rescheduled with the same delay time, don't clear the interval id.
-        if (delay !== null && this.delay === delay) {
+        if (delay !== null && this.delay === delay && this.pending === false) {
             return id;
         }
         // Otherwise, if the action's delay time is different from the current delay,
-        // clear the interval id
+        // or the action has been rescheduled before it's executed, clear the interval id
         return root_1.root.clearInterval(id) && undefined || undefined;
     };
     /**
@@ -125,7 +125,6 @@ var AsyncAction = (function (_super) {
         var actions = scheduler.actions;
         var index = actions.indexOf(this);
         this.work = null;
-        this.delay = null;
         this.state = null;
         this.pending = false;
         this.scheduler = null;
@@ -135,6 +134,7 @@ var AsyncAction = (function (_super) {
         if (id != null) {
             this.id = this.recycleAsyncId(scheduler, id, null);
         }
+        this.delay = null;
     };
     return AsyncAction;
 }(Action_1.Action));

@@ -1,48 +1,25 @@
 {
-  "_args": [
-    [
-      {
-        "raw": "material-design-lite@^1.3.0",
-        "scope": null,
-        "escapedName": "material-design-lite",
-        "name": "material-design-lite",
-        "rawSpec": "^1.3.0",
-        "spec": ">=1.3.0 <2.0.0",
-        "type": "range"
-      },
-      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
-    ]
-  ],
-  "_from": "material-design-lite@>=1.3.0 <2.0.0",
+  "_from": "material-design-lite@^1.3.0",
   "_id": "material-design-lite@1.3.0",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha1-0ATOP+6Zoe63Sni4oyUTSl8RcdM=",
   "_location": "/material-design-lite",
-  "_nodeVersion": "7.2.1",
-  "_npmOperationalInternal": {
-    "host": "packages-18-east.internal.npmjs.com",
-    "tmp": "tmp/material-design-lite-1.3.0.tgz_1482326216025_0.28064104449003935"
-  },
-  "_npmUser": {
-    "name": "sgomes",
-    "email": "mail@sgomes.io"
-  },
-  "_npmVersion": "3.10.10",
   "_phantomChildren": {},
   "_requested": {
+    "type": "range",
+    "registry": true,
     "raw": "material-design-lite@^1.3.0",
-    "scope": null,
-    "escapedName": "material-design-lite",
     "name": "material-design-lite",
+    "escapedName": "material-design-lite",
     "rawSpec": "^1.3.0",
-    "spec": ">=1.3.0 <2.0.0",
-    "type": "range"
+    "saveSpec": null,
+    "fetchSpec": "^1.3.0"
   },
   "_requiredBy": [
     "#DEV:/"
   ],
   "_resolved": "https://registry.npmjs.org/material-design-lite/-/material-design-lite-1.3.0.tgz",
   "_shasum": "d004ce3fee99a1eeb74a78b8a325134a5f1171d3",
-  "_shrinkwrap": null,
   "_spec": "material-design-lite@^1.3.0",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
@@ -57,7 +34,8 @@
   "bugs": {
     "url": "https://github.com/google/material-design-lite/issues"
   },
-  "dependencies": {},
+  "bundleDependencies": false,
+  "deprecated": false,
   "description": "Material Design Components in CSS, JS and HTML",
   "devDependencies": {
     "acorn": "^4.0.3",
@@ -114,35 +92,13 @@
     "through2": "^2.0.0",
     "vinyl-paths": "^2.0.0"
   },
-  "directories": {},
-  "dist": {
-    "shasum": "d004ce3fee99a1eeb74a78b8a325134a5f1171d3",
-    "tarball": "https://registry.npmjs.org/material-design-lite/-/material-design-lite-1.3.0.tgz"
-  },
   "engines": {
     "node": ">=0.12.0"
   },
-  "gitHead": "17a19f0a677b26e2b7f1ce1e09dd58270e0558e3",
   "homepage": "https://github.com/google/material-design-lite#readme",
   "license": "Apache-2.0",
   "main": "dist/material.min.js",
-  "maintainers": [
-    {
-      "name": "addyosmani",
-      "email": "addyosmani@gmail.com"
-    },
-    {
-      "name": "surma",
-      "email": "surma@surmair.de"
-    },
-    {
-      "name": "sgomes",
-      "email": "mail@sgomes.io"
-    }
-  ],
   "name": "material-design-lite",
-  "optionalDependencies": {},
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/google/material-design-lite.git"

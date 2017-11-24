@@ -1,5 +1,4 @@
-import { Operator } from '../Operator';
-import { Subscriber } from '../Subscriber';
+import { map as higherOrderMap } from '../operators/map';
 import { Observable } from '../Observable';
 
 /**
@@ -16,7 +15,7 @@ import { Observable } from '../Observable';
  * applies a projection to each value and emits that projection in the output
  * Observable.
  *
- * @example <caption>Map every every click to the clientX position of that click</caption>
+ * @example <caption>Map every click to the clientX position of that click</caption>
  * var clicks = Rx.Observable.fromEvent(document, 'click');
  * var positions = clicks.map(ev => ev.clientX);
  * positions.subscribe(x => console.log(x));
@@ -36,47 +35,5 @@ import { Observable } from '../Observable';
  * @owner Observable
  */
 export function map<T, R>(this: Observable<T>, project: (value: T, index: number) => R, thisArg?: any): Observable<R> {
-  if (typeof project !== 'function') {
-    throw new TypeError('argument is not a function. Are you looking for `mapTo()`?');
-  }
-  return this.lift(new MapOperator(project, thisArg));
-}
-
-export class MapOperator<T, R> implements Operator<T, R> {
-  constructor(private project: (value: T, index: number) => R, private thisArg: any) {
-  }
-
-  call(subscriber: Subscriber<R>, source: any): any {
-    return source.subscribe(new MapSubscriber(subscriber, this.project, this.thisArg));
-  }
-}
-
-/**
- * We need this JSDoc comment for affecting ESDoc.
- * @ignore
- * @extends {Ignored}
- */
-class MapSubscriber<T, R> extends Subscriber<T> {
-  count: number = 0;
-  private thisArg: any;
-
-  constructor(destination: Subscriber<R>,
-              private project: (value: T, index: number) => R,
-              thisArg: any) {
-    super(destination);
-    this.thisArg = thisArg || this;
-  }
-
-  // NOTE: This looks unoptimized, but it's actually purposefully NOT
-  // using try/catch optimizations.
-  protected _next(value: T) {
-    let result: any;
-    try {
-      result = this.project.call(this.thisArg, value, this.count++);
-    } catch (err) {
-      this.destination.error(err);
-      return;
-    }
-    this.destination.next(result);
-  }
+  return higherOrderMap(project, thisArg)(this);
 }
