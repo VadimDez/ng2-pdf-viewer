@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.2
+* [[#173](https://github.com/VadimDez/ng2-pdf-viewer/issues/173)] - SSR support
+
 ## 3.0.1
 * [[#194](https://github.com/VadimDez/ng2-pdf-viewer/pull/194)] - Fit original document into the viewport.
 * [[#206](https://github.com/VadimDez/ng2-pdf-viewer/pull/206)] - Updated Readme for new [fit-to-page] option.

@@ -10,8 +10,6 @@ if (!isSSR()) {
     require('pdfjs-dist/web/pdf_viewer');
     PDFJS.verbosity = PDFJS.VERBOSITY_LEVELS.errors;
 }
-else {
-}
 var PdfViewerComponent = (function () {
     function PdfViewerComponent(element) {
         this.element = element;
