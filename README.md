@@ -150,6 +150,8 @@ Enable text rendering, allows to select text
 #### [external-link-target]
 _string_
 
+Used in combination with `[render-text]="true"`
+
 Link target
 * `blank`
 * `none`
