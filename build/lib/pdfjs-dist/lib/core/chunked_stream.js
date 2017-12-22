@@ -435,7 +435,7 @@ var ChunkedStreamManager = function ChunkedStreamManagerClosure() {
         } else {
           nextEmptyChunk = this.stream.nextEmptyChunk(endChunk);
         }
-        if (Number.isInteger(nextEmptyChunk)) {
+        if ((0, _util.isInt)(nextEmptyChunk)) {
           this._requestChunks([nextEmptyChunk]);
         }
       }

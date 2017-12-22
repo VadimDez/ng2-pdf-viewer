@@ -86,7 +86,7 @@ var PDFLinkService = function () {
             });
             return;
           }
-        } else if (Number.isInteger(destRef)) {
+        } else if ((destRef | 0) === destRef) {
           pageNumber = destRef + 1;
         } else {
           console.error('PDFLinkService.navigateTo: "' + destRef + '" is not ' + ('a valid destination reference, for dest="' + dest + '".'));
@@ -96,18 +96,17 @@ var PDFLinkService = function () {
           console.error('PDFLinkService.navigateTo: "' + pageNumber + '" is not ' + ('a valid page number, for dest="' + dest + '".'));
           return;
         }
-        if (_this.pdfHistory) {
-          _this.pdfHistory.pushCurrentPosition();
-          _this.pdfHistory.push({
-            namedDest: namedDest,
-            explicitDest: explicitDest,
-            pageNumber: pageNumber
-          });
-        }
         _this.pdfViewer.scrollPageIntoView({
           pageNumber: pageNumber,
           destArray: explicitDest
         });
+        if (_this.pdfHistory) {
+          _this.pdfHistory.push({
+            dest: explicitDest,
+            hash: namedDest,
+            page: pageNumber
+          });
+        }
       };
       new Promise(function (resolve, reject) {
         if (typeof dest === 'string') {
@@ -163,6 +162,9 @@ var PDFLinkService = function () {
           });
         }
         if ('nameddest' in params) {
+          if (this.pdfHistory) {
+            this.pdfHistory.updateNextHashParam(params.nameddest);
+          }
           this.navigateTo(params.nameddest);
           return;
         }
@@ -219,6 +221,9 @@ var PDFLinkService = function () {
           }
         } catch (ex) {}
         if (typeof dest === 'string' || isValidExplicitDestination(dest)) {
+          if (this.pdfHistory) {
+            this.pdfHistory.updateNextHashParam(dest);
+          }
           this.navigateTo(dest);
           return;
         }
@@ -302,14 +307,6 @@ var PDFLinkService = function () {
     set: function set(value) {
       this.pdfViewer.currentPageNumber = value;
     }
-  }, {
-    key: 'rotation',
-    get: function get() {
-      return this.pdfViewer.pagesRotation;
-    },
-    set: function set(value) {
-      this.pdfViewer.pagesRotation = value;
-    }
   }]);
 
   return PDFLinkService;
@@ -325,7 +322,7 @@ function isValidExplicitDestination(dest) {
     return false;
   }
   var page = dest[0];
-  if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && Number.isInteger(page.num) && Number.isInteger(page.gen)) && !(Number.isInteger(page) && page >= 0)) {
+  if (!((typeof page === 'undefined' ? 'undefined' : _typeof(page)) === 'object' && typeof page.num === 'number' && (page.num | 0) === page.num && typeof page.gen === 'number' && (page.gen | 0) === page.gen) && !(typeof page === 'number' && (page | 0) === page && page >= 0)) {
     return false;
   }
   var zoom = dest[1];
@@ -403,12 +400,6 @@ var SimpleLinkService = function () {
     value: function cachePageRef(pageNum, pageRef) {}
   }, {
     key: 'page',
-    get: function get() {
-      return 0;
-    },
-    set: function set(value) {}
-  }, {
-    key: 'rotation',
     get: function get() {
       return 0;
     },

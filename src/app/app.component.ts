@@ -106,6 +106,7 @@ export class AppComponent {
    * @param {PDFProgressData} progressData
    */
   onProgress(progressData: PDFProgressData) {
+    console.log(progressData);
     this.progressData = progressData;
     this.isLoaded = false;
     this.error = null; // clear error

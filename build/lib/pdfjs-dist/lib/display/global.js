@@ -27,26 +27,20 @@ var _util = require('../shared/util');
 
 var _annotation_layer = require('./annotation_layer');
 
-var _global_scope = require('../shared/global_scope');
-
-var _global_scope2 = _interopRequireDefault(_global_scope);
-
 var _metadata = require('./metadata');
 
 var _text_layer = require('./text_layer');
 
 var _svg = require('./svg');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 var isWorker = typeof window === 'undefined';
-if (!_global_scope2.default.PDFJS) {
-  _global_scope2.default.PDFJS = {};
+if (!_util.globalScope.PDFJS) {
+  _util.globalScope.PDFJS = {};
 }
-var PDFJS = _global_scope2.default.PDFJS;
+var PDFJS = _util.globalScope.PDFJS;
 {
-  PDFJS.version = '1.9.607';
-  PDFJS.build = 'b3f84112';
+  PDFJS.version = '1.8.619';
+  PDFJS.build = '723bc25b';
 }
 PDFJS.pdfBug = false;
 if (PDFJS.verbosity !== undefined) {
@@ -148,6 +142,6 @@ PDFJS.renderTextLayer = _text_layer.renderTextLayer;
 PDFJS.Metadata = _metadata.Metadata;
 PDFJS.SVGGraphics = _svg.SVGGraphics;
 PDFJS.UnsupportedManager = _api._UnsupportedManager;
-exports.globalScope = _global_scope2.default;
+exports.globalScope = _util.globalScope;
 exports.isWorker = isWorker;
 exports.PDFJS = PDFJS;

@@ -17,8 +17,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.isStream = exports.isRefsEqual = exports.isRef = exports.isName = exports.isDict = exports.isCmd = exports.isEOF = exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.Dict = exports.Cmd = exports.EOF = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _util = require('../shared/util');
 
 var EOF = {};
 var Name = function NameClosure() {
@@ -99,7 +102,7 @@ var Dict = function DictClosure() {
       var value = this.get(key1, key2, key3);
       var xref = this.xref,
           suppressEncryption = this.suppressEncryption;
-      if (!Array.isArray(value) || !xref) {
+      if (!(0, _util.isArray)(value) || !xref) {
         return value;
       }
       value = value.slice();

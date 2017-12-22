@@ -17,11 +17,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PostScriptCompiler = exports.PostScriptEvaluator = exports.PDFFunctionFactory = exports.isPDFFunction = undefined;
+exports.PostScriptCompiler = exports.PostScriptEvaluator = exports.PDFFunction = exports.isPDFFunction = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _util = require('../shared/util');
 
@@ -29,74 +27,13 @@ var _primitives = require('./primitives');
 
 var _ps_parser = require('./ps_parser');
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var IsEvalSupportedCached = {
-  get value() {
-    return (0, _util.shadow)(this, 'value', (0, _util.isEvalSupported)());
-  }
-};
-
-var PDFFunctionFactory = function () {
-  function PDFFunctionFactory(_ref) {
-    var xref = _ref.xref,
-        _ref$isEvalSupported = _ref.isEvalSupported,
-        isEvalSupported = _ref$isEvalSupported === undefined ? true : _ref$isEvalSupported;
-
-    _classCallCheck(this, PDFFunctionFactory);
-
-    this.xref = xref;
-    this.isEvalSupported = isEvalSupported !== false;
-  }
-
-  _createClass(PDFFunctionFactory, [{
-    key: 'create',
-    value: function create(fn) {
-      return PDFFunction.parse({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        fn: fn
-      });
-    }
-  }, {
-    key: 'createFromArray',
-    value: function createFromArray(fnObj) {
-      return PDFFunction.parseArray({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        fnObj: fnObj
-      });
-    }
-  }, {
-    key: 'createFromIR',
-    value: function createFromIR(IR) {
-      return PDFFunction.fromIR({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        IR: IR
-      });
-    }
-  }, {
-    key: 'createIR',
-    value: function createIR(fn) {
-      return PDFFunction.getIR({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        fn: fn
-      });
-    }
-  }]);
-
-  return PDFFunctionFactory;
-}();
-
 var PDFFunction = function PDFFunctionClosure() {
   var CONSTRUCT_SAMPLED = 0;
   var CONSTRUCT_INTERPOLATED = 2;
   var CONSTRUCT_STICHED = 3;
   var CONSTRUCT_POSTSCRIPT = 4;
   return {
-    getSampleArray: function getSampleArray(size, outputSize, bps, stream) {
+    getSampleArray: function PDFFunction_getSampleArray(size, outputSize, bps, str) {
       var i, ii;
       var length = 1;
       for (i = 0, ii = size.length; i < ii; i++) {
@@ -107,7 +44,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var codeSize = 0;
       var codeBuf = 0;
       var sampleMul = 1.0 / (Math.pow(2.0, bps) - 1);
-      var strBytes = stream.getBytes((length * bps + 7) / 8);
+      var strBytes = str.getBytes((length * bps + 7) / 8);
       var strIdx = 0;
       for (i = 0; i < length; i++) {
         while (codeSize < bps) {
@@ -121,11 +58,7 @@ var PDFFunction = function PDFFunctionClosure() {
       }
       return array;
     },
-    getIR: function getIR(_ref2) {
-      var xref = _ref2.xref,
-          isEvalSupported = _ref2.isEvalSupported,
-          fn = _ref2.fn;
-
+    getIR: function PDFFunction_getIR(xref, fn) {
       var dict = fn.dict;
       if (!dict) {
         dict = fn;
@@ -136,81 +69,33 @@ var PDFFunction = function PDFFunctionClosure() {
       if (!typeFn) {
         throw new _util.FormatError('Unknown type of function');
       }
-      return typeFn.call(this, {
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        fn: fn,
-        dict: dict
-      });
+      return typeFn.call(this, fn, dict, xref);
     },
-    fromIR: function fromIR(_ref3) {
-      var xref = _ref3.xref,
-          isEvalSupported = _ref3.isEvalSupported,
-          IR = _ref3.IR;
-
+    fromIR: function PDFFunction_fromIR(IR) {
       var type = IR[0];
       switch (type) {
         case CONSTRUCT_SAMPLED:
-          return this.constructSampledFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
+          return this.constructSampledFromIR(IR);
         case CONSTRUCT_INTERPOLATED:
-          return this.constructInterpolatedFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
+          return this.constructInterpolatedFromIR(IR);
         case CONSTRUCT_STICHED:
-          return this.constructStichedFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
+          return this.constructStichedFromIR(IR);
         default:
-          return this.constructPostScriptFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
+          return this.constructPostScriptFromIR(IR);
       }
     },
-    parse: function parse(_ref4) {
-      var xref = _ref4.xref,
-          isEvalSupported = _ref4.isEvalSupported,
-          fn = _ref4.fn;
-
-      var IR = this.getIR({
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        fn: fn
-      });
-      return this.fromIR({
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        IR: IR
-      });
+    parse: function PDFFunction_parse(xref, fn) {
+      var IR = this.getIR(xref, fn);
+      return this.fromIR(IR);
     },
-    parseArray: function parseArray(_ref5) {
-      var xref = _ref5.xref,
-          isEvalSupported = _ref5.isEvalSupported,
-          fnObj = _ref5.fnObj;
-
-      if (!Array.isArray(fnObj)) {
-        return this.parse({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: fnObj
-        });
+    parseArray: function PDFFunction_parseArray(xref, fnObj) {
+      if (!(0, _util.isArray)(fnObj)) {
+        return this.parse(xref, fnObj);
       }
       var fnArray = [];
       for (var j = 0, jj = fnObj.length; j < jj; j++) {
-        fnArray.push(this.parse({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: xref.fetchIfRef(fnObj[j])
-        }));
+        var obj = xref.fetchIfRef(fnObj[j]);
+        fnArray.push(PDFFunction.parse(xref, obj));
       }
       return function (src, srcOffset, dest, destOffset) {
         for (var i = 0, ii = fnArray.length; i < ii; i++) {
@@ -218,12 +103,7 @@ var PDFFunction = function PDFFunctionClosure() {
         }
       };
     },
-    constructSampled: function constructSampled(_ref6) {
-      var xref = _ref6.xref,
-          isEvalSupported = _ref6.isEvalSupported,
-          fn = _ref6.fn,
-          dict = _ref6.dict;
-
+    constructSampled: function PDFFunction_constructSampled(str, dict) {
       function toMultiArray(arr) {
         var inputLength = arr.length;
         var out = [];
@@ -264,14 +144,10 @@ var PDFFunction = function PDFFunctionClosure() {
       } else {
         decode = toMultiArray(decode);
       }
-      var samples = this.getSampleArray(size, outputSize, bps, fn);
+      var samples = this.getSampleArray(size, outputSize, bps, str);
       return [CONSTRUCT_SAMPLED, inputSize, domain, encode, decode, samples, size, outputSize, Math.pow(2, bps) - 1, range];
     },
-    constructSampledFromIR: function constructSampledFromIR(_ref7) {
-      var xref = _ref7.xref,
-          isEvalSupported = _ref7.isEvalSupported,
-          IR = _ref7.IR;
-
+    constructSampledFromIR: function PDFFunction_constructSampledFromIR(IR) {
       function interpolate(x, xmin, xmax, ymin, ymax) {
         return ymin + (x - xmin) * ((ymax - ymin) / (xmax - xmin));
       }
@@ -327,16 +203,11 @@ var PDFFunction = function PDFFunctionClosure() {
         }
       };
     },
-    constructInterpolated: function constructInterpolated(_ref8) {
-      var xref = _ref8.xref,
-          isEvalSupported = _ref8.isEvalSupported,
-          fn = _ref8.fn,
-          dict = _ref8.dict;
-
+    constructInterpolated: function PDFFunction_constructInterpolated(str, dict) {
       var c0 = dict.getArray('C0') || [0];
       var c1 = dict.getArray('C1') || [1];
       var n = dict.get('N');
-      if (!Array.isArray(c0) || !Array.isArray(c1)) {
+      if (!(0, _util.isArray)(c0) || !(0, _util.isArray)(c1)) {
         throw new _util.FormatError('Illegal dictionary for interpolated function');
       }
       var length = c0.length;
@@ -346,11 +217,7 @@ var PDFFunction = function PDFFunctionClosure() {
       }
       return [CONSTRUCT_INTERPOLATED, c0, diff, n];
     },
-    constructInterpolatedFromIR: function constructInterpolatedFromIR(_ref9) {
-      var xref = _ref9.xref,
-          isEvalSupported = _ref9.isEvalSupported,
-          IR = _ref9.IR;
-
+    constructInterpolatedFromIR: function PDFFunction_constructInterpolatedFromIR(IR) {
       var c0 = IR[1];
       var diff = IR[2];
       var n = IR[3];
@@ -362,12 +229,7 @@ var PDFFunction = function PDFFunctionClosure() {
         }
       };
     },
-    constructStiched: function constructStiched(_ref10) {
-      var xref = _ref10.xref,
-          isEvalSupported = _ref10.isEvalSupported,
-          fn = _ref10.fn,
-          dict = _ref10.dict;
-
+    constructStiched: function PDFFunction_constructStiched(fn, dict, xref) {
       var domain = dict.getArray('Domain');
       if (!domain) {
         throw new _util.FormatError('No domain');
@@ -379,21 +241,13 @@ var PDFFunction = function PDFFunctionClosure() {
       var fnRefs = dict.get('Functions');
       var fns = [];
       for (var i = 0, ii = fnRefs.length; i < ii; ++i) {
-        fns.push(this.getIR({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: xref.fetchIfRef(fnRefs[i])
-        }));
+        fns.push(PDFFunction.getIR(xref, xref.fetchIfRef(fnRefs[i])));
       }
       var bounds = dict.getArray('Bounds');
       var encode = dict.getArray('Encode');
       return [CONSTRUCT_STICHED, domain, bounds, encode, fns];
     },
-    constructStichedFromIR: function constructStichedFromIR(_ref11) {
-      var xref = _ref11.xref,
-          isEvalSupported = _ref11.isEvalSupported,
-          IR = _ref11.IR;
-
+    constructStichedFromIR: function PDFFunction_constructStichedFromIR(IR) {
       var domain = IR[1];
       var bounds = IR[2];
       var encode = IR[3];
@@ -401,11 +255,7 @@ var PDFFunction = function PDFFunctionClosure() {
       var fns = [];
       var tmpBuf = new Float32Array(1);
       for (var i = 0, ii = fnsIR.length; i < ii; i++) {
-        fns.push(this.fromIR({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          IR: fnsIR[i]
-        }));
+        fns.push(PDFFunction.fromIR(fnsIR[i]));
       }
       return function constructStichedFromIRResult(src, srcOffset, dest, destOffset) {
         var clip = function constructStichedFromIRClip(v, min, max) {
@@ -436,12 +286,7 @@ var PDFFunction = function PDFFunctionClosure() {
         fns[i](tmpBuf, 0, dest, destOffset);
       };
     },
-    constructPostScript: function constructPostScript(_ref12) {
-      var xref = _ref12.xref,
-          isEvalSupported = _ref12.isEvalSupported,
-          fn = _ref12.fn,
-          dict = _ref12.dict;
-
+    constructPostScript: function PDFFunction_constructPostScript(fn, dict, xref) {
       var domain = dict.getArray('Domain');
       var range = dict.getArray('Range');
       if (!domain) {
@@ -455,19 +300,13 @@ var PDFFunction = function PDFFunctionClosure() {
       var code = parser.parse();
       return [CONSTRUCT_POSTSCRIPT, domain, range, code];
     },
-    constructPostScriptFromIR: function constructPostScriptFromIR(_ref13) {
-      var xref = _ref13.xref,
-          isEvalSupported = _ref13.isEvalSupported,
-          IR = _ref13.IR;
-
+    constructPostScriptFromIR: function PDFFunction_constructPostScriptFromIR(IR) {
       var domain = IR[1];
       var range = IR[2];
       var code = IR[3];
-      if (isEvalSupported && IsEvalSupportedCached.value) {
-        var compiled = new PostScriptCompiler().compile(code, domain, range);
-        if (compiled) {
-          return new Function('src', 'srcOffset', 'dest', 'destOffset', compiled);
-        }
+      var compiled = new PostScriptCompiler().compile(code, domain, range);
+      if (compiled) {
+        return new Function('src', 'srcOffset', 'dest', 'destOffset', compiled);
       }
       (0, _util.info)('Unable to compile PS function');
       var numOutputs = range.length >> 1;
@@ -1047,7 +886,7 @@ var PostScriptCompiler = function PostScriptCompilerClosure() {
               return null;
             }
             n = num1.number;
-            if (n < 0 || !Number.isInteger(n) || stack.length < n) {
+            if (n < 0 || (n | 0) !== n || stack.length < n) {
               return null;
             }
             ast1 = stack[stack.length - n - 1];
@@ -1091,7 +930,7 @@ var PostScriptCompiler = function PostScriptCompilerClosure() {
             }
             j = num2.number;
             n = num1.number;
-            if (n <= 0 || !Number.isInteger(n) || !Number.isInteger(j) || stack.length < n) {
+            if (n <= 0 || (n | 0) !== n || (j | 0) !== j || stack.length < n) {
               return null;
             }
             j = (j % n + n) % n;
@@ -1137,6 +976,6 @@ var PostScriptCompiler = function PostScriptCompilerClosure() {
   return PostScriptCompiler;
 }();
 exports.isPDFFunction = isPDFFunction;
-exports.PDFFunctionFactory = PDFFunctionFactory;
+exports.PDFFunction = PDFFunction;
 exports.PostScriptEvaluator = PostScriptEvaluator;
 exports.PostScriptCompiler = PostScriptCompiler;

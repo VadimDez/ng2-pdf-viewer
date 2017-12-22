@@ -201,13 +201,10 @@ var PDFThumbnailViewer = function () {
       return this._pagesRotation;
     },
     set: function set(rotation) {
-      if (!(0, _ui_utils.isValidRotation)(rotation)) {
+      if (!(typeof rotation === 'number' && rotation % 90 === 0)) {
         throw new Error('Invalid thumbnails rotation angle.');
       }
       if (!this.pdfDocument) {
-        return;
-      }
-      if (this._pagesRotation === rotation) {
         return;
       }
       this._pagesRotation = rotation;

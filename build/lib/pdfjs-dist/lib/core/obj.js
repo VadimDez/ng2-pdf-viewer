@@ -133,7 +133,7 @@ var Catalog = function CatalogClosure() {
         var flags = outlineDict.get('F') || 0;
         var color = outlineDict.getArray('C'),
             rgbColor = blackColor;
-        if (Array.isArray(color) && color.length === 3 && (color[0] !== 0 || color[1] !== 0 || color[2] !== 0)) {
+        if ((0, _util.isArray)(color) && color.length === 3 && (color[0] !== 0 || color[1] !== 0 || color[2] !== 0)) {
           rgbColor = _colorspace.ColorSpace.singletons.rgb.getRgb(color, 0);
         }
         var outlineItem = {
@@ -170,7 +170,7 @@ var Catalog = function CatalogClosure() {
     },
     get numPages() {
       var obj = this.toplevelPagesDict.get('Count');
-      if (!Number.isInteger(obj)) {
+      if (!(0, _util.isInt)(obj)) {
         throw new _util.FormatError('page count in top level pages object is not an integer');
       }
       return (0, _util.shadow)(this, 'numPages', obj);
@@ -278,7 +278,7 @@ var Catalog = function CatalogClosure() {
           }
           prefix = p ? (0, _util.stringToPDFString)(p) : '';
           var st = labelDict.get('St');
-          if (st && !(Number.isInteger(st) && st >= 1)) {
+          if (st && !((0, _util.isInt)(st) && st >= 1)) {
             throw new _util.FormatError('Invalid start in PageLabel dictionary.');
           }
           currentIndex = st || 1;
@@ -473,7 +473,7 @@ var Catalog = function CatalogClosure() {
             continue;
           }
           var kids = currentNode.get('Kids');
-          if (!Array.isArray(kids)) {
+          if (!(0, _util.isArray)(kids)) {
             capability.reject(new _util.FormatError('page dictionary kids object is not an array'));
             return;
           }
@@ -574,29 +574,21 @@ var Catalog = function CatalogClosure() {
     }
     var destDict = params.destDict;
     if (!(0, _primitives.isDict)(destDict)) {
-      (0, _util.warn)('parseDestDictionary: "destDict" must be a dictionary.');
+      (0, _util.warn)('Catalog_parseDestDictionary: "destDict" must be a dictionary.');
       return;
     }
     var resultObj = params.resultObj;
     if ((typeof resultObj === 'undefined' ? 'undefined' : _typeof(resultObj)) !== 'object') {
-      (0, _util.warn)('parseDestDictionary: "resultObj" must be an object.');
+      (0, _util.warn)('Catalog_parseDestDictionary: "resultObj" must be an object.');
       return;
     }
     var docBaseUrl = params.docBaseUrl || null;
     var action = destDict.get('A'),
         url,
         dest;
-    if (!(0, _primitives.isDict)(action) && destDict.has('Dest')) {
-      action = destDict.get('Dest');
-    }
     if ((0, _primitives.isDict)(action)) {
-      var actionType = action.get('S');
-      if (!(0, _primitives.isName)(actionType)) {
-        (0, _util.warn)('parseDestDictionary: Invalid type in Action dictionary.');
-        return;
-      }
-      var actionName = actionType.name;
-      switch (actionName) {
+      var linkType = action.get('S').name;
+      switch (linkType) {
         case 'URI':
           url = action.get('URI');
           if ((0, _primitives.isName)(url)) {
@@ -625,7 +617,7 @@ var Catalog = function CatalogClosure() {
               var baseUrl = url.split('#')[0];
               if ((0, _util.isString)(remoteDest)) {
                 url = baseUrl + '#' + remoteDest;
-              } else if (Array.isArray(remoteDest)) {
+              } else if ((0, _util.isArray)(remoteDest)) {
                 url = baseUrl + '#' + JSON.stringify(remoteDest);
               }
             }
@@ -662,7 +654,7 @@ var Catalog = function CatalogClosure() {
             }
           }
         default:
-          (0, _util.warn)('parseDestDictionary: Unsupported Action type "' + actionName + '".');
+          (0, _util.warn)('Catalog_parseDestDictionary: Unrecognized link type "' + linkType + '".');
           break;
       }
     } else if (destDict.has('Dest')) {
@@ -680,7 +672,7 @@ var Catalog = function CatalogClosure() {
       if ((0, _primitives.isName)(dest)) {
         dest = dest.name;
       }
-      if ((0, _util.isString)(dest) || Array.isArray(dest)) {
+      if ((0, _util.isString)(dest) || (0, _util.isArray)(dest)) {
         resultObj.dest = dest;
       }
     }
@@ -764,7 +756,7 @@ var XRef = function XRefClosure() {
         }
         var first = tableState.firstEntryNum;
         var count = tableState.entryCount;
-        if (!Number.isInteger(first) || !Number.isInteger(count)) {
+        if (!(0, _util.isInt)(first) || !(0, _util.isInt)(count)) {
           throw new _util.FormatError('Invalid XRef table: wrong types in subsection header');
         }
         for (var i = tableState.entryNum; i < count; i++) {
@@ -781,7 +773,7 @@ var XRef = function XRefClosure() {
           } else if ((0, _primitives.isCmd)(type, 'n')) {
             entry.uncompressed = true;
           }
-          if (!Number.isInteger(entry.offset) || !Number.isInteger(entry.gen) || !(entry.free || entry.uncompressed)) {
+          if (!(0, _util.isInt)(entry.offset) || !(0, _util.isInt)(entry.gen) || !(entry.free || entry.uncompressed)) {
             throw new _util.FormatError('Invalid entry in XRef subsection: ' + first + ', ' + count);
           }
           if (i === 0 && entry.free && first === 1) {
@@ -834,10 +826,10 @@ var XRef = function XRefClosure() {
       while (entryRanges.length > 0) {
         var first = entryRanges[0];
         var n = entryRanges[1];
-        if (!Number.isInteger(first) || !Number.isInteger(n)) {
+        if (!(0, _util.isInt)(first) || !(0, _util.isInt)(n)) {
           throw new _util.FormatError('Invalid XRef range fields: ' + first + ', ' + n);
         }
-        if (!Number.isInteger(typeFieldWidth) || !Number.isInteger(offsetFieldWidth) || !Number.isInteger(generationFieldWidth)) {
+        if (!(0, _util.isInt)(typeFieldWidth) || !(0, _util.isInt)(offsetFieldWidth) || !(0, _util.isInt)(generationFieldWidth)) {
           throw new _util.FormatError('Invalid XRef entry fields length: ' + first + ', ' + n);
         }
         for (i = streamState.entryNum; i < n; ++i) {
@@ -1004,16 +996,9 @@ var XRef = function XRefClosure() {
     },
     readXRef: function XRef_readXRef(recoveryMode) {
       var stream = this.stream;
-      var startXRefParsedCache = Object.create(null);
       try {
         while (this.startXRefQueue.length) {
           var startXRef = this.startXRefQueue[0];
-          if (startXRefParsedCache[startXRef]) {
-            (0, _util.warn)('readXRef - skipping XRef table since it was already parsed.');
-            this.startXRefQueue.shift();
-            continue;
-          }
-          startXRefParsedCache[startXRef] = true;
           stream.pos = startXRef + stream.start;
           var parser = new _parser.Parser(new _parser.Lexer(stream), true, this);
           var obj = parser.getObj();
@@ -1024,15 +1009,15 @@ var XRef = function XRefClosure() {
               this.topDict = dict;
             }
             obj = dict.get('XRefStm');
-            if (Number.isInteger(obj)) {
+            if ((0, _util.isInt)(obj)) {
               var pos = obj;
               if (!(pos in this.xrefstms)) {
                 this.xrefstms[pos] = 1;
                 this.startXRefQueue.push(pos);
               }
             }
-          } else if (Number.isInteger(obj)) {
-            if (!Number.isInteger(parser.getObj()) || !(0, _primitives.isCmd)(parser.getObj(), 'obj') || !(0, _primitives.isStream)(obj = parser.getObj())) {
+          } else if ((0, _util.isInt)(obj)) {
+            if (!(0, _util.isInt)(parser.getObj()) || !(0, _primitives.isCmd)(parser.getObj(), 'obj') || !(0, _primitives.isStream)(obj = parser.getObj())) {
               throw new _util.FormatError('Invalid XRef stream');
             }
             dict = this.processXRefStream(obj);
@@ -1046,7 +1031,7 @@ var XRef = function XRefClosure() {
             throw new _util.FormatError('Invalid XRef stream header');
           }
           obj = dict.get('Prev');
-          if (Number.isInteger(obj)) {
+          if ((0, _util.isInt)(obj)) {
             this.startXRefQueue.push(obj);
           } else if ((0, _primitives.isRef)(obj)) {
             this.startXRefQueue.push(obj.num);
@@ -1117,19 +1102,13 @@ var XRef = function XRefClosure() {
       var obj1 = parser.getObj();
       var obj2 = parser.getObj();
       var obj3 = parser.getObj();
-      if (!Number.isInteger(obj1)) {
-        obj1 = parseInt(obj1, 10);
-      }
-      if (!Number.isInteger(obj2)) {
-        obj2 = parseInt(obj2, 10);
-      }
-      if (obj1 !== num || obj2 !== gen || !(0, _primitives.isCmd)(obj3)) {
+      if (!(0, _util.isInt)(obj1) || parseInt(obj1, 10) !== num || !(0, _util.isInt)(obj2) || parseInt(obj2, 10) !== gen || !(0, _primitives.isCmd)(obj3)) {
         throw new _util.FormatError('bad XRef entry');
       }
-      if (obj3.cmd !== 'obj') {
+      if (!(0, _primitives.isCmd)(obj3, 'obj')) {
         if (obj3.cmd.indexOf('obj') === 0) {
           num = parseInt(obj3.cmd.substring(3), 10);
-          if (!Number.isNaN(num)) {
+          if (!isNaN(num)) {
             return num;
           }
         }
@@ -1153,7 +1132,7 @@ var XRef = function XRefClosure() {
       }
       var first = stream.dict.get('First');
       var n = stream.dict.get('N');
-      if (!Number.isInteger(first) || !Number.isInteger(n)) {
+      if (!(0, _util.isInt)(first) || !(0, _util.isInt)(n)) {
         throw new _util.FormatError('invalid first and n parameters for ObjStm stream');
       }
       var parser = new _parser.Parser(new _parser.Lexer(stream), false, this);
@@ -1164,12 +1143,12 @@ var XRef = function XRefClosure() {
           nums = [];
       for (i = 0; i < n; ++i) {
         num = parser.getObj();
-        if (!Number.isInteger(num)) {
+        if (!(0, _util.isInt)(num)) {
           throw new _util.FormatError('invalid object number in the ObjStm stream: ' + num);
         }
         nums.push(num);
         var offset = parser.getObj();
-        if (!Number.isInteger(offset)) {
+        if (!(0, _util.isInt)(offset)) {
           throw new _util.FormatError('invalid object offset in the ObjStm stream: ' + offset);
         }
       }
@@ -1252,7 +1231,7 @@ var NameOrNumberTree = function NameOrNumberTreeClosure() {
           continue;
         }
         var entries = obj.get(this._type);
-        if (Array.isArray(entries)) {
+        if ((0, _util.isArray)(entries)) {
           for (i = 0, n = entries.length; i < n; i += 2) {
             dict[xref.fetchIfRef(entries[i])] = xref.fetchIfRef(entries[i + 1]);
           }
@@ -1275,7 +1254,7 @@ var NameOrNumberTree = function NameOrNumberTreeClosure() {
           return null;
         }
         var kids = kidsOrEntries.get('Kids');
-        if (!Array.isArray(kids)) {
+        if (!(0, _util.isArray)(kids)) {
           return null;
         }
         l = 0;
@@ -1298,7 +1277,7 @@ var NameOrNumberTree = function NameOrNumberTreeClosure() {
         }
       }
       var entries = kidsOrEntries.get(this._type);
-      if (Array.isArray(entries)) {
+      if ((0, _util.isArray)(entries)) {
         l = 0;
         r = entries.length - 2;
         while (l <= r) {
@@ -1410,7 +1389,7 @@ var FileSpec = function FileSpecClosure() {
 }();
 var ObjectLoader = function () {
   function mayHaveChildren(value) {
-    return (0, _primitives.isRef)(value) || (0, _primitives.isDict)(value) || Array.isArray(value) || (0, _primitives.isStream)(value);
+    return (0, _primitives.isRef)(value) || (0, _primitives.isDict)(value) || (0, _util.isArray)(value) || (0, _primitives.isStream)(value);
   }
   function addChildren(node, nodesToVisit) {
     if ((0, _primitives.isDict)(node) || (0, _primitives.isStream)(node)) {
@@ -1422,7 +1401,7 @@ var ObjectLoader = function () {
           nodesToVisit.push(rawValue);
         }
       }
-    } else if (Array.isArray(node)) {
+    } else if ((0, _util.isArray)(node)) {
       for (var _i = 0, _ii = node.length; _i < _ii; _i++) {
         var value = node[_i];
         if (mayHaveChildren(value)) {

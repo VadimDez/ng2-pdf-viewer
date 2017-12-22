@@ -37,24 +37,13 @@ var _crypto = require('./crypto');
 
 var _parser = require('./parser');
 
-var _function = require('./function');
-
 var Page = function PageClosure() {
   var DEFAULT_USER_UNIT = 1.0;
   var LETTER_SIZE_MEDIABOX = [0, 0, 612, 792];
   function isAnnotationRenderable(annotation, intent) {
     return intent === 'display' && annotation.viewable || intent === 'print' && annotation.printable;
   }
-  function Page(_ref) {
-    var pdfManager = _ref.pdfManager,
-        xref = _ref.xref,
-        pageIndex = _ref.pageIndex,
-        pageDict = _ref.pageDict,
-        ref = _ref.ref,
-        fontCache = _ref.fontCache,
-        builtInCMapCache = _ref.builtInCMapCache,
-        pdfFunctionFactory = _ref.pdfFunctionFactory;
-
+  function Page(pdfManager, xref, pageIndex, pageDict, ref, fontCache, builtInCMapCache) {
     this.pdfManager = pdfManager;
     this.pageIndex = pageIndex;
     this.pageDict = pageDict;
@@ -62,7 +51,6 @@ var Page = function PageClosure() {
     this.ref = ref;
     this.fontCache = fontCache;
     this.builtInCMapCache = builtInCMapCache;
-    this.pdfFunctionFactory = pdfFunctionFactory;
     this.evaluatorOptions = pdfManager.evaluatorOptions;
     this.resourcesPromise = null;
     var uniquePrefix = 'p' + this.pageIndex + '_';
@@ -113,14 +101,14 @@ var Page = function PageClosure() {
     },
     get mediaBox() {
       var mediaBox = this.getInheritedPageProp('MediaBox', true);
-      if (!Array.isArray(mediaBox) || mediaBox.length !== 4) {
+      if (!(0, _util.isArray)(mediaBox) || mediaBox.length !== 4) {
         return (0, _util.shadow)(this, 'mediaBox', LETTER_SIZE_MEDIABOX);
       }
       return (0, _util.shadow)(this, 'mediaBox', mediaBox);
     },
     get cropBox() {
       var cropBox = this.getInheritedPageProp('CropBox', true);
-      if (!Array.isArray(cropBox) || cropBox.length !== 4) {
+      if (!(0, _util.isArray)(cropBox) || cropBox.length !== 4) {
         return (0, _util.shadow)(this, 'cropBox', this.mediaBox);
       }
       return (0, _util.shadow)(this, 'cropBox', cropBox);
@@ -155,7 +143,7 @@ var Page = function PageClosure() {
     getContentStream: function Page_getContentStream() {
       var content = this.content;
       var stream;
-      if (Array.isArray(content)) {
+      if ((0, _util.isArray)(content)) {
         var xref = this.xref;
         var i,
             n = content.length;
@@ -182,13 +170,13 @@ var Page = function PageClosure() {
         return objectLoader.load();
       });
     },
-    getOperatorList: function getOperatorList(_ref2) {
+    getOperatorList: function getOperatorList(_ref) {
       var _this2 = this;
 
-      var handler = _ref2.handler,
-          task = _ref2.task,
-          intent = _ref2.intent,
-          renderInteractiveForms = _ref2.renderInteractiveForms;
+      var handler = _ref.handler,
+          task = _ref.task,
+          intent = _ref.intent,
+          renderInteractiveForms = _ref.renderInteractiveForms;
 
       var contentStreamPromise = this.pdfManager.ensure(this, 'getContentStream');
       var resourcesPromise = this.loadResources(['ExtGState', 'ColorSpace', 'Pattern', 'Shading', 'XObject', 'Font']);
@@ -200,13 +188,12 @@ var Page = function PageClosure() {
         idFactory: this.idFactory,
         fontCache: this.fontCache,
         builtInCMapCache: this.builtInCMapCache,
-        options: this.evaluatorOptions,
-        pdfFunctionFactory: this.pdfFunctionFactory
+        options: this.evaluatorOptions
       });
       var dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
-      var pageListPromise = dataPromises.then(function (_ref3) {
-        var _ref4 = _slicedToArray(_ref3, 1),
-            contentStream = _ref4[0];
+      var pageListPromise = dataPromises.then(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 1),
+            contentStream = _ref3[0];
 
         var opList = new _evaluator.OperatorList(intent, handler, _this2.pageIndex);
         handler.send('StartRenderPage', {
@@ -224,10 +211,10 @@ var Page = function PageClosure() {
         });
       });
       var annotationsPromise = this.pdfManager.ensure(this, 'annotations');
-      return Promise.all([pageListPromise, annotationsPromise]).then(function (_ref5) {
-        var _ref6 = _slicedToArray(_ref5, 2),
-            pageOpList = _ref6[0],
-            annotations = _ref6[1];
+      return Promise.all([pageListPromise, annotationsPromise]).then(function (_ref4) {
+        var _ref5 = _slicedToArray(_ref4, 2),
+            pageOpList = _ref5[0],
+            annotations = _ref5[1];
 
         if (annotations.length === 0) {
           pageOpList.flush(true);
@@ -252,21 +239,21 @@ var Page = function PageClosure() {
         });
       });
     },
-    extractTextContent: function extractTextContent(_ref7) {
+    extractTextContent: function extractTextContent(_ref6) {
       var _this3 = this;
 
-      var handler = _ref7.handler,
-          task = _ref7.task,
-          normalizeWhitespace = _ref7.normalizeWhitespace,
-          sink = _ref7.sink,
-          combineTextItems = _ref7.combineTextItems;
+      var handler = _ref6.handler,
+          task = _ref6.task,
+          normalizeWhitespace = _ref6.normalizeWhitespace,
+          sink = _ref6.sink,
+          combineTextItems = _ref6.combineTextItems;
 
       var contentStreamPromise = this.pdfManager.ensure(this, 'getContentStream');
       var resourcesPromise = this.loadResources(['ExtGState', 'XObject', 'Font']);
       var dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
-      return dataPromises.then(function (_ref8) {
-        var _ref9 = _slicedToArray(_ref8, 1),
-            contentStream = _ref9[0];
+      return dataPromises.then(function (_ref7) {
+        var _ref8 = _slicedToArray(_ref7, 1),
+            contentStream = _ref8[0];
 
         var partialEvaluator = new _evaluator.PartialEvaluator({
           pdfManager: _this3.pdfManager,
@@ -276,8 +263,7 @@ var Page = function PageClosure() {
           idFactory: _this3.idFactory,
           fontCache: _this3.fontCache,
           builtInCMapCache: _this3.builtInCMapCache,
-          options: _this3.evaluatorOptions,
-          pdfFunctionFactory: _this3.pdfFunctionFactory
+          options: _this3.evaluatorOptions
         });
         return partialEvaluator.getTextContent({
           stream: contentStream,
@@ -303,9 +289,10 @@ var Page = function PageClosure() {
     get annotations() {
       var annotations = [];
       var annotationRefs = this.getInheritedPageProp('Annots') || [];
+      var annotationFactory = new _annotation.AnnotationFactory();
       for (var i = 0, n = annotationRefs.length; i < n; ++i) {
         var annotationRef = annotationRefs[i];
-        var annotation = _annotation.AnnotationFactory.create(this.xref, annotationRef, this.pdfManager, this.idFactory);
+        var annotation = annotationFactory.create(this.xref, annotationRef, this.pdfManager, this.idFactory);
         if (annotation) {
           annotations.push(annotation);
         }
@@ -333,11 +320,6 @@ var PDFDocument = function PDFDocumentClosure() {
     this.pdfManager = pdfManager;
     this.stream = stream;
     this.xref = new _obj.XRef(stream, pdfManager);
-    var evaluatorOptions = pdfManager.evaluatorOptions;
-    this.pdfFunctionFactory = new _function.PDFFunctionFactory({
-      xref: this.xref,
-      isEvalSupported: evaluatorOptions.isEvalSupported
-    });
   }
   function find(stream, needle, limit, backwards) {
     var pos = stream.pos;
@@ -385,7 +367,7 @@ var PDFDocument = function PDFDocumentClosure() {
         if (this.acroForm) {
           this.xfa = this.acroForm.get('XFA');
           var fields = this.acroForm.get('Fields');
-          if ((!fields || !Array.isArray(fields) || fields.length === 0) && !this.xfa) {
+          if ((!fields || !(0, _util.isArray)(fields) || fields.length === 0) && !this.xfa) {
             this.acroForm = null;
           }
         }
@@ -489,16 +471,7 @@ var PDFDocument = function PDFDocumentClosure() {
       this.xref.parse(recoveryMode);
       var pageFactory = {
         createPage: function createPage(pageIndex, dict, ref, fontCache, builtInCMapCache) {
-          return new Page({
-            pdfManager: _this4.pdfManager,
-            xref: _this4.xref,
-            pageIndex: pageIndex,
-            pageDict: dict,
-            ref: ref,
-            fontCache: fontCache,
-            builtInCMapCache: builtInCMapCache,
-            pdfFunctionFactory: _this4.pdfFunctionFactory
-          });
+          return new Page(_this4.pdfManager, _this4.xref, pageIndex, dict, ref, fontCache, builtInCMapCache);
         }
       };
       this.catalog = new _obj.Catalog(this.pdfManager, this.xref, pageFactory);
@@ -543,7 +516,7 @@ var PDFDocument = function PDFDocumentClosure() {
           hash,
           fileID = '';
       var idArray = xref.trailer.get('ID');
-      if (Array.isArray(idArray) && idArray[0] && (0, _util.isString)(idArray[0]) && idArray[0] !== EMPTY_FINGERPRINT) {
+      if (idArray && (0, _util.isArray)(idArray) && idArray[0] && (0, _util.isString)(idArray[0]) && idArray[0] !== EMPTY_FINGERPRINT) {
         hash = (0, _util.stringToBytes)(idArray[0]);
       } else {
         if (this.stream.ensureRange) {

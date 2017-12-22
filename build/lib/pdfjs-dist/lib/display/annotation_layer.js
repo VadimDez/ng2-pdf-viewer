@@ -19,90 +19,58 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AnnotationLayer = undefined;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _dom_utils = require('./dom_utils');
 
 var _util = require('../shared/util');
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var AnnotationElementFactory = function () {
-  function AnnotationElementFactory() {
-    _classCallCheck(this, AnnotationElementFactory);
-  }
-
-  _createClass(AnnotationElementFactory, null, [{
-    key: 'create',
-    value: function create(parameters) {
-      var subtype = parameters.data.annotationType;
-      switch (subtype) {
-        case _util.AnnotationType.LINK:
-          return new LinkAnnotationElement(parameters);
-        case _util.AnnotationType.TEXT:
-          return new TextAnnotationElement(parameters);
-        case _util.AnnotationType.WIDGET:
-          var fieldType = parameters.data.fieldType;
-          switch (fieldType) {
-            case 'Tx':
-              return new TextWidgetAnnotationElement(parameters);
-            case 'Btn':
-              if (parameters.data.radioButton) {
-                return new RadioButtonWidgetAnnotationElement(parameters);
-              } else if (parameters.data.checkBox) {
-                return new CheckboxWidgetAnnotationElement(parameters);
-              }
-              (0, _util.warn)('Unimplemented button widget annotation: pushbutton');
-              break;
-            case 'Ch':
-              return new ChoiceWidgetAnnotationElement(parameters);
-          }
-          return new WidgetAnnotationElement(parameters);
-        case _util.AnnotationType.POPUP:
-          return new PopupAnnotationElement(parameters);
-        case _util.AnnotationType.LINE:
-          return new LineAnnotationElement(parameters);
-        case _util.AnnotationType.SQUARE:
-          return new SquareAnnotationElement(parameters);
-        case _util.AnnotationType.CIRCLE:
-          return new CircleAnnotationElement(parameters);
-        case _util.AnnotationType.POLYLINE:
-          return new PolylineAnnotationElement(parameters);
-        case _util.AnnotationType.POLYGON:
-          return new PolygonAnnotationElement(parameters);
-        case _util.AnnotationType.HIGHLIGHT:
-          return new HighlightAnnotationElement(parameters);
-        case _util.AnnotationType.UNDERLINE:
-          return new UnderlineAnnotationElement(parameters);
-        case _util.AnnotationType.SQUIGGLY:
-          return new SquigglyAnnotationElement(parameters);
-        case _util.AnnotationType.STRIKEOUT:
-          return new StrikeOutAnnotationElement(parameters);
-        case _util.AnnotationType.STAMP:
-          return new StampAnnotationElement(parameters);
-        case _util.AnnotationType.FILEATTACHMENT:
-          return new FileAttachmentAnnotationElement(parameters);
-        default:
-          return new AnnotationElement(parameters);
-      }
+function AnnotationElementFactory() {}
+AnnotationElementFactory.prototype = {
+  create: function AnnotationElementFactory_create(parameters) {
+    var subtype = parameters.data.annotationType;
+    switch (subtype) {
+      case _util.AnnotationType.LINK:
+        return new LinkAnnotationElement(parameters);
+      case _util.AnnotationType.TEXT:
+        return new TextAnnotationElement(parameters);
+      case _util.AnnotationType.WIDGET:
+        var fieldType = parameters.data.fieldType;
+        switch (fieldType) {
+          case 'Tx':
+            return new TextWidgetAnnotationElement(parameters);
+          case 'Btn':
+            if (parameters.data.radioButton) {
+              return new RadioButtonWidgetAnnotationElement(parameters);
+            } else if (parameters.data.checkBox) {
+              return new CheckboxWidgetAnnotationElement(parameters);
+            }
+            (0, _util.warn)('Unimplemented button widget annotation: pushbutton');
+            break;
+          case 'Ch':
+            return new ChoiceWidgetAnnotationElement(parameters);
+        }
+        return new WidgetAnnotationElement(parameters);
+      case _util.AnnotationType.POPUP:
+        return new PopupAnnotationElement(parameters);
+      case _util.AnnotationType.LINE:
+        return new LineAnnotationElement(parameters);
+      case _util.AnnotationType.HIGHLIGHT:
+        return new HighlightAnnotationElement(parameters);
+      case _util.AnnotationType.UNDERLINE:
+        return new UnderlineAnnotationElement(parameters);
+      case _util.AnnotationType.SQUIGGLY:
+        return new SquigglyAnnotationElement(parameters);
+      case _util.AnnotationType.STRIKEOUT:
+        return new StrikeOutAnnotationElement(parameters);
+      case _util.AnnotationType.FILEATTACHMENT:
+        return new FileAttachmentAnnotationElement(parameters);
+      default:
+        return new AnnotationElement(parameters);
     }
-  }]);
-
-  return AnnotationElementFactory;
-}();
-
-var AnnotationElement = function () {
-  function AnnotationElement(parameters) {
-    var isRenderable = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    var ignoreBorder = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-    _classCallCheck(this, AnnotationElement);
-
-    this.isRenderable = isRenderable;
+  }
+};
+var AnnotationElement = function AnnotationElementClosure() {
+  function AnnotationElement(parameters, isRenderable, ignoreBorder) {
+    this.isRenderable = isRenderable || false;
     this.data = parameters.data;
     this.layer = parameters.layer;
     this.page = parameters.page;
@@ -111,17 +79,12 @@ var AnnotationElement = function () {
     this.downloadManager = parameters.downloadManager;
     this.imageResourcesPath = parameters.imageResourcesPath;
     this.renderInteractiveForms = parameters.renderInteractiveForms;
-    this.svgFactory = parameters.svgFactory;
     if (isRenderable) {
       this.container = this._createContainer(ignoreBorder);
     }
   }
-
-  _createClass(AnnotationElement, [{
-    key: '_createContainer',
-    value: function _createContainer() {
-      var ignoreBorder = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
+  AnnotationElement.prototype = {
+    _createContainer: function AnnotationElement_createContainer(ignoreBorder) {
       var data = this.data,
           page = this.page,
           viewport = this.viewport;
@@ -174,10 +137,8 @@ var AnnotationElement = function () {
       container.style.width = width + 'px';
       container.style.height = height + 'px';
       return container;
-    }
-  }, {
-    key: '_createPopup',
-    value: function _createPopup(container, trigger, data) {
+    },
+    _createPopup: function AnnotationElement_createPopup(container, trigger, data) {
       if (!trigger) {
         trigger = document.createElement('div');
         trigger.style.height = container.style.height;
@@ -195,30 +156,19 @@ var AnnotationElement = function () {
       var popup = popupElement.render();
       popup.style.left = container.style.width;
       container.appendChild(popup);
+    },
+    render: function AnnotationElement_render() {
+      throw new Error('Abstract method AnnotationElement.render called');
     }
-  }, {
-    key: 'render',
-    value: function render() {
-      throw new Error('Abstract method `AnnotationElement.render` called');
-    }
-  }]);
-
+  };
   return AnnotationElement;
 }();
-
-var LinkAnnotationElement = function (_AnnotationElement) {
-  _inherits(LinkAnnotationElement, _AnnotationElement);
-
+var LinkAnnotationElement = function LinkAnnotationElementClosure() {
   function LinkAnnotationElement(parameters) {
-    _classCallCheck(this, LinkAnnotationElement);
-
-    var isRenderable = !!(parameters.data.url || parameters.data.dest || parameters.data.action);
-    return _possibleConstructorReturn(this, (LinkAnnotationElement.__proto__ || Object.getPrototypeOf(LinkAnnotationElement)).call(this, parameters, isRenderable));
+    AnnotationElement.call(this, parameters, true);
   }
-
-  _createClass(LinkAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(LinkAnnotationElement, AnnotationElement, {
+    render: function LinkAnnotationElement_render() {
       this.container.className = 'linkAnnotation';
       var link = document.createElement('a');
       (0, _dom_utils.addLinkAttributes)(link, {
@@ -234,53 +184,41 @@ var LinkAnnotationElement = function (_AnnotationElement) {
       }
       this.container.appendChild(link);
       return this.container;
-    }
-  }, {
-    key: '_bindLink',
-    value: function _bindLink(link, destination) {
-      var _this2 = this;
+    },
+    _bindLink: function _bindLink(link, destination) {
+      var _this = this;
 
       link.href = this.linkService.getDestinationHash(destination);
       link.onclick = function () {
         if (destination) {
-          _this2.linkService.navigateTo(destination);
+          _this.linkService.navigateTo(destination);
         }
         return false;
       };
       if (destination) {
         link.className = 'internalLink';
       }
-    }
-  }, {
-    key: '_bindNamedAction',
-    value: function _bindNamedAction(link, action) {
-      var _this3 = this;
+    },
+    _bindNamedAction: function _bindNamedAction(link, action) {
+      var _this2 = this;
 
       link.href = this.linkService.getAnchorUrl('');
       link.onclick = function () {
-        _this3.linkService.executeNamedAction(action);
+        _this2.linkService.executeNamedAction(action);
         return false;
       };
       link.className = 'internalLink';
     }
-  }]);
-
+  });
   return LinkAnnotationElement;
-}(AnnotationElement);
-
-var TextAnnotationElement = function (_AnnotationElement2) {
-  _inherits(TextAnnotationElement, _AnnotationElement2);
-
+}();
+var TextAnnotationElement = function TextAnnotationElementClosure() {
   function TextAnnotationElement(parameters) {
-    _classCallCheck(this, TextAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (TextAnnotationElement.__proto__ || Object.getPrototypeOf(TextAnnotationElement)).call(this, parameters, isRenderable));
+    AnnotationElement.call(this, parameters, isRenderable);
   }
-
-  _createClass(TextAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(TextAnnotationElement, AnnotationElement, {
+    render: function TextAnnotationElement_render() {
       this.container.className = 'textAnnotation';
       var image = document.createElement('img');
       image.style.height = this.container.style.height;
@@ -295,44 +233,28 @@ var TextAnnotationElement = function (_AnnotationElement2) {
       this.container.appendChild(image);
       return this.container;
     }
-  }]);
-
+  });
   return TextAnnotationElement;
-}(AnnotationElement);
-
-var WidgetAnnotationElement = function (_AnnotationElement3) {
-  _inherits(WidgetAnnotationElement, _AnnotationElement3);
-
-  function WidgetAnnotationElement() {
-    _classCallCheck(this, WidgetAnnotationElement);
-
-    return _possibleConstructorReturn(this, (WidgetAnnotationElement.__proto__ || Object.getPrototypeOf(WidgetAnnotationElement)).apply(this, arguments));
+}();
+var WidgetAnnotationElement = function WidgetAnnotationElementClosure() {
+  function WidgetAnnotationElement(parameters, isRenderable) {
+    AnnotationElement.call(this, parameters, isRenderable);
   }
-
-  _createClass(WidgetAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(WidgetAnnotationElement, AnnotationElement, {
+    render: function WidgetAnnotationElement_render() {
       return this.container;
     }
-  }]);
-
+  });
   return WidgetAnnotationElement;
-}(AnnotationElement);
-
-var TextWidgetAnnotationElement = function (_WidgetAnnotationElem) {
-  _inherits(TextWidgetAnnotationElement, _WidgetAnnotationElem);
-
+}();
+var TextWidgetAnnotationElement = function TextWidgetAnnotationElementClosure() {
+  var TEXT_ALIGNMENT = ['left', 'center', 'right'];
   function TextWidgetAnnotationElement(parameters) {
-    _classCallCheck(this, TextWidgetAnnotationElement);
-
     var isRenderable = parameters.renderInteractiveForms || !parameters.data.hasAppearance && !!parameters.data.fieldValue;
-    return _possibleConstructorReturn(this, (TextWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(TextWidgetAnnotationElement)).call(this, parameters, isRenderable));
+    WidgetAnnotationElement.call(this, parameters, isRenderable);
   }
-
-  _createClass(TextWidgetAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      var TEXT_ALIGNMENT = ['left', 'center', 'right'];
+  _util.Util.inherit(TextWidgetAnnotationElement, WidgetAnnotationElement, {
+    render: function TextWidgetAnnotationElement_render() {
       this.container.className = 'textWidgetAnnotation';
       var element = null;
       if (this.renderInteractiveForms) {
@@ -370,10 +292,8 @@ var TextWidgetAnnotationElement = function (_WidgetAnnotationElem) {
       }
       this.container.appendChild(element);
       return this.container;
-    }
-  }, {
-    key: '_setTextStyle',
-    value: function _setTextStyle(element, font) {
+    },
+    _setTextStyle: function TextWidgetAnnotationElement_setTextStyle(element, font) {
       var style = element.style;
       style.fontSize = this.data.fontSize + 'px';
       style.direction = this.data.fontDirection < 0 ? 'rtl' : 'ltr';
@@ -386,23 +306,15 @@ var TextWidgetAnnotationElement = function (_WidgetAnnotationElem) {
       var fallbackName = font.fallbackName || 'Helvetica, sans-serif';
       style.fontFamily = fontFamily + fallbackName;
     }
-  }]);
-
+  });
   return TextWidgetAnnotationElement;
-}(WidgetAnnotationElement);
-
-var CheckboxWidgetAnnotationElement = function (_WidgetAnnotationElem2) {
-  _inherits(CheckboxWidgetAnnotationElement, _WidgetAnnotationElem2);
-
+}();
+var CheckboxWidgetAnnotationElement = function CheckboxWidgetAnnotationElementClosure() {
   function CheckboxWidgetAnnotationElement(parameters) {
-    _classCallCheck(this, CheckboxWidgetAnnotationElement);
-
-    return _possibleConstructorReturn(this, (CheckboxWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(CheckboxWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
+    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
   }
-
-  _createClass(CheckboxWidgetAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(CheckboxWidgetAnnotationElement, WidgetAnnotationElement, {
+    render: function CheckboxWidgetAnnotationElement_render() {
       this.container.className = 'buttonWidgetAnnotation checkBox';
       var element = document.createElement('input');
       element.disabled = this.data.readOnly;
@@ -413,23 +325,15 @@ var CheckboxWidgetAnnotationElement = function (_WidgetAnnotationElem2) {
       this.container.appendChild(element);
       return this.container;
     }
-  }]);
-
+  });
   return CheckboxWidgetAnnotationElement;
-}(WidgetAnnotationElement);
-
-var RadioButtonWidgetAnnotationElement = function (_WidgetAnnotationElem3) {
-  _inherits(RadioButtonWidgetAnnotationElement, _WidgetAnnotationElem3);
-
+}();
+var RadioButtonWidgetAnnotationElement = function RadioButtonWidgetAnnotationElementClosure() {
   function RadioButtonWidgetAnnotationElement(parameters) {
-    _classCallCheck(this, RadioButtonWidgetAnnotationElement);
-
-    return _possibleConstructorReturn(this, (RadioButtonWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(RadioButtonWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
+    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
   }
-
-  _createClass(RadioButtonWidgetAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(RadioButtonWidgetAnnotationElement, WidgetAnnotationElement, {
+    render: function RadioButtonWidgetAnnotationElement_render() {
       this.container.className = 'buttonWidgetAnnotation radioButton';
       var element = document.createElement('input');
       element.disabled = this.data.readOnly;
@@ -441,23 +345,15 @@ var RadioButtonWidgetAnnotationElement = function (_WidgetAnnotationElem3) {
       this.container.appendChild(element);
       return this.container;
     }
-  }]);
-
+  });
   return RadioButtonWidgetAnnotationElement;
-}(WidgetAnnotationElement);
-
-var ChoiceWidgetAnnotationElement = function (_WidgetAnnotationElem4) {
-  _inherits(ChoiceWidgetAnnotationElement, _WidgetAnnotationElem4);
-
+}();
+var ChoiceWidgetAnnotationElement = function ChoiceWidgetAnnotationElementClosure() {
   function ChoiceWidgetAnnotationElement(parameters) {
-    _classCallCheck(this, ChoiceWidgetAnnotationElement);
-
-    return _possibleConstructorReturn(this, (ChoiceWidgetAnnotationElement.__proto__ || Object.getPrototypeOf(ChoiceWidgetAnnotationElement)).call(this, parameters, parameters.renderInteractiveForms));
+    WidgetAnnotationElement.call(this, parameters, parameters.renderInteractiveForms);
   }
-
-  _createClass(ChoiceWidgetAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(ChoiceWidgetAnnotationElement, WidgetAnnotationElement, {
+    render: function ChoiceWidgetAnnotationElement_render() {
       this.container.className = 'choiceWidgetAnnotation';
       var selectElement = document.createElement('select');
       selectElement.disabled = this.data.readOnly;
@@ -480,25 +376,17 @@ var ChoiceWidgetAnnotationElement = function (_WidgetAnnotationElem4) {
       this.container.appendChild(selectElement);
       return this.container;
     }
-  }]);
-
+  });
   return ChoiceWidgetAnnotationElement;
-}(WidgetAnnotationElement);
-
-var PopupAnnotationElement = function (_AnnotationElement4) {
-  _inherits(PopupAnnotationElement, _AnnotationElement4);
-
+}();
+var PopupAnnotationElement = function PopupAnnotationElementClosure() {
+  var IGNORE_TYPES = ['Line'];
   function PopupAnnotationElement(parameters) {
-    _classCallCheck(this, PopupAnnotationElement);
-
     var isRenderable = !!(parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (PopupAnnotationElement.__proto__ || Object.getPrototypeOf(PopupAnnotationElement)).call(this, parameters, isRenderable));
+    AnnotationElement.call(this, parameters, isRenderable);
   }
-
-  _createClass(PopupAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      var IGNORE_TYPES = ['Line', 'Square', 'Circle', 'PolyLine', 'Polygon'];
+  _util.Util.inherit(PopupAnnotationElement, AnnotationElement, {
+    render: function PopupAnnotationElement_render() {
       this.container.className = 'popupAnnotation';
       if (IGNORE_TYPES.indexOf(this.data.parentType) >= 0) {
         return this.container;
@@ -522,15 +410,12 @@ var PopupAnnotationElement = function (_AnnotationElement4) {
       this.container.appendChild(popup.render());
       return this.container;
     }
-  }]);
-
+  });
   return PopupAnnotationElement;
-}(AnnotationElement);
-
-var PopupElement = function () {
+}();
+var PopupElement = function PopupElementClosure() {
+  var BACKGROUND_ENLIGHT = 0.7;
   function PopupElement(parameters) {
-    _classCallCheck(this, PopupElement);
-
     this.container = parameters.container;
     this.trigger = parameters.trigger;
     this.color = parameters.color;
@@ -539,11 +424,8 @@ var PopupElement = function () {
     this.hideWrapper = parameters.hideWrapper || false;
     this.pinned = false;
   }
-
-  _createClass(PopupElement, [{
-    key: 'render',
-    value: function render() {
-      var BACKGROUND_ENLIGHT = 0.7;
+  PopupElement.prototype = {
+    render: function PopupElement_render() {
       var wrapper = document.createElement('div');
       wrapper.className = 'popupWrapper';
       this.hideElement = this.hideWrapper ? wrapper : this.container;
@@ -568,10 +450,8 @@ var PopupElement = function () {
       popup.appendChild(contents);
       wrapper.appendChild(popup);
       return wrapper;
-    }
-  }, {
-    key: '_formatContents',
-    value: function _formatContents(contents) {
+    },
+    _formatContents: function PopupElement_formatContents(contents) {
       var p = document.createElement('p');
       var lines = contents.split(/(?:\r\n?|\n)/);
       for (var i = 0, ii = lines.length; i < ii; ++i) {
@@ -582,21 +462,15 @@ var PopupElement = function () {
         }
       }
       return p;
-    }
-  }, {
-    key: '_toggle',
-    value: function _toggle() {
+    },
+    _toggle: function PopupElement_toggle() {
       if (this.pinned) {
         this._hide(true);
       } else {
         this._show(true);
       }
-    }
-  }, {
-    key: '_show',
-    value: function _show() {
-      var pin = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
+    },
+    _show: function PopupElement_show(pin) {
       if (pin) {
         this.pinned = true;
       }
@@ -604,12 +478,8 @@ var PopupElement = function () {
         this.hideElement.removeAttribute('hidden');
         this.container.style.zIndex += 1;
       }
-    }
-  }, {
-    key: '_hide',
-    value: function _hide() {
-      var unpin = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
+    },
+    _hide: function PopupElement_hide(unpin) {
       if (unpin) {
         this.pinned = false;
       }
@@ -618,325 +488,120 @@ var PopupElement = function () {
         this.container.style.zIndex -= 1;
       }
     }
-  }]);
-
+  };
   return PopupElement;
 }();
-
-var LineAnnotationElement = function (_AnnotationElement5) {
-  _inherits(LineAnnotationElement, _AnnotationElement5);
-
+var LineAnnotationElement = function LineAnnotationElementClosure() {
+  var SVG_NS = 'http://www.w3.org/2000/svg';
   function LineAnnotationElement(parameters) {
-    _classCallCheck(this, LineAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (LineAnnotationElement.__proto__ || Object.getPrototypeOf(LineAnnotationElement)).call(this, parameters, isRenderable, true));
+    AnnotationElement.call(this, parameters, isRenderable, true);
   }
-
-  _createClass(LineAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(LineAnnotationElement, AnnotationElement, {
+    render: function LineAnnotationElement_render() {
       this.container.className = 'lineAnnotation';
       var data = this.data;
       var width = data.rect[2] - data.rect[0];
       var height = data.rect[3] - data.rect[1];
-      var svg = this.svgFactory.create(width, height);
-      var line = this.svgFactory.createElement('svg:line');
-      line.setAttribute('x1', data.rect[2] - data.lineCoordinates[0]);
-      line.setAttribute('y1', data.rect[3] - data.lineCoordinates[1]);
-      line.setAttribute('x2', data.rect[2] - data.lineCoordinates[2]);
-      line.setAttribute('y2', data.rect[3] - data.lineCoordinates[3]);
-      line.setAttribute('stroke-width', data.borderStyle.width);
-      line.setAttribute('stroke', 'transparent');
+      var svg = document.createElementNS(SVG_NS, 'svg:svg');
+      svg.setAttributeNS(null, 'version', '1.1');
+      svg.setAttributeNS(null, 'width', width + 'px');
+      svg.setAttributeNS(null, 'height', height + 'px');
+      svg.setAttributeNS(null, 'preserveAspectRatio', 'none');
+      svg.setAttributeNS(null, 'viewBox', '0 0 ' + width + ' ' + height);
+      var line = document.createElementNS(SVG_NS, 'svg:line');
+      line.setAttributeNS(null, 'x1', data.rect[2] - data.lineCoordinates[0]);
+      line.setAttributeNS(null, 'y1', data.rect[3] - data.lineCoordinates[1]);
+      line.setAttributeNS(null, 'x2', data.rect[2] - data.lineCoordinates[2]);
+      line.setAttributeNS(null, 'y2', data.rect[3] - data.lineCoordinates[3]);
+      line.setAttributeNS(null, 'stroke-width', data.borderStyle.width);
+      line.setAttributeNS(null, 'stroke', 'transparent');
       svg.appendChild(line);
       this.container.append(svg);
-      this._createPopup(this.container, line, data);
+      this._createPopup(this.container, line, this.data);
       return this.container;
     }
-  }]);
-
+  });
   return LineAnnotationElement;
-}(AnnotationElement);
-
-var SquareAnnotationElement = function (_AnnotationElement6) {
-  _inherits(SquareAnnotationElement, _AnnotationElement6);
-
-  function SquareAnnotationElement(parameters) {
-    _classCallCheck(this, SquareAnnotationElement);
-
-    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (SquareAnnotationElement.__proto__ || Object.getPrototypeOf(SquareAnnotationElement)).call(this, parameters, isRenderable, true));
-  }
-
-  _createClass(SquareAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      this.container.className = 'squareAnnotation';
-      var data = this.data;
-      var width = data.rect[2] - data.rect[0];
-      var height = data.rect[3] - data.rect[1];
-      var svg = this.svgFactory.create(width, height);
-      var borderWidth = data.borderStyle.width;
-      var square = this.svgFactory.createElement('svg:rect');
-      square.setAttribute('x', borderWidth / 2);
-      square.setAttribute('y', borderWidth / 2);
-      square.setAttribute('width', width - borderWidth);
-      square.setAttribute('height', height - borderWidth);
-      square.setAttribute('stroke-width', borderWidth);
-      square.setAttribute('stroke', 'transparent');
-      square.setAttribute('fill', 'none');
-      svg.appendChild(square);
-      this.container.append(svg);
-      this._createPopup(this.container, square, data);
-      return this.container;
-    }
-  }]);
-
-  return SquareAnnotationElement;
-}(AnnotationElement);
-
-var CircleAnnotationElement = function (_AnnotationElement7) {
-  _inherits(CircleAnnotationElement, _AnnotationElement7);
-
-  function CircleAnnotationElement(parameters) {
-    _classCallCheck(this, CircleAnnotationElement);
-
-    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (CircleAnnotationElement.__proto__ || Object.getPrototypeOf(CircleAnnotationElement)).call(this, parameters, isRenderable, true));
-  }
-
-  _createClass(CircleAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      this.container.className = 'circleAnnotation';
-      var data = this.data;
-      var width = data.rect[2] - data.rect[0];
-      var height = data.rect[3] - data.rect[1];
-      var svg = this.svgFactory.create(width, height);
-      var borderWidth = data.borderStyle.width;
-      var circle = this.svgFactory.createElement('svg:ellipse');
-      circle.setAttribute('cx', width / 2);
-      circle.setAttribute('cy', height / 2);
-      circle.setAttribute('rx', width / 2 - borderWidth / 2);
-      circle.setAttribute('ry', height / 2 - borderWidth / 2);
-      circle.setAttribute('stroke-width', borderWidth);
-      circle.setAttribute('stroke', 'transparent');
-      circle.setAttribute('fill', 'none');
-      svg.appendChild(circle);
-      this.container.append(svg);
-      this._createPopup(this.container, circle, data);
-      return this.container;
-    }
-  }]);
-
-  return CircleAnnotationElement;
-}(AnnotationElement);
-
-var PolylineAnnotationElement = function (_AnnotationElement8) {
-  _inherits(PolylineAnnotationElement, _AnnotationElement8);
-
-  function PolylineAnnotationElement(parameters) {
-    _classCallCheck(this, PolylineAnnotationElement);
-
-    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-
-    var _this14 = _possibleConstructorReturn(this, (PolylineAnnotationElement.__proto__ || Object.getPrototypeOf(PolylineAnnotationElement)).call(this, parameters, isRenderable, true));
-
-    _this14.containerClassName = 'polylineAnnotation';
-    _this14.svgElementName = 'svg:polyline';
-    return _this14;
-  }
-
-  _createClass(PolylineAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      this.container.className = this.containerClassName;
-      var data = this.data;
-      var width = data.rect[2] - data.rect[0];
-      var height = data.rect[3] - data.rect[1];
-      var svg = this.svgFactory.create(width, height);
-      var vertices = data.vertices;
-      var points = [];
-      for (var i = 0, ii = vertices.length; i < ii; i++) {
-        var x = vertices[i].x - data.rect[0];
-        var y = data.rect[3] - vertices[i].y;
-        points.push(x + ',' + y);
-      }
-      points = points.join(' ');
-      var borderWidth = data.borderStyle.width;
-      var polyline = this.svgFactory.createElement(this.svgElementName);
-      polyline.setAttribute('points', points);
-      polyline.setAttribute('stroke-width', borderWidth);
-      polyline.setAttribute('stroke', 'transparent');
-      polyline.setAttribute('fill', 'none');
-      svg.appendChild(polyline);
-      this.container.append(svg);
-      this._createPopup(this.container, polyline, data);
-      return this.container;
-    }
-  }]);
-
-  return PolylineAnnotationElement;
-}(AnnotationElement);
-
-var PolygonAnnotationElement = function (_PolylineAnnotationEl) {
-  _inherits(PolygonAnnotationElement, _PolylineAnnotationEl);
-
-  function PolygonAnnotationElement(parameters) {
-    _classCallCheck(this, PolygonAnnotationElement);
-
-    var _this15 = _possibleConstructorReturn(this, (PolygonAnnotationElement.__proto__ || Object.getPrototypeOf(PolygonAnnotationElement)).call(this, parameters));
-
-    _this15.containerClassName = 'polygonAnnotation';
-    _this15.svgElementName = 'svg:polygon';
-    return _this15;
-  }
-
-  return PolygonAnnotationElement;
-}(PolylineAnnotationElement);
-
-var HighlightAnnotationElement = function (_AnnotationElement9) {
-  _inherits(HighlightAnnotationElement, _AnnotationElement9);
-
+}();
+var HighlightAnnotationElement = function HighlightAnnotationElementClosure() {
   function HighlightAnnotationElement(parameters) {
-    _classCallCheck(this, HighlightAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (HighlightAnnotationElement.__proto__ || Object.getPrototypeOf(HighlightAnnotationElement)).call(this, parameters, isRenderable, true));
+    AnnotationElement.call(this, parameters, isRenderable, true);
   }
-
-  _createClass(HighlightAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(HighlightAnnotationElement, AnnotationElement, {
+    render: function HighlightAnnotationElement_render() {
       this.container.className = 'highlightAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  }]);
-
+  });
   return HighlightAnnotationElement;
-}(AnnotationElement);
-
-var UnderlineAnnotationElement = function (_AnnotationElement10) {
-  _inherits(UnderlineAnnotationElement, _AnnotationElement10);
-
+}();
+var UnderlineAnnotationElement = function UnderlineAnnotationElementClosure() {
   function UnderlineAnnotationElement(parameters) {
-    _classCallCheck(this, UnderlineAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (UnderlineAnnotationElement.__proto__ || Object.getPrototypeOf(UnderlineAnnotationElement)).call(this, parameters, isRenderable, true));
+    AnnotationElement.call(this, parameters, isRenderable, true);
   }
-
-  _createClass(UnderlineAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(UnderlineAnnotationElement, AnnotationElement, {
+    render: function UnderlineAnnotationElement_render() {
       this.container.className = 'underlineAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  }]);
-
+  });
   return UnderlineAnnotationElement;
-}(AnnotationElement);
-
-var SquigglyAnnotationElement = function (_AnnotationElement11) {
-  _inherits(SquigglyAnnotationElement, _AnnotationElement11);
-
+}();
+var SquigglyAnnotationElement = function SquigglyAnnotationElementClosure() {
   function SquigglyAnnotationElement(parameters) {
-    _classCallCheck(this, SquigglyAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (SquigglyAnnotationElement.__proto__ || Object.getPrototypeOf(SquigglyAnnotationElement)).call(this, parameters, isRenderable, true));
+    AnnotationElement.call(this, parameters, isRenderable, true);
   }
-
-  _createClass(SquigglyAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(SquigglyAnnotationElement, AnnotationElement, {
+    render: function SquigglyAnnotationElement_render() {
       this.container.className = 'squigglyAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  }]);
-
+  });
   return SquigglyAnnotationElement;
-}(AnnotationElement);
-
-var StrikeOutAnnotationElement = function (_AnnotationElement12) {
-  _inherits(StrikeOutAnnotationElement, _AnnotationElement12);
-
+}();
+var StrikeOutAnnotationElement = function StrikeOutAnnotationElementClosure() {
   function StrikeOutAnnotationElement(parameters) {
-    _classCallCheck(this, StrikeOutAnnotationElement);
-
     var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (StrikeOutAnnotationElement.__proto__ || Object.getPrototypeOf(StrikeOutAnnotationElement)).call(this, parameters, isRenderable, true));
+    AnnotationElement.call(this, parameters, isRenderable, true);
   }
-
-  _createClass(StrikeOutAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(StrikeOutAnnotationElement, AnnotationElement, {
+    render: function StrikeOutAnnotationElement_render() {
       this.container.className = 'strikeoutAnnotation';
       if (!this.data.hasPopup) {
         this._createPopup(this.container, null, this.data);
       }
       return this.container;
     }
-  }]);
-
+  });
   return StrikeOutAnnotationElement;
-}(AnnotationElement);
-
-var StampAnnotationElement = function (_AnnotationElement13) {
-  _inherits(StampAnnotationElement, _AnnotationElement13);
-
-  function StampAnnotationElement(parameters) {
-    _classCallCheck(this, StampAnnotationElement);
-
-    var isRenderable = !!(parameters.data.hasPopup || parameters.data.title || parameters.data.contents);
-    return _possibleConstructorReturn(this, (StampAnnotationElement.__proto__ || Object.getPrototypeOf(StampAnnotationElement)).call(this, parameters, isRenderable, true));
-  }
-
-  _createClass(StampAnnotationElement, [{
-    key: 'render',
-    value: function render() {
-      this.container.className = 'stampAnnotation';
-      if (!this.data.hasPopup) {
-        this._createPopup(this.container, null, this.data);
-      }
-      return this.container;
-    }
-  }]);
-
-  return StampAnnotationElement;
-}(AnnotationElement);
-
-var FileAttachmentAnnotationElement = function (_AnnotationElement14) {
-  _inherits(FileAttachmentAnnotationElement, _AnnotationElement14);
-
+}();
+var FileAttachmentAnnotationElement = function FileAttachmentAnnotationElementClosure() {
   function FileAttachmentAnnotationElement(parameters) {
-    _classCallCheck(this, FileAttachmentAnnotationElement);
-
-    var _this21 = _possibleConstructorReturn(this, (FileAttachmentAnnotationElement.__proto__ || Object.getPrototypeOf(FileAttachmentAnnotationElement)).call(this, parameters, true));
-
-    var file = _this21.data.file;
-    _this21.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
-    _this21.content = file.content;
-    _this21.linkService.onFileAttachmentAnnotation({
+    AnnotationElement.call(this, parameters, true);
+    var file = this.data.file;
+    this.filename = (0, _dom_utils.getFilenameFromUrl)(file.filename);
+    this.content = file.content;
+    this.linkService.onFileAttachmentAnnotation({
       id: (0, _util.stringToPDFString)(file.filename),
       filename: file.filename,
       content: file.content
     });
-    return _this21;
   }
-
-  _createClass(FileAttachmentAnnotationElement, [{
-    key: 'render',
-    value: function render() {
+  _util.Util.inherit(FileAttachmentAnnotationElement, AnnotationElement, {
+    render: function FileAttachmentAnnotationElement_render() {
       this.container.className = 'fileAttachmentAnnotation';
       var trigger = document.createElement('div');
       trigger.style.height = this.container.style.height;
@@ -947,35 +612,27 @@ var FileAttachmentAnnotationElement = function (_AnnotationElement14) {
       }
       this.container.appendChild(trigger);
       return this.container;
-    }
-  }, {
-    key: '_download',
-    value: function _download() {
+    },
+    _download: function FileAttachmentAnnotationElement_download() {
       if (!this.downloadManager) {
         (0, _util.warn)('Download cannot be started due to unavailable download manager');
         return;
       }
       this.downloadManager.downloadData(this.content, this.filename, '');
     }
-  }]);
-
+  });
   return FileAttachmentAnnotationElement;
-}(AnnotationElement);
-
-var AnnotationLayer = function () {
-  function AnnotationLayer() {
-    _classCallCheck(this, AnnotationLayer);
-  }
-
-  _createClass(AnnotationLayer, null, [{
-    key: 'render',
-    value: function render(parameters) {
+}();
+var AnnotationLayer = function AnnotationLayerClosure() {
+  return {
+    render: function AnnotationLayer_render(parameters) {
+      var annotationElementFactory = new AnnotationElementFactory();
       for (var i = 0, ii = parameters.annotations.length; i < ii; i++) {
         var data = parameters.annotations[i];
         if (!data) {
           continue;
         }
-        var element = AnnotationElementFactory.create({
+        var element = annotationElementFactory.create({
           data: data,
           layer: parameters.div,
           page: parameters.page,
@@ -983,17 +640,14 @@ var AnnotationLayer = function () {
           linkService: parameters.linkService,
           downloadManager: parameters.downloadManager,
           imageResourcesPath: parameters.imageResourcesPath || (0, _dom_utils.getDefaultSetting)('imageResourcesPath'),
-          renderInteractiveForms: parameters.renderInteractiveForms || false,
-          svgFactory: new _dom_utils.DOMSVGFactory()
+          renderInteractiveForms: parameters.renderInteractiveForms || false
         });
         if (element.isRenderable) {
           parameters.div.appendChild(element.render());
         }
       }
-    }
-  }, {
-    key: 'update',
-    value: function update(parameters) {
+    },
+    update: function AnnotationLayer_update(parameters) {
       for (var i = 0, ii = parameters.annotations.length; i < ii; i++) {
         var data = parameters.annotations[i];
         var element = parameters.div.querySelector('[data-annotation-id="' + data.id + '"]');
@@ -1003,9 +657,6 @@ var AnnotationLayer = function () {
       }
       parameters.div.removeAttribute('hidden');
     }
-  }]);
-
-  return AnnotationLayer;
+  };
 }();
-
 exports.AnnotationLayer = AnnotationLayer;

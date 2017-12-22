@@ -17,11 +17,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.waitOnEventOrTimeout = exports.WaitOnType = exports.localized = exports.animationStarted = exports.normalizeWheelEventDelta = exports.binarySearchFirstItem = exports.watchScroll = exports.scrollIntoView = exports.getOutputScale = exports.approximateFraction = exports.roundToDivide = exports.getVisibleElements = exports.parseQueryString = exports.noContextMenuHandler = exports.getPDFFileNameFromURL = exports.ProgressBar = exports.EventBus = exports.NullL10n = exports.mozL10n = exports.RendererType = exports.PresentationModeState = exports.cloneObj = exports.isValidRotation = exports.VERTICAL_PADDING = exports.SCROLLBAR_PADDING = exports.MAX_AUTO_SCALE = exports.UNKNOWN_SCALE = exports.MAX_SCALE = exports.MIN_SCALE = exports.DEFAULT_SCALE = exports.DEFAULT_SCALE_VALUE = exports.CSS_UNITS = undefined;
+exports.localized = exports.animationStarted = exports.normalizeWheelEventDelta = exports.binarySearchFirstItem = exports.watchScroll = exports.scrollIntoView = exports.getOutputScale = exports.approximateFraction = exports.roundToDivide = exports.getVisibleElements = exports.parseQueryString = exports.noContextMenuHandler = exports.getPDFFileNameFromURL = exports.ProgressBar = exports.EventBus = exports.NullL10n = exports.mozL10n = exports.RendererType = exports.cloneObj = exports.VERTICAL_PADDING = exports.SCROLLBAR_PADDING = exports.MAX_AUTO_SCALE = exports.UNKNOWN_SCALE = exports.MAX_SCALE = exports.MIN_SCALE = exports.DEFAULT_SCALE = exports.DEFAULT_SCALE_VALUE = exports.CSS_UNITS = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _pdf = require('../pdf');
 
@@ -36,12 +34,6 @@ var UNKNOWN_SCALE = 0;
 var MAX_AUTO_SCALE = 1.25;
 var SCROLLBAR_PADDING = 40;
 var VERTICAL_PADDING = 5;
-var PresentationModeState = {
-  UNKNOWN: 0,
-  NORMAL: 1,
-  CHANGING: 2,
-  FULLSCREEN: 3
-};
 var RendererType = {
   CANVAS: 'canvas',
   SVG: 'svg'
@@ -323,9 +315,6 @@ function normalizeWheelEventDelta(evt) {
   }
   return delta;
 }
-function isValidRotation(angle) {
-  return Number.isInteger(angle) && angle % 90 === 0;
-}
 function cloneObj(obj) {
   var result = Object.create(null);
   for (var i in obj) {
@@ -334,41 +323,6 @@ function cloneObj(obj) {
     }
   }
   return result;
-}
-var WaitOnType = {
-  EVENT: 'event',
-  TIMEOUT: 'timeout'
-};
-function waitOnEventOrTimeout(_ref) {
-  var target = _ref.target,
-      name = _ref.name,
-      _ref$delay = _ref.delay,
-      delay = _ref$delay === undefined ? 0 : _ref$delay;
-
-  if ((typeof target === 'undefined' ? 'undefined' : _typeof(target)) !== 'object' || !(name && typeof name === 'string') || !(Number.isInteger(delay) && delay >= 0)) {
-    return Promise.reject(new Error('waitOnEventOrTimeout - invalid paramaters.'));
-  }
-  var capability = (0, _pdf.createPromiseCapability)();
-  function handler(type) {
-    if (target instanceof EventBus) {
-      target.off(name, eventHandler);
-    } else {
-      target.removeEventListener(name, eventHandler);
-    }
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    capability.resolve(type);
-  }
-  var eventHandler = handler.bind(null, WaitOnType.EVENT);
-  if (target instanceof EventBus) {
-    target.on(name, eventHandler);
-  } else {
-    target.addEventListener(name, eventHandler);
-  }
-  var timeoutHandler = handler.bind(null, WaitOnType.TIMEOUT);
-  var timeout = setTimeout(timeoutHandler, delay);
-  return capability.promise;
 }
 var animationStarted = new Promise(function (resolve) {
   window.requestAnimationFrame(resolve);
@@ -426,10 +380,10 @@ function clamp(v, min, max) {
 
 var ProgressBar = function () {
   function ProgressBar(id) {
-    var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-        height = _ref2.height,
-        width = _ref2.width,
-        units = _ref2.units;
+    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        height = _ref.height,
+        width = _ref.width,
+        units = _ref.units;
 
     _classCallCheck(this, ProgressBar);
 
@@ -511,9 +465,7 @@ exports.UNKNOWN_SCALE = UNKNOWN_SCALE;
 exports.MAX_AUTO_SCALE = MAX_AUTO_SCALE;
 exports.SCROLLBAR_PADDING = SCROLLBAR_PADDING;
 exports.VERTICAL_PADDING = VERTICAL_PADDING;
-exports.isValidRotation = isValidRotation;
 exports.cloneObj = cloneObj;
-exports.PresentationModeState = PresentationModeState;
 exports.RendererType = RendererType;
 exports.mozL10n = mozL10n;
 exports.NullL10n = NullL10n;
@@ -532,5 +484,3 @@ exports.binarySearchFirstItem = binarySearchFirstItem;
 exports.normalizeWheelEventDelta = normalizeWheelEventDelta;
 exports.animationStarted = animationStarted;
 exports.localized = localized;
-exports.WaitOnType = WaitOnType;
-exports.waitOnEventOrTimeout = waitOnEventOrTimeout;

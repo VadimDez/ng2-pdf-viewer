@@ -31,15 +31,9 @@ var _font_loader = require('./font_loader');
 
 var _canvas = require('./canvas');
 
-var _global_scope = require('../shared/global_scope');
-
-var _global_scope2 = _interopRequireDefault(_global_scope);
-
 var _metadata = require('./metadata');
 
 var _transport_stream = require('./transport_stream');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -193,7 +187,6 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   if (worker.destroyed) {
     return Promise.reject(new Error('Worker was destroyed'));
   }
-  var apiVersion = '1.9.607';
   source.disableAutoFetch = (0, _dom_utils.getDefaultSetting)('disableAutoFetch');
   source.disableStream = (0, _dom_utils.getDefaultSetting)('disableStream');
   source.chunkedViewerLoading = !!pdfDataRangeTransport;
@@ -203,7 +196,6 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
-    apiVersion: apiVersion,
     source: {
       data: source.data,
       url: source.url,
@@ -218,8 +210,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
     postMessageTransfers: (0, _dom_utils.getDefaultSetting)('postMessageTransfers') && !isPostMessageTransfersDisabled,
     docBaseUrl: source.docBaseUrl,
     nativeImageDecoderSupport: source.nativeImageDecoderSupport,
-    ignoreErrors: source.ignoreErrors,
-    isEvalSupported: (0, _dom_utils.getDefaultSetting)('isEvalSupported')
+    ignoreErrors: source.ignoreErrors
   }).then(function (workerId) {
     if (worker.destroyed) {
       throw new Error('Worker was destroyed');
@@ -671,7 +662,7 @@ var LoopbackPort = function () {
           cloned.set(value, result);
           return result;
         }
-        result = Array.isArray(value) ? [] : {};
+        result = (0, _util.isArray)(value) ? [] : {};
         cloned.set(value, result);
         for (var i in value) {
           var desc,
@@ -1140,10 +1131,10 @@ var WorkerTransport = function WorkerTransportClosure() {
               break;
             }
             var fontRegistry = null;
-            if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _global_scope2.default.FontInspector && _global_scope2.default['FontInspector'].enabled) {
+            if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _util.globalScope.FontInspector && _util.globalScope['FontInspector'].enabled) {
               fontRegistry = {
                 registerFont: function registerFont(font, url) {
-                  _global_scope2.default['FontInspector'].fontAdded(font, url);
+                  _util.globalScope['FontInspector'].fontAdded(font, url);
                 }
               };
             }
@@ -1297,7 +1288,7 @@ var WorkerTransport = function WorkerTransportClosure() {
     getPage: function WorkerTransport_getPage(pageNumber, capability) {
       var _this13 = this;
 
-      if (!Number.isInteger(pageNumber) || pageNumber <= 0 || pageNumber > this.numPages) {
+      if (!(0, _util.isInt)(pageNumber) || pageNumber <= 0 || pageNumber > this.numPages) {
         return Promise.reject(new Error('Invalid page request'));
       }
       var pageIndex = pageNumber - 1;
@@ -1485,8 +1476,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
       if (this.cancelled) {
         return;
       }
-      if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _global_scope2.default.StepperManager && _global_scope2.default.StepperManager.enabled) {
-        this.stepper = _global_scope2.default.StepperManager.create(this.pageNumber - 1);
+      if ((0, _dom_utils.getDefaultSetting)('pdfBug') && _util.globalScope.StepperManager && _util.globalScope.StepperManager.enabled) {
+        this.stepper = _util.globalScope.StepperManager.create(this.pageNumber - 1);
         this.stepper.init(this.operatorList);
         this.stepper.nextBreakPoint = this.stepper.getNextBreakPoint();
       }
@@ -1584,8 +1575,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.9.607';
-  exports.build = build = 'b3f84112';
+  exports.version = version = '1.8.619';
+  exports.build = build = '723bc25b';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;

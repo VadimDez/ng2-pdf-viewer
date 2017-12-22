@@ -567,16 +567,6 @@ var PredictorStream = function PredictorStreamClosure() {
         buffer[pos] = buffer[pos - colors] + rawBytes[i];
         pos++;
       }
-    } else if (bits === 16) {
-      var bytesPerPixel = colors * 2;
-      for (i = 0; i < bytesPerPixel; ++i) {
-        buffer[pos++] = rawBytes[i];
-      }
-      for (; i < rowBytes; i += 2) {
-        var sum = ((rawBytes[i] & 0xFF) << 8) + (rawBytes[i + 1] & 0xFF) + ((buffer[pos - bytesPerPixel] & 0xFF) << 8) + (buffer[pos - bytesPerPixel + 1] & 0xFF);
-        buffer[pos++] = sum >> 8 & 0xFF;
-        buffer[pos++] = sum & 0xFF;
-      }
     } else {
       var compArray = new Uint8Array(colors + 1);
       var bitMask = (1 << bits) - 1;
@@ -721,7 +711,7 @@ var JpegStream = function JpegStreamClosure() {
     }
     var jpegImage = new _jpg.JpegImage();
     var decodeArr = this.dict.getArray('Decode', 'D');
-    if (this.forceRGB && Array.isArray(decodeArr)) {
+    if (this.forceRGB && (0, _util.isArray)(decodeArr)) {
       var bitsPerComponent = this.dict.get('BitsPerComponent') || 8;
       var decodeArrLength = decodeArr.length;
       var transform = new Int32Array(decodeArrLength);
@@ -740,7 +730,7 @@ var JpegStream = function JpegStreamClosure() {
     }
     if ((0, _primitives.isDict)(this.params)) {
       var colorTransform = this.params.get('ColorTransform');
-      if (Number.isInteger(colorTransform)) {
+      if ((0, _util.isInt)(colorTransform)) {
         jpegImage.colorTransform = colorTransform;
       }
     }
@@ -787,7 +777,7 @@ var JpxStream = function JpxStreamClosure() {
     if (tileCount === 1) {
       this.buffer = jpxImage.tiles[0].items;
     } else {
-      var data = new Uint8ClampedArray(width * height * componentsCount);
+      var data = new Uint8Array(width * height * componentsCount);
       for (var k = 0; k < tileCount; k++) {
         var tileComponents = jpxImage.tiles[k];
         var tileWidth = tileComponents.width;
@@ -1073,9 +1063,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
   function CCITTFaxStream(str, maybeLength, params) {
     this.str = str;
     this.dict = str.dict;
-    if (!(0, _primitives.isDict)(params)) {
-      params = _primitives.Dict.empty;
-    }
+    params = params || _primitives.Dict.empty;
     this.encoding = params.get('K') || 0;
     this.eoline = params.get('EndOfLine') || false;
     this.byteAlign = params.get('EncodedByteAlign') || false;
@@ -1096,7 +1084,6 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
     this.inputBits = 0;
     this.inputBuf = 0;
     this.outputBits = 0;
-    this.rowsDone = false;
     var code1;
     while ((code1 = this.lookBits(12)) === 0) {
       this.eatBits(1);
@@ -1166,9 +1153,6 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
     var columns = this.columns;
     var refPos, blackPixels, bits, i;
     if (this.outputBits === 0) {
-      if (this.rowsDone) {
-        this.eof = true;
-      }
       if (this.eof) {
         return null;
       }
@@ -1334,7 +1318,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
         this.inputBits &= ~7;
       }
       if (!this.eoblock && this.row === this.rows - 1) {
-        this.rowsDone = true;
+        this.eof = true;
       } else {
         code1 = this.lookBits(12);
         if (this.eoline) {
@@ -1355,7 +1339,7 @@ var CCITTFaxStream = function CCITTFaxStreamClosure() {
           this.eof = true;
         }
       }
-      if (!this.eof && this.encoding > 0 && !this.rowsDone) {
+      if (!this.eof && this.encoding > 0) {
         this.nextLine2D = !this.lookBits(1);
         this.eatBits(1);
       }
