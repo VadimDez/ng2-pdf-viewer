@@ -133,7 +133,7 @@ supports two way data binding as well
 #### [stick-to-page]
 _boolean_
 
-Works in combination with `page` and sticks view to the page
+Sticks view to the page. Works in combination with `[show-all]="true"` and `page`.
 
 ```
 [stick-to-page]="true"
@@ -149,6 +149,8 @@ Enable text rendering, allows to select text
 
 #### [external-link-target]
 _string_
+
+Used in combination with `[render-text]="true"`
 
 Link target
 * `blank`
