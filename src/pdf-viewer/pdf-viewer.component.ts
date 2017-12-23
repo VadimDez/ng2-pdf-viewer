@@ -484,7 +484,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    let loadingTask: any = PDFJS.getDocument(this.src);
+    let loadingTask: any = PDFJS.getDocument(this.src as any);
 
     loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
@@ -566,23 +566,27 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
       (<any>PDFJS).disableTextLayer = !this._renderText;
 
-      PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
-
-      this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-
       let pdfOptions: PDFViewerParams | any = {
         container,
         removePageBorders: true,
-        linkService: this._pdfLinkService,
         defaultViewport: viewport,
         scale,
         id: this._page,
-        textLayerFactory: new (<any>PDFJS).DefaultTextLayerFactory(),
-        annotationLayerFactory: new (<any>PDFJS).DefaultAnnotationLayerFactory()
       };
 
+      if (this._renderText) {
+        this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
+        pdfOptions.linkService = this._pdfLinkService;
+        PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
+        pdfOptions.textLayerFactory = new (<any>PDFJS).DefaultTextLayerFactory();
+        pdfOptions.annotationLayerFactory = new (<any>PDFJS).DefaultAnnotationLayerFactory();
+      }
+
       let pdfPageView = new (<any>PDFJS).PDFPageView(pdfOptions);
-      this._pdfLinkService.setViewer(pdfPageView);
+
+      if (this._renderText) {
+        this._pdfLinkService.setViewer(pdfPageView);
+      }
 
       if (this._rotation !== 0 || pdfPageView.rotation !== this._rotation) {
         pdfPageView.rotation = this._rotation;
