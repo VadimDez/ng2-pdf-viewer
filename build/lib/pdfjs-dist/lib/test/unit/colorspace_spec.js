@@ -20,8 +20,6 @@ var _stream = require('../../core/stream');
 
 var _colorspace = require('../../core/colorspace');
 
-var _function = require('../../core/function');
-
 var _test_utils = require('./test_utils');
 
 describe('colorspace', function () {
@@ -51,8 +49,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131]);
       var testDest = new Uint8Array(4 * 4 * 3);
       var expectedDest = new Uint8Array([27, 27, 27, 27, 27, 27, 125, 125, 125, 125, 125, 125, 27, 27, 27, 27, 27, 27, 125, 125, 125, 125, 125, 125, 250, 250, 250, 250, 250, 250, 131, 131, 131, 131, 131, 131, 250, 250, 250, 250, 250, 250, 131, 131, 131, 131, 131, 131]);
@@ -69,8 +66,7 @@ describe('colorspace', function () {
         data: _primitives.Name.get('DeviceGray')
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([27, 27, 27, 27, 27, 27, 125, 125, 125, 27, 27, 27, 27, 27, 27, 125, 125, 125, 250, 250, 250, 250, 250, 250, 131, 131, 131]);
@@ -89,8 +85,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131, 139, 140, 111, 25, 198, 21, 147, 255]);
       var testDest = new Uint8Array(4 * 4 * 3);
       var expectedDest = new Uint8Array([27, 125, 250, 27, 125, 250, 131, 139, 140, 131, 139, 140, 27, 125, 250, 27, 125, 250, 131, 139, 140, 131, 139, 140, 111, 25, 198, 111, 25, 198, 21, 147, 255, 21, 147, 255, 111, 25, 198, 111, 25, 198, 21, 147, 255, 21, 147, 255]);
@@ -107,8 +102,7 @@ describe('colorspace', function () {
         data: _primitives.Name.get('DeviceRGB')
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131, 139, 140, 111, 25, 198, 21, 147, 255]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([27, 125, 250, 27, 125, 250, 131, 139, 140, 27, 125, 250, 27, 125, 250, 131, 139, 140, 111, 25, 198, 111, 25, 198, 21, 147, 255]);
@@ -127,8 +121,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 128, 131, 139, 140, 45, 111, 25, 198, 78, 21, 147, 255, 69]);
       var testDest = new Uint8Array(4 * 4 * 3);
       var expectedDest = new Uint8Array([135, 80, 18, 135, 80, 18, 113, 102, 97, 113, 102, 97, 135, 80, 18, 135, 80, 18, 113, 102, 97, 113, 102, 97, 112, 143, 75, 112, 143, 75, 188, 98, 27, 188, 98, 27, 112, 143, 75, 112, 143, 75, 188, 98, 27, 188, 98, 27]);
@@ -145,8 +138,7 @@ describe('colorspace', function () {
         data: _primitives.Name.get('DeviceCMYK')
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 128, 131, 139, 140, 45, 111, 25, 198, 78, 21, 147, 255, 69]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([135, 80, 18, 135, 80, 18, 113, 102, 97, 135, 80, 18, 135, 80, 18, 113, 102, 97, 112, 143, 75, 112, 143, 75, 188, 98, 27]);
@@ -169,8 +161,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131]);
       var testDest = new Uint8Array(4 * 4 * 3);
       var expectedDest = new Uint8Array([25, 25, 25, 25, 25, 25, 143, 143, 143, 143, 143, 143, 25, 25, 25, 25, 25, 25, 143, 143, 143, 143, 143, 143, 251, 251, 251, 251, 251, 251, 148, 148, 148, 148, 148, 148, 251, 251, 251, 251, 251, 251, 148, 148, 148, 148, 148, 148]);
@@ -194,8 +185,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 125, 250, 131, 139, 140, 111, 25, 198, 21, 147, 255]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([0, 238, 255, 0, 238, 255, 185, 196, 195, 0, 238, 255, 0, 238, 255, 185, 196, 195, 235, 0, 243, 235, 0, 243, 0, 255, 255]);
@@ -218,8 +208,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 25, 50, 31, 19, 40, 11, 25, 98, 21, 47, 55]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([0, 49, 101, 0, 49, 101, 0, 53, 116, 0, 49, 101, 0, 49, 101, 0, 53, 116, 0, 40, 39, 0, 40, 39, 0, 43, 90]);
@@ -240,8 +229,7 @@ describe('colorspace', function () {
         data: new _primitives.Dict()
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([2, 2, 0, 1]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([255, 109, 70, 255, 109, 70, 255, 109, 70, 255, 109, 70, 255, 109, 70, 255, 109, 70, 23, 155, 35, 23, 155, 35, 147, 69, 93]);
@@ -268,8 +256,7 @@ describe('colorspace', function () {
         data: fn
       }]);
       var res = new _primitives.Dict();
-      var pdfFunctionFactory = new _function.PDFFunctionFactory({ xref: xref });
-      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+      var colorSpace = _colorspace.ColorSpace.parse(cs, xref, res);
       var testSrc = new Uint8Array([27, 25, 50, 31]);
       var testDest = new Uint8Array(3 * 3 * 3);
       var expectedDest = new Uint8Array([227, 243, 242, 227, 243, 242, 228, 243, 242, 227, 243, 242, 227, 243, 242, 228, 243, 242, 203, 233, 229, 203, 233, 229, 222, 241, 239]);
