@@ -52,6 +52,7 @@ var AppComponent = (function () {
         this.error = error;
     };
     AppComponent.prototype.onProgress = function (progressData) {
+        console.log(progressData);
         this.progressData = progressData;
         this.isLoaded = false;
         this.error = null;

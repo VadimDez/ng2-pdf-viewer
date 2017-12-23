@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.3
+* [[#168](https://github.com/VadimDez/ng2-pdf-viewer/issues/168)] - Dependency to a prebuilt-version of pdf.js (pdfjs-dist)
+* [[#195](https://github.com/VadimDez/ng2-pdf-viewer/issues/195)] - progressData.total is undefined
+* [[#222](https://github.com/VadimDez/ng2-pdf-viewer/issues/222)] - [render-text]="false" is not working
+
+
 ## 3.0.2
 * [[#173](https://github.com/VadimDez/ng2-pdf-viewer/issues/173)] - SSR support
 

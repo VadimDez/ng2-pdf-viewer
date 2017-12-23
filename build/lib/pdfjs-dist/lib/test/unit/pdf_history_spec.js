@@ -17,7 +17,27 @@
 var _pdf_history = require('../../web/pdf_history');
 
 describe('pdf_history', function () {
-  describe('isDestsEqual', function () {
+  describe('isDestHashesEqual', function () {
+    it('should reject non-equal destination hashes', function () {
+      expect((0, _pdf_history.isDestHashesEqual)(null, 'page.157')).toEqual(false);
+      expect((0, _pdf_history.isDestHashesEqual)('title.0', 'page.157')).toEqual(false);
+      expect((0, _pdf_history.isDestHashesEqual)('page=1&zoom=auto', 'page.157')).toEqual(false);
+      expect((0, _pdf_history.isDestHashesEqual)('nameddest-page.157', 'page.157')).toEqual(false);
+      expect((0, _pdf_history.isDestHashesEqual)('page.157', 'nameddest=page.157')).toEqual(false);
+      var destArrayString = JSON.stringify([{
+        num: 3757,
+        gen: 0
+      }, { name: 'XYZ' }, 92.918, 748.972, null]);
+      expect((0, _pdf_history.isDestHashesEqual)(destArrayString, 'page.157')).toEqual(false);
+      expect((0, _pdf_history.isDestHashesEqual)('page.157', destArrayString)).toEqual(false);
+    });
+    it('should accept equal destination hashes', function () {
+      expect((0, _pdf_history.isDestHashesEqual)('page.157', 'page.157')).toEqual(true);
+      expect((0, _pdf_history.isDestHashesEqual)('nameddest=page.157', 'page.157')).toEqual(true);
+      expect((0, _pdf_history.isDestHashesEqual)('nameddest=page.157&zoom=100', 'page.157')).toEqual(true);
+    });
+  });
+  describe('isDestArraysEqual', function () {
     var firstDest = [{
       num: 1,
       gen: 0
@@ -39,18 +59,18 @@ describe('pdf_history', function () {
       num: 1
     }, { name: 'XYZ' }, 0, 375, null];
     it('should reject non-equal destination arrays', function () {
-      expect((0, _pdf_history.isDestsEqual)(firstDest, undefined)).toEqual(false);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, [1, 2, 3, 4, 5])).toEqual(false);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, secondDest)).toEqual(false);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, thirdDest)).toEqual(false);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, fourthDest)).toEqual(false);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, undefined)).toEqual(false);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, [1, 2, 3, 4, 5])).toEqual(false);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, secondDest)).toEqual(false);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, thirdDest)).toEqual(false);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, fourthDest)).toEqual(false);
     });
     it('should accept equal destination arrays', function () {
-      expect((0, _pdf_history.isDestsEqual)(firstDest, firstDest)).toEqual(true);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, fifthDest)).toEqual(true);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, firstDest)).toEqual(true);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, fifthDest)).toEqual(true);
       var firstDestCopy = firstDest.slice();
       expect(firstDest).not.toBe(firstDestCopy);
-      expect((0, _pdf_history.isDestsEqual)(firstDest, firstDestCopy)).toEqual(true);
+      expect((0, _pdf_history.isDestArraysEqual)(firstDest, firstDestCopy)).toEqual(true);
     });
   });
 });

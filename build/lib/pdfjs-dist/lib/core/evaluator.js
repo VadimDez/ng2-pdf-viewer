@@ -39,6 +39,8 @@ var _standard_fonts = require('./standard_fonts');
 
 var _pattern = require('./pattern');
 
+var _function = require('./function');
+
 var _parser = require('./parser');
 
 var _bidi = require('./bidi');
@@ -48,8 +50,6 @@ var _colorspace = require('./colorspace');
 var _glyphlist = require('./glyphlist');
 
 var _metrics = require('./metrics');
-
-var _function = require('./function');
 
 var _murmurhash = require('./murmurhash3');
 
@@ -61,31 +61,22 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     maxImageSize: -1,
     disableFontFace: false,
     nativeImageDecoderSupport: _util.NativeImageDecoding.DECODE,
-    ignoreErrors: false,
-    isEvalSupported: true
+    ignoreErrors: false
   };
-  function NativeImageDecoder(_ref) {
-    var xref = _ref.xref,
-        resources = _ref.resources,
-        handler = _ref.handler,
-        _ref$forceDataSchema = _ref.forceDataSchema,
-        forceDataSchema = _ref$forceDataSchema === undefined ? false : _ref$forceDataSchema,
-        pdfFunctionFactory = _ref.pdfFunctionFactory;
-
+  function NativeImageDecoder(xref, resources, handler, forceDataSchema) {
     this.xref = xref;
     this.resources = resources;
     this.handler = handler;
     this.forceDataSchema = forceDataSchema;
-    this.pdfFunctionFactory = pdfFunctionFactory;
   }
   NativeImageDecoder.prototype = {
     canDecode: function canDecode(image) {
-      return image instanceof _stream.JpegStream && NativeImageDecoder.isDecodable(image, this.xref, this.resources, this.pdfFunctionFactory);
+      return image instanceof _stream.JpegStream && NativeImageDecoder.isDecodable(image, this.xref, this.resources);
     },
     decode: function decode(image) {
       var dict = image.dict;
       var colorSpace = dict.get('ColorSpace', 'CS');
-      colorSpace = _colorspace.ColorSpace.parse(colorSpace, this.xref, this.resources, this.pdfFunctionFactory);
+      colorSpace = _colorspace.ColorSpace.parse(colorSpace, this.xref, this.resources);
       var numComps = colorSpace.numComps;
       var decodePromise = this.handler.sendWithPromise('JpegDecode', [image.getIR(this.forceDataSchema), numComps]);
       return decodePromise.then(function (message) {
@@ -94,35 +85,34 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       });
     }
   };
-  NativeImageDecoder.isSupported = function (image, xref, res, pdfFunctionFactory) {
+  NativeImageDecoder.isSupported = function NativeImageDecoder_isSupported(image, xref, res) {
     var dict = image.dict;
     if (dict.has('DecodeParms') || dict.has('DP')) {
       return false;
     }
-    var cs = _colorspace.ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res, pdfFunctionFactory);
+    var cs = _colorspace.ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res);
     return (cs.name === 'DeviceGray' || cs.name === 'DeviceRGB') && cs.isDefaultDecode(dict.getArray('Decode', 'D'));
   };
-  NativeImageDecoder.isDecodable = function (image, xref, res, pdfFunctionFactory) {
+  NativeImageDecoder.isDecodable = function NativeImageDecoder_isDecodable(image, xref, res) {
     var dict = image.dict;
     if (dict.has('DecodeParms') || dict.has('DP')) {
       return false;
     }
-    var cs = _colorspace.ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res, pdfFunctionFactory);
+    var cs = _colorspace.ColorSpace.parse(dict.get('ColorSpace', 'CS'), xref, res);
     return (cs.numComps === 1 || cs.numComps === 3) && cs.isDefaultDecode(dict.getArray('Decode', 'D'));
   };
-  function PartialEvaluator(_ref2) {
+  function PartialEvaluator(_ref) {
     var _this = this;
 
-    var pdfManager = _ref2.pdfManager,
-        xref = _ref2.xref,
-        handler = _ref2.handler,
-        pageIndex = _ref2.pageIndex,
-        idFactory = _ref2.idFactory,
-        fontCache = _ref2.fontCache,
-        builtInCMapCache = _ref2.builtInCMapCache,
-        _ref2$options = _ref2.options,
-        options = _ref2$options === undefined ? null : _ref2$options,
-        pdfFunctionFactory = _ref2.pdfFunctionFactory;
+    var pdfManager = _ref.pdfManager,
+        xref = _ref.xref,
+        handler = _ref.handler,
+        pageIndex = _ref.pageIndex,
+        idFactory = _ref.idFactory,
+        fontCache = _ref.fontCache,
+        builtInCMapCache = _ref.builtInCMapCache,
+        _ref$options = _ref.options,
+        options = _ref$options === undefined ? null : _ref$options;
 
     this.pdfManager = pdfManager;
     this.xref = xref;
@@ -132,7 +122,6 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     this.fontCache = fontCache;
     this.builtInCMapCache = builtInCMapCache;
     this.options = options || DefaultPartialEvaluatorOptions;
-    this.pdfFunctionFactory = pdfFunctionFactory;
     this.fetchBuiltInCMap = function (name) {
       var cachedCMap = _this.builtInCMapCache[name];
       if (cachedCMap) {
@@ -291,13 +280,11 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
           knockout: false
         };
         var groupSubtype = group.get('S');
-        var colorSpace = null;
+        var colorSpace;
         if ((0, _primitives.isName)(groupSubtype, 'Transparency')) {
           groupOptions.isolated = group.get('I') || false;
           groupOptions.knockout = group.get('K') || false;
-          if (group.has('CS')) {
-            colorSpace = _colorspace.ColorSpace.parse(group.get('CS'), this.xref, resources, this.pdfFunctionFactory);
-          }
+          colorSpace = group.has('CS') ? _colorspace.ColorSpace.parse(group.get('CS'), this.xref, resources) : null;
         }
         if (smask && smask.backdrop) {
           colorSpace = colorSpace || _colorspace.ColorSpace.singletons.rgb;
@@ -342,13 +329,8 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         var bitStrideLength = width + 7 >> 3;
         var imgArray = image.getBytes(bitStrideLength * height);
         var decode = dict.getArray('Decode', 'D');
-        imgData = _image.PDFImage.createMask({
-          imgArray: imgArray,
-          width: width,
-          height: height,
-          imageIsFromDecodeStream: image instanceof _stream.DecodeStream,
-          inverseDecode: !!decode && decode[0] > 0
-        });
+        var inverseDecode = !!decode && decode[0] > 0;
+        imgData = _image.PDFImage.createMask(imgArray, width, height, image instanceof _stream.DecodeStream, inverseDecode);
         imgData.cached = true;
         args = [imgData];
         operatorList.addOp(_util.OPS.paintImageMaskXObject, args);
@@ -364,12 +346,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var mask = dict.get('Mask') || false;
       var SMALL_IMAGE_DIMENSIONS = 200;
       if (inline && !softMask && !mask && !(image instanceof _stream.JpegStream) && w + h < SMALL_IMAGE_DIMENSIONS) {
-        var imageObj = new _image.PDFImage({
-          xref: this.xref,
-          res: resources,
-          image: image,
-          pdfFunctionFactory: this.pdfFunctionFactory
-        });
+        var imageObj = new _image.PDFImage(this.xref, resources, image, inline, null, null);
         imgData = imageObj.createImageData(true);
         operatorList.addOp(_util.OPS.paintInlineImageXObject, [imgData]);
         return;
@@ -378,7 +355,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var objId = 'img_' + this.idFactory.createObjId();
       operatorList.addDependency(objId);
       args = [objId, w, h];
-      if (nativeImageDecoderSupport !== _util.NativeImageDecoding.NONE && !softMask && !mask && image instanceof _stream.JpegStream && NativeImageDecoder.isSupported(image, this.xref, resources, this.pdfFunctionFactory)) {
+      if (nativeImageDecoderSupport !== _util.NativeImageDecoding.NONE && !softMask && !mask && image instanceof _stream.JpegStream && NativeImageDecoder.isSupported(image, this.xref, resources)) {
         operatorList.addOp(_util.OPS.paintJpegXObject, args);
         this.handler.send('obj', [objId, this.pageIndex, 'JpegStream', image.getIR(this.options.forceDataSchema)]);
         if (cacheKey) {
@@ -391,22 +368,9 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       }
       var nativeImageDecoder = null;
       if (nativeImageDecoderSupport === _util.NativeImageDecoding.DECODE && (image instanceof _stream.JpegStream || mask instanceof _stream.JpegStream || softMask instanceof _stream.JpegStream)) {
-        nativeImageDecoder = new NativeImageDecoder({
-          xref: this.xref,
-          resources: resources,
-          handler: this.handler,
-          forceDataSchema: this.options.forceDataSchema,
-          pdfFunctionFactory: this.pdfFunctionFactory
-        });
+        nativeImageDecoder = new NativeImageDecoder(this.xref, resources, this.handler, this.options.forceDataSchema);
       }
-      _image.PDFImage.buildImage({
-        handler: this.handler,
-        xref: this.xref,
-        res: resources,
-        image: image,
-        nativeDecoder: nativeImageDecoder,
-        pdfFunctionFactory: this.pdfFunctionFactory
-      }).then(function (imageObj) {
+      _image.PDFImage.buildImage(this.handler, this.xref, resources, image, inline, nativeImageDecoder).then(function (imageObj) {
         var imgData = imageObj.createImageData(false);
         _this2.handler.send('obj', [objId, _this2.pageIndex, 'Image', imgData], [imgData.data.buffer]);
       }).catch(function (reason) {
@@ -429,7 +393,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       };
       var transferObj = smask.get('TR');
       if ((0, _function.isPDFFunction)(transferObj)) {
-        var transferFn = this.pdfFunctionFactory.create(transferObj);
+        var transferFn = _function.PDFFunction.parse(this.xref, transferObj);
         var transferMap = new Uint8Array(256);
         var tmp = new Float32Array(1);
         for (var i = 0; i < 256; i++) {
@@ -724,7 +688,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         } else if (typeNum === SHADING_PATTERN) {
           var shading = dict.get('Shading');
           var matrix = dict.getArray('Matrix');
-          pattern = _pattern.Pattern.parseShading(shading, matrix, this.xref, resources, this.handler, this.pdfFunctionFactory);
+          pattern = _pattern.Pattern.parseShading(shading, matrix, this.xref, resources, this.handler);
           operatorList.addOp(fn, pattern.getIR());
           return Promise.resolve();
         }
@@ -733,15 +697,15 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       operatorList.addOp(fn, args);
       return Promise.resolve();
     },
-    getOperatorList: function getOperatorList(_ref3) {
+    getOperatorList: function getOperatorList(_ref2) {
       var _this8 = this;
 
-      var stream = _ref3.stream,
-          task = _ref3.task,
-          resources = _ref3.resources,
-          operatorList = _ref3.operatorList,
-          _ref3$initialState = _ref3.initialState,
-          initialState = _ref3$initialState === undefined ? null : _ref3$initialState;
+      var stream = _ref2.stream,
+          task = _ref2.task,
+          resources = _ref2.resources,
+          operatorList = _ref2.operatorList,
+          _ref2$initialState = _ref2.initialState,
+          initialState = _ref2$initialState === undefined ? null : _ref2$initialState;
 
       resources = resources || _primitives.Dict.empty;
       initialState = initialState || new EvalState();
@@ -879,10 +843,10 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               stateManager.state.textRenderingMode = args[0];
               break;
             case _util.OPS.setFillColorSpace:
-              stateManager.state.fillColorSpace = _colorspace.ColorSpace.parse(args[0], xref, resources, self.pdfFunctionFactory);
+              stateManager.state.fillColorSpace = _colorspace.ColorSpace.parse(args[0], xref, resources);
               continue;
             case _util.OPS.setStrokeColorSpace:
-              stateManager.state.strokeColorSpace = _colorspace.ColorSpace.parse(args[0], xref, resources, self.pdfFunctionFactory);
+              stateManager.state.strokeColorSpace = _colorspace.ColorSpace.parse(args[0], xref, resources);
               continue;
             case _util.OPS.setFillColor:
               cs = stateManager.state.fillColorSpace;
@@ -949,7 +913,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               if (!shading) {
                 throw new _util.FormatError('No shading object found');
               }
-              var shadingFill = _pattern.Pattern.parseShading(shading, null, xref, resources, self.handler, self.pdfFunctionFactory);
+              var shadingFill = _pattern.Pattern.parseShading(shading, null, xref, resources, self.handler);
               var patternIR = shadingFill.getIR();
               args = [patternIR];
               fn = _util.OPS.shadingFill;
@@ -1013,21 +977,21 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         throw reason;
       });
     },
-    getTextContent: function getTextContent(_ref4) {
+    getTextContent: function getTextContent(_ref3) {
       var _this9 = this;
 
-      var stream = _ref4.stream,
-          task = _ref4.task,
-          resources = _ref4.resources,
-          _ref4$stateManager = _ref4.stateManager,
-          stateManager = _ref4$stateManager === undefined ? null : _ref4$stateManager,
-          _ref4$normalizeWhites = _ref4.normalizeWhitespace,
-          normalizeWhitespace = _ref4$normalizeWhites === undefined ? false : _ref4$normalizeWhites,
-          _ref4$combineTextItem = _ref4.combineTextItems,
-          combineTextItems = _ref4$combineTextItem === undefined ? false : _ref4$combineTextItem,
-          sink = _ref4.sink,
-          _ref4$seenStyles = _ref4.seenStyles,
-          seenStyles = _ref4$seenStyles === undefined ? Object.create(null) : _ref4$seenStyles;
+      var stream = _ref3.stream,
+          task = _ref3.task,
+          resources = _ref3.resources,
+          _ref3$stateManager = _ref3.stateManager,
+          stateManager = _ref3$stateManager === undefined ? null : _ref3$stateManager,
+          _ref3$normalizeWhites = _ref3.normalizeWhitespace,
+          normalizeWhitespace = _ref3$normalizeWhites === undefined ? false : _ref3$normalizeWhites,
+          _ref3$combineTextItem = _ref3.combineTextItems,
+          combineTextItems = _ref3$combineTextItem === undefined ? false : _ref3$combineTextItem,
+          sink = _ref3.sink,
+          _ref3$seenStyles = _ref3.seenStyles,
+          seenStyles = _ref3$seenStyles === undefined ? Object.create(null) : _ref3$seenStyles;
 
       resources = resources || _primitives.Dict.empty;
       stateManager = stateManager || new StateManager(new TextState());
@@ -1435,7 +1399,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
                 xObjStateManager = new StateManager(currentState);
                 matrix = xobj.dict.getArray('Matrix');
 
-                if (Array.isArray(matrix) && matrix.length === 6) {
+                if ((0, _util.isArray)(matrix) && matrix.length === 6) {
                   xObjStateManager.transform(matrix);
                 }
                 enqueueChunk();
@@ -1760,13 +1724,13 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
       var defaultVMetrics;
       var i, ii, j, jj, start, code, widths;
       if (properties.composite) {
-        defaultWidth = dict.has('DW') ? dict.get('DW') : 1000;
+        defaultWidth = dict.get('DW') || 1000;
         widths = dict.get('W');
         if (widths) {
           for (i = 0, ii = widths.length; i < ii; i++) {
             start = xref.fetchIfRef(widths[i++]);
             code = xref.fetchIfRef(widths[i]);
-            if (Array.isArray(code)) {
+            if ((0, _util.isArray)(code)) {
               for (j = 0, jj = code.length; j < jj; j++) {
                 glyphsWidths[start++] = xref.fetchIfRef(code[j]);
               }
@@ -1786,7 +1750,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
             for (i = 0, ii = vmetrics.length; i < ii; i++) {
               start = xref.fetchIfRef(vmetrics[i++]);
               code = xref.fetchIfRef(vmetrics[i]);
-              if (Array.isArray(code)) {
+              if ((0, _util.isArray)(code)) {
                 for (j = 0, jj = code.length; j < jj; j++) {
                   glyphsVMetrics[start++] = [xref.fetchIfRef(code[j++]), xref.fetchIfRef(code[j++]), xref.fetchIfRef(code[j])];
                 }
@@ -1901,7 +1865,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
         if (!df) {
           throw new _util.FormatError('Descendant fonts are not specified');
         }
-        dict = Array.isArray(df) ? this.xref.fetchIfRef(df[0]) : df;
+        dict = (0, _util.isArray)(df) ? this.xref.fetchIfRef(df[0]) : df;
         type = dict.get('Subtype');
         if (!(0, _primitives.isName)(type)) {
           throw new _util.FormatError('invalid font Subtype');
@@ -1924,7 +1888,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
               hash.update(entry.name);
             } else if ((0, _primitives.isRef)(entry)) {
               hash.update(entry.toString());
-            } else if (Array.isArray(entry)) {
+            } else if ((0, _util.isArray)(entry)) {
               var diffLength = entry.length,
                   diffBuf = new Array(diffLength);
               for (var j = 0; j < diffLength; j++) {

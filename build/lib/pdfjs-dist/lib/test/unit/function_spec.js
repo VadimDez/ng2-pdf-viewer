@@ -18,6 +18,8 @@ var _function = require('../../core/function');
 
 var _ps_parser = require('../../core/ps_parser');
 
+var _util = require('../../shared/util');
+
 var _stream = require('../../core/stream');
 
 describe('function', function () {
@@ -36,7 +38,7 @@ describe('function', function () {
             for (var i = 0; i < expected.length; i++) {
               var a = actual[i],
                   b = expected[i];
-              if (Array.isArray(b)) {
+              if ((0, _util.isArray)(b)) {
                 if (a.length !== b.length) {
                   result.pass = false;
                   break;

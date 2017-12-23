@@ -74,19 +74,15 @@ describe('node_stream', function () {
   });
   it('read both http(s) and filesystem pdf files', function (done) {
     var stream1 = new _node_stream.PDFNodeStream({
-      source: {
-        url: 'http://127.0.0.1:' + port + '/tracemonkey.pdf',
-        rangeChunkSize: 65536,
-        disableStream: true
-      },
+      url: 'http://127.0.0.1:' + port + '/tracemonkey.pdf',
+      rangeChunkSize: 65536,
+      disableStream: true,
       disableRange: true
     });
     var stream2 = new _node_stream.PDFNodeStream({
-      source: {
-        url: pdf,
-        rangeChunkSize: 65536,
-        disableStream: true
-      },
+      url: pdf,
+      rangeChunkSize: 65536,
+      disableStream: true,
       disableRange: true
     });
     var fullReader1 = stream1.getFullReader();
@@ -139,21 +135,17 @@ describe('node_stream', function () {
   it('read custom ranges for both http(s) and filesystem urls', function (done) {
     var rangeSize = 32768;
     var stream1 = new _node_stream.PDFNodeStream({
-      source: {
-        url: 'http://127.0.0.1:' + port + '/tracemonkey.pdf',
-        length: pdfLength,
-        rangeChunkSize: rangeSize,
-        disableStream: true
-      },
+      url: 'http://127.0.0.1:' + port + '/tracemonkey.pdf',
+      length: pdfLength,
+      rangeChunkSize: rangeSize,
+      disableStream: true,
       disableRange: false
     });
     var stream2 = new _node_stream.PDFNodeStream({
-      source: {
-        url: pdf,
-        length: pdfLength,
-        rangeChunkSize: rangeSize,
-        disableStream: true
-      },
+      url: pdf,
+      length: pdfLength,
+      rangeChunkSize: rangeSize,
+      disableStream: true,
       disableRange: false
     });
     var fullReader1 = stream1.getFullReader();

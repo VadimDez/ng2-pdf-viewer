@@ -37,15 +37,14 @@ var https = require('https');
 var url = require('url');
 
 var PDFNodeStream = function () {
-  function PDFNodeStream(options) {
+  function PDFNodeStream(source) {
     _classCallCheck(this, PDFNodeStream);
 
-    this.options = options;
-    this.source = options.source;
-    this.url = url.parse(this.source.url);
+    this.source = source;
+    this.url = url.parse(source.url);
     this.isHttp = this.url.protocol === 'http:' || this.url.protocol === 'https:';
     this.isFsUrl = this.url.protocol === 'file:' || !this.url.host;
-    this.httpHeaders = this.isHttp && this.source.httpHeaders || {};
+    this.httpHeaders = this.isHttp && source.httpHeaders || {};
     this._fullRequest = null;
     this._rangeRequestReaders = [];
   }
@@ -89,15 +88,16 @@ var BaseFullReader = function () {
     this._errored = false;
     this._reason = null;
     this.onProgress = null;
-    this._contentLength = stream.source.length;
+    var source = stream.source;
+    this._contentLength = source.length;
     this._loaded = 0;
-    this._disableRange = stream.options.disableRange || false;
-    this._rangeChunkSize = stream.source.rangeChunkSize;
+    this._disableRange = source.disableRange || false;
+    this._rangeChunkSize = source.rangeChunkSize;
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
     }
-    this._isStreamingSupported = !stream.source.disableStream;
-    this._isRangeSupported = !stream.options.disableRange;
+    this._isStreamingSupported = !source.disableStream;
+    this._isRangeSupported = !source.disableRange;
     this._readableStream = null;
     this._readCapability = (0, _util.createPromiseCapability)();
     this._headersCapability = (0, _util.createPromiseCapability)();
@@ -214,7 +214,8 @@ var BaseRangeReader = function () {
     this._loaded = 0;
     this._readableStream = null;
     this._readCapability = (0, _util.createPromiseCapability)();
-    this._isStreamingSupported = !stream.source.disableStream;
+    var source = stream.source;
+    this._isStreamingSupported = !source.disableStream;
   }
 
   _createClass(BaseRangeReader, [{

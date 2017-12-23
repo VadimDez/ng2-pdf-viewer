@@ -33,10 +33,11 @@ var PDFAttachmentViewer = function () {
 
     _classCallCheck(this, PDFAttachmentViewer);
 
+    this.attachments = null;
     this.container = container;
     this.eventBus = eventBus;
     this.downloadManager = downloadManager;
-    this.reset();
+    this._renderedCapability = (0, _pdf.createPromiseCapability)();
     this.eventBus.on('fileattachmentannotation', this._appendAttachment.bind(this));
   }
 
@@ -54,11 +55,11 @@ var PDFAttachmentViewer = function () {
   }, {
     key: '_dispatchEvent',
     value: function _dispatchEvent(attachmentsCount) {
-      this._renderedCapability.resolve();
       this.eventBus.dispatch('attachmentsloaded', {
         source: this,
         attachmentsCount: attachmentsCount
       });
+      this._renderedCapability.resolve();
     }
   }, {
     key: '_bindPdfLink',

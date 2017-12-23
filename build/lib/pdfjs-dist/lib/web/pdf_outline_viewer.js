@@ -35,10 +35,11 @@ var PDFOutlineViewer = function () {
 
     _classCallCheck(this, PDFOutlineViewer);
 
+    this.outline = null;
+    this.lastToggleIsShow = true;
     this.container = container;
     this.linkService = linkService;
     this.eventBus = eventBus;
-    this.reset();
   }
 
   _createClass(PDFOutlineViewer, [{

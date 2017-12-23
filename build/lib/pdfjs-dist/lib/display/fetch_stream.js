@@ -38,13 +38,12 @@ function createFetchOptions(headers, withCredentials) {
 }
 
 var PDFFetchStream = function () {
-  function PDFFetchStream(options) {
+  function PDFFetchStream(source) {
     _classCallCheck(this, PDFFetchStream);
 
-    this.options = options;
-    this.source = options.source;
-    this.isHttp = /^https?:/i.test(this.source.url);
-    this.httpHeaders = this.isHttp && this.source.httpHeaders || {};
+    this.source = source;
+    this.isHttp = /^https?:/i.test(source.url);
+    this.httpHeaders = this.isHttp && source.httpHeaders || {};
     this._fullRequestReader = null;
     this._rangeRequestReaders = [];
   }
@@ -88,16 +87,17 @@ var PDFFetchStreamReader = function () {
     this._stream = stream;
     this._reader = null;
     this._loaded = 0;
-    this._withCredentials = stream.source.withCredentials;
-    this._contentLength = this._stream.source.length;
+    var source = stream.source;
+    this._withCredentials = source.withCredentials;
+    this._contentLength = source.length;
     this._headersCapability = (0, _util.createPromiseCapability)();
-    this._disableRange = this._stream.options.disableRange;
-    this._rangeChunkSize = this._stream.source.rangeChunkSize;
+    this._disableRange = source.disableRange;
+    this._rangeChunkSize = source.rangeChunkSize;
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
     }
-    this._isRangeSupported = !this._stream.options.disableRange;
-    this._isStreamingSupported = !this._stream.source.disableStream;
+    this._isRangeSupported = !source.disableRange;
+    this._isStreamingSupported = !source.disableStream;
     this._headers = new Headers();
     for (var property in this._stream.httpHeaders) {
       var value = this._stream.httpHeaders[property];
@@ -106,7 +106,7 @@ var PDFFetchStreamReader = function () {
       }
       this._headers.append(property, value);
     }
-    var url = this._stream.source.url;
+    var url = source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
       if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);
@@ -206,9 +206,10 @@ var PDFFetchStreamRangeReader = function () {
     this._stream = stream;
     this._reader = null;
     this._loaded = 0;
-    this._withCredentials = stream.source.withCredentials;
+    var source = stream.source;
+    this._withCredentials = source.withCredentials;
     this._readCapability = (0, _util.createPromiseCapability)();
-    this._isStreamingSupported = !stream.source.disableStream;
+    this._isStreamingSupported = !source.disableStream;
     this._headers = new Headers();
     for (var property in this._stream.httpHeaders) {
       var value = this._stream.httpHeaders[property];
@@ -219,7 +220,7 @@ var PDFFetchStreamRangeReader = function () {
     }
     var rangeStr = begin + '-' + (end - 1);
     this._headers.append('Range', 'bytes=' + rangeStr);
-    var url = this._stream.source.url;
+    var url = source.url;
     fetch(url, createFetchOptions(this._headers, this._withCredentials)).then(function (response) {
       if (!(0, _network_utils.validateResponseStatus)(response.status)) {
         throw (0, _network_utils.createResponseStatusError)(response.status, url);

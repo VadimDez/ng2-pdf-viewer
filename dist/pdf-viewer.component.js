@@ -272,20 +272,24 @@ var PdfViewerComponent = (function () {
             }
             PdfViewerComponent.removeAllChildNodes(container);
             PDFJS.disableTextLayer = !_this._renderText;
-            PdfViewerComponent.setExternalLinkTarget(_this._externalLinkTarget);
-            _this._pdfLinkService = new PDFJS.PDFLinkService();
             var pdfOptions = {
                 container: container,
                 removePageBorders: true,
-                linkService: _this._pdfLinkService,
                 defaultViewport: viewport,
                 scale: scale,
                 id: _this._page,
-                textLayerFactory: new PDFJS.DefaultTextLayerFactory(),
-                annotationLayerFactory: new PDFJS.DefaultAnnotationLayerFactory()
             };
+            if (_this._renderText) {
+                _this._pdfLinkService = new PDFJS.PDFLinkService();
+                pdfOptions.linkService = _this._pdfLinkService;
+                PdfViewerComponent.setExternalLinkTarget(_this._externalLinkTarget);
+                pdfOptions.textLayerFactory = new PDFJS.DefaultTextLayerFactory();
+                pdfOptions.annotationLayerFactory = new PDFJS.DefaultAnnotationLayerFactory();
+            }
             var pdfPageView = new PDFJS.PDFPageView(pdfOptions);
-            _this._pdfLinkService.setViewer(pdfPageView);
+            if (_this._renderText) {
+                _this._pdfLinkService.setViewer(pdfPageView);
+            }
             if (_this._rotation !== 0 || pdfPageView.rotation !== _this._rotation) {
                 pdfPageView.rotation = _this._rotation;
             }

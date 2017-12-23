@@ -17,7 +17,7 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 if (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked) {
-  var globalScope = require('./global_scope');
+  var globalScope = typeof window !== 'undefined' && window.Math === Math ? window : typeof global !== 'undefined' && global.Math === Math ? global : typeof self !== 'undefined' && self.Math === Math ? self : typeof undefined !== 'undefined' && undefined.Math === Math ? undefined : {};
   var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
   var isAndroid = /Android/.test(userAgent);
   var isAndroidPre3 = /Android\s[0-2][^\d]/.test(userAgent);
@@ -35,9 +35,6 @@ if (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked) {
   }
   PDFJS.compatibilityChecked = true;
   (function checkTypedArrayCompatibility() {
-    if (typeof Uint8ClampedArray === 'undefined') {
-      globalScope.Uint8ClampedArray = require('core-js/fn/typed/uint8-clamped-array');
-    }
     if (typeof Uint8Array !== 'undefined') {
       if (typeof Uint8Array.prototype.subarray === 'undefined') {
         Uint8Array.prototype.subarray = function subarray(start, end) {
