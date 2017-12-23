@@ -30,7 +30,9 @@
     "angular-pdf",
     "angular2-pdf",
     "ng2",
-    "ng2-pdf"
+    "ng2-pdf",
+    "angular2+",
+    "angular5"
   ],
   "author": "Vadym Yatsyuk <vadym.yatsyuk@gmail.com>",
   "license": "MIT",
