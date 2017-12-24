@@ -272,6 +272,33 @@ Then add it to `pdf-component` in component's template
 (on-progress)="onProgress($event)"
 ```
 
+### Render local PDF file
+
+In your `html` template add `input`:
+
+```html
+<input (change)="onFileSelected()" type="file" id="file">
+```
+
+and then add `onFileSelected` method to your component:
+
+```ts
+onFileSelected() {
+  let $img: any = document.querySelector('#file');
+
+  if (typeof (FileReader) !== 'undefined') {
+    let reader = new FileReader();
+
+    reader.onload = (e: any) => {
+      this.pdfSrc = e.target.result;
+    };
+
+    reader.readAsArrayBuffer($img.files[0]);
+  }
+}
+```
+
+
 ## Contribute
 
 Clone the project
