@@ -296,7 +296,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {
-    if (!isSSR()) {
+    if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
       PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
     }
   }
