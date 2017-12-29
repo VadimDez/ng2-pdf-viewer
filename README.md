@@ -272,6 +272,44 @@ Then add it to `pdf-component` in component's template
 (on-progress)="onProgress($event)"
 ```
 
+### Render local PDF file
+
+In your `html` template add `input`:
+
+```html
+<input (change)="onFileSelected()" type="file" id="file">
+```
+
+and then add `onFileSelected` method to your component:
+
+```ts
+onFileSelected() {
+  let $img: any = document.querySelector('#file');
+
+  if (typeof (FileReader) !== 'undefined') {
+    let reader = new FileReader();
+
+    reader.onload = (e: any) => {
+      this.pdfSrc = e.target.result;
+    };
+
+    reader.readAsArrayBuffer($img.files[0]);
+  }
+}
+```
+
+
+### Set custom path to the worker
+
+By default the `worker` is loaded from `cdnjs.cloudflare.com`.
+
+In your code update `path` to the worker to be for example `/pdf.worker.js` 
+```js
+PDFJS.workerSrc = '/pdf.worker.js';
+```
+*This should be set before `pdf-viewer` component is rendered.*
+
+
 ## Contribute
 
 Clone the project

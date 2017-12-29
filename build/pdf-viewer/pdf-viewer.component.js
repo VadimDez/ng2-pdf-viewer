@@ -36,7 +36,7 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
-        if (!isSSR()) {
+        if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
             PDFJS.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS.version + "/pdf.worker.min.js";
         }
     };
@@ -313,7 +313,14 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.getScale = function (viewportWidth) {
         var offsetWidth = this.element.nativeElement.offsetWidth;
+<<<<<<< HEAD
         return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent_1.CSS_UNITS;
+=======
+        if (offsetWidth === 0) {
+            return 1;
+        }
+        return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
+>>>>>>> master
     };
     PdfViewerComponent.CSS_UNITS = 96.0 / 72.0;
     __decorate([

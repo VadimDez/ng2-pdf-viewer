@@ -54,6 +54,13 @@ export class AppComponent {
     // xhr.send();
   }
 
+  /**
+   * Set custom path to pdf worker
+   */
+  setCustomWorkerPath() {
+    PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+  }
+
   incrementPage(amount: number) {
     this.page += amount;
   }

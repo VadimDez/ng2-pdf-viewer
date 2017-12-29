@@ -296,7 +296,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
   constructor(private element: ElementRef) {
-    if (!isSSR()) {
+    if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
       PDFJS.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
     }
   }
@@ -605,6 +605,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   private getScale(viewportWidth) {
     const offsetWidth = this.element.nativeElement.offsetWidth;
+
+    if (offsetWidth === 0) {
+      return 1;
+    }
+
     return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
   }
 }

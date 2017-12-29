@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.4
+* [[#162](https://github.com/VadimDez/ng2-pdf-viewer/issues/162)] - Worker Source
+* [[#232](https://github.com/VadimDez/ng2-pdf-viewer/pull/232)] - Don't overwrite PDFJS.workerSrc if already set
+* [[#226](https://github.com/VadimDez/ng2-pdf-viewer/issues/226)] - Update Size scale Error
+* [[#237](https://github.com/VadimDez/ng2-pdf-viewer/pull/237)] - Prevent throwing error: "PDFViewer._setScale: '0' is an unknown zoom value"
+* [[#182](https://github.com/VadimDez/ng2-pdf-viewer/issues/182)] - Documentation: Load preview for local files
+
+#### Set custom path for worker:
+In your code update `path` to the worker to be `/pdf.worker.js` 
+```js
+PDFJS.workerSrc = '/pdf.worker.js';
+```
+*This should be set before `pdf-viewer` component is rendered.*
+
 ## 3.0.3
 * [[#168](https://github.com/VadimDez/ng2-pdf-viewer/issues/168)] - Dependency to a prebuilt-version of pdf.js (pdfjs-dist)
 * [[#195](https://github.com/VadimDez/ng2-pdf-viewer/issues/195)] - progressData.total is undefined
