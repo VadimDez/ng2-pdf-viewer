@@ -15,6 +15,7 @@ export declare class AppComponent {
     autoresize: boolean;
     fitToPage: boolean;
     constructor();
+    setCustomWorkerPath(): void;
     incrementPage(amount: number): void;
     incrementZoom(amount: number): void;
     rotate(angle: number): void;

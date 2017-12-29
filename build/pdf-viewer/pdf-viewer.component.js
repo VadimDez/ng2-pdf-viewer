@@ -27,7 +27,7 @@ var PdfViewerComponent = (function () {
         this.onError = new core_1.EventEmitter();
         this.onProgress = new core_1.EventEmitter();
         this.pageChange = new core_1.EventEmitter(true);
-        if (!isSSR()) {
+        if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
             PDFJS.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + PDFJS.version + "/pdf.worker.min.js";
         }
     }
