@@ -304,6 +304,9 @@ var PdfViewerComponent = (function () {
     };
     PdfViewerComponent.prototype.getScale = function (viewportWidth) {
         var offsetWidth = this.element.nativeElement.offsetWidth;
+        if (offsetWidth === 0) {
+            return 1;
+        }
         return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
     };
     PdfViewerComponent.CSS_UNITS = 96.0 / 72.0;

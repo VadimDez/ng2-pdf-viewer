@@ -605,6 +605,11 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   private getScale(viewportWidth) {
     const offsetWidth = this.element.nativeElement.offsetWidth;
+
+    if (offsetWidth === 0) {
+      return 1;
+    }
+
     return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
   }
 }
