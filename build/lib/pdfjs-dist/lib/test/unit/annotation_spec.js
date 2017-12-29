@@ -555,6 +555,27 @@ describe('annotation', function () {
         gen: 0
       }, { name: 'XYZ' }, 0, 841.89, null]);
     });
+    it('should correctly parse a Dest, which violates the specification ' + 'by containing a dictionary', function () {
+      var destDict = new _primitives.Dict();
+      destDict.set('Type', _primitives.Name.get('Action'));
+      destDict.set('S', _primitives.Name.get('GoTo'));
+      destDict.set('D', 'page.157');
+      var annotationDict = new _primitives.Dict();
+      annotationDict.set('Type', _primitives.Name.get('Annot'));
+      annotationDict.set('Subtype', _primitives.Name.get('Link'));
+      annotationDict.set('Dest', destDict);
+      var annotationRef = new _primitives.Ref(798, 0);
+      var xref = new _test_utils.XRefMock([{
+        ref: annotationRef,
+        data: annotationDict
+      }]);
+      var annotation = annotationFactory.create(xref, annotationRef, pdfManagerMock, idFactoryMock);
+      var data = annotation.data;
+      expect(data.annotationType).toEqual(_util.AnnotationType.LINK);
+      expect(data.url).toBeUndefined();
+      expect(data.unsafeUrl).toBeUndefined();
+      expect(data.dest).toEqual('page.157');
+    });
   });
   describe('WidgetAnnotation', function () {
     var widgetDict;

@@ -74,7 +74,9 @@ var PDFSidebar = function () {
     }
   }, {
     key: 'setInitialView',
-    value: function setInitialView(view) {
+    value: function setInitialView() {
+      var view = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : SidebarView.NONE;
+
       if (this.isInitialViewSet) {
         return;
       }
@@ -315,13 +317,20 @@ var PDFSidebar = function () {
         }
       });
       this.eventBus.on('attachmentsloaded', function (evt) {
-        var attachmentsCount = evt.attachmentsCount;
-        _this3.attachmentsButton.disabled = !attachmentsCount;
-        if (attachmentsCount) {
+        if (evt.attachmentsCount) {
+          _this3.attachmentsButton.disabled = false;
           _this3._showUINotification(SidebarView.ATTACHMENTS);
-        } else if (_this3.active === SidebarView.ATTACHMENTS) {
-          _this3.switchView(SidebarView.THUMBS);
+          return;
         }
+        Promise.resolve().then(function () {
+          if (_this3.attachmentsView.hasChildNodes()) {
+            return;
+          }
+          _this3.attachmentsButton.disabled = true;
+          if (_this3.active === SidebarView.ATTACHMENTS) {
+            _this3.switchView(SidebarView.THUMBS);
+          }
+        });
       });
       this.eventBus.on('presentationmodechanged', function (evt) {
         if (!evt.active && !evt.switchInProgress && _this3.isThumbnailViewVisible) {

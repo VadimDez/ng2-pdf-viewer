@@ -14,8 +14,8 @@
  */
 'use strict';
 
-var pdfjsVersion = '1.8.619';
-var pdfjsBuild = '723bc25b';
+var pdfjsVersion = '1.9.489';
+var pdfjsBuild = 'b7fcaff0';
 var pdfjsSharedUtil = require('./shared/util.js');
 var pdfjsDisplayGlobal = require('./display/global.js');
 var pdfjsDisplayAPI = require('./display/api.js');
@@ -24,7 +24,13 @@ var pdfjsDisplayAnnotationLayer = require('./display/annotation_layer.js');
 var pdfjsDisplayDOMUtils = require('./display/dom_utils.js');
 var pdfjsDisplaySVG = require('./display/svg.js');
 {
-  require('./display/network.js');
+  if (pdfjsSharedUtil.isNodeJS()) {
+    var PDFNodeStream = require('./display/node_stream.js').PDFNodeStream;
+    pdfjsDisplayAPI.setPDFNetworkStreamClass(PDFNodeStream);
+  } else {
+    var PDFNetworkStream = require('./display/network.js').PDFNetworkStream;
+    pdfjsDisplayAPI.setPDFNetworkStreamClass(PDFNetworkStream);
+  }
 }
 exports.PDFJS = pdfjsDisplayGlobal.PDFJS;
 exports.build = pdfjsDisplayAPI.build;

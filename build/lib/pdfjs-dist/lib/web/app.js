@@ -471,8 +471,7 @@ var PDFViewerApplication = {
         return _this3.open(file, args);
       });
     }
-    var parameters = Object.create(null),
-        scale = void 0;
+    var parameters = Object.create(null);
     if (typeof file === 'string') {
       this.setTitleUsingUrl(file);
       parameters.url = file;
@@ -484,13 +483,13 @@ var PDFViewerApplication = {
     }
     if (args) {
       for (var prop in args) {
+        if (!_pdf.PDFJS.pdfjsNext && prop === 'scale') {
+          console.error('Call of open() with obsolete "scale" argument, ' + 'please use the "defaultZoomValue" preference instead.');
+          continue;
+        } else if (prop === 'length') {
+          this.pdfDocumentProperties.setFileSize(args[prop]);
+        }
         parameters[prop] = args[prop];
-      }
-      if (args.scale) {
-        scale = args.scale;
-      }
-      if (args.length) {
-        this.pdfDocumentProperties.setFileSize(args.length);
       }
     }
     var loadingTask = (0, _pdf.getDocument)(parameters);
@@ -507,7 +506,7 @@ var PDFViewerApplication = {
     };
     loadingTask.onUnsupportedFeature = this.fallback.bind(this);
     return loadingTask.promise.then(function (pdfDocument) {
-      _this3.load(pdfDocument, scale);
+      _this3.load(pdfDocument);
     }, function (exception) {
       var message = exception && exception.message;
       var loadingErrorMessage = void 0;
@@ -620,10 +619,9 @@ var PDFViewerApplication = {
       }
     }
   },
-  load: function load(pdfDocument, scale) {
+  load: function load(pdfDocument) {
     var _this6 = this;
 
-    scale = scale || _ui_utils.UNKNOWN_SCALE;
     this.pdfDocument = pdfDocument;
     pdfDocument.getDownloadInfo().then(function () {
       _this6.downloadComplete = true;
@@ -697,10 +695,7 @@ var PDFViewerApplication = {
         var hash = _ref4.hash,
             sidebarView = _ref4.sidebarView;
 
-        _this6.setInitialView(hash, {
-          sidebarView: sidebarView,
-          scale: scale
-        });
+        _this6.setInitialView(hash, { sidebarView: sidebarView });
         initialParams.hash = hash;
         if (!_this6.isViewerEmbedded) {
           pdfViewer.focus();
@@ -798,11 +793,8 @@ var PDFViewerApplication = {
     });
   },
   setInitialView: function setInitialView(storedHash) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var _options$scale = options.scale,
-        scale = _options$scale === undefined ? 0 : _options$scale,
-        _options$sidebarView = options.sidebarView,
-        sidebarView = _options$sidebarView === undefined ? _pdf_sidebar.SidebarView.NONE : _options$sidebarView;
+    var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        sidebarView = _ref6.sidebarView;
 
     this.isInitialViewSet = true;
     this.pdfSidebar.setInitialView(sidebarView);
@@ -815,9 +807,6 @@ var PDFViewerApplication = {
       this.initialBookmark = null;
     } else if (storedHash) {
       this.pdfLinkService.setHash(storedHash);
-    } else if (scale) {
-      this.pdfViewer.currentScaleValue = scale;
-      this.page = 1;
     }
     this.toolbar.setPageNumber(this.pdfViewer.currentPageNumber, this.pdfViewer.currentPageLabel);
     this.secondaryToolbar.setPageNumber(this.pdfViewer.currentPageNumber);

@@ -1,8 +1,8 @@
 {
-  "_from": "pdfjs-dist@1.8.619",
-  "_id": "pdfjs-dist@1.8.619",
+  "_from": "pdfjs-dist@1.9.489",
+  "_id": "pdfjs-dist@1.9.489",
   "_inBundle": false,
-  "_integrity": "sha1-t7FeHgAYdDUSYy5b1huUK6csRT0=",
+  "_integrity": "sha1-yuWf7d0WouXRlappUnlVz+QALB0=",
   "_location": "/pdfjs-dist",
   "_phantomChildren": {
     "loader-utils": "1.1.0",
@@ -11,21 +11,24 @@
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "pdfjs-dist@1.8.619",
+    "raw": "pdfjs-dist@1.9.489",
     "name": "pdfjs-dist",
     "escapedName": "pdfjs-dist",
-    "rawSpec": "1.8.619",
+    "rawSpec": "1.9.489",
     "saveSpec": null,
-    "fetchSpec": "1.8.619"
+    "fetchSpec": "1.9.489"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.8.619.tgz",
-  "_shasum": "b7b15e1e0018743512632e5bd61b942ba72c453d",
-  "_spec": "pdfjs-dist@1.8.619",
+  "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.9.489.tgz",
+  "_shasum": "cae59feddd16a2e5d195aa69527955cfe4002c1d",
+  "_spec": "pdfjs-dist@1.9.489",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "browser": {
+    "fs": false,
+    "http": false,
+    "https": false,
     "node-ensure": false
   },
   "bugs": {
@@ -52,5 +55,5 @@
     "type": "git",
     "url": "git+https://github.com/mozilla/pdfjs-dist.git"
   },
-  "version": "1.8.619"
+  "version": "1.9.489"
 }

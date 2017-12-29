@@ -389,19 +389,12 @@ var PDFViewer = function () {
   }, {
     key: 'scrollPageIntoView',
     value: function scrollPageIntoView(params) {
-      if (!this.pdfDocument) {
+      if (arguments.length > 1 || typeof params === 'number') {
+        console.error('Call of scrollPageIntoView() with obsolete signature.');
         return;
       }
-      if (arguments.length > 1 || typeof params === 'number') {
-        console.warn('Call of scrollPageIntoView() with obsolete signature.');
-        var paramObj = {};
-        if (typeof params === 'number') {
-          paramObj.pageNumber = params;
-        }
-        if (arguments[1] instanceof Array) {
-          paramObj.destArray = arguments[1];
-        }
-        params = paramObj;
+      if (!this.pdfDocument) {
+        return;
       }
       var pageNumber = params.pageNumber || 0;
       var dest = params.destArray || null;
