@@ -443,6 +443,9 @@ var SVGGraphics = function SVGGraphics() {
             case _util.OPS.setTextMatrix:
               this.setTextMatrix(args[0], args[1], args[2], args[3], args[4], args[5]);
               break;
+            case _util.OPS.setTextRise:
+              this.setTextRise(args[0]);
+              break;
             case _util.OPS.setLineWidth:
               this.setLineWidth(args[0]);
               break;
@@ -606,13 +609,17 @@ var SVGGraphics = function SVGGraphics() {
             x += -glyph * fontSize * 0.001;
             continue;
           }
-          current.xcoords.push(current.x + x * textHScale);
           var width = glyph.width;
           var character = glyph.fontChar;
           var spacing = (glyph.isSpace ? wordSpacing : 0) + charSpacing;
           var charWidth = width * widthAdvanceScale + spacing * fontDirection;
-          x += charWidth;
+          if (!glyph.isInFont && !font.missingFile) {
+            x += charWidth;
+            continue;
+          }
+          current.xcoords.push(current.x + x * textHScale);
           current.tspan.textContent += character;
+          x += charWidth;
         }
         if (vertical) {
           current.y -= x * textHScale;
@@ -632,7 +639,12 @@ var SVGGraphics = function SVGGraphics() {
         if (current.fillColor !== SVG_DEFAULTS.fillColor) {
           current.tspan.setAttributeNS(null, 'fill', current.fillColor);
         }
-        current.txtElement.setAttributeNS(null, 'transform', pm(current.textMatrix) + ' scale(1, -1)');
+        var textMatrix = current.textMatrix;
+        if (current.textRise !== 0) {
+          textMatrix = textMatrix.slice();
+          textMatrix[5] += current.textRise;
+        }
+        current.txtElement.setAttributeNS(null, 'transform', pm(textMatrix) + ' scale(1, -1)');
         current.txtElement.setAttributeNS(XML_NS, 'xml:space', 'preserve');
         current.txtElement.appendChild(current.tspan);
         current.txtgrp.appendChild(current.txtElement);

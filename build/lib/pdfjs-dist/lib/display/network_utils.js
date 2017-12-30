@@ -17,7 +17,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.validateResponseStatus = exports.validateRangeRequestCapabilities = exports.createResponseStatusError = undefined;
+exports.validateRangeRequestCapabilities = undefined;
 
 var _util = require('../shared/util');
 
@@ -42,8 +42,9 @@ function validateRangeRequestCapabilities(_ref) {
   if (contentEncoding !== 'identity') {
     return returnValues;
   }
-  var length = parseInt(getResponseHeader('Content-Length'), 10);
-  if (!Number.isInteger(length)) {
+  var length = getResponseHeader('Content-Length');
+  length = parseInt(length, 10);
+  if (!(0, _util.isInt)(length)) {
     return returnValues;
   }
   returnValues.suggestedLength = length;
@@ -53,15 +54,4 @@ function validateRangeRequestCapabilities(_ref) {
   returnValues.allowRangeRequests = true;
   return returnValues;
 }
-function createResponseStatusError(status, url) {
-  if (status === 404 || status === 0 && /^file:/.test(url)) {
-    return new _util.MissingPDFException('Missing PDF "' + url + '".');
-  }
-  return new _util.UnexpectedResponseException('Unexpected server response (' + status + ') while retrieving PDF "' + url + '".', status);
-}
-function validateResponseStatus(status) {
-  return status === 200 || status === 206;
-}
-exports.createResponseStatusError = createResponseStatusError;
 exports.validateRangeRequestCapabilities = validateRangeRequestCapabilities;
-exports.validateResponseStatus = validateResponseStatus;

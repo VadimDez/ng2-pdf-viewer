@@ -37,14 +37,15 @@ var https = require('https');
 var url = require('url');
 
 var PDFNodeStream = function () {
-  function PDFNodeStream(source) {
+  function PDFNodeStream(options) {
     _classCallCheck(this, PDFNodeStream);
 
-    this.source = source;
-    this.url = url.parse(source.url);
+    this.options = options;
+    this.source = options.source;
+    this.url = url.parse(this.source.url);
     this.isHttp = this.url.protocol === 'http:' || this.url.protocol === 'https:';
     this.isFsUrl = this.url.protocol === 'file:' || !this.url.host;
-    this.httpHeaders = this.isHttp && source.httpHeaders || {};
+    this.httpHeaders = this.isHttp && this.source.httpHeaders || {};
     this._fullRequest = null;
     this._rangeRequestReaders = [];
   }
@@ -88,16 +89,15 @@ var BaseFullReader = function () {
     this._errored = false;
     this._reason = null;
     this.onProgress = null;
-    var source = stream.source;
-    this._contentLength = source.length;
+    this._contentLength = stream.source.length;
     this._loaded = 0;
-    this._disableRange = source.disableRange || false;
-    this._rangeChunkSize = source.rangeChunkSize;
+    this._disableRange = stream.options.disableRange || false;
+    this._rangeChunkSize = stream.source.rangeChunkSize;
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
     }
-    this._isStreamingSupported = !source.disableStream;
-    this._isRangeSupported = !source.disableRange;
+    this._isStreamingSupported = !stream.source.disableStream;
+    this._isRangeSupported = !stream.options.disableRange;
     this._readableStream = null;
     this._readCapability = (0, _util.createPromiseCapability)();
     this._headersCapability = (0, _util.createPromiseCapability)();
@@ -170,9 +170,6 @@ var BaseFullReader = function () {
       readableStream.on('error', function (reason) {
         _this2._error(reason);
       });
-      if (!this._isStreamingSupported && this._isRangeSupported) {
-        this._error(new _util.AbortException('streaming is disabled'));
-      }
       if (this._errored) {
         this._readableStream.destroy(this._reason);
       }
@@ -214,8 +211,7 @@ var BaseRangeReader = function () {
     this._loaded = 0;
     this._readableStream = null;
     this._readCapability = (0, _util.createPromiseCapability)();
-    var source = stream.source;
-    this._isStreamingSupported = !source.disableStream;
+    this._isStreamingSupported = !stream.source.disableStream;
   }
 
   _createClass(BaseRangeReader, [{
@@ -400,8 +396,8 @@ var PDFNodeStreamFsFullReader = function (_BaseFullReader2) {
 
     var _this7 = _possibleConstructorReturn(this, (PDFNodeStreamFsFullReader.__proto__ || Object.getPrototypeOf(PDFNodeStreamFsFullReader)).call(this, stream));
 
-    var path = decodeURI(_this7._url.path);
-    fs.lstat(path, function (error, stat) {
+    _this7._setReadableStream(fs.createReadStream(_this7._url.path));
+    fs.lstat(_this7._url.path, function (error, stat) {
       if (error) {
         _this7._errored = true;
         _this7._reason = error;
@@ -409,7 +405,6 @@ var PDFNodeStreamFsFullReader = function (_BaseFullReader2) {
         return;
       }
       _this7._contentLength = stat.size;
-      _this7._setReadableStream(fs.createReadStream(path));
       _this7._headersCapability.resolve();
     });
     return _this7;
@@ -426,7 +421,7 @@ var PDFNodeStreamFsRangeReader = function (_BaseRangeReader2) {
 
     var _this8 = _possibleConstructorReturn(this, (PDFNodeStreamFsRangeReader.__proto__ || Object.getPrototypeOf(PDFNodeStreamFsRangeReader)).call(this, stream));
 
-    _this8._setReadableStream(fs.createReadStream(decodeURI(_this8._url.path), {
+    _this8._setReadableStream(fs.createReadStream(_this8._url.path, {
       start: start,
       end: end - 1
     }));
