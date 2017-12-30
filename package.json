@@ -42,11 +42,12 @@
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "peerDependencies": {
     "@angular/core": ">=2.2.1",
-    "pdfjs-dist": "1.9.489"
+    "pdfjs-dist": "1.9.489",
+    "@types/pdf": "0.0.31"
   },
   "dependencies": {
-    "@types/pdf": "0.0.31",
-    "pdfjs-dist": "1.9.489"
+    "pdfjs-dist": "1.9.489",
+    "@types/pdf": "0.0.31"
   },
   "devDependencies": {
     "@angular/animations": "^4.1.0",
@@ -60,7 +61,6 @@
     "@angular/platform-server": "^4.1.0",
     "@types/jasmine": "^2.5.53",
     "@types/node": "^8.0.7",
-    "@types/pdf": "^0.0.31",
     "@types/systemjs": "^0.20.2",
     "codelyzer": "^3.1.1",
     "concurrently": "^3.5.0",
@@ -82,7 +82,6 @@
     "ts-node": "^3.1.0",
     "tslint": "^5.4.3",
     "typescript": "2.4.0",
-    "typings": "^2.1.1",
     "uglifyjs": "^2.4.11",
     "zone.js": "^0.8.9"
   },
