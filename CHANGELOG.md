@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.5
+* [[#200](https://github.com/VadimDez/ng2-pdf-viewer/issues/200)] - PDFDocumentProxy, PDFProgressData are undefined for compiler
+* [[#238](https://github.com/VadimDez/ng2-pdf-viewer/pull/238)] - added @types/pdf as peer dependency
+
 ## 3.0.4
 * [[#162](https://github.com/VadimDez/ng2-pdf-viewer/issues/162)] - Worker Source
 * [[#232](https://github.com/VadimDez/ng2-pdf-viewer/pull/232)] - Don't overwrite PDFJS.workerSrc if already set
