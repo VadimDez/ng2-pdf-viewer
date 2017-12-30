@@ -4,6 +4,11 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
+import { PDFJSStatic, PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
+
+declare global {
+  const PDFJS: PDFJSStatic;
+}
 
 function isSSR() {
   return typeof window === 'undefined';

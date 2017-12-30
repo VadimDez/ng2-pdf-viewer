@@ -43,11 +43,11 @@
   "peerDependencies": {
     "@angular/core": ">=2.2.1",
     "pdfjs-dist": "1.9.489",
-    "@types/pdf": "0.0.31"
+    "@types/pdfjs-dist": "^0.1.1"
   },
   "dependencies": {
-    "pdfjs-dist": "1.9.489",
-    "@types/pdf": "0.0.31"
+    "@types/pdfjs-dist": "^0.1.1",
+    "pdfjs-dist": "1.9.489"
   },
   "devDependencies": {
     "@angular/animations": "^4.1.0",
@@ -81,7 +81,7 @@
     "systemjs-builder": "^0.16.9",
     "ts-node": "^3.1.0",
     "tslint": "^5.4.3",
-    "typescript": "2.4.0",
+    "typescript": "~2.4.2",
     "uglifyjs": "^2.4.11",
     "zone.js": "^0.8.9"
   },

@@ -73,8 +73,7 @@ export class Observable<T> implements Subscribable<T> {
     return observable;
   }
 
-  subscribe(): Subscription;
-  subscribe(observer: PartialObserver<T>): Subscription;
+  subscribe(observer?: PartialObserver<T>): Subscription;
   subscribe(next?: (value: T) => void, error?: (error: any) => void, complete?: () => void): Subscription;
   /**
    * Invokes an execution of an Observable and registers Observer handlers for notifications it will emit.
@@ -200,7 +199,7 @@ export class Observable<T> implements Subscribable<T> {
     if (operator) {
       operator.call(sink, this.source);
     } else {
-      sink.add(this.source ? this._subscribe(sink) : this._trySubscribe(sink));
+      sink.add(this.source || !sink.syncErrorThrowable ? this._subscribe(sink) : this._trySubscribe(sink));
     }
 
     if (sink.syncErrorThrowable) {

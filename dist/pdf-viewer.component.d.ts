@@ -1,5 +1,9 @@
-/// <reference types="pdf" />
+/// <reference types="pdfjs-dist" />
 import { ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { PDFJSStatic, PDFDocumentProxy, PDFSource, PDFProgressData } from 'pdfjs-dist';
+declare global  {
+    const PDFJS: PDFJSStatic;
+}
 export declare class PdfViewerComponent implements OnChanges, OnInit {
     private element;
     static CSS_UNITS: number;
