@@ -156,7 +156,20 @@
                 </div>
                 <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
             </div>
-
+			<div>
+		<div *ngFor="let bookmark of BookmarkList; let i = index" class="outlineItem">
+          <a (click)="gotoBookmark(bookmark)" [style.font-weight.bold]="bookmark.bold" [style.font-style.italic]="bookmark.italic">
+            {{bookmark.title}}
+          </a>
+          <div *ngFor="let bookmark1 of bookmark.items; let i = index" class="outlineItems">
+            <div class="outlineItem">
+                <a (click)="gotoBookmark(bookmark1)" [style.font-weight.bold]="bookmark1.bold" [style.font-style.italic]="bookmark1.italic">
+                    {{bookmark1.title}}
+                  </a>
+            </div>
+          </div>
+        </div>
+		</div>
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
                         [rotation]="rotation"
@@ -171,6 +184,7 @@
                         [autoresize]="autoresize"
                         (error)="onError($event)"
                         (on-progress)="onProgress($event)"
+						(bookmark-list)="onBookmarkListGet($event)" 
             ></pdf-viewer>
 
         </div>

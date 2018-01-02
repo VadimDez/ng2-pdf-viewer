@@ -294,6 +294,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
+  @Output('bookmark-list') onBookmarkListGet = new EventEmitter<any[]>(); // For bookmark list
 
   constructor(private element: ElementRef) {
     if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
@@ -411,7 +412,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
   }
-
+  
+  // D-Bookmark Go to specific page
+	public gotoBookmark(bookmark:any){    
+     if(this._pdfLinkService && bookmark){
+      this._pdfLinkService.navigateTo(bookmark.dest);
+     }   
+   }
+ // D-Bookmark Go to specific page
+ 
   public setupViewer() {
     (<any>PDFJS).disableTextLayer = !this._renderText;
 
@@ -497,6 +506,12 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         this.lastLoaded = src;
 
         this.afterLoadComplete.emit(pdf);
+		
+		// D-Bookmark - List out all bookmarks
+        pdf.getOutline().then((outline) => {
+          this.onBookmarkListGet.emit(outline);        
+        });
+        // D-Bookmark
 
         this.update();
       }, (error: any) => {
