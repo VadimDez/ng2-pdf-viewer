@@ -1,7 +1,8 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component } from '@angular/core';
+import { Component ,ViewChild} from '@angular/core';
+import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component'
 
 @Component({
   moduleId: module.id,
@@ -37,6 +38,9 @@ export class AppComponent {
   autoresize: boolean = true;
   fitToPage: boolean = false;
 
+   BookmarkList:any[];
+   @ViewChild(PdfViewerComponent) private pdfComp: PdfViewerComponent;
+   
   constructor() {
     // Load pdf
     // let xhr = new XMLHttpRequest();
@@ -121,5 +125,16 @@ export class AppComponent {
 
   getInt(value: number): number {
     return Math.round(value);
+  }
+  
+ 
+  onBookmarkListGet(value:any[]){
+    this.BookmarkList = value;
+  }
+  
+  gotoBookmark(bookmark:any){
+    if(this.pdfComp){
+      this.pdfComp.gotoBookmark(bookmark);
+    }
   }
 }
