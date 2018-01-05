@@ -20,8 +20,8 @@ import { PDFDocumentProxy, PDFProgressData } from 'ng2-pdf-viewer';
 
 #### Set custom path for worker:
 In your code update `path` to the worker to be `/pdf.worker.js` 
-```js
-PDFJS.workerSrc = '/pdf.worker.js';
+```ts
+(<any>window).PDFJS.workerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
 

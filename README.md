@@ -304,8 +304,8 @@ onFileSelected() {
 By default the `worker` is loaded from `cdnjs.cloudflare.com`.
 
 In your code update `path` to the worker to be for example `/pdf.worker.js` 
-```js
-PDFJS.workerSrc = '/pdf.worker.js';
+```ts
+(<any>window).PDFJS.workerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
 
