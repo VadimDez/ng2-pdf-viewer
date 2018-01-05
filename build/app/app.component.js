@@ -16,7 +16,7 @@ var AppComponent = (function () {
         this.fitToPage = false;
     }
     AppComponent.prototype.setCustomWorkerPath = function () {
-        PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+        window.PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
     };
     AppComponent.prototype.incrementPage = function (amount) {
         this.page += amount;
