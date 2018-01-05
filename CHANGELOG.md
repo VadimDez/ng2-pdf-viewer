@@ -1,7 +1,14 @@
 # Changelog
 
-## 3.0.5
+## 3.0.6
 * [[#200](https://github.com/VadimDez/ng2-pdf-viewer/issues/200)] - PDFDocumentProxy, PDFProgressData are undefined for compiler
+
+Now you can import types where you need them directly from 'ng2-pdf-viewer' package:
+```ts
+import { PDFDocumentProxy, PDFProgressData } from 'ng2-pdf-viewer';
+```
+
+## 3.0.5
 * [[#238](https://github.com/VadimDez/ng2-pdf-viewer/pull/238)] - added @types/pdf as peer dependency
 
 ## 3.0.4
