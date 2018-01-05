@@ -25,4 +25,5 @@
     };
     SystemJS.config(config);
 })();
+
 //# sourceMappingURL=system.config.js.map
