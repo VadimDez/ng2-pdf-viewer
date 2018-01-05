@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.6
+* [[#200](https://github.com/VadimDez/ng2-pdf-viewer/issues/200)] - PDFDocumentProxy, PDFProgressData are undefined for compiler
+
+Now you can import types where you need them directly from 'ng2-pdf-viewer' package:
+```ts
+import { PDFDocumentProxy, PDFProgressData } from 'ng2-pdf-viewer';
+```
+
+## 3.0.5
+* [[#238](https://github.com/VadimDez/ng2-pdf-viewer/pull/238)] - added @types/pdf as peer dependency
+
 ## 3.0.4
 * [[#162](https://github.com/VadimDez/ng2-pdf-viewer/issues/162)] - Worker Source
 * [[#232](https://github.com/VadimDez/ng2-pdf-viewer/pull/232)] - Don't overwrite PDFJS.workerSrc if already set
@@ -9,8 +20,8 @@
 
 #### Set custom path for worker:
 In your code update `path` to the worker to be `/pdf.worker.js` 
-```js
-PDFJS.workerSrc = '/pdf.worker.js';
+```ts
+(<any>window).PDFJS.workerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
 

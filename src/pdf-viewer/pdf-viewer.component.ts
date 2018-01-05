@@ -4,6 +4,7 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
+import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
 
 function isSSR() {
   return typeof window === 'undefined';
@@ -16,7 +17,6 @@ if (!isSSR()) {
 
   PDFJS.verbosity = (<any>PDFJS).VERBOSITY_LEVELS.errors;
 }
-
 
 @Component({
   selector: 'pdf-viewer',

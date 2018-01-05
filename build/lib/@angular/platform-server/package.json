@@ -12,7 +12,7 @@
   "_integrity": "sha1-QxJI9IkaY1x2rRWhfQPpyH4aODc=",
   "_location": "/@angular/platform-server",
   "_phantomChildren": {
-    "@types/node": "8.0.31"
+    "@types/node": "8.5.2"
   },
   "_requested": {
     "type": "version",

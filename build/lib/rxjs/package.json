@@ -1,32 +1,32 @@
 {
   "_args": [
     [
-      "rxjs@5.5.2",
+      "rxjs@5.5.6",
       "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
     ]
   ],
   "_development": true,
-  "_from": "rxjs@5.5.2",
-  "_id": "rxjs@5.5.2",
+  "_from": "rxjs@5.5.6",
+  "_id": "rxjs@5.5.6",
   "_inBundle": false,
-  "_integrity": "sha512-oRYoIKWBU3Ic37fLA5VJu31VqQO4bWubRntcHSJ+cwaDQBwdnZ9x4zmhJfm/nFQ2E82/I4loSioHnACamrKGgA==",
+  "_integrity": "sha512-v4Q5HDC0FHAQ7zcBX7T2IL6O5ltl1a2GX4ENjPXg6SjDY69Cmx9v4113C99a4wGF16ClPv5Z8mghuYorVkg/kg==",
   "_location": "/rxjs",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "rxjs@5.5.2",
+    "raw": "rxjs@5.5.6",
     "name": "rxjs",
     "escapedName": "rxjs",
-    "rawSpec": "5.5.2",
+    "rawSpec": "5.5.6",
     "saveSpec": null,
-    "fetchSpec": "5.5.2"
+    "fetchSpec": "5.5.6"
   },
   "_requiredBy": [
     "#DEV:/"
   ],
-  "_resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.5.2.tgz",
-  "_spec": "5.5.2",
+  "_resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.5.6.tgz",
+  "_spec": "5.5.6",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "Ben Lesh",
@@ -67,7 +67,7 @@
     }
   ],
   "dependencies": {
-    "symbol-observable": "^1.0.1"
+    "symbol-observable": "1.0.1"
   },
   "description": "Reactive Extensions for modern JavaScript",
   "devDependencies": {
@@ -198,5 +198,5 @@
     "watch": "Watch codebase, trigger compile when source code changes"
   },
   "typings": "./Rx.d.ts",
-  "version": "5.5.2"
+  "version": "5.5.6"
 }

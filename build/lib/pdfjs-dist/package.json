@@ -1,4 +1,10 @@
 {
+  "_args": [
+    [
+      "pdfjs-dist@1.9.489",
+      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
+    ]
+  ],
   "_from": "pdfjs-dist@1.9.489",
   "_id": "pdfjs-dist@1.9.489",
   "_inBundle": false,
@@ -22,8 +28,7 @@
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-1.9.489.tgz",
-  "_shasum": "cae59feddd16a2e5d195aa69527955cfe4002c1d",
-  "_spec": "pdfjs-dist@1.9.489",
+  "_spec": "1.9.489",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "browser": {
     "fs": false,
@@ -34,12 +39,10 @@
   "bugs": {
     "url": "https://github.com/mozilla/pdf.js/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
     "node-ensure": "^0.0.0",
     "worker-loader": "^0.8.0"
   },
-  "deprecated": false,
   "description": "Generic build of Mozilla's PDF.js library.",
   "format": "amd",
   "homepage": "http://mozilla.github.io/pdf.js/",
