@@ -59,7 +59,7 @@ export class AppComponent {
    * Set custom path to pdf worker
    */
   setCustomWorkerPath() {
-    PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+    (<any>window).PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
   }
 
   incrementPage(amount: number) {
