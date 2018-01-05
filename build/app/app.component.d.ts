@@ -1,4 +1,5 @@
-/// <reference types="pdf" />
+/// <reference types="pdfjs-dist" />
+import { PDFProgressData, PDFDocumentProxy } from 'pdfjs-dist';
 export declare class AppComponent {
     pdfSrc: string;
     error: any;

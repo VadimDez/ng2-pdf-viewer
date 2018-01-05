@@ -2,6 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component } from '@angular/core';
+import { PDFProgressData, PDFDocumentProxy } from 'pdfjs-dist';
 
 @Component({
   moduleId: module.id,
@@ -58,7 +59,7 @@ export class AppComponent {
    * Set custom path to pdf worker
    */
   setCustomWorkerPath() {
-    PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+    (<any>window).PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
   }
 
   incrementPage(amount: number) {
