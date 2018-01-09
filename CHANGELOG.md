@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.0.7
+* [[#246](https://github.com/VadimDez/ng2-pdf-viewer/issues/246)] - @types/pdf should not be a hard dependency
+
 ## 3.0.6
 * [[#200](https://github.com/VadimDez/ng2-pdf-viewer/issues/200)] - PDFDocumentProxy, PDFProgressData are undefined for compiler
 
