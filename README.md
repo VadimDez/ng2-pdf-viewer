@@ -311,16 +311,7 @@ In your code update `path` to the worker to be for example `/pdf.worker.js`
 
 
 ## Contribute
-
-Clone the project
-
-```
-npm start
-```
-and then open
-```
-http://localhost:8000/
-```
+[See CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
