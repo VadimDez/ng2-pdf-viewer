@@ -276,6 +276,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   static CSS_UNITS: number = 96.0 / 72.0;
 
   public pdfLinkService: any;
+  public pdfViewer: any;
 
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
@@ -288,7 +289,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _canAutoResize: boolean = true;
   private _fitToPage: boolean = false;
   private _externalLinkTarget: string = 'blank';
-  private _pdfViewer: any;
   private lastLoaded: string | Uint8Array | PDFSource;
   private resizeTimeout: NodeJS.Timer;
 
@@ -426,8 +426,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       linkService: this.pdfLinkService
     };
 
-    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-    this.pdfLinkService.setViewer(this._pdfViewer);
+    this.pdfViewer = new PDFJS.PDFViewer(pdfOptions);
+    this.pdfLinkService.setViewer(this.pdfViewer);
   }
 
   public updateSize() {
@@ -436,7 +436,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
+    this._pdf.getPage(this.pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
       const viewport = page.getViewport(this._zoom, this._rotation);
       let scale = this._zoom;
       let stickToPage = true;
@@ -447,7 +447,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         stickToPage = !this._stickToPage;
       }
 
-      this._pdfViewer._setScale(scale, stickToPage);
+      this.pdfViewer._setScale(scale, stickToPage);
     });
   }
 
@@ -509,8 +509,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     if (this._showAll) {
       this.setupViewer();
 
-      if (this._pdfViewer) {
-        this._pdfViewer.setDocument(this._pdf);
+      if (this.pdfViewer) {
+        this.pdfViewer.setDocument(this._pdf);
       }
     }
 
@@ -536,15 +536,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       this._page = 1;
     }
 
-    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+    if (this._rotation !== 0 || this.pdfViewer.pagesRotation !== this._rotation) {
       setTimeout(() => {
-        this._pdfViewer.pagesRotation = this._rotation;
+        this.pdfViewer.pagesRotation = this._rotation;
       });
     }
 
     if (this._stickToPage) {
       setTimeout(() => {
-        this._pdfViewer.currentPageNumber = this._page;
+        this.pdfViewer.currentPageNumber = this._page;
       });
     }
 
