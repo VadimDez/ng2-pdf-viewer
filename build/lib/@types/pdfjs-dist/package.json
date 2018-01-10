@@ -23,7 +23,7 @@
     "fetchSpec": "0.1.1"
   },
   "_requiredBy": [
-    "/"
+    "#DEV:/"
   ],
   "_resolved": "https://registry.npmjs.org/@types/pdfjs-dist/-/pdfjs-dist-0.1.1.tgz",
   "_spec": "0.1.1",
