@@ -66,6 +66,11 @@ var AppComponent = (function () {
     AppComponent.prototype.navigateTo = function (destination) {
         this.pdfComponent.pdfLinkService.navigateTo(destination);
     };
+    AppComponent.prototype.scrollToPage = function () {
+        this.pdfComponent.pdfViewer.scrollPageIntoView({
+            pageNumber: 3
+        });
+    };
     AppComponent.decorators = [
         { type: core_1.Component, args: [{
                     moduleId: module.id,

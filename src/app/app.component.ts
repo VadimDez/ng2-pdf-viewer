@@ -148,4 +148,13 @@ export class AppComponent {
   navigateTo(destination: any) {
     this.pdfComponent.pdfLinkService.navigateTo(destination);
   }
+
+  /**
+   * Scroll view
+   */
+  scrollToPage() {
+    this.pdfComponent.pdfViewer.scrollPageIntoView({
+      pageNumber: 3
+    });
+  }
 }

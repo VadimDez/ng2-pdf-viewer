@@ -30,4 +30,5 @@ export declare class AppComponent {
     onProgress(progressData: PDFProgressData): void;
     getInt(value: number): number;
     navigateTo(destination: any): void;
+    scrollToPage(): void;
 }
