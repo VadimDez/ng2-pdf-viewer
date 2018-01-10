@@ -72,3 +72,7 @@ pdf-viewer {
     background-color: #3f51b5;
     transition: .5s width;
 }
+
+.outline-list li a {
+    cursor: pointer;
+}

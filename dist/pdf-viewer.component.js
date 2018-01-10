@@ -150,14 +150,14 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.setupViewer = function () {
         PDFJS.disableTextLayer = !this._renderText;
         PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
-        this._pdfLinkService = new PDFJS.PDFLinkService();
+        this.pdfLinkService = new PDFJS.PDFLinkService();
         var pdfOptions = {
             container: this.element.nativeElement.querySelector('div'),
             removePageBorders: true,
-            linkService: this._pdfLinkService
+            linkService: this.pdfLinkService
         };
-        this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-        this._pdfLinkService.setViewer(this._pdfViewer);
+        this.pdfViewer = new PDFJS.PDFViewer(pdfOptions);
+        this.pdfLinkService.setViewer(this.pdfViewer);
     };
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
@@ -165,7 +165,7 @@ var PdfViewerComponent = (function () {
             this.renderPage(this._page);
             return;
         }
-        this._pdf.getPage(this._pdfViewer.currentPageNumber).then(function (page) {
+        this._pdf.getPage(this.pdfViewer.currentPageNumber).then(function (page) {
             var viewport = page.getViewport(_this._zoom, _this._rotation);
             var scale = _this._zoom;
             var stickToPage = true;
@@ -173,7 +173,7 @@ var PdfViewerComponent = (function () {
                 scale = _this.getScale(page.getViewport(1).width);
                 stickToPage = !_this._stickToPage;
             }
-            _this._pdfViewer._setScale(scale, stickToPage);
+            _this.pdfViewer._setScale(scale, stickToPage);
         });
     };
     PdfViewerComponent.prototype.isValidPageNumber = function (page) {
@@ -225,12 +225,12 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.update = function () {
         if (this._showAll) {
             this.setupViewer();
-            if (this._pdfViewer) {
-                this._pdfViewer.setDocument(this._pdf);
+            if (this.pdfViewer) {
+                this.pdfViewer.setDocument(this._pdf);
             }
         }
-        if (this._pdfLinkService) {
-            this._pdfLinkService.setDocument(this._pdf, null);
+        if (this.pdfLinkService) {
+            this.pdfLinkService.setDocument(this._pdf, null);
         }
         this.page = this._page;
         this.render();
@@ -248,14 +248,14 @@ var PdfViewerComponent = (function () {
         if (!this.isValidPageNumber(this._page)) {
             this._page = 1;
         }
-        if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+        if (this._rotation !== 0 || this.pdfViewer.pagesRotation !== this._rotation) {
             setTimeout(function () {
-                _this._pdfViewer.pagesRotation = _this._rotation;
+                _this.pdfViewer.pagesRotation = _this._rotation;
             });
         }
         if (this._stickToPage) {
             setTimeout(function () {
-                _this._pdfViewer.currentPageNumber = _this._page;
+                _this.pdfViewer.currentPageNumber = _this._page;
             });
         }
         this.updateSize();
@@ -280,15 +280,15 @@ var PdfViewerComponent = (function () {
                 id: _this._page,
             };
             if (_this._renderText) {
-                _this._pdfLinkService = new PDFJS.PDFLinkService();
-                pdfOptions.linkService = _this._pdfLinkService;
+                _this.pdfLinkService = new PDFJS.PDFLinkService();
+                pdfOptions.linkService = _this.pdfLinkService;
                 PdfViewerComponent.setExternalLinkTarget(_this._externalLinkTarget);
                 pdfOptions.textLayerFactory = new PDFJS.DefaultTextLayerFactory();
                 pdfOptions.annotationLayerFactory = new PDFJS.DefaultAnnotationLayerFactory();
             }
             var pdfPageView = new PDFJS.PDFPageView(pdfOptions);
             if (_this._renderText) {
-                _this._pdfLinkService.setViewer(pdfPageView);
+                _this.pdfLinkService.setViewer(pdfPageView);
             }
             if (_this._rotation !== 0 || pdfPageView.rotation !== _this._rotation) {
                 pdfPageView.rotation = _this._rotation;

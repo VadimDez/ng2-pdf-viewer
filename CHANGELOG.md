@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.0.8
+* [[#63](https://github.com/VadimDez/ng2-pdf-viewer/issues/63)] - How to scroll to page?
+* [[#233](https://github.com/VadimDez/ng2-pdf-viewer/issues/233)] - Bookmark option
+
+#### Features
+
+Now both `pdfViewer` and `pdfLinkService` are public. 
+
+You can now scroll to a page from code:
+
+```ts
+// define view child
+@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+
+// ...
+
+scrollToPage(page: number) {
+  this.pdfComponent.pdfViewer.scrollPageIntoView({
+    pageNumber: page
+  });
+}
+```
+
 ## 3.0.6
 * [[#200](https://github.com/VadimDez/ng2-pdf-viewer/issues/200)] - PDFDocumentProxy, PDFProgressData are undefined for compiler
 

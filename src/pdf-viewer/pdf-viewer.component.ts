@@ -275,6 +275,9 @@ if (!isSSR()) {
 export class PdfViewerComponent implements OnChanges, OnInit {
   static CSS_UNITS: number = 96.0 / 72.0;
 
+  public pdfLinkService: any;
+  public pdfViewer: any;
+
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
@@ -286,8 +289,6 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private _canAutoResize: boolean = true;
   private _fitToPage: boolean = false;
   private _externalLinkTarget: string = 'blank';
-  private _pdfViewer: any;
-  private _pdfLinkService: any;
   private lastLoaded: string | Uint8Array | PDFSource;
   private resizeTimeout: NodeJS.Timer;
 
@@ -417,16 +418,16 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
-    this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
+    this.pdfLinkService = new (<any>PDFJS).PDFLinkService();
 
     const pdfOptions: PDFViewerParams | any = {
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
-      linkService: this._pdfLinkService
+      linkService: this.pdfLinkService
     };
 
-    this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-    this._pdfLinkService.setViewer(this._pdfViewer);
+    this.pdfViewer = new PDFJS.PDFViewer(pdfOptions);
+    this.pdfLinkService.setViewer(this.pdfViewer);
   }
 
   public updateSize() {
@@ -435,7 +436,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       return;
     }
 
-    this._pdf.getPage(this._pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
+    this._pdf.getPage(this.pdfViewer.currentPageNumber).then((page: PDFPageProxy) => {
       const viewport = page.getViewport(this._zoom, this._rotation);
       let scale = this._zoom;
       let stickToPage = true;
@@ -446,7 +447,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
         stickToPage = !this._stickToPage;
       }
 
-      this._pdfViewer._setScale(scale, stickToPage);
+      this.pdfViewer._setScale(scale, stickToPage);
     });
   }
 
@@ -508,13 +509,13 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     if (this._showAll) {
       this.setupViewer();
 
-      if (this._pdfViewer) {
-        this._pdfViewer.setDocument(this._pdf);
+      if (this.pdfViewer) {
+        this.pdfViewer.setDocument(this._pdf);
       }
     }
 
-    if (this._pdfLinkService) {
-      this._pdfLinkService.setDocument(this._pdf, null);
+    if (this.pdfLinkService) {
+      this.pdfLinkService.setDocument(this._pdf, null);
     }
 
     this.page = this._page;
@@ -535,15 +536,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       this._page = 1;
     }
 
-    if (this._rotation !== 0 || this._pdfViewer.pagesRotation !== this._rotation) {
+    if (this._rotation !== 0 || this.pdfViewer.pagesRotation !== this._rotation) {
       setTimeout(() => {
-        this._pdfViewer.pagesRotation = this._rotation;
+        this.pdfViewer.pagesRotation = this._rotation;
       });
     }
 
     if (this._stickToPage) {
       setTimeout(() => {
-        this._pdfViewer.currentPageNumber = this._page;
+        this.pdfViewer.currentPageNumber = this._page;
       });
     }
 
@@ -575,8 +576,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       };
 
       if (this._renderText) {
-        this._pdfLinkService = new (<any>PDFJS).PDFLinkService();
-        pdfOptions.linkService = this._pdfLinkService;
+        this.pdfLinkService = new (<any>PDFJS).PDFLinkService();
+        pdfOptions.linkService = this.pdfLinkService;
         PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
         pdfOptions.textLayerFactory = new (<any>PDFJS).DefaultTextLayerFactory();
         pdfOptions.annotationLayerFactory = new (<any>PDFJS).DefaultAnnotationLayerFactory();
@@ -585,7 +586,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
       let pdfPageView = new (<any>PDFJS).PDFPageView(pdfOptions);
 
       if (this._renderText) {
-        this._pdfLinkService.setViewer(pdfPageView);
+        this.pdfLinkService.setViewer(pdfPageView);
       }
 
       if (this._rotation !== 0 || pdfPageView.rotation !== this._rotation) {

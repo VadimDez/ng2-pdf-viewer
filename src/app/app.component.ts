@@ -1,8 +1,10 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { PDFProgressData, PDFDocumentProxy } from 'pdfjs-dist';
+
+import { PdfViewerComponent } from '../pdf-viewer/pdf-viewer.component';
 
 @Component({
   moduleId: module.id,
@@ -37,6 +39,10 @@ export class AppComponent {
   showAll: boolean = true;
   autoresize: boolean = true;
   fitToPage: boolean = false;
+  outline: any[];
+  isOutlineShown: boolean = false;
+
+  @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
 
   constructor() {
     // Load pdf
@@ -98,6 +104,17 @@ export class AppComponent {
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
     this.isLoaded = true;
+
+    this.loadOutline();
+  }
+
+  /**
+   * Get outline
+   */
+  loadOutline() {
+    this.pdf.getOutline().then((outline: any[]) => {
+      this.outline = outline;
+    });
   }
 
   /**
@@ -122,5 +139,22 @@ export class AppComponent {
 
   getInt(value: number): number {
     return Math.round(value);
+  }
+
+  /**
+   * Navigate to destination
+   * @param destination
+   */
+  navigateTo(destination: any) {
+    this.pdfComponent.pdfLinkService.navigateTo(destination);
+  }
+
+  /**
+   * Scroll view
+   */
+  scrollToPage() {
+    this.pdfComponent.pdfViewer.scrollPageIntoView({
+      pageNumber: 3
+    });
   }
 }
