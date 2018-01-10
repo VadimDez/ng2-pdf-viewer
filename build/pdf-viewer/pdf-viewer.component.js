@@ -150,14 +150,14 @@ var PdfViewerComponent = (function () {
     PdfViewerComponent.prototype.setupViewer = function () {
         PDFJS.disableTextLayer = !this._renderText;
         PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
-        this._pdfLinkService = new PDFJS.PDFLinkService();
+        this.pdfLinkService = new PDFJS.PDFLinkService();
         var pdfOptions = {
             container: this.element.nativeElement.querySelector('div'),
             removePageBorders: true,
-            linkService: this._pdfLinkService
+            linkService: this.pdfLinkService
         };
         this._pdfViewer = new PDFJS.PDFViewer(pdfOptions);
-        this._pdfLinkService.setViewer(this._pdfViewer);
+        this.pdfLinkService.setViewer(this._pdfViewer);
     };
     PdfViewerComponent.prototype.updateSize = function () {
         var _this = this;
@@ -229,8 +229,8 @@ var PdfViewerComponent = (function () {
                 this._pdfViewer.setDocument(this._pdf);
             }
         }
-        if (this._pdfLinkService) {
-            this._pdfLinkService.setDocument(this._pdf, null);
+        if (this.pdfLinkService) {
+            this.pdfLinkService.setDocument(this._pdf, null);
         }
         this.page = this._page;
         this.render();
@@ -280,15 +280,15 @@ var PdfViewerComponent = (function () {
                 id: _this._page,
             };
             if (_this._renderText) {
-                _this._pdfLinkService = new PDFJS.PDFLinkService();
-                pdfOptions.linkService = _this._pdfLinkService;
+                _this.pdfLinkService = new PDFJS.PDFLinkService();
+                pdfOptions.linkService = _this.pdfLinkService;
                 PdfViewerComponent.setExternalLinkTarget(_this._externalLinkTarget);
                 pdfOptions.textLayerFactory = new PDFJS.DefaultTextLayerFactory();
                 pdfOptions.annotationLayerFactory = new PDFJS.DefaultAnnotationLayerFactory();
             }
             var pdfPageView = new PDFJS.PDFPageView(pdfOptions);
             if (_this._renderText) {
-                _this._pdfLinkService.setViewer(pdfPageView);
+                _this.pdfLinkService.setViewer(pdfPageView);
             }
             if (_this._rotation !== 0 || pdfPageView.rotation !== _this._rotation) {
                 pdfPageView.rotation = _this._rotation;

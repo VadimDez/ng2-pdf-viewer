@@ -15,6 +15,9 @@ export declare class AppComponent {
     showAll: boolean;
     autoresize: boolean;
     fitToPage: boolean;
+    outline: any[];
+    isOutlineShown: boolean;
+    private pdfComponent;
     constructor();
     setCustomWorkerPath(): void;
     incrementPage(amount: number): void;
@@ -22,7 +25,9 @@ export declare class AppComponent {
     rotate(angle: number): void;
     onFileSelected(): void;
     afterLoadComplete(pdf: PDFDocumentProxy): void;
+    loadOutline(): void;
     onError(error: any): void;
     onProgress(progressData: PDFProgressData): void;
     getInt(value: number): number;
+    navigateTo(destination: any): void;
 }
