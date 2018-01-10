@@ -4,6 +4,8 @@ import { PDFDocumentProxy, PDFSource, PDFProgressData } from 'pdfjs-dist';
 export declare class PdfViewerComponent implements OnChanges, OnInit {
     private element;
     static CSS_UNITS: number;
+    pdfLinkService: any;
+    pdfViewer: any;
     private _renderText;
     private _stickToPage;
     private _originalSize;
@@ -15,8 +17,6 @@ export declare class PdfViewerComponent implements OnChanges, OnInit {
     private _canAutoResize;
     private _fitToPage;
     private _externalLinkTarget;
-    private _pdfViewer;
-    private _pdfLinkService;
     private lastLoaded;
     private resizeTimeout;
     afterLoadComplete: EventEmitter<PDFDocumentProxy>;
