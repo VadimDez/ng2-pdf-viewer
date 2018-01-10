@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
+var pdf_viewer_component_1 = require("../pdf-viewer/pdf-viewer.component");
 var AppComponent = (function () {
     function AppComponent() {
         this.pdfSrc = './pdf-test.pdf';
@@ -14,6 +15,7 @@ var AppComponent = (function () {
         this.showAll = true;
         this.autoresize = true;
         this.fitToPage = false;
+        this.isOutlineShown = false;
     }
     AppComponent.prototype.setCustomWorkerPath = function () {
         window.PDFJS.workerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
@@ -41,6 +43,13 @@ var AppComponent = (function () {
     AppComponent.prototype.afterLoadComplete = function (pdf) {
         this.pdf = pdf;
         this.isLoaded = true;
+        this.loadOutline();
+    };
+    AppComponent.prototype.loadOutline = function () {
+        var _this = this;
+        this.pdf.getOutline().then(function (outline) {
+            _this.outline = outline;
+        });
     };
     AppComponent.prototype.onError = function (error) {
         this.error = error;
@@ -54,6 +63,9 @@ var AppComponent = (function () {
     AppComponent.prototype.getInt = function (value) {
         return Math.round(value);
     };
+    AppComponent.prototype.navigateTo = function (destination) {
+        this.pdfComponent.pdfLinkService.navigateTo(destination);
+    };
     AppComponent.decorators = [
         { type: core_1.Component, args: [{
                     moduleId: module.id,
@@ -63,6 +75,9 @@ var AppComponent = (function () {
                 },] },
     ];
     AppComponent.ctorParameters = function () { return []; };
+    AppComponent.propDecorators = {
+        'pdfComponent': [{ type: core_1.ViewChild, args: [pdf_viewer_component_1.PdfViewerComponent,] },],
+    };
     return AppComponent;
 }());
 exports.AppComponent = AppComponent;

@@ -137,7 +137,7 @@
                 </button>
             </div>
 
-            <div>
+            <div mdl>
                 <button (click)="rotate(-90)" class="mdl-button mdl-js-button">Rotate left</button>
                 <div class="page-number mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <input [value]="rotation"
@@ -150,12 +150,41 @@
                 <button (click)="rotate(90)" class="mdl-button mdl-js-button">Rotate right</button>
             </div>
 
+            <div mdl *ngIf="showAll">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="outline">
+                    <input type="checkbox" id="outline" class="mdl-switch__input"
+                           [checked]="isOutlineShown"
+                           [(ngModel)]="isOutlineShown"
+                    >
+                    <span class="mdl-switch__label">Show outline</span>
+                </label>
+            </div>
+
+            <div *ngIf="showAll && isOutlineShown">
+                <ul *ngFor="let item of outline" class="outline-list">
+                    <li>
+                        <a (click)="navigateTo(item.dest)">
+                            {{ item.title }}
+                        </a>
+
+                        <ul *ngFor="let child of item.items">
+                            <li>
+                                <a (click)="navigateTo(child.dest)">
+                                    {{ child.title }}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
             <div *ngIf="!isLoaded && !error && progressData" id="progress">
                 <div class="bg">
                     <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
                 </div>
                 <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
             </div>
+
 
             <pdf-viewer [src]="pdfSrc"
                         [(page)]="page"
