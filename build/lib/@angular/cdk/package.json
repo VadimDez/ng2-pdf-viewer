@@ -1,0 +1,59 @@
+{
+  "_from": "@angular/cdk",
+  "_id": "@angular/cdk@5.0.4",
+  "_inBundle": false,
+  "_integrity": "sha512-6IKDOhDrfKdywTZNTWZbM1O8Q3cTi7uIOAyFC9sXitg0JUy2SHms0UY9FdW32BABIsZp692ofMCMdMPjHDjwwA==",
+  "_location": "/@angular/cdk",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@angular/cdk",
+    "name": "@angular/cdk",
+    "escapedName": "@angular%2fcdk",
+    "scope": "@angular",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/cdk/-/cdk-5.0.4.tgz",
+  "_shasum": "f76a268e404f41aff0e908b21e7de9a5dfc07150",
+  "_spec": "@angular/cdk",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "bugs": {
+    "url": "https://github.com/angular/material2/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "tslib": "^1.7.1"
+  },
+  "deprecated": false,
+  "description": "Angular Material Component Development Kit",
+  "es2015": "./esm2015/cdk.js",
+  "homepage": "https://github.com/angular/material2#readme",
+  "keywords": [
+    "angular",
+    "cdk",
+    "component",
+    "development",
+    "kit"
+  ],
+  "license": "MIT",
+  "main": "./bundles/cdk.umd.js",
+  "module": "./esm5/cdk.es5.js",
+  "name": "@angular/cdk",
+  "peerDependencies": {
+    "@angular/core": "~5.1.1",
+    "@angular/common": "~5.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/material2.git"
+  },
+  "typings": "./cdk.d.ts",
+  "version": "5.0.4"
+}

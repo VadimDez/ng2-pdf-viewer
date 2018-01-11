@@ -1,0 +1,59 @@
+{
+  "_from": "@angular/material",
+  "_id": "@angular/material@5.0.4",
+  "_inBundle": false,
+  "_integrity": "sha512-xrGYPHOlNXpPkventLAvZyTjfCo2A8ZfdyJEHNR4LhFWIjw3ilwb1ihNv4dy/qG56g8L4AwQ2cONxQ0YyZfcWg==",
+  "_location": "/@angular/material",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@angular/material",
+    "name": "@angular/material",
+    "escapedName": "@angular%2fmaterial",
+    "scope": "@angular",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@angular/material/-/material-5.0.4.tgz",
+  "_shasum": "8efb2fb12023711dbdaac5dc7b588096b40b0f64",
+  "_spec": "@angular/material",
+  "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
+  "bugs": {
+    "url": "https://github.com/angular/material2/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "tslib": "^1.7.1"
+  },
+  "deprecated": false,
+  "description": "Angular Material",
+  "es2015": "./esm2015/material.js",
+  "homepage": "https://github.com/angular/material2#readme",
+  "keywords": [
+    "angular",
+    "material",
+    "material design",
+    "components"
+  ],
+  "license": "MIT",
+  "main": "./bundles/material.umd.js",
+  "module": "./esm5/material.es5.js",
+  "name": "@angular/material",
+  "peerDependencies": {
+    "@angular/cdk": "5.0.4",
+    "@angular/core": "~5.1.1",
+    "@angular/common": "~5.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angular/material2.git"
+  },
+  "typings": "./material.d.ts",
+  "version": "5.0.4"
+}
