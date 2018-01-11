@@ -4,17 +4,29 @@
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import {
+  MatButtonModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule,
+  MatToolbarModule
+} from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { AppComponent } from './app/app.component';
-import { MDL } from './app/mdl';
 import { PdfViewerModule } from './pdf-viewer/index';
 
 @NgModule({
   imports: [
     BrowserModule,
     FormsModule,
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSlideToggleModule,
+    MatToolbarModule,
+
     PdfViewerModule
   ],
-  declarations: [MDL, AppComponent],
+  declarations: [AppComponent],
   bootstrap: [AppComponent]
 })
 

@@ -1,33 +1,28 @@
 {
-  "_args": [
-    [
-      "@angular/animations@4.4.6",
-      "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer"
-    ]
-  ],
-  "_development": true,
-  "_from": "@angular/animations@4.4.6",
+  "_from": "@angular/animations@^4.1.0",
   "_id": "@angular/animations@4.4.6",
   "_inBundle": false,
   "_integrity": "sha1-+mYYmaik44y3xYPHpcl85l1ZKjU=",
   "_location": "/@angular/animations",
   "_phantomChildren": {},
   "_requested": {
-    "type": "version",
+    "type": "range",
     "registry": true,
-    "raw": "@angular/animations@4.4.6",
+    "raw": "@angular/animations@^4.1.0",
     "name": "@angular/animations",
     "escapedName": "@angular%2fanimations",
     "scope": "@angular",
-    "rawSpec": "4.4.6",
+    "rawSpec": "^4.1.0",
     "saveSpec": null,
-    "fetchSpec": "4.4.6"
+    "fetchSpec": "^4.1.0"
   },
   "_requiredBy": [
-    "#DEV:/"
+    "#DEV:/",
+    "#USER"
   ],
   "_resolved": "https://registry.npmjs.org/@angular/animations/-/animations-4.4.6.tgz",
-  "_spec": "4.4.6",
+  "_shasum": "fa661899a8a4e38cb7c583c7a5c97ce65d592a35",
+  "_spec": "@angular/animations@^4.1.0",
   "_where": "/Users/vadimdez/Documents/my_dev/ng2-pdf-viewer",
   "author": {
     "name": "angular"
@@ -35,9 +30,11 @@
   "bugs": {
     "url": "https://github.com/angular/angular/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {
     "tslib": "^1.7.1"
   },
+  "deprecated": false,
   "description": "Angular - animations integration with web-animationss",
   "es2015": "./@angular/animations.js",
   "homepage": "https://github.com/angular/angular#readme",

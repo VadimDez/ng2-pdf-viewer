@@ -78,7 +78,7 @@ gulp.task("libs", () => {
     'zone.js/dist/**',
     '@angular/**',
     'pdfjs-dist/**',
-    'material-design-lite/**'
+    'tslib/**'
   ], {cwd: "node_modules/**"}) /* Glob required here. */
   .pipe(gulp.dest(`${ __dirname }/build/lib`));
 });

@@ -1,3 +1,15 @@
+mat-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+main {
+    margin-top: 64px;
+}
+
 .page-content {
     padding-top: 10px;
     width: 50%;
@@ -5,7 +17,7 @@
     margin-right: auto;
 }
 
-.mdl-layout__content header {
+header {
     color: #fff;
     background-color: #3f51b5;
     padding-top: 25px;
@@ -14,7 +26,7 @@
     text-align: center;
 }
 
-.mdl-layout__content header svg {
+header svg {
     fill: #fff;
     width: 56px;
     height: 56px;
@@ -25,6 +37,12 @@
         width: 100%;
         margin-left: 10px;
         margin-right: 10px;
+    }
+}
+
+@media all and (max-width: 600px) {
+    main {
+        margin-top: 56px;
     }
 }
 
@@ -41,7 +59,7 @@
 }
 
 .mb {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 pdf-viewer {
@@ -75,4 +93,39 @@ pdf-viewer {
 
 .outline-list li a {
     cursor: pointer;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+footer {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    padding: 32px 16px;
+    color: #c4c4c4;
+    background-color: #424242;
+}
+
+footer .name {
+    font-size: 14px;
+    margin-right: 18px;
+    line-height: 30px;
+}
+
+footer ul {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-flow: row nowrap;
+    -ms-flex-flow: row nowrap;
+    flex-flow: row nowrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
 }
