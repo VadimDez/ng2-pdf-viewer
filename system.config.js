@@ -9,12 +9,12 @@
     //'pdf-viewer': './dist/'
 
     // material
-    '@angular/material': 'lib/@angular/material/bundles/material.umd.js',
-    '@angular/animations': 'lib/@angular/animations/bundles/animations.umd.min.js',
-    '@angular/animations/browser': 'lib/@angular/animations/bundles/animations-browser.umd.min.js',
-    '@angular/platform-browser/animations': 'lib/@angular/platform-browser/bundles/platform-browser-animations.umd.min.js',
-    '@angular/common/http': 'lib/@angular/common/bundles/common-http.umd.min.js',
-    'tslib': 'lib/tslib/tslib.js',
+    '@angular/material': './build/lib/@angular/material/bundles/material.umd.min.js',
+    '@angular/animations': './build/lib/@angular/animations/bundles/animations.umd.min.js',
+    '@angular/animations/browser': './build/lib/@angular/animations/bundles/animations-browser.umd.min.js',
+    '@angular/platform-browser/animations': './build/lib/@angular/platform-browser/bundles/platform-browser-animations.umd.min.js',
+    '@angular/common/http': './build/lib/@angular/common/bundles/common-http.umd.min.js',
+    'tslib': './build/lib/tslib/tslib.js',
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
@@ -51,7 +51,7 @@
     'table',
     'stepper'
   ].forEach(function (name) {
-    map['@angular/cdk/' + name] = 'lib/@angular/cdk/bundles/cdk-' + name + '.umd.js';
+    map['@angular/cdk/' + name] = './build/lib/@angular/cdk/bundles/cdk-' + name + '.umd.js';
   });
 
   var config = {
