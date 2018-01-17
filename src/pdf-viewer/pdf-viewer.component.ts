@@ -451,6 +451,13 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     });
   }
 
+  public getNumberOfPages(): number {
+    if (this._pdf) {
+      return this._pdf.numPages;
+    }
+    return 0;
+  }
+
   private isValidPageNumber(page: number): boolean {
     return this._pdf.numPages >= page && page >= 1;
   }
