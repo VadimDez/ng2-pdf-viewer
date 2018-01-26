@@ -214,7 +214,7 @@ _boolean_
 
 Turn on or off auto resize.
 
-**!Important** To make `[autoresize]` work - make sure that `[original-size]="false"` and `pdf-viewer` tag has `max-width` or `dipslay` are set.
+**!Important** To make `[autoresize]` work - make sure that `[original-size]="false"` and `pdf-viewer` tag has `max-width` or `display` are set.
 
 ```
 [autoresize]="true"
