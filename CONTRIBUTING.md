@@ -16,4 +16,4 @@ npm start
 http://localhost:8000/
 ```
 
-* Make changes and create pull request
+* Make changes under `src/` and create pull request
