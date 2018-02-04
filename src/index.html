@@ -1,11 +1,13 @@
-<!doctype html>
+<!-- <!doctype html> --> <!-- This line might cause the problem with scroll top  -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Ng2PdfViewer</title>
   <base href="/">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -117,15 +119,15 @@
 
 </head>
 <body>
-  <pdf-viewer-app>
-    <div class="placeholder-header"></div>
+    <pdf-viewer-app>
+        <div class="placeholder-header"></div>
 
-    <div class="sk-folding-cube">
-        <div class="sk-cube1 sk-cube"></div>
-        <div class="sk-cube2 sk-cube"></div>
-        <div class="sk-cube4 sk-cube"></div>
-        <div class="sk-cube3 sk-cube"></div>
-    </div>
-</pdf-viewer-app>
+        <div class="sk-folding-cube">
+            <div class="sk-cube1 sk-cube"></div>
+            <div class="sk-cube2 sk-cube"></div>
+            <div class="sk-cube4 sk-cube"></div>
+            <div class="sk-cube3 sk-cube"></div>
+        </div>
+    </pdf-viewer-app>
 </body>
 </html>
