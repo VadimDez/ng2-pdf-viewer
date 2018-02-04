@@ -1,4 +1,4 @@
-<h1 align="center">Angular2+ PDF Viewer</h1>
+<h1 align="center">Angular 5+ PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
     <img src="https://img.shields.io/npm/dm/ng2-pdf-viewer.svg?style=flat" alt="downloads">
@@ -14,7 +14,7 @@
   </a>
 </p>
 
-> PDF Viewer Component for Angular 2+
+> PDF Viewer Component for Angular 5+
 
 ### Demo page
 

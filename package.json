@@ -1,7 +1,7 @@
 {
   "name": "ng2-pdf-viewer",
   "version": "3.0.8",
-  "description": "Angular2+ component for rendering PDF",
+  "description": "Angular 5+ component for rendering PDF",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -20,12 +20,11 @@
   "keywords": [
     "angular",
     "pdf",
-    "angular2",
+    "angular",
     "angular-pdf",
     "angular2-pdf",
     "ng2",
     "ng2-pdf",
-    "angular2+",
     "angular5"
   ],
   "author": "Vadym Yatsyuk <vadym.yatsyuk@gmail.com>",
