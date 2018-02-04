@@ -6,7 +6,8 @@
     "module": "commonjs",
     "types": [
       "jasmine",
-      "node"
+      "node",
+      "pdfjs-dist"
     ]
   },
   "files": [

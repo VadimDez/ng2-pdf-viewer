@@ -12,7 +12,9 @@
       "node_modules/@types"
     ],
     "types": [
-      "node"
+      "node",
+      "pdfjs-dist",
+      "jasmine"
     ],
     "lib": [
       "es2017",
