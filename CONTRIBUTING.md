@@ -1,6 +1,9 @@
 # Contribute
 
 * Clone the project
+```
+git clone https://github.com/VadimDez/ng2-pdf-viewer.git
+```
 
 * Install dependencies
 ```
@@ -11,6 +14,7 @@ npm install
 ```
 npm start
 ```
+
 * then open in browser
 ```
 http://localhost:4200/
