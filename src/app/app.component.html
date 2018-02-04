@@ -1,9 +1,9 @@
 <mat-toolbar color="primary">
     <mat-toolbar-row>
         <span>ng2-pdf-viewer</span>
-
+        
         <span class="spacer"></span>
-
+        
         <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=star&count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -19,180 +19,180 @@
         </div>
     </header>
     <div class="page-content">
-        <mat-form-field class="mb">
-            <input matInput
-                   type="text"
-                   placeholder="Set URL of the PDF file"
-                   [(ngModel)]="pdfSrc"
-            >
-        </mat-form-field>
+      <mat-form-field class="mb">
+          <input matInput
+                 type="text"
+                 placeholder="Set URL of the PDF file"
+                 [(ngModel)]="pdfSrc"
+          >
+      </mat-form-field>
 
-        <div class="select-file__container">
-            <p>
-                Or render preview by just selecting PDF file (no upload required)
-            </p>
-            <input (change)="onFileSelected()" type="file" id="file">
-        </div>
+      <div class="select-file__container">
+          <p>
+              Or render preview by just selecting PDF file (no upload required)
+          </p>
+          <input (change)="onFileSelected()" type="file" id="file">
+      </div>
 
-        <div *ngIf="error" class="error mb">
-            {{ error.message | json }}
-        </div>
+      <div *ngIf="error" class="error mb">
+          {{ error.message | json }}
+      </div>
 
-        <div class="mb">
-            <mat-slide-toggle [(ngModel)]="originalSize">
-                Original size
-            </mat-slide-toggle>
-        </div>
+      <div class="mb">
+          <mat-slide-toggle [(ngModel)]="originalSize">
+              Original size
+          </mat-slide-toggle>
+      </div>
 
-        <div class="mb" [hidden]="!originalSize">
-            <mat-slide-toggle [(ngModel)]="fitToPage">
-                Fit to page
-            </mat-slide-toggle>
-        </div>
+      <div class="mb" [hidden]="!originalSize">
+          <mat-slide-toggle [(ngModel)]="fitToPage">
+              Fit to page
+          </mat-slide-toggle>
+      </div>
 
-        <div class="mb">
-            <mat-slide-toggle [(ngModel)]="renderText">
-                Render text layer
-            </mat-slide-toggle>
-        </div>
+      <div class="mb">
+          <mat-slide-toggle [(ngModel)]="renderText">
+              Render text layer
+          </mat-slide-toggle>
+      </div>
 
-        <div class="mb">
-            <mat-slide-toggle [(ngModel)]="autoresize">
-                Auto resize
-            </mat-slide-toggle>
-        </div>
+      <div class="mb">
+          <mat-slide-toggle [(ngModel)]="autoresize">
+              Auto resize
+          </mat-slide-toggle>
+      </div>
 
-        <div class="mb">
-            <mat-slide-toggle [(ngModel)]="showAll">
-                Show all pages
-            </mat-slide-toggle>
-        </div>
+      <div class="mb">
+          <mat-slide-toggle [(ngModel)]="showAll">
+              Show all pages
+          </mat-slide-toggle>
+      </div>
 
-        <div class="mb">
-            <button (click)="incrementZoom(-0.1)" mat-button type="button">
-                -
-            </button>
+      <div class="mb">
+          <button (click)="incrementZoom(-0.1)" mat-button type="button">
+              -
+          </button>
 
-            <mat-form-field class="page-number">
-                <input matInput
-                       type="number"
-                       placeholder="Zoom"
-                       [(ngModel)]="zoom"
-                       pattern="-?[0-9]*(\.[0-9]+)?"
-                >
-                <mat-error>Input is not a number!</mat-error>
-            </mat-form-field>
+          <mat-form-field class="page-number">
+              <input matInput
+                     type="number"
+                     placeholder="Zoom"
+                     [(ngModel)]="zoom"
+                     pattern="-?[0-9]*(\.[0-9]+)?"
+              >
+              <mat-error>Input is not a number!</mat-error>
+          </mat-form-field>
 
-            <button (click)="incrementZoom(0.1)" mat-button type="button">
-                +
-            </button>
-        </div>
-
-
-        <div *ngIf="showAll" class="mb">
-            <mat-slide-toggle [(ngModel)]="stickToPage">
-                Stick to page
-            </mat-slide-toggle>
-        </div>
-
-        <div *ngIf="stickToPage && showAll || !showAll" class="mb">
-            <button (click)="incrementPage(-1)" mat-button type="button">
-                Previous
-            </button>
-
-            <mat-form-field class="page-number">
-                <input matInput
-                       type="number"
-                       placeholder="Page"
-                       [(ngModel)]="page"
-                       pattern="-?[0-9]*(\.[0-9]+)?"
-                >
-                <mat-error>Input is not a number!</mat-error>
-            </mat-form-field>
-
-            <span *ngIf="pdf">of {{ pdf.numPages }}</span>
-            <button (click)="incrementPage(1)"  mat-button type="button">
-                Next
-            </button>
-        </div>
-
-        <div class="mb">
-            <button (click)="rotate(-90)" mat-button type="button">Rotate left</button>
-
-            <mat-form-field class="page-number">
-                <input matInput
-                       type="number"
-                       placeholder="Angle"
-                       [ngModel]="rotation"
-                       disabled
-                >
-                <mat-error>Input is not a number!</mat-error>
-            </mat-form-field>
-
-            <button (click)="rotate(90)" mat-button type="button">Rotate right</button>
-        </div>
-
-        <div *ngIf="showAll" class="mb">
-            <mat-slide-toggle [(ngModel)]="isOutlineShown">
-                Show outline
-            </mat-slide-toggle>
-        </div>
-
-        <div *ngIf="showAll && isOutlineShown">
-            <ul *ngFor="let item of outline" class="outline-list">
-                <li>
-                    <a (click)="navigateTo(item.dest)">
-                        {{ item.title }}
-                    </a>
-
-                    <ul *ngFor="let child of item.items">
-                        <li>
-                            <a (click)="navigateTo(child.dest)">
-                                {{ child.title }}
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-
-        <div *ngIf="!isLoaded && !error && progressData" id="progress">
-            <div class="bg">
-                <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
-            </div>
-            <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
-        </div>
+          <button (click)="incrementZoom(0.1)" mat-button type="button">
+              +
+          </button>
+      </div>
 
 
-        <pdf-viewer [src]="pdfSrc"
-                    [(page)]="page"
-                    [rotation]="rotation"
-                    [original-size]="originalSize"
-                    [fit-to-page]="fitToPage"
-                    (after-load-complete)="afterLoadComplete($event)"
-                    [zoom]="zoom"
-                    [show-all]="showAll"
-                    [stick-to-page]="stickToPage"
-                    [render-text]="renderText"
-                    [external-link-target]="'blank'"
-                    [autoresize]="autoresize"
-                    (error)="onError($event)"
-                    (on-progress)="onProgress($event)"
-        ></pdf-viewer>
+      <div *ngIf="showAll" class="mb">
+          <mat-slide-toggle [(ngModel)]="stickToPage">
+              Stick to page
+          </mat-slide-toggle>
+      </div>
 
-    </div>
+      <div *ngIf="stickToPage && showAll || !showAll" class="mb">
+          <button (click)="incrementPage(-1)" mat-button type="button">
+              Previous
+          </button>
+
+          <mat-form-field class="page-number">
+              <input matInput
+                     type="number"
+                     placeholder="Page"
+                     [(ngModel)]="page"
+                     pattern="-?[0-9]*(\.[0-9]+)?"
+              >
+              <mat-error>Input is not a number!</mat-error>
+          </mat-form-field>
+
+          <span *ngIf="pdf">of {{ pdf.numPages }}</span>
+          <button (click)="incrementPage(1)"  mat-button type="button">
+              Next
+          </button>
+      </div>
+
+      <div class="mb">
+          <button (click)="rotate(-90)" mat-button type="button">Rotate left</button>
+
+          <mat-form-field class="page-number">
+              <input matInput
+                     type="number"
+                     placeholder="Angle"
+                     [ngModel]="rotation"
+                     disabled
+              >
+              <mat-error>Input is not a number!</mat-error>
+          </mat-form-field>
+
+          <button (click)="rotate(90)" mat-button type="button">Rotate right</button>
+      </div>
+
+      <div *ngIf="showAll" class="mb">
+          <mat-slide-toggle [(ngModel)]="isOutlineShown">
+              Show outline
+          </mat-slide-toggle>
+      </div>
+
+      <div *ngIf="showAll && isOutlineShown">
+          <ul *ngFor="let item of outline" class="outline-list">
+              <li>
+                  <a (click)="navigateTo(item.dest)">
+                      {{ item.title }}
+                  </a>
+
+                  <ul *ngFor="let child of item.items">
+                      <li>
+                          <a (click)="navigateTo(child.dest)">
+                              {{ child.title }}
+                          </a>
+                      </li>
+                  </ul>
+              </li>
+          </ul>
+      </div>
+
+      <div *ngIf="!isLoaded && !error && progressData" id="progress">
+          <div class="bg">
+              <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
+          </div>
+          <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
+      </div>
+
+
+      <pdf-viewer [src]="pdfSrc"
+                  [(page)]="page"
+                  [rotation]="rotation"
+                  [original-size]="originalSize"
+                  [fit-to-page]="fitToPage"
+                  (after-load-complete)="afterLoadComplete($event)"
+                  [zoom]="zoom"
+                  [show-all]="showAll"
+                  [stick-to-page]="stickToPage"
+                  [render-text]="renderText"
+                  [external-link-target]="'blank'"
+                  [autoresize]="autoresize"
+                  (error)="onError($event)"
+                  (on-progress)="onProgress($event)"
+      ></pdf-viewer>
+
+  </div>
 </main>
 <footer>
-    <div class="name">ng2-pdf-viewer</div>
-    <ul class="link-list">
-        <li>
-            <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&type=follow&count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
-        </li>
-        <li>
-            <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=star&count=true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
-        </li>
-        <li>
-            <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=fork&count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
-        </li>
-    </ul>
+  <div class="name">ng2-pdf-viewer</div>
+  <ul class="link-list">
+      <li>
+          <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&type=follow&count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
+      </li>
+      <li>
+          <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=star&count=true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+      </li>
+      <li>
+          <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=fork&count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
+      </li>
+  </ul>
 </footer>

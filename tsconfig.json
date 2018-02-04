@@ -1,33 +1,22 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "build",
-    "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "inlineSources": true,
-    "declaration": true,
-    "removeComments": true,
-    "noImplicitAny": false,
-    "lib": ["es6", "dom"],
+    "target": "es5",
     "typeRoots": [
-      "node_modules/@types",
-      "node_modules"
+      "node_modules/@types"
     ],
     "types": [
-      "systemjs",
-      "jasmine",
-      "node",
-      "pdf"
+      "node"
+    ],
+    "lib": [
+      "es2017",
+      "dom"
     ]
-  },
-  "exclude": [
-    "gulpfile.ts",
-    "node_modules",
-    "dist",
-    "build",
-    "aot"
-  ]
+  }
 }

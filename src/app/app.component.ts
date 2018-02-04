@@ -4,7 +4,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { PDFProgressData, PDFDocumentProxy } from 'pdfjs-dist';
 
-import { PdfViewerComponent } from '../pdf-viewer/pdf-viewer.component';
+import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 @Component({
   moduleId: module.id,
@@ -15,11 +15,11 @@ import { PdfViewerComponent } from '../pdf-viewer/pdf-viewer.component';
 
 export class AppComponent {
 
-  pdfSrc: string = './pdf-test.pdf';
+  pdfSrc: string = './assets/pdf-test.pdf';
 
   // or pass options as object
   // pdfSrc: any = {
-  //   url: './pdf-test.pdf',
+  //   url: './assets/pdf-test.pdf',
   //   withCredentials: true,
   //// httpHeaders: { // cross domain
   ////   'Access-Control-Allow-Credentials': true
