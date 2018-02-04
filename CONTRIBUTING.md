@@ -13,7 +13,7 @@ npm start
 ```
 * then open in browser
 ```
-http://localhost:8000/
+http://localhost:4200/
 ```
 
 * Make changes under `src/`
