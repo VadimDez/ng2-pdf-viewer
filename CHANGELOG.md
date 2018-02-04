@@ -1,5 +1,31 @@
 # Changelog
 
+## 4.0.0
+* [[#268](https://github.com/VadimDez/ng2-pdf-viewer/pull/268)] - Feature/restructure
+* [[#209](https://github.com/VadimDez/ng2-pdf-viewer/issues/209)] - Angular 5
+
+### Breaking change
+Location of bundles is changed.
+
+Therefor `SYSTEMJS` config is now updated to:
+
+```js
+var map = {
+    'ng2-pdf-viewer': 'node_modules/ng2-pdf-viewer/bundles',
+    'pdfjs-dist': 'node_modules/pdfjs-dist'
+}
+```
+
+and then add to ```packages```
+
+```js
+var packages = {
+    'ng2-pdf-viewer': { defaultExtension: 'js' },
+    'pdfjs-dist': { defaultExtension: 'js' }
+}
+```
+
+
 ## 3.0.8
 * [[#63](https://github.com/VadimDez/ng2-pdf-viewer/issues/63)] - How to scroll to page?
 * [[#233](https://github.com/VadimDez/ng2-pdf-viewer/issues/233)] - Bookmark option
