@@ -7,7 +7,7 @@ import {
 } from '@angular/material';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-import { PdfViewerModule } from './pdf-viewer/index';
+import { PdfViewerModule } from './pdf-viewer/pdf-viewer.module';
 import { AppComponent } from './app.component';
 
 
