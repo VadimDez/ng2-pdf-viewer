@@ -12,6 +12,9 @@
   <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
     <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
   </a>
+  <a href="https://www.paypal.me/vadimdez" title="Donate to this project using Paypal">
+    <img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" />
+  </a>
 </p>
 
 > PDF Viewer Component for Angular 5+
