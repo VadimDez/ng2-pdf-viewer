@@ -157,4 +157,13 @@ export class AppComponent {
       pageNumber: 3
     });
   }
+
+  /**
+   * Page rendered callback, which is called when a page is rendered (called multiple times)
+   *
+   * @param {CustomEvent} e
+   */
+  pageRendered(e: CustomEvent) {
+    console.log('(page-rendered)', e);
+  }
 }

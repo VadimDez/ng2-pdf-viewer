@@ -100,6 +100,7 @@ export class AppComponent {
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
 * [(after-load-complete)](#after-load-complete)
+* [(page-rendered)](#page-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
 
@@ -243,6 +244,24 @@ callBackFn(pdf: PDFDocumentProxy) {
 And then use it in your template:
 ``` 
 (after-load-complete)="callBackFn($event)"
+```
+
+#### (page-rendered)
+
+Get event when a page is rendered. Called for every page rendered.
+
+Define callback in your component:
+
+```ts
+pageRendered(e: CustomEvent) {
+  console.log('(page-rendered)', e);
+}
+```
+
+And then bind it to `<pdf-viewer>`:
+
+```angular2html
+(page-rendered)="pageRendered($event)
 ```
 
 #### (error)

@@ -45,6 +45,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   private resizeTimeout: NodeJS.Timer;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+  @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
 
@@ -73,6 +74,10 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     this.resizeTimeout = setTimeout(() => {
       this.updateSize();
     }, 100);
+  }
+
+  @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
+    this.pageRendered.emit(e);
   }
 
   ngOnChanges(changes: SimpleChanges) {
