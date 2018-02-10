@@ -207,23 +207,28 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     return this._pdf.numPages >= page && page >= 1;
   }
 
-  static setExternalLinkTarget(type: string) {
+  static getLinkTarget(type: string) {
     switch (type) {
       case 'blank':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.BLANK;
-        break;
+        return (<any>PDFJS).LinkTarget.BLANK;
       case 'none':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.NONE;
-        break;
+        return (<any>PDFJS).LinkTarget.NONE;
       case 'self':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.SELF;
-        break;
+        return (<any>PDFJS).LinkTarget.SELF;
       case 'parent':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.PARENT;
-        break;
+        return (<any>PDFJS).LinkTarget.PARENT;
       case 'top':
-        (<any>PDFJS).externalLinkTarget = (<any>PDFJS).LinkTarget.TOP;
-        break;
+        return (<any>PDFJS).LinkTarget.TOP;
+    }
+
+    return null;
+  }
+
+  static setExternalLinkTarget(type: string) {
+    const linkTarget = PdfViewerComponent.getLinkTarget(type);
+
+    if (linkTarget !== null) {
+      (<any>PDFJS).externalLinkTarget = linkTarget;
     }
   }
 
