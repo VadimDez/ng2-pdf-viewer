@@ -48,6 +48,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
+  @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
   constructor(private element: ElementRef) {
     if (!isSSR() && typeof PDFJS.workerSrc !== 'string') {
@@ -100,17 +101,15 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   @Input('page')
   set page(_page) {
-    _page = parseInt(_page, 10);
+    _page = parseInt(_page, 10) || 1;
 
-    if (this._pdf && !this.isValidPageNumber(_page)) {
-      _page = 1;
+    if (this._pdf) {
+      _page = this.getValidPageNumber(_page);
     }
 
     this._page = _page;
     this.pageChange.emit(_page);
   }
-
-  @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
   @Input('render-text')
   set renderText(renderText: boolean) {
@@ -208,8 +207,16 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     });
   }
 
-  private isValidPageNumber(page: number): boolean {
-    return this._pdf.numPages >= page && page >= 1;
+  private getValidPageNumber(page: number): number {
+    if (page < 1) {
+      return 1;
+    }
+
+    if (page > this._pdf.numPages) {
+      return this._pdf.numPages;
+    }
+
+    return page;
   }
 
   static getLinkTarget(type: string) {
@@ -294,9 +301,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   }
 
   private renderMultiplePages() {
-    if (!this.isValidPageNumber(this._page)) {
-      this._page = 1;
-    }
+    this._page = this.getValidPageNumber(this._page);
 
     if (this._rotation !== 0 || this.pdfViewer.pagesRotation !== this._rotation) {
       setTimeout(() => {
