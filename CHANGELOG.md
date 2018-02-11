@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.1.0
+* [[#274](https://github.com/VadimDez/ng2-pdf-viewer/issues/274)] - Page two way data binding. Do not reset page to 1.
+* [[#265](https://github.com/VadimDez/ng2-pdf-viewer/issues/265)] - adding after-render-complete emitter
+* [[#81](https://github.com/VadimDez/ng2-pdf-viewer/issues/81)] - Add a rendered event in promise
+
+Page rendered event is added, use `(page-rendered)=callback($event)` 
+
 ## 4.0.0
 * [[#268](https://github.com/VadimDez/ng2-pdf-viewer/pull/268)] - Feature/restructure
 * [[#209](https://github.com/VadimDez/ng2-pdf-viewer/issues/209)] - Angular 5
