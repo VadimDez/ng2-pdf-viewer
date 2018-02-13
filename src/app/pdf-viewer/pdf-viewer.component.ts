@@ -29,6 +29,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   public pdfLinkService: any;
   public pdfViewer: any;
+  public pdfFindController: any;
 
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
@@ -184,6 +185,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
     this.pdfViewer = new PDFJS.PDFViewer(pdfOptions);
     this.pdfLinkService.setViewer(this.pdfViewer);
+    this.pdfFindController = new (PDFJS as any).PDFFindController({ pdfViewer: this.pdfViewer });
+    this.pdfViewer.setFindController(this.pdfFindController);
   }
 
   public updateSize() {
