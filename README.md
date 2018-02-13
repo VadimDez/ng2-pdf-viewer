@@ -338,6 +338,25 @@ In your code update `path` to the worker to be for example `/pdf.worker.js`
 *This should be set before `pdf-viewer` component is rendered.*
 
 
+### Search in the PDF
+
+Use `pdfFindController` for search functionality.
+
+In your component's ts file:
+
+* Add reference to `pdf-viewer`,
+* then when needed execute search()
+
+```ts
+@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+
+search(stringToSearch: string) {
+  this.pdfComponent.pdfFindController.executeCommand('find', {
+    caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true, query: stringToSearch
+  });
+}
+```
+
 ## Contribute
 [See CONTRIBUTING.md](CONTRIBUTING.md)
 

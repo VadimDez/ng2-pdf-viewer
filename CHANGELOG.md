@@ -16,9 +16,8 @@ In your component's ts file:
 ```ts
 @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
 
-
 search(stringToSearch: string) {
-  this.pdfFindController.executeCommand('find', {
+  this.pdfComponent.pdfFindController.executeCommand('find', {
     caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true, query: stringToSearch
   });
 }
