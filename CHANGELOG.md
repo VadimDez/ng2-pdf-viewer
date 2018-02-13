@@ -1,5 +1,30 @@
 # Changelog
 
+## 4.1.1
+* [[#260](https://github.com/VadimDez/ng2-pdf-viewer/issues/260)] - Public PDFFindController
+* [[#279](https://github.com/VadimDez/ng2-pdf-viewer/pull/279)] - make pdfFindController public
+
+#### Features
+
+`pdfFindController` is now public, that means you can now execute a search on the pdf.
+
+In your component's ts file:
+
+* Add reference to `pdf-viewer`,
+* then when needed execute search()
+
+```ts
+@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+
+
+search(stringToSearch: string) {
+  this.pdfFindController.executeCommand('find', {
+    caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true, query: stringToSearch
+  });
+}
+```
+
+
 ## 4.1.0
 * [[#274](https://github.com/VadimDez/ng2-pdf-viewer/issues/274)] - Page two way data binding. Do not reset page to 1.
 * [[#265](https://github.com/VadimDez/ng2-pdf-viewer/issues/265)] - adding after-render-complete emitter
