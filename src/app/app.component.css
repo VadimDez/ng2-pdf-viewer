@@ -94,6 +94,9 @@ pdf-viewer {
 .outline-list li a {
   cursor: pointer;
 }
+.outline-list li a:hover {
+  color: #ea1f62;
+}
 
 .spacer {
   flex: 1 1 auto;

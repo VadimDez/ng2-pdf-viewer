@@ -61,4 +61,13 @@ describe('AppComponent', () => {
       expect((pdfViewer as any).getValidPageNumber(-1)).toBe(1);
     });
   });
+
+  describe('getScale', () => {
+    it('should get scale 1 with offsetWidth = 0', function () {
+      let spy = spyOnProperty((pdfViewer as any).element.nativeElement, 'offsetWidth', 'get').and.returnValue(0);
+
+      expect((pdfViewer as any).getScale(0)).toBe(1);
+      expect(spy).toHaveBeenCalled();
+    });
+  });
 });
