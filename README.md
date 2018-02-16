@@ -105,7 +105,10 @@ export class AppComponent {
 * [(on-progress)](#on-progress)
 
 #### [src]
-*accepts: string, object, UInt8Array*
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [src] | *string, object, UInt8Array* | Required |
 
 Pass pdf location
  
@@ -128,7 +131,11 @@ Options object for loading protected PDF would be
 
 
 #### [page]
-_number_
+
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [page] or [(page)] | *number* | *Required* with [show-all]="false" or *Optional* with [show-all]="true" |
 
 Page number
 
