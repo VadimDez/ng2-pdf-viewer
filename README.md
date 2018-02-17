@@ -45,7 +45,7 @@ In case you're using ```systemjs``` see configuration [here](https://github.com/
 
 Add ```PdfViewerModule``` to your module's ```imports```
 
-```js
+```typescript
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
@@ -65,7 +65,7 @@ platformBrowserDynamic().bootstrapModule(AppModule);
 
 And then use it in your component
 
-```js
+```typescript
 import { Component } from '@angular/core';
 
 @Component({
@@ -242,7 +242,7 @@ Turn on or off auto resize.
 Get PDF information with callback
 
 First define callback function "callBackFn" in your controller,
-```
+```typescript
 callBackFn(pdf: PDFDocumentProxy) {
    // do anything with "pdf"
 }
@@ -259,7 +259,7 @@ Get event when a page is rendered. Called for every page rendered.
 
 Define callback in your component:
 
-```ts
+```typescript
 pageRendered(e: CustomEvent) {
   console.log('(page-rendered)', e);
 }
@@ -277,7 +277,7 @@ Error handling callback
 
 Define callback in your component's class
 
-```ts
+```typescript
 onError(error: any) {
   // do anything
 }
@@ -295,7 +295,7 @@ Loading progress callback - provides progress information `total` and `loaded` b
 
 Define callback in your component's class
 
-```ts
+```typescript
 onProgress(progressData: PDFProgressData) {
   // do anything with progress data. For example progress indicator
 }
@@ -317,7 +317,7 @@ In your `html` template add `input`:
 
 and then add `onFileSelected` method to your component:
 
-```ts
+```typescript
 onFileSelected() {
   let $img: any = document.querySelector('#file');
 
@@ -339,7 +339,7 @@ onFileSelected() {
 By default the `worker` is loaded from `cdnjs.cloudflare.com`.
 
 In your code update `path` to the worker to be for example `/pdf.worker.js` 
-```ts
+```typescript
 (<any>window).PDFJS.workerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
@@ -354,7 +354,7 @@ In your component's ts file:
 * Add reference to `pdf-viewer`,
 * then when needed execute search()
 
-```ts
+```typescript
 @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
 
 search(stringToSearch: string) {
