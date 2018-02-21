@@ -65,7 +65,7 @@ export class PdfViewerComponent implements OnChanges, OnInit {
 
   @HostListener('window:resize', [])
   public onPageResize() {
-    if (!this._canAutoResize) {
+    if (!this._canAutoResize || !this._pdf) {
       return;
     }
 
