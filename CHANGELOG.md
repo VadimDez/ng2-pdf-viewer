@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.1.2
+* [[#281](https://github.com/VadimDez/ng2-pdf-viewer/pull/281)] - Fix error on resize during loading of pdf
+
 ## 4.1.1
 * [[#260](https://github.com/VadimDez/ng2-pdf-viewer/issues/260)] - Public PDFFindController
 * [[#279](https://github.com/VadimDez/ng2-pdf-viewer/pull/279)] - make pdfFindController public
