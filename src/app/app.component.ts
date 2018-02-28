@@ -84,7 +84,7 @@ export class AppComponent {
    * Render PDF preview on selecting file
    */
   onFileSelected() {
-    let $img: any = document.querySelector('#file');
+    let $pdf: any = document.querySelector('#file');
 
     if (typeof (FileReader) !== 'undefined') {
       let reader = new FileReader();
@@ -93,7 +93,7 @@ export class AppComponent {
         this.pdfSrc = e.target.result;
       };
 
-      reader.readAsArrayBuffer($img.files[0]);
+      reader.readAsArrayBuffer($pdf.files[0]);
     }
   }
 
