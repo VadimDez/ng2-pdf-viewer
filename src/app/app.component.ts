@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component, ViewChild } from '@angular/core';
-import { PDFProgressData, PDFDocumentProxy } from 'pdfjs-dist';
+import { PDFProgressData, PDFDocumentProxy, PDFSource } from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
@@ -15,7 +15,7 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 export class AppComponent {
 
-  pdfSrc: string = './assets/pdf-test.pdf';
+  pdfSrc: string | PDFSource | ArrayBuffer = './assets/pdf-test.pdf';
 
   // or pass options as object
   // pdfSrc: any = {
@@ -124,6 +124,31 @@ export class AppComponent {
    */
   onError(error: any) {
     this.error = error; // set error
+
+    if (error.name === 'PasswordException') {
+      const password = prompt('This document is password protected. Enter the password:');
+
+      if (password) {
+        this.error = null;
+        this.setPassword(password);
+      }
+    }
+  }
+
+  setPassword(password: string) {
+    let newSrc;
+
+    if (this.pdfSrc instanceof ArrayBuffer) {
+      newSrc = { data: this.pdfSrc };
+    } else if (typeof this.pdfSrc === 'string') {
+      newSrc = { url: this.pdfSrc };
+    } else {
+      newSrc = { ...this.pdfSrc };
+    }
+
+    newSrc.password = password;
+
+    this.pdfSrc = newSrc;
   }
 
   /**
