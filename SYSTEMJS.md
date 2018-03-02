@@ -13,7 +13,7 @@ and then add to ```packages```
 
 ```js
 var packages = {
-    'ng2-pdf-viewer': { defaultExtension: 'js' },
+    'ng2-pdf-viewer': { defaultExtension: 'js', format: 'cjs' },
     'pdfjs-dist': { defaultExtension: 'js' }
 }
 ```

@@ -26,6 +26,10 @@
 
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
+#### Plunker Example 
+
+[https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview](https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview)
+
 ### Blog post
 
 [https://medium.com/@vadimdez/render-pdf-in-angular-4-927e31da9c76](https://medium.com/@vadimdez/render-pdf-in-angular-4-927e31da9c76)
@@ -127,7 +131,7 @@ Options object for loading protected PDF would be
  }
  ```
  
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L83-L130).
+ See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L106-L153).
 
 
 #### [page]
