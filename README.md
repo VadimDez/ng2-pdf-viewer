@@ -152,7 +152,10 @@ supports two way data binding as well
 ```
 
 #### [stick-to-page]
-_boolean_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [stick-to-page] | *boolean* | *Optional* |
 
 Sticks view to the page. Works in combination with `[show-all]="true"` and `page`.
 
