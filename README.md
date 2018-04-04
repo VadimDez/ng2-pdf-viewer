@@ -164,7 +164,10 @@ Sticks view to the page. Works in combination with `[show-all]="true"` and `page
 ```
 
 #### [render-text]
-_boolean_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [render-text] | *boolean* | *Optional* |
 
 Enable text rendering, allows to select text
 ```
