@@ -175,7 +175,10 @@ Enable text rendering, allows to select text
 ```
 
 #### [external-link-target]
-_string_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [external-link-target] | *string* | *Optional* |
 
 Used in combination with `[render-text]="true"`
 
@@ -190,7 +193,10 @@ Link target
 ```
 
 #### [rotation]
-_number_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [rotation] | *number* | *Optional* |
 
 Rotate PDF
 
@@ -200,7 +206,10 @@ Rotate PDF
 ```
 
 #### [zoom]
-_number_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [zoom] | *number* | *Optional* |
 
 Zoom pdf
 ```
@@ -208,11 +217,13 @@ Zoom pdf
 ```
 
 #### [original-size]
-_boolean_
 
-if set to *true* - size will be as same as original document
+| Property | Type | Required |
+| --- | ---- | --- |
+| [original-size] | *boolean* | *Optional* |
 
-if set to *false* - size will be as same as container block
+* if set to *true* - size will be as same as original document
+* if set to *false* - size will be as same as container block
 
 ```
 [original-size]="true"
