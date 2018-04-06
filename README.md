@@ -230,7 +230,10 @@ Zoom pdf
 ```
 
 #### [fit-to-page]
-_boolean_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [fit-to-page] | *boolean* | *Optional* |
 
 Works in combination with `[original-size]="true"`. You can show your document in original size, and make sure that it's not bigger then container block.
 
@@ -239,7 +242,10 @@ Works in combination with `[original-size]="true"`. You can show your document i
 ```
 
 #### [show-all]
-_boolean_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [show-all] | *boolean* | *Optional* |
 
 Show single or all pages altogether
 
@@ -248,7 +254,10 @@ Show single or all pages altogether
 ```
 
 #### [autoresize]
-_boolean_
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [autoresize] | *boolean* | *Optional* |
 
 Turn on or off auto resize.
 
@@ -259,6 +268,10 @@ Turn on or off auto resize.
 ```
 
 #### (after-load-complete)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (after-load-complete) | *callback* | *Optional* |
 
 Get PDF information with callback
 
@@ -275,6 +288,10 @@ And then use it in your template:
 ```
 
 #### (page-rendered)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (page-rendered) | *callback* | *Optional* |
 
 Get event when a page is rendered. Called for every page rendered.
 
@@ -294,6 +311,10 @@ And then bind it to `<pdf-viewer>`:
 
 #### (error)
 
+| Property | Type | Required |
+| --- | ---- | --- |
+| (error) | *callback* | *Optional* |
+
 Error handling callback
 
 Define callback in your component's class
@@ -311,6 +332,10 @@ Then add it to `pdf-component` in component's template
 ```
 
 #### (on-progress)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (on-progress) | *callback* | *Optional* |
 
 Loading progress callback - provides progress information `total` and `loaded` bytes. Is called several times during pdf loading phase.
 
