@@ -34,6 +34,16 @@
 
 [https://medium.com/@vadimdez/render-pdf-in-angular-4-927e31da9c76](https://medium.com/@vadimdez/render-pdf-in-angular-4-927e31da9c76)
 
+## Overview
+
+* [Install](README.md#install)
+* [Usage](README.md#usage)
+* [Options](README.md#options)
+* [Render local PDF file](README.md#render-local-pdf-file)
+* [Set custom path to the worker](README.md#set-custom-path-to-the-worker)
+* [Search in the PDF](README.md#search-in-the-pdf)
+* [Contribute](README.md#contribute)
+
 ## Install
 
 ```
