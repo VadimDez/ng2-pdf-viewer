@@ -48,9 +48,19 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
   constructor(private element: ElementRef) {
-    if (!isSSR() && (typeof (PDFJS as any).GlobalWorkerOptions.workerSrc !== 'string' || !(PDFJS as any).GlobalWorkerOptions.workerSrc)) {
-      (PDFJS as any).GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
+    if (isSSR()) {
+      return;
     }
+
+    let pdfWorkerSrc: string;
+
+    if (window.hasOwnProperty('pdfWorkerSrc') && typeof (window as any).pdfWorkerSrc === 'string' && (window as any).pdfWorkerSrc) {
+      pdfWorkerSrc = (window as any).pdfWorkerSrc;
+    } else {
+      pdfWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${ (PDFJS as any).version }/pdf.worker.min.js`;
+    }
+
+    (PDFJS as any).GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
   }
 
   ngOnInit() {
