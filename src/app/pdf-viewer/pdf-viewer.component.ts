@@ -176,7 +176,8 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     const pdfOptions: PDFViewerParams | any = {
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
-      linkService: this.pdfLinkService
+      linkService: this.pdfLinkService,
+      textLayerMode: this._renderText ? 1 : 0
     };
 
     this.pdfViewer = new PDFJSViewer.PDFViewer(pdfOptions);
