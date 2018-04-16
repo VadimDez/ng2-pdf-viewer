@@ -5,8 +5,8 @@ import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
 import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
-import * as PDFJS from "pdfjs-dist";
-import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
+const PDFJS = require('pdfjs-dist');
+const PDFJSViewer = require('pdfjs-dist/web/pdf_viewer');
 
 function isSSR() {
   return typeof window === 'undefined';
