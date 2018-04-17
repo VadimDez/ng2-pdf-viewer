@@ -6,13 +6,15 @@ import {
 } from '@angular/core';
 import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
 const PDFJS = require('pdfjs-dist');
-const PDFJSViewer = require('pdfjs-dist/web/pdf_viewer');
+let PDFJSViewer: any;
 
 function isSSR() {
   return typeof window === 'undefined';
 }
-
-(PDFJS as any).verbosity = (PDFJS as any).VerbosityLevel.ERRORS;
+if (!isSSR()) {
+  PDFJSViewer = require('pdfjs-dist/web/pdf_viewer');
+  (PDFJS as any).verbosity = (PDFJS as any).VerbosityLevel.ERRORS;
+}
 
 @Component({
   selector: 'pdf-viewer',
