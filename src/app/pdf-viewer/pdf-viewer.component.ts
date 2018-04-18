@@ -5,15 +5,18 @@ import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
 } from '@angular/core';
 import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
-const PDFJS = require('pdfjs-dist');
+let PDFJS: any;
 let PDFJSViewer: any;
 
 function isSSR() {
   return typeof window === 'undefined';
 }
+
 if (!isSSR()) {
+  PDFJS = require('pdfjs-dist/build/pdf');
   PDFJSViewer = require('pdfjs-dist/web/pdf_viewer');
-  (PDFJS as any).verbosity = (PDFJS as any).VerbosityLevel.ERRORS;
+
+  PDFJS.verbosity = PDFJS.VerbosityLevel.ERRORS;
 }
 
 @Component({
