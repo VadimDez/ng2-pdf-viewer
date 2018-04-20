@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.0.0
+* [[#311](https://github.com/VadimDez/ng2-pdf-viewer/pull/311)] - Update pdfjs
+
+### Breaking changes
+PDFJS is not attached to the `window` therefore setting custom path to the worker changed to `window.pdfWorkerSrc`:
+
+```typescript
+(<any>window).pdfWorkerSrc = '/pdf.worker.js';
+```
+
 ## 4.1.2
 * [[#281](https://github.com/VadimDez/ng2-pdf-viewer/pull/281)] - Fix error on resize during loading of pdf
 
