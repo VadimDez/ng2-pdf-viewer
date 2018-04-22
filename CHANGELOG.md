@@ -2,6 +2,8 @@
 
 ## 5.0.0
 * [[#311](https://github.com/VadimDez/ng2-pdf-viewer/pull/311)] - Update pdfjs
+* [[#308](https://github.com/VadimDez/ng2-pdf-viewer/issues/308)] - Not working on IOS on both Chrome and Safari 
+* [[#302](https://github.com/VadimDez/ng2-pdf-viewer/issues/302)] - ng2-pdf-viewer dependencies have conflicts with webpack >= 3 
 
 ### Breaking changes
 PDFJS is not attached to the `window` therefore setting custom path to the worker changed to `window.pdfWorkerSrc`:
