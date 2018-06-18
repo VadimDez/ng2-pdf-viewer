@@ -2,7 +2,7 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
-  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener
+  Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener, OnDestroy
 } from '@angular/core';
 import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
 let PDFJS: any;
@@ -25,7 +25,7 @@ if (!isSSR()) {
   styleUrls: ['./pdf-viewer.component.scss']
 })
 
-export class PdfViewerComponent implements OnChanges, OnInit {
+export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   static CSS_UNITS: number = 96.0 / 72.0;
 
   public pdfLinkService: any;
@@ -71,6 +71,12 @@ export class PdfViewerComponent implements OnChanges, OnInit {
   ngOnInit() {
     if (!isSSR()) {
       this.setupViewer();
+    }
+  }
+
+  ngOnDestroy() {
+    if (this._pdf) {
+      this._pdf.destroy();
     }
   }
 
@@ -278,6 +284,9 @@ export class PdfViewerComponent implements OnChanges, OnInit {
     const src = this.src;
     (<PDFPromise<PDFDocumentProxy>>loadingTask.promise)
       .then((pdf: PDFDocumentProxy) => {
+        if (this._pdf) {
+          this._pdf.destroy();
+        }
         this._pdf = pdf;
         this.lastLoaded = src;
 
