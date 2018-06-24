@@ -36,7 +36,7 @@
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "peerDependencies": {
     "@angular/core": ">=5.0.0",
-    "pdfjs-dist": "2.0.489",
+    "pdfjs-dist": "2.0.550",
     "@types/pdfjs-dist": "^0.1.2"
   },
   "dependencies": {
