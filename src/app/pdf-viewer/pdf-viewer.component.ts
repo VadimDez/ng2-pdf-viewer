@@ -32,6 +32,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   public pdfViewer: any;
   public pdfFindController: any;
 
+  private _cMapsUrl: string = 'assets/cmaps/';
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
@@ -116,6 +117,11 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input()
   src: string | Uint8Array | PDFSource;
+
+  @Input('c-maps-url')
+  set cMapsUrl(cMapsUrl: string) {
+    this._cMapsUrl = cMapsUrl;
+  }
 
   @Input('page')
   set page(_page) {
@@ -275,7 +281,22 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    let loadingTask: any = (PDFJS as any).getDocument(this.src as any);
+    let params: any = {
+      cMapUrl: this._cMapsUrl,
+      cMapPacked: true
+    };
+
+    if (typeof(this.src) === 'string') {
+      params.url = this.src;
+    }
+    else if (typeof(this.src) === 'object' && (this.src as any).byteLength !== undefined) {
+      params.data = this.src;
+    }
+    else if (typeof(this.src) === 'object') {
+      Object.assign(params, this.src);
+    }
+
+    let loadingTask: any = (PDFJS as any).getDocument(params);
 
     loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);

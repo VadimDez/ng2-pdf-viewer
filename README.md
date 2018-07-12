@@ -53,6 +53,10 @@ npm install ng2-pdf-viewer --save
 *Note: For angular 4 or less use version `3.0.8`*
 
 
+## Support for non-latin characters
+
+For this feature to work you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
+
 ## Usage
 
 In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
@@ -103,6 +107,7 @@ export class AppComponent {
 ## Options
 
 * [[src]](#src)
+* [[c-maps-url]](#c-maps-url)
 * [[(page)]](#page)
 * [[stick-to-page]](#stick-to-page)
 * [[external-link-target]](#external-link-target)
@@ -143,6 +148,16 @@ Options object for loading protected PDF would be
  
  See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
 
+#### [c-maps-url]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [c-maps-url] | *string* | Optional |
+
+Url for non-latin characters source maps
+```
+[c-maps-url]="'assets/cmaps/'"
+```
 
 #### [page]
 
