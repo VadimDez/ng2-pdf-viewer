@@ -12,6 +12,15 @@ class TestComponent {}
 describe('AppComponent', () => {
   let pdfViewerFixture: ComponentFixture<PdfViewerComponent>;
   let pdfViewer: PdfViewerComponent;
+  let testFixture: ComponentFixture<TestComponent>;
+  let testApp: TestComponent;
+
+  function setPdf(numPages: number) {
+    (pdfViewer as any)._pdf = {
+      numPages,
+      destroy: () => {}
+    };
+  }
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -21,25 +30,22 @@ describe('AppComponent', () => {
       imports: [
         PdfViewerModule
       ]
-    }).compileComponents();
+    }).compileComponents()
+    .then(() => {
+      testFixture = TestBed.createComponent(TestComponent);
+      testApp = testFixture.debugElement.componentInstance;
+
+      pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+      pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+    });
   }));
 
-  it('should create test component', async(() => {
-    const fixture = TestBed.createComponent(TestComponent);
-    pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
-    const app = fixture.debugElement.componentInstance;
-    pdfViewer = pdfViewerFixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
+  it('should create test component', () => {
+    expect(testApp).toBeTruthy();
     expect(pdfViewer).toBeTruthy();
-  }));
+  });
 
   describe('getValidPageNumber', () => {
-    function setPdf(numPages: number) {
-      (pdfViewer as any)._pdf = {
-        numPages
-      };
-    }
-
     it('should return page if between first and last pages', () => {
       setPdf(10);
 
@@ -48,7 +54,7 @@ describe('AppComponent', () => {
       });
     });
 
-    it('should return last page', function () {
+    it('should return last page', () => {
       const pages = 100;
       setPdf(pages);
       expect((pdfViewer as any).getValidPageNumber(pages + 1)).toBe(pages);
@@ -68,6 +74,39 @@ describe('AppComponent', () => {
 
       expect((pdfViewer as any).getScale(0)).toBe(1);
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('getDocumentParams', () => {
+    const src = 'https://localhost:4200/test.pdf';
+    const cMapUrl = 'assets/';
+
+    it('should return src', () => {
+      pdfViewer.src = src;
+
+      expect((<any>pdfViewer).getDocumentParams()).toBe(src);
+    });
+
+    it('should return object', () => {
+      pdfViewer.src = src;
+      pdfViewer.cMapsUrl = cMapUrl;
+
+      expect((<any>pdfViewer).getDocumentParams()).toEqual({ url: src, cMapUrl, cMapPacked: true });
+    });
+
+    it('should return object when src is an object', () => {
+      pdfViewer.src = { url: src };
+      pdfViewer.cMapsUrl = cMapUrl;
+
+      expect((<any>pdfViewer).getDocumentParams()).toEqual({ url: src, cMapUrl, cMapPacked: true });
+    });
+
+    it('should return object when src is an object with byte array', () => {
+      const src = new Uint8Array(1);
+      pdfViewer.src = { url: src as any };
+      pdfViewer.cMapsUrl = cMapUrl;
+
+      expect((<any>pdfViewer).getDocumentParams()).toEqual({ url: src, cMapUrl, cMapPacked: true });
     });
   });
 });

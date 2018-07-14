@@ -32,7 +32,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   public pdfViewer: any;
   public pdfFindController: any;
 
-  private _cMapsUrl: string = 'assets/cmaps/';
+  private _cMapsUrl: string;
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
@@ -271,6 +271,32 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
   }
 
+  private getDocumentParams() {
+    let params: any = {};
+    const srcType = typeof(this.src);
+    
+    if (!this._cMapsUrl) {
+      return this.src;
+    }
+    
+    params = {
+      cMapUrl: this._cMapsUrl,
+      cMapPacked: true
+    };
+    
+    if (srcType === 'string') {
+      params.url = this.src;
+    } else if (srcType === 'object') {
+      if ((this.src as any).byteLength !== undefined) {
+        params.data = this.src;
+      } else {
+        Object.assign(params, this.src);
+      }
+    }
+
+    return params;
+  }
+
   private loadPDF() {
     if (!this.src) {
       return;
@@ -281,22 +307,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    let params: any = {
-      cMapUrl: this._cMapsUrl,
-      cMapPacked: true
-    };
-
-    if (typeof(this.src) === 'string') {
-      params.url = this.src;
-    }
-    else if (typeof(this.src) === 'object' && (this.src as any).byteLength !== undefined) {
-      params.data = this.src;
-    }
-    else if (typeof(this.src) === 'object') {
-      Object.assign(params, this.src);
-    }
-
-    let loadingTask: any = (PDFJS as any).getDocument(params);
+    let loadingTask: any = (PDFJS as any).getDocument(this.getDocumentParams());
 
     loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
