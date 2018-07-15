@@ -21,7 +21,7 @@ if (!isSSR()) {
 
 @Component({
   selector: 'pdf-viewer',
-  template: `<div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>`,
+  template: `<div (scroll)="onPageScroll()" class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>`,
   styleUrls: ['./pdf-viewer.component.scss']
 })
 
@@ -38,6 +38,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private _originalSize: boolean = true;
   private _pdf: PDFDocumentProxy;
   private _page: number = 1;
+  private _pages: Array<any> = [];
   private _zoom: number = 1;
   private _rotation: number = 0;
   private _showAll: boolean = true;
@@ -93,10 +94,20 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     this.resizeTimeout = setTimeout(() => {
       this.updateSize();
+      this.renderVirtualPages();
     }, 100);
   }
 
+  @HostListener('window:scroll', [])
+  public onPageScroll() {
+    this.renderVirtualPages();
+  }
+
   @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
+    this._pages.push(e);
+    if (!this.isElementInViewport(e['target'])) {
+      e['target']['style'].visibility = 'hidden';
+    }
     this.pageRendered.emit(e);
   }
 
@@ -274,16 +285,16 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private getDocumentParams() {
     let params: any = {};
     const srcType = typeof(this.src);
-    
+
     if (!this._cMapsUrl) {
       return this.src;
     }
-    
+
     params = {
       cMapUrl: this._cMapsUrl,
       cMapPacked: true
     };
-    
+
     if (srcType === 'string') {
       params.url = this.src;
     } else if (srcType === 'object') {
@@ -435,5 +446,28 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     return this._zoom * (offsetWidth / viewportWidth) / PdfViewerComponent.CSS_UNITS;
+  }
+
+  private renderVirtualPages() {
+    for (const i of this._pages) {
+      if (!this.isElementInViewport(i['target'])) {
+        i['target']['style'].visibility = 'hidden';
+      } else {
+        i['target']['style'].visibility = 'visible';
+      }
+    }
+  }
+
+  private isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    const pdfContainer = this.element.nativeElement;
+
+    const windowHeight = (pdfContainer.innerHeight || window.innerHeight || document.documentElement.clientHeight);
+    const windowWidth = (pdfContainer.innerWidth || window.innerWidth || document.documentElement.clientWidth);
+
+    const vertInView = (rect.top <= windowHeight) && ((rect.top + rect.height) >= 0);
+    const horInView = (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0);
+
+    return (vertInView && horInView);
   }
 }
