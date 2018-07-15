@@ -81,7 +81,14 @@ describe('AppComponent', () => {
     const src = 'https://localhost:4200/test.pdf';
     const cMapUrl = 'assets/';
 
+    it('should check default url', () => {
+      const PDFJS = require('pdfjs-dist/build/pdf');
+
+      expect((<any>pdfViewer)._cMapsUrl).toBe(`https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`);
+    });
+
     it('should return src', () => {
+      pdfViewer.cMapsUrl = null;
       pdfViewer.src = src;
 
       expect((<any>pdfViewer).getDocumentParams()).toBe(src);

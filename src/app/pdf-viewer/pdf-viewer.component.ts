@@ -32,7 +32,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   public pdfViewer: any;
   public pdfFindController: any;
 
-  private _cMapsUrl: string;
+  private _cMapsUrl: string = `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`;
   private _renderText: boolean = true;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
