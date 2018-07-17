@@ -102,7 +102,6 @@ export class AppComponent {
 ## Options
 
 * [[src]](#src)
-* [[c-maps-url]](#c-maps-url)
 * [[(page)]](#page)
 * [[stick-to-page]](#stick-to-page)
 * [[external-link-target]](#external-link-target)
@@ -113,6 +112,7 @@ export class AppComponent {
 * [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
+* [[c-maps-url]](#c-maps-url)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
 * [(error)](#error)
@@ -142,21 +142,6 @@ Options object for loading protected PDF would be
  ```
  
  See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
-
-#### [c-maps-url]
-
-| Property | Type | Required |
-| --- | ---- | --- |
-| [c-maps-url] | *string* | Optional |
-
-Url for non-latin characters source maps.
-```
-[c-maps-url]="'assets/cmaps/'"
-```
-
-Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
-
-To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
 
 #### [page]
 
@@ -290,6 +275,21 @@ Turn on or off auto resize.
 ```
 [autoresize]="true"
 ```
+
+#### [c-maps-url]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [c-maps-url] | *string* | Optional |
+
+Url for non-latin characters source maps.
+```
+[c-maps-url]="'assets/cmaps/'"
+```
+
+Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
+
+To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
 
 #### (after-load-complete)
 
