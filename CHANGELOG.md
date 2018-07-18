@@ -2,7 +2,7 @@
 
 ## 5.1.1
 * [[#338](https://github.com/VadimDez/ng2-pdf-viewer/pull/347)] - support for non-latin characters
-* [[#308](https://github.com/VadimDez/ng2-pdf-viewer/issues/324)] - PDF preview does not display Chinese
+* [[#324](https://github.com/VadimDez/ng2-pdf-viewer/issues/324)] - PDF preview does not display Chinese
 
 ## 5.1.0
 * [[#338](https://github.com/VadimDez/ng2-pdf-viewer/pull/338)] - Upgrade dependency
