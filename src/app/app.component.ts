@@ -27,38 +27,38 @@ export class AppComponent {
   // };
 
   error: any;
-  page: number = 1;
-  rotation: number = 0;
-  zoom: number = 1.0;
-  originalSize: boolean = false;
+  page = 1;
+  rotation = 0;
+  zoom = 1.0;
+  originalSize = false;
   pdf: any;
-  renderText: boolean = true;
+  renderText = true;
   progressData: PDFProgressData;
-  isLoaded: boolean = false;
+  isLoaded = false;
   stickToPage = false;
-  showAll: boolean = true;
-  autoresize: boolean = true;
-  fitToPage: boolean = false;
+  showAll = true;
+  autoresize = true;
+  fitToPage = false;
   outline: any[];
-  isOutlineShown: boolean = false;
+  isOutlineShown = false;
 
   @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
 
-  constructor() {
-    // Load pdf
-    // let xhr = new XMLHttpRequest();
-    // xhr.open('GET', 'http://localhost:8000/pdf-test.pdf', true);
-    // xhr.responseType = 'blob';
-    //
-    // xhr.onload = (e: any) => {
-    //   console.log(xhr);
-    //   if (xhr.status === 200) {
-    //     let blob = new Blob([xhr.response], {type: 'application/pdf'});
-    //     this.pdfSrc = URL.createObjectURL(blob);
-    //   }
-    // };
-    //
-    // xhr.send();
+  // Load pdf
+  loadPdf() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost:8000/pdf-test.pdf', true);
+    xhr.responseType = 'blob';
+
+    xhr.onload = (e: any) => {
+      console.log(xhr);
+      if (xhr.status === 200) {
+        const blob = new Blob([xhr.response], { type: 'application/pdf' });
+        this.pdfSrc = URL.createObjectURL(blob);
+      }
+    };
+
+    xhr.send();
   }
 
   /**
@@ -84,10 +84,10 @@ export class AppComponent {
    * Render PDF preview on selecting file
    */
   onFileSelected() {
-    let $pdf: any = document.querySelector('#file');
+    const $pdf: any = document.querySelector('#file');
 
     if (typeof (FileReader) !== 'undefined') {
-      let reader = new FileReader();
+      const reader = new FileReader();
 
       reader.onload = (e: any) => {
         this.pdfSrc = e.target.result;

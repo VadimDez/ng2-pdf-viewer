@@ -53,6 +53,37 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
 
+  static getLinkTarget(type: string) {
+    switch (type) {
+      case 'blank':
+        return (<any>PDFJS).LinkTarget.BLANK;
+      case 'none':
+        return (<any>PDFJS).LinkTarget.NONE;
+      case 'self':
+        return (<any>PDFJS).LinkTarget.SELF;
+      case 'parent':
+        return (<any>PDFJS).LinkTarget.PARENT;
+      case 'top':
+        return (<any>PDFJS).LinkTarget.TOP;
+    }
+
+    return null;
+  }
+
+  static setExternalLinkTarget(type: string) {
+    const linkTarget = PdfViewerComponent.getLinkTarget(type);
+
+    if (linkTarget !== null) {
+      (<any>PDFJS).externalLinkTarget = linkTarget;
+    }
+  }
+
+  static removeAllChildNodes(element: HTMLElement) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+  }
+
   constructor(private element: ElementRef) {
     if (isSSR()) {
       return;
@@ -246,44 +277,18 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     return page;
   }
 
-  static getLinkTarget(type: string) {
-    switch (type) {
-      case 'blank':
-        return (<any>PDFJS).LinkTarget.BLANK;
-      case 'none':
-        return (<any>PDFJS).LinkTarget.NONE;
-      case 'self':
-        return (<any>PDFJS).LinkTarget.SELF;
-      case 'parent':
-        return (<any>PDFJS).LinkTarget.PARENT;
-      case 'top':
-        return (<any>PDFJS).LinkTarget.TOP;
-    }
-
-    return null;
-  }
-
-  static setExternalLinkTarget(type: string) {
-    const linkTarget = PdfViewerComponent.getLinkTarget(type);
-
-    if (linkTarget !== null) {
-      (<any>PDFJS).externalLinkTarget = linkTarget;
-    }
-  }
-
   private getDocumentParams() {
-    let params: any = {};
     const srcType = typeof(this.src);
-    
+
     if (!this._cMapsUrl) {
       return this.src;
     }
-    
-    params = {
+
+    const params: any = {
       cMapUrl: this._cMapsUrl,
       cMapPacked: true
     };
-    
+
     if (srcType === 'string') {
       params.url = this.src;
     } else if (srcType === 'object') {
@@ -307,7 +312,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    let loadingTask: any = (PDFJS as any).getDocument(this.getDocumentParams());
+    const loadingTask: any = (PDFJS as any).getDocument(this.getDocumentParams());
 
     loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
@@ -377,7 +382,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private renderPage(pageNumber: number) {
     this._pdf.getPage(pageNumber).then( (page: PDFPageProxy) => {
       let viewport = page.getViewport(this._zoom, this._rotation);
-      let container = this.element.nativeElement.querySelector('.pdfViewer');
+      const container = this.element.nativeElement.querySelector('.pdfViewer');
       let scale = this._zoom;
 
       // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
@@ -390,7 +395,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
       (<any>PDFJS).disableTextLayer = !this._renderText;
 
-      let pdfOptions: PDFViewerParams | any = {
+      const pdfOptions: PDFViewerParams | any = {
         container,
         removePageBorders: true,
         defaultViewport: viewport,
@@ -406,7 +411,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         pdfOptions.annotationLayerFactory = new PDFJSViewer.DefaultAnnotationLayerFactory();
       }
 
-      let pdfPageView = new PDFJSViewer.PDFPageView(pdfOptions);
+      const pdfPageView = new PDFJSViewer.PDFPageView(pdfOptions);
 
       if (this._renderText) {
         this.pdfLinkService.setViewer(pdfPageView);
@@ -419,12 +424,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       pdfPageView.setPdfPage(page);
       return pdfPageView.draw();
     });
-  }
-
-  static removeAllChildNodes(element: HTMLElement) {
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
   }
 
   private getScale(viewportWidth: number) {
