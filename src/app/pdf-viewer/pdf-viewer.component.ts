@@ -49,6 +49,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
+  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
@@ -129,6 +130,10 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
     this.pageRendered.emit(e);
+  }
+  
+  @HostListener('textlayerrendered', ['$event']) onTextLayerRendered(e: CustomEvent) {
+    this.textLayerRendered.emit(e);
   }
 
   ngOnChanges(changes: SimpleChanges) {
