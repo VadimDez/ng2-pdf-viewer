@@ -115,6 +115,7 @@ export class AppComponent {
 * [[c-maps-url]](#c-maps-url)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
+* [(text-layer-rendered)](#text-layer-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
 
@@ -330,7 +331,29 @@ pageRendered(e: CustomEvent) {
 And then bind it to `<pdf-viewer>`:
 
 ```angular2html
-(page-rendered)="pageRendered($event)
+(page-rendered)="pageRendered($event)"
+```
+
+#### (text-layer-rendered)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (text-layer-rendered) | *callback* | *Optional* |
+
+Get event when a text layer is rendered.
+
+Define callback in your component:
+
+```typescript
+textLayerRendered(e: CustomEvent) {
+  console.log('(text-layer-rendered)', e);
+}
+```
+
+And then bind it to `<pdf-viewer>`:
+
+```angular2html
+(text-layer-rendered)="textLayerRendered($event)"
 ```
 
 #### (error)
