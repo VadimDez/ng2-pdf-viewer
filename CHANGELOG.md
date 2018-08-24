@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.1.2
+* [[#366](https://github.com/VadimDez/ng2-pdf-viewer/pull/366)] - add text-layer-rendered event emitter
+
 ## 5.1.1
 * [[#338](https://github.com/VadimDez/ng2-pdf-viewer/pull/347)] - support for non-latin characters
 * [[#324](https://github.com/VadimDez/ng2-pdf-viewer/issues/324)] - PDF preview does not display Chinese
