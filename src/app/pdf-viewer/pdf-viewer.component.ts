@@ -19,6 +19,12 @@ if (!isSSR()) {
   PDFJS.verbosity = PDFJS.VerbosityLevel.ERRORS;
 }
 
+export enum RenderTextMode {
+  DISABLED,
+  ENABLED,
+  ENHANCED
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `<div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>`,
@@ -34,6 +40,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   private _cMapsUrl: string = `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`;
   private _renderText: boolean = true;
+  private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
   private _stickToPage: boolean = false;
   private _originalSize: boolean = true;
   private _pdf: PDFDocumentProxy;
@@ -176,6 +183,11 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this._renderText = renderText;
   }
 
+  @Input('render-text-mode')
+  set renderTextMode(renderTextMode: RenderTextMode) {
+    this._renderTextMode = renderTextMode;
+  }
+
   @Input('original-size')
   set originalSize(originalSize: boolean) {
     this._originalSize = originalSize;
@@ -240,7 +252,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this.pdfLinkService,
-      textLayerMode: this._renderText ? 1 : 0
+      textLayerMode: this._renderText ? this._renderTextMode : RenderTextMode.DISABLED
     };
 
     this.pdfViewer = new PDFJSViewer.PDFViewer(pdfOptions);
