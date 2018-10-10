@@ -106,6 +106,7 @@ export class AppComponent {
 * [[stick-to-page]](#stick-to-page)
 * [[external-link-target]](#external-link-target)
 * [[render-text]](#render-text)
+* [[render-text-mode]](#render-text-mode)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
 * [[original-size]](#original-size)
@@ -182,6 +183,19 @@ Sticks view to the page. Works in combination with `[show-all]="true"` and `page
 Enable text rendering, allows to select text
 ```
 [render-text]="true"
+```
+
+#### [render-text-mode]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [render-text-mode] | *RenderTextMode* | *Optional* |
+
+Used in combination with `[render-text]="true"`
+
+Set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+```
+[render-text-mode]="1"
 ```
 
 #### [external-link-target]
