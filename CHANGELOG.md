@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.1.3
+* [[#390](https://github.com/VadimDez/ng2-pdf-viewer/pull/390)] - enable setting render text mode to enchanced
+
+You can now set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+
+```
+[render-text-mode]="1"
+```
+
 ## 5.1.2
 * [[#366](https://github.com/VadimDez/ng2-pdf-viewer/pull/366)] - add text-layer-rendered event emitter
 
