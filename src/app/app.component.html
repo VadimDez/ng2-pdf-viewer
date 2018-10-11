@@ -69,6 +69,11 @@
       </div>
 
       <div class="mb">
+        <input #queryInp id="pdfQueryInput" type="text" placeholder="Search" [value]="pdfQuery"
+               (change)="searchQueryChanged($event.target.value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
+      </div>
+
+      <div class="mb">
           <button (click)="incrementZoom(-0.1)" mat-button type="button">
               -
           </button>
