@@ -46,19 +46,19 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private pdfSinglePageLinkService: any;
   private pdfSinglePageFindController: any;
 
-  private _cMapsUrl: string = `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`;
-  private _renderText: boolean = true;
+  private _cMapsUrl = `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`;
+  private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
-  private _stickToPage: boolean = false;
-  private _originalSize: boolean = true;
+  private _stickToPage = false;
+  private _originalSize = true;
   private _pdf: PDFDocumentProxy;
-  private _page: number = 1;
-  private _zoom: number = 1;
-  private _rotation: number = 0;
-  private _showAll: boolean = true;
-  private _canAutoResize: boolean = true;
-  private _fitToPage: boolean = false;
-  private _externalLinkTarget: string = 'blank';
+  private _page = 1;
+  private _zoom = 1;
+  private _rotation = 0;
+  private _showAll = true;
+  private _canAutoResize = true;
+  private _fitToPage = false;
+  private _externalLinkTarget = 'blank';
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
@@ -69,6 +69,88 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
+  @Input()
+  src: string | Uint8Array | PDFSource;
+
+  @Input('c-maps-url')
+  set cMapsUrl(cMapsUrl: string) {
+    this._cMapsUrl = cMapsUrl;
+  }
+
+  @Input('page')
+  set page(_page) {
+    _page = parseInt(_page, 10) || 1;
+
+    if (this._pdf) {
+      _page = this.getValidPageNumber(_page);
+    }
+
+    this._page = _page;
+    this.pageChange.emit(_page);
+  }
+
+  @Input('render-text')
+  set renderText(renderText: boolean) {
+    this._renderText = renderText;
+  }
+
+  @Input('render-text-mode')
+  set renderTextMode(renderTextMode: RenderTextMode) {
+    this._renderTextMode = renderTextMode;
+  }
+
+  @Input('original-size')
+  set originalSize(originalSize: boolean) {
+    this._originalSize = originalSize;
+  }
+
+  @Input('show-all')
+  set showAll(value: boolean) {
+    this._showAll = value;
+  }
+
+  @Input('stick-to-page')
+  set stickToPage(value: boolean) {
+    this._stickToPage = value;
+  }
+
+  @Input('zoom')
+  set zoom(value: number) {
+    if (value <= 0) {
+      return;
+    }
+
+    this._zoom = value;
+  }
+
+  get zoom() {
+    return this._zoom;
+  }
+
+  @Input('rotation')
+  set rotation(value: number) {
+    if (!(typeof value === 'number' && value % 90 === 0)) {
+      console.warn('Invalid pages rotation angle.');
+      return;
+    }
+
+    this._rotation = value;
+  }
+
+  @Input('external-link-target')
+  set externalLinkTarget(value: string) {
+    this._externalLinkTarget = value;
+  }
+
+  @Input('autoresize')
+  set autoresize(value: boolean) {
+    this._canAutoResize = Boolean(value);
+  }
+
+  @Input('fit-to-page')
+  set fitToPage(value: boolean) {
+    this._fitToPage = Boolean(value);
+  }
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -152,89 +234,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @HostListener('textlayerrendered', ['$event']) onTextLayerRendered(e: CustomEvent) {
     this.textLayerRendered.emit(e);
-  }
-
-  @Input()
-  src: string | Uint8Array | PDFSource;
-
-  @Input('c-maps-url')
-  set cMapsUrl(cMapsUrl: string) {
-    this._cMapsUrl = cMapsUrl;
-  }
-
-  @Input('page')
-  set page(_page) {
-    _page = parseInt(_page, 10) || 1;
-
-    if (this._pdf) {
-      _page = this.getValidPageNumber(_page);
-    }
-
-    this._page = _page;
-    this.pageChange.emit(_page);
-  }
-
-  @Input('render-text')
-  set renderText(renderText: boolean) {
-    this._renderText = renderText;
-  }
-
-  @Input('render-text-mode')
-  set renderTextMode(renderTextMode: RenderTextMode) {
-    this._renderTextMode = renderTextMode;
-  }
-
-  @Input('original-size')
-  set originalSize(originalSize: boolean) {
-    this._originalSize = originalSize;
-  }
-
-  @Input('show-all')
-  set showAll(value: boolean) {
-    this._showAll = value;
-  }
-
-  @Input('stick-to-page')
-  set stickToPage(value: boolean) {
-    this._stickToPage = value;
-  }
-
-  @Input('zoom')
-  set zoom(value: number) {
-    if (value <= 0) {
-      return;
-    }
-
-    this._zoom = value;
-  }
-
-  get zoom() {
-    return this._zoom;
-  }
-
-  @Input('rotation')
-  set rotation(value: number) {
-    if (!(typeof value === 'number' && value % 90 === 0)) {
-      console.warn('Invalid pages rotation angle.');
-      return;
-    }
-
-    this._rotation = value;
-  }
-
-  @Input('external-link-target')
-  set externalLinkTarget(value: string) {
-    this._externalLinkTarget = value;
-  }
-
-  @Input('autoresize')
-  set autoresize(value: boolean) {
-    this._canAutoResize = Boolean(value);
-  }
-
-  @Input('fit-to-page')
-  set fitToPage(value: boolean) {
-    this._fitToPage = Boolean(value);
   }
 
   get pdfLinkService(): any {
