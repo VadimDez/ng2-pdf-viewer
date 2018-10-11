@@ -177,12 +177,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
   }
 
-  static removeAllChildNodes(element: HTMLElement) {
-    while (element.firstChild) {
-      element.removeChild(element.firstChild);
-    }
-  }
-
   constructor(private element: ElementRef) {
     if (isSSR()) {
       return;
