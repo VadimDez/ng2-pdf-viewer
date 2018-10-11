@@ -270,7 +270,24 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
   }
 
-  public setupMultiPageViewer() {
+  public updateSize() {
+    const currentViewer = this.getCurrentViewer();
+    this._pdf.getPage(currentViewer.currentPageNumber).then((page: PDFPageProxy) => {
+      const viewport = page.getViewport(this._zoom, this._rotation);
+      let scale = this._zoom;
+      let stickToPage = true;
+
+      // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
+        scale = this.getScale(page.getViewport(1).width);
+        stickToPage = !this._stickToPage;
+      }
+
+      currentViewer._setScale(scale, stickToPage);
+    });
+  }
+
+  private setupMultiPageViewer() {
     (PDFJS as any).disableTextLayer = !this._renderText;
 
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
@@ -291,7 +308,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.pdfMultiPageViewer.setFindController(this.pdfMultiPageFindController);
   }
 
-  public setupSinglePageViewer() {
+  private setupSinglePageViewer() {
     (PDFJS as any).disableTextLayer = !this._renderText;
 
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
@@ -311,23 +328,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.pdfSinglePageLinkService.setViewer(this.pdfSinglePageViewer);
     this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({pdfViewer: this.pdfSinglePageViewer});
     this.pdfSinglePageViewer.setFindController(this.pdfSinglePageFindController);
-  }
-
-  public updateSize() {
-    const currentViewer = this.getCurrentViewer();
-    this._pdf.getPage(currentViewer.currentPageNumber).then((page: PDFPageProxy) => {
-      const viewport = page.getViewport(this._zoom, this._rotation);
-      let scale = this._zoom;
-      let stickToPage = true;
-
-      // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-      if (!this._originalSize || (this._fitToPage && viewport.width > this.element.nativeElement.offsetWidth)) {
-        scale = this.getScale(page.getViewport(1).width);
-        stickToPage = !this._stickToPage;
-      }
-
-      currentViewer._setScale(scale, stickToPage);
-    });
   }
 
   private getValidPageNumber(page: number): number {
