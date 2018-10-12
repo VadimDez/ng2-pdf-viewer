@@ -253,13 +253,13 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       this.loadPDF();
     } else if (this._pdf) {
       if ('renderText' in changes) {
-        this.pdfMultiPageViewer.textLayerMode = this._renderText ? this._renderTextMode : RenderTextMode.DISABLED;
+        this.getCurrentViewer().textLayerMode = this._renderText ? this._renderTextMode : RenderTextMode.DISABLED;
         this.resetPdfDocument();
       } else if ('showAll' in changes) {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-        this.pdfMultiPageViewer.scrollPageIntoView({pageNumber: this._page});
+        this.getCurrentViewer().scrollPageIntoView({pageNumber: this._page});
       }
 
       this.update();
