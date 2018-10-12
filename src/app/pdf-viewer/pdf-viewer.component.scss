@@ -1,5 +1,7 @@
 .ng2-pdf-viewer-container {
-  overflow-x: auto;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
 }
 
 :host /deep/ .textLayer {
@@ -231,14 +233,5 @@
   &.removePageBorders .page {
     margin: 0px auto 10px auto;
     border: none;
-  }
-
-  &.singlePageView {
-    display: inline-block;
-
-    .page {
-      margin: 0;
-      border: none;
-    }
   }
 }
