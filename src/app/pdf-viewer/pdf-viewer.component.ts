@@ -4,9 +4,9 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener, OnDestroy
 } from '@angular/core';
-import {PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise} from 'pdfjs-dist';
+import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
 
-import {createEventBus} from '../utils/event-bus-utils';
+import { createEventBus } from '../utils/event-bus-utils';
 
 let PDFJS: any;
 let PDFJSViewer: any;
