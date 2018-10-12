@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import {PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise} from 'pdfjs-dist';
 
+import {createEventBus} from '../utils/event-bus-utils';
+
 let PDFJS: any;
 let PDFJSViewer: any;
 
@@ -289,7 +291,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService();
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: new PDFJSViewer.EventBus(),
+      eventBus: createEventBus(PDFJSViewer),
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this.pdfMultiPageLinkService,
@@ -310,7 +312,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService();
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: new PDFJSViewer.EventBus(),
+      eventBus: createEventBus(PDFJSViewer),
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this.pdfSinglePageLinkService,
@@ -458,4 +460,5 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
 
   }
+
 }
