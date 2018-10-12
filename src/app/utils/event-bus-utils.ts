@@ -1,4 +1,4 @@
-function _createEventBus(pdfJsViewer: any): any {
+export function _createEventBus(pdfJsViewer: any): any {
 
   const globalEventBus = new pdfJsViewer.EventBus(true);
   attachDOMEventsToEventBus(globalEventBus);
