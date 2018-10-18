@@ -260,7 +260,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       }
       if ('page' in changes) {
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
-        // This behavior is introducedby using the PDFSinglePageViewer
+        // This behavior is introduced by using the PDFSinglePageViewer
         this.getCurrentViewer().scrollPageIntoView({pageNumber: this._page});
       }
 
