@@ -1,10 +1,10 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import {Component, OnChanges, ViewChild} from '@angular/core';
-import {PDFProgressData, PDFDocumentProxy, PDFSource} from './pdf-viewer/pdf-viewer.module';
+import { Component, ViewChild } from '@angular/core';
+import { PDFProgressData, PDFDocumentProxy, PDFSource } from './pdf-viewer/pdf-viewer.module';
 
-import {PdfViewerComponent} from './pdf-viewer/pdf-viewer.component';
+import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 @Component({
   moduleId: module.id,

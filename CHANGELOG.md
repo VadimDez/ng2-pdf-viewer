@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.2.0
+* [[#393](https://github.com/VadimDez/ng2-pdf-viewer/pull/393)] - Fix for broken search functionality when showPage=false
+* [[#375](https://github.com/VadimDez/ng2-pdf-viewer/issues/375)] - Search and highlight not working when [show-all]="false" [page]="4"
+* [[#314](https://github.com/VadimDez/ng2-pdf-viewer/issues/314)] - Search functionality not working if i set show all false.
+* [[#293](https://github.com/VadimDez/ng2-pdf-viewer/issues/293)] - Highlight on single page load
+
+## 5.1.3
+* [[#390](https://github.com/VadimDez/ng2-pdf-viewer/pull/390)] - enable setting render text mode to enchanced
+
+You can now set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+
+```
+[render-text-mode]="1"
+```
+
 ## 5.1.2
 * [[#366](https://github.com/VadimDez/ng2-pdf-viewer/pull/366)] - add text-layer-rendered event emitter
 

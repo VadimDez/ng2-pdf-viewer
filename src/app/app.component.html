@@ -69,11 +69,6 @@
       </div>
 
       <div class="mb">
-        <input #queryInp id="pdfQueryInput" type="text" placeholder="Search" [value]="pdfQuery"
-               (change)="searchQueryChanged($event.target.value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
-      </div>
-
-      <div class="mb">
           <button (click)="incrementZoom(-0.1)" mat-button type="button">
               -
           </button>
@@ -160,6 +155,21 @@
               </li>
           </ul>
       </div>
+
+      <div class="mb">
+            <mat-form-field>
+                <input #queryInp
+                    matInput
+                    id="pdfQueryInput"
+                    type="text"
+                    placeholder="Search..."
+                    [value]="pdfQuery"
+                    (input)="searchQueryChanged($event.target.value)"
+                    (keyup.enter)="searchQueryChanged(queryInp.value)"
+                >
+                <mat-hint>Search in entire pdf</mat-hint>
+            </mat-form-field>
+        </div>
 
       <div *ngIf="!isLoaded && !error && progressData" id="progress">
           <div class="bg">
