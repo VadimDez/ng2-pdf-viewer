@@ -252,10 +252,12 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     if ('src' in changes) {
       if (this.lastLoaded !== this.src) {
+        // pdf source has changed ->  close old pdf document and load new one after
         this.close().then(() => {
           this.loadPDF();
         });
-      } else {
+      } else if (this._pdf) {
+        // pdf src remained the same and this._pdf exists -> update view
         this.update();
       }
     } else if (this._pdf) {
