@@ -4,9 +4,9 @@
 import {
   Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, HostListener, OnDestroy
 } from '@angular/core';
-import { PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise } from 'pdfjs-dist';
+import {PDFDocumentProxy, PDFViewerParams, PDFPageProxy, PDFSource, PDFProgressData, PDFPromise} from 'pdfjs-dist';
 
-import { createEventBus } from '../utils/event-bus-utils';
+import {createEventBus} from '../utils/event-bus-utils';
 
 let PDFJS: any;
 let PDFJSViewer: any;
@@ -73,6 +73,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
   @Input()
   src: string | Uint8Array | PDFSource;
+  private pdfLoadingTask: any;
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -250,7 +251,13 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     if ('src' in changes) {
-      this.loadPDF();
+      if (this.lastLoaded !== this.src) {
+        this.close().then(() => {
+          this.loadPDF();
+        });
+      } else {
+        this.update();
+      }
     } else if (this._pdf) {
       if ('renderText' in changes) {
         this.getCurrentViewer().textLayerMode = this._renderText ? this._renderTextMode : RenderTextMode.DISABLED;
@@ -370,19 +377,14 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    if (this.lastLoaded === this.src) {
-      this.update();
-      return;
-    }
+    this.pdfLoadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
 
-    const loadingTask: any = (PDFJS as any).getDocument(this.getDocumentParams());
-
-    loadingTask.onProgress = (progressData: PDFProgressData) => {
+    this.pdfLoadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
     };
 
     const src = this.src;
-    (<PDFPromise<PDFDocumentProxy>>loadingTask.promise)
+    (<PDFPromise<PDFDocumentProxy>>this.pdfLoadingTask.promise)
       .then((pdf: PDFDocumentProxy) => {
         if (this._pdf) {
           this._pdf.destroy();
@@ -461,6 +463,24 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       this.pdfSinglePageLinkService.setDocument(this._pdf, null);
     }
 
+  }
+
+  private async close() {
+    if (!this.pdfLoadingTask) {
+      return;
+    }
+    const promise = this.pdfLoadingTask.destroy();
+    this.pdfLoadingTask = null;
+
+    if (this._pdf) {
+      this._pdf = null;
+
+      this.pdfFindController.reset();
+      this.pdfViewer.setDocument(null);
+      this.pdfLinkService.setDocument(null);
+    }
+
+    return promise;
   }
 
 }
