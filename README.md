@@ -195,11 +195,11 @@ Used in combination with `[render-text]="true"`
 
 Controls if the text layer is enabled, and the selection mode that is used.
 
-`0 = RenderTextMode.DISABLED.`
+`0 = RenderTextMode.DISABLED.` - disable the text selection layer
 
-`1 = RenderTextMode.ENABLED.`
+`1 = RenderTextMode.ENABLED.` - enables the text selection layer
 
-`2 = RenderTextMode.ENHANCED, with enhanced text selection.`
+`2 = RenderTextMode.ENHANCED` - enables enhanced text selection
 
 ```
 [render-text-mode]="1"
