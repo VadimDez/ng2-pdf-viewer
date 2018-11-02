@@ -193,7 +193,14 @@ Enable text rendering, allows to select text
 
 Used in combination with `[render-text]="true"`
 
-Set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+Controls if the text layer is enabled, and the selection mode that is used.
+
+`0 = RenderTextMode.DISABLED.`
+
+`1 = RenderTextMode.ENABLED.`
+
+`2 = RenderTextMode.ENHANCED, with enhanced text selection.`
+
 ```
 [render-text-mode]="1"
 ```
