@@ -54,7 +54,7 @@ npm install ng2-pdf-viewer --save
 
 ## Usage
 
-In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
+*In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).*
 
 Add ```PdfViewerModule``` to your module's ```imports```
 
