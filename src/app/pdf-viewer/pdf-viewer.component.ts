@@ -290,20 +290,23 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
-    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService();
+    const eventBus = createEventBus(PDFJSViewer);
+
+    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({eventBus});
+    this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({linkService: this.pdfMultiPageLinkService, eventBus});
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: createEventBus(PDFJSViewer),
+      eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this.pdfMultiPageLinkService,
-      textLayerMode: this._renderText ? this._renderTextMode : RenderTextMode.DISABLED
+      textLayerMode: this._renderText ? this._renderTextMode : RenderTextMode.DISABLED,
+      findController: this.pdfMultiPageFindController,
     };
 
     this.pdfMultiPageViewer = new PDFJSViewer.PDFViewer(pdfOptions);
     this.pdfMultiPageLinkService.setViewer(this.pdfMultiPageViewer);
-    this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({pdfViewer: this.pdfMultiPageViewer});
-    this.pdfMultiPageViewer.setFindController(this.pdfMultiPageFindController);
+    this.pdfMultiPageFindController.setDocument(this._pdf);
   }
 
   private setupSinglePageViewer() {
@@ -311,21 +314,23 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
-    this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService();
+    const eventBus = createEventBus(PDFJSViewer);
+
+    this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({eventBus});
+    this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({linkService: this.pdfSinglePageLinkService, eventBus});
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: createEventBus(PDFJSViewer),
+      eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: true,
       linkService: this.pdfSinglePageLinkService,
-      textLayerMode: this._renderText ? this._renderTextMode : RenderTextMode.DISABLED
+      textLayerMode: this._renderText ? this._renderTextMode : RenderTextMode.DISABLED,
+      findController: this.pdfSinglePageFindController,
     };
-
 
     this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
     this.pdfSinglePageLinkService.setViewer(this.pdfSinglePageViewer);
-    this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({pdfViewer: this.pdfSinglePageViewer});
-    this.pdfSinglePageViewer.setFindController(this.pdfSinglePageFindController);
+    this.pdfSinglePageFindController.setDocument(this._pdf);
   }
 
   private getValidPageNumber(page: number): number {
@@ -445,7 +450,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private resetPdfDocument() {
-    this.pdfFindController.reset();
+    this.pdfFindController.setDocument(this._pdf);
 
     if (this._showAll) {
       this.pdfSinglePageViewer.setDocument(null);
