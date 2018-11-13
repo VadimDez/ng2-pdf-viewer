@@ -48,7 +48,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private pdfSinglePageLinkService: any;
   private pdfSinglePageFindController: any;
 
-  private _cMapsUrl = `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/`;
+  private _cMapsUrl = typeof PDFJS !== 'undefined' ? `https://unpkg.com/pdfjs-dist@${ (PDFJS as any).version }/cmaps/` : null;
   private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
   private _stickToPage = false;
