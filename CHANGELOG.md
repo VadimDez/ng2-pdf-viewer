@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.1
+* [[#371](https://github.com/VadimDez/ng2-pdf-viewer/issues/371)] - Cannot read property 'version' of undefined when rendering on the server
+
 ## 5.2.0
 * [[#393](https://github.com/VadimDez/ng2-pdf-viewer/pull/393)] - Fix for broken search functionality when showPage=false
 * [[#375](https://github.com/VadimDez/ng2-pdf-viewer/issues/375)] - Search and highlight not working when [show-all]="false" [page]="4"
