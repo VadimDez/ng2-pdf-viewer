@@ -26,9 +26,9 @@
 
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-#### Plunker Example 
+<!-- #### Plunker Example 
 
-[https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview](https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview)
+[https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview](https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview) -->
 
 ### Blog post
 
@@ -54,7 +54,7 @@ npm install ng2-pdf-viewer --save
 
 ## Usage
 
-In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
+*In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).*
 
 Add ```PdfViewerModule``` to your module's ```imports```
 
@@ -193,7 +193,14 @@ Enable text rendering, allows to select text
 
 Used in combination with `[render-text]="true"`
 
-Set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+Controls if the text layer is enabled, and the selection mode that is used.
+
+`0 = RenderTextMode.DISABLED.` - disable the text selection layer
+
+`1 = RenderTextMode.ENABLED.` - enables the text selection layer
+
+`2 = RenderTextMode.ENHANCED` - enables enhanced text selection
+
 ```
 [render-text-mode]="1"
 ```
