@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.2.2
+* [[#409](https://github.com/VadimDez/ng2-pdf-viewer/pull/409)] - suppress z-lib warning in angular6+
+* [[#322](https://github.com/VadimDez/ng2-pdf-viewer/issues/322)] - Angular 6 support
+
 ## 5.2.1
 * [[#371](https://github.com/VadimDez/ng2-pdf-viewer/issues/371)] - Cannot read property 'version' of undefined when rendering on the server
 
