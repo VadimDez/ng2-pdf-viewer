@@ -331,6 +331,8 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
     this.pdfSinglePageLinkService.setViewer(this.pdfSinglePageViewer);
     this.pdfSinglePageFindController.setDocument(this._pdf);
+
+    this.pdfSinglePageViewer._currentPageNumber = this._page;
   }
 
   private getValidPageNumber(page: number): number {
