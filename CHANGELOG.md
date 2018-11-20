@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.3
+* [[#402](https://github.com/VadimDez/ng2-pdf-viewer/issues/402)] - Page is not working
+
 ## 5.2.2
 * [[#409](https://github.com/VadimDez/ng2-pdf-viewer/pull/409)] - suppress z-lib warning in angular6+
 * [[#322](https://github.com/VadimDez/ng2-pdf-viewer/issues/322)] - Angular 6 support
