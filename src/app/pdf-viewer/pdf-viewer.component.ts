@@ -61,6 +61,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
+  private _shouldScrollOnPageChange = true;
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
@@ -73,6 +74,11 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
   @Input()
   src: string | Uint8Array | PDFSource;
+
+  @Input('should-scroll-on-page-change')
+  set shouldScrollOnPageChange(shouldScrollOnPageChange: boolean) {
+    this._shouldScrollOnPageChange = shouldScrollOnPageChange;
+  }
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -261,7 +267,9 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       if ('page' in changes) {
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
         // This behavior is introducedby using the PDFSinglePageViewer
-        this.getCurrentViewer().scrollPageIntoView({pageNumber: this._page});
+        if (this._shouldScrollOnPageChange) {
+          this.getCurrentViewer().scrollPageIntoView({pageNumber: this._page});
+        }
       }
 
       this.update();
