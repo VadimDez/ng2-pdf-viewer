@@ -15,6 +15,10 @@
     "docs": "ng build --prod --output-path docs --base-href ng2-pdf-viewer && cp ./docs/index.html ./docs/404.html"
   },
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://vadimdez@github.com/VadimDez/ng2-pdf-viewer.git"
+  },
   "keywords": [
     "angular",
     "pdf",
