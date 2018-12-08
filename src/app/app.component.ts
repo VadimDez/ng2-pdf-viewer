@@ -2,7 +2,11 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component, ViewChild } from '@angular/core';
-import { PDFProgressData, PDFDocumentProxy, PDFSource } from './pdf-viewer/pdf-viewer.module';
+import {
+  PDFProgressData,
+  PDFDocumentProxy,
+  PDFSource
+} from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
@@ -12,9 +16,7 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-
 export class AppComponent {
-
   pdfSrc: string | PDFSource | ArrayBuffer = './assets/pdf-test.pdf';
 
   // or pass options as object
@@ -54,7 +56,7 @@ export class AppComponent {
     xhr.onload = (e: any) => {
       console.log(xhr);
       if (xhr.status === 200) {
-        const blob = new Blob([xhr.response], {type: 'application/pdf'});
+        const blob = new Blob([xhr.response], { type: 'application/pdf' });
         this.pdfSrc = URL.createObjectURL(blob);
       }
     };
@@ -87,7 +89,7 @@ export class AppComponent {
   onFileSelected() {
     const $pdf: any = document.querySelector('#file');
 
-    if (typeof (FileReader) !== 'undefined') {
+    if (typeof FileReader !== 'undefined') {
       const reader = new FileReader();
 
       reader.onload = (e: any) => {
@@ -127,7 +129,9 @@ export class AppComponent {
     this.error = error; // set error
 
     if (error.name === 'PasswordException') {
-      const password = prompt('This document is password protected. Enter the password:');
+      const password = prompt(
+        'This document is password protected. Enter the password:'
+      );
 
       if (password) {
         this.error = null;
@@ -140,11 +144,11 @@ export class AppComponent {
     let newSrc;
 
     if (this.pdfSrc instanceof ArrayBuffer) {
-      newSrc = {data: this.pdfSrc};
+      newSrc = { data: this.pdfSrc };
     } else if (typeof this.pdfSrc === 'string') {
-      newSrc = {url: this.pdfSrc};
+      newSrc = { url: this.pdfSrc };
     } else {
-      newSrc = {...this.pdfSrc};
+      newSrc = { ...this.pdfSrc };
     }
 
     newSrc.password = password;
