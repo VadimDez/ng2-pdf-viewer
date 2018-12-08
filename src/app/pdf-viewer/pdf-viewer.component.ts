@@ -224,11 +224,8 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }, 100);
   }
 
-  // @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
-  //   this.pageRendered.emit(e);
-  // }
-
-  @HostListener('textlayerrendered', ['$event']) onTextLayerRendered(e: CustomEvent) {
+  @HostListener('textlayerrendered', ['$event'])
+  onTextLayerRendered(e: CustomEvent) {
     this.textLayerRendered.emit(e);
   }
 
