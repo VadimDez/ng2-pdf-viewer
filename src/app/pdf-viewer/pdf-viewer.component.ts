@@ -224,9 +224,9 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }, 100);
   }
 
-  @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
-    this.pageRendered.emit(e);
-  }
+  // @HostListener('pagerendered', ['$event']) onPageRendered(e: CustomEvent) {
+  //   this.pageRendered.emit(e);
+  // }
 
   @HostListener('textlayerrendered', ['$event']) onTextLayerRendered(e: CustomEvent) {
     this.textLayerRendered.emit(e);
@@ -292,6 +292,10 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     const eventBus = createEventBus(PDFJSViewer);
 
+    eventBus.on('pagerendered', (e) => {
+      this.pageRendered.emit(e);
+    });
+
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({eventBus});
     this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({linkService: this.pdfMultiPageLinkService, eventBus});
 
@@ -315,6 +319,10 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
     const eventBus = createEventBus(PDFJSViewer);
+
+    eventBus.on('pagerendered', (e) => {
+      this.pageRendered.emit(e);
+    });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({eventBus});
     this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({linkService: this.pdfSinglePageLinkService, eventBus});
