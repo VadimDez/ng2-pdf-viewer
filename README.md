@@ -26,9 +26,9 @@
 
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-<!-- #### Plunker Example 
+#### Stackblitz Example 
 
-[https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview](https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview) -->
+[https://stackblitz.com/edit/ng2-pdf-viewer](https://stackblitz.com/edit/ng2-pdf-viewer)
 
 ### Blog post
 
