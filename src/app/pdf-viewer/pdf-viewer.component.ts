@@ -312,7 +312,19 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
           (this._fitToPage &&
             viewport.width > this.element.nativeElement.offsetWidth)
         ) {
-          scale = this.getScale(page.getViewport(1).width);
+          const offsetWidth = this.element.nativeElement.offsetWidth;
+          scale = this.getScale(page.getViewport(1).width, offsetWidth);
+          stickToPage = !this._stickToPage;
+        }
+
+        // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+        if (
+          !this._originalSize ||
+          (this._fitToPage &&
+            viewport.height > this.element.nativeElement.offsetHeight)
+        ) {
+          const offsetHeight = this.element.nativeElement.offsetHeight;
+          scale = this.getScale(page.getViewport(1).height, offsetHeight);
           stickToPage = !this._stickToPage;
         }
 
@@ -499,16 +511,13 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.updateSize();
   }
 
-  private getScale(viewportWidth: number) {
-    const offsetWidth = this.element.nativeElement.offsetWidth;
-
-    if (offsetWidth === 0) {
+  private getScale(pageSize: number, viewportSize: number): number {
+    if (viewportSize === 0) {
       return 1;
     }
 
     return (
-      (this._zoom * (offsetWidth / viewportWidth)) /
-      PdfViewerComponent.CSS_UNITS
+      (this._zoom * (viewportSize / pageSize)) / PdfViewerComponent.CSS_UNITS
     );
   }
 
