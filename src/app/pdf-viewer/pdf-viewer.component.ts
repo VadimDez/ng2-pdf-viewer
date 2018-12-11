@@ -3,23 +3,24 @@
  */
 import {
   Component,
-  Input,
-  Output,
   ElementRef,
   EventEmitter,
-  OnChanges,
-  SimpleChanges,
-  OnInit,
   HostListener,
-  OnDestroy
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges
 } from '@angular/core';
 import {
   PDFDocumentProxy,
-  PDFViewerParams,
   PDFPageProxy,
-  PDFSource,
+  PDFPageViewport,
   PDFProgressData,
-  PDFPromise
+  PDFPromise,
+  PDFSource,
+  PDFViewerParams
 } from 'pdfjs-dist';
 
 import { createEventBus } from '../utils/event-bus-utils';
@@ -309,27 +310,23 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
         if (
           !this._originalSize ||
-          (this._fitToPage &&
-            viewport.width > this.element.nativeElement.offsetWidth)
+          (this._fitToPage && this.exceedsContainer(viewport))
         ) {
-          const offsetWidth = this.element.nativeElement.offsetWidth;
-          scale = this.getScale(page.getViewport(1).width, offsetWidth);
-          stickToPage = !this._stickToPage;
-        }
-
-        // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-        if (
-          !this._originalSize ||
-          (this._fitToPage &&
-            viewport.height > this.element.nativeElement.offsetHeight)
-        ) {
-          const offsetHeight = this.element.nativeElement.offsetHeight;
-          scale = this.getScale(page.getViewport(1).height, offsetHeight);
+          scale = this.getScale(page.getViewport(1));
           stickToPage = !this._stickToPage;
         }
 
         currentViewer._setScale(scale, stickToPage);
       });
+  }
+
+  private exceedsContainer(viewport: PDFPageViewport): boolean {
+    return (
+      viewport.width * PdfViewerComponent.CSS_UNITS >
+        this.element.nativeElement.offsetWidth ||
+      viewport.height * PdfViewerComponent.CSS_UNITS >
+        this.element.nativeElement.offsetHeight
+    );
   }
 
   private setupMultiPageViewer() {
@@ -511,14 +508,37 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.updateSize();
   }
 
-  private getScale(pageSize: number, viewportSize: number): number {
-    if (viewportSize === 0) {
+  private getScale(viewport: PDFPageViewport): number {
+    const { offsetWidth, offsetHeight } = this.element.nativeElement;
+
+    if (offsetWidth === 0 || offsetHeight === 0) {
       return 1;
     }
 
-    return (
-      (this._zoom * (viewportSize / pageSize)) / PdfViewerComponent.CSS_UNITS
-    );
+    const ratio = this.getViewportContainerRatio(viewport);
+
+    return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
+  }
+
+  private getViewportContainerRatio(viewport: PDFPageViewport): number {
+    const { offsetWidth, offsetHeight } = this.element.nativeElement;
+
+    const width = offsetWidth / viewport.width;
+    const height = offsetHeight / viewport.height;
+
+    if (this._showAll) {
+      // Old behavior when displaying >1 page
+      return width;
+    } else if (viewport.width > offsetWidth && viewport.height > offsetHeight) {
+      // PDF exceeds page into both directions
+      return width < height ? width : height;
+    } else if (viewport.width > offsetWidth) {
+      // PDF is only wider than viewport
+      return width;
+    } else {
+      // PDF is only higher than viewport
+      return height;
+    }
   }
 
   private getCurrentViewer(): any {
