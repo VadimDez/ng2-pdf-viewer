@@ -478,6 +478,23 @@ search(stringToSearch: string) {
 }
 ```
 
+## Read PDF with FILE Scheme ex: file:///blablablabla
+
+```typescript
+try {
+  this.file.readAsArrayBuffer(this.file.dataDirectory, this.filename).then((res) => {
+    try {
+      let blob = new Blob([res], {type: "application/pdf"});
+      this.pdfSrc = URL.createObjectURL(blob);;
+    } catch(z) {
+      console.log(z)
+    }
+  }).catch(err => console.log('Error : ' + JSON.stringify(err)));
+}catch(z){
+  alert(z);
+}
+```
+
 ## Contribute
 [See CONTRIBUTING.md](CONTRIBUTING.md)
 
