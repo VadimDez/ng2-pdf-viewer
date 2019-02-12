@@ -83,6 +83,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private _latestScrolledPage: number;
 
   private resizeTimeout: NodeJS.Timer;
+  private pageScrollTimeout: NodeJS.Timer;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<
     PDFDocumentProxy
@@ -292,7 +293,9 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-        if (changes['page'].currentValue === this._latestScrolledPage) {
+        // nullcheck since this can now be called by pdfjs before it was properly initialized
+        if (!this._page ||
+            changes['page'].currentValue === this._latestScrolledPage) {
             return;
         }
 
@@ -340,8 +343,14 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     });
 
     eventBus.on('pagechange', e => {
-        this._latestScrolledPage = e.pageNumber;
-        this.pageChange.emit(e.pageNumber);
+        if (this.pageScrollTimeout) {
+          clearTimeout(this.pageScrollTimeout);
+        }
+
+        this.pageScrollTimeout = setTimeout(() => {
+          this._latestScrolledPage = e.pageNumber;
+          this.pageChange.emit(e.pageNumber);
+        }, 100);
     });
 
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({ eventBus });
