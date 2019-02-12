@@ -513,14 +513,14 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private getScale(viewportWidth: number) {
-    const offsetWidth = this.viewerContainer.nativeElement.clientWidth;
+    const pdfContainerWidth = this.viewerContainer.nativeElement.clientWidth;
 
-    if (offsetWidth === 0) {
+    if (pdfContainerWidth === 0 || viewportWidth === 0) {
       return 1;
     }
 
     return (
-      (this._zoom * (offsetWidth / viewportWidth)) /
+      (this._zoom * (pdfContainerWidth / viewportWidth)) /
       PdfViewerComponent.CSS_UNITS
     );
   }

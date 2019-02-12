@@ -1,7 +1,7 @@
 {
-  "name": "ng2-pdf-viewer",
-  "version": "5.2.3",
-  "description": "Angular 5+ component for rendering PDF",
+  "name": "borm-ng2-pdf",
+  "version": "5.2.4",
+  "description": "Angular 5+ component for rendering PDF. Fork of ng2-pdf-viewer 5.2.3 to quickly fix a bug.",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -17,7 +17,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://vadimdez@github.com/VadimDez/ng2-pdf-viewer.git"
+    "url": "git+https://github.com/bormgruppe/ng2-pdf-viewer.git"
   },
   "keywords": [
     "angular",
