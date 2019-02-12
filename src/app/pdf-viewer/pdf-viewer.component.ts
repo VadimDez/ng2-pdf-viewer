@@ -104,7 +104,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input('page')
   set page(_page) {
-      console.log('page setter called');
     _page = parseInt(_page, 10) || 1;
 
     if (this._pdf) {
@@ -293,9 +292,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-          console.log('page is in changes...');
         if (changes['page'].currentValue === this._latestScrolledPage) {
-            console.log('page change was ignored since it was the last page we scrolled to');
             return;
         }
 
@@ -343,7 +340,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     });
 
     eventBus.on('pagechange', e => {
-        console.log('pagechange emitted by scroll...');
         this._latestScrolledPage = e.pageNumber;
         this.pageChange.emit(e.pageNumber);
     });
