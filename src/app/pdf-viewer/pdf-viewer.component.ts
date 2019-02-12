@@ -11,7 +11,8 @@ import {
   SimpleChanges,
   OnInit,
   HostListener,
-  OnDestroy
+  OnDestroy,
+  ViewChild
 } from '@angular/core';
 import {
   PDFDocumentProxy,
@@ -47,7 +48,7 @@ export enum RenderTextMode {
 @Component({
   selector: 'pdf-viewer',
   template: `
-    <div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>
+    <div #viewerContainer class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>
   `,
   styleUrls: ['./pdf-viewer.component.scss']
 })
@@ -79,6 +80,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
   private lastLoaded: string | Uint8Array | PDFSource;
+  private _latestScrolledPage: number;
 
   private resizeTimeout: NodeJS.Timer;
 
@@ -102,6 +104,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input('page')
   set page(_page) {
+      console.log('page setter called');
     _page = parseInt(_page, 10) || 1;
 
     if (this._pdf) {
@@ -174,6 +177,8 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
   }
+
+  @ViewChild('viewerContainer') viewerContainer: ElementRef;
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -288,6 +293,12 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
+          console.log('page is in changes...');
+        if (changes['page'].currentValue === this._latestScrolledPage) {
+            console.log('page change was ignored since it was the last page we scrolled to');
+            return;
+        }
+
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
         // This behavior is introducedby using the PDFSinglePageViewer
         this.getCurrentViewer().scrollPageIntoView({ pageNumber: this._page });
@@ -329,6 +340,12 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+    });
+
+    eventBus.on('pagechange', e => {
+        console.log('pagechange emitted by scroll...');
+        this._latestScrolledPage = e.pageNumber;
+        this.pageChange.emit(e.pageNumber);
     });
 
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({ eventBus });
@@ -500,7 +517,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   private getScale(viewportWidth: number) {
-    const offsetWidth = this.element.nativeElement.offsetWidth;
+    const offsetWidth = this.viewerContainer.nativeElement.clientWidth;
 
     if (offsetWidth === 0) {
       return 1;

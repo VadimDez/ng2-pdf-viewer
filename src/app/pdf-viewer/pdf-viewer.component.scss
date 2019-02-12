@@ -1,5 +1,7 @@
 .ng2-pdf-viewer-container {
   overflow-x: auto;
+  position: relative;
+  height: 100%;
 }
 
 :host /deep/ .textLayer {
