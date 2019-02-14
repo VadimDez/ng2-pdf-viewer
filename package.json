@@ -1,6 +1,6 @@
 {
   "name": "borm-ng2-pdf",
-  "version": "5.2.4",
+  "version": "5.2.5",
   "description": "Angular 5+ component for rendering PDF. Fork of ng2-pdf-viewer 5.2.3 to quickly fix a bug.",
   "license": "MIT",
   "scripts": {
