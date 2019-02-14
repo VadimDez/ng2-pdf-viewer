@@ -293,9 +293,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-        // nullcheck since this can now be called by pdfjs before it was properly initialized
-        if (!this._page ||
-            changes['page'].currentValue === this._latestScrolledPage) {
+        if (changes['page'].currentValue === this._latestScrolledPage) {
             return;
         }
 
@@ -321,7 +319,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewportWidth > this.element.nativeElement.offsetWidth)
+            viewportWidth > this.viewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(page.getViewport(1).width);
           stickToPage = !this._stickToPage;
