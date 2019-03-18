@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.2.4
+* [[#457](https://github.com/VadimDez/ng2-pdf-viewer/pull/457)] - fix: allow pdfjs typings peer dependency v2
+
 ## 5.2.3
 * [[#402](https://github.com/VadimDez/ng2-pdf-viewer/issues/402)] - Page is not working
 
