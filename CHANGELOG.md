@@ -2,6 +2,7 @@
 
 ## 5.2.4
 * [[#457](https://github.com/VadimDez/ng2-pdf-viewer/pull/457)] - fix: allow pdfjs typings peer dependency v2
+* [[#408](https://github.com/VadimDez/ng2-pdf-viewer/issues/408)] - Regression: Version 5.2 Broke (page-rendered
 
 ## 5.2.3
 * [[#402](https://github.com/VadimDez/ng2-pdf-viewer/issues/402)] - Page is not working
