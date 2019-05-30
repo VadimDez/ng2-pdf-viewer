@@ -11,7 +11,9 @@ import {
   SimpleChanges,
   OnInit,
   HostListener,
-  OnDestroy
+  OnDestroy,
+  ViewChild,
+  AfterViewChecked
 } from '@angular/core';
 import {
   PDFDocumentProxy,
@@ -47,11 +49,17 @@ export enum RenderTextMode {
 @Component({
   selector: 'pdf-viewer',
   template: `
-    <div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>
+    <div #pdfViewerContainer class="ng2-pdf-viewer-container">
+      <div class="pdfViewer"></div>
+    </div>
   `,
   styleUrls: ['./pdf-viewer.component.scss']
 })
-export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
+export class PdfViewerComponent
+  implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('pdfViewerContainer') pdfViewerContainer;
+  private isVisible: boolean = false;
+
   static CSS_UNITS: number = 96.0 / 72.0;
 
   private pdfMultiPageViewer: any;
@@ -81,6 +89,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
+  private isInitialized = false;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<
     PDFDocumentProxy
@@ -222,8 +231,31 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     (PDFJS as any).GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
   }
 
+  ngAfterViewChecked(): void {
+    if (this.isInitialized) {
+      return;
+    }
+
+    const offset = this.pdfViewerContainer.nativeElement.offsetParent;
+
+    if (this.isVisible == true && offset == null) {
+      this.isVisible = false;
+      return;
+    }
+
+    if (this.isVisible == false && offset != null) {
+      this.isVisible = true;
+
+      setTimeout(() => {
+        this.ngOnInit();
+        this.ngOnChanges({ src: this.src } as any);
+      });
+    }
+  }
+
   ngOnInit() {
-    if (!isSSR()) {
+    if (!isSSR() && this.isVisible) {
+      this.isInitialized = true;
       this.setupMultiPageViewer();
       this.setupSinglePageViewer();
     }
@@ -272,7 +304,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (isSSR()) {
+    if (isSSR() || !this.isVisible) {
       return;
     }
 
