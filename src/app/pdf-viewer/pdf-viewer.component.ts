@@ -282,11 +282,6 @@ export class PdfViewerComponent
     }, 100);
   }
 
-  @HostListener('textlayerrendered', ['$event'])
-  onTextLayerRendered(e: CustomEvent) {
-    this.textLayerRendered.emit(e);
-  }
-
   get pdfLinkService(): any {
     return this._showAll
       ? this.pdfMultiPageLinkService
@@ -363,6 +358,10 @@ export class PdfViewerComponent
       this.pageRendered.emit(e);
     });
 
+    eventBus.on('textlayerrendered', e => {
+      this.textLayerRendered.emit(e);
+    });
+
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({ eventBus });
     this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({
       linkService: this.pdfMultiPageLinkService,
@@ -394,6 +393,10 @@ export class PdfViewerComponent
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+    });
+
+    eventBus.on('textlayerrendered', e => {
+      this.textLayerRendered.emit(e);
     });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
