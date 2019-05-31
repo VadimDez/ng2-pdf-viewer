@@ -34,15 +34,15 @@ header svg {
 
 @media all and (max-width: 480px) {
   .page-content {
-      width: 100%;
-      margin-left: 10px;
-      margin-right: 10px;
+    width: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
 
 @media all and (max-width: 600px) {
   main {
-      margin-top: 56px;
+    margin-top: 56px;
   }
 }
 
@@ -50,6 +50,7 @@ header svg {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+
 .select-file__container p {
   margin-bottom: 0;
 }
@@ -77,13 +78,16 @@ pdf-viewer {
   margin-left: auto;
   margin-right: auto;
 }
+
 #progress .bar,
 #progress .bg {
   height: 20px;
 }
+
 #progress .bg {
   background-color: #e3e3e3;
 }
+
 #progress .bar {
   width: 0;
   max-width: 100%;
@@ -94,6 +98,7 @@ pdf-viewer {
 .outline-list li a {
   cursor: pointer;
 }
+
 .outline-list li a:hover {
   color: #ea1f62;
 }
