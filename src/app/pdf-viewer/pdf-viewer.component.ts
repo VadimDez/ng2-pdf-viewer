@@ -238,12 +238,12 @@ export class PdfViewerComponent
 
     const offset = this.pdfViewerContainer.nativeElement.offsetParent;
 
-    if (this.isVisible == true && offset == null) {
+    if (this.isVisible === true && offset == null) {
       this.isVisible = false;
       return;
     }
 
-    if (this.isVisible == false && offset != null) {
+    if (this.isVisible === false && offset != null) {
       this.isVisible = true;
 
       setTimeout(() => {
