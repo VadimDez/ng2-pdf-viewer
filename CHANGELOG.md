@@ -1,7 +1,8 @@
 # Changelog
 
-## 5.2.5
+## 5.3.0
 * [[#465](https://github.com/VadimDez/ng2-pdf-viewer/pull/465)] - fix: Listen for textlayerrendered events from eventBus
+* Changed init approach: Do not initialize viewer in the hidden views (first try)
 
 ## 5.2.4
 * [[#457](https://github.com/VadimDez/ng2-pdf-viewer/pull/457)] - fix: allow pdfjs typings peer dependency v2
