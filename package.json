@@ -7,6 +7,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --prod=true",
+    "build:stats": "ng build --stats-json",
+    "analyze": "webpack-bundle-analyzer dist/stats-es2015.json",
     "test": "ng test --watch false",
     "test:w": "ng test",
     "lint": "ng lint",
@@ -76,6 +78,7 @@
     "tslib": "^1.9.0",
     "tslint": "~5.15.0",
     "typescript": "~3.4.3",
+    "webpack-bundle-analyzer": "^3.3.2",
     "zone.js": "~0.9.1"
   },
   "$schema": "./node_modules/ng-packagr/package.schema.json",
