@@ -1,9 +1,12 @@
 # Changelog
 
+## 5.3.2
+ * [[#487](https://github.com/VadimDez/ng2-pdf-viewer/issues/487)] - Deprecated API usage: getViewport is called with obsolete arguments
+
 ## 5.3.1
 * Updated Angular to version 8
-* [[#475](https://github.com/VadimDez/ng2-pdf-viewer/issue/482)] - Compatibility with Angular 8
-* [[#475](https://github.com/VadimDez/ng2-pdf-viewer/issue/475)] - Conflict pdf.js 2.0.943 and quill.js 1.3.6
+* [[#482](https://github.com/VadimDez/ng2-pdf-viewer/issues/482)] - Compatibility with Angular 8
+* [[#475](https://github.com/VadimDez/ng2-pdf-viewer/issues/475)] - Conflict pdf.js 2.0.943 and quill.js 1.3.6
 
 ## 5.3.0
 * [[#465](https://github.com/VadimDez/ng2-pdf-viewer/pull/465)] - fix: Listen for textlayerrendered events from eventBus
