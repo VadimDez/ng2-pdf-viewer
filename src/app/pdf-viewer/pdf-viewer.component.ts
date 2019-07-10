@@ -394,6 +394,12 @@ export class PdfViewerComponent
 
     const eventBus = createEventBus(PDFJSViewer);
 
+    eventBus.on('pagechanging', e => {
+      if (e.pageNumber != this._page) {
+        this.page = e.pageNumber;
+      }
+    });
+
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
     });
