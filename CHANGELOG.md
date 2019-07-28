@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.3.3
+* Update PDFJS dependency
+* [[#499](https://github.com/VadimDez/ng2-pdf-viewer/pull/499)] - update page number upon page changing event
+* [[#474](https://github.com/VadimDez/ng2-pdf-viewer/issues/474)] - Clicking a link in the pdf performs a page change but does not emit a (pageChange) event
+
 ## 5.3.2
  * [[#487](https://github.com/VadimDez/ng2-pdf-viewer/issues/487)] - Deprecated API usage: getViewport is called with obsolete arguments
 
