@@ -342,7 +342,10 @@ export class PdfViewerComponent
           (this._fitToPage &&
             viewport.width > this.element.nativeElement.offsetWidth)
         ) {
-          scale = this.getScale((page as any).getViewport({ scale: 1 }).width);
+          scale = this.getScale(
+            (page as any).getViewport({ scale: 1, rotation: this._rotation })
+              .width
+          );
           stickToPage = !this._stickToPage;
         }
 
