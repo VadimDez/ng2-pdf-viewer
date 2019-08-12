@@ -364,6 +364,12 @@ export class PdfViewerComponent
       this.pageRendered.emit(e);
     });
 
+    eventBus.on('pagechanging', e => {
+      if (e.pageNumber != this._page) {
+        this.page = e.pageNumber;
+      }
+    });
+
     eventBus.on('textlayerrendered', e => {
       this.textLayerRendered.emit(e);
     });
