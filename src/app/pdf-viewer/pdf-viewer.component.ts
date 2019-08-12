@@ -86,6 +86,7 @@ export class PdfViewerComponent
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
+  private _removePageBorders = true;
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
@@ -182,6 +183,11 @@ export class PdfViewerComponent
   @Input('fit-to-page')
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
+  }
+  
+  @Input('removePageBorders')
+  set removePageBorders(value: boolean) {
+    this._removePageBorders = Boolean(value);
   }
 
   static getLinkTarget(type: string) {
@@ -377,7 +383,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: this._removePageBorders,
       linkService: this.pdfMultiPageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -422,7 +428,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: this._removePageBorders,
       linkService: this.pdfSinglePageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
