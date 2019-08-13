@@ -61,6 +61,7 @@ export class PdfViewerComponent
   private isVisible: boolean = false;
 
   static CSS_UNITS: number = 96.0 / 72.0;
+  static BORDER_WIDTH: number = 9;
 
   private pdfMultiPageViewer: any;
   private pdfMultiPageLinkService: any;
@@ -553,7 +554,8 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const offsetWidth = this.element.nativeElement.offsetWidth;
+    const offsetWidth =
+      this.element.nativeElement.offsetWidth - (this._removePageBorders ? 0 : 2 * PdfViewerComponent.BORDER_WIDTH);
 
     if (offsetWidth === 0) {
       return 1;
