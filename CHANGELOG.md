@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.3.4
+* [[#508](https://github.com/VadimDez/ng2-pdf-viewer/pull/508)] - Fix PDF scaling when rotating
+
 ## 5.3.3
 * Update PDFJS dependency
 * [[#499](https://github.com/VadimDez/ng2-pdf-viewer/pull/499)] - update page number upon page changing event
