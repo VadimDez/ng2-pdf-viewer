@@ -359,6 +359,11 @@
       margin: 0px auto 10px auto;
       border: none;
     }
+    
+    padding-bottom: 10px;
+    &.removePageBorders {
+      padding-bottom: 0;
+    }
 
     &.singlePageView {
       display: inline-block;
