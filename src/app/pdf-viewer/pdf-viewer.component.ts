@@ -342,7 +342,10 @@ export class PdfViewerComponent
           (this._fitToPage &&
             viewport.width > this.element.nativeElement.offsetWidth)
         ) {
-          scale = this.getScale((page as any).getViewport({ scale: 1 }).width);
+          scale = this.getScale(
+            (page as any).getViewport({ scale: 1, rotation: this._rotation })
+              .width
+          );
           stickToPage = !this._stickToPage;
         }
 
@@ -359,6 +362,12 @@ export class PdfViewerComponent
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+    });
+
+    eventBus.on('pagechanging', e => {
+      if (e.pageNumber != this._page) {
+        this.page = e.pageNumber;
+      }
     });
 
     eventBus.on('textlayerrendered', e => {
