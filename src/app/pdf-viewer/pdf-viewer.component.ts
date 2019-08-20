@@ -87,7 +87,7 @@ export class PdfViewerComponent
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
-  private _removePageBorders = true;
+  private _showBorders = false;
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
@@ -185,10 +185,10 @@ export class PdfViewerComponent
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
   }
-  
-  @Input('removePageBorders')
-  set removePageBorders(value: boolean) {
-    this._removePageBorders = Boolean(value);
+
+  @Input('show-borders')
+  set showBorders(value: boolean) {
+    this._showBorders = Boolean(value);
   }
 
   static getLinkTarget(type: string) {
@@ -384,7 +384,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: this._removePageBorders,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfMultiPageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -429,7 +429,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: this._removePageBorders,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfSinglePageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -555,7 +555,8 @@ export class PdfViewerComponent
 
   private getScale(viewportWidth: number) {
     const offsetWidth =
-      this.element.nativeElement.offsetWidth - (this._removePageBorders ? 0 : 2 * PdfViewerComponent.BORDER_WIDTH);
+      this.element.nativeElement.offsetWidth -
+      (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
     if (offsetWidth === 0) {
       return 1;
