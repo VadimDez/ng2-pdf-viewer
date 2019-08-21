@@ -2,6 +2,7 @@
 
 ## 5.3.4
 * [[#508](https://github.com/VadimDez/ng2-pdf-viewer/pull/508)] - Fix PDF scaling when rotating
+* [[#509](https://github.com/VadimDez/ng2-pdf-viewer/pull/509)] - add removePageBorders option
 * [[#510](https://github.com/VadimDez/ng2-pdf-viewer/pull/510)] - Emit pageChange on MultiPageViewer
 
 ## 5.3.3
