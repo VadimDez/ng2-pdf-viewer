@@ -61,6 +61,7 @@ export class PdfViewerComponent
   private isVisible: boolean = false;
 
   static CSS_UNITS: number = 96.0 / 72.0;
+  static BORDER_WIDTH: number = 9;
 
   private pdfMultiPageViewer: any;
   private pdfMultiPageLinkService: any;
@@ -86,6 +87,7 @@ export class PdfViewerComponent
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
+  private _showBorders = false;
   private lastLoaded: string | Uint8Array | PDFSource;
 
   private resizeTimeout: NodeJS.Timer;
@@ -182,6 +184,11 @@ export class PdfViewerComponent
   @Input('fit-to-page')
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
+  }
+
+  @Input('show-borders')
+  set showBorders(value: boolean) {
+    this._showBorders = Boolean(value);
   }
 
   static getLinkTarget(type: string) {
@@ -383,7 +390,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfMultiPageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -428,7 +435,7 @@ export class PdfViewerComponent
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfSinglePageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -553,7 +560,9 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const offsetWidth = this.element.nativeElement.offsetWidth;
+    const offsetWidth =
+      this.element.nativeElement.offsetWidth -
+      (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
     if (offsetWidth === 0) {
       return 1;
