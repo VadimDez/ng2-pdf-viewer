@@ -24,6 +24,8 @@
 
 ### Demo page
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/VadimDez/ng2-pdf-viewer.svg)](https://greenkeeper.io/)
+
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
 #### Stackblitz Example 
