@@ -353,7 +353,7 @@ export class PdfViewerComponent
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewportWidth > this.viewerContainer.nativeElement.clientWidth)
+            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(
             (page as any).getViewport({ scale: 1, rotation: this._rotation })
