@@ -325,7 +325,7 @@ export class PdfViewerComponent
       }
       if ('page' in changes) {
         if (changes['page'].currentValue === this._latestScrolledPage) {
-            return;
+          return;
         }
 
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
@@ -342,10 +342,11 @@ export class PdfViewerComponent
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
-        const viewportWidth = (page as any).getViewport({
-          scale: this._zoom,
-          rotation: this._rotation
-        }).width * PdfViewerComponent.CSS_UNITS;
+        const viewportWidth =
+          (page as any).getViewport({
+            scale: this._zoom,
+            rotation: this._rotation
+          }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
 
@@ -353,7 +354,7 @@ export class PdfViewerComponent
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewportWidth > this.viewerContainer.nativeElement.clientWidth)
+            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(
             (page as any).getViewport({ scale: 1, rotation: this._rotation })
@@ -571,7 +572,8 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth  -
+    const pdfContainerWidth =
+      this.pdfViewerContainer.nativeElement.clientWidth -
       (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
     if (pdfContainerWidth === 0 || viewportWidth === 0) {
