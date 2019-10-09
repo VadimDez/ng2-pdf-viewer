@@ -89,9 +89,11 @@ export class PdfViewerComponent
   private _externalLinkTarget = 'blank';
   private _showBorders = false;
   private lastLoaded: string | Uint8Array | PDFSource;
+  private _latestScrolledPage: number;
 
   private resizeTimeout: NodeJS.Timer;
   private isInitialized = false;
+  private pageScrollTimeout: NodeJS.Timer;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<
     PDFDocumentProxy
@@ -322,6 +324,10 @@ export class PdfViewerComponent
         this.resetPdfDocument();
       }
       if ('page' in changes) {
+        if (changes['page'].currentValue === this._latestScrolledPage) {
+          return;
+        }
+
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
         // This behavior is introducedby using the PDFSinglePageViewer
         this.getCurrentViewer().scrollPageIntoView({ pageNumber: this._page });
@@ -336,10 +342,11 @@ export class PdfViewerComponent
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
-        const viewport = (page as any).getViewport({
-          scale: this._zoom,
-          rotation: this._rotation
-        });
+        const viewportWidth =
+          page.getViewport({
+            scale: this._zoom,
+            rotation: this._rotation
+          }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
 
@@ -347,7 +354,7 @@ export class PdfViewerComponent
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewport.width > this.element.nativeElement.offsetWidth)
+            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(
             (page as any).getViewport({ scale: 1, rotation: this._rotation })
@@ -372,9 +379,14 @@ export class PdfViewerComponent
     });
 
     eventBus.on('pagechanging', e => {
-      if (e.pageNumber != this._page) {
-        this.page = e.pageNumber;
+      if (this.pageScrollTimeout) {
+        clearTimeout(this.pageScrollTimeout);
       }
+
+      this.pageScrollTimeout = setTimeout(() => {
+        this._latestScrolledPage = e.pageNumber;
+        this.pageChange.emit(e.pageNumber);
+      }, 100);
     });
 
     eventBus.on('textlayerrendered', e => {
@@ -560,16 +572,16 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const offsetWidth =
-      this.element.nativeElement.offsetWidth -
+    const pdfContainerWidth =
+      this.pdfViewerContainer.nativeElement.clientWidth -
       (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
-    if (offsetWidth === 0) {
+    if (pdfContainerWidth === 0 || viewportWidth === 0) {
       return 1;
     }
 
     return (
-      (this._zoom * (offsetWidth / viewportWidth)) /
+      (this._zoom * (pdfContainerWidth / viewportWidth)) /
       PdfViewerComponent.CSS_UNITS
     );
   }
