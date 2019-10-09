@@ -15,6 +15,9 @@
   <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
     <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
   </a>
+  <a href="https://greenkeeper.io/" title="Greenkeeper">
+    <img src="https://badges.greenkeeper.io/VadimDez/ng2-pdf-viewer.svg" alt="Greenkeeper badge"/>
+  </a>
   <a href="https://www.paypal.me/vadimdez" title="Donate to this project using Paypal">
     <img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" />
   </a>
@@ -114,6 +117,7 @@ export class AppComponent {
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
 * [[c-maps-url]](#c-maps-url)
+* [[show-borders]](#show-borders)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
 * [(text-layer-rendered)](#text-layer-rendered)
@@ -312,6 +316,17 @@ Url for non-latin characters source maps.
 Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
 
 To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
+
+### [show-borders]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [show-borders] | *boolean* | Optional |
+
+Show page borders
+```
+[show-borders]="true"
+```
 
 #### (after-load-complete)
 

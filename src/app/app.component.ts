@@ -45,7 +45,8 @@ export class AppComponent {
   isOutlineShown = false;
   pdfQuery = '';
 
-  @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+  @ViewChild(PdfViewerComponent, { static: false })
+  private pdfComponent: PdfViewerComponent;
 
   // Load pdf
   loadPdf() {

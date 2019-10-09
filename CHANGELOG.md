@@ -1,5 +1,32 @@
 # Changelog
 
+## 5.3.4
+* [[#508](https://github.com/VadimDez/ng2-pdf-viewer/pull/508)] - Fix PDF scaling when rotating
+* [[#509](https://github.com/VadimDez/ng2-pdf-viewer/pull/509)] - add removePageBorders option
+* [[#510](https://github.com/VadimDez/ng2-pdf-viewer/pull/510)] - Emit pageChange on MultiPageViewer
+
+## 5.3.3
+* Update PDFJS dependency
+* [[#499](https://github.com/VadimDez/ng2-pdf-viewer/pull/499)] - update page number upon page changing event
+* [[#474](https://github.com/VadimDez/ng2-pdf-viewer/issues/474)] - Clicking a link in the pdf performs a page change but does not emit a (pageChange) event
+
+## 5.3.2
+ * [[#487](https://github.com/VadimDez/ng2-pdf-viewer/issues/487)] - Deprecated API usage: getViewport is called with obsolete arguments
+
+## 5.3.1
+* Updated Angular to version 8
+* [[#482](https://github.com/VadimDez/ng2-pdf-viewer/issues/482)] - Compatibility with Angular 8
+* [[#475](https://github.com/VadimDez/ng2-pdf-viewer/issues/475)] - Conflict pdf.js 2.0.943 and quill.js 1.3.6
+
+## 5.3.0
+* [[#465](https://github.com/VadimDez/ng2-pdf-viewer/pull/465)] - fix: Listen for textlayerrendered events from eventBus
+* Changed init approach: Do not initialize viewer in the hidden views (first try)
+
+## 5.2.4
+* [[#457](https://github.com/VadimDez/ng2-pdf-viewer/pull/457)] - fix: allow pdfjs typings peer dependency v2
+* [[#408](https://github.com/VadimDez/ng2-pdf-viewer/issues/408)] - Regression: Version 5.2 Broke (page-rendered)
+* [[#420](https://github.com/VadimDez/ng2-pdf-viewer/pull/420)] - PR for Issue 408
+
 ## 5.2.3
 * [[#402](https://github.com/VadimDez/ng2-pdf-viewer/issues/402)] - Page is not working
 

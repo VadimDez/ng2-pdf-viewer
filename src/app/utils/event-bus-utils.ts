@@ -26,9 +26,9 @@ function attachDOMEventsToEventBus(eventBus: any) {
     });
     evt.source.textLayerDiv.dispatchEvent(event);
   });
-  eventBus.on('pagechange', function(evt) {
+  eventBus.on('pagechanging', function(evt) {
     const event = document.createEvent('UIEvents');
-    event.initUIEvent('pagechange', true, true, window, 0);
+    event.initUIEvent('pagechanging', true, true, window, 0);
     event['pageNumber'] = evt.pageNumber;
     evt.source.container.dispatchEvent(event);
   });
