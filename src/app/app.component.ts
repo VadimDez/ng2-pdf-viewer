@@ -107,7 +107,6 @@ export class AppComponent {
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
-    this.isLoaded = true;
 
     this.loadOutline();
   }
@@ -164,7 +163,8 @@ export class AppComponent {
   onProgress(progressData: PDFProgressData) {
     console.log(progressData);
     this.progressData = progressData;
-    this.isLoaded = false;
+
+    this.isLoaded = progressData.loaded >= progressData.total;
     this.error = null; // clear error
   }
 
