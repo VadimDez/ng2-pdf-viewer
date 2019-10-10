@@ -1,9 +1,21 @@
 # Changelog
 
-## 5.4.0
+## 6.0.0
 * [[#445](https://github.com/VadimDez/ng2-pdf-viewer/pull/445)] - Issue #223 PR
 * [[#223](https://github.com/VadimDez/ng2-pdf-viewer/issues/223)] - Update page number when scrolling on "show-all" mode
 * [[#422](https://github.com/VadimDez/ng2-pdf-viewer/issues/422)] - Styling issue when trying to putting pdf viewer to right of html content
+
+### Breaking change
+Now with use of `CSS` you need to define dimensions (for example: `height`) of the `pdf-viewer` container element.
+
+```css
+pdf-viewer {
+  /* define height */
+  height: 700px;
+  /* or use flex for example */
+  flex: 1;
+}
+```
 
 ## 5.3.4
 * [[#508](https://github.com/VadimDez/ng2-pdf-viewer/pull/508)] - Fix PDF scaling when rotating
