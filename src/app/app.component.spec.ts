@@ -1,26 +1,19 @@
 import { TestBed, async } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatInputModule, MatFormFieldModule, MatSlideToggleModule, MatToolbarModule } from '@angular/material';
+import { DemoMaterialModule } from './material.module';
 
 import { AppComponent } from './app.component';
 import { PdfViewerModule } from './pdf-viewer/pdf-viewer.module';
 
-
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
+      declarations: [AppComponent],
       imports: [
         FormsModule,
         NoopAnimationsModule,
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSlideToggleModule,
-        MatToolbarModule,
+        DemoMaterialModule,
 
         PdfViewerModule
       ]
