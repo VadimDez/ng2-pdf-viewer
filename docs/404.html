@@ -1,9 +1,10 @@
-<!-- <!doctype html> --> <!-- This line might cause the problem with scroll top  -->
+<!doctype html> <!-- This line might cause the problem with scroll top  -->
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>ng2-pdf-viewer</title>
   <meta name="description" content="PDF Viewer Component for Angular 5+">
@@ -13,122 +14,144 @@
 
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
   <style>
-      body {
-          margin: 0;
-          font-family: 'Lato', sans-serif;
+    body {
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .placeholder-header {
+      height: 64px;
+      background-color: #3f51b5;
+      margin-bottom: 50px;
+    }
+
+    .sk-folding-cube {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      position: relative;
+      -webkit-transform: rotateZ(45deg);
+      transform: rotateZ(45deg);
+    }
+
+    .sk-folding-cube .sk-cube {
+      float: left;
+      width: 50%;
+      height: 50%;
+      position: relative;
+      -webkit-transform: scale(1.1);
+      -ms-transform: scale(1.1);
+      transform: scale(1.1);
+    }
+
+    .sk-folding-cube .sk-cube:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ea1f62;
+      -webkit-animation: sk-foldCubeAngle 2.4s infinite linear both;
+      animation: sk-foldCubeAngle 2.4s infinite linear both;
+      -webkit-transform-origin: 100% 100%;
+      -ms-transform-origin: 100% 100%;
+      transform-origin: 100% 100%;
+    }
+
+    .sk-folding-cube .sk-cube2 {
+      -webkit-transform: scale(1.1) rotateZ(90deg);
+      transform: scale(1.1) rotateZ(90deg);
+    }
+
+    .sk-folding-cube .sk-cube3 {
+      -webkit-transform: scale(1.1) rotateZ(180deg);
+      transform: scale(1.1) rotateZ(180deg);
+    }
+
+    .sk-folding-cube .sk-cube4 {
+      -webkit-transform: scale(1.1) rotateZ(270deg);
+      transform: scale(1.1) rotateZ(270deg);
+    }
+
+    .sk-folding-cube .sk-cube2:before {
+      -webkit-animation-delay: 0.3s;
+      animation-delay: 0.3s;
+    }
+
+    .sk-folding-cube .sk-cube3:before {
+      -webkit-animation-delay: 0.6s;
+      animation-delay: 0.6s;
+    }
+
+    .sk-folding-cube .sk-cube4:before {
+      -webkit-animation-delay: 0.9s;
+      animation-delay: 0.9s;
+    }
+
+    @-webkit-keyframes sk-foldCubeAngle {
+
+      0%,
+      10% {
+        -webkit-transform: perspective(140px) rotateX(-180deg);
+        transform: perspective(140px) rotateX(-180deg);
+        opacity: 0;
       }
 
-      .placeholder-header {
-          height: 285px;
-          background-color: #3f51b5;
-          margin-bottom: 50px;
+      25%,
+      75% {
+        -webkit-transform: perspective(140px) rotateX(0deg);
+        transform: perspective(140px) rotateX(0deg);
+        opacity: 1;
       }
 
-      .sk-folding-cube {
-          margin: 20px auto;
-          width: 40px;
-          height: 40px;
-          position: relative;
-          -webkit-transform: rotateZ(45deg);
-          transform: rotateZ(45deg);
+      90%,
+      100% {
+        -webkit-transform: perspective(140px) rotateY(180deg);
+        transform: perspective(140px) rotateY(180deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sk-foldCubeAngle {
+
+      0%,
+      10% {
+        -webkit-transform: perspective(140px) rotateX(-180deg);
+        transform: perspective(140px) rotateX(-180deg);
+        opacity: 0;
       }
 
-      .sk-folding-cube .sk-cube {
-          float: left;
-          width: 50%;
-          height: 50%;
-          position: relative;
-          -webkit-transform: scale(1.1);
-          -ms-transform: scale(1.1);
-          transform: scale(1.1);
-      }
-      .sk-folding-cube .sk-cube:before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: #ea1f62;
-          -webkit-animation: sk-foldCubeAngle 2.4s infinite linear both;
-          animation: sk-foldCubeAngle 2.4s infinite linear both;
-          -webkit-transform-origin: 100% 100%;
-          -ms-transform-origin: 100% 100%;
-          transform-origin: 100% 100%;
-      }
-      .sk-folding-cube .sk-cube2 {
-          -webkit-transform: scale(1.1) rotateZ(90deg);
-          transform: scale(1.1) rotateZ(90deg);
-      }
-      .sk-folding-cube .sk-cube3 {
-          -webkit-transform: scale(1.1) rotateZ(180deg);
-          transform: scale(1.1) rotateZ(180deg);
-      }
-      .sk-folding-cube .sk-cube4 {
-          -webkit-transform: scale(1.1) rotateZ(270deg);
-          transform: scale(1.1) rotateZ(270deg);
-      }
-      .sk-folding-cube .sk-cube2:before {
-          -webkit-animation-delay: 0.3s;
-          animation-delay: 0.3s;
-      }
-      .sk-folding-cube .sk-cube3:before {
-          -webkit-animation-delay: 0.6s;
-          animation-delay: 0.6s;
-      }
-      .sk-folding-cube .sk-cube4:before {
-          -webkit-animation-delay: 0.9s;
-          animation-delay: 0.9s;
+      25%,
+      75% {
+        -webkit-transform: perspective(140px) rotateX(0deg);
+        transform: perspective(140px) rotateX(0deg);
+        opacity: 1;
       }
 
-      @-webkit-keyframes sk-foldCubeAngle {
-          0%, 10% {
-              -webkit-transform: perspective(140px) rotateX(-180deg);
-              transform: perspective(140px) rotateX(-180deg);
-              opacity: 0;
-          }
-          25%, 75% {
-              -webkit-transform: perspective(140px) rotateX(0deg);
-              transform: perspective(140px) rotateX(0deg);
-              opacity: 1;
-          }
-          90%, 100% {
-              -webkit-transform: perspective(140px) rotateY(180deg);
-              transform: perspective(140px) rotateY(180deg);
-              opacity: 0;
-          }
+      90%,
+      100% {
+        -webkit-transform: perspective(140px) rotateY(180deg);
+        transform: perspective(140px) rotateY(180deg);
+        opacity: 0;
       }
+    }
 
-      @keyframes sk-foldCubeAngle {
-          0%, 10% {
-              -webkit-transform: perspective(140px) rotateX(-180deg);
-              transform: perspective(140px) rotateX(-180deg);
-              opacity: 0;
-          }
-          25%, 75% {
-              -webkit-transform: perspective(140px) rotateX(0deg);
-              transform: perspective(140px) rotateX(0deg);
-              opacity: 1;
-          }
-          90%, 100% {
-              -webkit-transform: perspective(140px) rotateY(180deg);
-              transform: perspective(140px) rotateY(180deg);
-              opacity: 0;
-          }
-      }
   </style>
 
-<link rel="stylesheet" href="styles.38ef6f584fecd223b8cf.css"></head>
-<body>
-    <pdf-viewer-app>
-        <div class="placeholder-header"></div>
+<link rel="stylesheet" href="styles.a3116d44574639165ade.css"></head>
 
-        <div class="sk-folding-cube">
-            <div class="sk-cube1 sk-cube"></div>
-            <div class="sk-cube2 sk-cube"></div>
-            <div class="sk-cube4 sk-cube"></div>
-            <div class="sk-cube3 sk-cube"></div>
-        </div>
-    </pdf-viewer-app>
-<script src="runtime-es2015.d3bc0f0c5758d81e0404.js" type="module"></script><script src="polyfills-es2015.c15910d18dba6d727f14.js" type="module"></script><script src="runtime-es5.1b294c6bb1a350f5c4a5.js" nomodule></script><script src="polyfills-es5.ab0e9f23a56bc69316a3.js" nomodule></script><script src="main-es2015.44ec2857ead9cd4aed24.js" type="module"></script><script src="main-es5.2be7d4f9f11b99e71ea5.js" nomodule></script></body>
+<body>
+  <pdf-viewer-app>
+    <div class="placeholder-header"></div>
+
+    <div class="sk-folding-cube">
+      <div class="sk-cube1 sk-cube"></div>
+      <div class="sk-cube2 sk-cube"></div>
+      <div class="sk-cube4 sk-cube"></div>
+      <div class="sk-cube3 sk-cube"></div>
+    </div>
+  </pdf-viewer-app>
+<script src="polyfills-es5.fd252127542166f249db.js" nomodule defer></script><script src="polyfills-es2015.80b500252e305cc9ce4b.js" type="module"></script><script src="runtime-es2015.b658f0e725fc29488d28.js" type="module"></script><script src="main-es2015.a1bb6611568d8cc4f001.js" type="module"></script><script src="runtime-es5.b658f0e725fc29488d28.js" nomodule defer></script><script src="main-es5.a1bb6611568d8cc4f001.js" nomodule defer></script></body>
+
 </html>
