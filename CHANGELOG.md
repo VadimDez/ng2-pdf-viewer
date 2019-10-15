@@ -13,6 +13,18 @@
 * [[#261](https://github.com/VadimDez/ng2-pdf-viewer/issues/261)] - Last page never loads when zoom level is below ~0.4
 * [[#244](https://github.com/VadimDez/ng2-pdf-viewer/issues/244)] - stick-to-page doesn't work
 * [[#219](https://github.com/VadimDez/ng2-pdf-viewer/issues/219)] - Component stops rendering when display goes out of view
+* [[#516](https://github.com/VadimDez/ng2-pdf-viewer/issues/516)] - Memory leak issue in IOS when open large PDF file
+* [[#471](https://github.com/VadimDez/ng2-pdf-viewer/issues/471)] - ng2-pdf not rendering all pages
+* [[#460](https://github.com/VadimDez/ng2-pdf-viewer/issues/460)] - How to disable scroll on page change?
+* [[#449](https://github.com/VadimDez/ng2-pdf-viewer/issues/449)] - Blank page IOS
+* [[#418](https://github.com/VadimDez/ng2-pdf-viewer/issues/418)] - Can't disable scrollPageIntoView while changing pages in Safari
+* [[#414](https://github.com/VadimDez/ng2-pdf-viewer/issues/414)] - PDFDocumentProxy : destroy() doesn't work : memory bloat
+* [[#403](https://github.com/VadimDez/ng2-pdf-viewer/issues/403)] - <!doctype html> issue
+* [[#397](https://github.com/VadimDez/ng2-pdf-viewer/issues/397)] - stick-to-page does not work
+* [[#392](https://github.com/VadimDez/ng2-pdf-viewer/issues/392)] - Memory issue
+* [[#388](https://github.com/VadimDez/ng2-pdf-viewer/issues/388)] - Tracking page
+* [[#372](https://github.com/VadimDez/ng2-pdf-viewer/issues/372)] - Max size / Scroll bars not visible
+* [[#360](https://github.com/VadimDez/ng2-pdf-viewer/issues/360)] - [show-all]="true", [stick-to-page]="true", [page]="boundValue" does not work if I set 'max-height' to 'pdf-viewer'
 
 ### Breaking change
 Now with use of `CSS` you need to define dimensions (for example: `height`) of the `pdf-viewer` container element.
