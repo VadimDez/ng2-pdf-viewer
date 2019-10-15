@@ -8,7 +8,7 @@
 * [[#410](https://github.com/VadimDez/ng2-pdf-viewer/issues/410)] - Large Size PDF(pages) causes Browser Crash
 * [[#394](https://github.com/VadimDez/ng2-pdf-viewer/issues/394)] - Calling this.pdf.pdfViewer.scrollPageIntoView({ pageNumber: 20 }); does not work
 * [[#386](https://github.com/VadimDez/ng2-pdf-viewer/issues/386)] - Loading spinners never go away
-* [[#337](https://github.com/VadimDez/ng2-pdf-viewer/issues/337)] - Loading spinners never go away
+* [[#337](https://github.com/VadimDez/ng2-pdf-viewer/issues/337)] - Avoid reloading after zoom in/out
 * [[#299](https://github.com/VadimDez/ng2-pdf-viewer/issues/299)] - PDF not show when browser zoom is low or low resolution
 * [[#261](https://github.com/VadimDez/ng2-pdf-viewer/issues/261)] - Last page never loads when zoom level is below ~0.4
 * [[#244](https://github.com/VadimDez/ng2-pdf-viewer/issues/244)] - stick-to-page doesn't work
