@@ -78,7 +78,7 @@
     "tslib": "^1.9.0",
     "tslint": "~5.20.0",
     "typescript": "~3.5.3",
-    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-bundle-analyzer": "^3.6.0",
     "zone.js": "~0.10.2"
   },
   "$schema": "./node_modules/ng-packagr/package.schema.json",
