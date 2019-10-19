@@ -27,7 +27,7 @@
 * [[#360](https://github.com/VadimDez/ng2-pdf-viewer/issues/360)] - [show-all]="true", [stick-to-page]="true", [page]="boundValue" does not work if I set 'max-height' to 'pdf-viewer'
 
 ### Breaking change
-Now with the use of `CSS` you need to define dimensions (for example: `height`) of the `pdf-viewer` container element. This will improve `pdf-viewer` **performance** and eneble all the **features**.
+Now with the use of `CSS` you need to define dimensions (for example: `height`) of the `pdf-viewer` container element. (`pdf-viewer` shold become container with scrollbar) This will improve `pdf-viewer` **performance** and eneble all the **features**.
 
 ```css
 pdf-viewer {
