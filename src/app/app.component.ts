@@ -51,7 +51,7 @@ export class AppComponent {
   // Load pdf
   loadPdf() {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8000/pdf-test.pdf', true);
+    xhr.open('GET', 'http://localhost:8000/assets/pdf-test.pdf', true);
     xhr.responseType = 'blob';
 
     xhr.onload = (e: any) => {
