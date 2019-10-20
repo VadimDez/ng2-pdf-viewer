@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.0.1
+* [[#525](https://github.com/VadimDez/ng2-pdf-viewer/pull/525)] - cancel loading task before loading document
+* [[#502](https://github.com/VadimDez/ng2-pdf-viewer/issues/502)] - Is it possible to terminate a page rendering?
+
 ## 6.0.0
 * [[#445](https://github.com/VadimDez/ng2-pdf-viewer/pull/445)] - Issue #223 PR
 * [[#223](https://github.com/VadimDez/ng2-pdf-viewer/issues/223)] - Update page number when scrolling on "show-all" mode
