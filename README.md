@@ -87,10 +87,6 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'example-app',
   template: `
-  <div>
-      <label>PDF src</label>
-      <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
-  </div>
   <pdf-viewer [src]="pdfSrc" 
               [render-text]="true"
               style="display: block;"
@@ -98,7 +94,7 @@ import { Component } from '@angular/core';
   `
 })
 export class AppComponent {
-  pdfSrc: string = '/pdf-test.pdf';
+  pdfSrc = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
 }
 ```
 
