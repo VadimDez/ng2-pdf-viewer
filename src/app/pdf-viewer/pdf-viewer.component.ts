@@ -514,6 +514,10 @@ export class PdfViewerComponent
       this.loadingTask.destroy();
     }
 
+    if (this._pdf) {
+      this._pdf.destroy();
+    }
+
     this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
@@ -523,9 +527,6 @@ export class PdfViewerComponent
     const src = this.src;
     (<PDFPromise<PDFDocumentProxy>>this.loadingTask.promise).then(
       (pdf: PDFDocumentProxy) => {
-        if (this._pdf) {
-          this._pdf.destroy();
-        }
         this._pdf = pdf;
         this.lastLoaded = src;
 
