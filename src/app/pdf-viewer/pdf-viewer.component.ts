@@ -94,6 +94,7 @@ export class PdfViewerComponent
   private resizeTimeout: NodeJS.Timer;
   private pageScrollTimeout: NodeJS.Timer;
   private isInitialized = false;
+  private loadingTask: any;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<
     PDFDocumentProxy
@@ -325,7 +326,7 @@ export class PdfViewerComponent
       }
       if ('page' in changes) {
         if (changes['page'].currentValue === this._latestScrolledPage) {
-            return;
+          return;
         }
 
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
@@ -342,10 +343,11 @@ export class PdfViewerComponent
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
-        const viewportWidth = (page as any).getViewport({
-          scale: this._zoom,
-          rotation: this._rotation
-        }).width * PdfViewerComponent.CSS_UNITS;
+        const viewportWidth =
+          (page as any).getViewport({
+            scale: this._zoom,
+            rotation: this._rotation
+          }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
 
@@ -508,20 +510,23 @@ export class PdfViewerComponent
       return;
     }
 
-    const loadingTask: any = (PDFJS as any).getDocument(
-      this.getDocumentParams()
-    );
+    if (this.loadingTask && !this.loadingTask.destroyed) {
+      this.loadingTask.destroy();
+    }
 
-    loadingTask.onProgress = (progressData: PDFProgressData) => {
+    if (this._pdf) {
+      this._pdf.destroy();
+    }
+
+    this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
+
+    this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
     };
 
     const src = this.src;
-    (<PDFPromise<PDFDocumentProxy>>loadingTask.promise).then(
+    (<PDFPromise<PDFDocumentProxy>>this.loadingTask.promise).then(
       (pdf: PDFDocumentProxy) => {
-        if (this._pdf) {
-          this._pdf.destroy();
-        }
         this._pdf = pdf;
         this.lastLoaded = src;
 
@@ -571,7 +576,8 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth  -
+    const pdfContainerWidth =
+      this.pdfViewerContainer.nativeElement.clientWidth -
       (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
     if (pdfContainerWidth === 0 || viewportWidth === 0) {
