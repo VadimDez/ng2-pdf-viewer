@@ -368,6 +368,25 @@ export class PdfViewerComponent
       });
   }
 
+  public clear() {
+    if (this.loadingTask && !this.loadingTask.destroyed) {
+      this.loadingTask.destroy();
+    }
+
+    if (this._pdf) {
+      this._pdf.destroy();
+      this._pdf = null;
+      this.pdfMultiPageViewer.setDocument(null);
+      this.pdfSinglePageViewer.setDocument(null);
+
+      this.pdfMultiPageLinkService.setDocument(null, null);
+      this.pdfSinglePageLinkService.setDocument(null, null);
+
+      this.pdfMultiPageFindController.setDocument(null);
+      this.pdfSinglePageFindController.setDocument(null);
+    }
+  }
+
   private setupMultiPageViewer() {
     (PDFJS as any).disableTextLayer = !this._renderText;
 
@@ -510,13 +529,7 @@ export class PdfViewerComponent
       return;
     }
 
-    if (this.loadingTask && !this.loadingTask.destroyed) {
-      this.loadingTask.destroy();
-    }
-
-    if (this._pdf) {
-      this._pdf.destroy();
-    }
+    this.clear();
 
     this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
 
