@@ -71,11 +71,10 @@ describe('AppComponent', () => {
   });
 
   describe('getScale', () => {
-    it('should get scale 1 with viewportWidth = 0 or viewerContainerWidth = 0', function() {
-      pdfViewerFixture.detectChanges();
+    it('should get scale 1 with offsetWidth = 0', function () {
       let spy = spyOnProperty(
-        (pdfViewer as any).pdfViewerContainer.nativeElement,
-        'clientWidth',
+        (pdfViewer as any).element.nativeElement,
+        'offsetWidth',
         'get'
       ).and.returnValue(0);
 

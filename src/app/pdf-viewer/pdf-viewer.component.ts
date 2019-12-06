@@ -344,11 +344,10 @@ export class PdfViewerComponent
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
         const rotation = this._rotation || page.rotate;
-        const viewportWidth =
-          (page as any).getViewport({
-            scale: this._zoom,
-            rotation
-          }).width * PdfViewerComponent.CSS_UNITS;
+        const viewport = (page as any).getViewport({
+          scale: this._zoom,
+          rotation
+        });
         let scale = this._zoom;
         let stickToPage = true;
 
@@ -356,11 +355,10 @@ export class PdfViewerComponent
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+            viewport.width > this.element.nativeElement.offsetWidth)
         ) {
           scale = this.getScale(
-            (page as any).getViewport({ scale: 1, rotation })
-              .width
+            (page as any).getViewport({ scale: 1, rotation }).width
           );
           stickToPage = !this._stickToPage;
         }
@@ -590,16 +588,16 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number) {
-    const pdfContainerWidth =
-      this.pdfViewerContainer.nativeElement.clientWidth -
+    const offsetWidth =
+      this.element.nativeElement.offsetWidth -
       (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
 
-    if (pdfContainerWidth === 0 || viewportWidth === 0) {
+    if (offsetWidth === 0) {
       return 1;
     }
 
     return (
-      (this._zoom * (pdfContainerWidth / viewportWidth)) /
+      (this._zoom * (offsetWidth / viewportWidth)) /
       PdfViewerComponent.CSS_UNITS
     );
   }
