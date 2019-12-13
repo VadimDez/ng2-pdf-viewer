@@ -114,16 +114,19 @@ export class PdfViewerComponent
     this._cMapsUrl = cMapsUrl;
   }
 
-  @Input('page')
+ @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10) || 1;
+    const orginalPage = _page;
 
     if (this._pdf) {
       _page = this.getValidPageNumber(_page);
     }
 
     this._page = _page;
-    this.pageChange.emit(_page);
+    if (orginalPage !== _page) {
+      this.pageChange.emit(_page);
+    }
   }
 
   @Input('render-text')
