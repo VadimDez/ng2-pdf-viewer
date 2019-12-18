@@ -132,9 +132,9 @@ Pass pdf location
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
-For more control you can pass options object to ```[src]```.
+For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
 
-Options object for loading protected PDF would be
+Options object for loading protected PDF would be:
  
  ```js
  {
@@ -142,8 +142,6 @@ Options object for loading protected PDF would be
   withCredentials: true
  }
  ```
- 
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
 
 #### [page]
 
