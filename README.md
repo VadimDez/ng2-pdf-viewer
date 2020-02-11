@@ -116,6 +116,7 @@ export class AppComponent {
 * [[show-borders]](#show-borders)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
+* [(on-page-click)](#on-page-click)
 * [(text-layer-rendered)](#text-layer-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
@@ -384,6 +385,31 @@ And then bind it to `<pdf-viewer>`:
 
 ```angular2html
 (text-layer-rendered)="textLayerRendered($event)"
+```
+
+#### (on-page-click)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (on-page-click) | *callback* | *Optional* |
+
+Get the pdf coordinate when page clicked.
+
+pdf.js uses a transformation matrix for each page to allow it to convert between PDF and viewer coordinates.
+with this callback, we can get the coordinate in pdf when the page viewer clicked. 
+
+Define callback in your component's class
+
+```typescript
+onPageClick(coordinate: PDFPageCoordinate) {
+  // 'coordinate' provides the real coordinate in pdf page.
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(on-page-click)="onPageClick($event)"
 ```
 
 #### (error)

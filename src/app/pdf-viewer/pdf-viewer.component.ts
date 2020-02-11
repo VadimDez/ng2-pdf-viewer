@@ -46,6 +46,18 @@ export enum RenderTextMode {
   ENHANCED
 }
 
+export class PDFPageCoordinate {
+  constructor(
+    public pageNumber?: number,
+    public x?: number,
+    public y?: number,
+    public pageWidth?: number,
+    public pageHeight?: number,
+    public pageScale?: number
+  ) {
+  }
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `
@@ -105,6 +117,7 @@ export class PdfViewerComponent
   >();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
+  @Output('on-page-click') onPageClick = new EventEmitter<PDFPageCoordinate>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
   @Input()
   src: string | Uint8Array | PDFSource;
@@ -396,6 +409,7 @@ export class PdfViewerComponent
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+      this.createPageClickEventListener(e);
     });
 
     eventBus.on('pagechanging', e => {
@@ -450,6 +464,7 @@ export class PdfViewerComponent
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+      this.createPageClickEventListener(e);
     });
 
     eventBus.on('textlayerrendered', e => {
@@ -601,6 +616,57 @@ export class PdfViewerComponent
       (this._zoom * (pdfContainerWidth / viewportWidth)) /
       PdfViewerComponent.CSS_UNITS
     );
+  }
+
+  private createPageClickEventListener(e) {
+
+    const bindClick = (ele: HTMLDivElement) => {
+      ele.removeEventListener('click', null);
+      ele.addEventListener('click', evt => {
+
+        console.log('e.source click', evt);
+        if (evt.target) {
+          const parentEle = ele.parentElement;
+          const clientWidth = ele.clientWidth;
+          const pageNumber = (parentEle as HTMLDivElement).getAttribute('data-page-number');
+          this.convertCoordinateToPdfPage(parseInt(pageNumber, 10) || -1,
+            evt.offsetX, evt.offsetY, clientWidth, data => {
+              this.onPageClick.emit(data);
+            });
+        }
+      });
+    };
+
+    if (e.source.canvas) {
+      bindClick(e.source.canvas);
+    }
+
+    if (e.source.textLayer && e.source.textLayer.textLayerDiv) {
+      bindClick(e.source.textLayer.textLayerDiv);
+    }
+
+  }
+
+  public convertCoordinateToPdfPage(pageNumber: number,
+                                    x: number, y: number,
+                                    clientWidth: number,
+                                    callback?: (data: PDFPageCoordinate) => void) {
+    this._pdf.getPage(pageNumber).then((page: PDFPageProxy) => {
+      const viewport = page.getViewport({
+        scale: 1.0
+      });
+      const width = viewport.width;
+      const height = viewport.height;
+
+      const zoom = clientWidth / width;
+      const viewport2 = page.getViewport({
+        scale: zoom
+      });
+
+      const coordinate = viewport2.convertToPdfPoint(x, y);
+
+      callback(new PDFPageCoordinate(pageNumber, coordinate[0], coordinate[1], width, height, zoom));
+    });
   }
 
   private getCurrentViewer(): any {

@@ -8,7 +8,7 @@ import {
   PDFSource
 } from './pdf-viewer/pdf-viewer.module';
 
-import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
+import { PDFPageCoordinate, PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 @Component({
   moduleId: module.id,
@@ -196,6 +196,14 @@ export class AppComponent {
    */
   pageRendered(e: CustomEvent) {
     console.log('(page-rendered)', e);
+  }
+
+  /**
+   * Get the coordinate when mouse/hand clicked/touched the page.
+   * @param coordinate
+   */
+  onPageClick(coordinate: PDFPageCoordinate) {
+    console.log('(page-clicked)', coordinate);
   }
 
   searchQueryChanged(newQuery: string) {

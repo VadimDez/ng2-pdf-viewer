@@ -178,6 +178,6 @@
       [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [show-all]="showAll"
       [stick-to-page]="stickToPage" [render-text]="renderText" [external-link-target]="'blank'"
       [autoresize]="autoresize" (error)="onError($event)" (on-progress)="onProgress($event)"
-      (page-rendered)="pageRendered($event)"></pdf-viewer>
+      (page-rendered)="pageRendered($event)" (on-page-click)="onPageClick($event)"></pdf-viewer>
   </mat-drawer-content>
 </mat-drawer-container>
