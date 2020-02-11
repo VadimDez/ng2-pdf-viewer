@@ -85,18 +85,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-@angular/material/button
-
-@angular/material/form-field
-
-@angular/material/sidenav
-
-@angular/material/slide-toggle
-
-@angular/material/toolbar
-
-@angular/material/tooltip
-
 @angular/platform-browser
 MIT
 
