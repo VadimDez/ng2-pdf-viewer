@@ -57,7 +57,7 @@ export enum RenderTextMode {
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('pdfViewerContainer', { static: false }) pdfViewerContainer;
+  @ViewChild('pdfViewerContainer') pdfViewerContainer;
   private isVisible: boolean = false;
 
   static CSS_UNITS: number = 96.0 / 72.0;

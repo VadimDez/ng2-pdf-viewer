@@ -28,7 +28,7 @@ function attachDOMEventsToEventBus(eventBus: any) {
   });
   eventBus.on('pagechanging', function(evt) {
     const event = document.createEvent('UIEvents');
-    event.initUIEvent('pagechanging', true, true, window, 0);
+    event.initEvent('pagechanging', true, true);
     event['pageNumber'] = evt.pageNumber;
     evt.source.container.dispatchEvent(event);
   });
@@ -46,14 +46,14 @@ function attachDOMEventsToEventBus(eventBus: any) {
   });
   eventBus.on('scalechange', function(evt) {
     const event = document.createEvent('UIEvents');
-    event.initUIEvent('scalechange', true, true, window, 0);
+    event.initEvent('scalechange', true, true);
     event['scale'] = evt.scale;
     event['presetValue'] = evt.presetValue;
     evt.source.container.dispatchEvent(event);
   });
   eventBus.on('updateviewarea', function(evt) {
     const event = document.createEvent('UIEvents');
-    event.initUIEvent('updateviewarea', true, true, window, 0);
+    event.initEvent('updateviewarea', true, true);
     event['location'] = evt.location;
     evt.source.container.dispatchEvent(event);
   });
