@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.1.0
+* [[#569](https://github.com/VadimDez/ng2-pdf-viewer/pull/569)] - Update to angular 9
+* [[#568](https://github.com/VadimDez/ng2-pdf-viewer/issues/568)] - Project seems be incompatible when used in an Angular 9 proejct
+
 ## 6.0.2
 * [[#526](https://github.com/VadimDez/ng2-pdf-viewer/pull/526)] - Cancel downloading/rendering, clear rendered pdf
 
