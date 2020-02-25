@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.1.1
+* [[a8ddd42](https://github.com/VadimDez/ng2-pdf-viewer/commit/a8ddd4295333cbd1f8e85ba454d484afa6039152)] - Downgrade Typescript for compatibility
+
 ## 6.1.0
 * [[#569](https://github.com/VadimDez/ng2-pdf-viewer/pull/569)] - Update to angular 9
 * [[#568](https://github.com/VadimDez/ng2-pdf-viewer/issues/568)] - Project seems be incompatible when used in an Angular 9 proejct
