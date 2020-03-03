@@ -1,5 +1,112 @@
 # Changelog
 
+## 6.1.1
+* [[a8ddd42](https://github.com/VadimDez/ng2-pdf-viewer/commit/a8ddd4295333cbd1f8e85ba454d484afa6039152)] - Downgrade Typescript for compatibility
+
+## 6.1.0
+* [[#569](https://github.com/VadimDez/ng2-pdf-viewer/pull/569)] - Update to angular 9
+* [[#568](https://github.com/VadimDez/ng2-pdf-viewer/issues/568)] - Project seems be incompatible when used in an Angular 9 proejct
+
+## 6.0.2
+* [[#526](https://github.com/VadimDez/ng2-pdf-viewer/pull/526)] - Cancel downloading/rendering, clear rendered pdf
+
+## 6.0.1
+* [[#525](https://github.com/VadimDez/ng2-pdf-viewer/pull/525)] - cancel loading task before loading document
+* [[#502](https://github.com/VadimDez/ng2-pdf-viewer/issues/502)] - Is it possible to terminate a page rendering?
+
+## 6.0.0
+* [[#445](https://github.com/VadimDez/ng2-pdf-viewer/pull/445)] - Issue #223 PR
+* [[#223](https://github.com/VadimDez/ng2-pdf-viewer/issues/223)] - Update page number when scrolling on "show-all" mode
+* [[#440](https://github.com/VadimDez/ng2-pdf-viewer/issues/440)] - Large PDF >300 pages, rendering problems
+* [[#422](https://github.com/VadimDez/ng2-pdf-viewer/issues/422)] - Styling issue when trying to putting pdf viewer to right of html content
+* [[#410](https://github.com/VadimDez/ng2-pdf-viewer/issues/410)] - Large Size PDF(pages) causes Browser Crash
+* [[#394](https://github.com/VadimDez/ng2-pdf-viewer/issues/394)] - Calling this.pdf.pdfViewer.scrollPageIntoView({ pageNumber: 20 }); does not work
+* [[#386](https://github.com/VadimDez/ng2-pdf-viewer/issues/386)] - Loading spinners never go away
+* [[#337](https://github.com/VadimDez/ng2-pdf-viewer/issues/337)] - Avoid reloading after zoom in/out
+* [[#299](https://github.com/VadimDez/ng2-pdf-viewer/issues/299)] - PDF not show when browser zoom is low or low resolution
+* [[#261](https://github.com/VadimDez/ng2-pdf-viewer/issues/261)] - Last page never loads when zoom level is below ~0.4
+* [[#244](https://github.com/VadimDez/ng2-pdf-viewer/issues/244)] - stick-to-page doesn't work
+* [[#219](https://github.com/VadimDez/ng2-pdf-viewer/issues/219)] - Component stops rendering when display goes out of view
+* [[#516](https://github.com/VadimDez/ng2-pdf-viewer/issues/516)] - Memory leak issue in IOS when open large PDF file
+* [[#471](https://github.com/VadimDez/ng2-pdf-viewer/issues/471)] - ng2-pdf not rendering all pages
+* [[#460](https://github.com/VadimDez/ng2-pdf-viewer/issues/460)] - How to disable scroll on page change?
+* [[#449](https://github.com/VadimDez/ng2-pdf-viewer/issues/449)] - Blank page IOS
+* [[#418](https://github.com/VadimDez/ng2-pdf-viewer/issues/418)] - Can't disable scrollPageIntoView while changing pages in Safari
+* [[#414](https://github.com/VadimDez/ng2-pdf-viewer/issues/414)] - PDFDocumentProxy : destroy() doesn't work : memory bloat
+* [[#403](https://github.com/VadimDez/ng2-pdf-viewer/issues/403)] - <!doctype html> issue
+* [[#397](https://github.com/VadimDez/ng2-pdf-viewer/issues/397)] - stick-to-page does not work
+* [[#392](https://github.com/VadimDez/ng2-pdf-viewer/issues/392)] - Memory issue
+* [[#388](https://github.com/VadimDez/ng2-pdf-viewer/issues/388)] - Tracking page
+* [[#372](https://github.com/VadimDez/ng2-pdf-viewer/issues/372)] - Max size / Scroll bars not visible
+* [[#360](https://github.com/VadimDez/ng2-pdf-viewer/issues/360)] - [show-all]="true", [stick-to-page]="true", [page]="boundValue" does not work if I set 'max-height' to 'pdf-viewer'
+
+### Breaking change
+Now with the use of `CSS` you need to define dimensions (for example: `height`) of the `pdf-viewer` container element. (`pdf-viewer` should become container with scrollbar) This will improve `pdf-viewer` **performance** and eneble all the **features**.
+
+```css
+pdf-viewer {
+  /* define height */
+  height: 700px;
+  /* or use flex for example */
+  flex: 1;
+}
+```
+
+## 5.3.4
+* [[#508](https://github.com/VadimDez/ng2-pdf-viewer/pull/508)] - Fix PDF scaling when rotating
+* [[#509](https://github.com/VadimDez/ng2-pdf-viewer/pull/509)] - add removePageBorders option
+* [[#510](https://github.com/VadimDez/ng2-pdf-viewer/pull/510)] - Emit pageChange on MultiPageViewer
+
+## 5.3.3
+* Update PDFJS dependency
+* [[#499](https://github.com/VadimDez/ng2-pdf-viewer/pull/499)] - update page number upon page changing event
+* [[#474](https://github.com/VadimDez/ng2-pdf-viewer/issues/474)] - Clicking a link in the pdf performs a page change but does not emit a (pageChange) event
+
+## 5.3.2
+ * [[#487](https://github.com/VadimDez/ng2-pdf-viewer/issues/487)] - Deprecated API usage: getViewport is called with obsolete arguments
+
+## 5.3.1
+* Updated Angular to version 8
+* [[#482](https://github.com/VadimDez/ng2-pdf-viewer/issues/482)] - Compatibility with Angular 8
+* [[#475](https://github.com/VadimDez/ng2-pdf-viewer/issues/475)] - Conflict pdf.js 2.0.943 and quill.js 1.3.6
+
+## 5.3.0
+* [[#465](https://github.com/VadimDez/ng2-pdf-viewer/pull/465)] - fix: Listen for textlayerrendered events from eventBus
+* Changed init approach: Do not initialize viewer in the hidden views (first try)
+
+## 5.2.4
+* [[#457](https://github.com/VadimDez/ng2-pdf-viewer/pull/457)] - fix: allow pdfjs typings peer dependency v2
+* [[#408](https://github.com/VadimDez/ng2-pdf-viewer/issues/408)] - Regression: Version 5.2 Broke (page-rendered)
+* [[#420](https://github.com/VadimDez/ng2-pdf-viewer/pull/420)] - PR for Issue 408
+
+## 5.2.3
+* [[#402](https://github.com/VadimDez/ng2-pdf-viewer/issues/402)] - Page is not working
+
+## 5.2.2
+* [[#409](https://github.com/VadimDez/ng2-pdf-viewer/pull/409)] - suppress z-lib warning in angular6+
+* [[#322](https://github.com/VadimDez/ng2-pdf-viewer/issues/322)] - Angular 6 support
+
+## 5.2.1
+* [[#371](https://github.com/VadimDez/ng2-pdf-viewer/issues/371)] - Cannot read property 'version' of undefined when rendering on the server
+
+## 5.2.0
+* [[#393](https://github.com/VadimDez/ng2-pdf-viewer/pull/393)] - Fix for broken search functionality when showPage=false
+* [[#375](https://github.com/VadimDez/ng2-pdf-viewer/issues/375)] - Search and highlight not working when [show-all]="false" [page]="4"
+* [[#314](https://github.com/VadimDez/ng2-pdf-viewer/issues/314)] - Search functionality not working if i set show all false.
+* [[#293](https://github.com/VadimDez/ng2-pdf-viewer/issues/293)] - Highlight on single page load
+
+## 5.1.3
+* [[#390](https://github.com/VadimDez/ng2-pdf-viewer/pull/390)] - enable setting render text mode to enchanced
+
+You can now set text rendering mode to RenderTextMode.DISABLED, RenderTextMode.ENABLED or RenderTextMode.ENHANCED
+
+```
+[render-text-mode]="1"
+```
+
+## 5.1.2
+* [[#366](https://github.com/VadimDez/ng2-pdf-viewer/pull/366)] - add text-layer-rendered event emitter
+
 ## 5.1.1
 * [[#338](https://github.com/VadimDez/ng2-pdf-viewer/pull/347)] - support for non-latin characters
 * [[#324](https://github.com/VadimDez/ng2-pdf-viewer/issues/324)] - PDF preview does not display Chinese

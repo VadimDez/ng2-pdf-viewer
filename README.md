@@ -15,6 +15,9 @@
   <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
     <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
   </a>
+  <a href="https://greenkeeper.io/" title="Greenkeeper">
+    <img src="https://badges.greenkeeper.io/VadimDez/ng2-pdf-viewer.svg" alt="Greenkeeper badge"/>
+  </a>
   <a href="https://www.paypal.me/vadimdez" title="Donate to this project using Paypal">
     <img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" />
   </a>
@@ -26,9 +29,9 @@
 
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-#### Plunker Example 
+#### Stackblitz Example 
 
-[https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview](https://plnkr.co/edit/OlGVuS6oo2aVanokdBCw?p=preview)
+[https://stackblitz.com/edit/ng2-pdf-viewer](https://stackblitz.com/edit/ng2-pdf-viewer)
 
 ### Blog post
 
@@ -54,7 +57,7 @@ npm install ng2-pdf-viewer --save
 
 ## Usage
 
-In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).
+*In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).*
 
 Add ```PdfViewerModule``` to your module's ```imports```
 
@@ -84,10 +87,6 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'example-app',
   template: `
-  <div>
-      <label>PDF src</label>
-      <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
-  </div>
   <pdf-viewer [src]="pdfSrc" 
               [render-text]="true"
               style="display: block;"
@@ -95,7 +94,7 @@ import { Component } from '@angular/core';
   `
 })
 export class AppComponent {
-  pdfSrc: string = '/pdf-test.pdf';
+  pdfSrc = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
 }
 ```
 
@@ -106,6 +105,7 @@ export class AppComponent {
 * [[stick-to-page]](#stick-to-page)
 * [[external-link-target]](#external-link-target)
 * [[render-text]](#render-text)
+* [[render-text-mode]](#render-text-mode)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
 * [[original-size]](#original-size)
@@ -113,8 +113,10 @@ export class AppComponent {
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
 * [[c-maps-url]](#c-maps-url)
+* [[show-borders]](#show-borders)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
+* [(text-layer-rendered)](#text-layer-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
 
@@ -130,9 +132,9 @@ Pass pdf location
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
-For more control you can pass options object to ```[src]```.
+For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
 
-Options object for loading protected PDF would be
+Options object for loading protected PDF would be:
  
  ```js
  {
@@ -140,8 +142,6 @@ Options object for loading protected PDF would be
   withCredentials: true
  }
  ```
- 
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
 
 #### [page]
 
@@ -181,6 +181,26 @@ Sticks view to the page. Works in combination with `[show-all]="true"` and `page
 Enable text rendering, allows to select text
 ```
 [render-text]="true"
+```
+
+#### [render-text-mode]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [render-text-mode] | *RenderTextMode* | *Optional* |
+
+Used in combination with `[render-text]="true"`
+
+Controls if the text layer is enabled, and the selection mode that is used.
+
+`0 = RenderTextMode.DISABLED.` - disable the text selection layer
+
+`1 = RenderTextMode.ENABLED.` - enables the text selection layer
+
+`2 = RenderTextMode.ENHANCED` - enables enhanced text selection
+
+```
+[render-text-mode]="1"
 ```
 
 #### [external-link-target]
@@ -291,6 +311,17 @@ Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/
 
 To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
 
+### [show-borders]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [show-borders] | *boolean* | Optional |
+
+Show page borders
+```
+[show-borders]="true"
+```
+
 #### (after-load-complete)
 
 | Property | Type | Required |
@@ -330,7 +361,29 @@ pageRendered(e: CustomEvent) {
 And then bind it to `<pdf-viewer>`:
 
 ```angular2html
-(page-rendered)="pageRendered($event)
+(page-rendered)="pageRendered($event)"
+```
+
+#### (text-layer-rendered)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (text-layer-rendered) | *callback* | *Optional* |
+
+Get event when a text layer is rendered.
+
+Define callback in your component:
+
+```typescript
+textLayerRendered(e: CustomEvent) {
+  console.log('(text-layer-rendered)', e);
+}
+```
+
+And then bind it to `<pdf-viewer>`:
+
+```angular2html
+(text-layer-rendered)="textLayerRendered($event)"
 ```
 
 #### (error)
@@ -436,6 +489,11 @@ search(stringToSearch: string) {
 
 ## Contribute
 [See CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Donation
+If this project help you reduce time to develop, you can give me a cup of tea :) 
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/vadimdez)
 
 ## License
 

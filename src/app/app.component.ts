@@ -2,7 +2,11 @@
  * Created by vadimdez on 21/06/16.
  */
 import { Component, ViewChild } from '@angular/core';
-import { PDFProgressData, PDFDocumentProxy, PDFSource } from './pdf-viewer/pdf-viewer.module';
+import {
+  PDFProgressData,
+  PDFDocumentProxy,
+  PDFSource
+} from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
@@ -12,9 +16,7 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-
 export class AppComponent {
-
   pdfSrc: string | PDFSource | ArrayBuffer = './assets/pdf-test.pdf';
 
   // or pass options as object
@@ -41,13 +43,15 @@ export class AppComponent {
   fitToPage = false;
   outline: any[];
   isOutlineShown = false;
+  pdfQuery = '';
 
-  @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+  @ViewChild(PdfViewerComponent)
+  private pdfComponent: PdfViewerComponent;
 
   // Load pdf
   loadPdf() {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8000/pdf-test.pdf', true);
+    xhr.open('GET', '/assets/pdf-test.pdf', true);
     xhr.responseType = 'blob';
 
     xhr.onload = (e: any) => {
@@ -86,7 +90,7 @@ export class AppComponent {
   onFileSelected() {
     const $pdf: any = document.querySelector('#file');
 
-    if (typeof (FileReader) !== 'undefined') {
+    if (typeof FileReader !== 'undefined') {
       const reader = new FileReader();
 
       reader.onload = (e: any) => {
@@ -103,7 +107,6 @@ export class AppComponent {
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
-    this.isLoaded = true;
 
     this.loadOutline();
   }
@@ -126,7 +129,9 @@ export class AppComponent {
     this.error = error; // set error
 
     if (error.name === 'PasswordException') {
-      const password = prompt('This document is password protected. Enter the password:');
+      const password = prompt(
+        'This document is password protected. Enter the password:'
+      );
 
       if (password) {
         this.error = null;
@@ -158,7 +163,8 @@ export class AppComponent {
   onProgress(progressData: PDFProgressData) {
     console.log(progressData);
     this.progressData = progressData;
-    this.isLoaded = false;
+
+    this.isLoaded = progressData.loaded >= progressData.total;
     this.error = null; // clear error
   }
 
@@ -190,5 +196,20 @@ export class AppComponent {
    */
   pageRendered(e: CustomEvent) {
     console.log('(page-rendered)', e);
+  }
+
+  searchQueryChanged(newQuery: string) {
+    if (newQuery !== this.pdfQuery) {
+      this.pdfQuery = newQuery;
+      this.pdfComponent.pdfFindController.executeCommand('find', {
+        query: this.pdfQuery,
+        highlightAll: true
+      });
+    } else {
+      this.pdfComponent.pdfFindController.executeCommand('findagain', {
+        query: this.pdfQuery,
+        highlightAll: true
+      });
+    }
   }
 }
