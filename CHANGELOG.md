@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.1.2
+* [[#582](https://github.com/VadimDez/ng2-pdf-viewer/pull/582)] - Fix rotated PDF files have a scale computation issue
+* [[#554](https://github.com/VadimDez/ng2-pdf-viewer/issues/554)] - Rotated PDF files have a scale computation issue
+
 ## 6.1.1
 * [[a8ddd42](https://github.com/VadimDez/ng2-pdf-viewer/commit/a8ddd4295333cbd1f8e85ba454d484afa6039152)] - Downgrade Typescript for compatibility
 
