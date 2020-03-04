@@ -343,10 +343,11 @@ export class PdfViewerComponent
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
+        const rotation = this._rotation || page.rotate;
         const viewportWidth =
           (page as any).getViewport({
             scale: this._zoom,
-            rotation: this._rotation
+            rotation
           }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
@@ -358,7 +359,7 @@ export class PdfViewerComponent
             viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(
-            (page as any).getViewport({ scale: 1, rotation: this._rotation })
+            (page as any).getViewport({ scale: 1, rotation })
               .width
           );
           stickToPage = !this._stickToPage;
