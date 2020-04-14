@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.2.0
+* [[#461](https://github.com/VadimDez/ng2-pdf-viewer/issues/461)] - peer dependency for pdfjs-dist
+* [[c391f99](https://github.com/VadimDez/ng2-pdf-viewer/commit/c391f99c760f19398c6fb526c0ff6f0736c16da6)] - Removed peer dependencies
+
 ## 6.1.3
 * [[#553](https://github.com/VadimDez/ng2-pdf-viewer/pull/553)] - Bugfix #539 Only emit pageChage on actual change
 * [[#539](https://github.com/VadimDez/ng2-pdf-viewer/issues/539)] - [(page)] two way binding causes infinite loop
