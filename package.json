@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "description": "Angular 5+ component for rendering PDF",
   "license": "MIT",
   "scripts": {
@@ -36,10 +36,6 @@
     "url": "https://github.com/VadimDez/ng2-pdf-viewer/issues"
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
-  "peerDependencies": {
-    "pdfjs-dist": "^2.2.228",
-    "@types/pdfjs-dist": "^2.1.0"
-  },
   "dependencies": {
     "@types/pdfjs-dist": "^2.1.0",
     "pdfjs-dist": "^2.2.228",
@@ -62,11 +58,11 @@
     "@angular/router": "~9.0.0",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
-    "@types/node": "^12.11.1",
+    "@types/node": "^13.7.2",
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
-    "karma": "~4.4.0",
+    "karma": "~5.0.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage-istanbul-reporter": "~2.1.0",
     "karma-jasmine": "~3.1.1",
