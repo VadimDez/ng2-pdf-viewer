@@ -57,7 +57,7 @@ export enum RenderTextMode {
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
-  @ViewChild('pdfViewerContainer', { static: false }) pdfViewerContainer;
+  @ViewChild('pdfViewerContainer') pdfViewerContainer;
   private isVisible: boolean = false;
 
   static CSS_UNITS: number = 96.0 / 72.0;
@@ -114,16 +114,19 @@ export class PdfViewerComponent
     this._cMapsUrl = cMapsUrl;
   }
 
-  @Input('page')
+ @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10) || 1;
+    const orginalPage = _page;
 
     if (this._pdf) {
       _page = this.getValidPageNumber(_page);
     }
 
     this._page = _page;
-    this.pageChange.emit(_page);
+    if (orginalPage !== _page) {
+      this.pageChange.emit(_page);
+    }
   }
 
   @Input('render-text')
@@ -343,10 +346,11 @@ export class PdfViewerComponent
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
+        const rotation = this._rotation || page.rotate;
         const viewportWidth =
           (page as any).getViewport({
             scale: this._zoom,
-            rotation: this._rotation
+            rotation
           }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
@@ -358,7 +362,7 @@ export class PdfViewerComponent
             viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
           scale = this.getScale(
-            (page as any).getViewport({ scale: 1, rotation: this._rotation })
+            (page as any).getViewport({ scale: 1, rotation })
               .width
           );
           stickToPage = !this._stickToPage;
