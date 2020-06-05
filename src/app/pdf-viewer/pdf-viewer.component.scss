@@ -47,7 +47,10 @@
       }
     }
 
-    ::-moz-selection,
+    ::-moz-selection {
+      background: rgb(0, 0, 255);
+    }
+    
     ::selection {
       background: rgb(0, 0, 255);
     }

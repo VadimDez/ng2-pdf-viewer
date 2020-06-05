@@ -1,5 +1,20 @@
 # Changelog
 
+## 6.3.1
+* [[#505](https://github.com/VadimDez/ng2-pdf-viewer/issues/505)] - Selectable text does not fit the rendered textsplit
+* [[#610](https://github.com/VadimDez/ng2-pdf-viewer/pull/610)] - Selection rule so that browser can handle it
+
+## 6.3.0
+* [[#601](https://github.com/VadimDez/ng2-pdf-viewer/issues/601)] - support for pdf.js v2.4.456
+
+## 6.2.0
+* [[#461](https://github.com/VadimDez/ng2-pdf-viewer/issues/461)] - peer dependency for pdfjs-dist
+* [[c391f99](https://github.com/VadimDez/ng2-pdf-viewer/commit/c391f99c760f19398c6fb526c0ff6f0736c16da6)] - Removed peer dependencies
+
+## 6.1.3
+* [[#553](https://github.com/VadimDez/ng2-pdf-viewer/pull/553)] - Bugfix #539 Only emit pageChage on actual change
+* [[#539](https://github.com/VadimDez/ng2-pdf-viewer/issues/539)] - [(page)] two way binding causes infinite loop
+
 ## 6.1.2
 * [[#582](https://github.com/VadimDez/ng2-pdf-viewer/pull/582)] - Fix rotated PDF files have a scale computation issue
 * [[#554](https://github.com/VadimDez/ng2-pdf-viewer/issues/554)] - Rotated PDF files have a scale computation issue
