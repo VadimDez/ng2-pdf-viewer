@@ -82,6 +82,7 @@ export class PdfViewerComponent
   private _pdf: PDFDocumentProxy;
   private _page = 1;
   private _zoom = 1;
+  private _zoomScale: 'page-height'|'page-fit'|'page-width' = 'page-width';
   private _rotation = 0;
   private _showAll = true;
   private _canAutoResize = true;
@@ -163,8 +164,13 @@ export class PdfViewerComponent
     this._zoom = value;
   }
 
-  get zoom() {
-    return this._zoom;
+  @Input('zoom-scale')
+  set zoomScale(value: 'page-height'|'page-fit' | 'page-width') {
+    this._zoomScale = value;
+  }
+
+  get zoomScale() {
+    return this._zoomScale;
   }
 
   @Input('rotation')
@@ -361,10 +367,8 @@ export class PdfViewerComponent
           (this._fitToPage &&
             viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
-          scale = this.getScale(
-            (page as any).getViewport({ scale: 1, rotation })
-              .width
-          );
+          const viewPort = (page as any).getViewport({ scale: 1, rotation });
+          scale = this.getScale(viewPort.width, viewPort.height);
           stickToPage = !this._stickToPage;
         }
 
@@ -592,19 +596,30 @@ export class PdfViewerComponent
     this.updateSize();
   }
 
-  private getScale(viewportWidth: number) {
-    const pdfContainerWidth =
-      this.pdfViewerContainer.nativeElement.clientWidth -
-      (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
+  private getScale(viewportWidth: number, viewportHeight: number) {
+    const borderSize = (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
+    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
+    const pdfContainerHeight = this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
 
-    if (pdfContainerWidth === 0 || viewportWidth === 0) {
+    if (pdfContainerHeight === 0 || viewportHeight === 0 || pdfContainerWidth === 0 || viewportWidth === 0) {
       return 1;
     }
 
-    return (
-      (this._zoom * (pdfContainerWidth / viewportWidth)) /
-      PdfViewerComponent.CSS_UNITS
-    );
+    let ratio = 1;
+    switch (this._zoomScale) {
+      case 'page-fit':
+        ratio = Math.min((pdfContainerHeight / viewportHeight), (pdfContainerWidth / viewportWidth));
+        break;
+      case 'page-height':
+        ratio = (pdfContainerHeight / viewportHeight);
+        break;
+      case 'page-width':
+      default:
+        ratio = (pdfContainerWidth / viewportWidth);
+        break;
+    }
+
+    return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 
   private getCurrentViewer(): any {
