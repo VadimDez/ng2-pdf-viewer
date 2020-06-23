@@ -164,6 +164,10 @@ export class PdfViewerComponent
     this._zoom = value;
   }
 
+  get zoom() {
+    return this._zoom;
+  }
+
   @Input('zoom-scale')
   set zoomScale(value: 'page-height'|'page-fit' | 'page-width') {
     this._zoomScale = value;
