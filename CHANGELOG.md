@@ -3,6 +3,7 @@
 ## 6.3.1
 * [[#505](https://github.com/VadimDez/ng2-pdf-viewer/issues/505)] - Selectable text does not fit the rendered textsplit
 * [[#610](https://github.com/VadimDez/ng2-pdf-viewer/pull/610)] - Selection rule so that browser can handle it
+* [[#621](https://github.com/VadimDez/ng2-pdf-viewer/pull/621)] - feat(zoom): configurability of scale (page-width/page-height/page-fit)
 
 ## 6.3.0
 * [[#601](https://github.com/VadimDez/ng2-pdf-viewer/issues/601)] - support for pdf.js v2.4.456
