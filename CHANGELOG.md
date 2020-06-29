@@ -1,5 +1,35 @@
 # Changelog
 
+## 6.3.1
+* [[#505](https://github.com/VadimDez/ng2-pdf-viewer/issues/505)] - Selectable text does not fit the rendered textsplit
+* [[#610](https://github.com/VadimDez/ng2-pdf-viewer/pull/610)] - Selection rule so that browser can handle it
+* [[#621](https://github.com/VadimDez/ng2-pdf-viewer/pull/621)] - feat(zoom): configurability of scale (page-width/page-height/page-fit)
+
+## 6.3.0
+* [[#601](https://github.com/VadimDez/ng2-pdf-viewer/issues/601)] - support for pdf.js v2.4.456
+
+## 6.2.0
+* [[#461](https://github.com/VadimDez/ng2-pdf-viewer/issues/461)] - peer dependency for pdfjs-dist
+* [[c391f99](https://github.com/VadimDez/ng2-pdf-viewer/commit/c391f99c760f19398c6fb526c0ff6f0736c16da6)] - Removed peer dependencies
+
+## 6.1.3
+* [[#553](https://github.com/VadimDez/ng2-pdf-viewer/pull/553)] - Bugfix #539 Only emit pageChage on actual change
+* [[#539](https://github.com/VadimDez/ng2-pdf-viewer/issues/539)] - [(page)] two way binding causes infinite loop
+
+## 6.1.2
+* [[#582](https://github.com/VadimDez/ng2-pdf-viewer/pull/582)] - Fix rotated PDF files have a scale computation issue
+* [[#554](https://github.com/VadimDez/ng2-pdf-viewer/issues/554)] - Rotated PDF files have a scale computation issue
+
+## 6.1.1
+* [[a8ddd42](https://github.com/VadimDez/ng2-pdf-viewer/commit/a8ddd4295333cbd1f8e85ba454d484afa6039152)] - Downgrade Typescript for compatibility
+
+## 6.1.0
+* [[#569](https://github.com/VadimDez/ng2-pdf-viewer/pull/569)] - Update to angular 9
+* [[#568](https://github.com/VadimDez/ng2-pdf-viewer/issues/568)] - Project seems be incompatible when used in an Angular 9 proejct
+
+## 6.0.2
+* [[#526](https://github.com/VadimDez/ng2-pdf-viewer/pull/526)] - Cancel downloading/rendering, clear rendered pdf
+
 ## 6.0.1
 * [[#525](https://github.com/VadimDez/ng2-pdf-viewer/pull/525)] - cancel loading task before loading document
 * [[#502](https://github.com/VadimDez/ng2-pdf-viewer/issues/502)] - Is it possible to terminate a page rendering?

@@ -5,7 +5,10 @@ import {
   MatInputModule,
   MatSlideToggleModule,
   MatToolbarModule,
-  MatSidenavModule
+  MatSidenavModule,
+  MatTooltipModule,
+  MatOptionModule,
+  MatSelectModule
 } from '@angular/material';
 
 @NgModule({
@@ -14,16 +17,22 @@ import {
     MatInputModule,
     MatFormFieldModule,
     MatSlideToggleModule,
+    MatSelectModule,
+    MatOptionModule,
     MatToolbarModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatTooltipModule
   ],
   exports: [
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
     MatSlideToggleModule,
+    MatSelectModule,
+    MatOptionModule,
     MatToolbarModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatTooltipModule
   ]
 })
 export class DemoMaterialModule {}

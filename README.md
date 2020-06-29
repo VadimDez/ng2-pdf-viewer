@@ -108,6 +108,7 @@ export class AppComponent {
 * [[render-text-mode]](#render-text-mode)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
+* [[zoom-scale]](#zoom-scale)
 * [[original-size]](#original-size)
 * [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
@@ -127,23 +128,21 @@ export class AppComponent {
 | [src] | *string, object, UInt8Array* | Required |
 
 Pass pdf location
- 
+
 ```
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
-For more control you can pass options object to ```[src]```.
+For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
 
-Options object for loading protected PDF would be
- 
+Options object for loading protected PDF would be:
+
  ```js
  {
   url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
   withCredentials: true
  }
  ```
- 
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
 
 #### [page]
 
@@ -160,6 +159,14 @@ Page number
 supports two way data binding as well
 ```
 [(page)]="pageVariable"
+```
+
+If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the hight of the container, for example:
+```
+pdf-viewer {
+    display: block;
+    height: 100vh;
+}
 ```
 
 #### [stick-to-page]
@@ -245,6 +252,24 @@ Rotate PDF
 Zoom pdf
 ```
 [zoom]="0.5"
+```
+
+#### [zoom-scale]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [zoom-scale] | *'page-width'\|'page-fit'\|'page-height'* | *Optional* |
+
+Defines how the Zoom scale is computed when  `[original-size]="false"`, by default set to 'page-width'.
+
+- *'page-width'* with zoom of 1 will display a page width that take all the possible horizontal space in the container
+
+- *'page-height'* with zoom of 1 will display a page height that take all the possible vertical space in the container
+
+- *'page-fit'* with zoom of 1 will display a page that will be scaled to either width or height to fit completely in the container
+
+```
+[zoom-scale]="page-width"
 ```
 
 #### [original-size]

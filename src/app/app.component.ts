@@ -32,6 +32,7 @@ export class AppComponent {
   page = 1;
   rotation = 0;
   zoom = 1.0;
+  zoomScale = 'page-width';
   originalSize = false;
   pdf: any;
   renderText = true;
@@ -45,13 +46,13 @@ export class AppComponent {
   isOutlineShown = false;
   pdfQuery = '';
 
-  @ViewChild(PdfViewerComponent, { static: false })
+  @ViewChild(PdfViewerComponent)
   private pdfComponent: PdfViewerComponent;
 
   // Load pdf
   loadPdf() {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8000/assets/pdf-test.pdf', true);
+    xhr.open('GET', '/assets/pdf-test.pdf', true);
     xhr.responseType = 'blob';
 
     xhr.onload = (e: any) => {
