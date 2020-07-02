@@ -285,9 +285,7 @@ export class PdfViewerComponent
   }
 
   ngOnDestroy() {
-    if (this._pdf) {
-      this._pdf.destroy();
-    }
+    this.clear();
   }
 
   @HostListener('window:resize', [])
