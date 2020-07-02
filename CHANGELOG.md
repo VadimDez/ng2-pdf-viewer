@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.3.2
+* [[#627](https://github.com/VadimDez/ng2-pdf-viewer/pull/627)] - Fixing memory issue
+
 ## 6.3.1
 * [[#505](https://github.com/VadimDez/ng2-pdf-viewer/issues/505)] - Selectable text does not fit the rendered textsplit
 * [[#610](https://github.com/VadimDez/ng2-pdf-viewer/pull/610)] - Selection rule so that browser can handle it
