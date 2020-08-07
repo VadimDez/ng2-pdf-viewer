@@ -23,6 +23,8 @@
   </a>
 </p>
 
+[![Promo banner](https://xscode.com/assets/promo-banner.svg)](https://xscode.com/vadimdez/ng2-pdf-viewer)
+
 > PDF Viewer Component for Angular 5+
 
 ### Demo page
