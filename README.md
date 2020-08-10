@@ -1,3 +1,5 @@
+[![angular-5-PDF-viewer-banner](https://user-images.githubusercontent.com/3748453/89762181-325a3400-daf0-11ea-8b02-f4be5458d416.png)](https://xscode.com/vadimdez/ng2-pdf-viewer)
+
 <h1 align="center">Angular 5+ PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
@@ -22,8 +24,6 @@
     <img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" />
   </a>
 </p>
-
-[![Promo banner](https://xscode.com/assets/promo-banner.svg)](https://xscode.com/vadimdez/ng2-pdf-viewer)
 
 > PDF Viewer Component for Angular 5+
 
