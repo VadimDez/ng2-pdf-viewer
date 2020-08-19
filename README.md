@@ -1,3 +1,5 @@
+[![angular-5-PDF-viewer-banner](https://user-images.githubusercontent.com/3748453/89762181-325a3400-daf0-11ea-8b02-f4be5458d416.png)](https://xscode.com/vadimdez/ng2-pdf-viewer)
+
 <h1 align="center">Angular 5+ PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
@@ -108,6 +110,7 @@ export class AppComponent {
 * [[render-text-mode]](#render-text-mode)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
+* [[zoom-scale]](#zoom-scale)
 * [[original-size]](#original-size)
 * [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
@@ -127,7 +130,7 @@ export class AppComponent {
 | [src] | *string, object, UInt8Array* | Required |
 
 Pass pdf location
- 
+
 ```
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
@@ -135,7 +138,7 @@ Pass pdf location
 For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
 
 Options object for loading protected PDF would be:
- 
+
  ```js
  {
   url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
@@ -251,6 +254,24 @@ Rotate PDF
 Zoom pdf
 ```
 [zoom]="0.5"
+```
+
+#### [zoom-scale]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [zoom-scale] | *'page-width'\|'page-fit'\|'page-height'* | *Optional* |
+
+Defines how the Zoom scale is computed when  `[original-size]="false"`, by default set to 'page-width'.
+
+- *'page-width'* with zoom of 1 will display a page width that take all the possible horizontal space in the container
+
+- *'page-height'* with zoom of 1 will display a page height that take all the possible vertical space in the container
+
+- *'page-fit'* with zoom of 1 will display a page that will be scaled to either width or height to fit completely in the container
+
+```
+[zoom-scale]="page-width"
 ```
 
 #### [original-size]
@@ -471,7 +492,7 @@ By default the `worker` is loaded from `cdnjs.cloudflare.com`.
 
 In your code update `path` to the worker to be for example `/pdf.worker.js` 
 ```typescript
-(<any>window).pdfWorkerSrc = '/pdf.worker.js';
+(window as any).pdfWorkerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
 

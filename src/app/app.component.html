@@ -60,6 +60,15 @@
       </mat-slide-toggle>
     </div>
 
+    <mat-form-field *ngIf="!originalSize">
+      <mat-label>Select an option</mat-label>
+      <mat-select [(value)]="zoomScale">
+        <mat-option value="page-width">Page Width</mat-option>
+        <mat-option value="page-height">Page Height</mat-option>
+        <mat-option value="page-fit">Page Fit</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <div class="mb">
       <button (click)="incrementZoom(-0.1)" mat-button type="button">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -174,8 +183,8 @@
 
 
   <mat-drawer-content>
-    <pdf-viewer [src]="pdfSrc" [(page)]="page" [rotation]="rotation" [original-size]="originalSize"
-      [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [show-all]="showAll"
+    <pdf-viewer [src]="pdfSrc" [(page)]="page" [rotation]="rotation" [original-size]="originalSize" [show-all]="showAll"
+      [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [zoom-scale]="zoomScale" 
       [stick-to-page]="stickToPage" [render-text]="renderText" [external-link-target]="'blank'"
       [autoresize]="autoresize" (error)="onError($event)" (on-progress)="onProgress($event)"
       (page-rendered)="pageRendered($event)"></pdf-viewer>
