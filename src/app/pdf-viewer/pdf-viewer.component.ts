@@ -497,7 +497,7 @@ export class PdfViewerComponent
       return 1;
     }
 
-    if (page > this._pdf.numPages) {
+    if (this._pdf && page > this._pdf.numPages) {
       return this._pdf.numPages;
     }
 
