@@ -6,50 +6,11 @@ mat-toolbar {
   z-index: 100;
 }
 
-main {
-  margin-top: 64px;
-}
-
-.page-content {
-  padding-top: 10px;
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-header {
-  color: #fff;
-  background-color: #3f51b5;
-  padding-top: 25px;
-  padding-bottom: 25px;
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-header svg {
-  fill: #fff;
-  width: 56px;
-  height: 56px;
-}
-
-@media all and (max-width: 480px) {
-  .page-content {
-      width: 100%;
-      margin-left: 10px;
-      margin-right: 10px;
-  }
-}
-
-@media all and (max-width: 600px) {
-  main {
-      margin-top: 56px;
-  }
-}
-
 .select-file__container {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+
 .select-file__container p {
   margin-bottom: 0;
 }
@@ -77,13 +38,16 @@ pdf-viewer {
   margin-left: auto;
   margin-right: auto;
 }
+
 #progress .bar,
 #progress .bg {
   height: 20px;
 }
+
 #progress .bg {
   background-color: #e3e3e3;
 }
+
 #progress .bar {
   width: 0;
   max-width: 100%;
@@ -94,6 +58,7 @@ pdf-viewer {
 .outline-list li a {
   cursor: pointer;
 }
+
 .outline-list li a:hover {
   color: #ea1f62;
 }
@@ -102,33 +67,23 @@ pdf-viewer {
   flex: 1 1 auto;
 }
 
-footer {
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-flow: row wrap;
-  -ms-flex-flow: row wrap;
-  flex-flow: row wrap;
-  padding: 32px 16px;
-  color: #c4c4c4;
-  background-color: #424242;
+mat-drawer {
+  width: 300px;
+  padding: 12px;
 }
 
-footer .name {
-  font-size: 14px;
-  margin-right: 18px;
-  line-height: 30px;
+mat-drawer-container {
+  position: absolute;
+  top: 64px;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 
-footer ul {
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-flow: row nowrap;
-  -ms-flex-flow: row nowrap;
-  flex-flow: row nowrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  align-items: center;
+pdf-viewer {
+  height: 100%;
+}
+
+.title {
+  width: 284px;
 }

@@ -11,7 +11,9 @@ import {
   SimpleChanges,
   OnInit,
   HostListener,
-  OnDestroy
+  OnDestroy,
+  ViewChild,
+  AfterViewChecked
 } from '@angular/core';
 import {
   PDFDocumentProxy,
@@ -47,12 +49,19 @@ export enum RenderTextMode {
 @Component({
   selector: 'pdf-viewer',
   template: `
-    <div class="ng2-pdf-viewer-container"><div class="pdfViewer"></div></div>
+    <div #pdfViewerContainer class="ng2-pdf-viewer-container">
+      <div class="pdfViewer"></div>
+    </div>
   `,
   styleUrls: ['./pdf-viewer.component.scss']
 })
-export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
+export class PdfViewerComponent
+  implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('pdfViewerContainer') pdfViewerContainer;
+  private isVisible: boolean = false;
+
   static CSS_UNITS: number = 96.0 / 72.0;
+  static BORDER_WIDTH: number = 9;
 
   private pdfMultiPageViewer: any;
   private pdfMultiPageLinkService: any;
@@ -73,14 +82,20 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   private _pdf: PDFDocumentProxy;
   private _page = 1;
   private _zoom = 1;
+  private _zoomScale: 'page-height'|'page-fit'|'page-width' = 'page-width';
   private _rotation = 0;
   private _showAll = true;
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
+  private _showBorders = false;
   private lastLoaded: string | Uint8Array | PDFSource;
+  private _latestScrolledPage: number;
 
   private resizeTimeout: NodeJS.Timer;
+  private pageScrollTimeout: NodeJS.Timer;
+  private isInitialized = false;
+  private loadingTask: any;
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<
     PDFDocumentProxy
@@ -101,16 +116,19 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this._cMapsUrl = cMapsUrl;
   }
 
-  @Input('page')
+ @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10) || 1;
+    const orginalPage = _page;
 
     if (this._pdf) {
       _page = this.getValidPageNumber(_page);
     }
 
     this._page = _page;
-    this.pageChange.emit(_page);
+    if (orginalPage !== _page) {
+      this.pageChange.emit(_page);
+    }
   }
 
   @Input('render-text')
@@ -151,6 +169,15 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     return this._zoom;
   }
 
+  @Input('zoom-scale')
+  set zoomScale(value: 'page-height'|'page-fit' | 'page-width') {
+    this._zoomScale = value;
+  }
+
+  get zoomScale() {
+    return this._zoomScale;
+  }
+
   @Input('rotation')
   set rotation(value: number) {
     if (!(typeof value === 'number' && value % 90 === 0)) {
@@ -174,6 +201,11 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Input('fit-to-page')
   set fitToPage(value: boolean) {
     this._fitToPage = Boolean(value);
+  }
+
+  @Input('show-borders')
+  set showBorders(value: boolean) {
+    this._showBorders = Boolean(value);
   }
 
   static getLinkTarget(type: string) {
@@ -223,8 +255,31 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     (PDFJS as any).GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
   }
 
+  ngAfterViewChecked(): void {
+    if (this.isInitialized) {
+      return;
+    }
+
+    const offset = this.pdfViewerContainer.nativeElement.offsetParent;
+
+    if (this.isVisible === true && offset == null) {
+      this.isVisible = false;
+      return;
+    }
+
+    if (this.isVisible === false && offset != null) {
+      this.isVisible = true;
+
+      setTimeout(() => {
+        this.ngOnInit();
+        this.ngOnChanges({ src: this.src } as any);
+      });
+    }
+  }
+
   ngOnInit() {
-    if (!isSSR()) {
+    if (!isSSR() && this.isVisible) {
+      this.isInitialized = true;
       this.setupMultiPageViewer();
       this.setupSinglePageViewer();
     }
@@ -249,11 +304,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     }, 100);
   }
 
-  @HostListener('textlayerrendered', ['$event'])
-  onTextLayerRendered(e: CustomEvent) {
-    this.textLayerRendered.emit(e);
-  }
-
   get pdfLinkService(): any {
     return this._showAll
       ? this.pdfMultiPageLinkService
@@ -271,7 +321,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (isSSR()) {
+    if (isSSR() || !this.isVisible) {
       return;
     }
 
@@ -287,6 +337,10 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         this.resetPdfDocument();
       }
       if ('page' in changes) {
+        if (changes['page'].currentValue === this._latestScrolledPage) {
+          return;
+        }
+
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
         // This behavior is introducedby using the PDFSinglePageViewer
         this.getCurrentViewer().scrollPageIntoView({ pageNumber: this._page });
@@ -301,7 +355,12 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this._pdf
       .getPage(currentViewer.currentPageNumber)
       .then((page: PDFPageProxy) => {
-        const viewport = page.getViewport(this._zoom, this._rotation);
+        const rotation = this._rotation || page.rotate;
+        const viewportWidth =
+          (page as any).getViewport({
+            scale: this._zoom,
+            rotation
+          }).width * PdfViewerComponent.CSS_UNITS;
         let scale = this._zoom;
         let stickToPage = true;
 
@@ -309,9 +368,10 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
         if (
           !this._originalSize ||
           (this._fitToPage &&
-            viewport.width > this.element.nativeElement.offsetWidth)
+            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
         ) {
-          scale = this.getScale(page.getViewport(1).width);
+          const viewPort = (page as any).getViewport({ scale: 1, rotation });
+          scale = this.getScale(viewPort.width, viewPort.height);
           stickToPage = !this._stickToPage;
         }
 
@@ -349,6 +409,21 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       this.pageRendered.emit(e);
     });
 
+    eventBus.on('pagechanging', e => {
+      if (this.pageScrollTimeout) {
+        clearTimeout(this.pageScrollTimeout);
+      }
+
+      this.pageScrollTimeout = setTimeout(() => {
+        this._latestScrolledPage = e.pageNumber;
+        this.pageChange.emit(e.pageNumber);
+      }, 100);
+    });
+
+    eventBus.on('textlayerrendered', e => {
+      this.textLayerRendered.emit(e);
+    });
+
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({ eventBus });
     this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({
       linkService: this.pdfMultiPageLinkService,
@@ -358,7 +433,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfMultiPageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -378,8 +453,18 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
     const eventBus = createEventBus(PDFJSViewer);
 
+    eventBus.on('pagechanging', e => {
+      if (e.pageNumber != this._page) {
+        this.page = e.pageNumber;
+      }
+    });
+
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+    });
+
+    eventBus.on('textlayerrendered', e => {
+      this.textLayerRendered.emit(e);
     });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
@@ -393,7 +478,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     const pdfOptions: PDFViewerParams | any = {
       eventBus: eventBus,
       container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: true,
+      removePageBorders: !this._showBorders,
       linkService: this.pdfSinglePageLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
@@ -454,10 +539,12 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       this.update();
       return;
     }
-
     this.loadingTask = (PDFJS as any).getDocument(
       this.getDocumentParams()
     );
+    this.clear();
+
+    this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
@@ -466,9 +553,6 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     const src = this.src;
     (<PDFPromise<PDFDocumentProxy>>this.loadingTask.promise).then(
       (pdf: PDFDocumentProxy) => {
-        if (this._pdf) {
-          this._pdf.destroy();
-        }
         this._pdf = pdf;
         this.lastLoaded = src;
 
@@ -517,17 +601,30 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
     this.updateSize();
   }
 
-  private getScale(viewportWidth: number) {
-    const offsetWidth = this.element.nativeElement.offsetWidth;
+  private getScale(viewportWidth: number, viewportHeight: number) {
+    const borderSize = (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
+    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
+    const pdfContainerHeight = this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
 
-    if (offsetWidth === 0) {
+    if (pdfContainerHeight === 0 || viewportHeight === 0 || pdfContainerWidth === 0 || viewportWidth === 0) {
       return 1;
     }
 
-    return (
-      (this._zoom * (offsetWidth / viewportWidth)) /
-      PdfViewerComponent.CSS_UNITS
-    );
+    let ratio = 1;
+    switch (this._zoomScale) {
+      case 'page-fit':
+        ratio = Math.min((pdfContainerHeight / viewportHeight), (pdfContainerWidth / viewportWidth));
+        break;
+      case 'page-height':
+        ratio = (pdfContainerHeight / viewportHeight);
+        break;
+      case 'page-width':
+      default:
+        ratio = (pdfContainerWidth / viewportWidth);
+        break;
+    }
+
+    return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 
   private getCurrentViewer(): any {

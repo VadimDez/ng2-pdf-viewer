@@ -1,3 +1,5 @@
+[![angular-5-PDF-viewer-banner](https://user-images.githubusercontent.com/3748453/89762181-325a3400-daf0-11ea-8b02-f4be5458d416.png)](https://xscode.com/vadimdez/ng2-pdf-viewer)
+
 <h1 align="center">Angular 5+ PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
@@ -14,6 +16,9 @@
   </a>
   <a href="https://gitter.im/ngx-pdf-viewer/Lobby" title="Gitter">
     <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter"/>
+  </a>
+  <a href="https://greenkeeper.io/" title="Greenkeeper">
+    <img src="https://badges.greenkeeper.io/VadimDez/ng2-pdf-viewer.svg" alt="Greenkeeper badge"/>
   </a>
   <a href="https://www.paypal.me/vadimdez" title="Donate to this project using Paypal">
     <img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" />
@@ -84,10 +89,6 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'example-app',
   template: `
-  <div>
-      <label>PDF src</label>
-      <input type="text" placeholder="PDF src" [(ngModel)]="pdfSrc">
-  </div>
   <pdf-viewer [src]="pdfSrc" 
               [render-text]="true"
               style="display: block;"
@@ -95,7 +96,7 @@ import { Component } from '@angular/core';
   `
 })
 export class AppComponent {
-  pdfSrc: string = '/pdf-test.pdf';
+  pdfSrc = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
 }
 ```
 
@@ -109,11 +110,13 @@ export class AppComponent {
 * [[render-text-mode]](#render-text-mode)
 * [[rotation]](#rotation)
 * [[zoom]](#zoom)
+* [[zoom-scale]](#zoom-scale)
 * [[original-size]](#original-size)
 * [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
 * [[autoresize]](#autoresize)
 * [[c-maps-url]](#c-maps-url)
+* [[show-borders]](#show-borders)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
 * [(text-layer-rendered)](#text-layer-rendered)
@@ -127,23 +130,21 @@ export class AppComponent {
 | [src] | *string, object, UInt8Array* | Required |
 
 Pass pdf location
- 
+
 ```
 [src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
 ```
 
-For more control you can pass options object to ```[src]```.
+For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
 
-Options object for loading protected PDF would be
- 
+Options object for loading protected PDF would be:
+
  ```js
  {
   url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
   withCredentials: true
  }
  ```
- 
- See more attributes [here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L107-L186).
 
 #### [page]
 
@@ -160,6 +161,14 @@ Page number
 supports two way data binding as well
 ```
 [(page)]="pageVariable"
+```
+
+If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the hight of the container, for example:
+```
+pdf-viewer {
+    display: block;
+    height: 100vh;
+}
 ```
 
 #### [stick-to-page]
@@ -247,6 +256,24 @@ Zoom pdf
 [zoom]="0.5"
 ```
 
+#### [zoom-scale]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [zoom-scale] | *'page-width'\|'page-fit'\|'page-height'* | *Optional* |
+
+Defines how the Zoom scale is computed when  `[original-size]="false"`, by default set to 'page-width'.
+
+- *'page-width'* with zoom of 1 will display a page width that take all the possible horizontal space in the container
+
+- *'page-height'* with zoom of 1 will display a page height that take all the possible vertical space in the container
+
+- *'page-fit'* with zoom of 1 will display a page that will be scaled to either width or height to fit completely in the container
+
+```
+[zoom-scale]="page-width"
+```
+
 #### [original-size]
 
 | Property | Type | Required |
@@ -312,6 +339,17 @@ Url for non-latin characters source maps.
 Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
 
 To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
+
+### [show-borders]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [show-borders] | *boolean* | Optional |
+
+Show page borders
+```
+[show-borders]="true"
+```
 
 #### (after-load-complete)
 
@@ -454,7 +492,7 @@ By default the `worker` is loaded from `cdnjs.cloudflare.com`.
 
 In your code update `path` to the worker to be for example `/pdf.worker.js` 
 ```typescript
-(<any>window).pdfWorkerSrc = '/pdf.worker.js';
+(window as any).pdfWorkerSrc = '/pdf.worker.js';
 ```
 *This should be set before `pdf-viewer` component is rendered.*
 
@@ -480,6 +518,11 @@ search(stringToSearch: string) {
 
 ## Contribute
 [See CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Donation
+If this project help you reduce time to develop, you can give me a cup of tea :) 
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/vadimdez)
 
 ## License
 
