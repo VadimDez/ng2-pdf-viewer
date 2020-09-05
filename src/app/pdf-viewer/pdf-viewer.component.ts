@@ -94,6 +94,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
   @Input()
   src: string | Uint8Array | PDFSource;
+  loadingTask: any;
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -230,9 +231,7 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this._pdf) {
-      this._pdf.destroy();
-    }
+    this.clear();
   }
 
   @HostListener('window:resize', [])
@@ -318,6 +317,25 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
 
         currentViewer._setScale(scale, stickToPage);
       });
+  }
+
+  public clear() {
+    if (this.loadingTask && !this.loadingTask.destroyed) {
+      this.loadingTask.destroy();
+    }
+
+    if (this._pdf) {
+      this._pdf.destroy();
+      this._pdf = null;
+      this.pdfMultiPageViewer.setDocument(null);
+      this.pdfSinglePageViewer.setDocument(null);
+
+      this.pdfMultiPageLinkService.setDocument(null, null);
+      this.pdfSinglePageLinkService.setDocument(null, null);
+
+      this.pdfMultiPageFindController.setDocument(null);
+      this.pdfSinglePageFindController.setDocument(null);
+    }
   }
 
   private setupMultiPageViewer() {
@@ -437,16 +455,16 @@ export class PdfViewerComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
 
-    const loadingTask: any = (PDFJS as any).getDocument(
+    this.loadingTask = (PDFJS as any).getDocument(
       this.getDocumentParams()
     );
 
-    loadingTask.onProgress = (progressData: PDFProgressData) => {
+    this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
     };
 
     const src = this.src;
-    (<PDFPromise<PDFDocumentProxy>>loadingTask.promise).then(
+    (<PDFPromise<PDFDocumentProxy>>this.loadingTask.promise).then(
       (pdf: PDFDocumentProxy) => {
         if (this._pdf) {
           this._pdf.destroy();
