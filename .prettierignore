@@ -1,0 +1,14 @@
+# Artifacts
+coverage
+dist
+build 
+
+# GQL auto generated files
+/**/*types.ts
+
+# Config file in JS
+/**/*index.js
+/**/*index.ts
+wallaby.js
+decorate-angular-cli.js
+

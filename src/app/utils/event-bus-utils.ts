@@ -6,58 +6,58 @@ export function _createEventBus(pdfJsViewer: any): any {
 }
 
 function attachDOMEventsToEventBus(eventBus: any) {
-  eventBus.on('documentload', function() {
+  eventBus.on('documentload', function () {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('documentload', true, true, {});
     window.dispatchEvent(event);
   });
-  eventBus.on('pagerendered', function(evt) {
+  eventBus.on('pagerendered', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagerendered', true, true, {
       pageNumber: evt.pageNumber,
-      cssTransform: evt.cssTransform
+      cssTransform: evt.cssTransform,
     });
     evt.source.div.dispatchEvent(event);
   });
-  eventBus.on('textlayerrendered', function(evt) {
+  eventBus.on('textlayerrendered', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('textlayerrendered', true, true, {
-      pageNumber: evt.pageNumber
+      pageNumber: evt.pageNumber,
     });
     evt.source.textLayerDiv.dispatchEvent(event);
   });
-  eventBus.on('pagechanging', function(evt) {
-    const event = document.createEvent('UIEvents');
+  eventBus.on('pagechanging', function (evt: any) {
+    const event: any = document.createEvent('UIEvents');
     event.initEvent('pagechanging', true, true);
     event['pageNumber'] = evt.pageNumber;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesinit', function(evt) {
+  eventBus.on('pagesinit', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagesinit', true, true, null);
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesloaded', function(evt) {
+  eventBus.on('pagesloaded', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagesloaded', true, true, {
-      pagesCount: evt.pagesCount
+      pagesCount: evt.pagesCount,
     });
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('scalechange', function(evt) {
-    const event = document.createEvent('UIEvents');
+  eventBus.on('scalechange', function (evt: any) {
+    const event: any = document.createEvent('UIEvents');
     event.initEvent('scalechange', true, true);
     event['scale'] = evt.scale;
     event['presetValue'] = evt.presetValue;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('updateviewarea', function(evt) {
-    const event = document.createEvent('UIEvents');
+  eventBus.on('updateviewarea', function (evt: any) {
+    const event: any = document.createEvent('UIEvents');
     event.initEvent('updateviewarea', true, true);
     event['location'] = evt.location;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('find', function(evt) {
+  eventBus.on('find', function (evt: any) {
     if (evt.source === window) {
       return; // event comes from FirefoxCom, no need to replicate
     }
@@ -67,50 +67,50 @@ function attachDOMEventsToEventBus(eventBus: any) {
       phraseSearch: evt.phraseSearch,
       caseSensitive: evt.caseSensitive,
       highlightAll: evt.highlightAll,
-      findPrevious: evt.findPrevious
+      findPrevious: evt.findPrevious,
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('attachmentsloaded', function(evt) {
+  eventBus.on('attachmentsloaded', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('attachmentsloaded', true, true, {
-      attachmentsCount: evt.attachmentsCount
+      attachmentsCount: evt.attachmentsCount,
     });
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('sidebarviewchanged', function(evt) {
+  eventBus.on('sidebarviewchanged', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('sidebarviewchanged', true, true, {
-      view: evt.view
+      view: evt.view,
     });
     evt.source.outerContainer.dispatchEvent(event);
   });
-  eventBus.on('pagemode', function(evt) {
+  eventBus.on('pagemode', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagemode', true, true, {
-      mode: evt.mode
+      mode: evt.mode,
     });
     evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('namedaction', function(evt) {
+  eventBus.on('namedaction', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('namedaction', true, true, {
-      action: evt.action
+      action: evt.action,
     });
     evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('presentationmodechanged', function(evt) {
+  eventBus.on('presentationmodechanged', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('presentationmodechanged', true, true, {
       active: evt.active,
-      switchInProgress: evt.switchInProgress
+      switchInProgress: evt.switchInProgress,
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('outlineloaded', function(evt) {
+  eventBus.on('outlineloaded', function (evt: any) {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('outlineloaded', true, true, {
-      outlineCount: evt.outlineCount
+      outlineCount: evt.outlineCount,
     });
     evt.source.container.dispatchEvent(event);
   });

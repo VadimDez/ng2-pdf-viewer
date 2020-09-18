@@ -1,0 +1,28 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "@wemaintain/eslint-config",
+    "eslint:recommended",
+    "plugin:@angular-eslint/recommended",
+    "plugin:prettier/recommended",
+    "prettier/@typescript-eslint",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.base.json"
+  },
+  "rules": {
+    "max-len": ["off"]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.spec.ts"],
+      "plugins": ["@angular-eslint/template"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": ["off"]
+      }
+    }
+  ]
+}

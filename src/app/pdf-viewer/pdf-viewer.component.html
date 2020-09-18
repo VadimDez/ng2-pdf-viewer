@@ -1,0 +1,18 @@
+<div #pdfViewerContainer class="pdf-viewer-container">
+  <div class="pdfViewer"></div>
+
+  <div class="annotations">
+    <div class="annotation-card" *ngIf="activeAnnotation"
+      [ngStyle]="{ top: annotationCardCoordinates.positionY * zoom + 'px', left: annotationCardCoordinates.positionX * zoom + 'px' }">
+      <ng-content select=".annotation-card-content"></ng-content>
+    </div>
+
+    <div *ngFor="let annotation of annotations" [ngStyle]="{
+          top: annotation.positionY * zoom + 'px',
+          left: annotation.positionX * zoom + 'px'
+        }" class="annotation" [id]="annotation.id">{{ annotation.index }}</div>
+  </div>
+
+</div>
+<app-pager [page]="page" (pageChange)="pageChanged($event)" [numPages]="numPages" [zoom]="zoom"
+  (zoomChange)="zoomChanged($event)"></app-pager>

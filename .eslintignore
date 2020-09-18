@@ -1,0 +1,15 @@
+# Valid
+/**/*.spec.ts
+/**/*.stories.ts
+/**/*.json
+/**/*.po.ts
+
+# GQL auto generated files
+/**/*types.ts
+
+# Config file in JS
+/**/*index.js
+/**/*index.ts
+wallaby.js
+decorate-angular-cli.js
+

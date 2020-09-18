@@ -1,0 +1,20 @@
+<div class="pager">
+  <div class="page">Page {{ page }} / {{ numPages }}</div>
+  <div class="operators">
+    <span (click)="this.nextPage()" class="operator">
+      <mat-icon>add</mat-icon>
+    </span>
+    <span (click)="this.previousPage()" class="operator">
+      <mat-icon>remove</mat-icon>
+    </span>
+  </div>
+  <div class="operators">
+    <span (click)="this.zoomIn()" class="operator">
+      <mat-icon>zoom_in</mat-icon>
+    </span>
+    <span class="zoom-value">{{ zoom | percent }}</span>
+    <span (click)="this.zoomOut()" class="operator">
+      <mat-icon>zoom_out</mat-icon>
+    </span>
+  </div>
+</div>
