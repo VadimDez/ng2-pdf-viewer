@@ -160,7 +160,7 @@ supports two way data binding as well
 [(page)]="pageVariable"
 ```
 
-If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the hight of the container, for example:
+If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the height of the container, for example:
 ```
 pdf-viewer {
     display: block;
