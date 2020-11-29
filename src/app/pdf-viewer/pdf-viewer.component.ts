@@ -34,8 +34,8 @@ function isSSR() {
 }
 
 if (!isSSR()) {
-  PDFJS = require('pdfjs-dist/build/pdf');
-  PDFJSViewer = require('pdfjs-dist/web/pdf_viewer');
+  PDFJS = require('pdfjs-dist/es5/build/pdf');
+  PDFJSViewer = require('pdfjs-dist/es5/web/pdf_viewer');
 
   PDFJS.verbosity = PDFJS.VerbosityLevel.ERRORS;
 }
@@ -246,9 +246,9 @@ export class PdfViewerComponent
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${
         (PDFJS as any).version
-      }/pdf.worker.min.js`;
+      }/es5/build/pdf.worker.js`;
     }
 
     (PDFJS as any).GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
