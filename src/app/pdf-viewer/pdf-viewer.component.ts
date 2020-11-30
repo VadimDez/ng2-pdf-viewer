@@ -57,12 +57,12 @@ export enum RenderTextMode {
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
+  static CSS_UNITS = 96.0 / 72.0;
+  static BORDER_WIDTH = 9;
+
   @ViewChild('pdfViewerContainer') pdfViewerContainer;
-  private isVisible: boolean = false;
 
-  static CSS_UNITS: number = 96.0 / 72.0;
-  static BORDER_WIDTH: number = 9;
-
+  private isVisible = false;
   private pdfMultiPageViewer: any;
   private pdfMultiPageLinkService: any;
   private pdfMultiPageFindController: any;
@@ -97,18 +97,13 @@ export class PdfViewerComponent
   private isInitialized = false;
   private loadingTask: any;
 
-  @Output('after-load-complete') afterLoadComplete = new EventEmitter<
-    PDFDocumentProxy
-  >();
+  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
-  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<
-    CustomEvent
-  >();
+  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
-  @Input()
-  src: string | Uint8Array | PDFSource;
+  @Input() src: string | Uint8Array | PDFSource;
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -118,14 +113,14 @@ export class PdfViewerComponent
  @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10) || 1;
-    const orginalPage = _page;
+    const originalPage = _page;
 
     if (this._pdf) {
       _page = this.getValidPageNumber(_page);
     }
 
     this._page = _page;
-    if (orginalPage !== _page) {
+    if (originalPage !== _page) {
       this.pageChange.emit(_page);
     }
   }
@@ -210,15 +205,15 @@ export class PdfViewerComponent
   static getLinkTarget(type: string) {
     switch (type) {
       case 'blank':
-        return (<any>PDFJS).LinkTarget.BLANK;
+        return (PDFJS as any).LinkTarget.BLANK;
       case 'none':
-        return (<any>PDFJS).LinkTarget.NONE;
+        return (PDFJS as any).LinkTarget.NONE;
       case 'self':
-        return (<any>PDFJS).LinkTarget.SELF;
+        return (PDFJS as any).LinkTarget.SELF;
       case 'parent':
-        return (<any>PDFJS).LinkTarget.PARENT;
+        return (PDFJS as any).LinkTarget.PARENT;
       case 'top':
-        return (<any>PDFJS).LinkTarget.TOP;
+        return (PDFJS as any).LinkTarget.TOP;
     }
 
     return null;
@@ -228,7 +223,7 @@ export class PdfViewerComponent
     const linkTarget = PdfViewerComponent.getLinkTarget(type);
 
     if (linkTarget !== null) {
-      (<any>PDFJS).externalLinkTarget = linkTarget;
+      (PDFJS as any).externalLinkTarget = linkTarget;
     }
   }
 
@@ -336,12 +331,13 @@ export class PdfViewerComponent
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-        if (changes['page'].currentValue === this._latestScrolledPage) {
+        const { page } = changes;
+        if (page.currentValue === this._latestScrolledPage) {
           return;
         }
 
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
-        // This behavior is introducedby using the PDFSinglePageViewer
+        // This behavior is introduced by using the PDFSinglePageViewer
         this.getCurrentViewer().scrollPageIntoView({ pageNumber: this._page });
       }
 
@@ -430,7 +426,7 @@ export class PdfViewerComponent
     });
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: eventBus,
+      eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
       linkService: this.pdfMultiPageLinkService,
@@ -453,7 +449,7 @@ export class PdfViewerComponent
     const eventBus = createEventBus(PDFJSViewer);
 
     eventBus.on('pagechanging', e => {
-      if (e.pageNumber != this._page) {
+      if (e.pageNumber !== this._page) {
         this.page = e.pageNumber;
       }
     });
@@ -475,7 +471,7 @@ export class PdfViewerComponent
     });
 
     const pdfOptions: PDFViewerParams | any = {
-      eventBus: eventBus,
+      eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
       linkService: this.pdfSinglePageLinkService,
@@ -548,7 +544,7 @@ export class PdfViewerComponent
     };
 
     const src = this.src;
-    (<PDFPromise<PDFDocumentProxy>>this.loadingTask.promise).then(
+    (this.loadingTask.promise as PDFPromise<PDFDocumentProxy>).then(
       (pdf: PDFDocumentProxy) => {
         this._pdf = pdf;
         this.lastLoaded = src;

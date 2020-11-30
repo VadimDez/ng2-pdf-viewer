@@ -70,7 +70,7 @@ export class AppComponent {
    * Set custom path to pdf worker
    */
   setCustomWorkerPath() {
-    (<any>window).pdfWorkerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
+    (window as any).pdfWorkerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
   }
 
   incrementPage(amount: number) {
@@ -104,7 +104,7 @@ export class AppComponent {
 
   /**
    * Get pdf information after it's loaded
-   * @param pdf
+   * @param pdf pdf document proxy
    */
   afterLoadComplete(pdf: PDFDocumentProxy) {
     this.pdf = pdf;
@@ -124,7 +124,7 @@ export class AppComponent {
   /**
    * Handle error callback
    *
-   * @param error
+   * @param error error message
    */
   onError(error: any) {
     this.error = error; // set error
@@ -159,7 +159,7 @@ export class AppComponent {
 
   /**
    * Pdf loading progress callback
-   * @param {PDFProgressData} progressData
+   * @param progressData pdf progress data
    */
   onProgress(progressData: PDFProgressData) {
     console.log(progressData);
@@ -175,7 +175,7 @@ export class AppComponent {
 
   /**
    * Navigate to destination
-   * @param destination
+   * @param destination pdf navigate to
    */
   navigateTo(destination: any) {
     this.pdfComponent.pdfLinkService.navigateTo(destination);
@@ -193,7 +193,7 @@ export class AppComponent {
   /**
    * Page rendered callback, which is called when a page is rendered (called multiple times)
    *
-   * @param {CustomEvent} e
+   * @param e custom event
    */
   pageRendered(e: CustomEvent) {
     console.log('(page-rendered)', e);

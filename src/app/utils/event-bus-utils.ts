@@ -6,12 +6,12 @@ export function _createEventBus(pdfJsViewer: any): any {
 }
 
 function attachDOMEventsToEventBus(eventBus: any) {
-  eventBus.on('documentload', function() {
+  eventBus.on('documentload', () => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('documentload', true, true, {});
     window.dispatchEvent(event);
   });
-  eventBus.on('pagerendered', function(evt) {
+  eventBus.on('pagerendered', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagerendered', true, true, {
       pageNumber: evt.pageNumber,
@@ -19,45 +19,48 @@ function attachDOMEventsToEventBus(eventBus: any) {
     });
     evt.source.div.dispatchEvent(event);
   });
-  eventBus.on('textlayerrendered', function(evt) {
+  eventBus.on('textlayerrendered', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('textlayerrendered', true, true, {
       pageNumber: evt.pageNumber
     });
     evt.source.textLayerDiv.dispatchEvent(event);
   });
-  eventBus.on('pagechanging', function(evt) {
+  eventBus.on('pagechanging', evt => {
     const event = document.createEvent('UIEvents');
     event.initEvent('pagechanging', true, true);
+    /* tslint:disable:no-string-literal */
     event['pageNumber'] = evt.pageNumber;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesinit', function(evt) {
+  eventBus.on('pagesinit', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagesinit', true, true, null);
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('pagesloaded', function(evt) {
+  eventBus.on('pagesloaded', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagesloaded', true, true, {
       pagesCount: evt.pagesCount
     });
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('scalechange', function(evt) {
+  eventBus.on('scalechange', evt => {
     const event = document.createEvent('UIEvents');
     event.initEvent('scalechange', true, true);
+    /* tslint:disable:no-string-literal */
     event['scale'] = evt.scale;
+    /* tslint:disable:no-string-literal */
     event['presetValue'] = evt.presetValue;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('updateviewarea', function(evt) {
+  eventBus.on('updateviewarea', evt => {
     const event = document.createEvent('UIEvents');
     event.initEvent('updateviewarea', true, true);
     event['location'] = evt.location;
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('find', function(evt) {
+  eventBus.on('find', evt => {
     if (evt.source === window) {
       return; // event comes from FirefoxCom, no need to replicate
     }
@@ -71,35 +74,35 @@ function attachDOMEventsToEventBus(eventBus: any) {
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('attachmentsloaded', function(evt) {
+  eventBus.on('attachmentsloaded', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('attachmentsloaded', true, true, {
       attachmentsCount: evt.attachmentsCount
     });
     evt.source.container.dispatchEvent(event);
   });
-  eventBus.on('sidebarviewchanged', function(evt) {
+  eventBus.on('sidebarviewchanged', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('sidebarviewchanged', true, true, {
       view: evt.view
     });
     evt.source.outerContainer.dispatchEvent(event);
   });
-  eventBus.on('pagemode', function(evt) {
+  eventBus.on('pagemode', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('pagemode', true, true, {
       mode: evt.mode
     });
     evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('namedaction', function(evt) {
+  eventBus.on('namedaction', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('namedaction', true, true, {
       action: evt.action
     });
     evt.source.pdfViewer.container.dispatchEvent(event);
   });
-  eventBus.on('presentationmodechanged', function(evt) {
+  eventBus.on('presentationmodechanged', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('presentationmodechanged', true, true, {
       active: evt.active,
@@ -107,7 +110,7 @@ function attachDOMEventsToEventBus(eventBus: any) {
     });
     window.dispatchEvent(event);
   });
-  eventBus.on('outlineloaded', function(evt) {
+  eventBus.on('outlineloaded', evt => {
     const event = document.createEvent('CustomEvent');
     event.initCustomEvent('outlineloaded', true, true, {
       outlineCount: evt.outlineCount
