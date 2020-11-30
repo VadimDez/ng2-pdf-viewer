@@ -19,7 +19,8 @@
       true,
       "element",
       "app",
-      "kebab-case"
+      "kebab-case",
+      "pdf"
     ],
     "import-blacklist": [
       true,
@@ -76,14 +77,15 @@
     "no-host-metadata-property": true,
     "no-input-rename": true,
     "no-inputs-metadata-property": true,
-    "no-output-native": true,
-    "no-output-on-prefix": true,
-    "no-output-rename": true,
+    "no-output-native": false,
+    "no-output-on-prefix": false,
+    "no-output-rename": false,
     "no-outputs-metadata-property": true,
     "template-banana-in-box": true,
     "template-no-negated-async": true,
     "use-lifecycle-interface": true,
-    "use-pipe-transform-interface": true
+    "use-pipe-transform-interface": true,
+    "variable-name": [true, "ban-keywords", "allow-leading-underscore"]
   },
   "rulesDirectory": [
     "codelyzer"
