@@ -266,7 +266,7 @@ Defines how the Zoom scale is computed when  `[original-size]="false"`, by defau
 - *'page-fit'* with zoom of 1 will display a page that will be scaled to either width or height to fit completely in the container
 
 ```
-[zoom-scale]="page-width"
+[zoom-scale]="'page-width'"
 ```
 
 #### [original-size]
