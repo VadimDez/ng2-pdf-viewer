@@ -1,0 +1,13 @@
+name: A workflow for my Hello World file
+on: push
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v2
+    - name: npm install and test
+      run: |
+        npm install
+        npm test
