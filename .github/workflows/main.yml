@@ -1,4 +1,4 @@
-name: A workflow for my Hello World file
+name: ng2-pdf-viewer workflow
 on: push
 jobs:
   test:
