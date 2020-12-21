@@ -1,13 +1,33 @@
 name: ng2-pdf-viewer workflow
-on: push
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [12.x]
   
     steps:
     - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+      
     - name: npm install and test
       run: |
         npm install
-        npm test
+        npm run test:ci
+      env:
+        CI: true
