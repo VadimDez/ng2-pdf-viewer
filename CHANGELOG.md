@@ -1,5 +1,9 @@
 # Changelog
 
+## 6.3.3
+* [[#701](https://github.com/VadimDez/ng2-pdf-viewer/issues/701)] - [external-link-target] seems to be broken
+* [[#702](https://github.com/VadimDez/ng2-pdf-viewer/pull/702)] - Fix external-link-target bug
+
 ## 6.3.2
 * [[#627](https://github.com/VadimDez/ng2-pdf-viewer/pull/627)] - Fixing memory issue
 
