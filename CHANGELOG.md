@@ -1,8 +1,10 @@
 # Changelog
 
-## 6.3.3
+## 6.4.0
 * [[#701](https://github.com/VadimDez/ng2-pdf-viewer/issues/701)] - [external-link-target] seems to be broken
 * [[#702](https://github.com/VadimDez/ng2-pdf-viewer/pull/702)] - Fix external-link-target bug
+* [[#688](https://github.com/VadimDez/ng2-pdf-viewer/pull/688)] - Issue #478 IE
+* [[#478](https://github.com/VadimDez/ng2-pdf-viewer/issues/478)] - Support on IE & Edge
 
 ## 6.3.2
 * [[#627](https://github.com/VadimDez/ng2-pdf-viewer/pull/627)] - Fixing memory issue
