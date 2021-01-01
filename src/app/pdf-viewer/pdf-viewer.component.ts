@@ -219,14 +219,6 @@ export class PdfViewerComponent
     return null;
   }
 
-  static setExternalLinkTarget(type: string) {
-    const linkTarget = PdfViewerComponent.getLinkTarget(type);
-
-    if (linkTarget !== null) {
-      (PDFJS as any).externalLinkTarget = linkTarget;
-    }
-  }
-
   constructor(private element: ElementRef) {
     if (isSSR()) {
       return;
@@ -393,10 +385,19 @@ export class PdfViewerComponent
     }
   }
 
+  private getPDFLinkServiceConfig() {
+    const pdfLinkServiceConfig: any = {};
+    const linkTarget = PdfViewerComponent.getLinkTarget(this._externalLinkTarget);
+
+    if (linkTarget) {
+      pdfLinkServiceConfig.externalLinkTarget = linkTarget;
+    }
+
+    return pdfLinkServiceConfig;
+  }
+
   private setupMultiPageViewer() {
     (PDFJS as any).disableTextLayer = !this._renderText;
-
-    PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
 
     const eventBus = createEventBus(PDFJSViewer);
 
@@ -419,7 +420,9 @@ export class PdfViewerComponent
       this.textLayerRendered.emit(e);
     });
 
-    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({ eventBus });
+    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
+      eventBus, ...this.getPDFLinkServiceConfig()
+    });
     this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({
       linkService: this.pdfMultiPageLinkService,
       eventBus
@@ -444,8 +447,6 @@ export class PdfViewerComponent
   private setupSinglePageViewer() {
     (PDFJS as any).disableTextLayer = !this._renderText;
 
-    PdfViewerComponent.setExternalLinkTarget(this._externalLinkTarget);
-
     const eventBus = createEventBus(PDFJSViewer);
 
     eventBus.on('pagechanging', e => {
@@ -463,7 +464,7 @@ export class PdfViewerComponent
     });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
-      eventBus
+      eventBus, ...this.getPDFLinkServiceConfig()
     });
     this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({
       linkService: this.pdfSinglePageLinkService,
