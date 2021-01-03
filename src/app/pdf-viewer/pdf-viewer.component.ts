@@ -23,21 +23,14 @@ import {
   PDFProgressData,
   PDFPromise
 } from 'pdfjs-dist';
+import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
+import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
-
-let PDFJS: any;
-let PDFJSViewer: any;
-
-function isSSR() {
-  return typeof window === 'undefined';
-}
+import { assign, isSSR } from '../utils/helpers';
 
 if (!isSSR()) {
-  PDFJS = require('pdfjs-dist/es5/build/pdf');
-  PDFJSViewer = require('pdfjs-dist/es5/web/pdf_viewer');
-
-  PDFJS.verbosity = PDFJS.VerbosityLevel.ERRORS;
+  assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
 }
 
 export enum RenderTextMode {
@@ -82,7 +75,7 @@ export class PdfViewerComponent
   private _pdf: PDFDocumentProxy;
   private _page = 1;
   private _zoom = 1;
-  private _zoomScale: 'page-height'|'page-fit'|'page-width' = 'page-width';
+  private _zoomScale: 'page-height' | 'page-fit' | 'page-width' = 'page-width';
   private _rotation = 0;
   private _showAll = true;
   private _canAutoResize = true;
@@ -110,7 +103,7 @@ export class PdfViewerComponent
     this._cMapsUrl = cMapsUrl;
   }
 
- @Input('page')
+  @Input('page')
   set page(_page) {
     _page = parseInt(_page, 10) || 1;
     const originalPage = _page;
@@ -164,7 +157,7 @@ export class PdfViewerComponent
   }
 
   @Input('zoom-scale')
-  set zoomScale(value: 'page-height'|'page-fit' | 'page-width') {
+  set zoomScale(value: 'page-height' | 'page-fit' | 'page-width') {
     this._zoomScale = value;
   }
 
@@ -233,12 +226,11 @@ export class PdfViewerComponent
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${
-        (PDFJS as any).version
-      }/es5/build/pdf.worker.js`;
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
+        }/es5/build/pdf.worker.js`;
     }
 
-    (PDFJS as any).GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+    assign(PDFJS.GlobalWorkerOptions, "workerSrc", pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -397,7 +389,7 @@ export class PdfViewerComponent
   }
 
   private setupMultiPageViewer() {
-    (PDFJS as any).disableTextLayer = !this._renderText;
+    assign(PDFJS, "disableTextLayer", !this._renderText);
 
     const eventBus = createEventBus(PDFJSViewer);
 
@@ -445,7 +437,7 @@ export class PdfViewerComponent
   }
 
   private setupSinglePageViewer() {
-    (PDFJS as any).disableTextLayer = !this._renderText;
+    assign(PDFJS, "disableTextLayer", !this._renderText);
 
     const eventBus = createEventBus(PDFJSViewer);
 
