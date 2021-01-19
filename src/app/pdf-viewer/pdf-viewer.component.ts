@@ -92,6 +92,7 @@ export class PdfViewerComponent
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
+  @Output('pages-initialized') pageInitialized = new EventEmitter<CustomEvent>();
   @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
@@ -397,6 +398,10 @@ export class PdfViewerComponent
       this.pageRendered.emit(e);
     });
 
+    eventBus.on('pagesinit', e => {
+      this.pageInitialized.emit(e);
+    });
+
     eventBus.on('pagechanging', e => {
       if (this.pageScrollTimeout) {
         clearTimeout(this.pageScrollTimeout);
@@ -449,6 +454,10 @@ export class PdfViewerComponent
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
+    });
+
+    eventBus.on('pagesinit', e => {
+      this.pageInitialized.emit(e);
     });
 
     eventBus.on('textlayerrendered', e => {
