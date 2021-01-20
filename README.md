@@ -26,7 +26,7 @@
 
 [https://vadimdez.github.io/ng2-pdf-viewer/](https://vadimdez.github.io/ng2-pdf-viewer/)
 
-#### Stackblitz Example 
+#### Stackblitz Example
 
 [https://stackblitz.com/edit/ng2-pdf-viewer](https://stackblitz.com/edit/ng2-pdf-viewer)
 
@@ -84,7 +84,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'example-app',
   template: `
-  <pdf-viewer [src]="pdfSrc" 
+  <pdf-viewer [src]="pdfSrc"
               [render-text]="true"
               style="display: block;"
   ></pdf-viewer>
@@ -362,7 +362,7 @@ callBackFn(pdf: PDFDocumentProxy) {
 ```
 
 And then use it in your template:
-``` 
+```
 (after-load-complete)="callBackFn($event)"
 ```
 
@@ -386,6 +386,28 @@ And then bind it to `<pdf-viewer>`:
 
 ```angular2html
 (page-rendered)="pageRendered($event)"
+```
+
+#### (pages-initialized)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (pages-initialized) | *callback* | *Optional* |
+
+Get event when the pages are initialized.
+
+Define callback in your component:
+
+```typescript
+pageInitialized(e: CustomEvent) {
+  console.log('(pages-initialized)', e);
+}
+```
+
+And then bind it to `<pdf-viewer>`:
+
+```angular2html
+(pages-initialized)="pageInitialized($event)"
 ```
 
 #### (text-layer-rendered)
@@ -485,7 +507,7 @@ onFileSelected() {
 
 By default the `worker` is loaded from `cdnjs.cloudflare.com`.
 
-In your code update `path` to the worker to be for example `/pdf.worker.js` 
+In your code update `path` to the worker to be for example `/pdf.worker.js`
 ```typescript
 (window as any).pdfWorkerSrc = '/pdf.worker.js';
 ```
@@ -515,7 +537,7 @@ search(stringToSearch: string) {
 [See CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Donation
-If this project help you reduce time to develop, you can give me a cup of tea :) 
+If this project help you reduce time to develop, you can give me a cup of tea :)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/vadimdez)
 

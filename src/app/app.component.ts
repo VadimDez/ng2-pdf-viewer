@@ -199,6 +199,15 @@ export class AppComponent {
     console.log('(page-rendered)', e);
   }
 
+  /**
+   * Page initialized callback.
+   *
+   * @param {CustomEvent} e
+   */
+  pageInitialized(e: CustomEvent) {
+    console.log('(page-initialized)', e);
+  }
+
   searchQueryChanged(newQuery: string) {
     if (newQuery !== this.pdfQuery) {
       this.pdfQuery = newQuery;
