@@ -39,6 +39,13 @@ export enum RenderTextMode {
   ENHANCED
 }
 
+export enum PdfViewerSearchState {
+  FIND_FOUND = 0,
+  FIND_NOTFOUND = 1,
+  FIND_WRAPPED = 2,
+  FIND_PENDING = 3
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `
@@ -97,6 +104,9 @@ export class PdfViewerComponent
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
+  @Output('search-state') searchState: EventEmitter<PdfViewerSearchState> = new EventEmitter<PdfViewerSearchState>();
+  @Output('search-matches-count') searchMatchesCount: EventEmitter<number> = new EventEmitter<number>();
+  @Output('search-matches-current') searchMatchesCurrent: EventEmitter<number> = new EventEmitter<number>();
   @Input() src: string | Uint8Array | PDFSource;
 
   @Input('c-maps-url')
@@ -389,9 +399,11 @@ export class PdfViewerComponent
     return pdfLinkServiceConfig;
   }
 
-  private setupMultiPageViewer() {
-    assign(PDFJS, "disableTextLayer", !this._renderText);
-
+  /**
+   * Create an event bus and register event common to single and multi page viewer
+   * return a global pdfJsViewer.EventBus
+   */
+  private createEventBusWithCommonRegistrations(): any {
     const eventBus = createEventBus(PDFJSViewer);
 
     eventBus.on('pagerendered', e => {
@@ -407,6 +419,7 @@ export class PdfViewerComponent
         clearTimeout(this.pageScrollTimeout);
       }
 
+      // Note, this timeout seems also needed in single page viewer
       this.pageScrollTimeout = setTimeout(() => {
         this._latestScrolledPage = e.pageNumber;
         this.pageChange.emit(e.pageNumber);
@@ -416,6 +429,32 @@ export class PdfViewerComponent
     eventBus.on('textlayerrendered', e => {
       this.textLayerRendered.emit(e);
     });
+
+    eventBus.on('updatefindmatchescount', (data) => {
+      if (data.matchesCount.total) {
+        this.searchMatchesCount?.emit(data.matchesCount.total)
+      }
+    });
+
+    eventBus.on('updatefindcontrolstate', data => {
+      this.searchState?.emit(data.state);     
+      if(data.state === PdfViewerSearchState.FIND_NOTFOUND){
+        this.searchMatchesCount?.emit(0);
+        this.searchMatchesCurrent?.emit(0);
+      }
+      else if(data.matchesCount){
+        this.searchMatchesCount?.emit(data.matchesCount.total);
+        this.searchMatchesCurrent?.emit(data.matchesCount.current);
+      }
+    });
+
+    return eventBus;
+  }
+
+  private setupMultiPageViewer() {
+    assign(PDFJS, "disableTextLayer", !this._renderText);
+
+    const eventBus = this.createEventBusWithCommonRegistrations();
 
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
@@ -444,25 +483,7 @@ export class PdfViewerComponent
   private setupSinglePageViewer() {
     assign(PDFJS, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
-
-    eventBus.on('pagechanging', e => {
-      if (e.pageNumber !== this._page) {
-        this.page = e.pageNumber;
-      }
-    });
-
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
-
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
-
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
+    const eventBus = this.createEventBusWithCommonRegistrations();
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()

@@ -117,6 +117,9 @@ export class AppComponent {
 * [(text-layer-rendered)](#text-layer-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
+* [(search-state)](#search-state)
+* [(search-matches-count)](#search-matches-count)
+* [(search-matches-current)](#search-matches-current)
 
 #### [src]
 
@@ -474,6 +477,66 @@ Then add it to `pdf-component` in component's template
 
 ```html
 (on-progress)="onProgress($event)"
+```
+
+#### (search-state)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (search-state) | *callback* | *Optional* |
+
+Search state callback provides search progress information state.
+
+Define callback in your component's class
+
+```typescript
+onProgress(searchState: PdfViewerSearchState) {
+  // do anything with searchState. For example show/hide search indicator
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(on-progress)="onProgress($event)"
+```
+
+#### (search-matches-count)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (search-matches-count) | *callback* | *Optional* |
+
+Search result callback - provides total matches count information.
+
+Define callback in your component's class
+
+```typescript
+onCurrentSearchTotalMatchesChanged(total: number) {
+  // do anything with total data. For example search indicator
+}
+```
+
+#### (search-matches-current)
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| (search-matches-current) | *callback* | *Optional* |
+
+Search result callback - provides current find position information.
+
+Define callback in your component's class
+
+```typescript
+onCurrentSearchCountChanged(currentCount: number) {
+  // do anything with currentCount data. For example search indicator
+}
+```
+
+Then add it to `pdf-component` in component's template
+
+```html
+(search-matches-current)="onCurrentSearchCountChanged($event)"
 ```
 
 ## Render local PDF file

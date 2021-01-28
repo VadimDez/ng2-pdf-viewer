@@ -8,7 +8,7 @@ import {
   PDFSource
 } from './pdf-viewer/pdf-viewer.module';
 
-import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
+import { PdfViewerComponent, PdfViewerSearchState } from './pdf-viewer/pdf-viewer.component';
 
 @Component({
   moduleId: module.id,
@@ -30,6 +30,10 @@ export class AppComponent {
 
   error: any;
   page = 1;
+  searchMatchesCount = 0;
+  searchMatchesCurrent = 0;
+  searchStates = PdfViewerSearchState;
+  searchState: PdfViewerSearchState = PdfViewerSearchState.FIND_NOTFOUND;
   rotation = 0;
   zoom = 1.0;
   zoomScale = 'page-width';
@@ -83,6 +87,10 @@ export class AppComponent {
 
   rotate(angle: number) {
     this.rotation += angle;
+  }
+
+  public pageChange(arg: any){
+    console.log('pageChange', arg);
   }
 
   /**

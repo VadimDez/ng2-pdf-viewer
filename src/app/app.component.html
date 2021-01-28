@@ -173,6 +173,10 @@
       </mat-form-field>
     </div>
 
+    <div class="mb" *ngIf="searchState != searchStates.FIND_NOTFOUND">
+      Result: {{searchMatchesCurrent}} / {{searchMatchesCount}}
+    </div>
+
     <div *ngIf="!isLoaded && !error && progressData" id="progress">
       <div class="bg">
         <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
@@ -184,9 +188,12 @@
 
   <mat-drawer-content>
     <pdf-viewer [src]="pdfSrc" [(page)]="page" [rotation]="rotation" [original-size]="originalSize" [show-all]="showAll"
-      [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [zoom-scale]="zoomScale" 
+      [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [zoom-scale]="zoomScale"
       [stick-to-page]="stickToPage" [render-text]="renderText" [external-link-target]="'blank'"
       [autoresize]="autoresize" (error)="onError($event)" (on-progress)="onProgress($event)"
-      (page-rendered)="pageRendered($event)" (pages-initialized)="pageInitialized($event)"></pdf-viewer>
+      (search-matches-count)="searchMatchesCount = $event"
+      (search-matches-current)="searchMatchesCurrent = $event"
+      (search-state)="searchState = $event"
+      (page-rendered)="pageRendered($event)" (pages-initialized)="pageInitialized($event)" (pageChange)="pageChange($event)"></pdf-viewer>
   </mat-drawer-content>
 </mat-drawer-container>
