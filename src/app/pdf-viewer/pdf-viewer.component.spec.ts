@@ -63,7 +63,7 @@ describe('AppComponent', () => {
       expect((pdfViewer as any).getValidPageNumber(pages + 2)).toBe(pages);
     });
 
-    it('should return first page when page is less then 1', function() {
+    it('should return first page when page is less then 1', () => {
       setPdf(10);
       expect((pdfViewer as any).getValidPageNumber(0)).toBe(1);
       expect((pdfViewer as any).getValidPageNumber(-1)).toBe(1);
@@ -71,9 +71,9 @@ describe('AppComponent', () => {
   });
 
   describe('getScale', () => {
-    it('should get scale 1 with viewportWidth = 0 or viewerContainerWidth = 0', function() {
+    it('should get scale 1 with viewportWidth = 0 or viewerContainerWidth = 0', () => {
       pdfViewerFixture.detectChanges();
-      let spy = spyOnProperty(
+      const spy = spyOnProperty(
         (pdfViewer as any).pdfViewerContainer.nativeElement,
         'clientWidth',
         'get'
@@ -91,7 +91,7 @@ describe('AppComponent', () => {
     it('should check default url', () => {
       const PDFJS = require('pdfjs-dist/build/pdf');
 
-      expect((<any>pdfViewer)._cMapsUrl).toBe(
+      expect((pdfViewer as any)._cMapsUrl).toBe(
         `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
       );
     });
@@ -100,14 +100,14 @@ describe('AppComponent', () => {
       pdfViewer.cMapsUrl = null;
       pdfViewer.src = src;
 
-      expect((<any>pdfViewer).getDocumentParams()).toBe(src);
+      expect((pdfViewer as any).getDocumentParams()).toBe(src);
     });
 
     it('should return object', () => {
       pdfViewer.src = src;
       pdfViewer.cMapsUrl = cMapUrl;
 
-      expect((<any>pdfViewer).getDocumentParams()).toEqual({
+      expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
         cMapUrl,
         cMapPacked: true
@@ -118,7 +118,7 @@ describe('AppComponent', () => {
       pdfViewer.src = { url: src };
       pdfViewer.cMapsUrl = cMapUrl;
 
-      expect((<any>pdfViewer).getDocumentParams()).toEqual({
+      expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
         cMapUrl,
         cMapPacked: true
@@ -126,12 +126,12 @@ describe('AppComponent', () => {
     });
 
     it('should return object when src is an object with byte array', () => {
-      const src = new Uint8Array(1);
-      pdfViewer.src = { url: src as any };
+      const srcUrl = new Uint8Array(1);
+      pdfViewer.src = { url: srcUrl as any };
       pdfViewer.cMapsUrl = cMapUrl;
 
-      expect((<any>pdfViewer).getDocumentParams()).toEqual({
-        url: src,
+      expect((pdfViewer as any).getDocumentParams()).toEqual({
+        url: srcUrl,
         cMapUrl,
         cMapPacked: true
       });

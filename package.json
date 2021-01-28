@@ -10,6 +10,7 @@
     "build:stats": "ng build --stats-json",
     "analyze": "webpack-bundle-analyzer dist/stats-es2015.json",
     "test": "ng test --watch false",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "test:w": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -37,8 +38,8 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "dependencies": {
-    "@types/pdfjs-dist": "^2.1.5",
-    "pdfjs-dist": "^2.4.456",
+    "@types/pdfjs-dist": "^2.1.7",
+    "pdfjs-dist": "^2.5.207",
     "tslib": "^1.13.0"
   },
   "devDependencies": {
@@ -69,6 +70,7 @@
     "karma-jasmine-html-reporter": "^1.4.0",
     "ng-packagr": "^9.1.2",
     "protractor": "~5.4.0",
+    "puppeteer": "^5.5.0",
     "rxjs": "~6.5.3",
     "ts-node": "~8.6.2",
     "tslint": "~5.20.0",
