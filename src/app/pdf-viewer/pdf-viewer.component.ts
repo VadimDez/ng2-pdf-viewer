@@ -432,19 +432,19 @@ export class PdfViewerComponent
 
     eventBus.on('updatefindmatchescount', (data) => {
       if (data.matchesCount.total) {
-        this.searchMatchesCount?.emit(data.matchesCount.total)
+        this.searchMatchesCount.emit(data.matchesCount.total)
       }
     });
 
     eventBus.on('updatefindcontrolstate', data => {
       this.searchState?.emit(data.state);     
       if(data.state === PdfViewerSearchState.FIND_NOTFOUND){
-        this.searchMatchesCount?.emit(0);
-        this.searchMatchesCurrent?.emit(0);
+        this.searchMatchesCount.emit(0);
+        this.searchMatchesCurrent.emit(0);
       }
       else if(data.matchesCount){
-        this.searchMatchesCount?.emit(data.matchesCount.total);
-        this.searchMatchesCurrent?.emit(data.matchesCount.current);
+        this.searchMatchesCount.emit(data.matchesCount.total);
+        this.searchMatchesCurrent.emit(data.matchesCount.current);
       }
     });
 
