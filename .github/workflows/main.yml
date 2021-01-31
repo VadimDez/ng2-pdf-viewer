@@ -1,33 +1,41 @@
 name: ng2-pdf-viewer workflow
+
 on:
   push:
     branches:
       - master
   pull_request:
-    branches:
-      - master
 
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         os: [ubuntu-latest]
         node-version: [12.x]
-  
-    steps:
-    - uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-      
-    - name: npm install and test
-      run: |
-        npm install
-        npm run test:ci
-      env:
-        CI: true
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        id: npm-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run tests
+        env:
+          CI: true
+        run: npm run test:ci
