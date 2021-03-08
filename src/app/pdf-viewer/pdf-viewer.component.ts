@@ -23,14 +23,14 @@ import {
   PDFProgressData,
   PDFPromise
 } from 'pdfjs-dist';
-import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
+import * as pdfjsLib from 'pdfjs-dist/es5/build/pdf';
+import * as pdfjsViewer from 'pdfjs-dist/es5/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
 
 if (!isSSR()) {
-  assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
+  assign(pdfjsLib, "verbosity", pdfjsLib.VerbosityLevel.ERRORS);
 }
 
 export enum RenderTextMode {
@@ -65,8 +65,8 @@ export class PdfViewerComponent
   private pdfSinglePageFindController: any;
 
   private _cMapsUrl =
-    typeof PDFJS !== 'undefined'
-      ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
+    typeof pdfjsLib !== 'undefined'
+      ? `https://unpkg.com/pdfjs-dist@${(pdfjsLib as any).version}/cmaps/`
       : null;
   private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
@@ -199,15 +199,15 @@ export class PdfViewerComponent
   static getLinkTarget(type: string) {
     switch (type) {
       case 'blank':
-        return (PDFJS as any).LinkTarget.BLANK;
+        return (pdfjsLib as any).LinkTarget.BLANK;
       case 'none':
-        return (PDFJS as any).LinkTarget.NONE;
+        return (pdfjsLib as any).LinkTarget.NONE;
       case 'self':
-        return (PDFJS as any).LinkTarget.SELF;
+        return (pdfjsLib as any).LinkTarget.SELF;
       case 'parent':
-        return (PDFJS as any).LinkTarget.PARENT;
+        return (pdfjsLib as any).LinkTarget.PARENT;
       case 'top':
-        return (PDFJS as any).LinkTarget.TOP;
+        return (pdfjsLib as any).LinkTarget.TOP;
     }
 
     return null;
@@ -227,11 +227,11 @@ export class PdfViewerComponent
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(pdfjsLib as any).version
         }/es5/build/pdf.worker.js`;
     }
 
-    assign(PDFJS.GlobalWorkerOptions, "workerSrc", pdfWorkerSrc);
+    assign(pdfjsLib.GlobalWorkerOptions, "workerSrc", pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -390,9 +390,9 @@ export class PdfViewerComponent
   }
 
   private setupMultiPageViewer() {
-    assign(PDFJS, "disableTextLayer", !this._renderText);
+    assign(pdfjsLib, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(pdfjsViewer);
 
     eventBus.on('pagerendered', e => {
       this.pageRendered.emit(e);
@@ -417,10 +417,10 @@ export class PdfViewerComponent
       this.textLayerRendered.emit(e);
     });
 
-    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
+    this.pdfMultiPageLinkService = new pdfjsViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
     });
-    this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({
+    this.pdfMultiPageFindController = new pdfjsViewer.PDFFindController({
       linkService: this.pdfMultiPageLinkService,
       eventBus
     });
@@ -436,15 +436,15 @@ export class PdfViewerComponent
       findController: this.pdfMultiPageFindController
     };
 
-    this.pdfMultiPageViewer = new PDFJSViewer.PDFViewer(pdfOptions);
+    this.pdfMultiPageViewer = new pdfjsViewer.PDFViewer(pdfOptions);
     this.pdfMultiPageLinkService.setViewer(this.pdfMultiPageViewer);
     this.pdfMultiPageFindController.setDocument(this._pdf);
   }
 
   private setupSinglePageViewer() {
-    assign(PDFJS, "disableTextLayer", !this._renderText);
+    assign(pdfjsLib, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(pdfjsViewer);
 
     eventBus.on('pagechanging', e => {
       if (e.pageNumber !== this._page) {
@@ -464,10 +464,10 @@ export class PdfViewerComponent
       this.textLayerRendered.emit(e);
     });
 
-    this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
+    this.pdfSinglePageLinkService = new pdfjsViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
     });
-    this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({
+    this.pdfSinglePageFindController = new pdfjsViewer.PDFFindController({
       linkService: this.pdfSinglePageLinkService,
       eventBus
     });
@@ -483,7 +483,7 @@ export class PdfViewerComponent
       findController: this.pdfSinglePageFindController
     };
 
-    this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
+    this.pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(pdfOptions);
     this.pdfSinglePageLinkService.setViewer(this.pdfSinglePageViewer);
     this.pdfSinglePageFindController.setDocument(this._pdf);
 
@@ -539,7 +539,7 @@ export class PdfViewerComponent
 
     this.clear();
 
-    this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
+    this.loadingTask = (pdfjsLib as any).getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
