@@ -1,6 +1,9 @@
 # Changelog
 
 ## 6.4.0
+* [[#739](https://github.com/VadimDez/ng2-pdf-viewer/issues/739)] - Module '"@types/pdfjs-dist"' has no exported member 'PDFPromise'
+
+## 6.4.0
 * [[#701](https://github.com/VadimDez/ng2-pdf-viewer/issues/701)] - [external-link-target] seems to be broken
 * [[#702](https://github.com/VadimDez/ng2-pdf-viewer/pull/702)] - Fix external-link-target bug
 * [[#688](https://github.com/VadimDez/ng2-pdf-viewer/pull/688)] - Issue #478 IE
