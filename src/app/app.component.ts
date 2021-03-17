@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
   PDFProgressData,
   PDFDocumentProxy,
@@ -16,17 +16,8 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   pdfSrc: string | PDFSource | ArrayBuffer = './assets/pdf-test.pdf';
-
-  // or pass options as object
-  // pdfSrc: any = {
-  //   url: './assets/pdf-test.pdf',
-  //   withCredentials: true,
-  //// httpHeaders: { // cross domain
-  ////   'Access-Control-Allow-Credentials': true
-  //// }
-  // };
 
   error: any;
   page = 1;
@@ -45,9 +36,16 @@ export class AppComponent {
   outline: any[];
   isOutlineShown = false;
   pdfQuery = '';
+  mobile = false;
 
   @ViewChild(PdfViewerComponent)
   private pdfComponent: PdfViewerComponent;
+
+  ngOnInit() {
+    if (window.screen.width <= 768) {
+      this.mobile = true;
+    }
+  }
 
   // Load pdf
   loadPdf() {
@@ -221,5 +219,15 @@ export class AppComponent {
         highlightAll: true
       });
     }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+
+    if (event.target.innerWidth <= 768)
+      this.mobile = true;
+    else
+      this.mobile = false;
+      
   }
 }
