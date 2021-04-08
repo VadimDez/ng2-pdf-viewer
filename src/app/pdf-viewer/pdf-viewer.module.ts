@@ -5,6 +5,7 @@ import { NgModule } from '@angular/core';
 
 import { PdfViewerComponent } from './pdf-viewer.component';
 import { PDFJSStatic } from 'pdfjs-dist';
+import { CommonModule } from '@angular/common';
 
 declare global {
   const PDFJS: PDFJSStatic;
@@ -22,6 +23,7 @@ export {
 
 @NgModule({
   declarations: [PdfViewerComponent],
+  imports: [CommonModule],
   exports: [PdfViewerComponent]
 })
 export class PdfViewerModule {}

@@ -109,6 +109,7 @@ export class AppComponent {
 * [[original-size]](#original-size)
 * [[fit-to-page]](#fit-to-page)
 * [[show-all]](#show-all)
+* [[show-sidebar]](#show-sidebar)
 * [[autoresize]](#autoresize)
 * [[c-maps-url]](#c-maps-url)
 * [[show-borders]](#show-borders)
@@ -304,6 +305,17 @@ Show single or all pages altogether
 
 ```
 [show-all]="true"
+```
+#### [show-sidebar]
+
+| Property | Type | Required |
+| --- | ---- | --- |
+| [show-sidebar] | *boolean* | *Optional* |
+
+Show the sidebar on the left which contains thumbnails view
+
+```
+[show-sidebar]="true"
 ```
 
 #### [autoresize]

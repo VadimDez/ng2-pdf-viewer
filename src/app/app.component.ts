@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
   renderText = true;
   progressData: PDFProgressData;
   isLoaded = false;
+  showSidebar = true;
   stickToPage = false;
   showAll = true;
   autoresize = true;
@@ -228,6 +229,6 @@ export class AppComponent implements OnInit {
       this.mobile = true;
     else
       this.mobile = false;
-      
+
   }
 }

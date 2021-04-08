@@ -1,8 +1,36 @@
 .ng2-pdf-viewer-container {
-  overflow-x: auto;
-  position: relative;
-  height: 100%;
   -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+
+  position: absolute;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+
+  transition: .2s;
+}
+
+.sidebar-attached .ng2-pdf-viewer-container {
+  left: 201px;
+}
+
+.pdfThumbnails {
+  overflow: scroll;
+
+  position: fixed;
+  width: 200px;
+  height: 100%;
+
+  transform: translateX(-200px);
+  transition: .4s;
+
+  background: #fcfdfd;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar-attached .pdfThumbnails {
+  transform: translateX(0);
 }
 
 :host ::ng-deep {
@@ -380,6 +408,9 @@
     }
 
     padding-bottom: 10px;
+    width: fit-content;
+    margin: 0 auto !important;
+
     &.removePageBorders {
       padding-bottom: 0;
     }
@@ -506,6 +537,225 @@
     &:fullscreen .pdfViewer .page {
       margin-bottom: 100%;
       border: 0;
+    }
+  }
+}
+
+/********************
+** PDF thumbnails styles
+*/
+:host ::ng-deep {
+  .title-small {
+    padding-bottom: 6px;
+  }
+
+  #thumbnailView {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    padding: 10px 30px 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #thumbnailView > a:active,
+  #thumbnailView > a:focus {
+    outline: 0;
+  }
+
+  #thumbnailView.full-screen > a {
+    float: left;
+  }
+
+  .thumbnail {
+    width: 100%;
+    padding-top: 24px;
+  }
+
+  #thumbnailView.full-screen .thumbnail {
+    margin: 0 20px 15px 20px;
+  }
+
+  html[dir="ltr"] .thumbnail {
+    float: left;
+  }
+
+  html[dir="rtl"] .thumbnail {
+    float: right;
+  }
+
+  #thumbnailView > a:last-of-type > .thumbnail {
+    margin-bottom: 10px;
+  }
+
+  #thumbnailView > a:last-of-type > .thumbnail:not([data-loaded]) {
+    margin-bottom: 9px;
+  }
+
+  .thumbnail:not([data-loaded]) {
+    border: 1px solid transparent;
+    margin: -1px 9px 4px 9px;
+  }
+
+  .thumbnailImage {
+    border: 2px solid transparent;
+    opacity: 0.8;
+    z-index: 99;
+    background-clip: content-box;
+    background: #e8e7e7;
+  }
+
+  .thumbnailSelectionRing {
+    border-radius: 2px;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  a:focus > .thumbnail > .thumbnailSelectionRing > .thumbnailImage,
+  .thumbnail:hover > .thumbnailSelectionRing > .thumbnailImage {
+    opacity: 0.9;
+  }
+
+  a:focus > .thumbnail > .thumbnailSelectionRing,
+  .thumbnail:hover > .thumbnailSelectionRing {
+    background-color: rgba(255, 255, 255, 0.15);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+    background-clip: padding-box;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    0 0 1px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .thumbnail.selected > .thumbnailSelectionRing > .thumbnailImage {
+    -webkit-box-shadow: 0px 0.175em 0.5em rgba(2, 8, 20, 0.1), 0px 0.085em 0.175em rgba(2, 8, 20, 0.08);
+    box-shadow: 0px 0.175em 0.5em rgba(2, 8, 20, 0.1), 0px 0.085em 0.175em rgba(2, 8, 20, 0.08);
+    border: 2px solid #3183c8;;
+    opacity: 1;
+  }
+
+  .thumbnail.selected > .thumbnailSelectionRing {
+    background-color: rgba(255, 255, 255, 0.3);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+    background-clip: padding-box;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 1px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 1);
+  }
+
+  @media screen and (max-width: 1366px) {
+    #thumbnailView {
+      padding: 10px 3px 0;
+    }
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 12px 15px 10px;
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 22px 15px 32px;
+    }
+  }
+
+  @media screen and (max-width: 812px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 24px 15px 28px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    #thumbnailView {
+      padding: 10px 0 0;
+    }
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 18px 13px 24px;
+    }
+  }
+
+  @media screen and (max-width: 736px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 20px 15px 15px;
+    }
+
+    #thumbnailView {
+      padding: 10px 2px 0;
+    }
+  }
+
+  @media screen and (max-width: 731px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 20px 15px 10px;
+    }
+
+    #thumbnailView {
+      padding: 10px 0 0 15px;
+    }
+  }
+
+  @media screen and (max-width: 667px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 0 15px 12px;
+    }
+
+    #thumbnailView {
+      padding: 10px 8px 0;
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 0 15px 6px;
+    }
+  }
+
+  @media screen and (max-width: 568px) {
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 15px 15px 18px;
+    }
+
+    #thumbnailView {
+      padding: 10px 12px 0;
+    }
+  }
+
+  @media screen and (max-width: 415px) {
+    #thumbnailView {
+      padding: 10px 16px 0;
+    }
+
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 18px 15px 22px;
+    }
+  }
+
+  @media screen and (max-width: 375px) {
+    #thumbnailView {
+      padding: 10px 16px 0;
+    }
+
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 10px 15px 10px;
+    }
+  }
+
+  @media screen and (max-width: 360px) {
+    #thumbnailView {
+      padding: 10px 10px 0;
+    }
+
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 10px 16px 12px;
+    }
+  }
+
+  @media screen and (max-width: 320px) {
+    #thumbnailView {
+      padding: 10px 9px 0 36px;
+    }
+
+    #thumbnailView.full-screen .thumbnail {
+      margin: 0 18px 16px 28px;
     }
   }
 }

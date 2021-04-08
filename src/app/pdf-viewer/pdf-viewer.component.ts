@@ -25,6 +25,7 @@ import {
 } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
 import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
+import * as IPDFThumbnailViewerApi from 'pdfjs-dist/lib/web/pdf_thumbnail_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
@@ -32,6 +33,13 @@ import { assign, isSSR } from '../utils/helpers';
 if (!isSSR()) {
   assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
 }
+
+const RenderingStates = {
+  INITIAL: 0,
+  RUNNING: 1,
+  PAUSED: 2,
+  FINISHED: 3
+};
 
 export enum RenderTextMode {
   DISABLED,
@@ -42,8 +50,14 @@ export enum RenderTextMode {
 @Component({
   selector: 'pdf-viewer',
   template: `
-    <div #pdfViewerContainer class="ng2-pdf-viewer-container">
-      <div class="pdfViewer"></div>
+    <div class="pdf-viewer-component"
+         [ngClass]="{'sidebar-attached':sidebarVisible}">
+      <div #pdfViewerSidebar>
+        <div class="pdfThumbnails"></div>
+      </div>
+      <div #pdfViewerContainer class="ng2-pdf-viewer-container">
+        <div class="pdfViewer"></div>
+      </div>
     </div>
   `,
   styleUrls: ['./pdf-viewer.component.scss']
@@ -54,6 +68,7 @@ export class PdfViewerComponent
   static BORDER_WIDTH = 9;
 
   @ViewChild('pdfViewerContainer') pdfViewerContainer;
+  @ViewChild('pdfViewerSidebar') pdfViewerSidebar;
 
   private isVisible = false;
   private pdfMultiPageViewer: any;
@@ -63,6 +78,8 @@ export class PdfViewerComponent
   private pdfSinglePageViewer: any;
   private pdfSinglePageLinkService: any;
   private pdfSinglePageFindController: any;
+
+  private pdfThumbnailViewer: any;
 
   private _cMapsUrl =
     typeof PDFJS !== 'undefined'
@@ -78,6 +95,7 @@ export class PdfViewerComponent
   private _zoomScale: 'page-height' | 'page-fit' | 'page-width' = 'page-width';
   private _rotation = 0;
   private _showAll = true;
+  private _showSidebar = false;
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
@@ -87,6 +105,7 @@ export class PdfViewerComponent
 
   private resizeTimeout: NodeJS.Timer;
   private pageScrollTimeout: NodeJS.Timer;
+  private thumbnailScrollTimeout: NodeJS.Timer;
   private isInitialized = false;
   private loadingTask: any;
 
@@ -117,6 +136,17 @@ export class PdfViewerComponent
     if (originalPage !== _page) {
       this.pageChange.emit(_page);
     }
+
+    if (!!this.pdfThumbnailViewer) {
+
+      if (this.thumbnailScrollTimeout) {
+        clearTimeout(this.thumbnailScrollTimeout);
+      }
+
+      this.thumbnailScrollTimeout = setTimeout(() => {
+        this.pdfThumbnailViewer.scrollThumbnailIntoView(_page);
+      }, 100);
+    }
   }
 
   @Input('render-text')
@@ -142,6 +172,21 @@ export class PdfViewerComponent
   @Input('stick-to-page')
   set stickToPage(value: boolean) {
     this._stickToPage = value;
+  }
+
+  @Input('show-sidebar')
+  set showSidebar(value: boolean) {
+    this._showSidebar = value;
+
+    if (value) {
+      this.updateThumbnailViewer();
+    } else {
+      this.destroyThumbnailViewer();
+    }
+  }
+
+  get sidebarVisible(): boolean {
+    return this._showSidebar;
   }
 
   @Input('zoom')
@@ -400,6 +445,7 @@ export class PdfViewerComponent
 
     eventBus.on('pagesinit', e => {
       this.pageInitialized.emit(e);
+      this.setupThumbnailViewer();
     });
 
     eventBus.on('pagechanging', e => {
@@ -427,7 +473,7 @@ export class PdfViewerComponent
 
     const pdfOptions: PDFViewerParams | any = {
       eventBus,
-      container: this.element.nativeElement.querySelector('div'),
+      container: this.element.nativeElement.querySelector('.ng2-pdf-viewer-container'),
       removePageBorders: !this._showBorders,
       linkService: this.pdfMultiPageLinkService,
       textLayerMode: this._renderText
@@ -458,6 +504,7 @@ export class PdfViewerComponent
 
     eventBus.on('pagesinit', e => {
       this.pageInitialized.emit(e);
+      this.setupThumbnailViewer();
     });
 
     eventBus.on('textlayerrendered', e => {
@@ -474,7 +521,7 @@ export class PdfViewerComponent
 
     const pdfOptions: PDFViewerParams | any = {
       eventBus,
-      container: this.element.nativeElement.querySelector('div'),
+      container: this.element.nativeElement.querySelector('.ng2-pdf-viewer-container'),
       removePageBorders: !this._showBorders,
       linkService: this.pdfSinglePageLinkService,
       textLayerMode: this._renderText
@@ -488,6 +535,59 @@ export class PdfViewerComponent
     this.pdfSinglePageFindController.setDocument(this._pdf);
 
     this.pdfSinglePageViewer._currentPageNumber = this._page;
+  }
+
+  private setupThumbnailViewer() {
+    if (this.pdfViewer && this.pdfViewer.renderingQueue) {
+
+      // enable thumbnails
+      this.pdfViewer.renderingQueue.isThumbnailViewEnabled = true;
+
+      this.pdfThumbnailViewer = new IPDFThumbnailViewerApi.PDFThumbnailViewer({
+        container: this.pdfViewerSidebar.nativeElement.querySelector('.pdfThumbnails'),
+        linkService: this.pdfViewer.linkService,
+        renderingQueue: this.pdfViewer.renderingQueue
+      });
+      this.pdfViewer.renderingQueue.setThumbnailViewer(this.pdfThumbnailViewer);
+      this.pdfThumbnailViewer.setDocument(this._pdf);
+    }
+  }
+
+  private updateThumbnailViewer() {
+    if (this.pdfViewer) {
+
+      if (!this.pdfThumbnailViewer) {
+        this.setupThumbnailViewer();
+      }
+
+      // Use the rendered pages to set the corresponding thumbnail images.
+      const pagesCount = this.pdfViewer.pagesCount;
+      for (let pageIndex = 0; pageIndex < pagesCount; pageIndex++) {
+        const pageView = this.pdfViewer.getPageView(pageIndex);
+        if (pageView && pageView.renderingState === RenderingStates.FINISHED) {
+          const thumbnailView = this.pdfThumbnailViewer.getThumbnail(pageIndex);
+          if (!!thumbnailView) {
+            thumbnailView.setImage(pageView);
+          }
+        }
+      }
+
+      this.pdfThumbnailViewer.forceRendering();
+    }
+  }
+
+  private destroyThumbnailViewer() {
+    if (this.pdfViewer) {
+
+      // disable thumbnails
+      this.pdfViewer.renderingQueue.isThumbnailViewEnabled = false;
+
+      // cleanup
+      this.pdfThumbnailViewer.cleanup();
+
+    }
+
+    this.pdfThumbnailViewer = null;
   }
 
   private getValidPageNumber(page: number): number {
