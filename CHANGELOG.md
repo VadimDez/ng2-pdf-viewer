@@ -1,10 +1,17 @@
 # Changelog
 
+## 6.4.1
+* [[#739](https://github.com/VadimDez/ng2-pdf-viewer/issues/739)] - Module '"@types/pdfjs-dist"' has no exported member 'PDFPromise'
+* [[#740](https://github.com/VadimDez/ng2-pdf-viewer/pull/740)] - Issue #739 fix: change @types/pdfjs-dist to update only patch versions
+
 ## 6.4.0
 * [[#701](https://github.com/VadimDez/ng2-pdf-viewer/issues/701)] - [external-link-target] seems to be broken
 * [[#702](https://github.com/VadimDez/ng2-pdf-viewer/pull/702)] - Fix external-link-target bug
 * [[#688](https://github.com/VadimDez/ng2-pdf-viewer/pull/688)] - Issue #478 IE
 * [[#478](https://github.com/VadimDez/ng2-pdf-viewer/issues/478)] - Support on IE & Edge
+* [[#724](https://github.com/VadimDez/ng2-pdf-viewer/issues/724)] - Doesn't compile with pdf.js 2.6 and pdf.js 2.7
+* [[#717](https://github.com/VadimDez/ng2-pdf-viewer/issues/717)] - Module x has no exported member 'PDFDocumentProxy'
+* [[#715](https://github.com/VadimDez/ng2-pdf-viewer/issues/715)] - Several errors while building app with --prod flag
 
 ## 6.3.2
 * [[#627](https://github.com/VadimDez/ng2-pdf-viewer/pull/627)] - Fixing memory issue
