@@ -216,8 +216,6 @@ export class PdfViewerComponent
     return null;
   }
 
-  private destroy$ = new Subject<void>();
-
   constructor(private element: ElementRef) {
     if (isSSR()) {
       return;
