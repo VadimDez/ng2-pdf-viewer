@@ -15,6 +15,8 @@ import {
   ViewChild,
   AfterViewChecked
 } from '@angular/core';
+import { from, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   PDFDocumentProxy,
   PDFViewerParams,
@@ -213,6 +215,8 @@ export class PdfViewerComponent
     return null;
   }
 
+  private destroy$ = new Subject<void>();
+
   constructor(private element: ElementRef) {
     if (isSSR()) {
       return;
@@ -266,6 +270,8 @@ export class PdfViewerComponent
 
   ngOnDestroy() {
     this.clear();
+    this.destroy$.next();
+    this.loadingTask = null;
   }
 
   @HostListener('window:resize', [])
@@ -332,30 +338,37 @@ export class PdfViewerComponent
 
   public updateSize() {
     const currentViewer = this.getCurrentViewer();
-    this._pdf
-      .getPage(currentViewer.currentPageNumber)
-      .then((page: PDFPageProxy) => {
-        const rotation = this._rotation || page.rotate;
-        const viewportWidth =
-          (page as any).getViewport({
-            scale: this._zoom,
-            rotation
-          }).width * PdfViewerComponent.CSS_UNITS;
-        let scale = this._zoom;
-        let stickToPage = true;
 
-        // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-        if (
-          !this._originalSize ||
-          (this._fitToPage &&
-            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
-        ) {
-          const viewPort = (page as any).getViewport({ scale: 1, rotation });
-          scale = this.getScale(viewPort.width, viewPort.height);
-          stickToPage = !this._stickToPage;
+    from(
+      (this._pdf.getPage(
+        currentViewer.currentPageNumber
+      ) as unknown) as Promise<PDFPageProxy>
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page: PDFPageProxy) => {
+          const rotation = this._rotation || page.rotate;
+          const viewportWidth =
+            (page as any).getViewport({
+              scale: this._zoom,
+              rotation
+            }).width * PdfViewerComponent.CSS_UNITS;
+          let scale = this._zoom;
+          let stickToPage = true;
+
+          // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+          if (
+            !this._originalSize ||
+            (this._fitToPage &&
+              viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+          ) {
+            const viewPort = (page as any).getViewport({ scale: 1, rotation });
+            scale = this.getScale(viewPort.width, viewPort.height);
+            stickToPage = !this._stickToPage;
+          }
+
+          currentViewer._setScale(scale, stickToPage);
         }
-
-        currentViewer._setScale(scale, stickToPage);
       });
   }
 
@@ -546,26 +559,29 @@ export class PdfViewerComponent
     };
 
     const src = this.src;
-    (this.loadingTask.promise as PDFPromise<PDFDocumentProxy>).then(
-      (pdf: PDFDocumentProxy) => {
-        this._pdf = pdf;
-        this.lastLoaded = src;
 
-        this.afterLoadComplete.emit(pdf);
+    from(this.loadingTask.promise as Promise<PDFDocumentProxy>)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pdf) => {
+          this._pdf = pdf;
+          this.lastLoaded = src;
 
-        if (!this.pdfMultiPageViewer) {
-          this.setupMultiPageViewer();
-          this.setupSinglePageViewer();
+          this.afterLoadComplete.emit(pdf);
+
+          if (!this.pdfMultiPageViewer) {
+            this.setupMultiPageViewer();
+            this.setupSinglePageViewer();
+          }
+
+          this.resetPdfDocument();
+
+          this.update();
+        },
+        error: (error) => {
+          this.onError.emit(error);
         }
-
-        this.resetPdfDocument();
-
-        this.update();
-      },
-      (error: any) => {
-        this.onError.emit(error);
-      }
-    );
+      });
   }
 
   private update() {
