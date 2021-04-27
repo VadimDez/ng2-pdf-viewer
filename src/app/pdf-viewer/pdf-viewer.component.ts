@@ -15,7 +15,7 @@ import {
   ViewChild,
   AfterViewChecked
 } from '@angular/core';
-import { from, Subject } from 'rxjs';
+import { from, fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   PDFDocumentProxy,
@@ -91,6 +91,7 @@ export class PdfViewerComponent
   private pageScrollTimeout: NodeJS.Timer;
   private isInitialized = false;
   private loadingTask: any;
+  private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
@@ -214,8 +215,6 @@ export class PdfViewerComponent
 
     return null;
   }
-
-  private destroy$ = new Subject<void>();
 
   constructor(private element: ElementRef) {
     if (isSSR()) {
@@ -405,30 +404,38 @@ export class PdfViewerComponent
   private setupMultiPageViewer() {
     assign(PDFJS, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageRendered.emit(event);
+      });
 
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageInitialized.emit(event);
+      });
 
-    eventBus.on('pagechanging', e => {
-      if (this.pageScrollTimeout) {
-        clearTimeout(this.pageScrollTimeout);
-      }
+    fromEvent(eventBus, 'pagechanging')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ pageNumber }) => {
+        if (this.pageScrollTimeout) {
+          clearTimeout(this.pageScrollTimeout);
+        }
 
-      this.pageScrollTimeout = setTimeout(() => {
-        this._latestScrolledPage = e.pageNumber;
-        this.pageChange.emit(e.pageNumber);
-      }, 100);
-    });
+        this.pageScrollTimeout = setTimeout(() => {
+          this._latestScrolledPage = pageNumber;
+          this.pageChange.emit(pageNumber);
+        }, 100);
+      });
 
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.textLayerRendered.emit(event);
+      });
 
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
@@ -457,25 +464,33 @@ export class PdfViewerComponent
   private setupSinglePageViewer() {
     assign(PDFJS, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    eventBus.on('pagechanging', e => {
-      if (e.pageNumber !== this._page) {
-        this.page = e.pageNumber;
-      }
-    });
+    fromEvent(eventBus, 'pagechanging')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ pageNumber }) => {
+        if (pageNumber !== this._page) {
+          this.page = pageNumber;
+        }
+      });
 
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageRendered.emit(event);
+      });
 
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageInitialized.emit(event);
+      });
 
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.textLayerRendered.emit(event);
+      });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
