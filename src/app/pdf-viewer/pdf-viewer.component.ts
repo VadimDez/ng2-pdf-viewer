@@ -15,6 +15,8 @@ import {
   ViewChild,
   AfterViewChecked
 } from '@angular/core';
+import { from, fromEvent, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   PDFDocumentProxy,
   PDFViewerParams,
@@ -96,6 +98,7 @@ export class PdfViewerComponent
   private pageScrollTimeout: NodeJS.Timer;
   private isInitialized = false;
   private loadingTask: any;
+  private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
@@ -276,6 +279,8 @@ export class PdfViewerComponent
 
   ngOnDestroy() {
     this.clear();
+    this.destroy$.next();
+    this.loadingTask = null;
   }
 
   @HostListener('window:resize', [])
@@ -342,30 +347,37 @@ export class PdfViewerComponent
 
   public updateSize() {
     const currentViewer = this.getCurrentViewer();
-    this._pdf
-      .getPage(currentViewer.currentPageNumber)
-      .then((page: PDFPageProxy) => {
-        const rotation = this._rotation || page.rotate;
-        const viewportWidth =
-          (page as any).getViewport({
-            scale: this._zoom,
-            rotation
-          }).width * PdfViewerComponent.CSS_UNITS;
-        let scale = this._zoom;
-        let stickToPage = true;
 
-        // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-        if (
-          !this._originalSize ||
-          (this._fitToPage &&
-            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
-        ) {
-          const viewPort = (page as any).getViewport({ scale: 1, rotation });
-          scale = this.getScale(viewPort.width, viewPort.height);
-          stickToPage = !this._stickToPage;
+    from(
+      (this._pdf.getPage(
+        currentViewer.currentPageNumber
+      ) as unknown) as Promise<PDFPageProxy>
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page: PDFPageProxy) => {
+          const rotation = this._rotation || page.rotate;
+          const viewportWidth =
+            (page as any).getViewport({
+              scale: this._zoom,
+              rotation
+            }).width * PdfViewerComponent.CSS_UNITS;
+          let scale = this._zoom;
+          let stickToPage = true;
+
+          // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+          if (
+            !this._originalSize ||
+            (this._fitToPage &&
+              viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+          ) {
+            const viewPort = (page as any).getViewport({ scale: 1, rotation });
+            scale = this.getScale(viewPort.width, viewPort.height);
+            stickToPage = !this._stickToPage;
+          }
+
+          currentViewer._setScale(scale, stickToPage);
         }
-
-        currentViewer._setScale(scale, stickToPage);
       });
   }
 
@@ -404,55 +416,63 @@ export class PdfViewerComponent
    * return a global pdfJsViewer.EventBus
    */
   private createEventBusWithCommonRegistrations(): any {
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageRendered.emit(event);
+      });
 
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageInitialized.emit(event);
+      });
 
-    eventBus.on('pagechanging', e => {
-      if (this.pageScrollTimeout) {
-        clearTimeout(this.pageScrollTimeout);
-      }
-
-      // Note, this timeout seems also needed in single page viewer
-      this.pageScrollTimeout = setTimeout(() => {
-        this._latestScrolledPage = e.pageNumber;
-        this.pageChange.emit(e.pageNumber);
-      }, 100);
-    });
-
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
-
-    eventBus.on('updatefindmatchescount', (data) => {
-      if (data.matchesCount.total) {
-        this.searchMatchesCount.emit(data.matchesCount.total)
-      }
-    });
-
-    eventBus.on('updatefindcontrolstate', data => {
-      this.searchState.emit(data.state);
-      if(data.state === PdfViewerSearchState.FIND_NOTFOUND){
-        this.searchMatchesCount.emit(0);
-        this.searchMatchesCurrent.emit(0);
-      }
-      else if(data.matchesCount){
-        this.searchMatchesCount.emit(data.matchesCount.total);
-        if(data.matchesCount.current !== 0){
-          this.searchMatchesCurrent.emit(data.matchesCount.current);
-        } else{
-          this.searchMatchesCurrent.emit(1);
+    fromEvent(eventBus, 'pagechanging')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ pageNumber }) => {
+        if (this.pageScrollTimeout) {
+          clearTimeout(this.pageScrollTimeout);
         }
 
-      }
-    });
+        this.pageScrollTimeout = setTimeout(() => {
+          this._latestScrolledPage = pageNumber;
+          this.pageChange.emit(pageNumber);
+        }, 100);
+      });
 
+    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.textLayerRendered.emit(event);
+
+    fromEvent<CustomEvent>(eventBus, 'updatefindmatchescount')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+	      if (data.matchesCount.total) {
+	        this.searchMatchesCount.emit(data.matchesCount.total)
+	      }
+	    });
+
+    fromEvent<CustomEvent>(eventBus, 'updatefindcontrolstate')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+	      this.searchState.emit(data.state);
+	      if(data.state === PdfViewerSearchState.FIND_NOTFOUND){
+	        this.searchMatchesCount.emit(0);
+	        this.searchMatchesCurrent.emit(0);
+	      }
+	      else if(data.matchesCount){
+	        this.searchMatchesCount.emit(data.matchesCount.total);
+	        if(data.matchesCount.current !== 0){
+	          this.searchMatchesCurrent.emit(data.matchesCount.current);
+	        } else{
+	          this.searchMatchesCurrent.emit(1);
+	        }
+	      }
+	    });
     return eventBus;
   }
 
@@ -572,26 +592,29 @@ export class PdfViewerComponent
     };
 
     const src = this.src;
-    (this.loadingTask.promise as PDFPromise<PDFDocumentProxy>).then(
-      (pdf: PDFDocumentProxy) => {
-        this._pdf = pdf;
-        this.lastLoaded = src;
 
-        this.afterLoadComplete.emit(pdf);
+    from(this.loadingTask.promise as Promise<PDFDocumentProxy>)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pdf) => {
+          this._pdf = pdf;
+          this.lastLoaded = src;
 
-        if (!this.pdfMultiPageViewer) {
-          this.setupMultiPageViewer();
-          this.setupSinglePageViewer();
+          this.afterLoadComplete.emit(pdf);
+
+          if (!this.pdfMultiPageViewer) {
+            this.setupMultiPageViewer();
+            this.setupSinglePageViewer();
+          }
+
+          this.resetPdfDocument();
+
+          this.update();
+        },
+        error: (error) => {
+          this.onError.emit(error);
         }
-
-        this.resetPdfDocument();
-
-        this.update();
-      },
-      (error: any) => {
-        this.onError.emit(error);
-      }
-    );
+      });
   }
 
   private update() {

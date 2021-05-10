@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "6.3.2",
+  "version": "6.4.1",
   "description": "Angular 5+ component for rendering PDF",
   "license": "MIT",
   "scripts": {
@@ -38,8 +38,8 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "dependencies": {
-    "@types/pdfjs-dist": "^2.1.7",
-    "pdfjs-dist": "^2.5.207",
+    "@types/pdfjs-dist": "~2.1.7",
+    "pdfjs-dist": "~2.5.207",
     "tslib": "^1.10.0"
   },
   "devDependencies": {

@@ -68,7 +68,7 @@ pdf-viewer {
 }
 
 mat-drawer {
-  width: 300px;
+  width: 320px;
   padding: 12px;
 }
 
@@ -86,4 +86,8 @@ pdf-viewer {
 
 .title {
   width: 284px;
+}
+
+.toggle-menu {
+  margin-right: 20px;
 }
