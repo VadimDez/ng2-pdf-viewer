@@ -447,6 +447,7 @@ export class PdfViewerComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
         this.textLayerRendered.emit(event);
+      });
 
     fromEvent<CustomEvent>(eventBus, 'updatefindmatchescount')
       .pipe(takeUntil(this.destroy$))
