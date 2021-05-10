@@ -449,26 +449,26 @@ export class PdfViewerComponent
         this.textLayerRendered.emit(event);
       });
 
-    fromEvent<CustomEvent>(eventBus, 'updatefindmatchescount')
+    fromEvent(eventBus, 'updatefindmatchescount')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-	      if (data.matchesCount.total) {
-	        this.searchMatchesCount.emit(data.matchesCount.total)
+      .subscribe(({matchesCount}) => {
+	      if (matchesCount.total) {
+	        this.searchMatchesCount.emit(matchesCount.total)
 	      }
 	    });
 
-    fromEvent<CustomEvent>(eventBus, 'updatefindcontrolstate')
+    fromEvent(eventBus, 'updatefindcontrolstate')
       .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-	      this.searchState.emit(data.state);
-	      if(data.state === PdfViewerSearchState.FIND_NOTFOUND){
+      .subscribe(({state, matchesCount}) => {
+	      this.searchState.emit(state);
+	      if(state === PdfViewerSearchState.FIND_NOTFOUND){
 	        this.searchMatchesCount.emit(0);
 	        this.searchMatchesCurrent.emit(0);
 	      }
-	      else if(data.matchesCount){
-	        this.searchMatchesCount.emit(data.matchesCount.total);
-	        if(data.matchesCount.current !== 0){
-	          this.searchMatchesCurrent.emit(data.matchesCount.current);
+	      else if(matchesCount){
+	        this.searchMatchesCount.emit(matchesCount.total);
+	        if(matchesCount.current !== 0){
+	          this.searchMatchesCurrent.emit(matchesCount.current);
 	        } else{
 	          this.searchMatchesCurrent.emit(1);
 	        }
