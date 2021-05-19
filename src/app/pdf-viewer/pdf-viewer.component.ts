@@ -17,19 +17,19 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import {
-  PDFDocumentProxy,
-  PDFViewerParams,
-  PDFPageProxy,
-  PDFSource,
-  PDFProgressData,
-  PDFPromise
-} from 'pdfjs-dist';
-import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
+import * as PDFJS from 'pdfjs-dist';
+import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
+
+import type {
+  PDFSource,
+  PDFPageProxy,
+  PDFProgressData,
+  PDFDocumentProxy,
+  PDFDocumentLoadingTask,
+} from './typings';
 
 if (!isSSR()) {
   assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
@@ -87,10 +87,10 @@ export class PdfViewerComponent
   private lastLoaded: string | Uint8Array | PDFSource;
   private _latestScrolledPage: number;
 
-  private resizeTimeout: NodeJS.Timer;
-  private pageScrollTimeout: NodeJS.Timer;
+  private resizeTimeout: number | null = null;
+  private pageScrollTimeout: number | null = null;
   private isInitialized = false;
-  private loadingTask: any;
+  private loadingTask: PDFDocumentLoadingTask;
   private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
@@ -283,7 +283,7 @@ export class PdfViewerComponent
       clearTimeout(this.resizeTimeout);
     }
 
-    this.resizeTimeout = setTimeout(() => {
+    this.resizeTimeout = window.setTimeout(() => {
       this.updateSize();
     }, 100);
   }
@@ -425,7 +425,7 @@ export class PdfViewerComponent
           clearTimeout(this.pageScrollTimeout);
         }
 
-        this.pageScrollTimeout = setTimeout(() => {
+        this.pageScrollTimeout = window.setTimeout(() => {
           this._latestScrolledPage = pageNumber;
           this.pageChange.emit(pageNumber);
         }, 100);
@@ -445,7 +445,7 @@ export class PdfViewerComponent
       eventBus
     });
 
-    const pdfOptions: PDFViewerParams | any = {
+    const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
@@ -500,7 +500,7 @@ export class PdfViewerComponent
       eventBus
     });
 
-    const pdfOptions: PDFViewerParams | any = {
+    const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
@@ -567,7 +567,7 @@ export class PdfViewerComponent
 
     this.clear();
 
-    this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
+    this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
