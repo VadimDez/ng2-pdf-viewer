@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [12.x]
+        node-version: [14.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -39,3 +39,9 @@ jobs:
         env:
           CI: true
         run: npm run test:ci
+
+      - name: Build library
+        run: npm run packagr
+
+      - name: Build app
+        run: npm run build

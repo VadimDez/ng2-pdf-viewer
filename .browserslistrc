@@ -9,4 +9,5 @@
 last 2 versions
 Firefox ESR
 not dead
-IE 11
+# IE 11 support is deprecated since Angular v12.
+not IE 11
