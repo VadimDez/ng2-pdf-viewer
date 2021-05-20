@@ -15,19 +15,21 @@ import {
   ViewChild,
   AfterViewChecked
 } from '@angular/core';
-import {
-  PDFDocumentProxy,
-  PDFViewerParams,
-  PDFPageProxy,
-  PDFSource,
-  PDFProgressData,
-  PDFPromise
-} from 'pdfjs-dist';
-import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
+import { from, fromEvent, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import * as PDFJS from 'pdfjs-dist';
+import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
+
+import type {
+  PDFSource,
+  PDFPageProxy,
+  PDFProgressData,
+  PDFDocumentProxy,
+  PDFDocumentLoadingTask,
+} from './typings';
 
 if (!isSSR()) {
   assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
@@ -85,10 +87,11 @@ export class PdfViewerComponent
   private lastLoaded: string | Uint8Array | PDFSource;
   private _latestScrolledPage: number;
 
-  private resizeTimeout: NodeJS.Timer;
-  private pageScrollTimeout: NodeJS.Timer;
+  private resizeTimeout: number | null = null;
+  private pageScrollTimeout: number | null = null;
   private isInitialized = false;
-  private loadingTask: any;
+  private loadingTask: PDFDocumentLoadingTask;
+  private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
@@ -266,6 +269,8 @@ export class PdfViewerComponent
 
   ngOnDestroy() {
     this.clear();
+    this.destroy$.next();
+    this.loadingTask = null;
   }
 
   @HostListener('window:resize', [])
@@ -278,7 +283,7 @@ export class PdfViewerComponent
       clearTimeout(this.resizeTimeout);
     }
 
-    this.resizeTimeout = setTimeout(() => {
+    this.resizeTimeout = window.setTimeout(() => {
       this.updateSize();
     }, 100);
   }
@@ -332,30 +337,37 @@ export class PdfViewerComponent
 
   public updateSize() {
     const currentViewer = this.getCurrentViewer();
-    this._pdf
-      .getPage(currentViewer.currentPageNumber)
-      .then((page: PDFPageProxy) => {
-        const rotation = this._rotation || page.rotate;
-        const viewportWidth =
-          (page as any).getViewport({
-            scale: this._zoom,
-            rotation
-          }).width * PdfViewerComponent.CSS_UNITS;
-        let scale = this._zoom;
-        let stickToPage = true;
 
-        // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
-        if (
-          !this._originalSize ||
-          (this._fitToPage &&
-            viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
-        ) {
-          const viewPort = (page as any).getViewport({ scale: 1, rotation });
-          scale = this.getScale(viewPort.width, viewPort.height);
-          stickToPage = !this._stickToPage;
+    from(
+      (this._pdf.getPage(
+        currentViewer.currentPageNumber
+      ) as unknown) as Promise<PDFPageProxy>
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (page: PDFPageProxy) => {
+          const rotation = this._rotation || page.rotate;
+          const viewportWidth =
+            (page as any).getViewport({
+              scale: this._zoom,
+              rotation
+            }).width * PdfViewerComponent.CSS_UNITS;
+          let scale = this._zoom;
+          let stickToPage = true;
+
+          // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+          if (
+            !this._originalSize ||
+            (this._fitToPage &&
+              viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+          ) {
+            const viewPort = (page as any).getViewport({ scale: 1, rotation });
+            scale = this.getScale(viewPort.width, viewPort.height);
+            stickToPage = !this._stickToPage;
+          }
+
+          currentViewer._setScale(scale, stickToPage);
         }
-
-        currentViewer._setScale(scale, stickToPage);
       });
   }
 
@@ -392,30 +404,38 @@ export class PdfViewerComponent
   private setupMultiPageViewer() {
     assign(PDFJS, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageRendered.emit(event);
+      });
 
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageInitialized.emit(event);
+      });
 
-    eventBus.on('pagechanging', e => {
-      if (this.pageScrollTimeout) {
-        clearTimeout(this.pageScrollTimeout);
-      }
+    fromEvent(eventBus, 'pagechanging')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ pageNumber }) => {
+        if (this.pageScrollTimeout) {
+          clearTimeout(this.pageScrollTimeout);
+        }
 
-      this.pageScrollTimeout = setTimeout(() => {
-        this._latestScrolledPage = e.pageNumber;
-        this.pageChange.emit(e.pageNumber);
-      }, 100);
-    });
+        this.pageScrollTimeout = window.setTimeout(() => {
+          this._latestScrolledPage = pageNumber;
+          this.pageChange.emit(pageNumber);
+        }, 100);
+      });
 
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.textLayerRendered.emit(event);
+      });
 
     this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
@@ -425,7 +445,7 @@ export class PdfViewerComponent
       eventBus
     });
 
-    const pdfOptions: PDFViewerParams | any = {
+    const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
@@ -444,25 +464,33 @@ export class PdfViewerComponent
   private setupSinglePageViewer() {
     assign(PDFJS, "disableTextLayer", !this._renderText);
 
-    const eventBus = createEventBus(PDFJSViewer);
+    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    eventBus.on('pagechanging', e => {
-      if (e.pageNumber !== this._page) {
-        this.page = e.pageNumber;
-      }
-    });
+    fromEvent(eventBus, 'pagechanging')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ pageNumber }) => {
+        if (pageNumber !== this._page) {
+          this.page = pageNumber;
+        }
+      });
 
-    eventBus.on('pagerendered', e => {
-      this.pageRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageRendered.emit(event);
+      });
 
-    eventBus.on('pagesinit', e => {
-      this.pageInitialized.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.pageInitialized.emit(event);
+      });
 
-    eventBus.on('textlayerrendered', e => {
-      this.textLayerRendered.emit(e);
-    });
+    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((event) => {
+        this.textLayerRendered.emit(event);
+      });
 
     this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
       eventBus, ...this.getPDFLinkServiceConfig()
@@ -472,7 +500,7 @@ export class PdfViewerComponent
       eventBus
     });
 
-    const pdfOptions: PDFViewerParams | any = {
+    const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
@@ -539,33 +567,36 @@ export class PdfViewerComponent
 
     this.clear();
 
-    this.loadingTask = (PDFJS as any).getDocument(this.getDocumentParams());
+    this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
     };
 
     const src = this.src;
-    (this.loadingTask.promise as PDFPromise<PDFDocumentProxy>).then(
-      (pdf: PDFDocumentProxy) => {
-        this._pdf = pdf;
-        this.lastLoaded = src;
 
-        this.afterLoadComplete.emit(pdf);
+    from(this.loadingTask.promise as Promise<PDFDocumentProxy>)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pdf) => {
+          this._pdf = pdf;
+          this.lastLoaded = src;
 
-        if (!this.pdfMultiPageViewer) {
-          this.setupMultiPageViewer();
-          this.setupSinglePageViewer();
+          this.afterLoadComplete.emit(pdf);
+
+          if (!this.pdfMultiPageViewer) {
+            this.setupMultiPageViewer();
+            this.setupSinglePageViewer();
+          }
+
+          this.resetPdfDocument();
+
+          this.update();
+        },
+        error: (error) => {
+          this.onError.emit(error);
         }
-
-        this.resetPdfDocument();
-
-        this.update();
-      },
-      (error: any) => {
-        this.onError.emit(error);
-      }
-    );
+      });
   }
 
   private update() {
