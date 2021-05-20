@@ -10,13 +10,13 @@ import {
   OnChanges,
   SimpleChanges,
   OnInit,
-  HostListener,
   OnDestroy,
   ViewChild,
-  AfterViewChecked
+  AfterViewChecked,
+  NgZone
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
 import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
 
@@ -216,7 +216,7 @@ export class PdfViewerComponent
     return null;
   }
 
-  constructor(private element: ElementRef) {
+  constructor(private element: ElementRef<HTMLElement>, private ngZone: NgZone) {
     if (isSSR()) {
       return;
     }
@@ -253,39 +253,21 @@ export class PdfViewerComponent
       this.isVisible = true;
 
       setTimeout(() => {
-        this.ngOnInit();
+        this.initialize();
         this.ngOnChanges({ src: this.src } as any);
       });
     }
   }
 
   ngOnInit() {
-    if (!isSSR() && this.isVisible) {
-      this.isInitialized = true;
-      this.setupMultiPageViewer();
-      this.setupSinglePageViewer();
-    }
+    this.initialize();
+    this.setupResizeListener();
   }
 
   ngOnDestroy() {
     this.clear();
     this.destroy$.next();
     this.loadingTask = null;
-  }
-
-  @HostListener('window:resize', [])
-  public onPageResize() {
-    if (!this._canAutoResize || !this._pdf) {
-      return;
-    }
-
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-
-    this.resizeTimeout = window.setTimeout(() => {
-      this.updateSize();
-    }, 100);
   }
 
   get pdfLinkService(): any {
@@ -673,5 +655,33 @@ export class PdfViewerComponent
       this.pdfSinglePageViewer.setDocument(this._pdf);
       this.pdfSinglePageLinkService.setDocument(this._pdf, null);
     }
+  }
+
+  private initialize(): void {
+    if (isSSR() || !this.isVisible) {
+      return;
+    }
+
+    this.isInitialized = true;
+    this.setupMultiPageViewer();
+    this.setupSinglePageViewer();
+  }
+
+  private setupResizeListener(): void {
+    if (isSSR()) {
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      fromEvent(window, 'resize')
+        .pipe(
+          debounceTime(100),
+          filter(() => this._canAutoResize && !!this._pdf),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(() => {
+          this.updateSize();
+        });
+    });
   }
 }
