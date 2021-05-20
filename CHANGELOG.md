@@ -1,5 +1,10 @@
 # Changelog
 
+## 7.0.1
+* [[#779](https://github.com/VadimDez/ng2-pdf-viewer/pull/779)] - perf: do not run change detection on resize events
+* [[#783](https://github.com/VadimDez/ng2-pdf-viewer/pull/783)] - fix: switch to es5 builds
+* [[#780](https://github.com/VadimDez/ng2-pdf-viewer/issues/780)] - Version 7.0.0 is not working and build is failing: Module parse failed: Unexpected token
+
 ## 7.0.0
 * [[#721](https://github.com/VadimDez/ng2-pdf-viewer/pull/721)] - fix: release some memory leaks
 * [[#723](https://github.com/VadimDez/ng2-pdf-viewer/pull/723)] - fix: remove event listeners from the event bus when the view is destroyed
