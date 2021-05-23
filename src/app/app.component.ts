@@ -1,7 +1,9 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+
 import {
   PDFProgressData,
   PDFDocumentProxy,
@@ -38,30 +40,15 @@ export class AppComponent implements OnInit {
   pdfQuery = '';
   mobile = false;
 
-  @ViewChild(PdfViewerComponent)
-  private pdfComponent: PdfViewerComponent;
+  @ViewChild(PdfViewerComponent, { static: true })
+  pdfComponent: PdfViewerComponent;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: string) {}
 
   ngOnInit() {
-    if (window.screen.width <= 768) {
-      this.mobile = true;
+    if (isPlatformBrowser(this.platformId)) {
+      this.mobile = window.screen.width <= 768;
     }
-  }
-
-  // Load pdf
-  loadPdf() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '/assets/pdf-test.pdf', true);
-    xhr.responseType = 'blob';
-
-    xhr.onload = (e: any) => {
-      console.log(xhr);
-      if (xhr.status === 200) {
-        const blob = new Blob([xhr.response], { type: 'application/pdf' });
-        this.pdfSrc = URL.createObjectURL(blob);
-      }
-    };
-
-    xhr.send();
   }
 
   /**

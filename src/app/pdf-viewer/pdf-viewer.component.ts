@@ -17,11 +17,20 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
-import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
 
+import { assign, isNode } from '../utils/helpers';
 import { createEventBus } from '../utils/event-bus-utils';
-import { assign, isSSR } from '../utils/helpers';
+
+let PDFJS: typeof import('pdfjs-dist') | null = null;
+let PDFJSViewer: typeof import('pdfjs-dist/web/pdf_viewer') | null = null;
+let cMapsUrl: string | null = null;
+
+if (!isNode()) {
+  PDFJS = require('pdfjs-dist/es5/build/pdf');
+  PDFJSViewer = require('pdfjs-dist/es5/web/pdf_viewer');
+  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.ERRORS);
+  cMapsUrl = `https://unpkg.com/pdfjs-dist@${PDFJS.version}/cmaps/`;
+}
 
 import type {
   PDFSource,
@@ -30,10 +39,6 @@ import type {
   PDFDocumentProxy,
   PDFDocumentLoadingTask,
 } from './typings';
-
-if (!isSSR()) {
-  assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
-}
 
 export enum RenderTextMode {
   DISABLED,
@@ -55,7 +60,8 @@ export class PdfViewerComponent
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
 
-  @ViewChild('pdfViewerContainer') pdfViewerContainer;
+  @ViewChild('pdfViewerContainer', { static: true })
+  pdfViewerContainer: ElementRef<HTMLElement>;
 
   private isVisible = false;
   private pdfMultiPageViewer: any;
@@ -66,10 +72,7 @@ export class PdfViewerComponent
   private pdfSinglePageLinkService: any;
   private pdfSinglePageFindController: any;
 
-  private _cMapsUrl =
-    typeof PDFJS !== 'undefined'
-      ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
-      : null;
+  private _cMapsUrl = cMapsUrl;
   private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
   private _stickToPage = false;
@@ -87,7 +90,6 @@ export class PdfViewerComponent
   private lastLoaded: string | Uint8Array | PDFSource;
   private _latestScrolledPage: number;
 
-  private resizeTimeout: number | null = null;
   private pageScrollTimeout: number | null = null;
   private isInitialized = false;
   private loadingTask: PDFDocumentLoadingTask;
@@ -199,25 +201,28 @@ export class PdfViewerComponent
     this._showBorders = Boolean(value);
   }
 
-  static getLinkTarget(type: string) {
-    switch (type) {
-      case 'blank':
-        return (PDFJS as any).LinkTarget.BLANK;
-      case 'none':
-        return (PDFJS as any).LinkTarget.NONE;
-      case 'self':
-        return (PDFJS as any).LinkTarget.SELF;
-      case 'parent':
-        return (PDFJS as any).LinkTarget.PARENT;
-      case 'top':
-        return (PDFJS as any).LinkTarget.TOP;
+  static getLinkTarget(type: string): number | null {
+    if (PDFJS !== null) {
+      const { LinkTarget } = PDFJS;
+      switch (type) {
+        case 'blank':
+          return LinkTarget.BLANK;
+        case 'none':
+          return LinkTarget.NONE;
+        case 'self':
+          return LinkTarget.SELF;
+        case 'parent':
+          return LinkTarget.PARENT;
+        case 'top':
+          return LinkTarget.TOP;
+      }
     }
 
     return null;
   }
 
   constructor(private element: ElementRef<HTMLElement>, private ngZone: NgZone) {
-    if (isSSR()) {
+    if (isNode()) {
       return;
     }
 
@@ -230,7 +235,7 @@ export class PdfViewerComponent
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS.version
         }/es5/build/pdf.worker.js`;
     }
 
@@ -287,7 +292,7 @@ export class PdfViewerComponent
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (isSSR() || !this.isVisible) {
+    if (isNode() || !this.isVisible) {
       return;
     }
 
@@ -373,10 +378,11 @@ export class PdfViewerComponent
   }
 
   private getPDFLinkServiceConfig() {
-    const pdfLinkServiceConfig: any = {};
+    const pdfLinkServiceConfig: Record<string, unknown> = {};
     const linkTarget = PdfViewerComponent.getLinkTarget(this._externalLinkTarget);
 
-    if (linkTarget) {
+    // The `LinkTarget.NONE` equals `0`, thus `if (0)` will be falsy. 
+    if (linkTarget !== null) {
       pdfLinkServiceConfig.externalLinkTarget = linkTarget;
     }
 
@@ -658,7 +664,7 @@ export class PdfViewerComponent
   }
 
   private initialize(): void {
-    if (isSSR() || !this.isVisible) {
+    if (isNode() || !this.isVisible) {
       return;
     }
 
@@ -668,7 +674,7 @@ export class PdfViewerComponent
   }
 
   private setupResizeListener(): void {
-    if (isSSR()) {
+    if (isNode()) {
       return;
     }
 
