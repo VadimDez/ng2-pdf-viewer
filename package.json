@@ -43,7 +43,8 @@
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "pdfjs-dist": "~2.7.570"
+    "pdfjs-dist": "~2.7.570",
+    "@angular/core": "~11.1.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1101.2",
