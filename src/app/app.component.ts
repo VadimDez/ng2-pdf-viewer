@@ -58,6 +58,7 @@ export class AppComponent implements OnInit {
       if (xhr.status === 200) {
         const blob = new Blob([xhr.response], { type: 'application/pdf' });
         this.pdfSrc = URL.createObjectURL(blob);
+        this.page = 1;
       }
     };
 
@@ -94,6 +95,7 @@ export class AppComponent implements OnInit {
 
       reader.onload = (e: any) => {
         this.pdfSrc = e.target.result;
+        this.page = 1;
       };
 
       reader.readAsArrayBuffer($pdf.files[0]);

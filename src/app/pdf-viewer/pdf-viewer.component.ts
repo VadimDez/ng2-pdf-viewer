@@ -108,18 +108,19 @@ export class PdfViewerComponent
   }
 
   @Input('page')
-  set page(_page) {
-    _page = parseInt(_page, 10) || 1;
-    const originalPage = _page;
+  set page(page) {
+    page = parseInt(page, 10);
 
     if (this._pdf) {
-      _page = this.getValidPageNumber(_page);
+      const validPage = this.getValidPageNumber(page);
+      if (page !== validPage)
+      {
+        page = validPage;
+        this.pageChange.emit(validPage);
+      }
     }
 
-    this._page = _page;
-    if (originalPage !== _page) {
-      this.pageChange.emit(_page);
-    }
+    this._page = page;
   }
 
   @Input('render-text')
@@ -452,7 +453,11 @@ export class PdfViewerComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe(({ pageNumber }) => {
         if (pageNumber !== this._page) {
-          this.page = pageNumber;
+          if (this._pdf) {
+            pageNumber = this.getValidPageNumber(pageNumber);
+          }
+          this._page = pageNumber;
+          this.pageChange.emit(pageNumber);
         }
       });
 
@@ -501,7 +506,7 @@ export class PdfViewerComponent
   }
 
   private getValidPageNumber(page: number): number {
-    if (page < 1) {
+    if (Number.isNaN(page) || page < 1) {
       return 1;
     }
 
