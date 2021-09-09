@@ -127,7 +127,7 @@ export class AppComponent {
 Pass pdf location
 
 ```
-[src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
+[src]="'https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf'"
 ```
 
 For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L109-L198).
@@ -136,7 +136,7 @@ Options object for loading protected PDF would be:
 
  ```js
  {
-  url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
+  url: 'https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf',
   withCredentials: true
  }
  ```
