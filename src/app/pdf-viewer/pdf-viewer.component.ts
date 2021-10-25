@@ -17,8 +17,8 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
-import * as PDFJS from 'pdfjs-dist/es5/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/es5/web/pdf_viewer';
+import * as PDFJS from 'pdfjs-dist/legacy/build/pdf';
+import * as PDFJSViewer from 'pdfjs-dist/legacy/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
@@ -29,10 +29,11 @@ import type {
   PDFProgressData,
   PDFDocumentProxy,
   PDFDocumentLoadingTask,
+  PDFViewerOptions
 } from './typings';
 
 if (!isSSR()) {
-  assign(PDFJS, "verbosity", PDFJS.VerbosityLevel.ERRORS);
+  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
 }
 
 export enum RenderTextMode {
@@ -231,10 +232,10 @@ export class PdfViewerComponent
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
       pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
-        }/es5/build/pdf.worker.js`;
+        }/legacy/build/pdf.worker.js`;
     }
 
-    assign(PDFJS.GlobalWorkerOptions, "workerSrc", pdfWorkerSrc);
+    assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -384,7 +385,7 @@ export class PdfViewerComponent
   }
 
   private setupMultiPageViewer() {
-    assign(PDFJS, "disableTextLayer", !this._renderText);
+    assign(PDFJS, 'disableTextLayer', !this._renderText);
 
     const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
@@ -427,7 +428,7 @@ export class PdfViewerComponent
       eventBus
     });
 
-    const pdfOptions = {
+    const pdfOptions: PDFViewerOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
@@ -435,7 +436,9 @@ export class PdfViewerComponent
       textLayerMode: this._renderText
         ? this._renderTextMode
         : RenderTextMode.DISABLED,
-      findController: this.pdfMultiPageFindController
+      findController: this.pdfMultiPageFindController,
+      renderer: 'canvas',
+      l10n: undefined
     };
 
     this.pdfMultiPageViewer = new PDFJSViewer.PDFViewer(pdfOptions);
@@ -444,7 +447,7 @@ export class PdfViewerComponent
   }
 
   private setupSinglePageViewer() {
-    assign(PDFJS, "disableTextLayer", !this._renderText);
+    assign(PDFJS, 'disableTextLayer', !this._renderText);
 
     const eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
