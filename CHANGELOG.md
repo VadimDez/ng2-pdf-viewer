@@ -1,5 +1,8 @@
 # Changelog
 
+## 7.0.2
+* [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
+
 ## 7.0.1
 * [[#779](https://github.com/VadimDez/ng2-pdf-viewer/pull/779)] - perf: do not run change detection on resize events
 * [[#783](https://github.com/VadimDez/ng2-pdf-viewer/pull/783)] - fix: switch to es5 builds
