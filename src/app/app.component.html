@@ -187,10 +187,24 @@
 
 
   <mat-drawer-content>
-    <pdf-viewer [src]="pdfSrc" [(page)]="page" [rotation]="rotation" [original-size]="originalSize" [show-all]="showAll"
-      [fit-to-page]="fitToPage" (after-load-complete)="afterLoadComplete($event)" [zoom]="zoom" [zoom-scale]="zoomScale" 
-      [stick-to-page]="stickToPage" [render-text]="renderText" [external-link-target]="'blank'"
-      [autoresize]="autoresize" (error)="onError($event)" (on-progress)="onProgress($event)"
-      (page-rendered)="pageRendered($event)" (pages-initialized)="pageInitialized($event)"></pdf-viewer>
+    <pdf-viewer [src]="pdfSrc"
+                [(page)]="page"
+                [rotation]="rotation"
+                [original-size]="originalSize"
+                [show-all]="showAll"
+                [fit-to-page]="fitToPage"
+                (after-load-complete)="afterLoadComplete($event)"
+                [zoom]="zoom"
+                [zoom-scale]="zoomScale"
+                [stick-to-page]="stickToPage"
+                [render-text]="renderText"
+                [external-link-target]="'blank'"
+                [autoresize]="autoresize"
+                (error)="onError($event)"
+                (on-progress)="onProgress($event)"
+                (page-rendered)="pageRendered($event)"
+                (pages-initialized)="pageInitialized($event)"
+                [show-borders]="false"
+    ></pdf-viewer>
   </mat-drawer-content>
 </mat-drawer-container>
