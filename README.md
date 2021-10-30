@@ -1,4 +1,4 @@
-<h1 align="center">Angular 5+ PDF Viewer</h1>
+<h1 align="center">Angular PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
     <img src="https://img.shields.io/npm/dm/ng2-pdf-viewer.svg?style=flat" alt="downloads">
@@ -199,9 +199,9 @@ Used in combination with `[render-text]="true"`
 
 Controls if the text layer is enabled, and the selection mode that is used.
 
-`0 = RenderTextMode.DISABLED.` - disable the text selection layer
+`0 = RenderTextMode.DISABLED` - disable the text selection layer
 
-`1 = RenderTextMode.ENABLED.` - enables the text selection layer
+`1 = RenderTextMode.ENABLED` - enables the text selection layer
 
 `2 = RenderTextMode.ENHANCED` - enables enhanced text selection
 
