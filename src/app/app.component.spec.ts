@@ -1,4 +1,4 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { DemoMaterialModule } from './material.module';
@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { PdfViewerModule } from './pdf-viewer/pdf-viewer.module';
 
 describe('AppComponent', () => {
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AppComponent],
       imports: [
@@ -19,7 +19,7 @@ describe('AppComponent', () => {
       ]
     }).compileComponents();
   }));
-  it('should create the app', async(() => {
+  it('should create the app', waitForAsync(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();

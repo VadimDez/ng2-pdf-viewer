@@ -1,13 +1,45 @@
 .ng2-pdf-viewer-container {
   overflow-x: auto;
-  position: relative;
+  position: absolute;
   height: 100%;
+  width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
 :host ::ng-deep {
+  /* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --xfa-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --pdfViewer-padding-bottom: none;
+  --page-margin: 1px auto -8px;
+  --page-border: 9px solid transparent;
+  --spreadHorizontalWrapped-margin-LR: -3.5px;
+  --zoom-factor: 1;
+
+  @media screen and (forced-colors: active) {
+    --pdfViewer-padding-bottom: 9px;
+    --page-margin: 9px auto 0;
+    --page-border: none;
+    --spreadHorizontalWrapped-margin-LR: 4.5px;
+  }
+
   .textLayer {
     position: absolute;
+    text-align: initial;
     left: 0;
     top: 0;
     right: 0;
@@ -16,62 +48,69 @@
     opacity: 0.2;
     line-height: 1;
 
-    > span {
+    span,
+    br {
       color: transparent;
       position: absolute;
       white-space: pre;
       cursor: text;
-      -webkit-transform-origin: 0% 0%;
       transform-origin: 0% 0%;
     }
 
     .highlight {
       margin: -1px;
       padding: 1px;
-      background-color: rgb(180, 0, 170);
+      background-color: rgba(180, 0, 170, 1);
       border-radius: 4px;
 
+      &.appended {
+        position: initial;
+      }
+
       &.begin {
-        border-radius: 4px 0px 0px 4px;
+        border-radius: 4px 0 0 4px;
       }
 
       &.end {
-        border-radius: 0px 4px 4px 0px;
+        border-radius: 0 4px 4px 0;
       }
 
       &.middle {
-        border-radius: 0px;
+        border-radius: 0;
       }
 
       &.selected {
-        background-color: rgb(0, 100, 0);
+        background-color: rgba(0, 100, 0, 1);
       }
     }
 
-    ::-moz-selection {
-      background: rgb(0, 0, 255);
+    ::-moz-selection,
+    ::selection {
+      background: rgba(0, 0, 255, 1);
     }
 
-    ::selection {
-      background: rgb(0, 0, 255);
+    br {
+      &::-moz-selection,
+      &::selection {
+        background: transparent;
+      }
     }
 
     .endOfContent {
       display: block;
       position: absolute;
-      left: 0px;
+      left: 0;
       top: 100%;
-      right: 0px;
-      bottom: 0px;
+      right: 0;
+      bottom: 0;
       z-index: -1;
       cursor: default;
       -webkit-user-select: none;
       -moz-user-select: none;
-      -ms-user-select: none;
       user-select: none;
 
       &.active {
-        top: 0px;
+        top: 0;
       }
     }
   }
@@ -79,6 +118,7 @@
   .annotationLayer {
     section {
       position: absolute;
+      text-align: initial;
     }
 
     .linkAnnotation > a,
@@ -94,8 +134,8 @@
     .linkAnnotation > a:hover,
     .buttonWidgetAnnotation.pushButton > a:hover {
       opacity: 0.2;
-      background: #ff0;
-      box-shadow: 0px 2px 10px #ff0;
+      background: rgba(255, 255, 0, 1);
+      box-shadow: 0 2px 10px rgba(255, 255, 0, 1);
     }
 
     .textAnnotation img {
@@ -106,7 +146,7 @@
     .textWidgetAnnotation {
       input,
       textarea {
-        background-color: rgba(0, 54, 255, 0.13);
+        background-image: var(--annotation-unfocused-field-background);
         border: 1px solid transparent;
         box-sizing: border-box;
         font-size: 9px;
@@ -119,7 +159,7 @@
     }
 
     .choiceWidgetAnnotation select {
-      background-color: rgba(0, 54, 255, 0.13);
+      background-image: var(--annotation-unfocused-field-background);
       border: 1px solid transparent;
       box-sizing: border-box;
       font-size: 9px;
@@ -133,7 +173,7 @@
     .buttonWidgetAnnotation {
       &.checkBox input,
       &.radioButton input {
-        background-color: rgba(0, 54, 255, 0.13);
+        background-image: var(--annotation-unfocused-field-background);
         border: 1px solid transparent;
         box-sizing: border-box;
         font-size: 9px;
@@ -186,18 +226,18 @@
     .textWidgetAnnotation {
       input:hover,
       textarea:hover {
-        border: 1px solid #000;
+        border: 1px solid rgba(0, 0, 0, 1);
       }
     }
 
     .choiceWidgetAnnotation select:hover {
-      border: 1px solid #000;
+      border: 1px solid rgba(0, 0, 0, 1);
     }
 
     .buttonWidgetAnnotation {
       &.checkBox input:hover,
       &.radioButton input:hover {
-        border: 1px solid #000;
+        border: 1px solid rgba(0, 0, 0, 1);
       }
     }
 
@@ -214,11 +254,33 @@
       border: 1px solid transparent;
     }
 
+    .textWidgetAnnotation {
+      input :focus,
+      textarea :focus {
+        background-image: none;
+        background-color: transparent;
+        outline: auto;
+      }
+    }
+
+    .choiceWidgetAnnotation select :focus {
+      background-image: none;
+      background-color: transparent;
+      outline: auto;
+    }
+
     .buttonWidgetAnnotation {
+      &.checkBox :focus,
+      &.radioButton :focus {
+        background-image: none;
+        background-color: transparent;
+        outline: auto;
+      }
+
       &.checkBox input:checked {
         &:before,
         &:after {
-          background-color: #000;
+          background-color: rgba(0, 0, 0, 1);
           content: '';
           display: block;
           position: absolute;
@@ -226,7 +288,7 @@
       }
 
       &.radioButton input:checked:before {
-        background-color: #000;
+        background-color: rgba(0, 0, 0, 1);
         content: '';
         display: block;
         position: absolute;
@@ -241,12 +303,10 @@
         }
 
         &:before {
-          -webkit-transform: rotate(45deg);
           transform: rotate(45deg);
         }
 
         &:after {
-          -webkit-transform: rotate(-45deg);
           transform: rotate(-45deg);
         }
       }
@@ -264,16 +324,6 @@
       font-family: monospace;
       padding-left: 2px;
       padding-right: 0;
-
-      &:focus {
-        /*
-       * Letter spacing is placed on the right side of each character. Hence, the
-       * letter spacing of the last character may be placed outside the visible
-       * area, causing horizontal scrolling. We avoid this by extending the width
-       * when the element has focus and revert this when it loses focus.
-       */
-        width: 115%;
-      }
     }
 
     .buttonWidgetAnnotation {
@@ -295,14 +345,15 @@
       position: absolute;
       z-index: 200;
       max-width: 20em;
-      background-color: #ffff99;
-      box-shadow: 0px 2px 5px #888;
+      background-color: rgba(255, 255, 153, 1);
+      box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
       border-radius: 2px;
       padding: 6px;
       margin-left: 5px;
       cursor: pointer;
       font: message-box;
       font-size: 9px;
+      white-space: normal;
       word-wrap: break-word;
 
       > * {
@@ -311,10 +362,6 @@
 
       h1 {
         display: inline-block;
-        // font-size: 1em;
-        // border-bottom: 1px solid #000000;
-        // margin: 0;
-        // padding-bottom: 0.2em;
       }
 
       span {
@@ -323,7 +370,7 @@
       }
 
       p {
-        border-top: 1px solid #333;
+        border-top: 1px solid rgba(51, 51, 51, 1);
         margin-top: 2px;
         padding-top: 2px;
       }
@@ -347,7 +394,357 @@
     }
   }
 
+  .xfaLayer {
+    .highlight {
+      margin: -1px;
+      padding: 1px;
+      background-color: rgba(239, 203, 237, 1);
+      border-radius: 4px;
+
+      &.appended {
+        position: initial;
+      }
+
+      &.begin {
+        border-radius: 4px 0 0 4px;
+      }
+
+      &.end {
+        border-radius: 0 4px 4px 0;
+      }
+
+      &.middle {
+        border-radius: 0;
+      }
+
+      &.selected {
+        background-color: rgba(203, 223, 203, 1);
+      }
+    }
+
+    ::-moz-selection,
+    ::selection {
+      background: rgba(0, 0, 255, 1);
+    }
+  }
+
+  .xfaPage {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .xfaContentarea {
+    position: absolute;
+  }
+
+  .xfaPrintOnly {
+    display: none;
+  }
+
+  .xfaLayer {
+    position: absolute;
+    text-align: initial;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    line-height: 1.2;
+
+    * {
+      color: inherit;
+      font: inherit;
+      font-style: inherit;
+      font-weight: inherit;
+      font-kerning: inherit;
+      letter-spacing: -0.01px;
+      text-align: inherit;
+      text-decoration: inherit;
+      box-sizing: border-box;
+      background-color: transparent;
+      padding: 0;
+      margin: 0;
+      pointer-events: auto;
+      line-height: inherit;
+    }
+
+    div {
+      pointer-events: none;
+    }
+
+    svg {
+      pointer-events: none;
+
+      * {
+        pointer-events: none;
+      }
+    }
+
+    a {
+      color: blue;
+    }
+  }
+
+  .xfaRich li {
+    margin-left: 3em;
+  }
+
+  .xfaFont {
+    color: black;
+    font-weight: normal;
+    font-kerning: none;
+    font-size: 10px;
+    font-style: normal;
+    letter-spacing: 0;
+    text-decoration: none;
+    vertical-align: 0;
+  }
+
+  .xfaCaption {
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+
+  .xfaCaptionForCheckButton {
+    overflow: hidden;
+    flex: 1 1 auto;
+  }
+
+  .xfaLabel {
+    height: 100%;
+    width: 100%;
+  }
+
+  .xfaLeft {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .xfaRight {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+
+  .xfaLeft > {
+    .xfaCaption,
+    .xfaCaptionForCheckButton {
+      max-height: 100%;
+    }
+  }
+
+  .xfaRight > {
+    .xfaCaption,
+    .xfaCaptionForCheckButton {
+      max-height: 100%;
+    }
+  }
+
+  .xfaTop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .xfaBottom {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+
+  .xfaTop > {
+    .xfaCaption,
+    .xfaCaptionForCheckButton {
+      width: 100%;
+    }
+  }
+
+  .xfaBottom > {
+    .xfaCaption,
+    .xfaCaptionForCheckButton {
+      width: 100%;
+    }
+  }
+
+  .xfaBorder {
+    background-color: transparent;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .xfaWrapped {
+    width: 100%;
+    height: 100%;
+  }
+
+  .xfaTextfield:focus,
+  .xfaSelect:focus {
+    background-image: none;
+    background-color: transparent;
+    outline: auto;
+    outline-offset: -1px;
+  }
+
+  .xfaCheckbox:focus,
+  .xfaRadio:focus {
+    outline: auto;
+  }
+
+  .xfaTextfield,
+  .xfaSelect {
+    height: 100%;
+    width: 100%;
+    flex: 1 1 auto;
+    border: none;
+    resize: none;
+    background-image: var(--xfa-unfocused-field-background);
+  }
+
+  .xfaTop > {
+    .xfaTextfield,
+    .xfaSelect {
+      flex: 0 1 auto;
+    }
+  }
+
+  .xfaBottom > {
+    .xfaTextfield,
+    .xfaSelect {
+      flex: 0 1 auto;
+    }
+  }
+
+  .xfaButton {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border: none;
+    text-align: center;
+  }
+
+  .xfaLink {
+    width: 100%;
+    height: 100%;
+  }
+
+  .xfaCheckbox,
+  .xfaRadio {
+    width: 100%;
+    height: 100%;
+    flex: 0 0 auto;
+    border: none;
+  }
+
+  .xfaRich {
+    white-space: pre-wrap;
+    width: 100%;
+    height: 100%;
+  }
+
+  .xfaImage {
+    -o-object-position: left top;
+    object-position: left top;
+    -o-object-fit: contain;
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+  }
+
+  .xfaLrTb,
+  .xfaRlTb,
+  .xfaTb {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .xfaLr {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .xfaRl {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: stretch;
+  }
+
+  .xfaTb > div {
+    justify-content: left;
+  }
+
+  .xfaPosition,
+  .xfaArea {
+    position: relative;
+  }
+
+  .xfaValignMiddle {
+    display: flex;
+    align-items: center;
+  }
+
+  .xfaTable {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    .xfaRow {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .xfaRlRow {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: stretch;
+      flex: 1;
+
+      > div {
+        flex: 1;
+      }
+    }
+  }
+
+  .xfaNonInteractive {
+    input,
+    textarea {
+      background: initial;
+    }
+  }
+
+  .xfaDisabled {
+    input,
+    textarea {
+      background: initial;
+    }
+  }
+
+  .xfaReadOnly {
+    input,
+    textarea {
+      background: initial;
+    }
+  }
+
+  @media print {
+    .xfaTextfield {
+      background: transparent;
+    }
+
+    .xfaSelect {
+      background: transparent;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      text-indent: 1px;
+      text-overflow: '';
+    }
+  }
+
   .pdfViewer {
+    padding-bottom: var(--pdfViewer-padding-bottom);
+
     .canvasWrapper {
       overflow: hidden;
     }
@@ -356,32 +753,21 @@
       direction: ltr;
       width: 816px;
       height: 1056px;
-      margin: 1px auto -8px auto;
+      margin: var(--page-margin);
       position: relative;
       overflow: visible;
-      // https://stackoverflow.com/questions/21025212/border-image-not-showing-in-safari
-      // "transparent" makes the border not show up in Safari. But adding a light transparent color did
-      // rgba(0,0,0,0.01). But there needs to be an alpha value larger than 0.
-      border: 9px solid rgba(0, 0, 0, 0.01);
-      box-sizing: initial;
+      border: var(--page-border);
       background-clip: content-box;
-      -webkit-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAA6UlEQVR4Xl2Pi2rEMAwE16fm1f7/r14v7w4rI0IzLAF7hLxNevBSEMEF5+OilNCsRd8ZMyn+a4NmsOT8WJw1lFbSYgGFzF2bLFoLjTClWjKKGRWpDYAGXUnZ4uhbBUzF3Oe/GG/ue2fn4GgsyXhNgysV2JnrhKEMg4fEZcALmiKbNhBBRFpSyDOj1G4QOVly6O1FV54ZZq8OVygrciDt6JazRgi1ljTPH0gbrPmHPXAbCiDd4GawIjip1TPh9tt2sz24qaCjr/jAb/GBFTbq9KZ7Ke/Cqt8nayUikZKsWZK7Fe6bg5dOUt8fZHWG2BHc+6EAAAAASUVORK5CYII=')
-        9 9 repeat;
       -o-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAA6UlEQVR4Xl2Pi2rEMAwE16fm1f7/r14v7w4rI0IzLAF7hLxNevBSEMEF5+OilNCsRd8ZMyn+a4NmsOT8WJw1lFbSYgGFzF2bLFoLjTClWjKKGRWpDYAGXUnZ4uhbBUzF3Oe/GG/ue2fn4GgsyXhNgysV2JnrhKEMg4fEZcALmiKbNhBBRFpSyDOj1G4QOVly6O1FV54ZZq8OVygrciDt6JazRgi1ljTPH0gbrPmHPXAbCiDd4GawIjip1TPh9tt2sz24qaCjr/jAb/GBFTbq9KZ7Ke/Cqt8nayUikZKsWZK7Fe6bg5dOUt8fZHWG2BHc+6EAAAAASUVORK5CYII=')
         9 9 repeat;
       border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAA6UlEQVR4Xl2Pi2rEMAwE16fm1f7/r14v7w4rI0IzLAF7hLxNevBSEMEF5+OilNCsRd8ZMyn+a4NmsOT8WJw1lFbSYgGFzF2bLFoLjTClWjKKGRWpDYAGXUnZ4uhbBUzF3Oe/GG/ue2fn4GgsyXhNgysV2JnrhKEMg4fEZcALmiKbNhBBRFpSyDOj1G4QOVly6O1FV54ZZq8OVygrciDt6JazRgi1ljTPH0gbrPmHPXAbCiDd4GawIjip1TPh9tt2sz24qaCjr/jAb/GBFTbq9KZ7Ke/Cqt8nayUikZKsWZK7Fe6bg5dOUt8fZHWG2BHc+6EAAAAASUVORK5CYII=')
         9 9 repeat;
-      background-color: white;
+      background-color: rgba(255, 255, 255, 1);
     }
 
     &.removePageBorders .page {
-      margin: 0px auto 10px auto;
+      margin: 0 auto 10px;
       border: none;
-    }
-
-    padding-bottom: 10px;
-    &.removePageBorders {
-      padding-bottom: 0;
     }
 
     &.singlePageView {
@@ -437,15 +823,15 @@
   }
 
   .spread .page {
-    margin-left: -3.5px;
-    margin-right: -3.5px;
+    margin-left: var(--spreadHorizontalWrapped-margin-LR);
+    margin-right: var(--spreadHorizontalWrapped-margin-LR);
   }
 
   .pdfViewer {
     &.scrollHorizontal .page,
     &.scrollWrapped .page {
-      margin-left: -3.5px;
-      margin-right: -3.5px;
+      margin-left: var(--spreadHorizontalWrapped-margin-LR);
+      margin-right: var(--spreadHorizontalWrapped-margin-LR);
     }
 
     &.removePageBorders {
@@ -497,12 +883,7 @@
       }
     }
 
-    &:-ms-fullscreen .pdfViewer .page {
-      margin-bottom: 100% !important;
-    }
-
     &:-webkit-full-screen .pdfViewer .page,
-    &:-moz-full-screen .pdfViewer .page,
     &:fullscreen .pdfViewer .page {
       margin-bottom: 100%;
       border: 0;

@@ -1,5 +1,19 @@
 # Changelog
 
+## 7.0.2
+* [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
+
+## 7.0.1
+* [[#779](https://github.com/VadimDez/ng2-pdf-viewer/pull/779)] - perf: do not run change detection on resize events
+* [[#783](https://github.com/VadimDez/ng2-pdf-viewer/pull/783)] - fix: switch to es5 builds
+* [[#780](https://github.com/VadimDez/ng2-pdf-viewer/issues/780)] - Version 7.0.0 is not working and build is failing: Module parse failed: Unexpected token
+
+## 7.0.0
+* [[#721](https://github.com/VadimDez/ng2-pdf-viewer/pull/721)] - fix: release some memory leaks
+* [[#723](https://github.com/VadimDez/ng2-pdf-viewer/pull/723)] - fix: remove event listeners from the event bus when the view is destroyed
+* [[#719](https://github.com/VadimDez/ng2-pdf-viewer/pull/719)] - feat: upgrade to Angular 11
+* [[#777](https://github.com/VadimDez/ng2-pdf-viewer/pull/777)] - Update pdfjs-dist to 2.7.570
+
 ## 6.4.1
 * [[#739](https://github.com/VadimDez/ng2-pdf-viewer/issues/739)] - Module '"@types/pdfjs-dist"' has no exported member 'PDFPromise'
 * [[#740](https://github.com/VadimDez/ng2-pdf-viewer/pull/740)] - Issue #739 fix: change @types/pdfjs-dist to update only patch versions
