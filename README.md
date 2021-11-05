@@ -1,4 +1,4 @@
-<h1 align="center">Angular 5+ PDF Viewer</h1>
+<h1 align="center">Angular PDF Viewer</h1>
 <p align="center">
   <a href="https://www.npmjs.com/package/ng2-pdf-viewer">
     <img src="https://img.shields.io/npm/dm/ng2-pdf-viewer.svg?style=flat" alt="downloads">
@@ -130,16 +130,16 @@ export class AppComponent {
 Pass pdf location
 
 ```
-[src]="'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf'"
+[src]="'https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf'"
 ```
 
-For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L128-L204).
+For more control you can pass options object to ```[src]```. [See other attributes for the object here](https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L109-L198).
 
 Options object for loading protected PDF would be:
 
  ```js
  {
-  url: 'https://vadimdez.github.io/ng2-pdf-viewer/pdf-test.pdf',
+  url: 'https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf',
   withCredentials: true
  }
  ```
@@ -162,7 +162,7 @@ supports two way data binding as well
 ```
 
 If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the height of the container, for example:
-```
+```css
 pdf-viewer {
     display: block;
     height: 100vh;
@@ -202,9 +202,9 @@ Used in combination with `[render-text]="true"`
 
 Controls if the text layer is enabled, and the selection mode that is used.
 
-`0 = RenderTextMode.DISABLED.` - disable the text selection layer
+`0 = RenderTextMode.DISABLED` - disable the text selection layer
 
-`1 = RenderTextMode.ENABLED.` - enables the text selection layer
+`1 = RenderTextMode.ENABLED` - enables the text selection layer
 
 `2 = RenderTextMode.ENHANCED` - enables enhanced text selection
 
