@@ -6,6 +6,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
+:host {
+  display: block;
+  position: relative;
+}
+
 :host ::ng-deep {
   /* Copyright 2014 Mozilla Foundation
  *
