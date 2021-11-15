@@ -2,6 +2,9 @@
 
 ## 7.0.2
 * [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
+* [[#834](https://github.com/VadimDez/ng2-pdf-viewer/pull/834)] - Give sane default to host
+* [[#805](https://github.com/VadimDez/ng2-pdf-viewer/issues/805)] - width of pdf page exceed the maximum width and got trimmed from the right side
+* [[#811](https://github.com/VadimDez/ng2-pdf-viewer/issues/811)] - .ng2-pdf-viewer-container not in parent container
 
 ## 7.0.1
 * [[#779](https://github.com/VadimDez/ng2-pdf-viewer/pull/779)] - perf: do not run change detection on resize events
