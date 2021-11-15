@@ -6,6 +6,16 @@
 * [[#805](https://github.com/VadimDez/ng2-pdf-viewer/issues/805)] - width of pdf page exceed the maximum width and got trimmed from the right side
 * [[#811](https://github.com/VadimDez/ng2-pdf-viewer/issues/811)] - .ng2-pdf-viewer-container not in parent container
 
+### Breaking change (Since 7.0.0)
+Now you need to specify how much space `pdf-viewer` element should take by using CSS, so either set `width` and `height`, use `flexbox` or use something like `positioning`.
+
+##### Example using height and width:
+`<pdf-viewer [src]="src" [original-size]="false" style="width: 400px; height: 500px"></pdf-viewer>`
+
+##### Example using absolute positioning to take entire page:
+`<pdf-viewer [src]="src" [original-size]="false" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0"></pdf-viewer>`
+
+
 ## 7.0.1
 * [[#779](https://github.com/VadimDez/ng2-pdf-viewer/pull/779)] - perf: do not run change detection on resize events
 * [[#783](https://github.com/VadimDez/ng2-pdf-viewer/pull/783)] - fix: switch to es5 builds
