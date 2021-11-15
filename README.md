@@ -86,7 +86,8 @@ import { Component } from '@angular/core';
   template: `
   <pdf-viewer [src]="pdfSrc"
               [render-text]="true"
-              style="display: block;"
+              [original-size]="false"
+              style="style="width: 400px; height: 500px"
   ></pdf-viewer>
   `
 })
@@ -161,7 +162,6 @@ supports two way data binding as well
 If you want that the `two way data binding` actually updates your `page` variable on page change/scroll - you have to be sure that you define the height of the container, for example:
 ```css
 pdf-viewer {
-    display: block;
     height: 100vh;
 }
 ```
