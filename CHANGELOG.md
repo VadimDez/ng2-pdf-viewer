@@ -5,6 +5,7 @@
 * [[#834](https://github.com/VadimDez/ng2-pdf-viewer/pull/834)] - Give sane default to host
 * [[#805](https://github.com/VadimDez/ng2-pdf-viewer/issues/805)] - width of pdf page exceed the maximum width and got trimmed from the right side
 * [[#811](https://github.com/VadimDez/ng2-pdf-viewer/issues/811)] - .ng2-pdf-viewer-container not in parent container
+* [[#828](https://github.com/VadimDez/ng2-pdf-viewer/issues/828)] - can't now show digital signature PKCS#7
 
 ### Breaking change (Since 7.0.0)
 Now you need to specify how much space `pdf-viewer` element should take by using CSS, so either set `width` and `height`, use `flexbox` or use something like `positioning`.
