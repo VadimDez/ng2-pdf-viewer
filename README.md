@@ -81,7 +81,7 @@ import { Component } from '@angular/core';
   <pdf-viewer [src]="pdfSrc"
               [render-text]="true"
               [original-size]="false"
-              style="style="width: 400px; height: 500px"
+              style="width: 400px; height: 500px"
   ></pdf-viewer>
   `
 })
