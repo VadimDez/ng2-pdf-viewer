@@ -1,5 +1,8 @@
 # Changelog
 
+## [Unreleased]
+* [[#838](https://github.com/VadimDez/ng2-pdf-viewer/pull/838)] - fix css selector for text selection in chrome
+
 ## 7.0.2
 * [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
 * [[#834](https://github.com/VadimDez/ng2-pdf-viewer/pull/834)] - Give sane default to host
