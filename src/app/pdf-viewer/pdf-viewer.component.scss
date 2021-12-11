@@ -89,13 +89,18 @@
       }
     }
 
-    ::-moz-selection,
+   ::-moz-selection {
+        background: rgba(0, 0, 255, 1);
+    }
+
     ::selection {
-      background: rgba(0, 0, 255, 1);
+        background: rgba(0, 0, 255, 1);
     }
 
     br {
-      &::-moz-selection,
+      &::-moz-selection {
+        background: transparent;
+      }
       &::selection {
         background: transparent;
       }
@@ -427,8 +432,11 @@
       }
     }
 
-    ::-moz-selection,
-    ::selection {
+    ::-moz-selection {
+      background: rgba(0, 0, 255, 1);
+    }
+    
+	::selection {
       background: rgba(0, 0, 255, 1);
     }
   }
