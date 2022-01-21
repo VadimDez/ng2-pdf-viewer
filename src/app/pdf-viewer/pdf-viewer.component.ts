@@ -579,6 +579,7 @@ export class PdfViewerComponent
           this.update();
         },
         error: (error) => {
+          this.lastLoaded = null;
           this.onError.emit(error);
         }
       });
