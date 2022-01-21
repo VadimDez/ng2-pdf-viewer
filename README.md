@@ -55,7 +55,6 @@ npm install ng2-pdf-viewer@^7.0.0
 ```
 npm install ng2-pdf-viewer@~3.0.8
 ```
-> Note: For angular 4 or less use version `3.0.8`
 
 ## Usage
 
