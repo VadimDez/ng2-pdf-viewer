@@ -1,7 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## 8.0.0
 * [[#838](https://github.com/VadimDez/ng2-pdf-viewer/pull/838)] - fix css selector for text selection in chrome
+* [[#857](https://github.com/VadimDez/ng2-pdf-viewer/pull/857)] - Angular 13 Update | Enable Ivy
 
 ## 7.0.2
 * [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
