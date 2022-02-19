@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+* [[#855](https://github.com/VadimDez/ng2-pdf-viewer/issues/855)] - Can't load document after error
+* [[#856](https://github.com/VadimDez/ng2-pdf-viewer/pull/856)] - fix can't load document after error
+
 ## 8.0.0
 * [[#838](https://github.com/VadimDez/ng2-pdf-viewer/pull/838)] - fix css selector for text selection in chrome
 * [[#857](https://github.com/VadimDez/ng2-pdf-viewer/pull/857)] - Angular 13 Update | Enable Ivy
