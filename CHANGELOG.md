@@ -1,7 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## 8.0.1
+* [[#855](https://github.com/VadimDez/ng2-pdf-viewer/issues/855)] - Can't load document after error
+* [[#856](https://github.com/VadimDez/ng2-pdf-viewer/pull/856)] - fix can't load document after error
+
+## 8.0.0
 * [[#838](https://github.com/VadimDez/ng2-pdf-viewer/pull/838)] - fix css selector for text selection in chrome
+* [[#857](https://github.com/VadimDez/ng2-pdf-viewer/pull/857)] - Angular 13 Update | Enable Ivy
+* [[#852](https://github.com/VadimDez/ng2-pdf-viewer/issues/852)] - Encourage the library authors to publish an Ivy distribution.
+* [[#854](https://github.com/VadimDez/ng2-pdf-viewer/issues/854)] - TypeError: Cannot read properties of null (reading 'selectors')
+* [[#863](https://github.com/VadimDez/ng2-pdf-viewer/issues/863)] - Loader is stuck when upgrade to newest version
 
 ## 7.0.2
 * [[#829](https://github.com/VadimDez/ng2-pdf-viewer/pull/829)] - feat: upgrade to pdfjs-dist 2.11.338
