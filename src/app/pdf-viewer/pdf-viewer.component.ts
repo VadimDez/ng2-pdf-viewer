@@ -203,15 +203,15 @@ export class PdfViewerComponent
   static getLinkTarget(type: string) {
     switch (type) {
       case 'blank':
-        return (PDFJS as any).LinkTarget.BLANK;
+        return (PDFJSViewer as any).LinkTarget.BLANK;
       case 'none':
-        return (PDFJS as any).LinkTarget.NONE;
+        return (PDFJSViewer as any).LinkTarget.NONE;
       case 'self':
-        return (PDFJS as any).LinkTarget.SELF;
+        return (PDFJSViewer as any).LinkTarget.SELF;
       case 'parent':
-        return (PDFJS as any).LinkTarget.PARENT;
+        return (PDFJSViewer as any).LinkTarget.PARENT;
       case 'top':
-        return (PDFJS as any).LinkTarget.TOP;
+        return (PDFJSViewer as any).LinkTarget.TOP;
     }
 
     return null;
@@ -493,7 +493,9 @@ export class PdfViewerComponent
       textLayerMode: this._renderText
         ? this._renderTextMode
         : RenderTextMode.DISABLED,
-      findController: this.pdfSinglePageFindController
+      findController: this.pdfSinglePageFindController,
+      renderer: 'canvas',
+			l10n: undefined,
     };
 
     this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
