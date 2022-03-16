@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+* [[#873](https://github.com/VadimDez/ng2-pdf-viewer/pull/873)] - feat: Updated pdfjs-dist version to 2.13.216 from 2.11.338
+
 ## 8.0.1
 * [[#855](https://github.com/VadimDez/ng2-pdf-viewer/issues/855)] - Can't load document after error
 * [[#856](https://github.com/VadimDez/ng2-pdf-viewer/pull/856)] - fix can't load document after error
