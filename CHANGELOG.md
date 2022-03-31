@@ -5,6 +5,7 @@
 * [[#879](https://github.com/VadimDez/ng2-pdf-viewer/pull/879)] - Update css for the version 2.13.216
 * [[#880](https://github.com/VadimDez/ng2-pdf-viewer/pull/880)] - Use minified worker
 * [[#882](https://github.com/VadimDez/ng2-pdf-viewer/pull/882)] - Inline images
+* [[#883](https://github.com/VadimDez/ng2-pdf-viewer/pull/883)] - Drop legacy support
 
 ## 8.0.1
 * [[#855](https://github.com/VadimDez/ng2-pdf-viewer/issues/855)] - Can't load document after error
