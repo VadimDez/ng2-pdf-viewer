@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "8.1.0",
+  "version": "9.0.0",
   "description": "Angular 5+ component for rendering PDF",
   "license": "MIT",
   "scripts": {
