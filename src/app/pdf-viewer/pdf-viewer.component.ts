@@ -232,7 +232,7 @@ export class PdfViewerComponent
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
       pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
-        }/legacy/build/pdf.worker.js`;
+        }/legacy/build/pdf.worker.min.js`;
     }
 
     assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
@@ -427,6 +427,7 @@ export class PdfViewerComponent
       linkService: this.pdfMultiPageLinkService,
       eventBus
     });
+console.log('!this._showBorders', !this._showBorders);
 
     const pdfOptions: PDFViewerOptions = {
       eventBus,
@@ -484,7 +485,7 @@ export class PdfViewerComponent
       linkService: this.pdfSinglePageLinkService,
       eventBus
     });
-
+    console.log('!this._showBorders', !this._showBorders);
     const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
