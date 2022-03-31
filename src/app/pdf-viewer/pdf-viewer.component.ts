@@ -17,8 +17,8 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
-import * as PDFJS from 'pdfjs-dist/legacy/build/pdf';
-import * as PDFJSViewer from 'pdfjs-dist/legacy/web/pdf_viewer';
+import * as PDFJS from 'pdfjs-dist/build/pdf';
+import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
