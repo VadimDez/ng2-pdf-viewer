@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.0.0 - 01.04.2022
 * [[#873](https://github.com/VadimDez/ng2-pdf-viewer/pull/873)] - feat: Updated pdfjs-dist version to 2.13.216 from 2.11.338
 * [[#879](https://github.com/VadimDez/ng2-pdf-viewer/pull/879)] - Update css for the version 2.13.216
 * [[#880](https://github.com/VadimDez/ng2-pdf-viewer/pull/880)] - Use minified worker
