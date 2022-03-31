@@ -232,7 +232,7 @@ export class PdfViewerComponent
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
       pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
-        }/legacy/build/pdf.worker.js`;
+        }/legacy/build/pdf.worker.min.js`;
     }
 
     assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
