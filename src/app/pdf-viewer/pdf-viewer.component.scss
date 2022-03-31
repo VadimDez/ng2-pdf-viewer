@@ -26,14 +26,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
-  --xfa-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
-  --pdfViewer-padding-bottom: none;
+  --pdfViewer-padding-bottom: 0;
   --page-margin: 1px auto -8px;
   --page-border: 9px solid transparent;
   --spreadHorizontalWrapped-margin-LR: -3.5px;
   --zoom-factor: 1;
+  --viewport-scale-factor: 1;
 
   @media screen and (forced-colors: active) {
     --pdfViewer-padding-bottom: 9px;
@@ -52,393 +50,338 @@
     overflow: hidden;
     opacity: 0.2;
     line-height: 1;
-
-    span,
-    br {
-      color: transparent;
-      position: absolute;
-      white-space: pre;
-      cursor: text;
-      transform-origin: 0% 0%;
-    }
-
-    .highlight {
-      margin: -1px;
-      padding: 1px;
-      background-color: rgba(180, 0, 170, 1);
-      border-radius: 4px;
-
-      &.appended {
-        position: initial;
-      }
-
-      &.begin {
-        border-radius: 4px 0 0 4px;
-      }
-
-      &.end {
-        border-radius: 0 4px 4px 0;
-      }
-
-      &.middle {
-        border-radius: 0;
-      }
-
-      &.selected {
-        background-color: rgba(0, 100, 0, 1);
-      }
-    }
-
-   ::-moz-selection {
-        background: rgba(0, 0, 255, 1);
-    }
-
-    ::selection {
-        background: rgba(0, 0, 255, 1);
-    }
-
-    br {
-      &::-moz-selection {
-        background: transparent;
-      }
-      &::selection {
-        background: transparent;
-      }
-    }
-
-    .endOfContent {
-      display: block;
-      position: absolute;
-      left: 0;
-      top: 100%;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
-      cursor: default;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-
-      &.active {
-        top: 0;
-      }
-    }
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    text-size-adjust: none;
   }
 
-  .annotationLayer {
-    section {
-      position: absolute;
-      text-align: initial;
-    }
-
-    .linkAnnotation > a,
-    .buttonWidgetAnnotation.pushButton > a {
-      position: absolute;
-      font-size: 1em;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .linkAnnotation > a:hover,
-    .buttonWidgetAnnotation.pushButton > a:hover {
-      opacity: 0.2;
-      background: rgba(255, 255, 0, 1);
-      box-shadow: 0 2px 10px rgba(255, 255, 0, 1);
-    }
-
-    .textAnnotation img {
-      position: absolute;
-      cursor: pointer;
-    }
-
-    .textWidgetAnnotation {
-      input,
-      textarea {
-        background-image: var(--annotation-unfocused-field-background);
-        border: 1px solid transparent;
-        box-sizing: border-box;
-        font-size: 9px;
-        height: 100%;
-        margin: 0;
-        padding: 0 3px;
-        vertical-align: top;
-        width: 100%;
-      }
-    }
-
-    .choiceWidgetAnnotation select {
-      background-image: var(--annotation-unfocused-field-background);
-      border: 1px solid transparent;
-      box-sizing: border-box;
-      font-size: 9px;
-      height: 100%;
-      margin: 0;
-      padding: 0 3px;
-      vertical-align: top;
-      width: 100%;
-    }
-
-    .buttonWidgetAnnotation {
-      &.checkBox input,
-      &.radioButton input {
-        background-image: var(--annotation-unfocused-field-background);
-        border: 1px solid transparent;
-        box-sizing: border-box;
-        font-size: 9px;
-        height: 100%;
-        margin: 0;
-        padding: 0 3px;
-        vertical-align: top;
-        width: 100%;
-      }
-    }
-
-    .choiceWidgetAnnotation select option {
-      padding: 0;
-    }
-
-    .buttonWidgetAnnotation.radioButton input {
-      border-radius: 50%;
-    }
-
-    .textWidgetAnnotation {
-      textarea {
-        font: message-box;
-        font-size: 9px;
-        resize: none;
-      }
-
-      input[disabled],
-      textarea[disabled] {
-        background: none;
-        border: 1px solid transparent;
-        cursor: not-allowed;
-      }
-    }
-
-    .choiceWidgetAnnotation select[disabled] {
-      background: none;
-      border: 1px solid transparent;
-      cursor: not-allowed;
-    }
-
-    .buttonWidgetAnnotation {
-      &.checkBox input[disabled],
-      &.radioButton input[disabled] {
-        background: none;
-        border: 1px solid transparent;
-        cursor: not-allowed;
-      }
-    }
-
-    .textWidgetAnnotation {
-      input:hover,
-      textarea:hover {
-        border: 1px solid rgba(0, 0, 0, 1);
-      }
-    }
-
-    .choiceWidgetAnnotation select:hover {
-      border: 1px solid rgba(0, 0, 0, 1);
-    }
-
-    .buttonWidgetAnnotation {
-      &.checkBox input:hover,
-      &.radioButton input:hover {
-        border: 1px solid rgba(0, 0, 0, 1);
-      }
-    }
-
-    .textWidgetAnnotation {
-      input:focus,
-      textarea:focus {
-        background: none;
-        border: 1px solid transparent;
-      }
-    }
-
-    .choiceWidgetAnnotation select:focus {
-      background: none;
-      border: 1px solid transparent;
-    }
-
-    .textWidgetAnnotation {
-      input :focus,
-      textarea :focus {
-        background-image: none;
-        background-color: transparent;
-        outline: auto;
-      }
-    }
-
-    .choiceWidgetAnnotation select :focus {
-      background-image: none;
-      background-color: transparent;
-      outline: auto;
-    }
-
-    .buttonWidgetAnnotation {
-      &.checkBox :focus,
-      &.radioButton :focus {
-        background-image: none;
-        background-color: transparent;
-        outline: auto;
-      }
-
-      &.checkBox input:checked {
-        &:before,
-        &:after {
-          background-color: rgba(0, 0, 0, 1);
-          content: '';
-          display: block;
-          position: absolute;
-        }
-      }
-
-      &.radioButton input:checked:before {
-        background-color: rgba(0, 0, 0, 1);
-        content: '';
-        display: block;
-        position: absolute;
-      }
-
-      &.checkBox input:checked {
-        &:before,
-        &:after {
-          height: 80%;
-          left: 45%;
-          width: 1px;
-        }
-
-        &:before {
-          transform: rotate(45deg);
-        }
-
-        &:after {
-          transform: rotate(-45deg);
-        }
-      }
-
-      &.radioButton input:checked:before {
-        border-radius: 50%;
-        height: 50%;
-        left: 30%;
-        top: 20%;
-        width: 50%;
-      }
-    }
-
-    .textWidgetAnnotation input.comb {
-      font-family: monospace;
-      padding-left: 2px;
-      padding-right: 0;
-    }
-
-    .buttonWidgetAnnotation {
-      &.checkBox input,
-      &.radioButton input {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        padding: 0;
-      }
-    }
-
-    .popupWrapper {
-      position: absolute;
-      width: 20em;
-    }
-
-    .popup {
-      position: absolute;
-      z-index: 200;
-      max-width: 20em;
-      background-color: rgba(255, 255, 153, 1);
-      box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
-      border-radius: 2px;
-      padding: 6px;
-      margin-left: 5px;
-      cursor: pointer;
-      font: message-box;
-      font-size: 9px;
-      white-space: normal;
-      word-wrap: break-word;
-
-      > * {
-        font-size: 9px;
-      }
-
-      h1 {
-        display: inline-block;
-      }
-
-      span {
-        display: inline-block;
-        margin-left: 5px;
-      }
-
-      p {
-        border-top: 1px solid rgba(51, 51, 51, 1);
-        margin-top: 2px;
-        padding-top: 2px;
-      }
-    }
-
-    .highlightAnnotation,
-    .underlineAnnotation,
-    .squigglyAnnotation,
-    .strikeoutAnnotation,
-    .freeTextAnnotation,
-    .lineAnnotation svg line,
-    .squareAnnotation svg rect,
-    .circleAnnotation svg ellipse,
-    .polylineAnnotation svg polyline,
-    .polygonAnnotation svg polygon,
-    .caretAnnotation,
-    .inkAnnotation svg polyline,
-    .stampAnnotation,
-    .fileAttachmentAnnotation {
-      cursor: pointer;
-    }
+  .textLayer span,
+  .textLayer br {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
   }
 
-  .xfaLayer {
-    .highlight {
-      margin: -1px;
-      padding: 1px;
-      background-color: rgba(239, 203, 237, 1);
-      border-radius: 4px;
+  /* Only necessary in Google Chrome, see issue 14205, and most unfortunately
+ * the problem doesn't show up in "text" reference tests. */
+  .textLayer span.markedContent {
+    top: 0;
+    height: 0;
+  }
 
-      &.appended {
-        position: initial;
-      }
+  .textLayer .highlight {
+    margin: -1px;
+    padding: 1px;
+    background-color: rgba(180, 0, 170, 1);
+    border-radius: 4px;
+  }
 
-      &.begin {
-        border-radius: 4px 0 0 4px;
-      }
+  .textLayer .highlight.appended {
+    position: initial;
+  }
 
-      &.end {
-        border-radius: 0 4px 4px 0;
-      }
+  .textLayer .highlight.begin {
+    border-radius: 4px 0 0 4px;
+  }
 
-      &.middle {
-        border-radius: 0;
-      }
+  .textLayer .highlight.end {
+    border-radius: 0 4px 4px 0;
+  }
 
-      &.selected {
-        background-color: rgba(203, 223, 203, 1);
-      }
-    }
+  .textLayer .highlight.middle {
+    border-radius: 0;
+  }
 
-    ::-moz-selection {
-      background: rgba(0, 0, 255, 1);
-    }
-    
-	::selection {
-      background: rgba(0, 0, 255, 1);
-    }
+  .textLayer .highlight.selected {
+    background-color: rgba(0, 100, 0, 1);
+  }
+
+  .textLayer ::-moz-selection {
+    background: rgba(0, 0, 255, 1);
+  }
+
+  .textLayer ::selection {
+    background: rgba(0, 0, 255, 1);
+  }
+
+  /* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
+  .textLayer br::-moz-selection {
+    background: transparent;
+  }
+
+  .textLayer br::selection {
+    background: transparent;
+  }
+
+  .textLayer .endOfContent {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+
+  .textLayer .endOfContent.active {
+    top: 0;
+  }
+
+  .annotationLayer section {
+    position: absolute;
+    text-align: initial;
+  }
+
+  .annotationLayer .linkAnnotation > a,
+  .annotationLayer .buttonWidgetAnnotation.pushButton > a {
+    position: absolute;
+    font-size: 1em;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.pushButton > canvas {
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .annotationLayer .linkAnnotation > a:hover,
+  .annotationLayer .buttonWidgetAnnotation.pushButton > a:hover {
+    opacity: 0.2;
+    background: rgba(255, 255, 0, 1);
+    box-shadow: 0 2px 10px rgba(255, 255, 0, 1);
+  }
+
+  .annotationLayer .textAnnotation img {
+    position: absolute;
+    cursor: pointer;
+  }
+
+  .annotationLayer .textWidgetAnnotation input,
+  .annotationLayer .textWidgetAnnotation textarea,
+  .annotationLayer .choiceWidgetAnnotation select,
+  .annotationLayer .buttonWidgetAnnotation.checkBox input,
+  .annotationLayer .buttonWidgetAnnotation.radioButton input {
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    font-size: 9px;
+    height: 100%;
+    margin: 0;
+    padding: 0 3px;
+    vertical-align: top;
+    width: 100%;
+  }
+
+  .annotationLayer .choiceWidgetAnnotation select option {
+    padding: 0;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.radioButton input {
+    border-radius: 50%;
+  }
+
+  .annotationLayer .textWidgetAnnotation textarea {
+    font: message-box;
+    font-size: 9px;
+    resize: none;
+  }
+
+  .annotationLayer .textWidgetAnnotation input[disabled],
+  .annotationLayer .textWidgetAnnotation textarea[disabled],
+  .annotationLayer .choiceWidgetAnnotation select[disabled],
+  .annotationLayer .buttonWidgetAnnotation.checkBox input[disabled],
+  .annotationLayer .buttonWidgetAnnotation.radioButton input[disabled] {
+    background: none;
+    border: 1px solid transparent;
+    cursor: not-allowed;
+  }
+
+  .annotationLayer .textWidgetAnnotation input:hover,
+  .annotationLayer .textWidgetAnnotation textarea:hover,
+  .annotationLayer .choiceWidgetAnnotation select:hover,
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:hover,
+  .annotationLayer .buttonWidgetAnnotation.radioButton input:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+  }
+
+  .annotationLayer .textWidgetAnnotation input:focus,
+  .annotationLayer .textWidgetAnnotation textarea:focus,
+  .annotationLayer .choiceWidgetAnnotation select:focus {
+    background: none;
+    border: 1px solid transparent;
+  }
+
+  .annotationLayer .textWidgetAnnotation input :focus,
+  .annotationLayer .textWidgetAnnotation textarea :focus,
+  .annotationLayer .choiceWidgetAnnotation select :focus,
+  .annotationLayer .buttonWidgetAnnotation.checkBox :focus,
+  .annotationLayer .buttonWidgetAnnotation.radioButton :focus {
+    background-image: none;
+    background-color: transparent;
+    outline: auto;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before,
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after,
+  .annotationLayer .buttonWidgetAnnotation.radioButton input:checked:before {
+    background-color: rgba(0, 0, 0, 1);
+    content: '';
+    display: block;
+    position: absolute;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before,
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after {
+    height: 80%;
+    left: 45%;
+    width: 1px;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:before {
+    transform: rotate(45deg);
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.checkBox input:checked:after {
+    transform: rotate(-45deg);
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.radioButton input:checked:before {
+    border-radius: 50%;
+    height: 50%;
+    left: 30%;
+    top: 20%;
+    width: 50%;
+  }
+
+  .annotationLayer .textWidgetAnnotation input.comb {
+    font-family: monospace;
+    padding-left: 2px;
+    padding-right: 0;
+  }
+
+  .annotationLayer .textWidgetAnnotation input.comb:focus {
+    /*
+   * Letter spacing is placed on the right side of each character. Hence, the
+   * letter spacing of the last character may be placed outside the visible
+   * area, causing horizontal scrolling. We avoid this by extending the width
+   * when the element has focus and revert this when it loses focus.
+   */
+    width: 103%;
+  }
+
+  .annotationLayer .buttonWidgetAnnotation.checkBox input,
+  .annotationLayer .buttonWidgetAnnotation.radioButton input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0;
+  }
+
+  .annotationLayer .popupWrapper {
+    position: absolute;
+    width: 20em;
+  }
+
+  .annotationLayer .popup {
+    position: absolute;
+    z-index: 200;
+    max-width: 20em;
+    background-color: rgba(255, 255, 153, 1);
+    box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
+    border-radius: 2px;
+    padding: 6px;
+    margin-left: 5px;
+    cursor: pointer;
+    font: message-box;
+    font-size: 9px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .annotationLayer .popup > * {
+    font-size: 9px;
+  }
+
+  .annotationLayer .popup h1 {
+    display: inline-block;
+  }
+
+  .annotationLayer .popupDate {
+    display: inline-block;
+    margin-left: 5px;
+  }
+
+  .annotationLayer .popupContent {
+    border-top: 1px solid rgba(51, 51, 51, 1);
+    margin-top: 2px;
+    padding-top: 2px;
+  }
+
+  .annotationLayer .richText > * {
+    white-space: pre-wrap;
+  }
+
+  .annotationLayer .highlightAnnotation,
+  .annotationLayer .underlineAnnotation,
+  .annotationLayer .squigglyAnnotation,
+  .annotationLayer .strikeoutAnnotation,
+  .annotationLayer .freeTextAnnotation,
+  .annotationLayer .lineAnnotation svg line,
+  .annotationLayer .squareAnnotation svg rect,
+  .annotationLayer .circleAnnotation svg ellipse,
+  .annotationLayer .polylineAnnotation svg polyline,
+  .annotationLayer .polygonAnnotation svg polygon,
+  .annotationLayer .caretAnnotation,
+  .annotationLayer .inkAnnotation svg polyline,
+  .annotationLayer .stampAnnotation,
+  .annotationLayer .fileAttachmentAnnotation {
+    cursor: pointer;
+  }
+
+  .xfaLayer .highlight {
+    margin: -1px;
+    padding: 1px;
+    background-color: rgba(239, 203, 237, 1);
+    border-radius: 4px;
+  }
+
+  .xfaLayer .highlight.appended {
+    position: initial;
+  }
+
+  .xfaLayer .highlight.begin {
+    border-radius: 4px 0 0 4px;
+  }
+
+  .xfaLayer .highlight.end {
+    border-radius: 0 4px 4px 0;
+  }
+
+  .xfaLayer .highlight.middle {
+    border-radius: 0;
+  }
+
+  .xfaLayer .highlight.selected {
+    background-color: rgba(203, 223, 203, 1);
+  }
+
+  .xfaLayer ::-moz-selection {
+    background: rgba(0, 0, 255, 1);
+  }
+
+  .xfaLayer ::selection {
+    background: rgba(0, 0, 255, 1);
   }
 
   .xfaPage {
@@ -461,39 +404,39 @@
     left: 0;
     transform-origin: 0 0;
     line-height: 1.2;
+  }
 
-    * {
-      color: inherit;
-      font: inherit;
-      font-style: inherit;
-      font-weight: inherit;
-      font-kerning: inherit;
-      letter-spacing: -0.01px;
-      text-align: inherit;
-      text-decoration: inherit;
-      box-sizing: border-box;
-      background-color: transparent;
-      padding: 0;
-      margin: 0;
-      pointer-events: auto;
-      line-height: inherit;
-    }
+  .xfaLayer * {
+    color: inherit;
+    font: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-kerning: inherit;
+    letter-spacing: -0.01px;
+    text-align: inherit;
+    text-decoration: inherit;
+    box-sizing: border-box;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    pointer-events: auto;
+    line-height: inherit;
+  }
 
-    div {
-      pointer-events: none;
-    }
+  .xfaLayer div {
+    pointer-events: none;
+  }
 
-    svg {
-      pointer-events: none;
+  .xfaLayer svg {
+    pointer-events: none;
+  }
 
-      * {
-        pointer-events: none;
-      }
-    }
+  .xfaLayer svg * {
+    pointer-events: none;
+  }
 
-    a {
-      color: blue;
-    }
+  .xfaLayer a {
+    color: blue;
   }
 
   .xfaRich li {
@@ -538,18 +481,11 @@
     align-items: center;
   }
 
-  .xfaLeft > {
-    .xfaCaption,
-    .xfaCaptionForCheckButton {
-      max-height: 100%;
-    }
-  }
-
-  .xfaRight > {
-    .xfaCaption,
-    .xfaCaptionForCheckButton {
-      max-height: 100%;
-    }
+  .xfaLeft > .xfaCaption,
+  .xfaLeft > .xfaCaptionForCheckButton,
+  .xfaRight > .xfaCaption,
+  .xfaRight > .xfaCaptionForCheckButton {
+    max-height: 100%;
   }
 
   .xfaTop {
@@ -564,18 +500,11 @@
     align-items: flex-start;
   }
 
-  .xfaTop > {
-    .xfaCaption,
-    .xfaCaptionForCheckButton {
-      width: 100%;
-    }
-  }
-
-  .xfaBottom > {
-    .xfaCaption,
-    .xfaCaptionForCheckButton {
-      width: 100%;
-    }
+  .xfaTop > .xfaCaption,
+  .xfaTop > .xfaCaptionForCheckButton,
+  .xfaBottom > .xfaCaption,
+  .xfaBottom > .xfaCaptionForCheckButton {
+    width: 100%;
   }
 
   .xfaBorder {
@@ -609,21 +538,14 @@
     flex: 1 1 auto;
     border: none;
     resize: none;
-    background-image: var(--xfa-unfocused-field-background);
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
   }
 
-  .xfaTop > {
-    .xfaTextfield,
-    .xfaSelect {
-      flex: 0 1 auto;
-    }
-  }
-
-  .xfaBottom > {
-    .xfaTextfield,
-    .xfaSelect {
-      flex: 0 1 auto;
-    }
+  .xfaTop > .xfaTextfield,
+  .xfaTop > .xfaSelect,
+  .xfaBottom > .xfaTextfield,
+  .xfaBottom > .xfaSelect {
+    flex: 0 1 auto;
   }
 
   .xfaButton {
@@ -637,6 +559,9 @@
   .xfaLink {
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 
   .xfaCheckbox,
@@ -686,7 +611,10 @@
     justify-content: left;
   }
 
-  .xfaPosition,
+  .xfaPosition {
+    position: relative;
+  }
+
   .xfaArea {
     position: relative;
   }
@@ -700,53 +628,41 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-
-    .xfaRow {
-      display: flex;
-      flex-direction: row;
-      align-items: stretch;
-    }
-
-    .xfaRlRow {
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: stretch;
-      flex: 1;
-
-      > div {
-        flex: 1;
-      }
-    }
   }
 
-  .xfaNonInteractive {
-    input,
-    textarea {
-      background: initial;
-    }
+  .xfaTable .xfaRow {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
   }
 
-  .xfaDisabled {
-    input,
-    textarea {
-      background: initial;
-    }
+  .xfaTable .xfaRlRow {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: stretch;
+    flex: 1;
   }
 
-  .xfaReadOnly {
-    input,
-    textarea {
-      background: initial;
-    }
+  .xfaTable .xfaRlRow > div {
+    flex: 1;
+  }
+
+  .xfaNonInteractive input,
+  .xfaNonInteractive textarea,
+  .xfaDisabled input,
+  .xfaDisabled textarea,
+  .xfaReadOnly input,
+  .xfaReadOnly textarea {
+    background: initial;
   }
 
   @media print {
-    .xfaTextfield {
+    .xfaTextfield,
+    .xfaSelect {
       background: transparent;
     }
 
     .xfaSelect {
-      background: transparent;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
@@ -757,49 +673,48 @@
 
   .pdfViewer {
     padding-bottom: var(--pdfViewer-padding-bottom);
-
-    .canvasWrapper {
-      overflow: hidden;
-    }
-
-    .page {
-      direction: ltr;
-      width: 816px;
-      height: 1056px;
-      margin: var(--page-margin);
-      position: relative;
-      overflow: visible;
-      border: var(--page-border);
-      background-clip: content-box;
-      -o-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAA6UlEQVR4Xl2Pi2rEMAwE16fm1f7/r14v7w4rI0IzLAF7hLxNevBSEMEF5+OilNCsRd8ZMyn+a4NmsOT8WJw1lFbSYgGFzF2bLFoLjTClWjKKGRWpDYAGXUnZ4uhbBUzF3Oe/GG/ue2fn4GgsyXhNgysV2JnrhKEMg4fEZcALmiKbNhBBRFpSyDOj1G4QOVly6O1FV54ZZq8OVygrciDt6JazRgi1ljTPH0gbrPmHPXAbCiDd4GawIjip1TPh9tt2sz24qaCjr/jAb/GBFTbq9KZ7Ke/Cqt8nayUikZKsWZK7Fe6bg5dOUt8fZHWG2BHc+6EAAAAASUVORK5CYII=')
-        9 9 repeat;
-      border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAQAAADYWf5HAAAA6UlEQVR4Xl2Pi2rEMAwE16fm1f7/r14v7w4rI0IzLAF7hLxNevBSEMEF5+OilNCsRd8ZMyn+a4NmsOT8WJw1lFbSYgGFzF2bLFoLjTClWjKKGRWpDYAGXUnZ4uhbBUzF3Oe/GG/ue2fn4GgsyXhNgysV2JnrhKEMg4fEZcALmiKbNhBBRFpSyDOj1G4QOVly6O1FV54ZZq8OVygrciDt6JazRgi1ljTPH0gbrPmHPXAbCiDd4GawIjip1TPh9tt2sz24qaCjr/jAb/GBFTbq9KZ7Ke/Cqt8nayUikZKsWZK7Fe6bg5dOUt8fZHWG2BHc+6EAAAAASUVORK5CYII=')
-        9 9 repeat;
-      background-color: rgba(255, 255, 255, 1);
-    }
-
-    &.removePageBorders .page {
-      margin: 0 auto 10px;
-      border: none;
-    }
-
-    &.singlePageView {
-      display: inline-block;
-
-      .page {
-        margin: 0;
-        border: none;
-      }
-    }
-
-    &.scrollHorizontal,
-    &.scrollWrapped {
-      margin-left: 3.5px;
-      margin-right: 3.5px;
-      text-align: center;
-    }
   }
 
+  .pdfViewer .canvasWrapper {
+    overflow: hidden;
+  }
+
+  .pdfViewer .page {
+    direction: ltr;
+    width: 816px;
+    height: 1056px;
+    margin: var(--page-margin);
+    position: relative;
+    overflow: visible;
+    border: var(--page-border);
+    background-clip: content-box;
+    -o-border-image: url(~pdfjs-dist/web/images/shadow.png) 9 9 repeat;
+    border-image: url(~pdfjs-dist/web/images/shadow.png) 9 9 repeat;
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  .pdfViewer .dummyPage {
+    position: relative;
+    width: 0;
+    /* The height is set via JS, see `BaseViewer.#ensurePageViewVisible`. */
+  }
+
+  .pdfViewer.removePageBorders .page {
+    margin: 0 auto 10px;
+    border: none;
+  }
+
+  .pdfViewer.singlePageView {
+    display: inline-block;
+  }
+
+  .pdfViewer.singlePageView .page {
+    margin: 0;
+    border: none;
+  }
+
+  .pdfViewer.scrollHorizontal,
+  .pdfViewer.scrollWrapped,
   .spread {
     margin-left: 3.5px;
     margin-right: 3.5px;
@@ -811,95 +726,77 @@
     white-space: nowrap;
   }
 
-  .pdfViewer {
-    &.removePageBorders,
-    &.scrollHorizontal .spread,
-    &.scrollWrapped .spread {
-      margin-left: 0;
-      margin-right: 0;
-    }
+  .pdfViewer.removePageBorders,
+  .pdfViewer.scrollHorizontal .spread,
+  .pdfViewer.scrollWrapped .spread {
+    margin-left: 0;
+    margin-right: 0;
   }
 
-  .spread .page {
+  .spread .page,
+  .spread .dummyPage,
+  .pdfViewer.scrollHorizontal .page,
+  .pdfViewer.scrollWrapped .page,
+  .pdfViewer.scrollHorizontal .spread,
+  .pdfViewer.scrollWrapped .spread {
     display: inline-block;
     vertical-align: middle;
   }
 
-  .pdfViewer {
-    &.scrollHorizontal .page,
-    &.scrollWrapped .page,
-    &.scrollHorizontal .spread,
-    &.scrollWrapped .spread {
-      display: inline-block;
-      vertical-align: middle;
-    }
-  }
-
-  .spread .page {
+  .spread .page,
+  .pdfViewer.scrollHorizontal .page,
+  .pdfViewer.scrollWrapped .page {
     margin-left: var(--spreadHorizontalWrapped-margin-LR);
     margin-right: var(--spreadHorizontalWrapped-margin-LR);
   }
 
-  .pdfViewer {
-    &.scrollHorizontal .page,
-    &.scrollWrapped .page {
-      margin-left: var(--spreadHorizontalWrapped-margin-LR);
-      margin-right: var(--spreadHorizontalWrapped-margin-LR);
-    }
-
-    &.removePageBorders {
-      .spread .page,
-      &.scrollHorizontal .page,
-      &.scrollWrapped .page {
-        margin-left: 5px;
-        margin-right: 5px;
-      }
-    }
-
-    .page {
-      canvas {
-        margin: 0;
-        display: block;
-
-        &[hidden] {
-          display: none;
-        }
-      }
-
-      .loadingIcon {
-        position: absolute;
-        display: block;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/gif;base64,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')
-          center no-repeat;
-      }
-    }
+  .pdfViewer.removePageBorders .spread .page,
+  .pdfViewer.removePageBorders.scrollHorizontal .page,
+  .pdfViewer.removePageBorders.scrollWrapped .page {
+    margin-left: 5px;
+    margin-right: 5px;
   }
 
-  .pdfPresentationMode {
-    .pdfViewer {
-      margin-left: 0;
-      margin-right: 0;
+  .pdfViewer .page canvas {
+    margin: 0;
+    display: block;
+  }
 
-      .page,
-      .spread {
-        display: block;
-      }
+  .pdfViewer .page canvas[hidden] {
+    display: none;
+  }
 
-      .page,
-      &.removePageBorders .page {
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
+  .pdfViewer .page .loadingIcon {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: url(~pdfjs-dist/web/images/loading-icon.gif) center no-repeat;
+  }
 
-    &:-webkit-full-screen .pdfViewer .page,
-    &:fullscreen .pdfViewer .page {
-      margin-bottom: 100%;
-      border: 0;
-    }
+  .pdfViewer .page .loadingIcon.notVisible {
+    background: none;
+  }
+
+  .pdfViewer.enablePermissions .textLayer span {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    user-select: none !important;
+    cursor: not-allowed;
+  }
+
+  .pdfPresentationMode .pdfViewer {
+    padding-bottom: 0;
+  }
+
+  .pdfPresentationMode .spread {
+    margin: 0;
+  }
+
+  .pdfPresentationMode .pdfViewer .page {
+    margin: 0 auto;
+    border: 2px solid transparent;
   }
 }
