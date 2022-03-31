@@ -2,6 +2,7 @@
 
 ## Unreleased
 * [[#873](https://github.com/VadimDez/ng2-pdf-viewer/pull/873)] - feat: Updated pdfjs-dist version to 2.13.216 from 2.11.338
+* [[#873](https://github.com/VadimDez/ng2-pdf-viewer/pull/879)] - Update css for the version 2.13.216
 
 ## 8.0.1
 * [[#855](https://github.com/VadimDez/ng2-pdf-viewer/issues/855)] - Can't load document after error
