@@ -427,7 +427,6 @@ export class PdfViewerComponent
       linkService: this.pdfMultiPageLinkService,
       eventBus
     });
-console.log('!this._showBorders', !this._showBorders);
 
     const pdfOptions: PDFViewerOptions = {
       eventBus,
@@ -485,7 +484,7 @@ console.log('!this._showBorders', !this._showBorders);
       linkService: this.pdfSinglePageLinkService,
       eventBus
     });
-    console.log('!this._showBorders', !this._showBorders);
+
     const pdfOptions = {
       eventBus,
       container: this.element.nativeElement.querySelector('div'),
