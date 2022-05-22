@@ -86,8 +86,14 @@ pdf-viewer {
 
 .title {
   width: 284px;
+  text-align: left;
 }
 
-.toggle-menu {
-  margin-right: 20px;
+.title.mob {
+  text-align: center;
+}
+
+a.button {
+  display: flex;
+  justify-content: space-evenly;
 }
