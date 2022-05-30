@@ -176,7 +176,7 @@ export class AppComponent implements OnInit {
    * @param destination pdf navigate to
    */
   navigateTo(destination: any) {
-    this.pdfComponent.pdfLinkService.navigateTo(destination);
+    this.pdfComponent.pdfLinkService.goToDestination(destination);
   }
 
   /**
