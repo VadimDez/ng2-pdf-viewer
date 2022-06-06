@@ -1,5 +1,9 @@
 # Changelog
 
+## 9.1.0
+
+- [[#900](https://github.com/VadimDez/ng2-pdf-viewer/pull/900)] - Upgrade pdfjs-dist to ~2.14.305
+
 ## 9.0.0 - 01.04.2022
 * [[#873](https://github.com/VadimDez/ng2-pdf-viewer/pull/873)] - feat: Updated pdfjs-dist version to 2.13.216 from 2.11.338
 * [[#879](https://github.com/VadimDez/ng2-pdf-viewer/pull/879)] - Update css for the version 2.13.216
