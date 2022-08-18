@@ -29,7 +29,8 @@ import type {
   PDFProgressData,
   PDFDocumentProxy,
   PDFDocumentLoadingTask,
-  PDFViewerOptions
+  PDFViewerOptions,
+  ZoomScale
 } from './typings';
 
 if (!isSSR()) {
@@ -82,7 +83,7 @@ export class PdfViewerComponent
   private _pdf: PDFDocumentProxy;
   private _page = 1;
   private _zoom = 1;
-  private _zoomScale: 'page-height' | 'page-fit' | 'page-width' = 'page-width';
+  private _zoomScale: ZoomScale = 'page-width';
   private _rotation = 0;
   private _showAll = true;
   private _canAutoResize = true;
@@ -166,7 +167,7 @@ export class PdfViewerComponent
   }
 
   @Input('zoom-scale')
-  set zoomScale(value: 'page-height' | 'page-fit' | 'page-width') {
+  set zoomScale(value: ZoomScale) {
     this._zoomScale = value;
   }
 

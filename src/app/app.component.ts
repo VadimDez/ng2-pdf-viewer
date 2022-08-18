@@ -5,7 +5,8 @@ import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
   PDFProgressData,
   PDFDocumentProxy,
-  PDFSource
+  PDFSource,
+  ZoomScale
 } from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
@@ -17,13 +18,13 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  pdfSrc: string | PDFSource | ArrayBuffer = './assets/pdf-test.pdf';
+  pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';
 
   error: any;
   page = 1;
   rotation = 0;
   zoom = 1.0;
-  zoomScale = 'page-width';
+  zoomScale: ZoomScale = 'page-width';
   originalSize = false;
   pdf: any;
   renderText = true;
@@ -140,10 +141,11 @@ export class AppComponent implements OnInit {
   }
 
   setPassword(password: string) {
-    let newSrc;
+    let newSrc: PDFSource;
 
     if (this.pdfSrc instanceof ArrayBuffer) {
-      newSrc = { data: this.pdfSrc };
+      newSrc = { data: this.pdfSrc as any };
+      // newSrc = { data: this.pdfSrc };
     } else if (typeof this.pdfSrc === 'string') {
       newSrc = { url: this.pdfSrc };
     } else {
