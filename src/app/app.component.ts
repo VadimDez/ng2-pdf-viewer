@@ -206,9 +206,9 @@ export class AppComponent implements OnInit {
     console.log('(page-initialized)', e);
   }
 
-  searchQueryChanged(newQuery: string) {
-    if (newQuery !== this.pdfQuery) {
-      this.pdfQuery = newQuery;
+  searchQueryChanged(input: EventTarget | HTMLInputElement) {
+    if ((input as HTMLInputElement).value !== this.pdfQuery) {
+      this.pdfQuery = (input as HTMLInputElement).value;
       this.pdfComponent.pdfFindController.executeCommand('find', {
         query: this.pdfQuery,
         highlightAll: true

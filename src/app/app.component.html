@@ -172,7 +172,7 @@
     <div class="mb">
       <mat-form-field>
         <input #queryInp matInput id="pdfQueryInput" type="text" placeholder="Search..." [value]="pdfQuery"
-          (input)="searchQueryChanged($event.target.value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
+          (input)="searchQueryChanged($event.target)" (keyup.enter)="searchQueryChanged(queryInp)">
         <mat-hint>Search in entire pdf</mat-hint>
       </mat-form-field>
     </div>
