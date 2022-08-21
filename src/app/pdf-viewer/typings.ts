@@ -8,3 +8,5 @@ export interface PDFProgressData {
   loaded: number;
   total: number;
 }
+
+export type ZoomScale = 'page-height' | 'page-fit' | 'page-width';
