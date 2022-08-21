@@ -49,8 +49,8 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
               "outputHashing": "all",
+              "optimization": true,
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
