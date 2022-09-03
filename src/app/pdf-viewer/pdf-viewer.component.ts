@@ -462,6 +462,7 @@ export class PdfViewerComponent
         if (pageNumber !== this._page) {
           this.page = pageNumber;
         }
+        this.pageChange.emit(pageNumber);
       });
 
     fromEvent<CustomEvent>(eventBus, 'pagerendered')
