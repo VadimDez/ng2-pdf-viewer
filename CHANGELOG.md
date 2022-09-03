@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.1.1 - 03.09.2022
 
 - [[#916](https://github.com/VadimDez/ng2-pdf-viewer/issues/916)] - (pageChange) event not getting emitted - Single Page Viewer
 - [[#921](https://github.com/VadimDez/ng2-pdf-viewer/pull/921)] - Issue 916 - (pageChange) event not getting emitted - Single Page Viewer
