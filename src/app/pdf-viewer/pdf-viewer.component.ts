@@ -71,6 +71,10 @@ export class PdfViewerComponent
     typeof PDFJS !== 'undefined'
       ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
       : null;
+  private _imageResourcesPath =
+    typeof PDFJS !== 'undefined'
+      ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/web/images/`
+      : null;
   private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
   private _stickToPage = false;
@@ -438,7 +442,8 @@ export class PdfViewerComponent
         : RenderTextMode.DISABLED,
       findController: this.pdfMultiPageFindController,
       renderer: 'canvas',
-      l10n: undefined
+      l10n: undefined,
+      imageResourcesPath: this._imageResourcesPath,
     };
 
     this.pdfMultiPageViewer = new PDFJSViewer.PDFViewer(pdfOptions);
@@ -457,6 +462,7 @@ export class PdfViewerComponent
         if (pageNumber !== this._page) {
           this.page = pageNumber;
         }
+        this.pageChange.emit(pageNumber);
       });
 
     fromEvent<CustomEvent>(eventBus, 'pagerendered')

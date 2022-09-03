@@ -1,6 +1,6 @@
 {
   "name": "ng2-pdf-viewer",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "Angular 5+ component for rendering PDF",
   "license": "MIT",
   "scripts": {
@@ -43,7 +43,7 @@
     "tslib": "^2.3.1"
   },
   "peerDependencies": {
-    "pdfjs-dist": "~2.13.216"
+    "pdfjs-dist": "~2.14.305"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.1.4",

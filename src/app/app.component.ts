@@ -206,6 +206,15 @@ export class AppComponent implements OnInit {
     console.log('(page-initialized)', e);
   }
 
+  /**
+   * Page change callback, which is called when a page is changed (called multiple times)
+   *
+   * @param e number
+   */
+  pageChange(e: number) {
+    console.log('(page-change)', e);
+  }
+
   searchQueryChanged(newQuery: string) {
     if (newQuery !== this.pdfQuery) {
       this.pdfQuery = newQuery;

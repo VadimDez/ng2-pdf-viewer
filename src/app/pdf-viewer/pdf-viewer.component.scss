@@ -33,6 +33,9 @@
   --zoom-factor: 1;
   --viewport-scale-factor: 1;
   --shadow: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAA1ElEQVQ4jbWUWw6EIAxFy2NFs/8NzR4UJhpqLsdi5mOmSSMUOfYWqv3S0gMr4XlYH/64gZa/gN3ANYA7KAXALt4ktoQ5MI9YxqaG8bWmsIysMuT6piSQCa4whZThCu8CM4zP9YJaKci9jicPq3NcBWYoPMGUlhG7ivtkB+gVyFY75wXghOvh8t5mto1Mdim6e+MBqH6XsY+YAwjpq3vGF7weTWQptLEDVCZvPTMl5JZZsdh47FHW6qFMyvLYqjcnmdFfY9Xk/KDOlzCusX2mi/ofM7MPkzBcSp4Q1/wAAAAASUVORK5CYII=');
+  --viewer-container-height: 0;
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --xfa-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
 
   @media screen and (forced-colors: active) {
     --pdfViewer-padding-bottom: 9px;
@@ -54,6 +57,7 @@
     -webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
     text-size-adjust: none;
+    forced-color-adjust: none;
   }
 
   .textLayer span,
@@ -66,7 +70,7 @@
   }
 
   /* Only necessary in Google Chrome, see issue 14205, and most unfortunately
- * the problem doesn't show up in "text" reference tests. */
+   * the problem doesn't show up in "text" reference tests. */
   .textLayer span.markedContent {
     top: 0;
     height: 0;
@@ -173,7 +177,7 @@
   .annotationLayer .choiceWidgetAnnotation select,
   .annotationLayer .buttonWidgetAnnotation.checkBox input,
   .annotationLayer .buttonWidgetAnnotation.radioButton input {
-    background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+    background-image: var(--annotation-unfocused-field-background);
     border: 1px solid transparent;
     box-sizing: border-box;
     font-size: 9px;
@@ -539,7 +543,7 @@
     flex: 1 1 auto;
     border: none;
     resize: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+    background-image: var(--xfa-unfocused-field-background);
   }
 
   .xfaTop > .xfaTextfield,
@@ -697,7 +701,7 @@
   .pdfViewer .dummyPage {
     position: relative;
     width: 0;
-    /* The height is set via JS, see `BaseViewer.#ensurePageViewVisible`. */
+    height: var(--viewer-container-height);
   }
 
   .pdfViewer.removePageBorders .page {
