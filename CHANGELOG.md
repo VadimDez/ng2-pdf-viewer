@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- [[#916](https://github.com/VadimDez/ng2-pdf-viewer/issues/916)] - (pageChange) event not getting emitted - Single Page Viewer
+- [[#921](https://github.com/VadimDez/ng2-pdf-viewer/pull/921)] - Issue 916 - (pageChange) event not getting emitted - Single Page Viewer
+
 ## 9.1.0 - 24.07.2022
 
 - [[#900](https://github.com/VadimDez/ng2-pdf-viewer/pull/900)] - Upgrade pdfjs-dist to ~2.14.305
