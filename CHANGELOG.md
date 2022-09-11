@@ -1,5 +1,24 @@
 # Changelog
 
+## 9.1.2 - 11.09.2022
+- [[#925](https://github.com/VadimDez/ng2-pdf-viewer/issues/925)] - 9.1.1 version lacks pdfFindController.executeCommand
+- [[#927](https://github.com/VadimDez/ng2-pdf-viewer/pull/927)] - Fix search
+- [[#926](https://github.com/VadimDez/ng2-pdf-viewer/pull/926)] - Improve arrangement of annotations
+
+### Breaking Change
+
+Since `FindController.executeCommand` is deprecated, you should now use `eventBus` to do search. Example:
+
+```typescript
+@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+
+search(stringToSearch: string) {
+  this.pdfComponent.eventBus.dispatch('find', {
+    query: stringToSearch, type: 'again', caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true
+  });
+}
+```
+
 ## 9.1.1 - 03.09.2022
 
 - [[#916](https://github.com/VadimDez/ng2-pdf-viewer/issues/916)] - (pageChange) event not getting emitted - Single Page Viewer
