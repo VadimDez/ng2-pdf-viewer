@@ -31,6 +31,7 @@ import type {
   PDFDocumentLoadingTask,
   PDFViewerOptions
 } from './typings';
+import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer';
 
 if (!isSSR()) {
   assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
@@ -58,14 +59,12 @@ export class PdfViewerComponent
 
   @ViewChild('pdfViewerContainer') pdfViewerContainer;
 
-  private isVisible = false;
-  private pdfMultiPageViewer: any;
-  private pdfMultiPageLinkService: any;
-  private pdfMultiPageFindController: any;
+  public eventBus: PDFJSViewer.EventBus;
+  public pdfLinkService: PDFJSViewer.PDFLinkService;
+  public pdfFindController: PDFJSViewer.PDFFindController;
+  public pdfViewer: PDFJSViewer.PDFViewer | PDFSinglePageViewer;
 
-  private pdfSinglePageViewer: any;
-  private pdfSinglePageLinkService: any;
-  private pdfSinglePageFindController: any;
+  private isVisible = false;
 
   private _cMapsUrl =
     typeof PDFJS !== 'undefined'
@@ -275,22 +274,6 @@ export class PdfViewerComponent
     this.loadingTask = null;
   }
 
-  get pdfLinkService(): any {
-    return this._showAll
-      ? this.pdfMultiPageLinkService
-      : this.pdfSinglePageLinkService;
-  }
-
-  get pdfViewer(): any {
-    return this.getCurrentViewer();
-  }
-
-  get pdfFindController(): any {
-    return this._showAll
-      ? this.pdfMultiPageFindController
-      : this.pdfSinglePageFindController;
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (isSSR() || !this.isVisible) {
       return;
@@ -300,11 +283,12 @@ export class PdfViewerComponent
       this.loadPDF();
     } else if (this._pdf) {
       if ('renderText' in changes) {
-        this.getCurrentViewer().textLayerMode = this._renderText
+        this.pdfViewer.textLayerMode = this._renderText
           ? this._renderTextMode
           : RenderTextMode.DISABLED;
         this.resetPdfDocument();
       } else if ('showAll' in changes) {
+        this.setupViewer();
         this.resetPdfDocument();
       }
       if ('page' in changes) {
@@ -315,7 +299,7 @@ export class PdfViewerComponent
 
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
         // This behavior is introduced by using the PDFSinglePageViewer
-        this.getCurrentViewer().scrollPageIntoView({ pageNumber: this._page });
+        this.pdfViewer.scrollPageIntoView({ pageNumber: this._page });
       }
 
       this.update();
@@ -323,12 +307,10 @@ export class PdfViewerComponent
   }
 
   public updateSize() {
-    const currentViewer = this.getCurrentViewer();
-
     from(
-      (this._pdf.getPage(
-        currentViewer.currentPageNumber
-      ) as unknown) as Promise<PDFPageProxy>
+      this._pdf.getPage(
+        this.pdfViewer.currentPageNumber
+      ) as unknown as Promise<PDFPageProxy>
     )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -353,7 +335,7 @@ export class PdfViewerComponent
             stickToPage = !this._stickToPage;
           }
 
-          currentViewer._setScale(scale, stickToPage);
+          this.pdfViewer._setScale(scale, stickToPage);
         }
       });
   }
@@ -366,46 +348,38 @@ export class PdfViewerComponent
     if (this._pdf) {
       this._pdf.destroy();
       this._pdf = null;
-      this.pdfMultiPageViewer.setDocument(null);
-      this.pdfSinglePageViewer.setDocument(null);
-
-      this.pdfMultiPageLinkService.setDocument(null, null);
-      this.pdfSinglePageLinkService.setDocument(null, null);
-
-      this.pdfMultiPageFindController.setDocument(null);
-      this.pdfSinglePageFindController.setDocument(null);
+      this.pdfViewer.setDocument(null);
+      this.pdfLinkService.setDocument(null, null);
+      this.pdfFindController.setDocument(null);
     }
   }
 
   private getPDFLinkServiceConfig() {
-    const pdfLinkServiceConfig: any = {};
     const linkTarget = PdfViewerComponent.getLinkTarget(this._externalLinkTarget);
 
     if (linkTarget) {
-      pdfLinkServiceConfig.externalLinkTarget = linkTarget;
+      return { externalLinkTarget: linkTarget };
     }
 
-    return pdfLinkServiceConfig;
+    return {};
   }
 
-  private setupMultiPageViewer() {
-    assign(PDFJS, 'disableTextLayer', !this._renderText);
+  private initEventBus() {
+    this.eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
-
-    fromEvent<CustomEvent>(eventBus, 'pagerendered')
+    fromEvent<CustomEvent>(this.eventBus, 'pagerendered')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
         this.pageRendered.emit(event);
       });
 
-    fromEvent<CustomEvent>(eventBus, 'pagesinit')
+    fromEvent<CustomEvent>(this.eventBus, 'pagesinit')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
         this.pageInitialized.emit(event);
       });
 
-    fromEvent(eventBus, 'pagechanging')
+    fromEvent(this.eventBus, 'pagechanging')
       .pipe(takeUntil(this.destroy$))
       .subscribe(({ pageNumber }) => {
         if (this.pageScrollTimeout) {
@@ -418,98 +392,53 @@ export class PdfViewerComponent
         }, 100);
       });
 
-    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
+    fromEvent<CustomEvent>(this.eventBus, 'textlayerrendered')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
         this.textLayerRendered.emit(event);
       });
-
-    this.pdfMultiPageLinkService = new PDFJSViewer.PDFLinkService({
-      eventBus, ...this.getPDFLinkServiceConfig()
-    });
-    this.pdfMultiPageFindController = new PDFJSViewer.PDFFindController({
-      linkService: this.pdfMultiPageLinkService,
-      eventBus
-    });
-
-    const pdfOptions: PDFViewerOptions = {
-      eventBus,
-      container: this.element.nativeElement.querySelector('div'),
-      removePageBorders: !this._showBorders,
-      linkService: this.pdfMultiPageLinkService,
-      textLayerMode: this._renderText
-        ? this._renderTextMode
-        : RenderTextMode.DISABLED,
-      findController: this.pdfMultiPageFindController,
-      renderer: 'canvas',
-      l10n: undefined,
-      imageResourcesPath: this._imageResourcesPath,
-    };
-
-    this.pdfMultiPageViewer = new PDFJSViewer.PDFViewer(pdfOptions);
-    this.pdfMultiPageLinkService.setViewer(this.pdfMultiPageViewer);
-    this.pdfMultiPageFindController.setDocument(this._pdf);
   }
 
-  private setupSinglePageViewer() {
-    assign(PDFJS, 'disableTextLayer', !this._renderText);
-
-    const eventBus = createEventBus(PDFJSViewer, this.destroy$);
-
-    fromEvent(eventBus, 'pagechanging')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(({ pageNumber }) => {
-        if (pageNumber !== this._page) {
-          this.page = pageNumber;
-        }
-        this.pageChange.emit(pageNumber);
-      });
-
-    fromEvent<CustomEvent>(eventBus, 'pagerendered')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.pageRendered.emit(event);
-      });
-
-    fromEvent<CustomEvent>(eventBus, 'pagesinit')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.pageInitialized.emit(event);
-      });
-
-    fromEvent<CustomEvent>(eventBus, 'textlayerrendered')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.textLayerRendered.emit(event);
-      });
-
-    this.pdfSinglePageLinkService = new PDFJSViewer.PDFLinkService({
-      eventBus, ...this.getPDFLinkServiceConfig()
+  private initPDFServices() {
+    this.pdfLinkService = new PDFJSViewer.PDFLinkService({
+      eventBus: this.eventBus,
+      ...this.getPDFLinkServiceConfig()
     });
-    this.pdfSinglePageFindController = new PDFJSViewer.PDFFindController({
-      linkService: this.pdfSinglePageLinkService,
-      eventBus
+    this.pdfFindController = new PDFJSViewer.PDFFindController({
+      eventBus: this.eventBus,
+      linkService: this.pdfLinkService,
     });
+  }
 
-    const pdfOptions = {
-      eventBus,
+  private getPDFOptions(): PDFViewerOptions {
+    return {
+      eventBus: this.eventBus,
       container: this.element.nativeElement.querySelector('div'),
       removePageBorders: !this._showBorders,
-      linkService: this.pdfSinglePageLinkService,
+      linkService: this.pdfLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
         : RenderTextMode.DISABLED,
-      findController: this.pdfSinglePageFindController,
+      findController: this.pdfFindController,
       renderer: 'canvas',
       l10n: undefined,
       imageResourcesPath: this._imageResourcesPath,
     };
+  }
 
-    this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
-    this.pdfSinglePageLinkService.setViewer(this.pdfSinglePageViewer);
-    this.pdfSinglePageFindController.setDocument(this._pdf);
+  private setupViewer() {
+    assign(PDFJS, 'disableTextLayer', !this._renderText);
 
-    this.pdfSinglePageViewer._currentPageNumber = this._page;
+    this.initPDFServices();
+
+    if (this._showAll) {
+      this.pdfViewer = new PDFJSViewer.PDFViewer(this.getPDFOptions());
+    } else {
+      this.pdfViewer = new PDFJSViewer.PDFSinglePageViewer(this.getPDFOptions());
+    }
+    this.pdfLinkService.setViewer(this.pdfViewer);
+
+    this.pdfViewer._currentPageNumber = this._page;
   }
 
   private getValidPageNumber(page: number): number {
@@ -533,7 +462,8 @@ export class PdfViewerComponent
 
     const params: any = {
       cMapUrl: this._cMapsUrl,
-      cMapPacked: true
+      cMapPacked: true,
+      enableXfa: true
     };
 
     if (srcType === 'string') {
@@ -561,6 +491,8 @@ export class PdfViewerComponent
 
     this.clear();
 
+    this.setupViewer();
+
     this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
 
     this.loadingTask.onProgress = (progressData: PDFProgressData) => {
@@ -577,12 +509,6 @@ export class PdfViewerComponent
           this.lastLoaded = src;
 
           this.afterLoadComplete.emit(pdf);
-
-          if (!this.pdfMultiPageViewer) {
-            this.setupMultiPageViewer();
-            this.setupSinglePageViewer();
-          }
-
           this.resetPdfDocument();
 
           this.update();
@@ -602,20 +528,19 @@ export class PdfViewerComponent
 
   private render() {
     this._page = this.getValidPageNumber(this._page);
-    const currentViewer = this.getCurrentViewer();
 
     if (
       this._rotation !== 0 ||
-      currentViewer.pagesRotation !== this._rotation
+      this.pdfViewer.pagesRotation !== this._rotation
     ) {
       setTimeout(() => {
-        currentViewer.pagesRotation = this._rotation;
+        this.pdfViewer.pagesRotation = this._rotation;
       });
     }
 
     if (this._stickToPage) {
       setTimeout(() => {
-        currentViewer.currentPageNumber = this._page;
+        this.pdfViewer.currentPageNumber = this._page;
       });
     }
 
@@ -623,51 +548,43 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number, viewportHeight: number) {
-    const borderSize = (this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0);
+    const borderSize = this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0;
     const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
     const pdfContainerHeight = this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
 
-    if (pdfContainerHeight === 0 || viewportHeight === 0 || pdfContainerWidth === 0 || viewportWidth === 0) {
+    if (
+      pdfContainerHeight === 0 ||
+      viewportHeight === 0 ||
+      pdfContainerWidth === 0 ||
+      viewportWidth === 0
+    ) {
       return 1;
     }
 
     let ratio = 1;
     switch (this._zoomScale) {
       case 'page-fit':
-        ratio = Math.min((pdfContainerHeight / viewportHeight), (pdfContainerWidth / viewportWidth));
+        ratio = Math.min(
+          pdfContainerHeight / viewportHeight,
+          pdfContainerWidth / viewportWidth
+        );
         break;
       case 'page-height':
-        ratio = (pdfContainerHeight / viewportHeight);
+        ratio = pdfContainerHeight / viewportHeight;
         break;
       case 'page-width':
       default:
-        ratio = (pdfContainerWidth / viewportWidth);
+        ratio = pdfContainerWidth / viewportWidth;
         break;
     }
 
     return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 
-  private getCurrentViewer(): any {
-    return this._showAll ? this.pdfMultiPageViewer : this.pdfSinglePageViewer;
-  }
-
   private resetPdfDocument() {
+    this.pdfLinkService.setDocument(this._pdf, null);
     this.pdfFindController.setDocument(this._pdf);
-
-    if (this._showAll) {
-      this.pdfSinglePageViewer.setDocument(null);
-      this.pdfSinglePageLinkService.setDocument(null);
-
-      this.pdfMultiPageViewer.setDocument(this._pdf);
-      this.pdfMultiPageLinkService.setDocument(this._pdf, null);
-    } else {
-      this.pdfMultiPageViewer.setDocument(null);
-      this.pdfMultiPageLinkService.setDocument(null);
-
-      this.pdfSinglePageViewer.setDocument(this._pdf);
-      this.pdfSinglePageLinkService.setDocument(this._pdf, null);
-    }
+    this.pdfViewer.setDocument(this._pdf);
   }
 
   private initialize(): void {
@@ -676,8 +593,8 @@ export class PdfViewerComponent
     }
 
     this.isInitialized = true;
-    this.setupMultiPageViewer();
-    this.setupSinglePageViewer();
+    this.initEventBus();
+    this.setupViewer();
   }
 
   private setupResizeListener(): void {
