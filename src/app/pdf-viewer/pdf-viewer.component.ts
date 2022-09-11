@@ -349,10 +349,11 @@ export class PdfViewerComponent
     if (this._pdf) {
       this._pdf.destroy();
       this._pdf = null;
-      this.pdfViewer.setDocument(null);
-      this.pdfLinkService.setDocument(null, null);
-      this.pdfFindController.setDocument(null);
     }
+
+    this.pdfViewer && this.pdfViewer.setDocument(null);
+    this.pdfLinkService && this.pdfLinkService.setDocument(null, null);
+    this.pdfFindController && this.pdfFindController.setDocument(null);
   }
 
   private getPDFLinkServiceConfig() {
