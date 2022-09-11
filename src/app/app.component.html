@@ -4,7 +4,7 @@
       <mat-icon>menu</mat-icon>
     </button>
 
-    <span class="title {{mobile? 'mob' : 'desk'}}" >ng2-pdf-viewer</span>
+    <span class="title {{mobile? 'mob' : 'desk'}}">ng2-pdf-viewer</span>
 
     <span class="description hide-md" *ngIf="!mobile">Angular 5+ Component to render PDF</span>
 
@@ -172,7 +172,7 @@
     <div class="mb">
       <mat-form-field>
         <input #queryInp matInput id="pdfQueryInput" type="text" placeholder="Search..." [value]="pdfQuery"
-          (input)="searchQueryChanged($event.target)" (keyup.enter)="searchQueryChanged(queryInp)">
+          (input)="searchQueryChanged($any($event.target).value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
         <mat-hint>Search in entire pdf</mat-hint>
       </mat-form-field>
     </div>
