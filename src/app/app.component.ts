@@ -208,28 +208,31 @@ export class AppComponent implements OnInit {
     console.log('(page-initialized)', e);
   }
 
-  searchQueryChanged(input: EventTarget | HTMLInputElement) {
-    if ((input as HTMLInputElement).value !== this.pdfQuery) {
-      this.pdfQuery = (input as HTMLInputElement).value;
-      this.pdfComponent.pdfFindController.executeCommand('find', {
-        query: this.pdfQuery,
-        highlightAll: true
-      });
-    } else {
-      this.pdfComponent.pdfFindController.executeCommand('findagain', {
-        query: this.pdfQuery,
-        highlightAll: true
-      });
-    }
+  /**
+   * Page change callback, which is called when a page is changed (called multiple times)
+   *
+   * @param e number
+   */
+  pageChange(e: number) {
+    console.log('(page-change)', e);
+  }
+
+  searchQueryChanged(newQuery: string) {
+    const type = newQuery !== this.pdfQuery ? '' : 'again';
+    this.pdfQuery = newQuery;
+
+    this.pdfComponent.eventBus.dispatch('find', {
+      type,
+      query: this.pdfQuery,
+      highlightAll: true,
+      caseSensitive: false,
+      phraseSearch: true,
+      // findPrevious: undefined,
+    });
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-
-    if (event.target.innerWidth <= 768)
-      this.mobile = true;
-    else
-      this.mobile = false;
-      
+    this.mobile = event.target.innerWidth <= 768;
   }
 }
