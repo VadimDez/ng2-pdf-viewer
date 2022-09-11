@@ -501,7 +501,8 @@ export class PdfViewerComponent
         : RenderTextMode.DISABLED,
       findController: this.pdfSinglePageFindController,
       renderer: 'canvas',
-			l10n: undefined,
+      l10n: undefined,
+      imageResourcesPath: this._imageResourcesPath,
     };
 
     this.pdfSinglePageViewer = new PDFJSViewer.PDFSinglePageViewer(pdfOptions);
