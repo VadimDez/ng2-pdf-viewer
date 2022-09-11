@@ -216,18 +216,17 @@ export class AppComponent implements OnInit {
   }
 
   searchQueryChanged(newQuery: string) {
-    if (newQuery !== this.pdfQuery) {
-      this.pdfQuery = newQuery;
-      this.pdfComponent.pdfFindController.executeCommand('find', {
-        query: this.pdfQuery,
-        highlightAll: true
-      });
-    } else {
-      this.pdfComponent.pdfFindController.executeCommand('findagain', {
-        query: this.pdfQuery,
-        highlightAll: true
-      });
-    }
+    const type = newQuery !== this.pdfQuery ? '' : 'again';
+    this.pdfQuery = newQuery;
+
+    this.pdfComponent.eventBus.dispatch('find', {
+      type,
+      query: this.pdfQuery,
+      highlightAll: true,
+      caseSensitive: false,
+      phraseSearch: true,
+      // findPrevious: undefined,
+    });
   }
 
   @HostListener('window:resize', ['$event'])
