@@ -346,6 +346,7 @@ export class PdfViewerComponent
     }
 
     if (this._pdf) {
+      this._latestScrolledPage = 0;
       this._pdf.destroy();
       this._pdf = null;
       this.pdfViewer.setDocument(null);
