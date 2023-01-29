@@ -8,7 +8,7 @@
     "start": "ng serve",
     "build": "ng build --configuration production=true",
     "build:stats": "ng build --stats-json",
-    "analyze": "webpack-bundle-analyzer dist/stats-es2015.json",
+    "analyze": "webpack-bundle-analyzer dist/stats.json",
     "test": "ng test --watch false",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "test:w": "ng test",
