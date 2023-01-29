@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- [[#943](https://github.com/VadimDez/ng2-pdf-viewer/pull/943)] - chore(deps): bump ejs and webpack-bundle-analyzer
+
 ## 9.1.3 - 21.11.2022
 - [[#947](https://github.com/VadimDez/ng2-pdf-viewer/issues/947)] - Second pdf loaded not navigate on the second page with [show-all]="false"
 - [[#948](https://github.com/VadimDez/ng2-pdf-viewer/pull/948)] - fix #947 : reset this._latestScrolledPage on clear method
