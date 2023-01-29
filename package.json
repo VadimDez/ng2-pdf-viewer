@@ -46,7 +46,7 @@
     "pdfjs-dist": "~2.14.305"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~13.1.4",
+    "@angular-devkit/build-angular": "~13.3.10",
     "@angular/animations": "^13.1.3",
     "@angular/cdk": "^13.1.3",
     "@angular/cli": "~13.1.4",
