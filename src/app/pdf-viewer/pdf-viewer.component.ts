@@ -227,14 +227,19 @@ export class PdfViewerComponent
 
     let pdfWorkerSrc: string;
 
-    if (
+    const pdfJsVersion = (PDFJS as any).version;
+    const versionSpecificPdfWorkerUrl = window[`pdfWorkerSrc${pdfJsVersion}`];
+
+    if (versionSpecificPdfWorkerUrl) {
+      pdfWorkerSrc = versionSpecificPdfWorkerUrl;
+    } else if (
       window.hasOwnProperty('pdfWorkerSrc') &&
       typeof (window as any).pdfWorkerSrc === 'string' &&
       (window as any).pdfWorkerSrc
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${(PDFJS as any).version
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion
         }/legacy/build/pdf.worker.min.js`;
     }
 
