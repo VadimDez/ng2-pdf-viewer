@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production=true",
+    "build": "ng build --configuration production",
     "build:stats": "ng build --stats-json",
     "analyze": "webpack-bundle-analyzer dist/stats.json",
     "test": "ng test --watch false",

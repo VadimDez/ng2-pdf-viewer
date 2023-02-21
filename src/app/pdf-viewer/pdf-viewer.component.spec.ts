@@ -4,6 +4,9 @@ import { Component } from '@angular/core';
 import { PdfViewerComponent } from './pdf-viewer.component';
 import { PdfViewerModule } from './pdf-viewer.module';
 
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import * as PDFJS from 'pdfjs-dist/build/pdf';
+
 @Component({
   template: `
     <pdf-viewer></pdf-viewer>
@@ -140,4 +143,51 @@ describe('AppComponent', () => {
       });
     });
   });
+
+  describe('pdf.worker location', () => {
+    const curPdfJsVersion = (PDFJS as any).version;
+
+    beforeEach(() => {
+      (window as any).pdfWorkerSrc = undefined;
+      (window as any)["pdfWorkerSrc1.2.3"] = undefined;
+      (window as any)[`pdfWorkerSrc${curPdfJsVersion}`] = undefined;
+
+    });
+
+    it('should default to the cdn', () => {
+      pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+      pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+
+      expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
+        }/legacy/build/pdf.worker.min.js`);
+    })
+
+    it('should support global override', () => {
+      (window as any).pdfWorkerSrc = 'globaloverride';
+
+      pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+      pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+
+      expect(GlobalWorkerOptions.workerSrc).toBe('globaloverride');
+    })
+
+    it('should default to the cdn when version override does not match version', () => {
+      (window as any)["pdfWorkerSrc1.2.3"] = 'globaloverride';
+
+      pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+      pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+
+      expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
+        }/legacy/build/pdf.worker.min.js`);
+    })
+
+    it('should take version override with version match', () => {
+      (window as any)[`pdfWorkerSrc${curPdfJsVersion}`] = 'globaloverride';
+
+      pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+      pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+
+      expect(GlobalWorkerOptions.workerSrc).toBe(`globaloverride`);
+    })
+  })
 });
