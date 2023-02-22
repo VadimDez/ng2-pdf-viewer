@@ -18,7 +18,7 @@
 </mat-toolbar>
 
 <mat-drawer-container class="example-container">
-  <mat-drawer [mode]="mobile ? 'push' : 'side'" #drawer opened>
+  <mat-drawer [mode]="mobile ? 'push' : 'side'" #drawer [opened]="!mobile">
     <mat-form-field class="mb">
       <input matInput type="text" placeholder="Set URL of the PDF file" [(ngModel)]="pdfSrc">
     </mat-form-field>
