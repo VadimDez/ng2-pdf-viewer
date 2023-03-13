@@ -34,7 +34,7 @@ import type {
 import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer';
 
 if (!isSSR()) {
-  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
+  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.NONE);
 }
 
 export enum RenderTextMode {
