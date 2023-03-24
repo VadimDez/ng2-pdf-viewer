@@ -497,6 +497,10 @@ export class PdfViewerComponent
 
     this.clear();
 
+    if (!this.isInitialized) {
+      this.initialize();
+    }
+
     this.setupViewer();
 
     this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
