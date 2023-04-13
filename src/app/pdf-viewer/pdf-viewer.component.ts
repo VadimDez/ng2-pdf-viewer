@@ -320,7 +320,7 @@ export class PdfViewerComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (page: PDFPageProxy) => {
-          const rotation = this._rotation || page.rotate;
+          const rotation = this._rotation + page.rotate;
           const viewportWidth =
             (page as any).getViewport({
               scale: this._zoom,
