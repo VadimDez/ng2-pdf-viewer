@@ -509,7 +509,7 @@ onFileSelected() {
 
 ## Set custom path to the worker
 
-By default the `worker` is loaded from `cdnjs.cloudflare.com`.
+By default the `worker` is loaded from `cdn.jsdelivr.net`.
 
 In your code update `path` to the worker to be for example `/pdf.worker.js`
 ```typescript
