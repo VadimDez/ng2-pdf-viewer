@@ -40,7 +40,7 @@
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "dependencies": {
     "pdfjs-dist": "~2.14.305",
-    "tslib": "^2.3.1"
+    "tslib": "^2.5.3"
   },
   "peerDependencies": {
     "pdfjs-dist": "~2.14.305"
