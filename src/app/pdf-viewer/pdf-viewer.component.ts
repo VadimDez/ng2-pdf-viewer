@@ -547,7 +547,7 @@ export class PdfViewerComponent
     if (this._stickToPage) {
       setTimeout(() => {
         this.pdfViewer.currentPageNumber = this._page;
-      });
+      }, 100);
     }
 
     this.updateSize();
