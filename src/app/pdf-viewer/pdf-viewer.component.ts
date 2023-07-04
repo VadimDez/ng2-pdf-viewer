@@ -426,7 +426,6 @@ export class PdfViewerComponent
         ? this._renderTextMode
         : RenderTextMode.DISABLED,
       findController: this.pdfFindController,
-      renderer: 'canvas',
       l10n: undefined,
       imageResourcesPath: this._imageResourcesPath,
     };
