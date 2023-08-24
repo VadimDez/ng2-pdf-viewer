@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
-import * as PDFJS from 'pdfjs-dist/build/pdf';
+import * as PDFJS from 'pdfjs-dist';
 import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
 
 import { createEventBus } from '../utils/event-bus-utils';
@@ -29,7 +29,8 @@ import type {
   PDFProgressData,
   PDFDocumentProxy,
   PDFDocumentLoadingTask,
-  PDFViewerOptions
+  PDFViewerOptions,
+  ZoomScale
 } from './typings';
 import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer';
 
@@ -57,12 +58,12 @@ export class PdfViewerComponent
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
 
-  @ViewChild('pdfViewerContainer') pdfViewerContainer;
+  @ViewChild('pdfViewerContainer') pdfViewerContainer!: ElementRef<HTMLDivElement>;
 
-  public eventBus: PDFJSViewer.EventBus;
-  public pdfLinkService: PDFJSViewer.PDFLinkService;
-  public pdfFindController: PDFJSViewer.PDFFindController;
-  public pdfViewer: PDFJSViewer.PDFViewer | PDFSinglePageViewer;
+  public eventBus!: PDFJSViewer.EventBus;
+  public pdfLinkService!: PDFJSViewer.PDFLinkService;
+  public pdfFindController!: PDFJSViewer.PDFFindController;
+  public pdfViewer!: PDFJSViewer.PDFViewer | PDFSinglePageViewer;
 
   private isVisible = false;
 
@@ -73,28 +74,28 @@ export class PdfViewerComponent
   private _imageResourcesPath =
     typeof PDFJS !== 'undefined'
       ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/web/images/`
-      : null;
+      : undefined;
   private _renderText = true;
   private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
   private _stickToPage = false;
   private _originalSize = true;
-  private _pdf: PDFDocumentProxy;
+  private _pdf: PDFDocumentProxy | undefined;
   private _page = 1;
   private _zoom = 1;
-  private _zoomScale: 'page-height' | 'page-fit' | 'page-width' = 'page-width';
+  private _zoomScale: ZoomScale = 'page-width';
   private _rotation = 0;
   private _showAll = true;
   private _canAutoResize = true;
   private _fitToPage = false;
   private _externalLinkTarget = 'blank';
   private _showBorders = false;
-  private lastLoaded: string | Uint8Array | PDFSource;
-  private _latestScrolledPage: number;
+  private lastLoaded!: string | Uint8Array | PDFSource | null;
+  private _latestScrolledPage!: number;
 
   private resizeTimeout: number | null = null;
   private pageScrollTimeout: number | null = null;
   private isInitialized = false;
-  private loadingTask: PDFDocumentLoadingTask;
+  private loadingTask?: PDFDocumentLoadingTask | null;
   private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
@@ -104,7 +105,7 @@ export class PdfViewerComponent
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
-  @Input() src: string | Uint8Array | PDFSource;
+  @Input() src?: string | Uint8Array | PDFSource;
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -112,7 +113,7 @@ export class PdfViewerComponent
   }
 
   @Input('page')
-  set page(_page) {
+  set page(_page: number | string | any) {
     _page = parseInt(_page, 10) || 1;
     const originalPage = _page;
 
@@ -165,7 +166,7 @@ export class PdfViewerComponent
   }
 
   @Input('zoom-scale')
-  set zoomScale(value: 'page-height' | 'page-fit' | 'page-width') {
+  set zoomScale(value: ZoomScale) {
     this._zoomScale = value;
   }
 
@@ -227,8 +228,8 @@ export class PdfViewerComponent
 
     let pdfWorkerSrc: string;
 
-    const pdfJsVersion = (PDFJS as any).version;
-    const versionSpecificPdfWorkerUrl = window[`pdfWorkerSrc${pdfJsVersion}`];
+    const pdfJsVersion: string = (PDFJS as any).version;
+    const versionSpecificPdfWorkerUrl: string = (window as any)[`pdfWorkerSrc${pdfJsVersion}`];
 
     if (versionSpecificPdfWorkerUrl) {
       pdfWorkerSrc = versionSpecificPdfWorkerUrl;
@@ -313,7 +314,7 @@ export class PdfViewerComponent
 
   public updateSize() {
     from(
-      this._pdf.getPage(
+      this._pdf!.getPage(
         this.pdfViewer.currentPageNumber
       ) as unknown as Promise<PDFPageProxy>
     )
@@ -353,11 +354,12 @@ export class PdfViewerComponent
     if (this._pdf) {
       this._latestScrolledPage = 0;
       this._pdf.destroy();
-      this._pdf = null;
-      this.pdfViewer.setDocument(null);
-      this.pdfLinkService.setDocument(null, null);
-      this.pdfFindController.setDocument(null);
+      this._pdf = undefined;
     }
+
+    this.pdfViewer && this.pdfViewer.setDocument(null as any);
+    this.pdfLinkService && this.pdfLinkService.setDocument(null, null);
+    this.pdfFindController && this.pdfFindController.setDocument(null as any);
   }
 
   private getPDFLinkServiceConfig() {
@@ -387,7 +389,7 @@ export class PdfViewerComponent
 
     fromEvent(this.eventBus, 'pagechanging')
       .pipe(takeUntil(this.destroy$))
-      .subscribe(({ pageNumber }) => {
+      .subscribe(({ pageNumber }: any) => {
         if (this.pageScrollTimeout) {
           clearTimeout(this.pageScrollTimeout);
         }
@@ -419,15 +421,14 @@ export class PdfViewerComponent
   private getPDFOptions(): PDFViewerOptions {
     return {
       eventBus: this.eventBus,
-      container: this.element.nativeElement.querySelector('div'),
+      container: this.element.nativeElement.querySelector('div')!,
       removePageBorders: !this._showBorders,
       linkService: this.pdfLinkService,
       textLayerMode: this._renderText
         ? this._renderTextMode
         : RenderTextMode.DISABLED,
       findController: this.pdfFindController,
-      renderer: 'canvas',
-      l10n: undefined,
+      l10n: new PDFJSViewer.GenericL10n('en'),
       imageResourcesPath: this._imageResourcesPath,
     };
   }
@@ -452,8 +453,8 @@ export class PdfViewerComponent
       return 1;
     }
 
-    if (page > this._pdf.numPages) {
-      return this._pdf.numPages;
+    if (page > this._pdf!.numPages) {
+      return this._pdf!.numPages;
     }
 
     return page;
@@ -501,13 +502,13 @@ export class PdfViewerComponent
 
     this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
 
-    this.loadingTask.onProgress = (progressData: PDFProgressData) => {
+    this.loadingTask!.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
     };
 
     const src = this.src;
 
-    from(this.loadingTask.promise as Promise<PDFDocumentProxy>)
+    from(this.loadingTask!.promise as Promise<PDFDocumentProxy>)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (pdf) => {
@@ -589,8 +590,8 @@ export class PdfViewerComponent
 
   private resetPdfDocument() {
     this.pdfLinkService.setDocument(this._pdf, null);
-    this.pdfFindController.setDocument(this._pdf);
-    this.pdfViewer.setDocument(this._pdf);
+    this.pdfFindController.setDocument(this._pdf!);
+    this.pdfViewer.setDocument(this._pdf!);
   }
 
   private initialize(): void {

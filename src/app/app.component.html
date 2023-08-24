@@ -4,7 +4,7 @@
       <mat-icon>menu</mat-icon>
     </button>
 
-    <span class="title {{mobile? 'mob' : 'desk'}}" >ng2-pdf-viewer</span>
+    <span class="title {{mobile? 'mob' : 'desk'}}">ng2-pdf-viewer</span>
 
     <span class="description hide-md" *ngIf="!mobile">Angular 5+ Component to render PDF</span>
 
@@ -19,7 +19,8 @@
 
 <mat-drawer-container class="example-container">
   <mat-drawer [mode]="mobile ? 'push' : 'side'" #drawer [opened]="!mobile">
-    <mat-form-field class="mb">
+    <mat-form-field class="mb full-width">
+      <mat-label>Set URL of the PDF file</mat-label>
       <input matInput type="text" placeholder="Set URL of the PDF file" [(ngModel)]="pdfSrc">
     </mat-form-field>
 
@@ -64,7 +65,7 @@
       </mat-slide-toggle>
     </div>
 
-    <mat-form-field *ngIf="!originalSize">
+    <mat-form-field *ngIf="!originalSize" class="full-width">
       <mat-label>Select an option</mat-label>
       <mat-select [(value)]="zoomScale">
         <mat-option value="page-width">Page Width</mat-option>
@@ -73,7 +74,7 @@
       </mat-select>
     </mat-form-field>
 
-    <div class="mb">
+    <div class="mb full-width">
       <button (click)="incrementZoom(-0.1)" mat-button type="button">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -170,9 +171,10 @@
     </div>
 
     <div class="mb">
-      <mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Search</mat-label>
         <input #queryInp matInput id="pdfQueryInput" type="text" placeholder="Search..." [value]="pdfQuery"
-          (input)="searchQueryChanged($event.target.value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
+          (input)="searchQueryChanged($any($event.target).value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
         <mat-hint>Search in entire pdf</mat-hint>
       </mat-form-field>
     </div>
