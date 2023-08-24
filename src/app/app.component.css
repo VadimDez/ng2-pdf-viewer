@@ -16,7 +16,7 @@ mat-toolbar {
 }
 
 .page-number {
-  width: 50px;
+  width: 80px;
 }
 
 .mb {
@@ -52,7 +52,7 @@ pdf-viewer {
   width: 0;
   max-width: 100%;
   background-color: #3f51b5;
-  transition: .5s width;
+  transition: 0.5s width;
 }
 
 .outline-list li a {
@@ -96,4 +96,8 @@ pdf-viewer {
 a.button {
   display: flex;
   justify-content: space-evenly;
+}
+
+.full-width {
+  width: 100%;
 }
