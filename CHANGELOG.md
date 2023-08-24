@@ -3,7 +3,7 @@
 ## 10.0.0 - 16.04.2023
 
 - [[#915](https://github.com/VadimDez/ng2-pdf-viewer/pull/915)] - Update to Angular 16
-- in [[#915](https://github.com/VadimDez/ng2-pdf-viewer/pull/915)] also updated pdfjs-dist version to 2.14.305
+- in [[#915](https://github.com/VadimDez/ng2-pdf-viewer/pull/915)] also updated pdfjs-dist version to 2.16.105
 
 ## 9.1.5 - 16.04.2023
 
