@@ -5,14 +5,14 @@ import { PdfViewerComponent } from './pdf-viewer.component';
 import { PdfViewerModule } from './pdf-viewer.module';
 
 import { GlobalWorkerOptions } from 'pdfjs-dist';
-import * as PDFJS from 'pdfjs-dist/build/pdf';
+import * as PDFJS from 'pdfjs-dist';
 
 @Component({
   template: `
     <pdf-viewer></pdf-viewer>
   `
 })
-class TestComponent {}
+class TestComponent { }
 
 describe('AppComponent', () => {
   let pdfViewerFixture: ComponentFixture<PdfViewerComponent>;
@@ -23,7 +23,7 @@ describe('AppComponent', () => {
   function setPdf(numPages: number) {
     (pdfViewer as any)._pdf = {
       numPages,
-      destroy: () => {}
+      destroy: () => { }
     };
   }
 
@@ -92,7 +92,7 @@ describe('AppComponent', () => {
     const cMapUrl = 'assets/';
 
     it('should check default url', () => {
-      const PDFJS = require('pdfjs-dist/build/pdf');
+      const PDFJS = require('pdfjs-dist');
 
       expect((pdfViewer as any)._cMapsUrl).toBe(
         `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
@@ -100,7 +100,7 @@ describe('AppComponent', () => {
     });
 
     it('should return src', () => {
-      pdfViewer.cMapsUrl = null;
+      pdfViewer.cMapsUrl = "";
       pdfViewer.src = src;
 
       expect((pdfViewer as any).getDocumentParams()).toBe(src);

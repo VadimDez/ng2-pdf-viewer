@@ -1,4 +1,4 @@
-export function assign(obj: Object, prop: string, value: any) {
+export function assign(obj: any, prop: string, value: any) {
   obj[prop] = value;
 }
 

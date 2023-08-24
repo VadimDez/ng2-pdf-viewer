@@ -12,7 +12,6 @@ import {
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 
 @Component({
-  moduleId: module.id,
   selector: 'pdf-viewer-app',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
@@ -28,19 +27,19 @@ export class AppComponent implements OnInit {
   originalSize = false;
   pdf: any;
   renderText = true;
-  progressData: PDFProgressData;
+  progressData!: PDFProgressData;
   isLoaded = false;
   stickToPage = false;
   showAll = true;
   autoresize = true;
   fitToPage = false;
-  outline: any[];
+  outline!: any[];
   isOutlineShown = false;
   pdfQuery = '';
   mobile = false;
 
   @ViewChild(PdfViewerComponent)
-  private pdfComponent: PdfViewerComponent;
+  private pdfComponent!: PdfViewerComponent;
 
   ngOnInit() {
     if (window.screen.width <= 768) {
@@ -232,7 +231,7 @@ export class AppComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
-    this.mobile = event.target.innerWidth <= 768;
+  onResize(event: Event) {
+    this.mobile = (event.target as Window).innerWidth <= 768;
   }
 }
