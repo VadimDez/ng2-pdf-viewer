@@ -22,7 +22,8 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "skipLibCheck": true, // see https://github.com/mozilla/pdf.js/issues/16705
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

@@ -46,7 +46,7 @@ function attachDOMEventsToEventBus(
     .subscribe(({ pageNumber, source }: any) => {
       const event = document.createEvent('CustomEvent');
       event.initCustomEvent('textlayerrendered', true, true, { pageNumber });
-      source.textLayerDiv.dispatchEvent(event);
+      source.textLayerDiv?.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagechanging')

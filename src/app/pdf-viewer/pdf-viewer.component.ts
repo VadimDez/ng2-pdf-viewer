@@ -288,12 +288,7 @@ export class PdfViewerComponent
     if ('src' in changes) {
       this.loadPDF();
     } else if (this._pdf) {
-      if ('renderText' in changes) {
-        this.pdfViewer.textLayerMode = this._renderText
-          ? this._renderTextMode
-          : RenderTextMode.DISABLED;
-        this.resetPdfDocument();
-      } else if ('showAll' in changes) {
+      if ('renderText' in changes || 'showAll' in changes) {
         this.setupViewer();
         this.resetPdfDocument();
       }
@@ -341,7 +336,8 @@ export class PdfViewerComponent
             stickToPage = !this._stickToPage;
           }
 
-          this.pdfViewer._setScale(scale, stickToPage);
+          this.pdfViewer.currentScale = scale;
+          if (stickToPage) this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
         }
       });
   }
