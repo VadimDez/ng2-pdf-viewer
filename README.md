@@ -30,13 +30,13 @@
 
 ## Overview
 
-* [Install](README.md#install)
-* [Usage](README.md#usage)
-* [Options](README.md#options)
-* [Render local PDF file](README.md#render-local-pdf-file)
-* [Set custom path to the worker](README.md#set-custom-path-to-the-worker)
-* [Search in the PDF](README.md#search-in-the-pdf)
-* [Contribute](README.md#contribute)
+* [Install](#install)
+* [Usage](#usage)
+* [Options](#options)
+* [Render local PDF file](#render-local-pdf-file)
+* [Set custom path to the worker](#set-custom-path-to-the-worker)
+* [Search in the PDF](#search-in-the-pdf)
+* [Contribute](#contribute)
 
 ## Install
 
