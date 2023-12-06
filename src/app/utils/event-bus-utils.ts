@@ -12,6 +12,21 @@ import type { EventBus } from 'pdfjs-dist/web/pdf_viewer';
 //   _off(eventName: any, listener: any, options?: null): void;
 // }
 
+interface CustomScaleChangeEvent extends UIEvent {
+  scale?: number;
+  presetValue?: string;
+}
+
+interface CustomUpdateViewAreaUIEvent extends UIEvent {
+  location?: any;
+}
+
+interface CustomPageChangingEvent extends CustomEvent {
+  detail: {
+    pageNumber: number;
+  };
+}
+
 export function createEventBus(pdfJsViewer: any, destroy$: Subject<void>) {
   const globalEventBus: EventBus = new pdfJsViewer.EventBus();
   attachDOMEventsToEventBus(globalEventBus, destroy$);
@@ -25,18 +40,24 @@ function attachDOMEventsToEventBus(
   fromEvent(eventBus, 'documentload')
     .pipe(takeUntil(destroy$))
     .subscribe(() => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('documentload', true, true, {});
+      const event = new CustomEvent('documentload', {
+        bubbles: true,
+        cancelable: true,
+        detail: {}
+      });
       window.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagerendered')
     .pipe(takeUntil(destroy$))
     .subscribe(({ pageNumber, cssTransform, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('pagerendered', true, true, {
-        pageNumber,
-        cssTransform,
+      const event = new CustomEvent('pagerendered', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          pageNumber,
+          cssTransform,
+        }
       });
       source.div.dispatchEvent(event);
     });
@@ -44,55 +65,72 @@ function attachDOMEventsToEventBus(
   fromEvent(eventBus, 'textlayerrendered')
     .pipe(takeUntil(destroy$))
     .subscribe(({ pageNumber, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('textlayerrendered', true, true, { pageNumber });
+      const event = new CustomEvent('textlayerrendered', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          pageNumber
+        }
+      });
       source.textLayerDiv.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagechanging')
     .pipe(takeUntil(destroy$))
     .subscribe(({ pageNumber, source }: any) => {
-      const event = document.createEvent('UIEvents') as any;
-      event.initEvent('pagechanging', true, true);
-      /* tslint:disable:no-string-literal */
-      event['pageNumber'] = pageNumber;
+      const event: CustomPageChangingEvent = new CustomEvent('pagechanging', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          pageNumber
+        }
+      });
+      event.detail.pageNumber = pageNumber;
       source.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagesinit')
     .pipe(takeUntil(destroy$))
     .subscribe(({ source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('pagesinit', true, true, null);
+      const event = new CustomEvent('pagesinit', {
+        bubbles: true,
+        cancelable: true,
+        detail: null
+      });
       source.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagesloaded')
     .pipe(takeUntil(destroy$))
     .subscribe(({ pagesCount, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('pagesloaded', true, true, { pagesCount });
+      const event = new CustomEvent('pagesloaded', {
+        bubbles: true,
+        cancelable: true,
+        detail: { pagesCount }
+      });
       source.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'scalechange')
     .pipe(takeUntil(destroy$))
     .subscribe(({ scale, presetValue, source }: any) => {
-      const event = document.createEvent('UIEvents') as any;
-      event.initEvent('scalechange', true, true);
-      /* tslint:disable:no-string-literal */
-      event['scale'] = scale;
-      /* tslint:disable:no-string-literal */
-      event['presetValue'] = presetValue;
+      const event: CustomScaleChangeEvent = new UIEvent('scalechange', {
+        bubbles: true,
+        cancelable: true
+      });
+      event.scale = scale;
+      event.presetValue = presetValue;
       source.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'updateviewarea')
     .pipe(takeUntil(destroy$))
     .subscribe(({ location, source }: any) => {
-      const event = document.createEvent('UIEvents') as any;
-      event.initEvent('updateviewarea', true, true);
-      event['location'] = location;
+      const event: CustomUpdateViewAreaUIEvent = new UIEvent('updateviewarea', {
+        bubbles: true,
+        cancelable: true
+      });
+      event.location = location;
       source.container.dispatchEvent(event);
     });
 
@@ -111,13 +149,16 @@ function attachDOMEventsToEventBus(
         if (source === window) {
           return; // event comes from FirefoxCom, no need to replicate
         }
-        const event = document.createEvent('CustomEvent');
-        event.initCustomEvent('find' + type, true, true, {
-          query,
-          phraseSearch,
-          caseSensitive,
-          highlightAll,
-          findPrevious,
+        const event = new CustomEvent('find' + type, {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            query,
+            phraseSearch,
+            caseSensitive,
+            highlightAll,
+            findPrevious,
+          }
         });
         window.dispatchEvent(event);
       }
@@ -126,9 +167,12 @@ function attachDOMEventsToEventBus(
   fromEvent(eventBus, 'attachmentsloaded')
     .pipe(takeUntil(destroy$))
     .subscribe(({ attachmentsCount, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('attachmentsloaded', true, true, {
-        attachmentsCount,
+      const event = new CustomEvent('attachmentsloaded', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          attachmentsCount,
+        }
       });
       source.container.dispatchEvent(event);
     });
@@ -136,34 +180,46 @@ function attachDOMEventsToEventBus(
   fromEvent(eventBus, 'sidebarviewchanged')
     .pipe(takeUntil(destroy$))
     .subscribe(({ view, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('sidebarviewchanged', true, true, { view });
+      const event = new CustomEvent('sidebarviewchanged', {
+        bubbles: true,
+        cancelable: true,
+        detail: { view }
+      });
       source.outerContainer.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'pagemode')
     .pipe(takeUntil(destroy$))
     .subscribe(({ mode, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('pagemode', true, true, { mode });
+      const event = new CustomEvent('pagemode', {
+        bubbles: true,
+        cancelable: true,
+        detail: { mode }
+      });
       source.pdfViewer.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'namedaction')
     .pipe(takeUntil(destroy$))
     .subscribe(({ action, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('namedaction', true, true, { action });
+      const event = new CustomEvent('namedaction', {
+        bubbles: true,
+        cancelable: true,
+        detail: { action }
+      });
       source.pdfViewer.container.dispatchEvent(event);
     });
 
   fromEvent(eventBus, 'presentationmodechanged')
     .pipe(takeUntil(destroy$))
     .subscribe(({ active, switchInProgress }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('presentationmodechanged', true, true, {
-        active,
-        switchInProgress,
+      const event = new CustomEvent('presentationmodechanged', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          active,
+          switchInProgress,
+        }
       });
       window.dispatchEvent(event);
     });
@@ -171,8 +227,11 @@ function attachDOMEventsToEventBus(
   fromEvent(eventBus, 'outlineloaded')
     .pipe(takeUntil(destroy$))
     .subscribe(({ outlineCount, source }: any) => {
-      const event = document.createEvent('CustomEvent');
-      event.initCustomEvent('outlineloaded', true, true, { outlineCount });
+      const event = new CustomEvent('outlineloaded', {
+        bubbles: true,
+        cancelable: true,
+        detail: { outlineCount }
+      });
       source.container.dispatchEvent(event);
     });
 }
