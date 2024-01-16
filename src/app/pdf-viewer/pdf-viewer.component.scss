@@ -907,7 +907,7 @@
   }
 
   .pdfViewer.removePageBorders .page {
-    margin: 0 auto 10px;
+    margin: var(--removePageBorders-margin, 0 auto 10px);
     border: none;
   }
 
