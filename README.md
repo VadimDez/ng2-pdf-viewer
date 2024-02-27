@@ -534,7 +534,7 @@ Use `eventBus` for the search functionality.
 In your component's ts file:
 
 * Add reference to `pdf-viewer` component,
-* then when needed execute `search()` linke this:
+* then when needed execute `search()` like this:
 
 ```typescript
 @ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
