@@ -2,7 +2,7 @@
 
 ## 10.1.0 - 13.05.2024
 
-- [[#915](https://github.com/VadimDez/ng2-pdf-viewer/pull/1027)] - Chore: Update pdfjs-dist to 3.10.111
+- [[#1027](https://github.com/VadimDez/ng2-pdf-viewer/pull/1027)] - Chore: Update pdfjs-dist to 3.10.111
 
 ## 10.0.0 - 16.04.2023
 
