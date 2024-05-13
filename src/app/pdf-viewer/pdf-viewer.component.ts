@@ -466,8 +466,9 @@ export class PdfViewerComponent
     const params: any = {
       cMapUrl: this._cMapsUrl,
       cMapPacked: true,
-      enableXfa: true
+      enableXfa: true,
     };
+    params.isEvalSupported = false; // http://cve.org/CVERecord?id=CVE-2024-4367
 
     if (srcType === 'string') {
       params.url = this.src;
