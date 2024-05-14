@@ -1,5 +1,10 @@
 # Changelog
 
+## 10.1.0 - 14.05.2024
+
+- [[#1092](https://github.com/VadimDez/ng2-pdf-viewer/pull/1092)] - Chore: update pdfjs to 3.11.174, resolve CVE
+- [[#1088](https://github.com/VadimDez/ng2-pdf-viewer/issues/1088)] - PDF.js vulnerable to arbitrary JavaScript execution upon opening a malicious PDF
+
 ## 10.1.0 - 13.05.2024
 
 - [[#1027](https://github.com/VadimDez/ng2-pdf-viewer/pull/1027)] - Chore: Update pdfjs-dist to 3.10.111
