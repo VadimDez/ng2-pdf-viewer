@@ -114,7 +114,8 @@ describe('AppComponent', () => {
         url: src,
         cMapUrl,
         cMapPacked: true,
-        enableXfa: true
+        enableXfa: true,
+        isEvalSupported: false,
       });
     });
 
@@ -126,7 +127,8 @@ describe('AppComponent', () => {
         url: src,
         cMapUrl,
         cMapPacked: true,
-        enableXfa: true
+        enableXfa: true,
+        isEvalSupported: false,
       });
     });
 
@@ -139,7 +141,8 @@ describe('AppComponent', () => {
         url: srcUrl,
         cMapUrl,
         cMapPacked: true,
-        enableXfa: true
+        enableXfa: true,
+        isEvalSupported: false,
       });
     });
   });
