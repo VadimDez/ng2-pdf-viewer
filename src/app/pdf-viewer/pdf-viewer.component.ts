@@ -92,7 +92,6 @@ export class PdfViewerComponent
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
-  private resizeTimeout: number | null = null;
   private pageScrollTimeout: number | null = null;
   private isInitialized = false;
   private loadingTask?: PDFDocumentLoadingTask | null;
@@ -426,7 +425,7 @@ export class PdfViewerComponent
       findController: this.pdfFindController,
       l10n: new PDFJSViewer.GenericL10n('en'),
       imageResourcesPath: this._imageResourcesPath,
-      annotationEditorMode: PDFJS.AnnotationEditorType.DISABLE,      
+      annotationEditorMode: PDFJS.AnnotationEditorType.DISABLE,
     };
   }
 
