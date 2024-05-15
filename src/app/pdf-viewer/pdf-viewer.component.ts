@@ -426,6 +426,7 @@ export class PdfViewerComponent
       findController: this.pdfFindController,
       l10n: new PDFJSViewer.GenericL10n('en'),
       imageResourcesPath: this._imageResourcesPath,
+      annotationEditorMode: PDFJS.AnnotationEditorType.DISABLE,      
     };
   }
 
