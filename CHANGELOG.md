@@ -1,10 +1,10 @@
 # Changelog
 
-## 10.1.0 - 15.05.2024
+## 10.2.1 - 15.05.2024
 
 - [[#1096](https://github.com/VadimDez/ng2-pdf-viewer/pull/1096)] - Explicitely switch AnnotationEditor off
 
-## 10.1.0 - 14.05.2024
+## 10.2.0 - 14.05.2024
 
 - [[#1092](https://github.com/VadimDez/ng2-pdf-viewer/pull/1092)] - Chore: update pdfjs to 3.11.174, resolve CVE
 - [[#1088](https://github.com/VadimDez/ng2-pdf-viewer/issues/1088)] - PDF.js vulnerable to arbitrary JavaScript execution upon opening a malicious PDF
