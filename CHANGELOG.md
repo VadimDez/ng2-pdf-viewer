@@ -1,5 +1,10 @@
 # Changelog
 
+## 10.2.2 - 16.05.2024
+
+- [[#1098](https://github.com/VadimDez/ng2-pdf-viewer/pull/1098)] - Fix #1097: delay scale and scroll ops until the viewer has the pages initialized
+- [[#1097](https://github.com/VadimDez/ng2-pdf-viewer/issues/1097)] - scrollPageIntoView: "1" is not a valid pageNumber parameter
+
 ## 10.2.1 - 15.05.2024
 
 - [[#1096](https://github.com/VadimDez/ng2-pdf-viewer/pull/1096)] - Explicitely switch AnnotationEditor off
