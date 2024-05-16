@@ -310,14 +310,14 @@ export class PdfViewerComponent
     from(
       this._pdf!.getPage(
         this.pdfViewer.currentPageNumber
-      ) as unknown as Promise<PDFPageProxy>
+      )
     )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (page: PDFPageProxy) => {
           const rotation = this._rotation + page.rotate;
           const viewportWidth =
-            (page as any).getViewport({
+            page.getViewport({
               scale: this._zoom,
               rotation
             }).width * PdfViewerComponent.CSS_UNITS;
@@ -330,13 +330,17 @@ export class PdfViewerComponent
             (this._fitToPage &&
               viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
           ) {
-            const viewPort = (page as any).getViewport({ scale: 1, rotation });
+            const viewPort = page.getViewport({ scale: 1, rotation });
             scale = this.getScale(viewPort.width, viewPort.height);
             stickToPage = !this._stickToPage;
           }
 
-          this.pdfViewer.currentScale = scale;
-          if (stickToPage) this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
+          // delay to ensure that pages are ready
+          this.pdfViewer.pagesPromise?.then(() => {
+            this.pdfViewer.currentScale = scale;
+            if (stickToPage)
+              this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
+          });
         }
       });
   }
