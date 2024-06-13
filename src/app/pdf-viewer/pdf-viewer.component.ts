@@ -18,7 +18,7 @@ import {
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
-import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
+import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer.mjs';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
@@ -32,10 +32,11 @@ import type {
   PDFViewerOptions,
   ZoomScale
 } from './typings';
-import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer.mjs';
+import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
 
 if (!isSSR()) {
-  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
+  assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
 }
 
 export enum RenderTextMode {
@@ -240,10 +241,10 @@ export class PdfViewerComponent
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
       pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion
-        }/legacy/build/pdf.worker.min.js`;
+        }/legacy/build/pdf.worker.min.mjs`;
     }
 
-    assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
+    assign(GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -501,7 +502,7 @@ export class PdfViewerComponent
 
     this.setupViewer();
 
-    this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
+    this.loadingTask = getDocument(this.getDocumentParams());
 
     this.loadingTask!.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
