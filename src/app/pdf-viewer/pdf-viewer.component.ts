@@ -32,11 +32,9 @@ import type {
   PDFViewerOptions,
   ZoomScale
 } from './typings';
-import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer.mjs';
-import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
 
 if (!isSSR()) {
-  assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
+  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
 }
 
 export enum RenderTextMode {
@@ -64,7 +62,7 @@ export class PdfViewerComponent
   public eventBus!: PDFJSViewer.EventBus;
   public pdfLinkService!: PDFJSViewer.PDFLinkService;
   public pdfFindController!: PDFJSViewer.PDFFindController;
-  public pdfViewer!: PDFJSViewer.PDFViewer | PDFSinglePageViewer;
+  public pdfViewer!: PDFJSViewer.PDFViewer | PDFJSViewer.PDFSinglePageViewer;
 
   private isVisible = false;
 
@@ -244,7 +242,7 @@ export class PdfViewerComponent
         }/legacy/build/pdf.worker.min.mjs`;
     }
 
-    assign(GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
+    assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -299,7 +297,7 @@ export class PdfViewerComponent
         }
 
         // New form of page changing: The viewer will now jump to the specified page when it is changed.
-        // This behavior is introduced by using the PDFSinglePageViewer
+        // This behavior is introduced by using the PDFJSViewer.PDFSinglePageViewer
         this.pdfViewer.scrollPageIntoView({ pageNumber: this._page });
       }
 
@@ -502,7 +500,7 @@ export class PdfViewerComponent
 
     this.setupViewer();
 
-    this.loadingTask = getDocument(this.getDocumentParams());
+    this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
 
     this.loadingTask!.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
