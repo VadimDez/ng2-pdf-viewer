@@ -541,9 +541,10 @@ export class PdfViewerComponent
       this._rotation !== 0 ||
       this.pdfViewer.pagesRotation !== this._rotation
     ) {
-      setTimeout(() => {
-        this.pdfViewer.pagesRotation = this._rotation;
-      });
+      // wait until at least the first page is available.
+      this.pdfViewer.firstPagePromise?.then(
+        () => (this.pdfViewer.pagesRotation = this._rotation)
+      );
     }
 
     if (this._stickToPage) {
