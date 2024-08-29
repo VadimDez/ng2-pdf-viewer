@@ -1,7 +1,7 @@
 import { fromEvent, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import type { EventBus } from 'pdfjs-dist/web/pdf_viewer';
+import type { EventBus } from 'pdfjs-dist/web/pdf_viewer.mjs';
 
 // interface EventBus {
 //   on(eventName: string, listener: Function): void;

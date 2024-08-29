@@ -18,7 +18,7 @@ import {
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
-import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer';
+import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer.mjs';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
@@ -32,11 +32,29 @@ import type {
   PDFViewerOptions,
   ZoomScale
 } from './typings';
-import { PDFSinglePageViewer } from 'pdfjs-dist/web/pdf_viewer';
+import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
+
 
 if (!isSSR()) {
-  assign(PDFJS, 'verbosity', PDFJS.VerbosityLevel.INFOS);
+  assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
 }
+
+// @ts-expect-error This does not exist outside of polyfill which this is doing
+if (typeof Promise.withResolvers === 'undefined') {
+  if (window) {
+    // @ts-expect-error This does not exist outside of polyfill which this is doing
+    window.Promise.withResolvers = () => {
+      let resolve;
+      let reject;
+      const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    };
+  }
+}
+
 
 export enum RenderTextMode {
   DISABLED,
@@ -63,7 +81,7 @@ export class PdfViewerComponent
   public eventBus!: PDFJSViewer.EventBus;
   public pdfLinkService!: PDFJSViewer.PDFLinkService;
   public pdfFindController!: PDFJSViewer.PDFFindController;
-  public pdfViewer!: PDFJSViewer.PDFViewer | PDFSinglePageViewer;
+  public pdfViewer!: PDFJSViewer.PDFViewer | PDFJSViewer.PDFSinglePageViewer;
 
   private isVisible = false;
 
@@ -240,10 +258,10 @@ export class PdfViewerComponent
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
       pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion
-        }/legacy/build/pdf.worker.min.js`;
+        }/legacy/build/pdf.worker.min.mjs`;
     }
 
-    assign(PDFJS.GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
+    assign(GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
   }
 
   ngAfterViewChecked(): void {
@@ -434,6 +452,10 @@ export class PdfViewerComponent
   }
 
   private setupViewer() {
+    if (this.pdfViewer) {
+      this.pdfViewer.setDocument(null as any);
+    }
+
     assign(PDFJS, 'disableTextLayer', !this._renderText);
 
     this.initPDFServices();
@@ -501,7 +523,7 @@ export class PdfViewerComponent
 
     this.setupViewer();
 
-    this.loadingTask = PDFJS.getDocument(this.getDocumentParams());
+    this.loadingTask = getDocument(this.getDocumentParams());
 
     this.loadingTask!.onProgress = (progressData: PDFProgressData) => {
       this.onProgress.emit(progressData);
