@@ -40,19 +40,17 @@ if (!isSSR()) {
 }
 
 // @ts-expect-error This does not exist outside of polyfill which this is doing
-if (typeof Promise.withResolvers === 'undefined') {
-  if (window) {
-    // @ts-expect-error This does not exist outside of polyfill which this is doing
-    window.Promise.withResolvers = () => {
-      let resolve;
-      let reject;
-      const promise = new Promise((res, rej) => {
-        resolve = res;
-        reject = rej;
-      });
-      return { promise, resolve, reject };
-    };
-  }
+if (typeof Promise.withResolvers === 'undefined' && window) {
+  // @ts-expect-error This does not exist outside of polyfill which this is doing
+  window.Promise.withResolvers = () => {
+    let resolve;
+    let reject;
+    const promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve, reject };
+  };
 }
 
 
