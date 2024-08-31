@@ -3,6 +3,7 @@
 ## 10.3.0 - 31.08.2024
 
 - [[#1128](https://github.com/VadimDez/ng2-pdf-viewer/pull/1128)] - feat(pdfjs): upgrade to v4 - without breaking backwards compatibility
+- [[#1093](https://github.com/VadimDez/ng2-pdf-viewer/issues/1093)] - Update pdfjs-dist to 4.2.67 or later
 
 ## 10.2.2 - 16.05.2024
 
