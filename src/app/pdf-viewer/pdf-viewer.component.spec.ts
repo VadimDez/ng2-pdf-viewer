@@ -162,7 +162,7 @@ describe('AppComponent', () => {
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
       expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
-        }/legacy/build/pdf.worker.min.js`);
+        }/legacy/build/pdf.worker.min.mjs`);
     })
 
     it('should support global override', () => {
@@ -181,7 +181,7 @@ describe('AppComponent', () => {
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
       expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
-        }/legacy/build/pdf.worker.min.js`);
+        }/legacy/build/pdf.worker.min.mjs`);
     })
 
     it('should take version override with version match', () => {
