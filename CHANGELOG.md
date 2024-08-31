@@ -1,5 +1,9 @@
 # Changelog
 
+## 10.3.0 - 31.08.2024
+
+- [[#1128](https://github.com/VadimDez/ng2-pdf-viewer/pull/1128)] - feat(pdfjs): upgrade to v4 - without breaking backwards compatibility
+
 ## 10.2.2 - 16.05.2024
 
 - [[#1098](https://github.com/VadimDez/ng2-pdf-viewer/pull/1098)] - Fix #1097: delay scale and scroll ops until the viewer has the pages initialized
