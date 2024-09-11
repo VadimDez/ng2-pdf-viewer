@@ -1,5 +1,10 @@
 # Changelog
 
+## 10.3.1 - 11.09.2024
+
+- [[#999](https://github.com/VadimDez/ng2-pdf-viewer/issues/999)] - Rotation default value not working
+- [[#1126](https://github.com/VadimDez/ng2-pdf-viewer/pull/1126)] - Fix #999: Ensure that the rotation in the viewer is not set too early
+
 ## 10.3.0 - 31.08.2024
 
 - [[#1128](https://github.com/VadimDez/ng2-pdf-viewer/pull/1128)] - feat(pdfjs): upgrade to v4 - without breaking backwards compatibility
