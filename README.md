@@ -511,9 +511,9 @@ onFileSelected() {
 
 By default the `worker` is loaded from `cdn.jsdelivr.net`.
 
-In your code update `path` to the worker to be for example `/pdf.worker.js`
+In your code update `path` to the worker to be for example `/pdf.worker.mjs`
 ```typescript
-(window as any).pdfWorkerSrc = '/pdf.worker.js';
+(window as any).pdfWorkerSrc = '/pdf.worker.mjs';
 ```
 
 *This should be set before `pdf-viewer` component is rendered.*
@@ -524,7 +524,7 @@ but using different versions of pdf.worker, support has been added.  You can do 
 above, except that you can append the specific version of pdfjs required and override the
 custom path *just for that version*.  This way setting the global window var won't conflict.
 ```typescript
-(window as any)["pdfWorkerSrc2.14.305"] = '/pdf.worker.js';
+(window as any)["pdfWorkerSrc2.14.305"] = '/pdf.worker.mjs';
 ```
 
 ## Search in the PDF
