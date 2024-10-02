@@ -509,6 +509,7 @@ export class PdfViewerComponent
 
   private loadPDF() {
     if (!this.src) {
+      this.onError.emit();
       return;
     }
 
