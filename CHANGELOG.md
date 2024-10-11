@@ -1,6 +1,11 @@
 # Changelog
 
-## 10.3.1 - 07.10.2024
+## 10.3.3 - 11.10.2024
+
+- [[#1140](https://github.com/VadimDez/ng2-pdf-viewer/pull/1140)] - chore: Update pdfjs-dist to v4.6.82
+- [[#1139](https://github.com/VadimDez/ng2-pdf-viewer/issues/1139)] - Update pdfjs-dist to v4.6.82
+
+## 10.3.2 - 07.10.2024
 
 - [[#1137](https://github.com/VadimDez/ng2-pdf-viewer/issues/1137)] - Latest version requires Typescript 5.6 which current LTS of angular (v18.2.7) does not support
 - [[#1138](https://github.com/VadimDez/ng2-pdf-viewer/pull/1138)] - Fix: lock pdfjs version
