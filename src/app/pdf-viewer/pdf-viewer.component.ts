@@ -351,12 +351,9 @@ export class PdfViewerComponent
             stickToPage = !this._stickToPage;
           }
 
-          // delay to ensure that pages are ready
-          this.pdfViewer.pagesPromise?.then(() => {
-            this.pdfViewer.currentScale = scale;
-            if (stickToPage)
-              this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
-          });
+          this.pdfViewer.currentScale = scale;
+          if (stickToPage)
+            this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
         }
       });
   }
@@ -573,7 +570,14 @@ export class PdfViewerComponent
       });
     }
 
-    this.updateSize();
+    if (!this.pdfViewer._pages?.length) {
+      // the first time we wait until pages init
+      this.pageInitialized.subscribe(() => {
+        this.updateSize();
+      })
+    } else {
+      this.updateSize();
+    }
   }
 
   private getScale(viewportWidth: number, viewportHeight: number) {
