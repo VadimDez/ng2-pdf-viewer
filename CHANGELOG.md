@@ -1,5 +1,10 @@
 # Changelog
 
+## 10.3.4 - 31.10.2024
+
+- [[#1145](https://github.com/VadimDez/ng2-pdf-viewer/issues/1145)] - After upgrade to the version 10.3.3, the first page of pdf is always rendered twice, with different dimension in viewport each time
+- [[#1146](https://github.com/VadimDez/ng2-pdf-viewer/pull/1146)] - Fix: use page init for first updateSize
+
 ## 10.3.3 - 11.10.2024
 
 - [[#1140](https://github.com/VadimDez/ng2-pdf-viewer/pull/1140)] - chore: Update pdfjs-dist to v4.6.82
