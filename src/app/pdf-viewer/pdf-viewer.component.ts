@@ -572,8 +572,9 @@ export class PdfViewerComponent
 
     if (!this.pdfViewer._pages?.length) {
       // the first time we wait until pages init
-      this.pageInitialized.subscribe(() => {
+      const sub = this.pageInitialized.subscribe(() => {
         this.updateSize();
+        sub.unsubscribe();
       })
     } else {
       this.updateSize();
