@@ -39,8 +39,8 @@
   },
   "homepage": "https://github.com/VadimDez/ng2-pdf-viewer#readme",
   "dependencies": {
-    "pdfjs-dist": "4.6.82",
-    "tslib": "^2.3.0"
+    "pdfjs-dist": "4.8.69",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.1.0",
