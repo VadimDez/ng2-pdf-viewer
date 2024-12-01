@@ -2,8 +2,8 @@
 
 ## 10.4.0 - 01.12.2024
 
-- [[#1145](https://github.com/VadimDez/ng2-pdf-viewer/issues/1148)] - Update pdfjs-dist dependency to the latest version for better compatibility
-- [[#1146](https://github.com/VadimDez/ng2-pdf-viewer/pull/1149)] - Chore: update pdfjs, other dependencies
+- [[#1148](https://github.com/VadimDez/ng2-pdf-viewer/issues/1148)] - Update pdfjs-dist dependency to the latest version for better compatibility
+- [[#1149](https://github.com/VadimDez/ng2-pdf-viewer/pull/1149)] - Chore: update pdfjs, other dependencies
 
 ## 10.3.4 - 31.10.2024
 
