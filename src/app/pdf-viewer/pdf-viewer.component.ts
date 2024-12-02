@@ -114,9 +114,19 @@ export class PdfViewerComponent
   private destroy$ = new Subject<void>();
 
   @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
-  @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
-  @Output('pages-initialized') pageInitialized = new EventEmitter<CustomEvent>();
-  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
+  @Output('page-rendered') pageRendered = new EventEmitter<{
+    source: PDFJSViewer.PDFPageView;
+    pageNumber: number;
+    cssTransform: boolean;
+    timestamp: number;
+  }>();
+  @Output('pages-initialized') pageInitialized = new EventEmitter<{
+    source: PDFJSViewer.PDFViewer;
+  }>();
+  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<{
+    source: PDFJSViewer.PDFPageView;
+    pageNumber: number;
+  }>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
@@ -387,16 +397,24 @@ export class PdfViewerComponent
   private initEventBus() {
     this.eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
-    fromEvent<CustomEvent>(this.eventBus, 'pagerendered')
+    fromEvent(this.eventBus, 'pagerendered')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        this.pageRendered.emit(event);
+        if (event.error) {
+          this.onError.emit(event.error);
+        } else {
+          this.pageRendered.emit(event);
+        }
       });
 
-    fromEvent<CustomEvent>(this.eventBus, 'pagesinit')
+    fromEvent(this.eventBus, 'pagesinit')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        this.pageInitialized.emit(event);
+        if (event.error) {
+          this.onError.emit(event.error);
+        } else {
+          this.pageInitialized.emit(event);
+        }
       });
 
     fromEvent(this.eventBus, 'pagechanging')
@@ -412,10 +430,14 @@ export class PdfViewerComponent
         }, 100);
       });
 
-    fromEvent<CustomEvent>(this.eventBus, 'textlayerrendered')
+    fromEvent(this.eventBus, 'textlayerrendered')
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        this.textLayerRendered.emit(event);
+        if (event.error) {
+          this.onError.emit(event.error);
+        } else {
+          this.textLayerRendered.emit(event);
+        }
       });
   }
 
