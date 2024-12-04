@@ -61,13 +61,14 @@ export enum RenderTextMode {
 }
 
 @Component({
-  selector: 'pdf-viewer',
-  template: `
+    selector: 'pdf-viewer',
+    template: `
     <div #pdfViewerContainer class="ng2-pdf-viewer-container">
       <div class="pdfViewer"></div>
     </div>
   `,
-  styleUrls: ['./pdf-viewer.component.scss']
+    styleUrls: ['./pdf-viewer.component.scss'],
+    standalone: false
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
