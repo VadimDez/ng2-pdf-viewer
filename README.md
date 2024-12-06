@@ -40,9 +40,14 @@
 
 ## Install
 
-### Angular >= 12
+### Angular >= 19
 ```
 npm install ng2-pdf-viewer
+```
+
+### 12 ≤ Angular < 19
+```
+npm install ng2-pdf-viewer@10.3.4
 ```
 > Partial Ivy compilated library bundles.
 
