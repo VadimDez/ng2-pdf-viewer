@@ -8,9 +8,10 @@ import { GlobalWorkerOptions } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist';
 
 @Component({
-  template: `
+    template: `
     <pdf-viewer></pdf-viewer>
-  `
+  `,
+    standalone: false
 })
 class TestComponent { }
 
