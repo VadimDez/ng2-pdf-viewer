@@ -6,7 +6,7 @@ import {
   PDFProgressData,
   PDFDocumentProxy,
   PDFSource,
-  ZoomScale
+  ZoomScale,
 } from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
@@ -14,7 +14,8 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  standalone: false,
 })
 export class AppComponent implements OnInit {
   pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';
@@ -185,7 +186,7 @@ export class AppComponent implements OnInit {
    */
   scrollToPage() {
     this.pdfComponent.pdfViewer.scrollPageIntoView({
-      pageNumber: 3
+      pageNumber: 3,
     });
   }
 
