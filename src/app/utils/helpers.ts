@@ -1,9 +1,9 @@
 export function assign(obj: any, prop: string, value: any) {
-  console.log('obj', obj);
-  console.log('prop', prop);
-  console.log('value', value);
-
-  obj[prop] = value;
+  try {
+    obj[prop] = value;
+  } catch (error) {
+    console.error('Error assigning value:', error);
+  }
 }
 
 export function isSSR() {
