@@ -328,42 +328,60 @@ Turn on or off auto resize.
 [autoresize]="true"
 ```
 
-### [isZoomOptimization]
+---
+
+### `[isZoomOptimization]`
 
 | Property             | Type      | Required |
 | -------------------- | --------- | -------- |
-| [isZoomOptimization] | _boolean_ | Optional |
+| `isZoomOptimization` | _boolean_ | Optional |
 
-Default value: true. It improves the zoom keeping the view in the same position calculating the scrollbars positions before and after the zooming.
-It's always true if [isWheelZoom] is enabled.
+**Default**: `true`
 
-```
+Improves the zooming experience by maintaining the user's viewport position. It calculates and adjusts the scroll position before and after the zoom to prevent unexpected jumps.
+
+> Note: This option is always enabled if `[isWheelZoom]` is set to `true`.
+
+**Example:**
+
+```html
 [isZoomOptimization]="true"
 ```
 
-### [isWheelZoom]
+---
+
+### `[isWheelZoom]`
 
 | Property      | Type      | Required |
 | ------------- | --------- | -------- |
-| [isWheelZoom] | _boolean_ | Optional |
+| `isWheelZoom` | _boolean_ | Optional |
 
-Default value: true. It allows to zoom via the mouse wheel, optionally the zoom can be performed using or not the Ctrl Key depending on [isWheelCtrlZoom].
+**Default**: `true`
 
-```
+Enables zooming with the mouse wheel. You can control whether zooming requires the `Ctrl` key using `[isWheelCtrlZoom]`.
+
+```html
 [isWheelZoom]="true"
 ```
 
-### [isWheelCtrlZoom]
+---
+
+### `[isWheelCtrlZoom]`
 
 | Property          | Type      | Required |
 | ----------------- | --------- | -------- |
-| [isWheelCtrlZoom] | _boolean_ | Optional |
+| `isWheelCtrlZoom` | _boolean_ | Optional |
 
-Default value: true. It allows to zoom via the mouse wheel keeping the Ctrl button pressed. If disabled, the mouse wheel will zoom instead of scrolling the bars.
+**Default**: `true`
 
-```
+Allows zooming with the mouse wheel only when the `Ctrl` key is pressed.
+If set to `false`, the mouse wheel will trigger zooming by default (without requiring `Ctrl`), replacing the typical scroll behavior.
+
+```html
 [isWheelCtrlZoom]="true"
 ```
+
+---
 
 #### [c-maps-url]
 
