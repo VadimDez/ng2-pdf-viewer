@@ -123,6 +123,10 @@ export class ZoomService {
   }
 
   removeListeners(container: HTMLElement): void {
+    if (!container) {
+      return;
+    }
+
     container.removeEventListener('touchstart', this.onTouchStart);
     container.removeEventListener('touchmove', this.onTouchMove);
     container.removeEventListener('touchend', this.onTouchEnd);

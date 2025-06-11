@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ZoomService } from './zoom.service';
 
-fdescribe(ZoomService.name, () => {
+describe(ZoomService.name, () => {
   let service: ZoomService;
   let container: HTMLElement;
 

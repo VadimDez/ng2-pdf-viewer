@@ -282,7 +282,7 @@ export class PdfViewerComponent
       return;
     }
 
-    const offset = this.pdfViewerContainer.nativeElement.offsetParent;
+    const offset = this.pdfViewerContainer?.nativeElement.offsetParent;
 
     if (this.isVisible === true && offset == null) {
       this.isVisible = false;
@@ -301,7 +301,7 @@ export class PdfViewerComponent
 
   ngAfterViewInit(): void {
     this.zoomService.initSettings(
-      this.pdfViewerContainer.nativeElement,
+      this.pdfViewerContainer?.nativeElement,
       this.isWheelZoom,
       this.isWheelCtrlZoom
     );
@@ -316,7 +316,7 @@ export class PdfViewerComponent
     this.clear();
     this.destroy$.next();
     this.loadingTask = null;
-    this.zoomService.removeListeners(this.pdfViewerContainer.nativeElement);
+    this.zoomService.removeListeners(this.pdfViewerContainer?.nativeElement);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -356,7 +356,7 @@ export class PdfViewerComponent
         next: ([page]: [PDFPageProxy, void]) => {
           if (this.isOptimizeZoom || this.isWheelZoom) {
             this.zoomService.saveScrollPosition(
-              this.pdfViewerContainer.nativeElement
+              this.pdfViewerContainer?.nativeElement
             );
           }
 
@@ -373,7 +373,7 @@ export class PdfViewerComponent
           if (
             !this._originalSize ||
             (this._fitToPage &&
-              viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+              viewportWidth > this.pdfViewerContainer?.nativeElement.clientWidth)
           ) {
             const viewPort = page.getViewport({ scale: 1, rotation });
             scale = this.getScale(viewPort.width, viewPort.height);
@@ -390,7 +390,7 @@ export class PdfViewerComponent
 
           if (this.isOptimizeZoom || this.isWheelZoom) {
             this.zoomService.restoreScrollPosition(
-              this.pdfViewerContainer.nativeElement
+              this.pdfViewerContainer?.nativeElement
             );
           }
         },
@@ -629,9 +629,9 @@ export class PdfViewerComponent
       ? 2 * PdfViewerComponent.BORDER_WIDTH
       : 0;
     const pdfContainerWidth =
-      this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
+      this.pdfViewerContainer?.nativeElement.clientWidth - borderSize;
     const pdfContainerHeight =
-      this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
+      this.pdfViewerContainer?.nativeElement.clientHeight - borderSize;
 
     if (
       pdfContainerHeight === 0 ||
