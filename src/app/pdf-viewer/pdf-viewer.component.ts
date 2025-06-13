@@ -36,6 +36,7 @@ import type {
 } from './typings';
 import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
 import { ZoomService } from './zoom.service';
+import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
 
 if (!isSSR()) {
   assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
@@ -173,25 +174,26 @@ export class PdfViewerComponent
     this._stickToPage = value;
   }
 
-  @Input('zoom')
+  @Input()
   set zoom(value: number) {
     if (value <= 0) {
       return;
     }
 
     this.zoomService.zoom = value;
+    this.zoomService.limitZoom();
   }
-
-  get zoom() {
+  get zoom(): number {
     return this.zoomService.zoom;
   }
+  @Output() zoomChange = new EventEmitter<number>();
 
   @Input('zoom-scale')
   set zoomScale(value: ZoomScale) {
     this._zoomScale = value;
   }
 
-  get zoomScale() {
+  get zoomScale(): ZoomScale {
     return this._zoomScale;
   }
 
@@ -228,6 +230,14 @@ export class PdfViewerComponent
   @Input() isWheelZoom = true;
   @Input() isWheelCtrlZoom = true;
   @Input() isOptimizeZoom = true;
+  @Input('minZoom') set minZoom(value: number) {
+    this.zoomService.minZoom = value;
+    this.zoomService.limitZoom();
+  }
+  @Input('maxZoom') set maxZoom(value: number) {
+    this.zoomService.maxZoom = value;
+    this.zoomService.limitZoom();
+  }
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -307,19 +317,19 @@ export class PdfViewerComponent
     );
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.initialize();
     this.setupResizeListener();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.clear();
     this.destroy$.next();
     this.loadingTask = null;
     this.zoomService.removeListeners(this.pdfViewerContainer?.nativeElement);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (isSSR() || !this.isVisible) {
       return;
     }
@@ -373,7 +383,8 @@ export class PdfViewerComponent
           if (
             !this._originalSize ||
             (this._fitToPage &&
-              viewportWidth > this.pdfViewerContainer?.nativeElement.clientWidth)
+              viewportWidth >
+                this.pdfViewerContainer?.nativeElement.clientWidth)
           ) {
             const viewPort = page.getViewport({ scale: 1, rotation });
             scale = this.getScale(viewPort.width, viewPort.height);
@@ -393,6 +404,8 @@ export class PdfViewerComponent
               this.pdfViewerContainer?.nativeElement
             );
           }
+
+          this.zoomChange.emit(this.zoomService.zoom);
         },
       });
   }
@@ -413,7 +426,7 @@ export class PdfViewerComponent
     this.pdfFindController && this.pdfFindController.setDocument(null as any);
   }
 
-  private getPDFLinkServiceConfig() {
+  private getPDFLinkServiceConfig(): {} {
     const linkTarget = PdfViewerComponent.getLinkTarget(
       this._externalLinkTarget
     );
@@ -425,7 +438,7 @@ export class PdfViewerComponent
     return {};
   }
 
-  private initEventBus() {
+  private initEventBus(): void {
     this.eventBus = createEventBus(PDFJSViewer, this.destroy$);
 
     fromEvent<CustomEvent>(this.eventBus, 'pagerendered')
@@ -460,7 +473,7 @@ export class PdfViewerComponent
       });
   }
 
-  private initPDFServices() {
+  private initPDFServices(): void {
     this.pdfLinkService = new PDFJSViewer.PDFLinkService({
       eventBus: this.eventBus,
       ...this.getPDFLinkServiceConfig(),
@@ -487,7 +500,7 @@ export class PdfViewerComponent
     };
   }
 
-  private setupViewer() {
+  private setupViewer(): void {
     if (this.pdfViewer) {
       this.pdfViewer.setDocument(null as any);
     }
@@ -520,7 +533,11 @@ export class PdfViewerComponent
     return page;
   }
 
-  private getDocumentParams() {
+  private getDocumentParams():
+    | string
+    | Uint8Array
+    | DocumentInitParameters
+    | undefined {
     const srcType = typeof this.src;
 
     if (!this._cMapsUrl) {
@@ -547,7 +564,7 @@ export class PdfViewerComponent
     return params;
   }
 
-  private loadPDF() {
+  private loadPDF(): void {
     if (!this.src) {
       return;
     }
@@ -588,13 +605,13 @@ export class PdfViewerComponent
       });
   }
 
-  private update() {
+  private update(): void {
     this.page = this._page;
 
     this.render();
   }
 
-  private render() {
+  private render(): void {
     this._page = this.getValidPageNumber(this._page);
 
     if (
@@ -624,7 +641,7 @@ export class PdfViewerComponent
     }
   }
 
-  private getScale(viewportWidth: number, viewportHeight: number) {
+  private getScale(viewportWidth: number, viewportHeight: number): number {
     const borderSize = this._showBorders
       ? 2 * PdfViewerComponent.BORDER_WIDTH
       : 0;
@@ -662,7 +679,7 @@ export class PdfViewerComponent
     return (this.zoomService.zoom * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 
-  private resetPdfDocument() {
+  private resetPdfDocument(): void {
     this.pdfLinkService.setDocument(this._pdf, null);
     this.pdfFindController.setDocument(this._pdf!);
     this.pdfViewer.setDocument(this._pdf!);

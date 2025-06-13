@@ -6,7 +6,7 @@ import {
   PDFProgressData,
   PDFDocumentProxy,
   PDFSource,
-  ZoomScale
+  ZoomScale,
 } from './pdf-viewer/pdf-viewer.module';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
@@ -14,7 +14,7 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
   pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';
@@ -37,18 +37,20 @@ export class AppComponent implements OnInit {
   isOutlineShown = false;
   pdfQuery = '';
   mobile = false;
+  minZoom = 0.1;
+  maxZoom = 10;
 
   @ViewChild(PdfViewerComponent)
   private pdfComponent!: PdfViewerComponent;
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (window.screen.width <= 768) {
       this.mobile = true;
     }
   }
 
   // Load pdf
-  loadPdf() {
+  loadPdf(): void {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '/assets/pdf-test.pdf', true);
     xhr.responseType = 'blob';
@@ -67,26 +69,26 @@ export class AppComponent implements OnInit {
   /**
    * Set custom path to pdf worker
    */
-  setCustomWorkerPath() {
+  setCustomWorkerPath(): void {
     (window as any).pdfWorkerSrc = '/lib/pdfjs-dist/build/pdf.worker.js';
   }
 
-  incrementPage(amount: number) {
+  incrementPage(amount: number): void {
     this.page += amount;
   }
 
-  incrementZoom(amount: number) {
+  incrementZoom(amount: number): void {
     this.zoom += amount;
   }
 
-  rotate(angle: number) {
+  rotate(angle: number): void {
     this.rotation += angle;
   }
 
   /**
    * Render PDF preview on selecting file
    */
-  onFileSelected() {
+  onFileSelected(): void {
     const $pdf: any = document.querySelector('#file');
 
     if (typeof FileReader !== 'undefined') {
@@ -113,7 +115,7 @@ export class AppComponent implements OnInit {
   /**
    * Get outline
    */
-  loadOutline() {
+  loadOutline(): void {
     this.pdf.getOutline().then((outline: any[]) => {
       this.outline = outline;
     });
@@ -124,7 +126,7 @@ export class AppComponent implements OnInit {
    *
    * @param error error message
    */
-  onError(error: any) {
+  onError(error: any): void {
     this.error = error; // set error
 
     if (error.name === 'PasswordException') {
@@ -139,7 +141,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  setPassword(password: string) {
+  setPassword(password: string): void {
     let newSrc: PDFSource;
 
     if (this.pdfSrc instanceof ArrayBuffer) {
@@ -160,7 +162,7 @@ export class AppComponent implements OnInit {
    * Pdf loading progress callback
    * @param progressData pdf progress data
    */
-  onProgress(progressData: PDFProgressData) {
+  onProgress(progressData: PDFProgressData): void {
     console.log(progressData);
     this.progressData = progressData;
 
@@ -176,16 +178,16 @@ export class AppComponent implements OnInit {
    * Navigate to destination
    * @param destination pdf navigate to
    */
-  navigateTo(destination: any) {
+  navigateTo(destination: any): void {
     this.pdfComponent.pdfLinkService.goToDestination(destination);
   }
 
   /**
    * Scroll view
    */
-  scrollToPage() {
+  scrollToPage(): void {
     this.pdfComponent.pdfViewer.scrollPageIntoView({
-      pageNumber: 3
+      pageNumber: 3,
     });
   }
 
@@ -194,7 +196,7 @@ export class AppComponent implements OnInit {
    *
    * @param e custom event
    */
-  pageRendered(e: CustomEvent) {
+  pageRendered(e: CustomEvent): void {
     console.log('(page-rendered)', e);
   }
 
@@ -203,7 +205,7 @@ export class AppComponent implements OnInit {
    *
    * @param {CustomEvent} e
    */
-  pageInitialized(e: CustomEvent) {
+  pageInitialized(e: CustomEvent): void {
     console.log('(page-initialized)', e);
   }
 
@@ -212,11 +214,11 @@ export class AppComponent implements OnInit {
    *
    * @param e number
    */
-  pageChange(e: number) {
+  pageChange(e: number): void {
     console.log('(page-change)', e);
   }
 
-  searchQueryChanged(newQuery: string) {
+  searchQueryChanged(newQuery: string): void {
     const type = newQuery !== this.pdfQuery ? '' : 'again';
     this.pdfQuery = newQuery;
 
@@ -231,7 +233,7 @@ export class AppComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize(event: Event): void {
     this.mobile = (event.target as Window).innerWidth <= 768;
   }
 }

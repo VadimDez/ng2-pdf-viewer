@@ -106,11 +106,13 @@ export class AppComponent {
 - [[render-text]](#render-text)
 - [[render-text-mode]](#render-text-mode)
 - [[rotation]](#rotation)
-- [[zoom]](#zoom)
+- [[(zoom)]](#zoom)
 - [[zoom-scale]](#zoom-scale)
-- [isZoomOptimization](#isZoomOptimization)
-- [isWheelZoom](#isWheelZoom)
-- [isWheelCtrlZoom](#isWheelCtrlZoom)
+- [[minZoom]](#minzoom)
+- [[maxZoom]](#maxzoom)
+- [[isZoomOptimization]](#iszoomoptimization)
+- [[isWheelZoom]](#iswheelzoom)
+- [[isWheelCtrlZoom]](#iswheelctrlzoom)
 - [[original-size]](#original-size)
 - [[fit-to-page]](#fit-to-page)
 - [[show-all]](#show-all)
@@ -256,10 +258,10 @@ _Allowed step is 90 degree, ex. 0, 90, 180_
 | -------- | -------- | ---------- |
 | [zoom]   | _number_ | _Optional_ |
 
-Zoom pdf
+Zoom pdf, it supports two-way bindings.
 
 ```
-[zoom]="0.5"
+[(zoom)]="0.5"
 ```
 
 #### [zoom-scale]
@@ -333,7 +335,43 @@ Turn on or off auto resize.
 
 ---
 
-### `[isZoomOptimization]`
+#### [minZoom]
+
+| Property  | Type     | Required |
+| --------- | -------- | -------- |
+| `minZoom` | _number_ | Optional |
+
+**Default**: `0`, that means no min value.
+
+Define a min value for the zoom.
+
+**Example:**
+
+```html
+[minZoom]="0.1"
+```
+
+---
+
+#### [maxZoom]
+
+| Property  | Type     | Required |
+| --------- | -------- | -------- |
+| `maxZoom` | _number_ | Optional |
+
+**Default**: `0`, that means no max value.
+
+Define a max value for the zoom.
+
+**Example:**
+
+```html
+[maxZoom]="10"
+```
+
+---
+
+#### [isZoomOptimization]
 
 | Property             | Type      | Required |
 | -------------------- | --------- | -------- |
@@ -353,7 +391,7 @@ Improves the zooming experience by maintaining the user's viewport position. It 
 
 ---
 
-### `[isWheelZoom]`
+#### [isWheelZoom]
 
 | Property      | Type      | Required |
 | ------------- | --------- | -------- |
@@ -369,7 +407,7 @@ Enables zooming with the mouse wheel. You can control whether zooming requires t
 
 ---
 
-### `[isWheelCtrlZoom]`
+#### [isWheelCtrlZoom]
 
 | Property          | Type      | Required |
 | ----------------- | --------- | -------- |

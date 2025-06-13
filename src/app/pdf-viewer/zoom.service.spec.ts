@@ -185,4 +185,46 @@ describe(ZoomService.name, () => {
       expect(service['lastDistance']).toBe(0);
     });
   });
+
+  describe('limitZoom', () => {
+    it('should not change zoom if minZoom and maxZoom are 0', () => {
+      service.zoom = 2;
+      service.minZoom = 0;
+      service.maxZoom = 0;
+
+      service.limitZoom();
+
+      expect(service.zoom).toBe(2);
+    });
+
+    it('should set zoom to maxZoom if zoom exceeds maxZoom', () => {
+      service.zoom = 3;
+      service.maxZoom = 2;
+      service.minZoom = 0;
+
+      service.limitZoom();
+
+      expect(service.zoom).toBe(2);
+    });
+
+    it('should set zoom to minZoom if zoom is below minZoom', () => {
+      service.zoom = 0.5;
+      service.minZoom = 1;
+      service.maxZoom = 0;
+
+      service.limitZoom();
+
+      expect(service.zoom).toBe(1);
+    });
+
+    it('should keep zoom within minZoom and maxZoom bounds', () => {
+      service.zoom = 1.5;
+      service.minZoom = 1;
+      service.maxZoom = 2;
+
+      service.limitZoom();
+
+      expect(service.zoom).toBe(1.5);
+    });
+  });
 });
