@@ -68,15 +68,16 @@ export class ZoomService {
     this.triggerUpdateSize.next();
   }
 
-  private onTouchStart = (event: TouchEvent) => {
+  private onTouchStart = (event: TouchEvent): void => {
     if (event.touches.length === 2) {
       event.preventDefault(); // prevent default zoom behavior
+
       this.isPinching = true;
       this.lastDistance = this.getDistance(event.touches[0], event.touches[1]);
     }
   };
 
-  private onTouchMove = (event: TouchEvent) => {
+  private onTouchMove = (event: TouchEvent): void => {
     if (this.isPinching && event.touches.length === 2) {
       event.preventDefault(); // prevent scroll or native zoom
 
@@ -96,8 +97,10 @@ export class ZoomService {
     }
   };
 
-  private onTouchEnd = (event: TouchEvent) => {
+  private onTouchEnd = (event: TouchEvent): void => {
     if (event.touches.length < 2) {
+      event.preventDefault(); // prevent scroll or native zoom
+
       this.isPinching = false;
       this.lastDistance = 0;
     }
@@ -117,20 +120,25 @@ export class ZoomService {
 
     this.zoomMutex = true;
 
-    const el = container;
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = container;
+    const { width, height } = container.getBoundingClientRect();
 
-    const ratioX = el.scrollLeft / el.scrollWidth;
-    const ratioY = el.scrollTop / el.scrollHeight;
+    const centerX = scrollLeft + width / 2;
+    const centerY = scrollTop + height / 2;
 
-    this.ratioX = ratioX;
-    this.ratioY = ratioY;
+    this.ratioX = centerX / scrollWidth;
+    this.ratioY = centerY / scrollHeight;
   }
 
   restoreScrollPosition(container: HTMLElement): void {
-    const el = container;
     requestAnimationFrame(() => {
-      el.scrollLeft = this.ratioX * el.scrollWidth;
-      el.scrollTop = this.ratioY * el.scrollHeight;
+      const { width, height } = container.getBoundingClientRect();
+
+      const centerX = this.ratioX * container.scrollWidth;
+      const centerY = this.ratioY * container.scrollHeight;
+
+      container.scrollLeft = centerX - width / 2;
+      container.scrollTop = centerY - height / 2;
 
       this.zoomMutex = false;
     });
