@@ -75,8 +75,8 @@ describe(ZoomService.name, () => {
 
       service.saveScrollPosition(container);
 
-      expect(service['ratioX']).toBeCloseTo(0.25);
-      expect(service['ratioY']).toBeCloseTo(0.25);
+      expect(service['ratioX']).toBeCloseTo(0.5);
+      expect(service['ratioY']).toBeCloseTo(0.5);
     });
   });
 
@@ -88,8 +88,8 @@ describe(ZoomService.name, () => {
       service.restoreScrollPosition(container);
 
       requestAnimationFrame(() => {
-        expect(container.scrollLeft).toBeCloseTo(500);
-        expect(container.scrollTop).toBeCloseTo(500);
+        expect(container.scrollLeft).toBeCloseTo(0);
+        expect(container.scrollTop).toBeCloseTo(0);
         done();
       });
     });

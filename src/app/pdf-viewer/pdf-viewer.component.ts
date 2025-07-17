@@ -35,8 +35,9 @@ import type {
   ZoomScale,
 } from './typings';
 import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
-import { ZoomService } from './zoom.service';
+import { ZoomService } from './services/zoom.service';
 import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
+import { PanService } from './services/pan.service';
 
 if (!isSSR()) {
   assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
@@ -65,7 +66,14 @@ export const enum RenderTextMode {
 @Component({
   selector: 'pdf-viewer',
   template: `
-    <div #pdfViewerContainer class="ng2-pdf-viewer-container">
+    <div
+      #pdfViewerContainer
+      class="ng2-pdf-viewer-container"
+      (mousedown)="panService.startPan($event, pdfViewerContainer)"
+      (mouseup)="panService.endPan(pdfViewerContainer)"
+      (mouseleave)="panService.endPan(pdfViewerContainer)"
+      (mousemove)="panService.pan($event, pdfViewerContainer)"
+    >
       <div class="pdfViewer"></div>
     </div>
   `,
@@ -192,7 +200,6 @@ export class PdfViewerComponent
   set zoomScale(value: ZoomScale) {
     this._zoomScale = value;
   }
-
   get zoomScale(): ZoomScale {
     return this._zoomScale;
   }
@@ -238,6 +245,14 @@ export class PdfViewerComponent
     this.zoomService.maxZoom = value;
     this.zoomService.limitZoom();
   }
+  @Input('enablePan') set enablePan(enablePan: boolean) {
+    this.panService.enablePan = enablePan;
+
+    const cursor = enablePan ? 'grab' : 'default';
+    if (this.pdfViewerContainer?.nativeElement) {
+      this.pdfViewerContainer.nativeElement.style.cursor = cursor;
+    }
+  }
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -259,6 +274,7 @@ export class PdfViewerComponent
   private readonly element = inject(ElementRef<HTMLElement>);
   private readonly ngZone = inject(NgZone);
   private readonly zoomService = inject(ZoomService);
+  protected readonly panService = inject(PanService);
 
   constructor() {
     if (isSSR()) {

@@ -39,6 +39,7 @@ export class AppComponent implements OnInit {
   mobile = false;
   minZoom = 0.1;
   maxZoom = 10;
+  enablePan = false;
 
   @ViewChild(PdfViewerComponent)
   private pdfComponent!: PdfViewerComponent;

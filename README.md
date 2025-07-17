@@ -113,6 +113,7 @@ export class AppComponent {
 - [[isZoomOptimization]](#iszoomoptimization)
 - [[isWheelZoom]](#iswheelzoom)
 - [[isWheelCtrlZoom]](#iswheelctrlzoom)
+- [[enablePan]](#enablepan)
 - [[original-size]](#original-size)
 - [[fit-to-page]](#fit-to-page)
 - [[show-all]](#show-all)
@@ -420,6 +421,22 @@ If set to `false`, the mouse wheel will trigger zooming by default (without requ
 
 ```html
 [isWheelCtrlZoom]="true"
+```
+
+---
+
+#### [enablePan]
+
+| Property    | Type      | Required |
+| ----------- | --------- | -------- |
+| `enablePan` | _boolean_ | Optional |
+
+**Default**: `false`
+
+When set to true, enables a "hand tool" mode allowing users to click and drag the PDF document to navigate around. The cursor changes to a grabbing hand while panning is active.
+
+```html
+[enablePan]="true"
 ```
 
 ---

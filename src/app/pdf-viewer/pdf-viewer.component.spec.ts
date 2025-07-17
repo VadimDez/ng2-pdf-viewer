@@ -6,7 +6,7 @@ import { PdfViewerModule } from './pdf-viewer.module';
 
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist';
-import { ZoomService } from './zoom.service';
+import { ZoomService } from './services/zoom.service';
 
 @Component({
   template: ` <pdf-viewer></pdf-viewer> `,
