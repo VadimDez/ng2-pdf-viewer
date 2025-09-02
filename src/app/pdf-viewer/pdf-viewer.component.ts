@@ -78,6 +78,7 @@ export const enum RenderTextMode {
     </div>
   `,
   styleUrls: ['./pdf-viewer.component.scss'],
+  providers: [ZoomService],
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked, AfterViewInit
