@@ -13,7 +13,7 @@ import {
   OnDestroy,
   ViewChild,
   AfterViewChecked,
-  NgZone
+  NgZone,
 } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
@@ -30,10 +30,9 @@ import type {
   PDFDocumentProxy,
   PDFDocumentLoadingTask,
   PDFViewerOptions,
-  ZoomScale
+  ZoomScale,
 } from './typings';
 import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
-
 
 if (!isSSR()) {
   assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
@@ -53,11 +52,10 @@ if (typeof Promise.withResolvers === 'undefined' && window) {
   };
 }
 
-
 export enum RenderTextMode {
   DISABLED,
   ENABLED,
-  ENHANCED
+  ENHANCED,
 }
 
 @Component({
@@ -67,14 +65,16 @@ export enum RenderTextMode {
       <div class="pdfViewer"></div>
     </div>
   `,
-  styleUrls: ['./pdf-viewer.component.scss']
+  styleUrls: ['./pdf-viewer.component.scss'],
 })
 export class PdfViewerComponent
-  implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
+  implements OnChanges, OnInit, OnDestroy, AfterViewChecked
+{
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
 
-  @ViewChild('pdfViewerContainer') pdfViewerContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('pdfViewerContainer')
+  pdfViewerContainer!: ElementRef<HTMLDivElement>;
 
   public eventBus!: PDFJSViewer.EventBus;
   public pdfLinkService!: PDFJSViewer.PDFLinkService;
@@ -113,10 +113,13 @@ export class PdfViewerComponent
   private loadingTask?: PDFDocumentLoadingTask | null;
   private destroy$ = new Subject<void>();
 
-  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
+  @Output('after-load-complete') afterLoadComplete =
+    new EventEmitter<PDFDocumentProxy>();
   @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
-  @Output('pages-initialized') pageInitialized = new EventEmitter<CustomEvent>();
-  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
+  @Output('pages-initialized') pageInitialized =
+    new EventEmitter<CustomEvent>();
+  @Output('text-layer-rendered') textLayerRendered =
+    new EventEmitter<CustomEvent>();
   @Output('error') onError = new EventEmitter<any>();
   @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
   @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
@@ -236,7 +239,10 @@ export class PdfViewerComponent
     return null;
   }
 
-  constructor(private element: ElementRef<HTMLElement>, private ngZone: NgZone) {
+  constructor(
+    private element: ElementRef<HTMLElement>,
+    private ngZone: NgZone
+  ) {
     if (isSSR()) {
       return;
     }
@@ -244,7 +250,9 @@ export class PdfViewerComponent
     let pdfWorkerSrc: string;
 
     const pdfJsVersion: string = (PDFJS as any).version;
-    const versionSpecificPdfWorkerUrl: string = (window as any)[`pdfWorkerSrc${pdfJsVersion}`];
+    const versionSpecificPdfWorkerUrl: string = (window as any)[
+      `pdfWorkerSrc${pdfJsVersion}`
+    ];
 
     if (versionSpecificPdfWorkerUrl) {
       pdfWorkerSrc = versionSpecificPdfWorkerUrl;
@@ -255,8 +263,7 @@ export class PdfViewerComponent
     ) {
       pdfWorkerSrc = (window as any).pdfWorkerSrc;
     } else {
-      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion
-        }/legacy/build/pdf.worker.min.mjs`;
+      pdfWorkerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion}/legacy/build/pdf.worker.min.mjs`;
     }
 
     assign(GlobalWorkerOptions, 'workerSrc', pdfWorkerSrc);
@@ -322,39 +329,53 @@ export class PdfViewerComponent
     }
   }
 
+  /**
+   * LLM: Updates the PDF scale and viewport based on current settings and container dimensions.
+   * Purpose: Adapts the PDF display to current zoom level, page rotation, and container size.
+   * Caveats: Assumes _pdf is loaded and valid page number exists.
+   * Role: Core rendering function that ensures proper PDF display across different view scenarios.
+   */
   public updateSize() {
-    from(
-      this._pdf!.getPage(
-        this.pdfViewer.currentPageNumber
-      )
-    )
+    // LLM: Fetches the current page from the PDF document using rxjs to handle the promise
+    from(this._pdf!.getPage(this.pdfViewer.currentPageNumber))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (page: PDFPageProxy) => {
+          // LLM: Calculates total rotation by combining component rotation with page's internal rotation
           const rotation = this._rotation + page.rotate;
+          // LLM: Determines viewport width with current zoom and rotation, converted to CSS pixels
           const viewportWidth =
             page.getViewport({
               scale: this._zoom,
-              rotation
+              rotation,
             }).width * PdfViewerComponent.CSS_UNITS;
           let scale = this._zoom;
           let stickToPage = true;
 
           // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
+          // LLM: Adaptive scaling logic - recalculates scale when not in original size mode or when fitToPage is enabled but content overflows
           if (
             !this._originalSize ||
             (this._fitToPage &&
               viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
           ) {
+            // LLM: Creates a reference viewport at scale=1 to determine proper scaling factor
             const viewPort = page.getViewport({ scale: 1, rotation });
+            // LLM: Calculates optimal scale based on container dimensions and zoomScale setting
             scale = this.getScale(viewPort.width, viewPort.height);
+            // LLM: Inverts stickToPage behavior when recalculating scale to prevent unwanted jumps
             stickToPage = !this._stickToPage;
           }
 
+          // LLM: Applies the calculated scale to the PDF viewer
           this.pdfViewer.currentScale = scale;
+          // LLM: If stickToPage is true, ensures the current page remains visible after scaling
           if (stickToPage)
-            this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
-        }
+            this.pdfViewer.scrollPageIntoView({
+              pageNumber: page.pageNumber,
+              ignoreDestinationZoom: true,
+            });
+        },
       });
   }
 
@@ -375,7 +396,9 @@ export class PdfViewerComponent
   }
 
   private getPDFLinkServiceConfig() {
-    const linkTarget = PdfViewerComponent.getLinkTarget(this._externalLinkTarget);
+    const linkTarget = PdfViewerComponent.getLinkTarget(
+      this._externalLinkTarget
+    );
 
     if (linkTarget) {
       return { externalLinkTarget: linkTarget };
@@ -422,7 +445,7 @@ export class PdfViewerComponent
   private initPDFServices() {
     this.pdfLinkService = new PDFJSViewer.PDFLinkService({
       eventBus: this.eventBus,
-      ...this.getPDFLinkServiceConfig()
+      ...this.getPDFLinkServiceConfig(),
     });
     this.pdfFindController = new PDFJSViewer.PDFFindController({
       eventBus: this.eventBus,
@@ -458,7 +481,9 @@ export class PdfViewerComponent
     if (this._showAll) {
       this.pdfViewer = new PDFJSViewer.PDFViewer(this.getPDFOptions());
     } else {
-      this.pdfViewer = new PDFJSViewer.PDFSinglePageViewer(this.getPDFOptions());
+      this.pdfViewer = new PDFJSViewer.PDFSinglePageViewer(
+        this.getPDFOptions()
+      );
     }
     this.pdfLinkService.setViewer(this.pdfViewer);
 
@@ -541,7 +566,7 @@ export class PdfViewerComponent
         error: (error) => {
           this.lastLoaded = null;
           this.onError.emit(error);
-        }
+        },
       });
   }
 
@@ -575,17 +600,32 @@ export class PdfViewerComponent
       const sub = this.pageInitialized.subscribe(() => {
         this.updateSize();
         sub.unsubscribe();
-      })
+      });
     } else {
       this.updateSize();
     }
   }
 
+  /**
+   * LLM: Calculates the appropriate scale factor for the PDF based on container dimensions and zoom settings.
+   * Purpose: Determines how much to scale the PDF to fit properly within the viewer container.
+   * Caveats: Returns a default scale of 1 if any dimension is zero to prevent division by zero.
+   * Role in Scope: Core sizing utility used by updateSize() to maintain proper PDF display proportions.
+   */
   private getScale(viewportWidth: number, viewportHeight: number) {
-    const borderSize = this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0;
-    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
-    const pdfContainerHeight = this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
+    // LLM: Adjusts available space by subtracting borders if they're visible
+    const borderSize = this._showBorders
+      ? 2 * PdfViewerComponent.BORDER_WIDTH
+      : 0;
+    // LLM: Calculates actual available container width accounting for borders
+    // USERNOTE: FIXME: Likely bug, it should use offsetWidth and offsetHeight instead of clientWidth and clientHeight, as the latter does not include border and scrollbar.
+    const pdfContainerWidth =
+      this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
+    // LLM: Calculates actual available container height accounting for borders
+    const pdfContainerHeight =
+      this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
 
+    // LLM: Guards against division by zero that would occur if any dimension is zero
     if (
       pdfContainerHeight === 0 ||
       viewportHeight === 0 ||
@@ -595,23 +635,29 @@ export class PdfViewerComponent
       return 1;
     }
 
+    // LLM: Default scaling ratio before applying zoom mode-specific calculations
     let ratio = 1;
+    // LLM: Applies different scaling algorithms based on the selected zoom scale mode
     switch (this._zoomScale) {
       case 'page-fit':
+        // LLM: Fits entire page in container by using the more constraining dimension
         ratio = Math.min(
           pdfContainerHeight / viewportHeight,
           pdfContainerWidth / viewportWidth
         );
         break;
       case 'page-height':
+        // LLM: Makes page height match container height exactly
         ratio = pdfContainerHeight / viewportHeight;
         break;
       case 'page-width':
       default:
+        // LLM: Makes page width match container width exactly (default behavior)
         ratio = pdfContainerWidth / viewportWidth;
         break;
     }
 
+    // LLM: Applies user's zoom multiplier and converts from PDF units to CSS units for display
     return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 

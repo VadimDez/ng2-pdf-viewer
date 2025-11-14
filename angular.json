@@ -72,6 +72,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+              "host": "0.0.0.0"
+            },
           "configurations": {
             "production": {
               "browserTarget": "ng2-pdf-viewer:build:production"
