@@ -108,6 +108,7 @@ export class PdfViewerComponent
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
+  private originalPageValue = 1;
   private pageScrollTimeout: number | null = null;
   private isInitialized = false;
   private loadingTask?: PDFDocumentLoadingTask | null;
@@ -131,6 +132,10 @@ export class PdfViewerComponent
   set page(_page: number | string | any) {
     _page = parseInt(_page, 10) || 1;
     const originalPage = _page;
+
+    if (!this._showAll) {
+      this.originalPageValue = originalPage;
+    }
 
     if (this._pdf) {
       _page = this.getValidPageNumber(_page);
@@ -459,6 +464,9 @@ export class PdfViewerComponent
       this.pdfViewer = new PDFJSViewer.PDFViewer(this.getPDFOptions());
     } else {
       this.pdfViewer = new PDFJSViewer.PDFSinglePageViewer(this.getPDFOptions());
+      // reset page to original input value
+      // in case page was changed by page length of previous pdf
+      this.page = this.originalPageValue;
     }
     this.pdfLinkService.setViewer(this.pdfViewer);
 
