@@ -2,42 +2,42 @@
  * Created by vadimdez on 21/06/16.
  */
 import {
+  AfterViewChecked,
+  AfterViewInit,
   Component,
-  Input,
-  Output,
   ElementRef,
   EventEmitter,
-  OnChanges,
-  SimpleChanges,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  AfterViewChecked,
-  NgZone,
-  AfterViewInit,
   inject,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
 } from '@angular/core';
-import { combineLatest, from, fromEvent, Subject } from 'rxjs';
-import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
 import * as PDFJSViewer from 'pdfjs-dist/web/pdf_viewer.mjs';
+import { combineLatest, from, fromEvent, Subject, Subscription } from 'rxjs';
+import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 
 import { createEventBus } from '../utils/event-bus-utils';
 import { assign, isSSR } from '../utils/helpers';
 
+import { getDocument, GlobalWorkerOptions, VerbosityLevel } from 'pdfjs-dist';
+import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
+import { PanService } from './services/pan.service';
+import { ZoomService } from './services/zoom.service';
 import type {
-  PDFSource,
+  PDFDocumentLoadingTask,
+  PDFDocumentProxy,
   PDFPageProxy,
   PDFProgressData,
-  PDFDocumentProxy,
-  PDFDocumentLoadingTask,
+  PDFSource,
   PDFViewerOptions,
   ZoomScale,
 } from './typings';
-import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
-import { ZoomService } from './services/zoom.service';
-import { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
-import { PanService } from './services/pan.service';
 
 if (!isSSR()) {
   assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
@@ -78,7 +78,7 @@ export const enum RenderTextMode {
     </div>
   `,
   styleUrls: ['./pdf-viewer.component.scss'],
-  providers: [ZoomService],
+  providers: [ZoomService, PanService],
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked, AfterViewInit
@@ -125,6 +125,7 @@ export class PdfViewerComponent
   private isInitialized = false;
   private loadingTask?: PDFDocumentLoadingTask | null;
   private destroy$ = new Subject<void>();
+  private updateSizeSub$: Subscription | null = null;
 
   @Output('after-load-complete') afterLoadComplete =
     new EventEmitter<PDFDocumentProxy>();
@@ -340,10 +341,16 @@ export class PdfViewerComponent
   }
 
   ngOnDestroy(): void {
-    this.clear();
+    if (this.updateSizeSub$) {
+      this.updateSizeSub$.unsubscribe();
+    }
+
     this.destroy$.next();
-    this.loadingTask = null;
+    this.destroy$.complete();
+
+    this.clear();
     this.zoomService.removeListeners(this.pdfViewerContainer?.nativeElement);
+    this.loadingTask = null;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -374,9 +381,13 @@ export class PdfViewerComponent
   }
 
   updateSize(): void {
-    combineLatest([
+    if (this.updateSizeSub$) {
+      this.updateSizeSub$.unsubscribe();
+    }
+
+    this.updateSizeSub$ = combineLatest([
       from(this._pdf!.getPage(this.pdfViewer.currentPageNumber)),
-      this.zoomService.triggerUpdateSize,
+      this.zoomService.triggerUpdateSize$,
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -428,6 +439,10 @@ export class PdfViewerComponent
   }
 
   clear(): void {
+    if (this.pageScrollTimeout) {
+      clearTimeout(this.pageScrollTimeout);
+    }
+
     if (this.loadingTask && !this.loadingTask.destroyed) {
       this.loadingTask.destroy();
     }

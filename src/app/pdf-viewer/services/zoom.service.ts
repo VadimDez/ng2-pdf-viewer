@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class ZoomService {
+@Injectable()
+export class ZoomService implements OnDestroy {
   private zoomMutex = false;
   zoom = 1;
   maxZoom = 0;
@@ -15,27 +13,25 @@ export class ZoomService {
   private ratioX = 0;
   private ratioY = 0;
 
-  readonly triggerUpdateSize = new BehaviorSubject<void>(undefined);
+  readonly triggerUpdateSize$ = new BehaviorSubject<void>(undefined);
+
+  private wheelHandler: ((e: WheelEvent) => void) | null = null;
 
   initSettings(
     container: HTMLElement,
     isWheelZoom: boolean,
     isWheelCtrlZoom: boolean
   ): void {
-    container.addEventListener(
-      'wheel',
-      (e: WheelEvent) => {
-        if (
-          isWheelZoom &&
-          ((isWheelCtrlZoom && e.ctrlKey) || !isWheelCtrlZoom)
-        ) {
-          e.preventDefault(); // prevent default zoom behavior
-          this.zoomAtCursor(e);
-        }
-      },
-      { passive: false }
-    );
+    this.removeListeners(container);
 
+    this.wheelHandler = (e: WheelEvent) => {
+      if (isWheelZoom && ((isWheelCtrlZoom && e.ctrlKey) || !isWheelCtrlZoom)) {
+        e.preventDefault();
+        this.zoomAtCursor(e);
+      }
+    };
+
+    container.addEventListener('wheel', this.wheelHandler, { passive: false });
     container.addEventListener('touchstart', this.onTouchStart, {
       passive: false,
     });
@@ -65,7 +61,7 @@ export class ZoomService {
     this.zoom *= delta;
     this.limitZoom();
 
-    this.triggerUpdateSize.next();
+    this.triggerUpdateSize$.next();
   }
 
   private onTouchStart = (event: TouchEvent): void => {
@@ -92,7 +88,7 @@ export class ZoomService {
         this.zoom *= scaleChange;
         this.limitZoom();
         this.lastDistance = currentDistance;
-        this.triggerUpdateSize.next();
+        this.triggerUpdateSize$.next();
       }
     }
   };
@@ -149,9 +145,17 @@ export class ZoomService {
       return;
     }
 
+    if (this.wheelHandler) {
+      container.removeEventListener('wheel', this.wheelHandler);
+      this.wheelHandler = null;
+    }
+
     container.removeEventListener('touchstart', this.onTouchStart);
     container.removeEventListener('touchmove', this.onTouchMove);
     container.removeEventListener('touchend', this.onTouchEnd);
-    container.removeEventListener('wheel', this.zoomAtCursor);
+  }
+
+  ngOnDestroy(): void {
+    this.triggerUpdateSize$.complete();
   }
 }

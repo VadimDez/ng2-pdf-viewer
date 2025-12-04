@@ -6,7 +6,9 @@ describe(ZoomService.name, () => {
   let container: HTMLElement;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [ZoomService],
+    });
     service = TestBed.inject(ZoomService);
 
     container = document.createElement('div');
@@ -98,6 +100,7 @@ describe(ZoomService.name, () => {
   describe('removeListeners', () => {
     it('should remove event listeners from the container', () => {
       const removeEventListenerSpy = spyOn(container, 'removeEventListener');
+      service['wheelHandler'] = () => {};
       service.removeListeners(container);
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith(

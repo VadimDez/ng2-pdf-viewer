@@ -1,11 +1,12 @@
-import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
 import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { PdfViewerComponent } from './pdf-viewer.component';
 import { PdfViewerModule } from './pdf-viewer.module';
 
-import { GlobalWorkerOptions } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import { PanService } from './services/pan.service';
 import { ZoomService } from './services/zoom.service';
 
 @Component({
@@ -30,7 +31,7 @@ describe(PdfViewerComponent.name, () => {
     TestBed.configureTestingModule({
       declarations: [TestComponent],
       imports: [PdfViewerModule],
-      providers: [ZoomService],
+      providers: [ZoomService, PanService],
     })
       .compileComponents()
       .then(() => {

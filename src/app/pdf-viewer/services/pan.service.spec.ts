@@ -6,7 +6,9 @@ describe(PanService.name, () => {
   let container: HTMLElement;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [PanService],
+    });
     service = TestBed.inject(PanService);
 
     container = document.createElement('div');
