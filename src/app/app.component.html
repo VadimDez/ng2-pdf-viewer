@@ -88,6 +88,18 @@
       <mat-slide-toggle [(ngModel)]="enablePan"> Enable Pan </mat-slide-toggle>
     </div>
 
+    <!-- <div class="mb">
+      <mat-slide-toggle [(ngModel)]="disableStream">
+        Disable stream
+      </mat-slide-toggle>
+    </div>
+
+    <div class="mb">
+      <mat-slide-toggle [(ngModel)]="disableRange">
+        Disable range
+      </mat-slide-toggle>
+    </div> -->
+
     <mat-form-field *ngIf="!originalSize" class="full-width">
       <mat-label>Select an option</mat-label>
       <mat-select [(value)]="zoomScale">

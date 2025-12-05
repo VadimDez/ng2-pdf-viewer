@@ -255,6 +255,8 @@ export class PdfViewerComponent
       this.pdfViewerContainer.nativeElement.style.cursor = cursor;
     }
   }
+  @Input() disableStream = false;
+  @Input() disableRange = false;
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -592,6 +594,9 @@ export class PdfViewerComponent
         Object.assign(params, this.src);
       }
     }
+
+    params.disableStream = this.disableStream;
+    params.disableRange = this.disableRange;
 
     return params;
   }

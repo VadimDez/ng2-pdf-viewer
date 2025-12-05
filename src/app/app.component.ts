@@ -3,8 +3,8 @@
  */
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
-  PDFProgressData,
   PDFDocumentProxy,
+  PDFProgressData,
   PDFSource,
   ZoomScale,
 } from './pdf-viewer/pdf-viewer.module';
@@ -31,6 +31,8 @@ export class AppComponent implements OnInit {
   isLoaded = false;
   stickToPage = false;
   showAll = true;
+  disableStream = false;
+  disableRange = false;
   autoresize = true;
   fitToPage = false;
   outline!: any[];

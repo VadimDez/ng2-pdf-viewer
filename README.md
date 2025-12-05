@@ -120,6 +120,8 @@ export class AppComponent {
 - [[autoresize]](#autoresize)
 - [[c-maps-url]](#c-maps-url)
 - [[show-borders]](#show-borders)
+- [[disableStream]](#disablestream)
+- [[disableRange]](#disableRange)
 - [(after-load-complete)](#after-load-complete)
 - [(page-rendered)](#page-rendered)
 - [(text-layer-rendered)](#text-layer-rendered)
@@ -456,6 +458,48 @@ Url for non-latin characters source maps.
 Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
 
 To serve cmaps on your own you need to copy `node_modules/pdfjs-dist/cmaps` to `assets/cmaps`.
+
+---
+
+#### [disableStream]
+
+| Property        | Type      | Required |
+| --------------- | --------- | -------- |
+| `disableStream` | _boolean_ | Optional |
+
+**Default**: `false`
+
+```html
+[disableStream]="false"
+```
+
+Disables streaming of PDF data. When set to `true`, the entire PDF will be loaded before rendering begins instead of streaming chunks progressively.
+
+This is useful when:
+
+- Loading PDFs from servers that don't properly support streaming
+- You want to ensure the complete PDF is loaded before display
+- Working with small PDFs where progressive loading isn't necessary
+
+---
+
+#### [disableRange]
+
+| Property       | Type      | Required |
+| -------------- | --------- | -------- |
+| `disableRange` | _boolean_ | Optional |
+
+**Default**: `false`
+
+```html
+[disableRange]="false"
+```
+
+Default: false
+
+Disables HTTP range requests for PDF data. When set to true, the entire PDF will be fetched in a single request instead of requesting it in chunks.
+
+---
 
 ### [show-borders]
 
