@@ -1,10 +1,11 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Injectable()
 export class ZoomService implements OnDestroy {
   private zoomMutex = false;
-  zoom = 1;
+  private _zoom = 1;
   maxZoom = 0;
   minZoom = 0;
 
@@ -13,7 +14,21 @@ export class ZoomService implements OnDestroy {
   private ratioX = 0;
   private ratioY = 0;
 
-  readonly triggerUpdateSize$ = new BehaviorSubject<void>(undefined);
+  private triggerUpdateSizeInternal$ = new BehaviorSubject<void>(undefined);
+
+  // Debounce to prevent rapid-fire updates during continuous zoom
+  triggerUpdateSize$ = this.triggerUpdateSizeInternal$.pipe(
+    debounceTime(10) // Wait after last zoom before updating
+  );
+
+  set zoom(value: number) {
+    this._zoom = value;
+    this.triggerUpdateSizeInternal$.next();
+  }
+
+  get zoom(): number {
+    return this._zoom;
+  }
 
   private wheelHandler: ((e: WheelEvent) => void) | null = null;
 
@@ -61,7 +76,7 @@ export class ZoomService implements OnDestroy {
     this.zoom *= delta;
     this.limitZoom();
 
-    this.triggerUpdateSize$.next();
+    this.triggerUpdateSizeInternal$.next();
   }
 
   private onTouchStart = (event: TouchEvent): void => {
@@ -88,7 +103,7 @@ export class ZoomService implements OnDestroy {
         this.zoom *= scaleChange;
         this.limitZoom();
         this.lastDistance = currentDistance;
-        this.triggerUpdateSize$.next();
+        this.triggerUpdateSizeInternal$.next();
       }
     }
   };
@@ -156,6 +171,6 @@ export class ZoomService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.triggerUpdateSize$.complete();
+    this.triggerUpdateSizeInternal$.complete();
   }
 }

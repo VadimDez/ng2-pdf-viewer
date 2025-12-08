@@ -421,9 +421,7 @@ export class PdfViewerComponent
             stickToPage = !this._stickToPage;
           }
 
-          page.cleanup(true);
           this.pdfViewer.currentScale = scale;
-          page.cleanup(true);
 
           if (stickToPage)
             this.pdfViewer.scrollPageIntoView({
@@ -436,6 +434,8 @@ export class PdfViewerComponent
               this.pdfViewerContainer?.nativeElement
             );
           }
+
+          page.cleanup();
 
           this.zoomChange.emit(this.zoomService.zoom);
         },
