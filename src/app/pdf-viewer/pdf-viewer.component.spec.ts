@@ -1,20 +1,20 @@
-import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
 import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { PdfViewerComponent } from './pdf-viewer.component';
 import { PdfViewerModule } from './pdf-viewer.module';
 
-import { GlobalWorkerOptions } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import { PanService } from './services/pan.service';
+import { ZoomService } from './services/zoom.service';
 
 @Component({
-  template: `
-    <pdf-viewer></pdf-viewer>
-  `
+  template: ` <pdf-viewer></pdf-viewer> `,
 })
-class TestComponent { }
+class TestComponent {}
 
-describe('AppComponent', () => {
+describe(PdfViewerComponent.name, () => {
   let pdfViewerFixture: ComponentFixture<PdfViewerComponent>;
   let pdfViewer: PdfViewerComponent;
   let testFixture: ComponentFixture<TestComponent>;
@@ -23,14 +23,15 @@ describe('AppComponent', () => {
   function setPdf(numPages: number) {
     (pdfViewer as any)._pdf = {
       numPages,
-      destroy: () => { }
+      destroy: () => {},
     };
   }
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [TestComponent],
-      imports: [PdfViewerModule]
+      imports: [PdfViewerModule],
+      providers: [ZoomService, PanService],
     })
       .compileComponents()
       .then(() => {
@@ -100,7 +101,7 @@ describe('AppComponent', () => {
     });
 
     it('should return src', () => {
-      pdfViewer.cMapsUrl = "";
+      pdfViewer.cMapsUrl = '';
       pdfViewer.src = src;
 
       expect((pdfViewer as any).getDocumentParams()).toBe(src);
@@ -152,18 +153,18 @@ describe('AppComponent', () => {
 
     beforeEach(() => {
       (window as any).pdfWorkerSrc = undefined;
-      (window as any)["pdfWorkerSrc1.2.3"] = undefined;
+      (window as any)['pdfWorkerSrc1.2.3'] = undefined;
       (window as any)[`pdfWorkerSrc${curPdfJsVersion}`] = undefined;
-
     });
 
     it('should default to the cdn', () => {
       pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
-      expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
-        }/legacy/build/pdf.worker.min.mjs`);
-    })
+      expect(GlobalWorkerOptions.workerSrc).toBe(
+        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion}/legacy/build/pdf.worker.min.mjs`
+      );
+    });
 
     it('should support global override', () => {
       (window as any).pdfWorkerSrc = 'globaloverride';
@@ -172,17 +173,18 @@ describe('AppComponent', () => {
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
       expect(GlobalWorkerOptions.workerSrc).toBe('globaloverride');
-    })
+    });
 
     it('should default to the cdn when version override does not match version', () => {
-      (window as any)["pdfWorkerSrc1.2.3"] = 'globaloverride';
+      (window as any)['pdfWorkerSrc1.2.3'] = 'globaloverride';
 
       pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
-      expect(GlobalWorkerOptions.workerSrc).toBe(`https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion
-        }/legacy/build/pdf.worker.min.mjs`);
-    })
+      expect(GlobalWorkerOptions.workerSrc).toBe(
+        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${curPdfJsVersion}/legacy/build/pdf.worker.min.mjs`
+      );
+    });
 
     it('should take version override with version match', () => {
       (window as any)[`pdfWorkerSrc${curPdfJsVersion}`] = 'globaloverride';
@@ -191,6 +193,6 @@ describe('AppComponent', () => {
       pdfViewer = pdfViewerFixture.debugElement.componentInstance;
 
       expect(GlobalWorkerOptions.workerSrc).toBe(`globaloverride`);
-    })
-  })
+    });
+  });
 });
