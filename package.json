@@ -49,7 +49,7 @@
     "@angular/common": "^16.1.0",
     "@angular/compiler": "^16.1.0",
     "@angular/compiler-cli": "^16.1.0",
-    "@angular/core": "^16.1.0",
+    "@angular/core": "^19.2.18",
     "@angular/forms": "^16.1.0",
     "@angular/language-service": "16.1.0",
     "@angular/material": "^16.0.4",
