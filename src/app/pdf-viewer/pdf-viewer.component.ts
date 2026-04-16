@@ -55,6 +55,14 @@ function validRotation(value: number): number {
   return value;
 }
 
+function validZoom(value: number): number {
+  if (typeof value !== 'number' || value <= 0) {
+    console.warn('Invalid zoom value; must be a positive number.');
+    return 1;
+  }
+  return value;
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `
@@ -91,7 +99,6 @@ export class PdfViewerComponent
       : undefined;
   private _pdf: PDFDocumentProxy | undefined;
   private _page = 1;
-  private _zoom = 1;
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
@@ -131,19 +138,7 @@ export class PdfViewerComponent
     }
   }
 
-  @Input('zoom')
-  set zoom(value: number) {
-    if (value <= 0) {
-      return;
-    }
-
-    this._zoom = value;
-  }
-
-  get zoom() {
-    return this._zoom;
-  }
-
+  readonly zoom = input(1, { alias: 'zoom', transform: validZoom });
   readonly rotation = input(0, { alias: 'rotation', transform: validRotation });
   readonly externalLinkTarget = input('blank', { alias: 'external-link-target' });
 
@@ -266,10 +261,10 @@ export class PdfViewerComponent
           const rotation = this.rotation() + page.rotate;
           const viewportWidth =
             page.getViewport({
-              scale: this._zoom,
+              scale: this.zoom(),
               rotation
             }).width * PdfViewerComponent.CSS_UNITS;
-          let scale = this._zoom;
+          let scale = this.zoom();
           let stickToPage = true;
 
           // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
@@ -545,7 +540,7 @@ export class PdfViewerComponent
         break;
     }
 
-    return (this._zoom * ratio) / PdfViewerComponent.CSS_UNITS;
+    return (this.zoom() * ratio) / PdfViewerComponent.CSS_UNITS;
   }
 
   private resetPdfDocument() {
