@@ -65,7 +65,7 @@
     "@angular/router": "^21.2.9",
     "@eslint/js": "^10.0.1",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^24.12.2",
+    "@types/node": "^25.6.0",
     "angular-eslint": "21.3.1",
     "esbuild-visualizer": "^0.7.0",
     "eslint": "^10.0.3",
