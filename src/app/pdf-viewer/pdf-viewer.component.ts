@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild, input } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild, input, booleanAttribute } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -85,9 +85,6 @@ export class PdfViewerComponent
   private _page = 1;
   private _zoom = 1;
   private _rotation = 0;
-  private _canAutoResize = true;
-  private _fitToPage = false;
-  private _showBorders = false;
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
@@ -152,20 +149,9 @@ export class PdfViewerComponent
 
   readonly externalLinkTarget = input('blank', { alias: 'external-link-target' });
 
-  @Input('autoresize')
-  set autoresize(value: boolean) {
-    this._canAutoResize = Boolean(value);
-  }
-
-  @Input('fit-to-page')
-  set fitToPage(value: boolean) {
-    this._fitToPage = Boolean(value);
-  }
-
-  @Input('show-borders')
-  set showBorders(value: boolean) {
-    this._showBorders = Boolean(value);
-  }
+  readonly autoresize = input(true, { alias: 'autoresize', transform: booleanAttribute });
+  readonly fitToPage = input(false, { alias: 'fit-to-page', transform: booleanAttribute });
+  readonly showBorders = input(false, { alias: 'show-borders', transform: booleanAttribute });
 
   static getLinkTarget(type: string) {
     switch (type) {
@@ -291,7 +277,7 @@ export class PdfViewerComponent
           // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
           if (
             !this.originalSize() ||
-            (this._fitToPage &&
+            (this.fitToPage() &&
               viewportWidth > this.pdfViewerContainer().nativeElement.clientWidth)
           ) {
             const viewPort = page.getViewport({ scale: 1, rotation });
@@ -382,7 +368,7 @@ export class PdfViewerComponent
     return {
       eventBus: this.eventBus,
       container: this.element.nativeElement.querySelector('div')!,
-      removePageBorders: !this._showBorders,
+      removePageBorders: !this.showBorders(),
       linkService: this.pdfLinkService,
       textLayerMode: this.renderText()
         ? this.renderTextMode()
@@ -531,7 +517,7 @@ export class PdfViewerComponent
   }
 
   private getScale(viewportWidth: number, viewportHeight: number) {
-    const borderSize = this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0;
+    const borderSize = this.showBorders() ? 2 * PdfViewerComponent.BORDER_WIDTH : 0;
     const pdfContainerWidth = this.pdfViewerContainer().nativeElement.clientWidth - borderSize;
     const pdfContainerHeight = this.pdfViewerContainer().nativeElement.clientHeight - borderSize;
 
@@ -589,7 +575,7 @@ export class PdfViewerComponent
       fromEvent(window, 'resize')
         .pipe(
           debounceTime(100),
-          filter(() => this._canAutoResize && !!this._pdf),
+          filter(() => this.autoresize() && !!this._pdf),
           takeUntil(this.destroy$)
         )
         .subscribe(() => {
