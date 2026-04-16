@@ -31,13 +31,10 @@ module.exports = defineConfig([
           style: "kebab-case",
         },
       ],
-      // PdfViewerComponent must remain declarable in PdfViewerModule
-      // (public API); standalone migration is a deferred follow-up.
-      "@angular-eslint/prefer-standalone": "off",
-      // kebab-case @Input/@Output aliases are part of the public API.
+      // kebab-case input()/output() aliases are part of the public API.
       "@angular-eslint/no-input-rename": "off",
       "@angular-eslint/no-output-rename": "off",
-      // (error)/(on-progress) outputs are documented public API names.
+      // (error) and (on-progress) outputs are documented public API names.
       "@angular-eslint/no-output-native": "off",
       "@angular-eslint/no-output-on-prefix": "off",
       // Carry forward prior tslint:recommended strictness; tightening
