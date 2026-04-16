@@ -93,13 +93,13 @@ describe('AppComponent', () => {
     it('should check default url', () => {
       const PDFJS = require('pdfjs-dist');
 
-      expect((pdfViewer as any)._cMapsUrl).toBe(
+      expect(pdfViewer.cMapsUrl()).toBe(
         `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
       );
     });
 
     it('should return src', () => {
-      pdfViewer.cMapsUrl = "";
+      pdfViewerFixture.componentRef.setInput('c-maps-url', '');
       pdfViewerFixture.componentRef.setInput('src', src);
 
       expect((pdfViewer as any).getDocumentParams()).toBe(src);
@@ -107,7 +107,7 @@ describe('AppComponent', () => {
 
     it('should return object', () => {
       pdfViewerFixture.componentRef.setInput('src', src);
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
@@ -120,7 +120,7 @@ describe('AppComponent', () => {
 
     it('should return object when src is an object', () => {
       pdfViewerFixture.componentRef.setInput('src', { url: src });
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
@@ -134,7 +134,7 @@ describe('AppComponent', () => {
     it('should return object when src is an object with byte array', () => {
       const srcUrl = new Uint8Array(1);
       pdfViewerFixture.componentRef.setInput('src', { url: srcUrl as any });
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: srcUrl,

@@ -73,27 +73,20 @@ export class PdfViewerComponent
 
   private isVisible = false;
 
-  private _cMapsUrl =
+  private static readonly DEFAULT_C_MAPS_URL =
     typeof PDFJS !== 'undefined'
       ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
-      : null;
+      : undefined;
   private _imageResourcesPath =
     typeof PDFJS !== 'undefined'
       ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/web/images/`
       : undefined;
-  private _renderText = true;
-  private _renderTextMode: RenderTextMode = RenderTextMode.ENABLED;
-  private _stickToPage = false;
-  private _originalSize = true;
   private _pdf: PDFDocumentProxy | undefined;
   private _page = 1;
   private _zoom = 1;
-  private _zoomScale: ZoomScale = 'page-width';
   private _rotation = 0;
-  private _showAll = true;
   private _canAutoResize = true;
   private _fitToPage = false;
-  private _externalLinkTarget = 'blank';
   private _showBorders = false;
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
@@ -111,11 +104,13 @@ export class PdfViewerComponent
   readonly onProgress = output<PDFProgressData>({ alias: 'on-progress' });
   readonly pageChange = output<number>();
   readonly src = input<string | Uint8Array | PDFSource>();
-
-  @Input('c-maps-url')
-  set cMapsUrl(cMapsUrl: string) {
-    this._cMapsUrl = cMapsUrl;
-  }
+  readonly cMapsUrl = input(PdfViewerComponent.DEFAULT_C_MAPS_URL, { alias: 'c-maps-url' });
+  readonly renderText = input(true, { alias: 'render-text' });
+  readonly renderTextMode = input(RenderTextMode.ENABLED, { alias: 'render-text-mode' });
+  readonly originalSize = input(true, { alias: 'original-size' });
+  readonly showAll = input(true, { alias: 'show-all' });
+  readonly stickToPage = input(false, { alias: 'stick-to-page' });
+  readonly zoomScale = input<ZoomScale>('page-width', { alias: 'zoom-scale' });
 
   @Input('page')
   set page(_page: number | string | any) {
@@ -132,31 +127,6 @@ export class PdfViewerComponent
     }
   }
 
-  @Input('render-text')
-  set renderText(renderText: boolean) {
-    this._renderText = renderText;
-  }
-
-  @Input('render-text-mode')
-  set renderTextMode(renderTextMode: RenderTextMode) {
-    this._renderTextMode = renderTextMode;
-  }
-
-  @Input('original-size')
-  set originalSize(originalSize: boolean) {
-    this._originalSize = originalSize;
-  }
-
-  @Input('show-all')
-  set showAll(value: boolean) {
-    this._showAll = value;
-  }
-
-  @Input('stick-to-page')
-  set stickToPage(value: boolean) {
-    this._stickToPage = value;
-  }
-
   @Input('zoom')
   set zoom(value: number) {
     if (value <= 0) {
@@ -170,15 +140,6 @@ export class PdfViewerComponent
     return this._zoom;
   }
 
-  @Input('zoom-scale')
-  set zoomScale(value: ZoomScale) {
-    this._zoomScale = value;
-  }
-
-  get zoomScale() {
-    return this._zoomScale;
-  }
-
   @Input('rotation')
   set rotation(value: number) {
     if (!(typeof value === 'number' && value % 90 === 0)) {
@@ -189,10 +150,7 @@ export class PdfViewerComponent
     this._rotation = value;
   }
 
-  @Input('external-link-target')
-  set externalLinkTarget(value: string) {
-    this._externalLinkTarget = value;
-  }
+  readonly externalLinkTarget = input('blank', { alias: 'external-link-target' });
 
   @Input('autoresize')
   set autoresize(value: boolean) {
@@ -332,13 +290,13 @@ export class PdfViewerComponent
 
           // Scale the document when it shouldn't be in original size or doesn't fit into the viewport
           if (
-            !this._originalSize ||
+            !this.originalSize() ||
             (this._fitToPage &&
               viewportWidth > this.pdfViewerContainer().nativeElement.clientWidth)
           ) {
             const viewPort = page.getViewport({ scale: 1, rotation });
             scale = this.getScale(viewPort.width, viewPort.height);
-            stickToPage = !this._stickToPage;
+            stickToPage = !this.stickToPage();
           }
 
           this.pdfViewer.currentScale = scale;
@@ -365,7 +323,7 @@ export class PdfViewerComponent
   }
 
   private getPDFLinkServiceConfig() {
-    const linkTarget = PdfViewerComponent.getLinkTarget(this._externalLinkTarget);
+    const linkTarget = PdfViewerComponent.getLinkTarget(this.externalLinkTarget());
 
     if (linkTarget) {
       return { externalLinkTarget: linkTarget };
@@ -426,8 +384,8 @@ export class PdfViewerComponent
       container: this.element.nativeElement.querySelector('div')!,
       removePageBorders: !this._showBorders,
       linkService: this.pdfLinkService,
-      textLayerMode: this._renderText
-        ? this._renderTextMode
+      textLayerMode: this.renderText()
+        ? this.renderTextMode()
         : RenderTextMode.DISABLED,
       findController: this.pdfFindController,
       l10n: new PDFJSViewer.GenericL10n('en'),
@@ -441,11 +399,11 @@ export class PdfViewerComponent
       this.pdfViewer.setDocument(null as any);
     }
 
-    assign(PDFJS, 'disableTextLayer', !this._renderText);
+    assign(PDFJS, 'disableTextLayer', !this.renderText());
 
     this.initPDFServices();
 
-    if (this._showAll) {
+    if (this.showAll()) {
       this.pdfViewer = new PDFJSViewer.PDFViewer(this.getPDFOptions());
     } else {
       this.pdfViewer = new PDFJSViewer.PDFSinglePageViewer(this.getPDFOptions());
@@ -470,12 +428,12 @@ export class PdfViewerComponent
   private getDocumentParams() {
     const srcType = typeof this.src();
 
-    if (!this._cMapsUrl) {
+    if (!this.cMapsUrl()) {
       return this.src();
     }
 
     const params: any = {
-      cMapUrl: this._cMapsUrl,
+      cMapUrl: this.cMapsUrl(),
       cMapPacked: true,
       enableXfa: true,
     };
@@ -555,7 +513,7 @@ export class PdfViewerComponent
       );
     }
 
-    if (this._stickToPage) {
+    if (this.stickToPage()) {
       setTimeout(() => {
         this.pdfViewer.currentPageNumber = this._page;
       });
@@ -587,7 +545,7 @@ export class PdfViewerComponent
     }
 
     let ratio = 1;
-    switch (this._zoomScale) {
+    switch (this.zoomScale()) {
       case 'page-fit':
         ratio = Math.min(
           pdfContainerHeight / viewportHeight,
