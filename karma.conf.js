@@ -9,7 +9,6 @@ module.exports = function (config) {
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
-      require('karma-coverage-istanbul-reporter'),
     ],
     client: {
       jasmine: {
@@ -22,11 +21,6 @@ module.exports = function (config) {
     },
     jasmineHtmlReporter: {
       suppressAll: true, // removes the duplicated traces
-    },
-    coverageIstanbulReporter: {
-      dir: require('path').join(__dirname, './coverage/ng2-pdf-viewer'),
-      reports: ['html', 'lcovonly', 'text-summary'],
-      fixWebpackSourcePaths: true,
     },
     reporters: ['progress', 'kjhtml'],
     port: 9876,
