@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ViewChild, AfterViewChecked, NgZone, inject } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, ViewChild, AfterViewChecked, NgZone, inject, output } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -103,13 +103,13 @@ export class PdfViewerComponent
   private loadingTask?: PDFDocumentLoadingTask | null;
   private destroy$ = new Subject<void>();
 
-  @Output('after-load-complete') afterLoadComplete = new EventEmitter<PDFDocumentProxy>();
-  @Output('page-rendered') pageRendered = new EventEmitter<CustomEvent>();
-  @Output('pages-initialized') pageInitialized = new EventEmitter<CustomEvent>();
-  @Output('text-layer-rendered') textLayerRendered = new EventEmitter<CustomEvent>();
-  @Output('error') onError = new EventEmitter<any>();
-  @Output('on-progress') onProgress = new EventEmitter<PDFProgressData>();
-  @Output() pageChange: EventEmitter<number> = new EventEmitter<number>(true);
+  readonly afterLoadComplete = output<PDFDocumentProxy>({ alias: 'after-load-complete' });
+  readonly pageRendered = output<CustomEvent>({ alias: 'page-rendered' });
+  readonly pageInitialized = output<CustomEvent>({ alias: 'pages-initialized' });
+  readonly textLayerRendered = output<CustomEvent>({ alias: 'text-layer-rendered' });
+  readonly onError = output<any>({ alias: 'error' });
+  readonly onProgress = output<PDFProgressData>({ alias: 'on-progress' });
+  readonly pageChange = output<number>();
   @Input() src?: string | Uint8Array | PDFSource;
 
   @Input('c-maps-url')
