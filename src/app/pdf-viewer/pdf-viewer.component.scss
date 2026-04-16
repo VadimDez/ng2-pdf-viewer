@@ -59,20 +59,23 @@
   }
 
   .textLayer {
+    --min-font-size: 1;
+    --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+    --min-font-size-inv: calc(1 / var(--min-font-size));
+
     position: absolute;
     text-align: initial;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    overflow: hidden;
-    opacity: 0.2;
+    inset: 0;
+    overflow: clip;
+    opacity: 1;
     line-height: 1;
     -webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
     text-size-adjust: none;
     forced-color-adjust: none;
     transform-origin: 0 0;
+    caret-color: CanvasText;
+    z-index: 0;
   }
 
   .textLayer span,
@@ -82,6 +85,16 @@
     white-space: pre;
     cursor: text;
     transform-origin: 0% 0%;
+  }
+
+  .textLayer > :not(.markedContent),
+  .textLayer .markedContent span:not(.markedContent) {
+    z-index: 1;
+    --font-height: 0;
+    font-size: calc(var(--text-scale-factor) * var(--font-height));
+    --scale-x: 1;
+    --rotate: 0deg;
+    transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
   }
 
   /* Only necessary in Google Chrome, see issue 14205, and most unfortunately
@@ -119,11 +132,11 @@
   }
 
   .textLayer ::-moz-selection {
-    background: rgba(0, 0, 255, 1);
+    background: rgba(0, 0, 255, 0.2);
   }
 
   .textLayer ::selection {
-    background: rgba(0, 0, 255, 1);
+    background: rgba(0, 0, 255, 0.2);
   }
 
   /* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
@@ -892,6 +905,11 @@
   }
 
   .pdfViewer .page {
+    --user-unit: 1;
+    --total-scale-factor: calc(var(--scale-factor) * var(--user-unit));
+    --scale-round-x: 1px;
+    --scale-round-y: 1px;
+
     direction: ltr;
     width: 816px;
     height: 1056px;

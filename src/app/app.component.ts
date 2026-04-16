@@ -167,7 +167,7 @@ export class AppComponent implements OnInit {
     const current = this.pdfSrc();
     let newSrc: PDFSource;
 
-    if (current instanceof ArrayBuffer) {
+    if (current instanceof ArrayBuffer || current instanceof Uint8Array) {
       newSrc = { data: current as any };
     } else if (typeof current === 'string') {
       newSrc = { url: current };
