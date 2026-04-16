@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild, input, booleanAttribute } from '@angular/core';
+import { Component, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild, input, booleanAttribute } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -63,6 +63,11 @@ function validZoom(value: number): number {
   return value;
 }
 
+function pageTransform(value: unknown): number {
+  const n = parseInt(value as string, 10);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `
@@ -79,6 +84,8 @@ export class PdfViewerComponent
 
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
+
+  private _page = 1;
 
   readonly pdfViewerContainer = viewChild.required<ElementRef<HTMLDivElement>>('pdfViewerContainer');
 
@@ -98,7 +105,6 @@ export class PdfViewerComponent
       ? `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/web/images/`
       : undefined;
   private _pdf: PDFDocumentProxy | undefined;
-  private _page = 1;
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
@@ -115,6 +121,7 @@ export class PdfViewerComponent
   readonly onProgress = output<PDFProgressData>({ alias: 'on-progress' });
   readonly pageChange = output<number>();
   readonly src = input<string | Uint8Array | PDFSource>();
+  readonly page = input(1, { alias: 'page', transform: pageTransform });
   readonly cMapsUrl = input(PdfViewerComponent.DEFAULT_C_MAPS_URL, { alias: 'c-maps-url' });
   readonly renderText = input(true, { alias: 'render-text' });
   readonly renderTextMode = input(RenderTextMode.ENABLED, { alias: 'render-text-mode' });
@@ -122,21 +129,6 @@ export class PdfViewerComponent
   readonly showAll = input(true, { alias: 'show-all' });
   readonly stickToPage = input(false, { alias: 'stick-to-page' });
   readonly zoomScale = input<ZoomScale>('page-width', { alias: 'zoom-scale' });
-
-  @Input('page')
-  set page(_page: number | string | any) {
-    _page = parseInt(_page, 10) || 1;
-    const originalPage = _page;
-
-    if (this._pdf) {
-      _page = this.getValidPageNumber(_page);
-    }
-
-    this._page = _page;
-    if (originalPage !== _page) {
-      this.pageChange.emit(_page);
-    }
-  }
 
   readonly zoom = input(1, { alias: 'zoom', transform: validZoom });
   readonly rotation = input(0, { alias: 'rotation', transform: validRotation });
@@ -206,7 +198,7 @@ export class PdfViewerComponent
 
       setTimeout(() => {
         this.initialize();
-        this.ngOnChanges({ src: this.src() } as any);
+        this.ngOnChanges({ src: this.src(), page: this.page() } as any);
       });
     }
   }
@@ -235,17 +227,24 @@ export class PdfViewerComponent
         this.resetPdfDocument();
       }
       if ('page' in changes) {
-        const { page } = changes;
-        if (page.currentValue === this._latestScrolledPage) {
-          return;
-        }
-
-        // New form of page changing: The viewer will now jump to the specified page when it is changed.
-        // This behavior is introduced by using the PDFSinglePageViewer
-        this.pdfViewer.scrollPageIntoView({ pageNumber: this._page });
+        this.handlePageChange();
       }
 
       this.update();
+    }
+  }
+
+  private handlePageChange(): void {
+    const requested = this.page();
+    const clamped = this.getValidPageNumber(requested);
+    if (clamped !== this._page) {
+      this._page = clamped;
+      if (clamped !== requested) {
+        this.pageChange.emit(clamped);
+      }
+      if (clamped !== this._latestScrolledPage) {
+        this.pdfViewer.scrollPageIntoView({ pageNumber: clamped });
+      }
     }
   }
 
@@ -474,13 +473,15 @@ export class PdfViewerComponent
   }
 
   private update() {
-    this.page = this._page;
-
     this.render();
   }
 
   private render() {
-    this._page = this.getValidPageNumber(this._page);
+    const clamped = this.getValidPageNumber(this.page());
+    if (clamped !== this._page) {
+      this._page = clamped;
+      this.pageChange.emit(clamped);
+    }
 
     if (
       this.rotation() !== 0 ||
