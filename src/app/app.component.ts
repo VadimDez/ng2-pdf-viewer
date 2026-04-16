@@ -14,7 +14,8 @@ import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  standalone: false
 })
 export class AppComponent implements OnInit {
   pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';

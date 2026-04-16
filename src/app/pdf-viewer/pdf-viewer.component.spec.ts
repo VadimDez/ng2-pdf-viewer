@@ -10,7 +10,8 @@ import * as PDFJS from 'pdfjs-dist';
 @Component({
   template: `
     <pdf-viewer></pdf-viewer>
-  `
+  `,
+  standalone: false
 })
 class TestComponent { }
 
