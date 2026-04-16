@@ -9,7 +9,7 @@
     "build": "ng build --configuration production",
     "build:stats": "ng build --stats-json",
     "watch": "ng build --watch --configuration development",
-    "analyze": "webpack-bundle-analyzer dist/stats.json",
+    "analyze": "esbuild-visualizer --metadata dist/stats.json --filename dist/analysis.html",
     "test": "ng test --watch false",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "test:w": "ng test",
@@ -67,6 +67,7 @@
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.3.1",
     "angular-eslint": "21.3.1",
+    "esbuild-visualizer": "^0.7.0",
     "eslint": "^10.0.3",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",
@@ -77,7 +78,6 @@
     "ng-packagr": "^21.2.2",
     "rxjs": "~7.8.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "8.56.1",
-    "webpack-bundle-analyzer": "^4.7.0"
+    "typescript-eslint": "8.56.1"
   }
 }
