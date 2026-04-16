@@ -1,5 +1,5 @@
-import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { Component, provideZonelessChangeDetection } from '@angular/core';
 
 import { PdfViewerComponent } from './pdf-viewer.component';
 
@@ -27,19 +27,18 @@ describe('AppComponent', () => {
     };
   }
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [TestComponent]
-    })
-      .compileComponents()
-      .then(() => {
-        testFixture = TestBed.createComponent(TestComponent);
-        testApp = testFixture.debugElement.componentInstance;
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TestComponent],
+      providers: [provideZonelessChangeDetection()]
+    }).compileComponents();
 
-        pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
-        pdfViewer = pdfViewerFixture.debugElement.componentInstance;
-      });
-  }));
+    testFixture = TestBed.createComponent(TestComponent);
+    testApp = testFixture.debugElement.componentInstance;
+
+    pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+    pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+  });
 
   it('should create test component', () => {
     expect(testApp).toBeTruthy();
