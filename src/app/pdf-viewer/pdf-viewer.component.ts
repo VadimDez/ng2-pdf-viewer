@@ -1,20 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import {
-  Component,
-  Input,
-  Output,
-  ElementRef,
-  EventEmitter,
-  OnChanges,
-  SimpleChanges,
-  OnInit,
-  OnDestroy,
-  ViewChild,
-  AfterViewChecked,
-  NgZone
-} from '@angular/core';
+import { Component, Input, Output, ElementRef, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ViewChild, AfterViewChecked, NgZone, inject } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -71,6 +58,9 @@ export enum RenderTextMode {
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {
+  private element = inject<ElementRef<HTMLElement>>(ElementRef);
+  private ngZone = inject(NgZone);
+
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
 
@@ -236,7 +226,7 @@ export class PdfViewerComponent
     return null;
   }
 
-  constructor(private element: ElementRef<HTMLElement>, private ngZone: NgZone) {
+  constructor() {
     if (isSSR()) {
       return;
     }

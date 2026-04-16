@@ -40,8 +40,6 @@ module.exports = defineConfig([
       // (error)/(on-progress) outputs are documented public API names.
       "@angular-eslint/no-output-native": "off",
       "@angular-eslint/no-output-on-prefix": "off",
-      // signal/inject migrations deferred to a separate PR.
-      "@angular-eslint/prefer-inject": "off",
       // Carry forward prior tslint:recommended strictness; tightening
       // these is out of scope for the Angular 21 upgrade.
       "@typescript-eslint/no-explicit-any": "off",
