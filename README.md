@@ -14,7 +14,7 @@
   </a>
 </p>
 
-> PDF Viewer Component for Angular 5+
+> PDF Viewer Component for Angular 17+ (standalone)
 
 ### Demo page
 
@@ -32,6 +32,8 @@
 
 * [Install](#install)
 * [Usage](#usage)
+* [Migrating from v10](#migrating-from-v10)
+* [Zoneless support](#zoneless-support)
 * [Options](#options)
 * [Render local PDF file](#render-local-pdf-file)
 * [Set custom path to the worker](#set-custom-path-to-the-worker)
@@ -40,13 +42,18 @@
 
 ## Install
 
-### Angular >= 12
+### Angular >= 17
 ```
 npm install ng2-pdf-viewer
 ```
-> Partial Ivy compilated library bundles.
+> Standalone component, signal-based inputs/outputs, ships with FESM2022 bundles.
 
-### Angular >= 4
+### Angular 12 – 16
+```
+npm install ng2-pdf-viewer@^10.0.0
+```
+
+### Angular 4 – 11
 ```
 npm install ng2-pdf-viewer@^7.0.0
 ```
@@ -57,6 +64,33 @@ npm install ng2-pdf-viewer@~3.0.8
 ```
 
 ## Usage
+
+### v11+ (Angular 17+)
+
+Add `PdfViewerComponent` to the `imports` array of the standalone component where you want to render a PDF.
+
+```typescript
+import { Component } from '@angular/core';
+import { PdfViewerComponent } from 'ng2-pdf-viewer';
+
+@Component({
+  selector: 'example-app',
+  imports: [PdfViewerComponent],
+  template: `
+    <pdf-viewer
+      [src]="pdfSrc"
+      [render-text]="true"
+      [original-size]="false"
+      style="width: 400px; height: 500px"
+    />
+  `
+})
+export class AppComponent {
+  pdfSrc = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
+}
+```
+
+### v10 and earlier (Angular 5 – 16)
 
 *In case you're using ```systemjs``` see configuration [here](https://github.com/VadimDez/ng2-pdf-viewer/blob/master/SYSTEMJS.md).*
 
@@ -99,6 +133,44 @@ export class AppComponent {
   pdfSrc = "https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf";
 }
 ```
+
+## Migrating from v10
+
+**Template bindings are unchanged.** Every `[input]`, `(output)`, and `[(two-way)]` binding on `<pdf-viewer>` works exactly as before — same names, same payload types, same kebab-case aliases. The only required change for most consumers is the **import**:
+
+```diff
+- import { PdfViewerModule } from 'ng2-pdf-viewer';
++ import { PdfViewerComponent } from 'ng2-pdf-viewer';
+
+  @NgModule({          // or @Component({...}) for standalone hosts
+-   imports: [PdfViewerModule],
++   imports: [PdfViewerComponent],
+  })
+```
+
+Other v11 changes that may affect you only if you read or write the component instance directly from TypeScript (rare):
+
+- Inputs are now signals. If you held a `@ViewChild` reference and read `pdfComponent.zoom`, change it to `pdfComponent.zoom()`.
+- Inputs are readonly. If you assigned `pdfComponent.zoom = 1.5` from code, switch to template binding `[zoom]="myZoom"` — direct assignment no longer compiles.
+- Minimum Angular is 17.0.0 (was 5+). Minimum Node is 20.19+ / 22.12+ / 24+.
+
+## Zoneless support
+
+`PdfViewerComponent` works in both zone-based and zoneless host applications. The component has no reactive template bindings — its template is a single container `<div>` and all rendering is delegated to pdf.js's imperative DOM API. Outputs go through `output()` signals, which automatically mark consumer components dirty.
+
+Zoneless consumers can bootstrap as usual:
+
+```typescript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideZonelessChangeDetection()]
+}).catch(err => console.error(err));
+```
+
+No additional configuration is required on the library side.
 
 ## Options
 
@@ -335,7 +407,7 @@ Url for non-latin characters source maps.
 [c-maps-url]="'assets/cmaps/'"
 ```
 
-Default url is: [https://unpkg.com/pdfjs-dist@2.0.550/cmaps/](https://unpkg.com/pdfjs-dist@2.0.550/cmaps/)
+Default url is `https://unpkg.com/pdfjs-dist@<version>/cmaps/` where `<version>` matches the bundled `pdfjs-dist` version.
 
 To serve cmaps on your own you need to copy ```node_modules/pdfjs-dist/cmaps``` to ```assets/cmaps```.
 
@@ -533,18 +605,26 @@ Use `eventBus` for the search functionality.
 
 In your component's ts file:
 
-* Add reference to `pdf-viewer` component,
+* Add a signal `viewChild()` reference to `pdf-viewer`,
 * then when needed execute `search()` like this:
 
 ```typescript
-@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;
+import { Component, viewChild } from '@angular/core';
+import { PdfViewerComponent } from 'ng2-pdf-viewer';
 
-search(stringToSearch: string) {
-  this.pdfComponent.eventBus.dispatch('find', {
-    query: stringToSearch, type: 'again', caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true
-  });
+@Component({ /* ... */ })
+export class AppComponent {
+  private readonly pdfComponent = viewChild(PdfViewerComponent);
+
+  search(stringToSearch: string) {
+    this.pdfComponent()?.eventBus.dispatch('find', {
+      query: stringToSearch, type: 'again', caseSensitive: false, findPrevious: undefined, highlightAll: true, phraseSearch: true
+    });
+  }
 }
 ```
+
+> The legacy `@ViewChild(PdfViewerComponent) private pdfComponent: PdfViewerComponent;` decorator form still works but `viewChild()` is the modern API and matches Angular's signal direction.
 
 ## Contribute
 [See CONTRIBUTING.md](CONTRIBUTING.md)
