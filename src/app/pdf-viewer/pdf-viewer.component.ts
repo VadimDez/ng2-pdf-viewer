@@ -47,6 +47,14 @@ export enum RenderTextMode {
   ENHANCED
 }
 
+function validRotation(value: number): number {
+  if (typeof value !== 'number' || value % 90 !== 0) {
+    console.warn('Invalid pages rotation angle.');
+    return 0;
+  }
+  return value;
+}
+
 @Component({
   selector: 'pdf-viewer',
   template: `
@@ -84,7 +92,6 @@ export class PdfViewerComponent
   private _pdf: PDFDocumentProxy | undefined;
   private _page = 1;
   private _zoom = 1;
-  private _rotation = 0;
   private lastLoaded!: string | Uint8Array | PDFSource | null;
   private _latestScrolledPage!: number;
 
@@ -137,16 +144,7 @@ export class PdfViewerComponent
     return this._zoom;
   }
 
-  @Input('rotation')
-  set rotation(value: number) {
-    if (!(typeof value === 'number' && value % 90 === 0)) {
-      console.warn('Invalid pages rotation angle.');
-      return;
-    }
-
-    this._rotation = value;
-  }
-
+  readonly rotation = input(0, { alias: 'rotation', transform: validRotation });
   readonly externalLinkTarget = input('blank', { alias: 'external-link-target' });
 
   readonly autoresize = input(true, { alias: 'autoresize', transform: booleanAttribute });
@@ -265,7 +263,7 @@ export class PdfViewerComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (page: PDFPageProxy) => {
-          const rotation = this._rotation + page.rotate;
+          const rotation = this.rotation() + page.rotate;
           const viewportWidth =
             page.getViewport({
               scale: this._zoom,
@@ -490,12 +488,12 @@ export class PdfViewerComponent
     this._page = this.getValidPageNumber(this._page);
 
     if (
-      this._rotation !== 0 ||
-      this.pdfViewer.pagesRotation !== this._rotation
+      this.rotation() !== 0 ||
+      this.pdfViewer.pagesRotation !== this.rotation()
     ) {
       // wait until at least the first page is available.
       this.pdfViewer.firstPagePromise?.then(
-        () => (this.pdfViewer.pagesRotation = this._rotation)
+        () => (this.pdfViewer.pagesRotation = this.rotation())
       );
     }
 
