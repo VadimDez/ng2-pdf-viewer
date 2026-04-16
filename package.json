@@ -15,7 +15,7 @@
     "test:w": "ng test",
     "lint": "ng lint",
     "packagr": "ng-packagr -p ng-package.json",
-    "docs": "ng build --configuration production --output-path docs --base-href ng2-pdf-viewer && cp ./docs/index.html ./docs/404.html"
+    "docs": "ng build --configuration production,docs && cp ./docs/index.html ./docs/404.html"
   },
   "private": false,
   "repository": {
@@ -49,8 +49,8 @@
     "rxjs": ">=7.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^21.2.7",
     "@angular/animations": "^21.2.9",
+    "@angular/build": "^21.2.7",
     "@angular/cdk": "^21.2.6",
     "@angular/cli": "~21.2.7",
     "@angular/common": "^21.2.9",

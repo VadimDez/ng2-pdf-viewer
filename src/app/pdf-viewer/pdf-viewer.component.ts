@@ -19,12 +19,8 @@ import type {
   PDFViewerOptions,
   ZoomScale
 } from './typings';
-import { GlobalWorkerOptions, VerbosityLevel, getDocument } from 'pdfjs-dist';
+import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
 
-
-if (!isSSR()) {
-  assign(PDFJS, 'verbosity', VerbosityLevel.INFOS);
-}
 
 // @ts-expect-error This does not exist outside of polyfill which this is doing
 if (typeof Promise.withResolvers === 'undefined' && window) {
@@ -376,8 +372,6 @@ export class PdfViewerComponent
     if (this.pdfViewer) {
       this.pdfViewer.setDocument(null as any);
     }
-
-    assign(PDFJS, 'disableTextLayer', !this.renderText());
 
     this.initPDFServices();
 
