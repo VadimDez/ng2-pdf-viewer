@@ -67,8 +67,7 @@ export enum RenderTextMode {
       <div class="pdfViewer"></div>
     </div>
   `,
-  styleUrls: ['./pdf-viewer.component.scss'],
-  standalone: false
+  styleUrls: ['./pdf-viewer.component.scss']
 })
 export class PdfViewerComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewChecked {

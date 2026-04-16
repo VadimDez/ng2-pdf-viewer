@@ -1,8 +1,9 @@
 import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { AppComponent } from './app/app.component';
 
 if (environment.production) {
   enableProdMode();
@@ -15,6 +16,10 @@ if (environment.production) {
   );
 }
 
-platformBrowserDynamic()
-  .bootstrapModule(AppModule, { applicationProviders: [provideZoneChangeDetection()], })
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZoneChangeDetection(),
+    provideNoopAnimations()
+  ]
+})
   .catch(err => console.error(err));

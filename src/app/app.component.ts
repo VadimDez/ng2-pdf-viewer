@@ -3,19 +3,43 @@
  */
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import {
-  PDFProgressData,
   PDFDocumentProxy,
+  PDFProgressData,
   PDFSource,
   ZoomScale
-} from './pdf-viewer/pdf-viewer.module';
+} from './pdf-viewer/typings';
 
 import { PdfViewerComponent } from './pdf-viewer/pdf-viewer.component';
+import { FormsModule } from '@angular/forms';
+import { JsonPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'pdf-viewer-app',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  standalone: false
+  imports: [
+    FormsModule,
+    JsonPipe,
+    PdfViewerComponent,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatIconModule
+  ]
 })
 export class AppComponent implements OnInit {
   pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';
