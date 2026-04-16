@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild, input } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -110,7 +110,7 @@ export class PdfViewerComponent
   readonly onError = output<any>({ alias: 'error' });
   readonly onProgress = output<PDFProgressData>({ alias: 'on-progress' });
   readonly pageChange = output<number>();
-  @Input() src?: string | Uint8Array | PDFSource;
+  readonly src = input<string | Uint8Array | PDFSource>();
 
   @Input('c-maps-url')
   set cMapsUrl(cMapsUrl: string) {
@@ -269,7 +269,7 @@ export class PdfViewerComponent
 
       setTimeout(() => {
         this.initialize();
-        this.ngOnChanges({ src: this.src } as any);
+        this.ngOnChanges({ src: this.src() } as any);
       });
     }
   }
@@ -468,10 +468,10 @@ export class PdfViewerComponent
   }
 
   private getDocumentParams() {
-    const srcType = typeof this.src;
+    const srcType = typeof this.src();
 
     if (!this._cMapsUrl) {
-      return this.src;
+      return this.src();
     }
 
     const params: any = {
@@ -482,12 +482,12 @@ export class PdfViewerComponent
     params.isEvalSupported = false; // http://cve.org/CVERecord?id=CVE-2024-4367
 
     if (srcType === 'string') {
-      params.url = this.src;
+      params.url = this.src();
     } else if (srcType === 'object') {
-      if ((this.src as any).byteLength !== undefined) {
-        params.data = this.src;
+      if ((this.src() as any).byteLength !== undefined) {
+        params.data = this.src();
       } else {
-        Object.assign(params, this.src);
+        Object.assign(params, this.src());
       }
     }
 
@@ -495,11 +495,12 @@ export class PdfViewerComponent
   }
 
   private loadPDF() {
-    if (!this.src) {
+    const srcValue = this.src();
+    if (!srcValue) {
       return;
     }
 
-    if (this.lastLoaded === this.src) {
+    if (this.lastLoaded === srcValue) {
       this.update();
       return;
     }
@@ -514,7 +515,7 @@ export class PdfViewerComponent
       this.onProgress.emit(progressData);
     };
 
-    const src = this.src;
+    const src = srcValue;
 
     from(this.loadingTask!.promise as Promise<PDFDocumentProxy>)
       .pipe(takeUntil(this.destroy$))

@@ -100,13 +100,13 @@ describe('AppComponent', () => {
 
     it('should return src', () => {
       pdfViewer.cMapsUrl = "";
-      pdfViewer.src = src;
+      pdfViewerFixture.componentRef.setInput('src', src);
 
       expect((pdfViewer as any).getDocumentParams()).toBe(src);
     });
 
     it('should return object', () => {
-      pdfViewer.src = src;
+      pdfViewerFixture.componentRef.setInput('src', src);
       pdfViewer.cMapsUrl = cMapUrl;
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
@@ -119,7 +119,7 @@ describe('AppComponent', () => {
     });
 
     it('should return object when src is an object', () => {
-      pdfViewer.src = { url: src };
+      pdfViewerFixture.componentRef.setInput('src', { url: src });
       pdfViewer.cMapsUrl = cMapUrl;
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
@@ -133,7 +133,7 @@ describe('AppComponent', () => {
 
     it('should return object when src is an object with byte array', () => {
       const srcUrl = new Uint8Array(1);
-      pdfViewer.src = { url: srcUrl as any };
+      pdfViewerFixture.componentRef.setInput('src', { url: srcUrl as any });
       pdfViewer.cMapsUrl = cMapUrl;
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
