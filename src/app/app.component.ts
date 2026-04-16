@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, HostListener, OnInit, viewChild } from '@angular/core';
+import { Component, HostListener, OnInit, signal, viewChild } from '@angular/core';
 import {
   PDFDocumentProxy,
   PDFProgressData,
@@ -42,32 +42,32 @@ import { MatIconModule } from '@angular/material/icon';
   ]
 })
 export class AppComponent implements OnInit {
-  pdfSrc: string | Uint8Array | PDFSource = './assets/pdf-test.pdf';
+  pdfSrc = signal<string | Uint8Array | PDFSource>('./assets/pdf-test.pdf');
 
-  error: any;
-  page = 1;
-  rotation = 0;
-  zoom = 1.0;
-  zoomScale: ZoomScale = 'page-width';
-  originalSize = false;
+  error = signal<any>(null);
+  page = signal(1);
+  rotation = signal(0);
+  zoom = signal(1.0);
+  zoomScale = signal<ZoomScale>('page-width');
+  originalSize = signal(false);
   pdf: any;
-  renderText = true;
-  progressData!: PDFProgressData;
-  isLoaded = false;
-  stickToPage = false;
-  showAll = true;
-  autoresize = true;
-  fitToPage = false;
-  outline!: any[];
-  isOutlineShown = false;
-  pdfQuery = '';
-  mobile = false;
+  renderText = signal(true);
+  progressData = signal<PDFProgressData | undefined>(undefined);
+  isLoaded = signal(false);
+  stickToPage = signal(false);
+  showAll = signal(true);
+  autoresize = signal(true);
+  fitToPage = signal(false);
+  outline = signal<any[]>([]);
+  isOutlineShown = signal(false);
+  pdfQuery = signal('');
+  mobile = signal(false);
 
   private readonly pdfComponent = viewChild.required(PdfViewerComponent);
 
   ngOnInit() {
     if (window.screen.width <= 768) {
-      this.mobile = true;
+      this.mobile.set(true);
     }
   }
 
@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
       console.log(xhr);
       if (xhr.status === 200) {
         const blob = new Blob([xhr.response], { type: 'application/pdf' });
-        this.pdfSrc = URL.createObjectURL(blob);
+        this.pdfSrc.set(URL.createObjectURL(blob));
       }
     };
 
@@ -96,15 +96,15 @@ export class AppComponent implements OnInit {
   }
 
   incrementPage(amount: number) {
-    this.page += amount;
+    this.page.update(p => p + amount);
   }
 
   incrementZoom(amount: number) {
-    this.zoom += amount;
+    this.zoom.update(z => z + amount);
   }
 
   rotate(angle: number) {
-    this.rotation += angle;
+    this.rotation.update(r => r + angle);
   }
 
   /**
@@ -117,7 +117,7 @@ export class AppComponent implements OnInit {
       const reader = new FileReader();
 
       reader.onload = (e: any) => {
-        this.pdfSrc = e.target.result;
+        this.pdfSrc.set(e.target.result);
       };
 
       reader.readAsArrayBuffer($pdf.files[0]);
@@ -139,7 +139,7 @@ export class AppComponent implements OnInit {
    */
   loadOutline() {
     this.pdf.getOutline().then((outline: any[]) => {
-      this.outline = outline;
+      this.outline.set(outline);
     });
   }
 
@@ -149,7 +149,7 @@ export class AppComponent implements OnInit {
    * @param error error message
    */
   onError(error: any) {
-    this.error = error; // set error
+    this.error.set(error);
 
     if (error.name === 'PasswordException') {
       const password = prompt(
@@ -157,27 +157,27 @@ export class AppComponent implements OnInit {
       );
 
       if (password) {
-        this.error = null;
+        this.error.set(null);
         this.setPassword(password);
       }
     }
   }
 
   setPassword(password: string) {
+    const current = this.pdfSrc();
     let newSrc: PDFSource;
 
-    if (this.pdfSrc instanceof ArrayBuffer) {
-      newSrc = { data: this.pdfSrc as any };
-      // newSrc = { data: this.pdfSrc };
-    } else if (typeof this.pdfSrc === 'string') {
-      newSrc = { url: this.pdfSrc };
+    if (current instanceof ArrayBuffer) {
+      newSrc = { data: current as any };
+    } else if (typeof current === 'string') {
+      newSrc = { url: current };
     } else {
-      newSrc = { ...this.pdfSrc };
+      newSrc = { ...current };
     }
 
     newSrc.password = password;
 
-    this.pdfSrc = newSrc;
+    this.pdfSrc.set(newSrc);
   }
 
   /**
@@ -186,10 +186,10 @@ export class AppComponent implements OnInit {
    */
   onProgress(progressData: PDFProgressData) {
     console.log(progressData);
-    this.progressData = progressData;
+    this.progressData.set(progressData);
 
-    this.isLoaded = progressData.loaded >= progressData.total;
-    this.error = null; // clear error
+    this.isLoaded.set(progressData.loaded >= progressData.total);
+    this.error.set(null);
   }
 
   getInt(value: number): number {
@@ -241,21 +241,20 @@ export class AppComponent implements OnInit {
   }
 
   searchQueryChanged(newQuery: string) {
-    const type = newQuery !== this.pdfQuery ? '' : 'again';
-    this.pdfQuery = newQuery;
+    const type = newQuery !== this.pdfQuery() ? '' : 'again';
+    this.pdfQuery.set(newQuery);
 
     this.pdfComponent().eventBus.dispatch('find', {
       type,
-      query: this.pdfQuery,
+      query: this.pdfQuery(),
       highlightAll: true,
       caseSensitive: false,
       phraseSearch: true,
-      // findPrevious: undefined,
     });
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.mobile = (event.target as Window).innerWidth <= 768;
+    this.mobile.set((event.target as Window).innerWidth <= 768);
   }
 }

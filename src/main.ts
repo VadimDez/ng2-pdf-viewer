@@ -1,8 +1,7 @@
-import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
+import { enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 
 import { environment } from './environments/environment';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { AppComponent } from './app/app.component';
 
 if (environment.production) {
@@ -18,8 +17,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZoneChangeDetection(),
-    provideNoopAnimations()
+    provideZonelessChangeDetection()
   ]
 })
   .catch(err => console.error(err));

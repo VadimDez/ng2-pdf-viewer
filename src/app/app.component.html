@@ -1,20 +1,20 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row>
-    @if (mobile) {
+    @if (mobile()) {
       <button class="toggle-menu" mat-raised-button (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
     }
 
-    <span class="title {{mobile? 'mob' : 'desk'}}">ng2-pdf-viewer</span>
+    <span class="title {{mobile()? 'mob' : 'desk'}}">ng2-pdf-viewer</span>
 
-    @if (!mobile) {
+    @if (!mobile()) {
       <span class="description hide-md">Angular 5+ Component to render PDF</span>
     }
 
     <span class="spacer"></span>
 
-    @if (!mobile) {
+    @if (!mobile()) {
       <iframe src="https://ghbtns.com/github-btn.html?user=vadimdez&repo=ng2-pdf-viewer&type=star&count=true"
       frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
     }
@@ -24,10 +24,10 @@
 </mat-toolbar>
 
 <mat-drawer-container class="example-container">
-  <mat-drawer [mode]="mobile ? 'push' : 'side'" #drawer [opened]="!mobile">
+  <mat-drawer [mode]="mobile() ? 'push' : 'side'" #drawer [opened]="!mobile()">
     <mat-form-field class="mb full-width">
       <mat-label>Set URL of the PDF file</mat-label>
-      <input matInput type="text" placeholder="Set URL of the PDF file" [(ngModel)]="pdfSrc">
+      <input matInput type="text" placeholder="Set URL of the PDF file" [ngModel]="pdfSrc()" (ngModelChange)="pdfSrc.set($event)">
     </mat-form-field>
 
     <div class="select-file__container">
@@ -37,46 +37,46 @@
       <input (change)="onFileSelected()" type="file" id="file">
     </div>
 
-    @if (error) {
+    @if (error()) {
       <div class="error mb">
-        {{ error.message | json }}
+        {{ error().message | json }}
       </div>
     }
 
     <div class="mb">
-      <mat-slide-toggle [(ngModel)]="originalSize">
+      <mat-slide-toggle [ngModel]="originalSize()" (ngModelChange)="originalSize.set($event)">
         Original size
       </mat-slide-toggle>
     </div>
 
-    <div class="mb" [hidden]="!originalSize">
-      <mat-slide-toggle [(ngModel)]="fitToPage">
+    <div class="mb" [hidden]="!originalSize()">
+      <mat-slide-toggle [ngModel]="fitToPage()" (ngModelChange)="fitToPage.set($event)">
         Fit to page
       </mat-slide-toggle>
     </div>
 
     <div class="mb">
-      <mat-slide-toggle [(ngModel)]="renderText">
+      <mat-slide-toggle [ngModel]="renderText()" (ngModelChange)="renderText.set($event)">
         Render text layer
       </mat-slide-toggle>
     </div>
 
     <div class="mb">
-      <mat-slide-toggle [(ngModel)]="autoresize">
+      <mat-slide-toggle [ngModel]="autoresize()" (ngModelChange)="autoresize.set($event)">
         Auto resize
       </mat-slide-toggle>
     </div>
 
     <div class="mb">
-      <mat-slide-toggle [(ngModel)]="showAll">
+      <mat-slide-toggle [ngModel]="showAll()" (ngModelChange)="showAll.set($event)">
         Show all pages
       </mat-slide-toggle>
     </div>
 
-    @if (!originalSize) {
+    @if (!originalSize()) {
       <mat-form-field class="full-width">
         <mat-label>Select an option</mat-label>
-        <mat-select [(value)]="zoomScale">
+        <mat-select [value]="zoomScale()" (valueChange)="zoomScale.set($event)">
           <mat-option value="page-width">Page Width</mat-option>
           <mat-option value="page-height">Page Height</mat-option>
           <mat-option value="page-fit">Page Fit</mat-option>
@@ -95,7 +95,7 @@
       </button>
 
       <mat-form-field class="page-number">
-        <input matInput type="number" placeholder="Zoom" [(ngModel)]="zoom" pattern="-?[0-9]*(\.[0-9]+)?">
+        <input matInput type="number" placeholder="Zoom" [ngModel]="zoom()" (ngModelChange)="zoom.set($event)" pattern="-?[0-9]*(\.[0-9]+)?">
         <mat-error>Input is not a number!</mat-error>
       </mat-form-field>
 
@@ -111,21 +111,21 @@
     </div>
 
 
-    @if (showAll) {
+    @if (showAll()) {
       <div class="mb">
-        <mat-slide-toggle [(ngModel)]="stickToPage">
+        <mat-slide-toggle [ngModel]="stickToPage()" (ngModelChange)="stickToPage.set($event)">
           Stick to page
         </mat-slide-toggle>
       </div>
     }
 
-    @if (stickToPage && showAll || !showAll) {
+    @if (stickToPage() && showAll() || !showAll()) {
       <div class="mb">
         <button (click)="incrementPage(-1)" mat-button type="button">
           Previous
         </button>
         <mat-form-field class="page-number">
-          <input matInput type="number" placeholder="Page" [(ngModel)]="page" pattern="-?[0-9]*(\.[0-9]+)?">
+          <input matInput type="number" placeholder="Page" [ngModel]="page()" (ngModelChange)="page.set($event)" pattern="-?[0-9]*(\.[0-9]+)?">
           <mat-error>Input is not a number!</mat-error>
         </mat-form-field>
         @if (pdf) {
@@ -147,7 +147,7 @@
       </button>
 
       <mat-form-field class="page-number">
-        <input matInput type="number" placeholder="Rotation" [ngModel]="rotation" disabled>
+        <input matInput type="number" placeholder="Rotation" [ngModel]="rotation()" disabled>
         <mat-error>Input is not a number!</mat-error>
       </mat-form-field>
 
@@ -160,17 +160,17 @@
       </button>
     </div>
 
-    @if (showAll) {
+    @if (showAll()) {
       <div class="mb">
-        <mat-slide-toggle [(ngModel)]="isOutlineShown">
+        <mat-slide-toggle [ngModel]="isOutlineShown()" (ngModelChange)="isOutlineShown.set($event)">
           Show outline
         </mat-slide-toggle>
       </div>
     }
 
-    @if (showAll && isOutlineShown) {
+    @if (showAll() && isOutlineShown()) {
       <div>
-        @for (item of outline; track item) {
+        @for (item of outline(); track item) {
           <ul class="outline-list">
             <li>
               <a (click)="navigateTo(item.dest)">
@@ -194,42 +194,42 @@
     <div class="mb">
       <mat-form-field class="full-width">
         <mat-label>Search</mat-label>
-        <input #queryInp matInput id="pdfQueryInput" type="text" placeholder="Search..." [value]="pdfQuery"
+        <input #queryInp matInput id="pdfQueryInput" type="text" placeholder="Search..." [value]="pdfQuery()"
           (input)="searchQueryChanged($any($event.target).value)" (keyup.enter)="searchQueryChanged(queryInp.value)">
           <mat-hint>Search in entire pdf</mat-hint>
         </mat-form-field>
       </div>
 
-      @if (!isLoaded && !error && progressData) {
+      @if (!isLoaded() && !error() && progressData()) {
         <div id="progress">
           <div class="bg">
-            <div class="bar" [style.width]="progressData.loaded / progressData.total * 100 + '%'"></div>
+            <div class="bar" [style.width]="progressData()!.loaded / progressData()!.total * 100 + '%'"></div>
           </div>
-          <span>{{ getInt(progressData.loaded / progressData.total * 100) }}%</span>
+          <span>{{ getInt(progressData()!.loaded / progressData()!.total * 100) }}%</span>
         </div>
       }
     </mat-drawer>
 
 
     <mat-drawer-content>
-      <pdf-viewer [src]="pdfSrc"
-        [(page)]="page"
-        [rotation]="rotation"
-        [original-size]="originalSize"
-        [show-all]="showAll"
-        [fit-to-page]="fitToPage"
+      <pdf-viewer [src]="pdfSrc()"
+        [page]="page()"
+        (pageChange)="page.set($event); pageChange($event)"
+        [rotation]="rotation()"
+        [original-size]="originalSize()"
+        [show-all]="showAll()"
+        [fit-to-page]="fitToPage()"
         (after-load-complete)="afterLoadComplete($event)"
-        [zoom]="zoom"
-        [zoom-scale]="zoomScale"
-        [stick-to-page]="stickToPage"
-        [render-text]="renderText"
+        [zoom]="zoom()"
+        [zoom-scale]="zoomScale()"
+        [stick-to-page]="stickToPage()"
+        [render-text]="renderText()"
         [external-link-target]="'blank'"
-        [autoresize]="autoresize"
+        [autoresize]="autoresize()"
         (error)="onError($event)"
         (on-progress)="onProgress($event)"
         (page-rendered)="pageRendered($event)"
         (pages-initialized)="pageInitialized($event)"
-        (pageChange)="pageChange($event)"
         [show-borders]="false"
        />
     </mat-drawer-content>
