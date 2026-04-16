@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, viewChild } from '@angular/core';
 import {
   PDFDocumentProxy,
   PDFProgressData,
@@ -63,8 +63,7 @@ export class AppComponent implements OnInit {
   pdfQuery = '';
   mobile = false;
 
-  @ViewChild(PdfViewerComponent)
-  private pdfComponent!: PdfViewerComponent;
+  private readonly pdfComponent = viewChild.required(PdfViewerComponent);
 
   ngOnInit() {
     if (window.screen.width <= 768) {
@@ -202,14 +201,14 @@ export class AppComponent implements OnInit {
    * @param destination pdf navigate to
    */
   navigateTo(destination: any) {
-    this.pdfComponent.pdfLinkService.goToDestination(destination);
+    this.pdfComponent().pdfLinkService.goToDestination(destination);
   }
 
   /**
    * Scroll view
    */
   scrollToPage() {
-    this.pdfComponent.pdfViewer.scrollPageIntoView({
+    this.pdfComponent().pdfViewer.scrollPageIntoView({
       pageNumber: 3
     });
   }
@@ -245,7 +244,7 @@ export class AppComponent implements OnInit {
     const type = newQuery !== this.pdfQuery ? '' : 'again';
     this.pdfQuery = newQuery;
 
-    this.pdfComponent.eventBus.dispatch('find', {
+    this.pdfComponent().eventBus.dispatch('find', {
       type,
       query: this.pdfQuery,
       highlightAll: true,

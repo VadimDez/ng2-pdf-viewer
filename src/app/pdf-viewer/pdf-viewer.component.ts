@@ -1,7 +1,7 @@
 /**
  * Created by vadimdez on 21/06/16.
  */
-import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, ViewChild, AfterViewChecked, NgZone, inject, output } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, SimpleChanges, OnInit, OnDestroy, AfterViewChecked, NgZone, inject, output, viewChild } from '@angular/core';
 import { from, fromEvent, Subject } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
 import * as PDFJS from 'pdfjs-dist';
@@ -64,7 +64,7 @@ export class PdfViewerComponent
   static CSS_UNITS = 96.0 / 72.0;
   static BORDER_WIDTH = 9;
 
-  @ViewChild('pdfViewerContainer') pdfViewerContainer!: ElementRef<HTMLDivElement>;
+  readonly pdfViewerContainer = viewChild.required<ElementRef<HTMLDivElement>>('pdfViewerContainer');
 
   public eventBus!: PDFJSViewer.EventBus;
   public pdfLinkService!: PDFJSViewer.PDFLinkService;
@@ -257,7 +257,7 @@ export class PdfViewerComponent
       return;
     }
 
-    const offset = this.pdfViewerContainer.nativeElement.offsetParent;
+    const offset = this.pdfViewerContainer().nativeElement.offsetParent;
 
     if (this.isVisible === true && offset == null) {
       this.isVisible = false;
@@ -334,7 +334,7 @@ export class PdfViewerComponent
           if (
             !this._originalSize ||
             (this._fitToPage &&
-              viewportWidth > this.pdfViewerContainer.nativeElement.clientWidth)
+              viewportWidth > this.pdfViewerContainer().nativeElement.clientWidth)
           ) {
             const viewPort = page.getViewport({ scale: 1, rotation });
             scale = this.getScale(viewPort.width, viewPort.height);
@@ -573,8 +573,8 @@ export class PdfViewerComponent
 
   private getScale(viewportWidth: number, viewportHeight: number) {
     const borderSize = this._showBorders ? 2 * PdfViewerComponent.BORDER_WIDTH : 0;
-    const pdfContainerWidth = this.pdfViewerContainer.nativeElement.clientWidth - borderSize;
-    const pdfContainerHeight = this.pdfViewerContainer.nativeElement.clientHeight - borderSize;
+    const pdfContainerWidth = this.pdfViewerContainer().nativeElement.clientWidth - borderSize;
+    const pdfContainerHeight = this.pdfViewerContainer().nativeElement.clientHeight - borderSize;
 
     if (
       pdfContainerHeight === 0 ||
