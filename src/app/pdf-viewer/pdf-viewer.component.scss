@@ -67,7 +67,7 @@
     text-align: initial;
     inset: 0;
     overflow: clip;
-    opacity: 1;
+    opacity: 0.2;
     line-height: 1;
     -webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
@@ -132,11 +132,11 @@
   }
 
   .textLayer ::-moz-selection {
-    background: rgba(0, 0, 255, 0.2);
+    background: rgba(0, 0, 255, 1);
   }
 
   .textLayer ::selection {
-    background: rgba(0, 0, 255, 0.2);
+    background: rgba(0, 0, 255, 1);
   }
 
   /* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
