@@ -274,7 +274,7 @@ export class PdfViewerComponent
           }
 
           this.pdfViewer.currentScale = scale;
-          if (stickToPage)
+          if (stickToPage && page.pageNumber !== this._latestScrolledPage)
             this.pdfViewer.scrollPageIntoView({ pageNumber: page.pageNumber, ignoreDestinationZoom: true })
         }
       });
@@ -489,7 +489,9 @@ export class PdfViewerComponent
 
     if (this.stickToPage()) {
       setTimeout(() => {
-        this.pdfViewer.currentPageNumber = this._page;
+        if (this.pdfViewer.currentPageNumber !== this._page) {
+          this.pdfViewer.currentPageNumber = this._page;
+        }
       });
     }
 
