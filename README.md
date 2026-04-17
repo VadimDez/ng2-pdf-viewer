@@ -153,6 +153,7 @@ Other v11 changes that may affect you only if you read or write the component in
 - Inputs are now signals. If you held a `@ViewChild` reference and read `pdfComponent.zoom`, change it to `pdfComponent.zoom()`.
 - Inputs are readonly. If you assigned `pdfComponent.zoom = 1.5` from code, switch to template binding `[zoom]="myZoom"` — direct assignment no longer compiles.
 - Minimum Angular is 17.0.0 (was 5+). Minimum Node is 20.19+ / 22.12+ / 24+.
+- Bundled `pdfjs-dist` upgraded from 4.x to 5.x. This raises the minimum browser requirement to Chrome ≥ 110. If you override `window.pdfWorkerSrc`, the worker file path (`legacy/build/pdf.worker.min.mjs`) is unchanged — only the version in the CDN URL changes automatically.
 
 ## Zoneless support
 
@@ -191,6 +192,7 @@ No additional configuration is required on the library side.
 * [[show-borders]](#show-borders)
 * [(after-load-complete)](#after-load-complete)
 * [(page-rendered)](#page-rendered)
+* [(pages-initialized)](#pages-initialized)
 * [(text-layer-rendered)](#text-layer-rendered)
 * [(error)](#error)
 * [(on-progress)](#on-progress)
@@ -199,7 +201,7 @@ No additional configuration is required on the library side.
 
 | Property | Type | Required |
 | --- | ---- | --- |
-| [src] | *string, object, UInt8Array* | Required |
+| [src] | *string, object, Uint8Array* | Required |
 
 Pass pdf location
 
@@ -596,7 +598,7 @@ but using different versions of pdf.worker, support has been added.  You can do 
 above, except that you can append the specific version of pdfjs required and override the
 custom path *just for that version*.  This way setting the global window var won't conflict.
 ```typescript
-(window as any)["pdfWorkerSrc2.14.305"] = '/pdf.worker.mjs';
+(window as any)["pdfWorkerSrc5.6.205"] = '/pdf.worker.mjs';
 ```
 
 ## Search in the PDF
