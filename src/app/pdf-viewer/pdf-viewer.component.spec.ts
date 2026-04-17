@@ -1,16 +1,16 @@
-import { TestBed, ComponentFixture, waitForAsync } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { Component, provideZonelessChangeDetection } from '@angular/core';
 
 import { PdfViewerComponent } from './pdf-viewer.component';
-import { PdfViewerModule } from './pdf-viewer.module';
 
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import * as PDFJS from 'pdfjs-dist';
 
 @Component({
   template: `
-    <pdf-viewer></pdf-viewer>
-  `
+    <pdf-viewer />
+  `,
+  imports: [PdfViewerComponent]
 })
 class TestComponent { }
 
@@ -27,20 +27,18 @@ describe('AppComponent', () => {
     };
   }
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [TestComponent],
-      imports: [PdfViewerModule]
-    })
-      .compileComponents()
-      .then(() => {
-        testFixture = TestBed.createComponent(TestComponent);
-        testApp = testFixture.debugElement.componentInstance;
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [TestComponent],
+      providers: [provideZonelessChangeDetection()]
+    }).compileComponents();
 
-        pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
-        pdfViewer = pdfViewerFixture.debugElement.componentInstance;
-      });
-  }));
+    testFixture = TestBed.createComponent(TestComponent);
+    testApp = testFixture.debugElement.componentInstance;
+
+    pdfViewerFixture = TestBed.createComponent(PdfViewerComponent);
+    pdfViewer = pdfViewerFixture.debugElement.componentInstance;
+  });
 
   it('should create test component', () => {
     expect(testApp).toBeTruthy();
@@ -77,7 +75,7 @@ describe('AppComponent', () => {
     it('should get scale 1 with viewportWidth = 0 or viewerContainerWidth = 0', () => {
       pdfViewerFixture.detectChanges();
       const spy = spyOnProperty(
-        (pdfViewer as any).pdfViewerContainer.nativeElement,
+        (pdfViewer as any).pdfViewerContainer().nativeElement,
         'clientWidth',
         'get'
       ).and.returnValue(0);
@@ -94,21 +92,21 @@ describe('AppComponent', () => {
     it('should check default url', () => {
       const PDFJS = require('pdfjs-dist');
 
-      expect((pdfViewer as any)._cMapsUrl).toBe(
+      expect(pdfViewer.cMapsUrl()).toBe(
         `https://unpkg.com/pdfjs-dist@${(PDFJS as any).version}/cmaps/`
       );
     });
 
     it('should return src', () => {
-      pdfViewer.cMapsUrl = "";
-      pdfViewer.src = src;
+      pdfViewerFixture.componentRef.setInput('c-maps-url', '');
+      pdfViewerFixture.componentRef.setInput('src', src);
 
       expect((pdfViewer as any).getDocumentParams()).toBe(src);
     });
 
     it('should return object', () => {
-      pdfViewer.src = src;
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('src', src);
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
@@ -120,8 +118,8 @@ describe('AppComponent', () => {
     });
 
     it('should return object when src is an object', () => {
-      pdfViewer.src = { url: src };
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('src', { url: src });
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: src,
@@ -134,8 +132,8 @@ describe('AppComponent', () => {
 
     it('should return object when src is an object with byte array', () => {
       const srcUrl = new Uint8Array(1);
-      pdfViewer.src = { url: srcUrl as any };
-      pdfViewer.cMapsUrl = cMapUrl;
+      pdfViewerFixture.componentRef.setInput('src', { url: srcUrl as any });
+      pdfViewerFixture.componentRef.setInput('c-maps-url', cMapUrl);
 
       expect((pdfViewer as any).getDocumentParams()).toEqual({
         url: srcUrl,

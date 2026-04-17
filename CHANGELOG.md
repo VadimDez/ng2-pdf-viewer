@@ -1,5 +1,25 @@
 # Changelog
 
+## 11.0.0 - 17.04.2026
+
+- [[#1228](https://github.com/VadimDez/ng2-pdf-viewer/pull/1228)] - Upgrade to Angular 21, standalone components, signals API, zoneless support, and pdfjs-dist 5
+
+### Breaking Changes
+
+- **Angular 21 required** — minimum Angular version is now 21 (upgraded through 17 → 18 → 19 → 20 → 21)
+- **Standalone component** — `PdfViewerModule` has been removed; import `PdfViewerComponent` directly in your standalone component or module imports
+- **Signal-based inputs** — all `@Input()` decorators migrated to signal `input()` functions; if you were accessing inputs programmatically via `component.someInput`, use `component.someInput()` instead
+- **Signal-based outputs** — all `@Output()` decorators migrated to the `output()` function
+- **pdfjs-dist 5.6.205** — upgraded from pdfjs-dist v4 to v5; worker URL now defaults to `pdfjs-dist@5.x` CDN path
+- **Protractor removed** — e2e tests via Protractor are no longer included
+- **TSLint removed** — linting migrated to `@angular-eslint`
+
+### Features
+
+- Zoneless change detection support — demo app bootstraps with `provideZonelessChangeDetection()`
+- Migrated build to `@angular/build:application` builder (esbuild-based)
+- Replaced `webpack-bundle-analyzer` with `esbuild-visualizer`
+
 ## 10.4.0 - 01.12.2024
 
 - [[#1148](https://github.com/VadimDez/ng2-pdf-viewer/issues/1148)] - Update pdfjs-dist dependency to the latest version for better compatibility

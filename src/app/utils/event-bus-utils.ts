@@ -54,7 +54,6 @@ function attachDOMEventsToEventBus(
     .subscribe(({ pageNumber, source }: any) => {
       const event = document.createEvent('UIEvents') as any;
       event.initEvent('pagechanging', true, true);
-      /* tslint:disable:no-string-literal */
       event['pageNumber'] = pageNumber;
       source.container.dispatchEvent(event);
     });
@@ -80,9 +79,7 @@ function attachDOMEventsToEventBus(
     .subscribe(({ scale, presetValue, source }: any) => {
       const event = document.createEvent('UIEvents') as any;
       event.initEvent('scalechange', true, true);
-      /* tslint:disable:no-string-literal */
       event['scale'] = scale;
-      /* tslint:disable:no-string-literal */
       event['presetValue'] = presetValue;
       source.container.dispatchEvent(event);
     });
